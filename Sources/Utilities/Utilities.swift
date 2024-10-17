@@ -10,9 +10,9 @@ import HTTPTypes
 
 // MARK: Router
 public struct Router {
-    public private(set) var staticResponses:[String:String]
+    public private(set) var staticResponses:[String:StaticString]
 
-    public init(staticResponses: [String:String]) {
+    public init(staticResponses: [String:StaticString]) {
         self.staticResponses = staticResponses
     }
 }

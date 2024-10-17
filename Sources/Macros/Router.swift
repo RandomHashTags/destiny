@@ -33,7 +33,7 @@ enum Router : ExpressionMacro {
                 }
             }
         }
-        let static_responses:String = routes.map({ "\"" + $0.path + "\":\"" + $0.response(version: version, middleware: middleware) + "\"" }).joined(separator: ",")
+        let static_responses:String = routes.map({ "\"" + $0.method.rawValue + " /" + $0.path + "\":StaticString(\"" + $0.response(version: version, middleware: middleware) + "\")" }).joined(separator: ",")
         return "\(raw: "Router(staticResponses: [" + (static_responses.isEmpty ? ":" : static_responses) + "])")"
     }
 }
@@ -175,6 +175,7 @@ extension Router {
     }
 }
 
+// MARK: Misc
 extension SyntaxProtocol {
     var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
     var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
