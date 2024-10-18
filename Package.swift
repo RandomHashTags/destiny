@@ -12,7 +12,8 @@ let package = Package(
     products: [
         .library(
             name: "Destiny",
-            targets: ["Destiny"]),
+            targets: ["Destiny"]
+        ),
     ],
     dependencies: [
         .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
@@ -49,6 +50,8 @@ let package = Package(
                 .product(name: "SwiftDiagnostics", package: "swift-syntax")
             ]
         ),
+
+        .executableTarget(name: "Run", dependencies: ["Destiny"]),
 
         .testTarget(
             name: "DestinyTests",
