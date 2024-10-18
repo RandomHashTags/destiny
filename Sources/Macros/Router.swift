@@ -13,12 +13,16 @@ import Utilities
 
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
+        var returnType:RouterReturnType = .staticString
         var version:String = "HTTP/1.1"
         var middleware:[Middleware] = [], routes:[Route] = []
         for argument in node.as(MacroExpansionExprSyntax.self)!.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
                     switch key {
+                        case "returnType":
+                            returnType = RouterReturnType(rawValue: child.expression.memberAccess!.declName.baseName.text)!
+                            break
                         case "version":
                             version = child.expression.stringLiteral!.string
                             break
@@ -33,7 +37,33 @@ enum Router : ExpressionMacro {
                 }
             }
         }
-        let static_responses:String = routes.map({ "\"" + $0.method.rawValue + " /" + $0.path + "\":StaticString(\"" + $0.response(version: version, middleware: middleware) + "\")" }).joined(separator: ",")
+        let get_returned_type:(String) -> String
+        func bytes<T: FixedWidthInteger>(_ bytes: [T]) -> String {
+            return "[" + bytes.map({ "\($0)" }).joined(separator: ",") + "]"
+        }
+        switch returnType {
+            case .uint8Array:
+                get_returned_type = { bytes([UInt8]($0.utf8)) }
+                break
+            case .uint16Array:
+                get_returned_type = { bytes([UInt16]($0.utf16)) }
+                break
+            case .byteBuffer:
+                get_returned_type = { "ByteBuffer(bytes: " + bytes([UInt8]($0.utf8)) + ")" }
+                break
+            #if canImport(Foundation)
+            case .data:
+                get_returned_type = { "Data(" + bytes([UInt8]($0.utf8)) + ")" }
+                break
+            #endif
+            default:
+                get_returned_type = { "StaticString(\"" + $0 + "\")" }
+                break
+        }
+        let static_responses:String = routes.map({
+            let value:String = get_returned_type($0.response(version: version, middleware: middleware))
+            return "\"" + $0.method.rawValue + " /" + $0.path + "\":" + value
+        }).joined(separator: ",")
         return "\(raw: "Router(staticResponses: [" + (static_responses.isEmpty ? ":" : static_responses) + "])")"
     }
 }

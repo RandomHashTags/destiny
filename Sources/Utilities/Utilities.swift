@@ -9,12 +9,19 @@ import HTTPTypes
 
 
 // MARK: Router
-public struct Router {
-    public private(set) var staticResponses:[String:StaticString]
+public struct Router<T> {
+    public private(set) var staticResponses:[String:T]
 
-    public init(staticResponses: [String:StaticString]) {
+    public init(staticResponses: [String:T]) {
         self.staticResponses = staticResponses
     }
+}
+
+public enum RouterReturnType : String {
+    case staticString, uint8Array, uint16Array, byteBuffer
+    #if canImport(Foundation)
+    case data
+    #endif
 }
 
 // MARK: Middleware

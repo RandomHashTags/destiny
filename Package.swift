@@ -18,7 +18,8 @@ let package = Package(
         .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
         .package(url: "https://github.com/apple/swift-http-types", from: "1.3.0"),
         .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1")
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1"),
+        .package(url: "https://github.com/apple/swift-nio", from: "2.75.0")
     ],
     targets: [
         .target(
@@ -26,7 +27,8 @@ let package = Package(
             dependencies: [
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle")
+                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
+                .product(name: "NIOCore", package: "swift-nio")
             ]
         ),
         .target(
