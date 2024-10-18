@@ -11,7 +11,7 @@ import HTTPTypes
 import NIOCore
 
 import Destiny
-import Utilities
+import DestinyUtilities
 
 struct DestinyTests {
     @Test func example() {

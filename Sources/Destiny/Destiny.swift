@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Utilities
+import DestinyUtilities
 import HTTPTypes
 import ServiceLifecycle
 import Logging

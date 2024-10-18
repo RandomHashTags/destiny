@@ -7,7 +7,7 @@
 
 import Foundation
 import NIOCore
-import Utilities
+import DestinyUtilities
 
 // MARK: StaticString
 public struct RouteResponseStaticString : RouteResponseProtocol {

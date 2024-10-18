@@ -7,7 +7,7 @@
 
 import Logging
 import Destiny
-import Utilities
+import DestinyUtilities
 
 let application:Application = Application(
     services: [

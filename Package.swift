@@ -24,7 +24,7 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "Utilities",
+            name: "DestinyUtilities",
             dependencies: [
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
@@ -35,7 +35,7 @@ let package = Package(
         .target(
             name: "Destiny",
             dependencies: [
-                "Utilities",
+                "DestinyUtilities",
                 "Macros"
             ]
         ),
@@ -43,7 +43,7 @@ let package = Package(
         .macro(
             name: "Macros",
             dependencies: [
-                "Utilities",
+                "DestinyUtilities",
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),

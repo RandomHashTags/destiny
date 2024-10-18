@@ -1,0 +1,14 @@
+.DS_Store
+/.build
+/Packages
+xcuserdata/
+DerivedData/
+.swiftpm
+.swiftpm
+.netrc
+.vscode
+Package.resolved
+__BenchmarkBoilerplate.d
+__BenchmarkBoilerplate.o
+__BenchmarkBoilerplate.swiftdeps
+Current_run.jmh.json
