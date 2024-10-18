@@ -15,7 +15,7 @@ import Utilities
 
 struct DestinyTests {
     @Test func example() {
-        let static_string_router:Router<StaticString> = #router(
+        let static_string_router:Router = #router(
             returnType: .staticString,
             version: "HTTP/2.0",
             middleware: [
@@ -31,7 +31,7 @@ struct DestinyTests {
                 dynamicResult: nil
             )
         )
-        let uint8Array_router:Router<[UInt8]> = #router(
+        let uint8Array_router:Router = #router(
             returnType: .uint8Array,
             version: "HTTP/2.0",
             middleware: [
@@ -47,7 +47,7 @@ struct DestinyTests {
                 dynamicResult: nil
             )
         )
-        let uint16Array_router:Router<[UInt16]> = #router(
+        let uint16Array_router:Router = #router(
             returnType: .uint16Array,
             version: "HTTP/2.0",
             middleware: [
@@ -63,7 +63,7 @@ struct DestinyTests {
                 dynamicResult: nil
             )
         )
-        let byteBuffer_router:Router<ByteBuffer> = #router(
+        let byteBuffer_router:Router = #router(
             returnType: .byteBuffer,
             version: "HTTP/2.0",
             middleware: [

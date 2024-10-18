@@ -6,13 +6,13 @@
 //
 
 import HTTPTypes
-
+import NIOCore
 
 // MARK: Router
-public struct Router<T> {
-    public private(set) var staticResponses:[String:T]
+public struct Router : Sendable {
+    public private(set) var staticResponses:[Substring:RouteResponseProtocol]
 
-    public init(staticResponses: [String:T]) {
+    public init(staticResponses: [Substring:RouteResponseProtocol]) {
         self.staticResponses = staticResponses
     }
 }
@@ -88,7 +88,7 @@ public struct Route {
                 result_string = bytes.map({ "\($0)" }).joined()
                 break
         }
-        var string:String = version + " \(status)\\n"
+        var string:String = version + " \(status)\\r\\n"
 
         var headers:[String:String] = [:]
         headers[HTTPField.Name.contentType.rawName] = contentType.htmlValue + "; charset=" + charset
@@ -98,10 +98,10 @@ public struct Route {
             }
         }
         for (header, value) in headers {
-            string += header + ": " + value + "\\n"
+            string += header + ": " + value + "\\r\\n"
         }
         string += HTTPField.Name.contentLength.rawName + ": \(result.count)"
-        return string + "\\n\\n" + result_string
+        return string + "\\r\\n\\r\\n" + result_string
     }
 
     public enum Result {

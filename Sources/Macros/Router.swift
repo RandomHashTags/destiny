@@ -41,23 +41,26 @@ enum Router : ExpressionMacro {
         func bytes<T: FixedWidthInteger>(_ bytes: [T]) -> String {
             return "[" + bytes.map({ "\($0)" }).joined(separator: ",") + "]"
         }
+        func response(valueType: String, _ string: String) -> String {
+            return "RouteResponse" + valueType + "(" + string + ")"
+        }
         switch returnType {
             case .uint8Array:
-                get_returned_type = { bytes([UInt8]($0.utf8)) }
+                get_returned_type = { response(valueType: "UInt8Array", bytes([UInt8]($0.utf8))) }
                 break
             case .uint16Array:
-                get_returned_type = { bytes([UInt16]($0.utf16)) }
+                get_returned_type = { response(valueType: "UInt16Array", bytes([UInt16]($0.utf16))) }
                 break
             case .byteBuffer:
-                get_returned_type = { "ByteBuffer(bytes: " + bytes([UInt8]($0.utf8)) + ")" }
+                get_returned_type = { response(valueType: "ByteBuffer", "ByteBuffer(bytes: " + bytes([UInt8]($0.utf8)) + ")") }
                 break
             #if canImport(Foundation)
             case .data:
-                get_returned_type = { "Data(" + bytes([UInt8]($0.utf8)) + ")" }
+                get_returned_type = { response(valueType: "Data", bytes([UInt8]($0.utf8))) }
                 break
             #endif
             default:
-                get_returned_type = { "StaticString(\"" + $0 + "\")" }
+                get_returned_type = { response(valueType: "StaticString", "\"" + $0 + "\"") }
                 break
         }
         let static_responses:String = routes.map({

@@ -12,10 +12,10 @@ import ServiceLifecycle
 import Logging
 
 @freestanding(expression)
-public macro router<T>(returnType: RouterReturnType, version: String, middleware: [Middleware], _ routes: Route...) -> Router<T> = #externalMacro(module: "Macros", type: "Router")
+public macro router(returnType: RouterReturnType, version: String, middleware: [Middleware], _ routes: Route...) -> Router = #externalMacro(module: "Macros", type: "Router")
 
 // MARK: Application
-public final class Application : Service {
+public struct Application : Service {
     public let services:[Service]
     public let logger:Logger
 

@@ -8,6 +8,7 @@
 import Foundation
 import ServiceLifecycle
 import Logging
+import Utilities
 
 // MARK: Server
 public final class Server : Service {
@@ -16,15 +17,19 @@ public final class Server : Service {
     let maxPendingConnections:Int32
     let logger:Logger
 
+    let routers:[Router]
+
     public init(
         address: String? = nil,
         port: in_port_t,
         maxPendingConnections: Int32 = SOMAXCONN,
+        routers: [Router],
         logger: Logger
     ) {
         self.address = address
         self.port = port
         self.maxPendingConnections = maxPendingConnections
+        self.routers = routers
         self.logger = logger
     }
 
@@ -59,11 +64,32 @@ public final class Server : Service {
             throw Server.Error.listenFailed()
         }
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on port \(port)"))
-        let response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:4\r\n\r\ntest")
+        var staticResponses:[String:RouteResponseProtocol] = [:]
+        for router in routers {
+            for (path, responder) in router.staticResponses {
+                staticResponses[String(path)] = responder
+            }
+        }
+        let response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         repeat {
             do {
                 let client:Socket = try client(fileDescriptor: fileDescriptor)
-                try client.write(response)
+                let tokens:[Substring] = try client.readHttpRequest()
+                if let responder:RouteResponseProtocol = staticResponses[tokens[0] + " " + tokens[1]] {
+                    try responder.respond(to: consume client)
+                } else {
+                    var err:Swift.Error? = nil
+                    response.withUTF8Buffer {
+                        do {
+                            try client.write($0.baseAddress!, length: $0.count)
+                        } catch {
+                            err = error
+                        }
+                    }
+                    if let error:Swift.Error = err {
+                        throw error
+                    }
+                }
             } catch {
                 logger.error(Logger.Message.init(stringLiteral: "\(error)"))
             }
@@ -74,7 +100,7 @@ public final class Server : Service {
         var addr:sockaddr = sockaddr(), len:socklen_t = 0
         let client:Int32 = accept(fileDescriptor, &addr, &len)
         if client <= 0 {
-            throw Socket.Error.acceptFailed()
+            throw SocketError.acceptFailed()
         }
         return Socket(fileDescriptor: client)
     }
