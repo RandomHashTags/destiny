@@ -11,13 +11,15 @@ import Logging
 import DestinyUtilities
 
 // MARK: Server
-public final class Server : Service {
+public actor Server : Service {
     let address:String?
     let port:in_port_t
     let maxPendingConnections:Int32
     let logger:Logger
 
     let routers:[Router]
+
+    var connections:[Int32:Task<(), Swift.Error>]
 
     public init(
         address: String? = nil,
@@ -31,6 +33,8 @@ public final class Server : Service {
         self.maxPendingConnections = maxPendingConnections
         self.routers = routers
         self.logger = logger
+        connections = [:]
+        connections.reserveCapacity(Int(maxPendingConnections))
     }
 
     public func run() async throws {
@@ -71,38 +75,55 @@ public final class Server : Service {
             }
         }
         let response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
-        response.withUTF8Buffer { not_found_pointer in
-            while !Task.isCancelled {
-                do {
-                    let client:Socket = try client(fileDescriptor: fileDescriptor)
+        while !Task.isCancelled {
+            do {
+                let clientFileDescription:Int32 = try await client(fileDescriptor: fileDescriptor)
+                let connection:Task<(), Swift.Error> = Task.detached {
+                    let client:Socket = Socket(fileDescriptor: clientFileDescription)
                     let tokens:[Substring] = try client.readHttpRequest()
                     if let responder:RouteResponseProtocol = staticResponses[tokens[0] + " " + tokens[1]] {
-                        try responder.respond(to: consume client)
+                        try await responder.respond(to: consume client)
                     } else {
                         var err:Swift.Error? = nil
-                        do {
-                            try client.write(not_found_pointer.baseAddress!, length: not_found_pointer.count)
-                        } catch {
-                            err = error
+                        response.withUTF8Buffer {
+                            do {
+                                try client.write($0.baseAddress!, length: $0.count)
+                            } catch {
+                                err = error
+                            }
                         }
                         if let error:Swift.Error = err {
                             throw error
                         }
                     }
-                } catch {
-                    logger.error(Logger.Message.init(stringLiteral: "\(error)"))
+                    await self.closed(clientFileDescription)
                 }
+                connections[clientFileDescription] = connection
+            } catch {
+                logger.error(Logger.Message.init(stringLiteral: "\(error)"))
             }
         }
+        // server has stopped
+        for (fileDescription, connection) in connections {
+            connection.cancel()
+            unistd.close(fileDescription)
+        }
+        unistd.close(fileDescriptor)
     }
 
-    func client(fileDescriptor: Int32) throws -> Socket {
-        var addr:sockaddr = sockaddr(), len:socklen_t = 0
-        let client:Int32 = accept(fileDescriptor, &addr, &len)
-        if client <= 0 {
-            throw SocketError.acceptFailed()
+    func client(fileDescriptor: Int32) async throws -> Int32 {
+        return try await withCheckedThrowingContinuation { continuation in
+            var addr:sockaddr = sockaddr(), len:socklen_t = 0
+            let client:Int32 = accept(fileDescriptor, &addr, &len)
+            if client <= 0 {
+                continuation.resume(throwing: SocketError.acceptFailed())
+                return
+            }
+            continuation.resume(returning: client)
         }
-        return Socket(fileDescriptor: client)
+    }
+    func closed(_ client: Int32) {
+        self.connections[client] = nil
     }
 }
 // MARK: Server.Error
