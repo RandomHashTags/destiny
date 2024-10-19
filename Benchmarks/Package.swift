@@ -12,10 +12,11 @@ let package = Package(
         .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.27.0"),
 
         // networking
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.0.0"),
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1"),
+        .package(url: "https://github.com/apple/swift-nio", from: "2.75.0"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
 
         .package(name: "destiny", path: "../"),
-        .package(url: "https://github.com/apple/swift-nio", from: "2.75.0"),
         .package(url: "https://github.com/vapor/vapor", from: "4.106.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird", from: "2.1.0")
     ],
@@ -23,7 +24,9 @@ let package = Package(
         .target(
             name: "Utilities",
             dependencies: [
-                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle")
+                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
+                .product(name: "NIOCore", package: "swift-nio"),
+                .product(name: "Logging", package: "swift-log")
             ],
             path: "Benchmarks/Utilities"
         ),
@@ -56,6 +59,17 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor")
             ],
             path: "Benchmarks/Vapor"
+        ),
+
+        .executableTarget(
+            name: "Run",
+            dependencies: [
+                "Utilities",
+                "TestDestiny",
+                "TestHummingbird",
+                "TestVapor"
+            ],
+            path: "Benchmarks/Run"
         ),
 
         .executableTarget(

@@ -68,7 +68,7 @@ public actor Server : Service {
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on port \(port)"))
         await withTaskCancellationOrGracefulShutdownHandler {
-            while true {
+            while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 do {
                     let client:Int32 = try await Self.client(fileDescriptor: fileDescriptor)
                     let connection:Task<(), Swift.Error> = Task.detached {
