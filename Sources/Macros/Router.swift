@@ -10,6 +10,11 @@ import SwiftSyntaxMacros
 import SwiftDiagnostics
 import HTTPTypes
 import DestinyUtilities
+import NIOCore
+
+#if canImport(Foundation)
+import Foundation
+#endif
 
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
@@ -71,17 +76,77 @@ enum Router : ExpressionMacro {
     }
 }
 
+// MARK: Parse Router
+/*
+extension Router {
+    static func parse_router(_ node: some FreestandingMacroExpansionSyntax) -> DestinyUtilities.Router {
+        var returnType:RouterReturnType = .staticString
+        var version:String = "HTTP/1.1"
+        var middleware:[Middleware] = [], routes:[Route] = []
+        for argument in node.as(MacroExpansionExprSyntax.self)!.arguments.children(viewMode: .all) {
+            if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
+                if let key:String = child.label?.text {
+                    switch key {
+                        case "returnType":
+                            returnType = RouterReturnType(rawValue: child.expression.memberAccess!.declName.baseName.text)!
+                            break
+                        case "version":
+                            version = child.expression.stringLiteral!.string
+                            break
+                        case "middleware":
+                            middleware = parse_middleware(child.expression.array!.elements)
+                            break
+                        default:
+                            break
+                    }
+                } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
+                    routes.append(parse_route(function))
+                }
+            }
+        }
+        let get_returned_type:(String) -> RouteResponseProtocol
+        switch returnType {
+            case .uint8Array:
+                get_returned_type = { RouteResponseUInt8Array([UInt8]($0.description.utf8)) }
+                break
+            case .uint16Array:
+                get_returned_type = { RouteResponseUInt16Array([UInt16]($0.description.utf16)) }
+                break
+            case .byteBuffer:
+                get_returned_type = { RouteResponseByteBuffer(ByteBuffer(bytes: [UInt8]($0.description.utf8))) }
+                break
+            #if canImport(Foundation)
+            case .data:
+                get_returned_type = { RouteResponseData(Data([UInt8]($0.description.utf8))) }
+                break
+            #endif
+            default:
+                get_returned_type = { RouteResponseString($0) }
+                break
+        }
+        var static_responses:[Substring:RouteResponseProtocol] = [:]
+        for route in routes {
+            let response:String = route.response(returnType: returnType, version: version, middleware: middleware)
+            static_responses[route.method.rawValue + " /" + route.path] = RouteResponseString(response)
+        }
+        return DestinyUtilities.Router(staticResponses: static_responses)
+    }
+}*/
+
 // MARK: Parse Middleware
 extension Router {
     static func parse_middleware(_ array: ArrayElementListSyntax) -> [Middleware] {
         var middleware:[Middleware] = []
         for element in array {
             if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToContentTypes:Set<Route.ContentType> = [], appliesHeaders:[String:String] = [:]
+                var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToStatuses:Set<HTTPResponse.Status> = [], appliesToContentTypes:Set<Route.ContentType> = [], appliesHeaders:[String:String] = [:]
                 for argument in function.arguments {
                     switch argument.label!.text {
                         case "appliesToMethods":
                             appliesToMethods = Set(argument.expression.array!.elements.map({ HTTPRequest.Method(rawValue: "\($0.expression.memberAccess!.declName.baseName.text)".uppercased())! }))
+                            break
+                        case "appliesToStatuses":
+                            appliesToStatuses = Set(argument.expression.array!.elements.map({ parse_status($0.expression.memberAccess!.declName.baseName.text) }))
                             break
                         case "appliesToContentTypes":
                             appliesToContentTypes = Set(argument.expression.array!.elements.map({ Route.ContentType(rawValue: "\($0.expression.memberAccess!.declName.baseName.text)")! }))
@@ -96,7 +161,7 @@ extension Router {
                             break
                     }
                 }
-                middleware.append(Middleware(appliesToMethods: appliesToMethods, appliesToContentTypes: appliesToContentTypes, appliesHeaders: appliesHeaders))
+                middleware.append(Middleware(appliesToMethods: appliesToMethods, appliesToStatuses: appliesToStatuses, appliesToContentTypes: appliesToContentTypes, appliesHeaders: appliesHeaders))
             }
         }
         return middleware

@@ -8,6 +8,23 @@
 import HTTPTypes
 import NIOCore
 
+// MARK: RouterGroup
+public struct RouterGroup : Sendable {
+    public let method:HTTPRequest.Method?
+    public let path:String
+    public let routers:[Router]
+
+    public init(
+        method: HTTPRequest.Method? = nil,
+        path: String,
+        routers: [Router]
+    ) {
+        self.method = method
+        self.path = path
+        self.routers = routers
+    }
+}
+
 // MARK: Router
 public struct Router : Sendable {
     public private(set) var staticResponses:[Substring:RouteResponseProtocol]
@@ -27,12 +44,19 @@ public enum RouterReturnType : String {
 // MARK: Middleware
 public struct Middleware : Hashable {
     public let appliesToMethods:Set<HTTPRequest.Method>
+    public let appliesToStatuses:Set<HTTPResponse.Status>
     public let appliesToContentTypes:Set<Route.ContentType>
 
     public let appliesHeaders:[String:String]
 
-    public init(appliesToMethods: Set<HTTPRequest.Method> = [], appliesToContentTypes: Set<Route.ContentType> = [], appliesHeaders: [String:String] = [:]) {
+    public init(
+        appliesToMethods: Set<HTTPRequest.Method> = [],
+        appliesToStatuses: Set<HTTPResponse.Status> = [],
+        appliesToContentTypes: Set<Route.ContentType> = [],
+        appliesHeaders: [String:String] = [:]
+    ) {
         self.appliesToMethods = appliesToMethods
+        self.appliesToStatuses = appliesToStatuses
         self.appliesToContentTypes = appliesToContentTypes
         self.appliesHeaders = appliesHeaders
     }
@@ -78,7 +102,7 @@ public struct Route {
     }
 
     package func response(version: String, middleware: [Middleware]) -> String {
-        let middleware:[Middleware] = middleware.filter({ $0.appliesToMethods.contains(method) && $0.appliesToContentTypes.contains(contentType) })
+        let middleware:[Middleware] = middleware.filter({ $0.appliesToMethods.contains(method) && $0.appliesToStatuses.contains(status) && $0.appliesToContentTypes.contains(contentType) })
         let result:Result = staticResult ?? dynamicResult!(nil), result_string:String
         switch result {
             case .string(let string):

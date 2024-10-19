@@ -71,29 +71,29 @@ public final class Server : Service {
             }
         }
         let response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
-        repeat {
-            do {
-                let client:Socket = try client(fileDescriptor: fileDescriptor)
-                let tokens:[Substring] = try client.readHttpRequest()
-                if let responder:RouteResponseProtocol = staticResponses[tokens[0] + " " + tokens[1]] {
-                    try responder.respond(to: consume client)
-                } else {
-                    var err:Swift.Error? = nil
-                    response.withUTF8Buffer {
+        response.withUTF8Buffer { not_found_pointer in
+            while !Task.isCancelled {
+                do {
+                    let client:Socket = try client(fileDescriptor: fileDescriptor)
+                    let tokens:[Substring] = try client.readHttpRequest()
+                    if let responder:RouteResponseProtocol = staticResponses[tokens[0] + " " + tokens[1]] {
+                        try responder.respond(to: consume client)
+                    } else {
+                        var err:Swift.Error? = nil
                         do {
-                            try client.write($0.baseAddress!, length: $0.count)
+                            try client.write(not_found_pointer.baseAddress!, length: not_found_pointer.count)
                         } catch {
                             err = error
                         }
+                        if let error:Swift.Error = err {
+                            throw error
+                        }
                     }
-                    if let error:Swift.Error = err {
-                        throw error
-                    }
+                } catch {
+                    logger.error(Logger.Message.init(stringLiteral: "\(error)"))
                 }
-            } catch {
-                logger.error(Logger.Message.init(stringLiteral: "\(error)"))
             }
-        } while !Task.isCancelled
+        }
     }
 
     func client(fileDescriptor: Int32) throws -> Socket {
