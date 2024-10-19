@@ -53,7 +53,7 @@ public extension SocketProtocol where Self : ~Copyable {
         guard result > 0 else { throw SocketError.readFailed() }
         return result
     }
-    /// Reads and loads multiple bytes into an UInt8 array
+    /// Reads multiple bytes and loads them into an UInt8 array
     @inlinable
     func read(length: Int) throws -> [UInt8] {
         return try [UInt8](unsafeUninitializedCapacity: length, initializingWith: { $1 = try read(into: &$0, length: length) })
@@ -73,7 +73,7 @@ public extension SocketProtocol where Self : ~Copyable {
     }
 
     /*
-    /// Reads and loads multiple bytes into an UInt8 array
+    /// Reads multiple bytes and loads them into an UInt8 array
     @inlinable
     func read<T : Decodable>(decoder: Decoder) throws -> T {
         let length:Int = MemoryLayout<T>.size
@@ -86,7 +86,7 @@ public extension SocketProtocol where Self : ~Copyable {
         }
     }*/
 
-    /// Reads and writes multiple bytes into a buffer
+    /// Reads multiple bytes and writes them into a buffer
     @inlinable
     func read(into buffer: inout UnsafeMutableBufferPointer<UInt8>, length: Int) throws -> Int {
         var bytes_read:Int = 0

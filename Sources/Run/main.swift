@@ -18,7 +18,7 @@ let application:Application = Application(
                     returnType: .staticString,
                     version: "HTTP/1.1",
                     middleware: [
-                        Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesHeaders: ["Are-You-My-Brother":"yes"])
+                        Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html])
                     ],
                     Route(
                         method: .get,
@@ -26,7 +26,7 @@ let application:Application = Application(
                         status: .ok,
                         contentType: .html,
                         charset: "UTF-8",
-                        staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
+                        staticResult: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"),
                         dynamicResult: nil
                     )
                 )

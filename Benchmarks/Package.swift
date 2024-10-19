@@ -16,6 +16,8 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio", from: "2.75.0"),
         .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
 
+        .package(url: "https://github.com/swift-server/async-http-client", from: "1.23.1"),
+
         .package(name: "destiny", path: "../"),
         .package(url: "https://github.com/vapor/vapor", exact: "4.106.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.1.0")
@@ -26,7 +28,8 @@ let package = Package(
             dependencies: [
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "NIOCore", package: "swift-nio"),
-                .product(name: "Logging", package: "swift-log")
+                .product(name: "Logging", package: "swift-log"),
+                .product(name: "AsyncHTTPClient", package: "async-http-client")
             ],
             path: "Benchmarks/Utilities"
         ),

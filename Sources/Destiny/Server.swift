@@ -17,7 +17,7 @@ public actor Server : Service {
     let address:String?
     let port:in_port_t
     let maxPendingConnections:Int32
-    let routers:[Router]
+    public var routers:[Router]
     let logger:Logger
 
     public init(
@@ -35,11 +35,11 @@ public actor Server : Service {
     }
 
     public func run() async throws {
-        let fileDescriptor:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
-        if fileDescriptor == -1 {
+        let serverFD:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
+        if serverFD == -1 {
             throw Server.Error.socketCreationFailed()
         }
-        Socket.noSigPipe(fileDescriptor: fileDescriptor)
+        Socket.noSigPipe(fileDescriptor: serverFD)
         var binded:Int32 = -1
         var addr:sockaddr_in6 = sockaddr_in6(
             sin6_len: UInt8(MemoryLayout<sockaddr_in>.stride),
@@ -54,14 +54,14 @@ public actor Server : Service {
             }
         }
         binded = withUnsafePointer(to: &addr) {
-            bind(fileDescriptor, UnsafePointer<sockaddr>(OpaquePointer($0)), socklen_t(MemoryLayout<sockaddr_in6>.size))
+            bind(serverFD, UnsafePointer<sockaddr>(OpaquePointer($0)), socklen_t(MemoryLayout<sockaddr_in6>.size))
         }
         if binded == -1 {
-            unistd.close(fileDescriptor)
+            unistd.close(serverFD)
             throw Server.Error.bindFailed()
         }
-        if listen(fileDescriptor, maxPendingConnections) == -1 {
-            unistd.close(fileDescriptor)
+        if listen(serverFD, maxPendingConnections) == -1 {
+            unistd.close(serverFD)
             throw Server.Error.listenFailed()
         }
         let static_responses:[String:RouteResponseProtocol] = Self.static_responses(for: routers)
@@ -70,7 +70,7 @@ public actor Server : Service {
         await withTaskCancellationOrGracefulShutdownHandler {
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 do {
-                    let client:Int32 = try await Self.client(fileDescriptor: fileDescriptor)
+                    let client:Int32 = try await Self.client(fileDescriptor: serverFD)
                     let connection:Task<(), Swift.Error> = Task.detached {
                         let client_socket:Socket = Socket(fileDescriptor: client)
                         let tokens:[Substring] = try client_socket.readHttpRequest()
@@ -89,7 +89,6 @@ public actor Server : Service {
                                     err = error
                                 }
                             }
-                            unistd.close(client)
                             if let error:Swift.Error = err {
                                 throw error
                             }
@@ -106,7 +105,7 @@ public actor Server : Service {
                 connection.cancel()
                 unistd.close(client)
             }
-            unistd.close(fileDescriptor)
+            unistd.close(serverFD)
         }
     }
     @inlinable

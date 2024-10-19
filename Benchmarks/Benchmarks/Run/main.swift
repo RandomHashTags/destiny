@@ -59,7 +59,7 @@ func destiny_service(port: UInt16) -> Destiny.Application {
                     status: .ok,
                     contentType: .html,
                     charset: "UTF-8",
-                    staticResult: .string("<!DOCTYPE><html><body>test</body></html>"),
+                    staticResult: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"),
                     dynamicResult: nil
                 )
             )
@@ -81,7 +81,7 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
     let router = Hummingbird.Router()
     router.middlewares.add(HeaderMiddleware())
     router.get(RouterPath("test")) { request, _ -> String in
-        return "<!DOCTYPE><html><body>test</body></html>"
+        return "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"
     }
     let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname("192.168.1.96", port: port)))
     return app
@@ -104,7 +104,7 @@ func vapor_application(port: Int) -> Vapor.Application {
     app.clients.use(.http)
 
     app.on(.GET, ["test"]) { request in
-        let body:Vapor.Response.Body = .init(staticString: "<!DOCTYPE><html><body>test</body></html>")
+        let body:Vapor.Response.Body = .init(staticString: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
         let headers:HTTPHeaders = HTTPHeaders(dictionaryLiteral: (HTTPHeaders.Name.contentType.description, "text/html"))
         return Vapor.Response(status: .ok, version: request.version, headers: headers, body: body)
     }
