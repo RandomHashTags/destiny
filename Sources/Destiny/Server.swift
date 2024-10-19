@@ -75,7 +75,11 @@ public actor Server : Service {
                         let client_socket:Socket = Socket(fileDescriptor: client)
                         let tokens:[Substring] = try client_socket.readHttpRequest()
                         if let responder:RouteResponseProtocol = static_responses[tokens[0] + " " + tokens[1]] {
-                            try await responder.respond(to: consume client_socket)
+                            if responder.isAsync {
+                                try await responder.respondAsync(to: consume client_socket)
+                            } else {
+                                try responder.respond(to: consume client_socket)
+                            }
                         } else {
                             var err:Swift.Error? = nil
                             not_found_response.withUTF8Buffer {
