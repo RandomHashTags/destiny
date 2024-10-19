@@ -17,8 +17,8 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
 
         .package(name: "destiny", path: "../"),
-        .package(url: "https://github.com/vapor/vapor", from: "4.106.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", from: "2.1.0")
+        .package(url: "https://github.com/vapor/vapor", exact: "4.106.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.1.0")
     ],
     targets: [
         .target(
