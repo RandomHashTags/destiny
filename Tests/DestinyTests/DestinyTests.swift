@@ -8,7 +8,6 @@
 import Testing
 
 import HTTPTypes
-import NIOCore
 
 import Destiny
 import DestinyUtilities
@@ -49,22 +48,6 @@ struct DestinyTests {
         )
         let uint16Array_router:Router = #router(
             returnType: .uint16Array,
-            version: "HTTP/2.0",
-            middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesHeaders: ["Are-You-My-Brother":"yes"])
-            ],
-            Route(
-                method: .get,
-                path: "test",
-                status: .ok,
-                contentType: .html,
-                charset: "UTF-8",
-                staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
-                dynamicResult: nil
-            )
-        )
-        let byteBuffer_router:Router = #router(
-            returnType: .byteBuffer,
             version: "HTTP/2.0",
             middleware: [
                 Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesHeaders: ["Are-You-My-Brother":"yes"])

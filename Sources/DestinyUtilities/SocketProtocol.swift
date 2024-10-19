@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import NIOCore
 
 // MARK: SocketProtocol
 public protocol SocketProtocol : ~Copyable {

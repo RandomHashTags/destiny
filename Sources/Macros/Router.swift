@@ -10,11 +10,8 @@ import SwiftSyntaxMacros
 import SwiftDiagnostics
 import HTTPTypes
 import DestinyUtilities
-import NIOCore
 
-#if canImport(Foundation)
 import Foundation
-#endif
 
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
@@ -56,14 +53,9 @@ enum Router : ExpressionMacro {
             case .uint16Array:
                 get_returned_type = { response(valueType: "UInt16Array", bytes([UInt16]($0.utf16))) }
                 break
-            case .byteBuffer:
-                get_returned_type = { response(valueType: "ByteBuffer", "ByteBuffer(bytes: " + bytes([UInt8]($0.utf8)) + ")") }
-                break
-            #if canImport(Foundation)
             case .data:
                 get_returned_type = { response(valueType: "Data", bytes([UInt8]($0.utf8))) }
                 break
-            #endif
             default:
                 get_returned_type = { response(valueType: "StaticString", "\"" + $0 + "\"") }
                 break
@@ -112,14 +104,9 @@ extension Router {
             case .uint16Array:
                 get_returned_type = { RouteResponseUInt16Array([UInt16]($0.description.utf16)) }
                 break
-            case .byteBuffer:
-                get_returned_type = { RouteResponseByteBuffer(ByteBuffer(bytes: [UInt8]($0.description.utf8))) }
-                break
-            #if canImport(Foundation)
             case .data:
                 get_returned_type = { RouteResponseData(Data([UInt8]($0.description.utf8))) }
                 break
-            #endif
             default:
                 get_returned_type = { RouteResponseString($0) }
                 break

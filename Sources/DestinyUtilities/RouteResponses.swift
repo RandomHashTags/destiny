@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import NIOCore
 
 // MARK: StaticString
 public struct RouteResponseStaticString : RouteResponseProtocol {
@@ -67,20 +66,6 @@ public struct RouteResponseUInt16Array : RouteResponseProtocol {
     public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
         try value.withUnsafeBufferPointer {
             try socket.write($0.baseAddress!, length: $0.count)
-        }
-    }
-    public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
-}
-
-// MARK: ByteBuffer
-public struct RouteResponseByteBuffer : RouteResponseProtocol {
-    let value:ByteBuffer
-    public init(_ value: ByteBuffer) { self.value = value }
-    public var isAsync : Bool { false }
-
-    public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
-        try value.withUnsafeReadableBytes {
-            try socket.write($0.baseAddress!, length: value.readableBytes)
         }
     }
     public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
