@@ -48,7 +48,7 @@ try await application.run()
 func destiny_service(port: UInt16) -> Destiny.Application {
     let server_logger:Logger = Logger(label: "destiny.http.server")
     return Destiny.Application(services: [
-        Destiny.Server(threads: 8, port: port, routers: [
+        Destiny.Server(threads: 8, port: port, maxPendingConnections: 5000, routers: [
             #router(
                 returnType: .staticString,
                 version: "HTTP/1.1",
