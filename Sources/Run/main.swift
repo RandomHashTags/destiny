@@ -12,6 +12,7 @@ import DestinyUtilities
 let application:Application = Application(
     services: [
         Server(
+            threads: 8,
             port: 8080,
             routers: [
                 #router(

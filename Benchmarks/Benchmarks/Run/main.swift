@@ -32,12 +32,14 @@ public struct App : Service {
     }
 }
 
+var environment:Vapor.Environment = .production
+try! LoggingSystem.bootstrap(from: &environment)
 
 let logger:Logger = Logger(label: "destiny.application.benchmark")
 let application:App = App(services: [
     destiny_service(port: 8080),
-    hummingbird_service(port: 8081),
-    vapor_service(port: 8082)
+    //hummingbird_service(port: 8081),
+    //vapor_service(port: 8082)
 ], logger: logger)
 try await application.run()
 
@@ -46,7 +48,7 @@ try await application.run()
 func destiny_service(port: UInt16) -> Destiny.Application {
     let server_logger:Logger = Logger(label: "destiny.http.server")
     return Destiny.Application(services: [
-        Destiny.Server(port: port, routers: [
+        Destiny.Server(threads: 8, port: port, routers: [
             #router(
                 returnType: .staticString,
                 version: "HTTP/1.1",
@@ -98,7 +100,7 @@ func vapor_service(port: Int) -> Service {
     return VaporService(app: vapor_application(port: port))
 }
 func vapor_application(port: Int) -> Vapor.Application {
-    let app:Vapor.Application = Application(.production)
+    let app:Vapor.Application = Application(environment)
     app.http.server.configuration.port = port
     app.http.server.configuration.hostname = "192.168.1.96"
     app.clients.use(.http)

@@ -7,7 +7,7 @@
 
 // MARK: RouteResponse
 public protocol RouteResponseProtocol : Sendable {
-    var isAsync : Bool { get }
-    func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws
-    func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws
+    @inlinable var isAsync : Bool { get }
+    @inlinable func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws
+    @inlinable func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws
 }

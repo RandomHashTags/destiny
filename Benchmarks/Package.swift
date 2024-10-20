@@ -74,6 +74,13 @@ let package = Package(
             ],
             path: "Benchmarks/Run"
         ),
+        .executableTarget(
+            name: "Latency",
+            dependencies: [
+                "Utilities"
+            ],
+            path: "Benchmarks/Latency"
+        ),
 
         .executableTarget(
             name: "Benchmarks",

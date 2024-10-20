@@ -8,8 +8,6 @@
 import Benchmark
 import Utilities
 
-import AsyncHTTPClient
-
 import TestDestiny
 import TestHummingbird
 import TestVapor
@@ -17,16 +15,16 @@ import TestVapor
 let benchmarks = {
     Benchmark.defaultConfiguration = .init(metrics: .all)
 
-    let libraries:[String:Int] = [
+    let libraries:[String:UInt16] = [
         "Destiny" : 8080,
-        "Hummingbird" : 8081,
-        "Vapor" : 8082
+        //"Hummingbird" : 8081,
+        //"Vapor" : 8082
     ]
     for (library, port) in libraries {
-        let request:HTTPClientRequest = HTTPClientRequest(url: "http://192.168.1.96:\(port)/test")
+        //let request:HTTPClientRequest = HTTPClientRequest(url: "http://192.168.1.96:\(port)/test")
         Benchmark(library) {
             for _ in $0.scaledIterations {
-                blackHole(try await HTTPClient.shared.execute(request, timeout: .milliseconds(100)))
+                blackHole(make_request(port: port))
             }
         }
     }

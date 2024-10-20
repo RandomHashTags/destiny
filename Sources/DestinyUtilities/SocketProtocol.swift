@@ -12,8 +12,10 @@ public protocol SocketProtocol : ~Copyable {
     static var bufferLength : Int { get }
     var fileDescriptor : Int32 { get }
     var closed : Bool { get set }
+    @inlinable
     consuming func close()
 
+    @inlinable
     func write(_ pointer: UnsafeRawPointer, length: Int) throws
 }
 
@@ -24,6 +26,7 @@ public extension SocketProtocol where Self : ~Copyable {
         unistd.close(fileDescriptor)
     }
 
+    @inlinable
     func deinitalize() {
         guard !closed else { return }
         unistd.close(fileDescriptor)
@@ -106,12 +109,6 @@ public extension SocketProtocol where Self : ~Copyable {
 
 // MARK: SocketProtocol writing
 public extension SocketProtocol where Self : ~Copyable {
-    /*
-    func write(_ bytes: ArraySlice<UInt8>) throws {
-        try bytes.withUnsafeBufferPointer {
-            try write($0.baseAddress!, length: $0.count)
-        }
-    }*/
     @inlinable
     func write(_ pointer: UnsafeRawPointer, length: Int) throws {
         guard !closed else { return }
