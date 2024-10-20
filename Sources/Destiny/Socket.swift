@@ -13,8 +13,11 @@ import DestinyUtilities
 public struct Socket : SocketProtocol, ~Copyable {
     @inlinable
     static func noSigPipe(fileDescriptor: Int32) {
+        #if os(Linux)
+        #else
         var no_sig_pipe:Int32 = 0
         setsockopt(fileDescriptor, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(MemoryLayout<Int32>.size))
+        #endif
     }
     public static let bufferLength:Int = 1024
     public let fileDescriptor:Int32

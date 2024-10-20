@@ -38,11 +38,24 @@ public final class Server : Service, DestinyClientAcceptor {
     }
 
     public func run() async throws {
+        #if os(Linux)
+        let serverFD:Int32 = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
+        #else
         let serverFD:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
+        #endif
         if serverFD == -1 {
             throw Server.Error.socketCreationFailed()
         }
         Socket.noSigPipe(fileDescriptor: serverFD)
+        #if os(Linux)
+        var addr:sockaddr_in6 = sockaddr_in6(
+            sin6_family: sa_family_t(AF_INET6),
+            sin6_port: port.bigEndian,
+            sin6_flowinfo: 0,
+            sin6_addr: in6addr_any,
+            sin6_scope_id: 0
+        )
+        #else
         var addr:sockaddr_in6 = sockaddr_in6(
             sin6_len: UInt8(MemoryLayout<sockaddr_in>.stride),
             sin6_family: UInt8(AF_INET6),
@@ -51,6 +64,7 @@ public final class Server : Service, DestinyClientAcceptor {
             sin6_addr: in6addr_any,
             sin6_scope_id: 0
         )
+        #endif
         if let address:String = address {
             if address.withCString({ inet_pton(AF_INET6, $0, &addr.sin6_addr) }) == 1 {
             }
@@ -70,19 +84,19 @@ public final class Server : Service, DestinyClientAcceptor {
         let static_responses:[String:RouteResponseProtocol] = Self.static_responses(for: routers)
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on port \(port)"))
-        let queue:DispatchQueue = DispatchQueue(label: "destiny.dispatchQueue", qos: .userInitiated, attributes: .concurrent)
+        let group:DispatchGroup = DispatchGroup()
         await withTaskCancellationOrGracefulShutdownHandler {
             for _ in 0..<threads-1 {
                 Thread.detachNewThread {
                     while !Task.isCancelled && !Task.isShuttingDownGracefully {
                         do {
                             let client:Int32 = try Server.client(fileDescriptor: serverFD)
-                            queue.async { [weak self] in
-                                do {
-                                    try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
-                                } catch {
-                                    self?.logger.error(Logger.Message(stringLiteral: "\(error)"))
-                                }
+                            group.enter()
+                            do {
+                                try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
+                                group.leave()
+                            } catch {
+                                self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                             }
                         } catch {
                             self.logger.error(Logger.Message(stringLiteral: "\(error)"))
@@ -93,12 +107,12 @@ public final class Server : Service, DestinyClientAcceptor {
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 do {
                     let client:Int32 = try Server.client(fileDescriptor: serverFD)
-                    queue.async { [weak self] in
-                        do {
-                            try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
-                        } catch {
-                            self?.logger.error(Logger.Message(stringLiteral: "\(error)"))
-                        }
+                    group.enter()
+                    do {
+                        try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
+                        group.leave()
+                    } catch {
+                        self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                     }
                 } catch {
                     self.logger.error(Logger.Message(stringLiteral: "\(error)"))
