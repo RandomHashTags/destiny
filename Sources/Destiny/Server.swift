@@ -84,20 +84,13 @@ public final class Server : Service, DestinyClientAcceptor {
         let static_responses:[String:RouteResponseProtocol] = Self.static_responses(for: routers)
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on port \(port)"))
-        let group:DispatchGroup = DispatchGroup()
         await withTaskCancellationOrGracefulShutdownHandler {
             for _ in 0..<threads-1 {
                 Thread.detachNewThread {
                     while !Task.isCancelled && !Task.isShuttingDownGracefully {
                         do {
                             let client:Int32 = try Server.client(fileDescriptor: serverFD)
-                            group.enter()
-                            do {
-                                try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
-                                group.leave()
-                            } catch {
-                                self.logger.error(Logger.Message(stringLiteral: "\(error)"))
-                            }
+                            try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
                         } catch {
                             self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                         }
@@ -107,13 +100,7 @@ public final class Server : Service, DestinyClientAcceptor {
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 do {
                     let client:Int32 = try Server.client(fileDescriptor: serverFD)
-                    group.enter()
-                    do {
-                        try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
-                        group.leave()
-                    } catch {
-                        self.logger.error(Logger.Message(stringLiteral: "\(error)"))
-                    }
+                    try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
                 } catch {
                     self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                 }
@@ -154,9 +141,9 @@ public final class Server : Service, DestinyClientAcceptor {
         let tokens:[Substring] = try client_socket.readHttpRequest()
         if let responder:RouteResponseProtocol = static_responses[tokens[0] + " " + tokens[1]] {
             if responder.isAsync {
-                //try await responder.respondAsync(to: consume client_socket)
+                //try await responder.respondAsync(to: client_socket)
             } else {
-                try responder.respond(to: consume client_socket)
+                try responder.respond(to: client_socket)
             }
         } else {
             var err:Swift.Error? = nil

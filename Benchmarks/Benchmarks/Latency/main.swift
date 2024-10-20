@@ -7,13 +7,14 @@ let libraries:[String:UInt16] = [
     //"Vapor" : 8082
 ]
 
+/*
 let clock:ContinuousClock = ContinuousClock()
 for (library, port) in libraries.shuffled() {
     var request:URLRequest = URLRequest(url: URL(string: "http://192.168.1.96:\(port)/test")!)
     request.httpMethod = "GET"
-    request.timeoutInterval = 60
-    request.addValue("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", forHTTPHeaderField: "Accept")
-    request.addValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
+    request.timeoutInterval = 60*/
+    //request.addValue("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7", forHTTPHeaderField: "Accept")
+    /*request.addValue("en-US,en;q=0.9", forHTTPHeaderField: "Accept-Language")
     request.addValue("max-age=0", forHTTPHeaderField: "Cache-Control")
     request.addValue("http://192.168.1.96:\(port)", forHTTPHeaderField: "Host")
     request.addValue("gzip, deflate", forHTTPHeaderField: "Accept-Encoding")
@@ -38,3 +39,4 @@ for (library, port) in libraries.shuffled() {
     latencies = latencies.sorted(by: { $0 < $1 })
     print(library + ": took \(latencies[0]) min; \(latencies[amount-1]) max; \(latencies[(amount-1)/2]) median")
 }
+*/

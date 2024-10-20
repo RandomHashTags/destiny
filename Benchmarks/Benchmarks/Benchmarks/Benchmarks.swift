@@ -20,6 +20,7 @@ let benchmarks = {
         //"Hummingbird" : 8081,
         //"Vapor" : 8082
     ]
+    /*
     for (library, port) in libraries {
         //let request:HTTPClientRequest = HTTPClientRequest(url: "http://192.168.1.96:\(port)/test")
         Benchmark(library) {
@@ -27,5 +28,5 @@ let benchmarks = {
                 blackHole(make_request(port: port))
             }
         }
-    }
+    }*/
 }

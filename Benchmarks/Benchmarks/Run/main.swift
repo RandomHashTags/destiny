@@ -38,8 +38,8 @@ try! LoggingSystem.bootstrap(from: &environment)
 let logger:Logger = Logger(label: "destiny.application.benchmark")
 let application:App = App(services: [
     destiny_service(port: 8080),
-    //hummingbird_service(port: 8081),
-    //vapor_service(port: 8082)
+    hummingbird_service(port: 8081),
+    vapor_service(port: 8082)
 ], logger: logger)
 try await application.run()
 
@@ -48,7 +48,7 @@ try await application.run()
 func destiny_service(port: UInt16) -> Destiny.Application {
     let server_logger:Logger = Logger(label: "destiny.http.server")
     return Destiny.Application(services: [
-        Destiny.Server(threads: 8, port: port, maxPendingConnections: 5000, routers: [
+        Destiny.Server(threads: 8, address: "192.168.1.174", port: port, maxPendingConnections: 5000, routers: [
             #router(
                 returnType: .staticString,
                 version: "HTTP/1.1",
@@ -85,7 +85,7 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
     router.get(RouterPath("test")) { request, _ -> String in
         return "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"
     }
-    let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname("192.168.1.96", port: port)))
+    let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname("192.168.1.174", port: port)))
     return app
 }
 
@@ -102,7 +102,7 @@ func vapor_service(port: Int) -> Service {
 func vapor_application(port: Int) -> Vapor.Application {
     let app:Vapor.Application = Application(environment)
     app.http.server.configuration.port = port
-    app.http.server.configuration.hostname = "192.168.1.96"
+    app.http.server.configuration.hostname = "192.168.1.174"
     app.clients.use(.http)
 
     app.on(.GET, ["test"]) { request in

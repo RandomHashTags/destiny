@@ -14,7 +14,7 @@ public struct RouteResponseStaticString : RouteResponseProtocol {
     @inlinable public var isAsync : Bool { false }
 
     @inlinable
-    public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
         var err:Error? = nil
         value.withUTF8Buffer {
             do {
@@ -27,7 +27,7 @@ public struct RouteResponseStaticString : RouteResponseProtocol {
             throw err
         }
     }
-    @inlinable public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
 }
 
 // MARK: String
@@ -37,12 +37,12 @@ public struct RouteResponseString : RouteResponseProtocol {
     @inlinable public var isAsync : Bool { false }
 
     @inlinable
-    public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
         try value.utf8.withContiguousStorageIfAvailable {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
-    @inlinable public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
 }
 
 // MARK: UInt8Array
@@ -52,12 +52,12 @@ public struct RouteResponseUInt8Array : RouteResponseProtocol {
     @inlinable public var isAsync : Bool { false }
 
     @inlinable
-    public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
         try value.withUnsafeBufferPointer {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
-    public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
+    public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
 }
 
 // MARK: UInt16Array
@@ -67,12 +67,12 @@ public struct RouteResponseUInt16Array : RouteResponseProtocol {
     @inlinable public var isAsync : Bool { false }
 
     @inlinable
-    public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
         try value.withUnsafeBufferPointer {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
-    @inlinable public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
 }
 
 // MARK: Data
@@ -82,10 +82,10 @@ public struct RouteResponseData : RouteResponseProtocol {
     @inlinable public var isAsync : Bool { false }
 
     @inlinable
-    public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
         try value.withUnsafeBytes {
             try socket.writeBuffer($0.baseAddress!, length: value.count)
         }
     }
-    @inlinable public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
 }
