@@ -18,7 +18,7 @@ public struct RouteResponseStaticString : RouteResponseProtocol {
         var err:Error? = nil
         value.withUTF8Buffer {
             do {
-                try socket.write($0.baseAddress!, length: $0.count)
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
             } catch {
                 err = error
             }
@@ -39,7 +39,7 @@ public struct RouteResponseString : RouteResponseProtocol {
     @inlinable
     public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
         try value.utf8.withContiguousStorageIfAvailable {
-            try socket.write($0.baseAddress!, length: $0.count)
+            try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
     @inlinable public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
@@ -54,7 +54,7 @@ public struct RouteResponseUInt8Array : RouteResponseProtocol {
     @inlinable
     public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
         try value.withUnsafeBufferPointer {
-            try socket.write($0.baseAddress!, length: $0.count)
+            try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
     public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
@@ -69,7 +69,7 @@ public struct RouteResponseUInt16Array : RouteResponseProtocol {
     @inlinable
     public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
         try value.withUnsafeBufferPointer {
-            try socket.write($0.baseAddress!, length: $0.count)
+            try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
     @inlinable public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}
@@ -84,7 +84,7 @@ public struct RouteResponseData : RouteResponseProtocol {
     @inlinable
     public func respond(to socket: borrowing any SocketProtocol & ~Copyable) throws {
         try value.withUnsafeBytes {
-            try socket.write($0.baseAddress!, length: value.count)
+            try socket.writeBuffer($0.baseAddress!, length: value.count)
         }
     }
     @inlinable public func respondAsync(to socket: borrowing any SocketProtocol & ~Copyable) async throws {}

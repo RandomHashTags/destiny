@@ -60,11 +60,11 @@ public final class Server : Service, DestinyClientAcceptor {
             bind(serverFD, UnsafePointer<sockaddr>(OpaquePointer($0)), socklen_t(MemoryLayout<sockaddr_in6>.size))
         }
         if binded == -1 {
-            unistd.close(serverFD)
+            close(serverFD)
             throw Server.Error.bindFailed()
         }
         if listen(serverFD, maxPendingConnections) == -1 {
-            unistd.close(serverFD)
+            close(serverFD)
             throw Server.Error.listenFailed()
         }
         let static_responses:[String:RouteResponseProtocol] = Self.static_responses(for: routers)
@@ -105,7 +105,7 @@ public final class Server : Service, DestinyClientAcceptor {
                 }
             }
         } onCancelOrGracefulShutdown: {
-            unistd.close(serverFD)
+            close(serverFD)
         }
     }
     @inlinable
@@ -148,7 +148,7 @@ public final class Server : Service, DestinyClientAcceptor {
             var err:Swift.Error? = nil
             not_found_response.withUTF8Buffer {
                 do {
-                    try client_socket.write($0.baseAddress!, length: $0.count)
+                    try client_socket.writeBuffer($0.baseAddress!, length: $0.count)
                 } catch {
                     err = error
                 }

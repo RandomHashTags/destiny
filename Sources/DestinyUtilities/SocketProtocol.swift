@@ -13,23 +13,23 @@ public protocol SocketProtocol : ~Copyable {
     var fileDescriptor : Int32 { get }
     var closed : Bool { get set }
     @inlinable
-    consuming func close()
+    consuming func consume()
 
     @inlinable
-    func write(_ pointer: UnsafeRawPointer, length: Int) throws
+    func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 }
 
 public extension SocketProtocol where Self : ~Copyable {
-    consuming func close() {
+    consuming func consume() {
         guard !closed else { return }
         closed = true
-        unistd.close(fileDescriptor)
+        close(fileDescriptor)
     }
 
     @inlinable
     func deinitalize() {
         guard !closed else { return }
-        unistd.close(fileDescriptor)
+        close(fileDescriptor)
     }
 }
 
@@ -50,16 +50,16 @@ public extension SocketProtocol where Self : ~Copyable {
 
     /// Reads 1 byte
     @inlinable
-    func read() throws -> UInt8 {
+    func readByte() throws -> UInt8 {
         var result:UInt8 = 0
-        unistd.read(fileDescriptor, &result, 1)
+        read(fileDescriptor, &result, 1)
         guard result > 0 else { throw SocketError.readFailed() }
         return result
     }
     /// Reads multiple bytes and loads them into an UInt8 array
     @inlinable
-    func read(length: Int) throws -> [UInt8] {
-        return try [UInt8](unsafeUninitializedCapacity: length, initializingWith: { $1 = try read(into: &$0, length: length) })
+    func readBytes(length: Int) throws -> [UInt8] {
+        return try [UInt8](unsafeUninitializedCapacity: length, initializingWith: { $1 = try readBuffer(into: &$0, length: length) })
     }
 
     @inlinable
@@ -67,7 +67,7 @@ public extension SocketProtocol where Self : ~Copyable {
         var line:String = ""
         var index:UInt8 = 0
         while index != 10 {
-            index = try self.read()
+            index = try self.readByte()
             if index > 13 {
                 line.append(Character(UnicodeScalar(index)))
             }
@@ -91,12 +91,12 @@ public extension SocketProtocol where Self : ~Copyable {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func read(into buffer: inout UnsafeMutableBufferPointer<UInt8>, length: Int) throws -> Int {
+    func readBuffer(into buffer: inout UnsafeMutableBufferPointer<UInt8>, length: Int) throws -> Int {
         var bytes_read:Int = 0
         guard let baseAddress:UnsafeMutablePointer<UInt8> = buffer.baseAddress else { return 0 }
         while bytes_read < length {
             let to_read:Int = min(bytes_read + Self.bufferLength, length)
-            let read_bytes:Int = unistd.read(fileDescriptor, baseAddress + bytes_read, to_read)
+            let read_bytes:Int = read(fileDescriptor, baseAddress + bytes_read, to_read)
             guard read_bytes > 0 else {
                 throw SocketError.readFailed()
             }
@@ -110,11 +110,11 @@ public extension SocketProtocol where Self : ~Copyable {
 // MARK: SocketProtocol writing
 public extension SocketProtocol where Self : ~Copyable {
     @inlinable
-    func write(_ pointer: UnsafeRawPointer, length: Int) throws {
+    func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
         guard !closed else { return }
         var sent:Int = 0
         while sent < length {
-            let result:Int = unistd.write(fileDescriptor, pointer + sent, length - sent)
+            let result:Int = write(fileDescriptor, pointer + sent, length - sent)
             if result <= 0 { throw SocketError.writeFailed() }
             sent += result
         }
