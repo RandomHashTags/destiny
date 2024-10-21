@@ -31,3 +31,32 @@ public struct Socket : SocketProtocol, ~Copyable {
 
     deinit { deinitalize() }
 }
+
+public extension SocketProtocol {
+    @inlinable
+    func readHttpRequest16() throws -> [Substring] {
+        let status:String = try readLine()
+        let tokens:[Substring] = status.split(separator: " ")
+        guard tokens.count >= 3 else {
+            throw SocketError.invalidStatus()
+        }
+        // 0 == method
+        // 1 == path
+        // 2 == http version
+        return tokens
+    }
+
+    @inlinable
+    func readLine32() throws -> StackString32 { // read just the method, path & http version
+        var string:StackString32 = StackString32()
+        var i:Int = 0, index:UInt8 = 0
+        while index != 10 {
+            index = try self.readByte()
+            if index > 13 {
+                string[i] = CChar(index)
+                i += 1
+            }
+        }
+        return string
+    }
+}

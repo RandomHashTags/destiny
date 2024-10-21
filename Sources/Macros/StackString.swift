@@ -17,20 +17,17 @@ struct StackString : MemberMacro {
         let range:Range<Int> = 0..<integer
         let buffer:String = range.map({ _ in "CChar" }).joined(separator: ",")
         let zeros:String = range.map({ _ in "0" }).joined(separator: ",")
-        var value:[DeclSyntax] = [
+        return [
             equatable(amount: integer),
             "public typealias BufferType = (\(raw: buffer))",
             "public var buffer:BufferType",
+            "public var size : Int { \(raw: integer) }",
             "public init() { buffer = (\(raw: zeros)) }",
             "public init(buffer: BufferType) { self.buffer = buffer }",
+            "public init(characters: CChar...) { self.buffer = (\(raw: zeros)) let length:Int = min(size, characters.count) var index:Int = 0 while index < length { self[index] = characters[index] index += 1 } }",
+            get_subscript(amount: integer),
             hashable(amount: integer),
-            get_set_index(amount: integer)
         ]
-        /*for i in 1..<integer {
-            value.append(get_fixed_size_init(limit: integer, amount: i))
-        }*/
-        value.append("public var size : Int { \(raw: integer) }")
-        return value
     }
     static func equatable(amount: Int) -> DeclSyntax {
         var string:String = "public static func == (left: Self, right: Self) -> Bool {"
@@ -50,39 +47,59 @@ struct StackString : MemberMacro {
         string += "}"
         return "\(raw: string)"
     }
-    static func get_set_index(amount: Int) -> DeclSyntax {
-        var string:String = "public mutating func set(index: Int, char: CChar) {"
-        string += "guard index < size else { return }"
-        string += "switch index {"
-        for i in 0..<amount {
-            string += "case \(i): buffer.\(i) = char break "
+    static func get_subscript(amount: Int) -> DeclSyntax {
+        var string:String = "public subscript(_ index: Int) -> CChar {"
+        func thing(_ i: Int, logic: String) -> String {
+            return "case \(i): " + logic + " "
         }
-        string += "default: break"
-        string += "} }"
+        var get_string:String = "get { switch index {"
+        for i in 0..<amount {
+            get_string += thing(i, logic: "return buffer.\(i)")
+        }
+        get_string += "default: return 0 } }"
+        string += get_string
+
+        var set_string:String = "set { switch index {"
+        for i in 0..<amount {
+            set_string += thing(i, logic: "buffer.\(i) = newValue break")
+        }
+        set_string += "default: break } }"
+        string += set_string
+
+        string += "}"
+        return "\(raw: string)"
+    }
+    static func get_split_logic(amount: Int) -> DeclSyntax {
+        var string:String = "public func split(separator: CChar) -> [Self] {"
+        string += "var anchor:Int = 0, array:[Self] = []"
+        string += "for i in 0..<size {"
+        string += "if buffer[i] == separator {"
+        string += "anchor = i"
+        string += "}"
+        string += "} return array }"
         return "\(raw: string)"
     }
 }
 
 struct Test {
-    static let size:Int = 8
     typealias ByteBuffer = (CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar)
 
     var buffer:ByteBuffer
-    init(_ characters: CChar...) {
-        self.buffer = (0, 0, 0, 0, 0, 0, 0, 0)
-        for (index, char) in characters.enumerated() {
-            set(index: index, char: char)
+
+    subscript(_ index: Int) -> CChar {
+        get {
+            switch index {
+                case 0: return buffer.0
+                default: return 0
+            }
         }
+        set {
+            buffer.0 = newValue
+        }
+        
     }
 
     mutating func set(index: Int, char: CChar) {
-        guard index < Self.size else { return }
-        switch index {
-            case 0:
-                buffer.0 = char
-                break
-            default:
-                break
-        }
+        self[index] = char
     }
 }
