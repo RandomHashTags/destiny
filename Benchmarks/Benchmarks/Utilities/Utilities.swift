@@ -11,6 +11,7 @@ import Foundation
 protocol NetworkingLibrary {
 }
 
+/*
 @inlinable
 public func make_request(port: UInt16) {
     let socket:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
@@ -33,4 +34,4 @@ public func make_request(port: UInt16) {
         }
         close(socket)
     })
-}
+}*/
