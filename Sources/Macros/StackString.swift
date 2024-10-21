@@ -23,21 +23,23 @@ struct StackString : MemberMacro {
             "public var buffer:BufferType",
             "public init() { buffer = (\(raw: zeros)) }",
             "public init(buffer: BufferType) { self.buffer = buffer }",
-            hashable(amount: integer)
+            hashable(amount: integer),
+            get_set_index(amount: integer)
         ]
-        for i in 1..<integer {
+        /*for i in 1..<integer {
             value.append(get_fixed_size_init(limit: integer, amount: i))
-        }
+        }*/
         value.append("public var size : Int { \(raw: integer) }")
         return value
     }
     static func equatable(amount: Int) -> DeclSyntax {
         var string:String = "public static func == (left: Self, right: Self) -> Bool {"
-        string += "for i in 0..<\(amount) {"
+        string += "if "
         for i in 0..<amount {
-            string += "if left.buffer.\(i) != right.buffer.\(i) { return false }"
+            string += (i == 0 ? "" : " || ") + "left.buffer.\(i) != right.buffer.\(i)"
         }
-        string += "} return true }"
+        string += "{ return false }"
+        string += "return true }"
         return "\(raw: string)"
     }
     static func hashable(amount: Int) -> DeclSyntax {
@@ -48,10 +50,39 @@ struct StackString : MemberMacro {
         string += "}"
         return "\(raw: string)"
     }
-    static func get_fixed_size_init(limit: Int, amount: Int) -> DeclSyntax {
-        let range:Range<Int> = 0..<amount
-        let assigned:String = range.map({ amount == 1 && $0 == 0 ? "buffer" : "buffer.\($0)" }).joined(separator: ",")
-        let missing:String = (amount..<limit).map({ _ in "0" }).joined(separator: ",")
-        return "public init(buffer: (\(raw: range.map({ _ in "CChar" }).joined(separator: ",")))) { self.buffer = (\(raw: assigned), \(raw: missing)) }"
+    static func get_set_index(amount: Int) -> DeclSyntax {
+        var string:String = "public mutating func set(index: Int, char: CChar) {"
+        string += "guard index < size else { return }"
+        string += "switch index {"
+        for i in 0..<amount {
+            string += "case \(i): buffer.\(i) = char break "
+        }
+        string += "default: break"
+        string += "} }"
+        return "\(raw: string)"
+    }
+}
+
+struct Test {
+    static let size:Int = 8
+    typealias ByteBuffer = (CChar, CChar, CChar, CChar, CChar, CChar, CChar, CChar)
+
+    var buffer:ByteBuffer
+    init(_ characters: CChar...) {
+        self.buffer = (0, 0, 0, 0, 0, 0, 0, 0)
+        for (index, char) in characters.enumerated() {
+            set(index: index, char: char)
+        }
+    }
+
+    mutating func set(index: Int, char: CChar) {
+        guard index < Self.size else { return }
+        switch index {
+            case 0:
+                buffer.0 = char
+                break
+            default:
+                break
+        }
     }
 }
