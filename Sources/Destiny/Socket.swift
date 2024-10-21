@@ -34,9 +34,9 @@ public struct Socket : SocketProtocol, ~Copyable {
 
 public extension SocketProtocol {
     @inlinable
-    func readHttpRequest16() throws -> [Substring] {
-        let status:String = try readLine()
-        let tokens:[Substring] = status.split(separator: " ")
+    func readHttpRequest32() throws -> [StackString32] {
+        let status:StackString32 = try readLine32()
+        let tokens:[StackString32] = status.split(separator: 32) // space
         guard tokens.count >= 3 else {
             throw SocketError.invalidStatus()
         }
@@ -53,7 +53,7 @@ public extension SocketProtocol {
         while index != 10 {
             index = try self.readByte()
             if index > 13 {
-                string[i] = CChar(index)
+                string[i] = index
                 i += 1
             }
         }

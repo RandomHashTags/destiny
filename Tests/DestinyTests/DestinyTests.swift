@@ -14,6 +14,17 @@ import DestinyUtilities
 
 struct DestinyTests {
     @Test func example() {
+        var stack_string32:StackString32 = StackString32()
+        for i in 0..<stack_string32.size {
+            stack_string32[i] = UInt8(65 + i)
+        }
+        stack_string32[15] = 32 // space
+        let values:[StackString32] = stack_string32.split(separator: 32)
+        for value in values {
+            print(value.description + " (\(value))")
+        }
+        return;
+
         let static_string_router:Router = #router(
             returnType: .staticString,
             version: "HTTP/2.0",
