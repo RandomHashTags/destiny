@@ -53,11 +53,7 @@ try await application.run()
 func destiny_service(port: UInt16) -> Destiny.Application {
     let server_logger:Logger = Logger(label: "destiny.http.server")
     return Destiny.Application(services: [
-<<<<<<< HEAD
         Destiny.Server(threads: 8, address: hostname, port: port, maxPendingConnections: 5000, router:
-=======
-        Destiny.Server(threads: 8, address: "192.168.1.174", port: port, maxPendingConnections: 5000, routers: [
->>>>>>> 35275a3d9d1add8ec39e41e10355247e80c78710
             #router(
                 returnType: .staticString,
                 version: "HTTP/1.1",
@@ -94,11 +90,7 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
     router.get(RouterPath("test")) { request, _ -> String in
         return "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"
     }
-<<<<<<< HEAD
     let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname(hostname, port: port)))
-=======
-    let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname("192.168.1.174", port: port)))
->>>>>>> 35275a3d9d1add8ec39e41e10355247e80c78710
     return app
 }
 
@@ -115,11 +107,7 @@ func vapor_service(port: Int) -> Service {
 func vapor_application(port: Int) -> Vapor.Application {
     let app:Vapor.Application = Application(environment)
     app.http.server.configuration.port = port
-<<<<<<< HEAD
     app.http.server.configuration.hostname = hostname
-=======
-    app.http.server.configuration.hostname = "192.168.1.174"
->>>>>>> 35275a3d9d1add8ec39e41e10355247e80c78710
     app.clients.use(.http)
 
     app.on(.GET, ["test"]) { request in

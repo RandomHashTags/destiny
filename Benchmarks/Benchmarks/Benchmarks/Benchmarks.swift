@@ -21,7 +21,6 @@ let benchmarks = {
         //"Hummingbird" : 8081,
         //"Vapor" : 8082
     ]
-    /*
     for (library, port) in libraries {
         //let request:HTTPClientRequest = HTTPClientRequest(url: "http://192.168.1.96:\(port)/test")
         Benchmark(library) {
@@ -30,7 +29,6 @@ let benchmarks = {
             }
         }
     }*/
-<<<<<<< HEAD
     /*Benchmark("StackString8") {
         for _ in $0.scaledIterations {
             blackHole(stackString())
@@ -63,6 +61,4 @@ let benchmarks = {
         string += "WRLD"
         return string
     }*/
-=======
->>>>>>> 35275a3d9d1add8ec39e41e10355247e80c78710
 }
