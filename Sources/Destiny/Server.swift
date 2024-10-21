@@ -18,7 +18,7 @@ public final class Server : Service, DestinyClientAcceptor {
     let address:String?
     let port:in_port_t
     let maxPendingConnections:Int32
-    public var routers:[Router]
+    let router:Router
     let logger:Logger
 
     public init(
@@ -26,14 +26,14 @@ public final class Server : Service, DestinyClientAcceptor {
         address: String? = nil,
         port: in_port_t,
         maxPendingConnections: Int32 = SOMAXCONN,
-        routers: [Router],
+        router: Router,
         logger: Logger
     ) {
         self.threads = threads
         self.address = address
         self.port = port
         self.maxPendingConnections = maxPendingConnections
-        self.routers = routers
+        self.router = router
         self.logger = logger
     }
 
@@ -67,7 +67,7 @@ public final class Server : Service, DestinyClientAcceptor {
             close(serverFD)
             throw Server.Error.listenFailed()
         }
-        let static_responses:[String:RouteResponseProtocol] = Self.static_responses(for: routers)
+        let static_responses:[String:RouteResponseProtocol] = Self.static_responses(for: router)
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on port \(port)"))
         let queue:DispatchQueue = DispatchQueue(label: "destiny.dispatchQueue", qos: .userInitiated, attributes: .concurrent)
@@ -109,13 +109,11 @@ public final class Server : Service, DestinyClientAcceptor {
         }
     }
     @inlinable
-    static func static_responses(for routers: [Router]) -> [String:RouteResponseProtocol] {
+    static func static_responses(for router: Router) -> [String:RouteResponseProtocol] {
         var responses:[String:RouteResponseProtocol] = [:]
-        responses.reserveCapacity(routers.count)
-        for router in routers {
-            for (path, responder) in router.staticResponses {
-                responses[String(path)] = responder
-            }
+        responses.reserveCapacity(router.staticResponses.count)
+        for (path, responder) in router.staticResponses {
+            responses[String(path)] = responder
         }
         return responses
     }

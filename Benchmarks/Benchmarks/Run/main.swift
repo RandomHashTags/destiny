@@ -13,6 +13,11 @@ import DestinyUtilities
 import Hummingbird
 import Vapor
 
+#if os(Linux)
+let hostname:String = "192.168.1.174"
+#else
+let hostname:String = "192.168.1.96"
+#endif
 
 // MARK: App
 public struct App : Service {
@@ -48,7 +53,7 @@ try await application.run()
 func destiny_service(port: UInt16) -> Destiny.Application {
     let server_logger:Logger = Logger(label: "destiny.http.server")
     return Destiny.Application(services: [
-        Destiny.Server(threads: 8, port: port, maxPendingConnections: 5000, routers: [
+        Destiny.Server(threads: 8, address: hostname, port: port, maxPendingConnections: 5000, router:
             #router(
                 returnType: .staticString,
                 version: "HTTP/1.1",
@@ -64,8 +69,8 @@ func destiny_service(port: UInt16) -> Destiny.Application {
                     staticResult: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"),
                     dynamicResult: nil
                 )
-            )
-        ], logger: server_logger)
+            ), logger: server_logger
+        )
     ], logger: logger)
 }
 
@@ -85,7 +90,7 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
     router.get(RouterPath("test")) { request, _ -> String in
         return "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"
     }
-    let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname("192.168.1.96", port: port)))
+    let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname(hostname, port: port)))
     return app
 }
 
@@ -102,7 +107,7 @@ func vapor_service(port: Int) -> Service {
 func vapor_application(port: Int) -> Vapor.Application {
     let app:Vapor.Application = Application(environment)
     app.http.server.configuration.port = port
-    app.http.server.configuration.hostname = "192.168.1.96"
+    app.http.server.configuration.hostname = hostname
     app.clients.use(.http)
 
     app.on(.GET, ["test"]) { request in

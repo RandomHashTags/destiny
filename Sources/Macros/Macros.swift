@@ -29,6 +29,7 @@ extension DiagnosticMsg : FixItMessage {
 @main
 struct HTMLKitMacros : CompilerPlugin {
     let providingMacros:[any Macro.Type] = [
-        Router.self
+        Router.self,
+        StackString.self
     ]
 }

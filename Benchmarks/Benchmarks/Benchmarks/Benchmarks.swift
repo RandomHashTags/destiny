@@ -6,6 +6,7 @@
 //
 
 import Benchmark
+import Destiny
 import Utilities
 
 import TestDestiny
@@ -15,7 +16,7 @@ import TestVapor
 let benchmarks = {
     Benchmark.defaultConfiguration = .init(metrics: .all)
 
-    let libraries:[String:UInt16] = [
+    /*let libraries:[String:UInt16] = [
         "Destiny" : 8080,
         //"Hummingbird" : 8081,
         //"Vapor" : 8082
@@ -27,5 +28,37 @@ let benchmarks = {
                 blackHole(make_request(port: port))
             }
         }
+    }*/
+    /*Benchmark("StackString8") {
+        for _ in $0.scaledIterations {
+            blackHole(stackString())
+        }
     }
+    Benchmark("StaticString") {
+        for _ in $0.scaledIterations {
+            blackHole(StaticString("HlloWRLD"))
+        }
+    }
+    Benchmark("String") {
+        for _ in $0.scaledIterations {
+            blackHole(string())
+        }
+    }
+    func stackString() -> StackString8 {
+        return StackString8(buffer: (
+            Int8(Character("H").asciiValue!),
+            Int8(Character("l").asciiValue!),
+            Int8(Character("l").asciiValue!),
+            Int8(Character("o").asciiValue!),
+            Int8(Character("W").asciiValue!),
+            Int8(Character("R").asciiValue!),
+            Int8(Character("L").asciiValue!),
+            Int8(Character("D").asciiValue!)
+        ))
+    }
+    func string() -> String {
+        var string:String = "Hllo"
+        string += "WRLD"
+        return string
+    }*/
 }
