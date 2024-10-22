@@ -47,7 +47,9 @@ public protocol MiddlewareProtocol : Hashable {
     var appliesStatus : HTTPResponse.Status? { get }
     var appliesHeaders : [String:String] { get }
 }
-public struct Middleware : MiddlewareProtocol {
+public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
+}
+public struct StaticMiddleware : MiddlewareProtocol {
     public let appliesToMethods:Set<HTTPRequest.Method>
     public let appliesToStatuses:Set<HTTPResponse.Status>
     public let appliesToContentTypes:Set<Route.ContentType>

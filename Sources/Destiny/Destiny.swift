@@ -12,7 +12,7 @@ import ServiceLifecycle
 import Logging
 
 @freestanding(expression)
-public macro router(returnType: RouterReturnType, version: String, middleware: [Middleware], _ routes: Route...) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
+public macro router(returnType: RouterReturnType, version: String, middleware: [StaticMiddleware], _ routes: Route...) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
 
 // MARK: Application
 public struct Application : Service {

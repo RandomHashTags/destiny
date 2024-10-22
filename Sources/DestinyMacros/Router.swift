@@ -17,7 +17,7 @@ enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var returnType:RouterReturnType = .staticString
         var version:String = "HTTP/1.1"
-        var middleware:[Middleware] = [], routes:[Route] = []
+        var middleware:[StaticMiddleware] = [], routes:[Route] = []
         for argument in node.as(MacroExpansionExprSyntax.self)!.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
@@ -135,8 +135,8 @@ extension Router {
 
 // MARK: Parse Middleware
 extension Router {
-    static func parse_middleware(_ array: ArrayElementListSyntax) -> [Middleware] {
-        var middleware:[Middleware] = []
+    static func parse_middleware(_ array: ArrayElementListSyntax) -> [StaticMiddleware] {
+        var middleware:[StaticMiddleware] = []
         for element in array {
             if let function:FunctionCallExprSyntax = element.expression.functionCall {
                 var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToStatuses:Set<HTTPResponse.Status> = [], appliesToContentTypes:Set<Route.ContentType> = []
@@ -167,7 +167,7 @@ extension Router {
                     }
                 }
                 middleware.append(
-                    Middleware(
+                    StaticMiddleware(
                         appliesToMethods: appliesToMethods,
                         appliesToStatuses: appliesToStatuses,
                         appliesToContentTypes: appliesToContentTypes,

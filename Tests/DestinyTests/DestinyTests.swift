@@ -33,7 +33,7 @@ struct DestinyTests {
             returnType: .staticString,
             version: "HTTP/2.0",
             middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             Route(
                 method: .get,
@@ -48,7 +48,7 @@ struct DestinyTests {
             returnType: .staticString,
             version: "HTTP/2.0",
             middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             Route(
                 method: .get,
@@ -64,7 +64,7 @@ struct DestinyTests {
             returnType: .uint8Array,
             version: "HTTP/2.0",
             middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             Route(
                 method: .get,
@@ -79,7 +79,7 @@ struct DestinyTests {
             returnType: .uint16Array,
             version: "HTTP/2.0",
             middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             Route(
                 method: .get,

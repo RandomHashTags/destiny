@@ -46,13 +46,23 @@ public extension SIMD where Scalar : BinaryInteger {
         self = item
     }
 
-    func hasPrefix<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger {
-        for i in 0..<Swift.min(Self.scalarCount, T.scalarCount) {
-            if self[i] != simd[i] {
-                return false
+    var leadingZeroByteCount : Int {
+        var amount:Int = 0
+        for i in 0..<scalarCount {
+            if self[i] == 0 {
+                amount = i
+                break
             }
         }
-        return true
+        return amount
+    }
+
+    func hasPrefix<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger, Scalar == T.Scalar {
+        var copy:T = T()
+        for i in 0..<T.scalarCount {
+            copy[i] = self[i]
+        }
+        return simd == copy
     }
 }
 
