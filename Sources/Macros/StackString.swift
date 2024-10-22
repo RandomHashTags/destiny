@@ -16,14 +16,14 @@ struct StackString : MemberMacro {
         let zeros:String = range.map({ _ in "0" }).joined(separator: ",")
         return [
             equatable(amount: integer),
+            "public static var size : Int { \(raw: integer) }",
             "public static let zeroBuffer:(\(raw: buffer)) = (\(raw: zeros))",
             "public typealias BufferType = (\(raw: buffer))",
             "public var buffer:BufferType",
             "public init() { buffer = Self.zeroBuffer }",
             "public init(_ buffer: BufferType) { self.buffer = buffer }",
-            "public init(_ characters: UInt8...) { self.buffer = Self.zeroBuffer let length:Int = min(size, characters.count) var index:Int = 0 while index < length { self[index] = characters[index] index += 1 } }",
+            "public init(_ characters: UInt8...) { self.buffer = Self.zeroBuffer let length:Int = min(Self.size, characters.count) var index:Int = 0 while index < length { self[index] = characters[index] index += 1 } }",
             get_string_init(amount: integer),
-            "public var size : Int { \(raw: integer) }",
             get_description(amount: integer),
             get_subscript(amount: integer),
             get_split_logic(amount: integer),
@@ -74,7 +74,7 @@ struct StackString : MemberMacro {
         var string:String = "public func split(separator: UInt8) -> [Self] {"
         string += "var anchor:Int = 0, array:[Self] = [] "
         string += "array.reserveCapacity(2)"
-        string += "for i in 0..<size {"
+        string += "for i in 0..<Self.size {"
             string += "if self[i] == separator {"
                 string += "var slice:Self = Self(), slice_index:Int = 0 "
                 string += "if anchor != 0 { anchor += 1 }"
@@ -88,7 +88,7 @@ struct StackString : MemberMacro {
         string += "if array.isEmpty { return [self] }"
         string += "var ending_slice:Self = Self(), slice_index:Int = 0 "
         string += "if anchor != 0 { anchor += 1 }"
-        string += "for i in anchor..<size { ending_slice[slice_index] = self[i] slice_index += 1 }"
+        string += "for i in anchor..<Self.size { ending_slice[slice_index] = self[i] slice_index += 1 }"
         string += "array.append(ending_slice)"
         string += "return array }"
         return "\(raw: string)"
@@ -126,6 +126,7 @@ struct StackString : MemberMacro {
 }
 
 struct Test {
+    static var size : Int { 8 } 
     typealias ByteBuffer = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 
     var buffer:ByteBuffer
@@ -166,6 +167,4 @@ struct Test {
     mutating func set(index: Int, char: UInt8) {
         self[index] = char
     }
-
-    var size : Int { 8 }
 }

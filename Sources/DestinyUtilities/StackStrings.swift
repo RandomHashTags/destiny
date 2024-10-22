@@ -6,7 +6,9 @@
 //
 
 // MARK: StackString
-public protocol StackStringProtocol : Hashable, CustomStringConvertible {
+public protocol StackStringProtocol : Sendable, Hashable, CustomStringConvertible {
+    static var size : Int { get }
+
     associatedtype BufferType
     var buffer : BufferType { get set }
 
@@ -15,7 +17,6 @@ public protocol StackStringProtocol : Hashable, CustomStringConvertible {
     init(_ characters: UInt8...)
     init(_ string: inout String)
 
-    var size : Int { get }
     subscript(_ index: Int) -> UInt8 { get set }
 }
 @attached(member, names: named(buffer), arbitrary)

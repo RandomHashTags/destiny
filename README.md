@@ -5,7 +5,7 @@ Destiny is a standalone lightweight web server that makes use of the latest Swif
 
 It provides middleware and routers, which are written using Swift Macros, for processing requests.
 
-Features like native embedded support, TLS, Web Sockets, and HTTP2 are coming soon.
+Features like native compression, CORS, embedded support, TLS, Web Sockets, and HTTP2 are coming soon.
 
 ## Getting started
 coming soon...

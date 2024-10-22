@@ -15,7 +15,7 @@ import DestinyUtilities
 struct DestinyTests {
     @Test func example() {
         var stack_string32:StackString32 = StackString32()
-        for i in 0..<stack_string32.size {
+        for i in 0..<StackString32.size {
             stack_string32[i] = UInt8(65 + i)
         }
         stack_string32[15] = 32 // space
@@ -33,12 +33,27 @@ struct DestinyTests {
             returnType: .staticString,
             version: "HTTP/2.0",
             middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesHeaders: ["Are-You-My-Brother":"yes"])
+                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             Route(
                 method: .get,
                 path: "test",
-                status: .ok,
+                contentType: .html,
+                charset: "UTF-8",
+                staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
+                dynamicResult: nil
+            )
+        )
+        let static_string_router2:Router = #router(
+            returnType: .staticString,
+            version: "HTTP/2.0",
+            middleware: [
+                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+            ],
+            Route(
+                method: .get,
+                path: "test",
+                status: .movedPermanently,
                 contentType: .html,
                 charset: "UTF-8",
                 staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
@@ -49,12 +64,11 @@ struct DestinyTests {
             returnType: .uint8Array,
             version: "HTTP/2.0",
             middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesHeaders: ["Are-You-My-Brother":"yes"])
+                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             Route(
                 method: .get,
                 path: "test",
-                status: .ok,
                 contentType: .html,
                 charset: "UTF-8",
                 staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
@@ -65,12 +79,11 @@ struct DestinyTests {
             returnType: .uint16Array,
             version: "HTTP/2.0",
             middleware: [
-                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesHeaders: ["Are-You-My-Brother":"yes"])
+                Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             Route(
                 method: .get,
                 path: "test",
-                status: .ok,
                 contentType: .html,
                 charset: "UTF-8",
                 staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),

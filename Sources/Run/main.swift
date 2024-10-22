@@ -18,12 +18,11 @@ let application:Application = Application(
                 returnType: .staticString,
                 version: "HTTP/1.1",
                 middleware: [
-                    Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html])
+                    Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .internalServerError)
                 ],
                 Route(
                     method: .get,
                     path: "test",
-                    status: .ok,
                     contentType: .html,
                     charset: "UTF-8",
                     staticResult: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"),

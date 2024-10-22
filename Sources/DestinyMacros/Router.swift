@@ -128,7 +128,9 @@ extension Router {
         var middleware:[Middleware] = []
         for element in array {
             if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToStatuses:Set<HTTPResponse.Status> = [], appliesToContentTypes:Set<Route.ContentType> = [], appliesHeaders:[String:String] = [:]
+                var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToStatuses:Set<HTTPResponse.Status> = [], appliesToContentTypes:Set<Route.ContentType> = []
+                var appliesStatus:HTTPResponse.Status? = nil
+                var appliesHeaders:[String:String] = [:]
                 for argument in function.arguments {
                     switch argument.label!.text {
                         case "appliesToMethods":
@@ -140,6 +142,9 @@ extension Router {
                         case "appliesToContentTypes":
                             appliesToContentTypes = Set(argument.expression.array!.elements.map({ Route.ContentType(rawValue: "\($0.expression.memberAccess!.declName.baseName.text)")! }))
                             break
+                        case "appliesStatus":
+                            appliesStatus = parse_status(argument.expression.memberAccess!.declName.baseName.text)
+                            break
                         case "appliesHeaders":
                             let dictionary:[(String, String)] = argument.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.map({ ($0.key.stringLiteral!.string, $0.value.stringLiteral!.string) })
                             for (key, value) in dictionary {
@@ -150,7 +155,15 @@ extension Router {
                             break
                     }
                 }
-                middleware.append(Middleware(appliesToMethods: appliesToMethods, appliesToStatuses: appliesToStatuses, appliesToContentTypes: appliesToContentTypes, appliesHeaders: appliesHeaders))
+                middleware.append(
+                    Middleware(
+                        appliesToMethods: appliesToMethods,
+                        appliesToStatuses: appliesToStatuses,
+                        appliesToContentTypes: appliesToContentTypes,
+                        appliesStatus: appliesStatus,
+                        appliesHeaders: appliesHeaders
+                    )
+                )
             }
         }
         return middleware
@@ -161,7 +174,7 @@ extension Router {
 extension Router {
     static func parse_route(_ syntax: FunctionCallExprSyntax) -> Route {
         var method:HTTPRequest.Method = .get, path:String = ""
-        var status:HTTPResponse.Status = .ok
+        var status:HTTPResponse.Status? = nil
         var contentType:Route.ContentType = .text, charset:String = "UTF-8"
         var staticResult:Route.Result? = nil
         for argument in syntax.arguments {
@@ -202,6 +215,7 @@ extension Router {
         return Route(method: method, path: path, status: status, contentType: contentType, charset: charset, staticResult: staticResult, dynamicResult: nil)
     }
 
+    // MARK: Parse Status
     static func parse_status(_ key: String) -> HTTPResponse.Status {
         switch key {
             case "continue": return .continue

@@ -138,7 +138,7 @@ public final class Server : Service, DestinyClientAcceptor {
         not_found_response_pointer: UnsafeBufferPointer<UInt8>
     ) throws {
         let client_socket:Socket = Socket(fileDescriptor: client)
-        let token:StackString32 = try client_socket.readLine32()
+        let token:StackString32 = try client_socket.readLineStackString()
         if let responder:RouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
                 //try await responder.respondAsync(to: client_socket)

@@ -26,7 +26,7 @@ public struct RouterGroup : Sendable {
 
 // MARK: Router
 public struct Router : Sendable {
-    public private(set) var staticResponses:[StackString32:RouteResponseProtocol]
+    public let staticResponses:[StackString32:RouteResponseProtocol]
 
     public init(staticResponses: [StackString32:RouteResponseProtocol]) {
         self.staticResponses = staticResponses
@@ -39,22 +39,33 @@ public enum RouterReturnType : String {
 }
 
 // MARK: Middleware
-public struct Middleware : Hashable {
+public protocol MiddlewareProtocol : Hashable {
+    var appliesToMethods : Set<HTTPRequest.Method> { get }
+    var appliesToStatuses : Set<HTTPResponse.Status> { get }
+    var appliesToContentTypes : Set<Route.ContentType> { get }
+
+    var appliesStatus : HTTPResponse.Status? { get }
+    var appliesHeaders : [String:String] { get }
+}
+public struct Middleware : MiddlewareProtocol {
     public let appliesToMethods:Set<HTTPRequest.Method>
     public let appliesToStatuses:Set<HTTPResponse.Status>
     public let appliesToContentTypes:Set<Route.ContentType>
 
+    public let appliesStatus:HTTPResponse.Status?
     public let appliesHeaders:[String:String]
 
     public init(
         appliesToMethods: Set<HTTPRequest.Method> = [],
         appliesToStatuses: Set<HTTPResponse.Status> = [],
         appliesToContentTypes: Set<Route.ContentType> = [],
+        appliesStatus: HTTPResponse.Status? = nil,
         appliesHeaders: [String:String] = [:]
     ) {
         self.appliesToMethods = appliesToMethods
         self.appliesToStatuses = appliesToStatuses
         self.appliesToContentTypes = appliesToContentTypes
+        self.appliesStatus = appliesStatus
         self.appliesHeaders = appliesHeaders
     }
 }
@@ -63,7 +74,7 @@ public struct Middleware : Hashable {
 public struct Route {
     public let method:HTTPRequest.Method
     public package(set) var path:String
-    public let status:HTTPResponse.Status
+    public let status:HTTPResponse.Status?
     public let contentType:ContentType, charset:String
     public let staticResult:Result?
     public let dynamicResult:((borrowing Request?) -> Result)?
@@ -71,7 +82,7 @@ public struct Route {
     public init(
         method: HTTPRequest.Method,
         path: String,
-        status: HTTPResponse.Status = .ok,
+        status: HTTPResponse.Status? = nil,
         contentType: ContentType,
         charset: String,
         staticResult: Result?,
@@ -98,8 +109,21 @@ public struct Route {
         }
     }
 
-    package func response(version: String, middleware: [Middleware]) -> String {
-        let middleware:[Middleware] = middleware.filter({ $0.appliesToMethods.contains(method) && $0.appliesToStatuses.contains(status) && $0.appliesToContentTypes.contains(contentType) })
+    package func response(version: String, middleware: [any MiddlewareProtocol]) -> String {
+        var response_status:HTTPResponse.Status? = status
+        var headers:[String:String] = [:]
+        headers[HTTPField.Name.contentType.rawName] = contentType.htmlValue + "; charset=" + charset
+        for middleware in middleware {
+            if middleware.appliesToMethods.contains(method) && middleware.appliesToContentTypes.contains(contentType)
+                    && (response_status != nil ? middleware.appliesToStatuses.contains(response_status!) : true) {
+                if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
+                    response_status = applied_status
+                }
+                for (header, value) in middleware.appliesHeaders {
+                    headers[header] = value
+                }
+            }
+        }
         let result:Result = staticResult ?? dynamicResult!(nil), result_string:String
         switch result {
             case .string(let string):
@@ -109,15 +133,7 @@ public struct Route {
                 result_string = bytes.map({ "\($0)" }).joined()
                 break
         }
-        var string:String = version + " \(status)\\r\\n"
-
-        var headers:[String:String] = [:]
-        headers[HTTPField.Name.contentType.rawName] = contentType.htmlValue + "; charset=" + charset
-        for m in middleware {
-            for (header, value) in m.appliesHeaders {
-                headers[header] = value
-            }
-        }
+        var string:String = version + " \(response_status ?? HTTPResponse.Status.notImplemented)\\r\\n"
         for (header, value) in headers {
             string += header + ": " + value + "\\r\\n"
         }
