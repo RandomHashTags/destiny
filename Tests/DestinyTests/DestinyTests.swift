@@ -21,8 +21,12 @@ struct DestinyTests {
         stack_string32[15] = 32 // space
         let values:[StackString32] = stack_string32.split(separator: 32)
         for value in values {
-            print(value.description + " (\(value))")
+            print(value.description + " \(value.buffer)")
         }
+
+        var string:String = "test"
+        let test:StackString32 = StackString32(&string)
+        print("test=\(test) \(test.buffer)")
         return;
 
         let static_string_router:Router = #router(

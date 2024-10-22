@@ -7,3 +7,4 @@ DerivedData
 .netrc
 .vscode
 Package.resolved
+StackStrings.*

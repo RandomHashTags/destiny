@@ -32,18 +32,18 @@ public struct Socket : SocketProtocol, ~Copyable {
     deinit { deinitalize() }
 }
 
-public extension SocketProtocol {
+public extension SocketProtocol where Self : ~Copyable {
     @inlinable
-    func readHttpRequest32() throws -> [StackString32] {
-        let status:StackString32 = try readLine32()
-        let tokens:[StackString32] = status.split(separator: 32) // space
+    func readHttpRequest32() throws -> StackString32 {
+        return try readLine32()
+        /*let tokens:[StackString32] = status.split(separator: 32) // space
         guard tokens.count >= 3 else {
             throw SocketError.invalidStatus()
-        }
+        }*/
         // 0 == method
         // 1 == path
         // 2 == http version
-        return tokens
+        //return tokens
     }
 
     @inlinable

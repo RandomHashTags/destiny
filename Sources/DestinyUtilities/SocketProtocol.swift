@@ -36,16 +36,16 @@ public extension SocketProtocol where Self : ~Copyable {
 // MARK: SocketProtocol reading
 public extension SocketProtocol where Self : ~Copyable {
     @inlinable
-    func readHttpRequest() throws -> [Substring] {
-        let status:String = try readLine()
-        let tokens:[Substring] = status.split(separator: " ")
+    func readHttpRequest() throws -> String {
+        return try readLine()
+        /*let tokens:[Substring] = status.split(separator: " ")
         guard tokens.count >= 3 else {
             throw SocketError.invalidStatus()
         }
         // 0 == method
         // 1 == path
         // 2 == http version
-        return tokens
+        return tokens*/
     }
 
     /// Reads 1 byte

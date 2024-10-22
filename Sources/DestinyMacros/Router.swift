@@ -62,7 +62,10 @@ enum Router : ExpressionMacro {
         }
         let static_responses:String = routes.map({
             let value:String = get_returned_type($0.response(version: version, middleware: middleware))
-            return "\"" + $0.method.rawValue + " /" + $0.path + "\":" + value
+            var string:String = $0.method.rawValue + " /" + $0.path + " " + version
+            let stack_string:StackString32 = StackString32(&string)
+            return "StackString32(\(stack_string.buffer)):" + value
+            //return "\"" + string + "\":" + value
         }).joined(separator: ",")
         return "\(raw: "Router(staticResponses: [" + (static_responses.isEmpty ? ":" : static_responses) + "])")"
     }

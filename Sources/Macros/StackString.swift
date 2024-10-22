@@ -7,9 +7,6 @@
 
 import SwiftSyntax
 import SwiftSyntaxMacros
-import SwiftDiagnostics
-
-import Foundation
 
 struct StackString : MemberMacro {
     static func expansion(of node: AttributeSyntax, providingMembersOf declaration: some DeclGroupSyntax, conformingTo protocols: [TypeSyntax], in context: some MacroExpansionContext) throws -> [DeclSyntax] {
@@ -19,11 +16,13 @@ struct StackString : MemberMacro {
         let zeros:String = range.map({ _ in "0" }).joined(separator: ",")
         return [
             equatable(amount: integer),
+            "public static let zeroBuffer:(\(raw: buffer)) = (\(raw: zeros))",
             "public typealias BufferType = (\(raw: buffer))",
             "public var buffer:BufferType",
-            "public init() { buffer = (\(raw: zeros)) }",
-            "public init(buffer: BufferType) { self.buffer = buffer }",
-            "public init(characters: UInt8...) { self.buffer = (\(raw: zeros)) let length:Int = min(size, characters.count) var index:Int = 0 while index < length { self[index] = characters[index] index += 1 } }",
+            "public init() { buffer = Self.zeroBuffer }",
+            "public init(_ buffer: BufferType) { self.buffer = buffer }",
+            "public init(_ characters: UInt8...) { self.buffer = Self.zeroBuffer let length:Int = min(size, characters.count) var index:Int = 0 while index < length { self[index] = characters[index] index += 1 } }",
+            get_string_init(amount: integer),
             "public var size : Int { \(raw: integer) }",
             get_description(amount: integer),
             get_subscript(amount: integer),
@@ -95,11 +94,33 @@ struct StackString : MemberMacro {
         return "\(raw: string)"
     }
     static func get_description(amount: Int) -> DeclSyntax {
-        var string:String = "public var description : String {"
+        var string:String = "public var description : String { "
+        string += "\""
         for i in 0..<amount {
-            string += (i == 0 ? "" : " + ") + "String(describing: Character(Unicode.Scalar(buffer.\(i))))"
+            string += "\\(Character(Unicode.Scalar(buffer.\(i))))"
         }
-        string += "}"
+        string += "\" }"
+        return "\(raw: string)"
+    }
+    static func get_string_init(amount: Int) -> DeclSyntax {
+        var string:String = "public init(_ string: inout String) {"
+            string += "var buffer:BufferType = Self.zeroBuffer "
+            string += "string.withUTF8 { p in "
+                string += "if p.count < \(amount) {"
+                    string += "var a:Self = Self() "
+                    string += "for i in 0..<p.count {"
+                        string += "a[i] = p[i]"
+                    string += "}"
+                    string += "buffer = a.buffer"
+                string += "} else { "
+                    string += " buffer = ("
+                    for i in 0..<amount {
+                        string += (i == 0 ? "" : ", ") + "p[\(i)]"
+                    }
+                    string += ")"
+                string += "}"
+            string += "}"
+        string += " self.buffer = buffer }"
         return "\(raw: string)"
     }
 }
@@ -122,7 +143,29 @@ struct Test {
         
     }
 
+    init(string: inout String) {
+        var buffer:ByteBuffer = (0, 0, 0, 0, 0, 0, 0,0)
+        string.withUTF8 { p in
+            let length:Int = min(8, p.count)
+            switch length {
+                case 0: break
+                case 1:
+                    buffer.0 = p[0]
+                    break
+                default:
+                    break
+            }
+        }
+        self.buffer = buffer
+    }
+
+    init(_ characters: UInt8...) {
+        buffer = (characters[0], characters[1], characters[2], characters[3], characters[4], characters[5], characters[6], characters[7])
+    }
+
     mutating func set(index: Int, char: UInt8) {
         self[index] = char
     }
+
+    var size : Int { 8 }
 }

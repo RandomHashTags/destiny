@@ -1,5 +1,5 @@
 //
-//  Macros.swift
+//  DestinyMacros.swift
 //
 //
 //  Created by Evan Anderson on 10/17/24.
@@ -27,8 +27,8 @@ extension DiagnosticMsg : FixItMessage {
 
 
 @main
-struct Macros : CompilerPlugin {
+struct DestinyMacros : CompilerPlugin {
     let providingMacros:[any Macro.Type] = [
-        StackString.self
+        Router.self
     ]
 }

@@ -81,7 +81,7 @@ public final class Server : Service, DestinyClientAcceptor {
             close(serverFD)
             throw Server.Error.listenFailed()
         }
-        let static_responses:[String:RouteResponseProtocol] = Self.static_responses(for: router)
+        let static_responses:[StackString32:RouteResponseProtocol] = Self.static_responses(for: router)
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on port \(port)"))
         await withTaskCancellationOrGracefulShutdownHandler {
@@ -110,11 +110,11 @@ public final class Server : Service, DestinyClientAcceptor {
         }
     }
     @inlinable
-    static func static_responses(for router: Router) -> [String:RouteResponseProtocol] {
-        var responses:[String:RouteResponseProtocol] = [:]
+    static func static_responses(for router: Router) -> [StackString32:RouteResponseProtocol] {
+        var responses:[StackString32:RouteResponseProtocol] = [:]
         responses.reserveCapacity(router.staticResponses.count)
         for (path, responder) in router.staticResponses {
-            responses[String(path)] = responder
+            responses[path] = responder
         }
         return responses
     }
@@ -132,12 +132,14 @@ public final class Server : Service, DestinyClientAcceptor {
     @inlinable
     static func process_client(
         client: Int32,
-        static_responses: [String:RouteResponseProtocol],
+        static_responses: [StackString32:RouteResponseProtocol],
         not_found_response: StaticString
     ) throws {
         let client_socket:Socket = Socket(fileDescriptor: client)
-        let tokens:[Substring] = try client_socket.readHttpRequest()
-        if let responder:RouteResponseProtocol = static_responses[tokens[0] + " " + tokens[1]] {
+        //let token:String = try client_socket.readHttpRequest()
+        let token:StackString32 = try client_socket.readHttpRequest32()
+        //if let responder:RouteResponseProtocol = static_responses[tokens[0] + " " + tokens[1]] {
+        if let responder:RouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
                 //try await responder.respondAsync(to: client_socket)
             } else {

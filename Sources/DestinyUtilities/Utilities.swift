@@ -26,9 +26,9 @@ public struct RouterGroup : Sendable {
 
 // MARK: Router
 public struct Router : Sendable {
-    public private(set) var staticResponses:[Substring:RouteResponseProtocol]
+    public private(set) var staticResponses:[StackString32:RouteResponseProtocol]
 
-    public init(staticResponses: [Substring:RouteResponseProtocol]) {
+    public init(staticResponses: [StackString32:RouteResponseProtocol]) {
         self.staticResponses = staticResponses
     }
 }
