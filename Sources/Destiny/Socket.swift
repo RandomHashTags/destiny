@@ -34,19 +34,6 @@ public struct Socket : SocketProtocol, ~Copyable {
 
 public extension SocketProtocol where Self : ~Copyable {
     @inlinable
-    func readHttpRequest32() throws -> StackString32 {
-        return try readLine32()
-        /*let tokens:[StackString32] = status.split(separator: 32) // space
-        guard tokens.count >= 3 else {
-            throw SocketError.invalidStatus()
-        }*/
-        // 0 == method
-        // 1 == path
-        // 2 == http version
-        //return tokens
-    }
-
-    @inlinable
     func readLine32() throws -> StackString32 { // read just the method, path & http version
         var string:StackString32 = StackString32()
         var i:Int = 0, index:UInt8 = 0

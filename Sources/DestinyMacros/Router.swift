@@ -65,7 +65,6 @@ enum Router : ExpressionMacro {
             var string:String = $0.method.rawValue + " /" + $0.path + " " + version
             let stack_string:StackString32 = StackString32(&string)
             return "StackString32(\(stack_string.buffer)):" + value
-            //return "\"" + string + "\":" + value
         }).joined(separator: ",")
         return "\(raw: "Router(staticResponses: [" + (static_responses.isEmpty ? ":" : static_responses) + "])")"
     }

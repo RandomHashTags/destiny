@@ -83,26 +83,28 @@ public final class Server : Service, DestinyClientAcceptor {
         }
         let static_responses:[StackString32:RouteResponseProtocol] = Self.static_responses(for: router)
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
-        logger.notice(Logger.Message(stringLiteral: "Listening for clients on port \(port)"))
+        logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port)"))
         await withTaskCancellationOrGracefulShutdownHandler {
-            for _ in 0..<threads-1 {
-                Thread.detachNewThread {
-                    while !Task.isCancelled && !Task.isShuttingDownGracefully {
-                        do {
-                            let client:Int32 = try Server.client(fileDescriptor: serverFD)
-                            try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
-                        } catch {
-                            self.logger.error(Logger.Message(stringLiteral: "\(error)"))
+            not_found_response.withUTF8Buffer { not_found_response_pointer in
+                for _ in 0..<threads-1 {
+                    Thread.detachNewThread {
+                        while !Task.isCancelled && !Task.isShuttingDownGracefully {
+                            do {
+                                let client:Int32 = try Server.client(fileDescriptor: serverFD)
+                                try Self.process_client(client: client, static_responses: static_responses, not_found_response_pointer: not_found_response_pointer)
+                            } catch {
+                                self.logger.error(Logger.Message(stringLiteral: "\(error)"))
+                            }
                         }
                     }
                 }
-            }
-            while !Task.isCancelled && !Task.isShuttingDownGracefully {
-                do {
-                    let client:Int32 = try Server.client(fileDescriptor: serverFD)
-                    try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
-                } catch {
-                    self.logger.error(Logger.Message(stringLiteral: "\(error)"))
+                while !Task.isCancelled && !Task.isShuttingDownGracefully {
+                    do {
+                        let client:Int32 = try Server.client(fileDescriptor: serverFD)
+                        try Self.process_client(client: client, static_responses: static_responses, not_found_response_pointer: not_found_response_pointer)
+                    } catch {
+                        self.logger.error(Logger.Message(stringLiteral: "\(error)"))
+                    }
                 }
             }
         } onCancelOrGracefulShutdown: {
@@ -133,12 +135,10 @@ public final class Server : Service, DestinyClientAcceptor {
     static func process_client(
         client: Int32,
         static_responses: [StackString32:RouteResponseProtocol],
-        not_found_response: StaticString
+        not_found_response_pointer: UnsafeBufferPointer<UInt8>
     ) throws {
         let client_socket:Socket = Socket(fileDescriptor: client)
-        //let token:String = try client_socket.readHttpRequest()
-        let token:StackString32 = try client_socket.readHttpRequest32()
-        //if let responder:RouteResponseProtocol = static_responses[tokens[0] + " " + tokens[1]] {
+        let token:StackString32 = try client_socket.readLine32()
         if let responder:RouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
                 //try await responder.respondAsync(to: client_socket)
@@ -147,12 +147,10 @@ public final class Server : Service, DestinyClientAcceptor {
             }
         } else {
             var err:Swift.Error? = nil
-            not_found_response.withUTF8Buffer {
-                do {
-                    try client_socket.writeBuffer($0.baseAddress!, length: $0.count)
-                } catch {
-                    err = error
-                }
+            do {
+                try client_socket.writeBuffer(not_found_response_pointer.baseAddress!, length: not_found_response_pointer.count)
+            } catch {
+                err = error
             }
             if let error:Swift.Error = err {
                 throw error

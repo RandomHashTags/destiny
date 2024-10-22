@@ -7,4 +7,6 @@ DerivedData
 .netrc
 .vscode
 Package.resolved
-StackStrings.*
+StackStrings.d
+StackStrings.o
+StackStrings.swiftdeps*
