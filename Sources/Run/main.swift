@@ -18,7 +18,7 @@ let application:Application = Application(
                 returnType: .staticString,
                 version: "HTTP/1.1",
                 middleware: [
-                    Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .internalServerError)
+                    Middleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok)
                 ],
                 Route(
                     method: .get,

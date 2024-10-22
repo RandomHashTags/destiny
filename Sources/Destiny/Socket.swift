@@ -34,11 +34,11 @@ public struct Socket : SocketProtocol, ~Copyable {
 
 public extension SocketProtocol where Self : ~Copyable {
     @inlinable
-    func readLineStackString<T: StackStringProtocol>() throws -> T { // read just the method, path & http version
+    func readLineStackString<T: SIMD>() throws -> T where T.Scalar: BinaryInteger { // read just the method, path & http version
         var string:T = T()
-        var i:Int = 0, index:UInt8 = 0
-        while index != 10 && i != T.size {
-            index = try self.readByte()
+        var i:Int = 0, index:T.Scalar = 0
+        while index != 10 && i != T.scalarCount {
+            index = T.Scalar(try self.readByte())
             if index > 13 {
                 string[i] = index
                 i += 1

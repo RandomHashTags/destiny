@@ -7,44 +7,53 @@
 
 // MARK: StackString
 public protocol StackStringProtocol : Sendable, Hashable, CustomStringConvertible {
+    /// The number of bytes this StackString holds.
     static var size : Int { get }
 
     associatedtype BufferType
     var buffer : BufferType { get set }
 
+    /// Creates an empty StackString.
     init()
     init(_ buffer: BufferType)
     init(_ characters: UInt8...)
     init(_ string: inout String)
+
+    /// The number of non-zero leading bytes this StackString has.
+    /// - Complexity: O(_n_) where _n_ is this StackString's size.
+    var count : Int { get }
 
     subscript(_ index: Int) -> UInt8 { get set }
 }
 @attached(member, names: named(buffer), arbitrary)
 public macro StackString(bufferLength: Int) = #externalMacro(module: "Macros", type: "StackString")
 
-// MARK: StackString4
-@StackString(bufferLength: 4)
-public struct StackString4 : StackStringProtocol {
-}
+public typealias StackString2 = SIMD2<UInt8>
+public typealias StackString4 = SIMD4<UInt8>
+public typealias StackString8 = SIMD8<UInt8>
+public typealias StackString16 = SIMD16<UInt8>
+public typealias StackString32 = SIMD32<UInt8>
+public typealias StackString64 = SIMD64<UInt8>
 
-// MARK: StackString8
-@StackString(bufferLength: 8)
-public struct StackString8 : StackStringProtocol {
-}
+public extension SIMD where Scalar : BinaryInteger {
+    init(_ string: inout String) {
+        var item:Self = Self()
+        string.withUTF8 { p in
+            for i in 0..<Swift.min(p.count, Self.scalarCount) {
+                item[i] = Scalar(p[i])
+            }
+        }
+        self = item
+    }
 
-// MARK: StackString16
-@StackString(bufferLength: 16)
-public struct StackString16 : StackStringProtocol {
-}
-
-// MARK: StackString32
-@StackString(bufferLength: 32)
-public struct StackString32 : StackStringProtocol {
-}
-
-// MARK: StackString64
-@StackString(bufferLength: 64)
-public struct StackString64 : StackStringProtocol {
+    func hasPrefix<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger {
+        for i in 0..<Swift.min(Self.scalarCount, T.scalarCount) {
+            if self[i] != simd[i] {
+                return false
+            }
+        }
+        return true
+    }
 }
 
 // MARK: StackString128

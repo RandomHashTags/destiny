@@ -8,7 +8,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-struct StackString : MemberMacro {
+struct StackString : MemberMacro { // TODO: create concrete SIMD types instead of using this macro
     static func expansion(of node: AttributeSyntax, providingMembersOf declaration: some DeclGroupSyntax, conformingTo protocols: [TypeSyntax], in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         let integer:Int = Int(node.arguments!.children(viewMode: .all).first!.as(LabeledExprSyntax.self)!.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
         let range:Range<Int> = 0..<integer
@@ -16,7 +16,9 @@ struct StackString : MemberMacro {
         let zeros:String = range.map({ _ in "0" }).joined(separator: ",")
         return [
             equatable(amount: integer),
+            "/// The number of bytes this StackString contains.",
             "public static var size : Int { \(raw: integer) }",
+            "/// This StackString's byte buffer with zero assigned at every value.",
             "public static let zeroBuffer:(\(raw: buffer)) = (\(raw: zeros))",
             "public typealias BufferType = (\(raw: buffer))",
             "public var buffer:BufferType",
@@ -27,9 +29,12 @@ struct StackString : MemberMacro {
             get_description(amount: integer),
             get_subscript(amount: integer),
             get_split_logic(amount: integer),
+            get_count(),
+            get_has_prefix(),
             hashable(amount: integer),
         ]
     }
+    // MARK: Equatable
     static func equatable(amount: Int) -> DeclSyntax {
         var string:String = "public static func == (left: Self, right: Self) -> Bool {"
         string += "if "
@@ -37,9 +42,11 @@ struct StackString : MemberMacro {
             string += (i == 0 ? "" : " || ") + "left.buffer.\(i) != right.buffer.\(i)"
         }
         string += "{ return false }"
-        string += "return true }"
+        string += "return true "
+        string += "}"
         return "\(raw: string)"
     }
+    // MARK: Hashable
     static func hashable(amount: Int) -> DeclSyntax {
         var string:String = "public func hash(into hasher: inout Hasher) {"
         for i in 0..<amount {
@@ -48,6 +55,7 @@ struct StackString : MemberMacro {
         string += "}"
         return "\(raw: string)"
     }
+    // MARK: Subscript
     static func get_subscript(amount: Int) -> DeclSyntax {
         var string:String = "public subscript(_ index: Int) -> UInt8 {"
         func thing(_ i: Int, logic: String) -> String {
@@ -70,8 +78,10 @@ struct StackString : MemberMacro {
         string += "}"
         return "\(raw: string)"
     }
+    // MARK: Split
     static func get_split_logic(amount: Int) -> DeclSyntax {
-        var string:String = "public func split(separator: UInt8) -> [Self] {"
+        var string:String = "/// Split this StackString based on a separator.\n"
+        string += "public func split(separator: UInt8) -> [Self] {"
         string += "var anchor:Int = 0, array:[Self] = [] "
         string += "array.reserveCapacity(2)"
         string += "for i in 0..<Self.size {"
@@ -93,6 +103,7 @@ struct StackString : MemberMacro {
         string += "return array }"
         return "\(raw: string)"
     }
+    // MARK: Description
     static func get_description(amount: Int) -> DeclSyntax {
         var string:String = "public var description : String { "
         string += "\""
@@ -102,6 +113,7 @@ struct StackString : MemberMacro {
         string += "\" }"
         return "\(raw: string)"
     }
+    // MARK: Init from string
     static func get_string_init(amount: Int) -> DeclSyntax {
         var string:String = "public init(_ string: inout String) {"
             string += "var buffer:BufferType = Self.zeroBuffer "
@@ -123,9 +135,41 @@ struct StackString : MemberMacro {
         string += " self.buffer = buffer }"
         return "\(raw: string)"
     }
+    // MARK: Get count
+    static func get_count() -> DeclSyntax {
+        var string:String = "/// The number of non-zero leading bytes this StackString has.\n"
+        string += "/// - Complexity: O(_n_) where _n_ is this StackString's size.\n"
+        string += "public var count : Int {"
+            string += "for i in 0..<Self.size {"
+                string += "if self[i] == 0 { return i }"
+            string += "}"
+        string += "return Self.size }"
+        return "\(raw: string)"
+    }
+    // MARK: Has prefix
+    static func get_has_prefix() -> DeclSyntax {
+        var string:String = "/// Whether or not this StackString is prefixed with the given `StackStringProtocol`.\n"
+        string += "/// - Complexity: O(_n_) where _n_ equals the lesser count of the two.\n"
+        string += "public func hasPrefix<T : StackStringProtocol>(_ string: T) -> Bool {"
+        string += "let length:Int = min(string.count, self.count)"
+        string += "for i in 0..<length {"
+            string += "if self[i] != string[i] { return false }"
+        string += "}"
+        string += "return true }"
+        return "\(raw: string)"
+    }
+    static func get_has_string_prefix() -> DeclSyntax {
+        var string:String = "public func hasPrefix(_ string: String) -> Bool {"
+        string += "}"
+        return "\(raw: string)"
+    }
 }
 
+// MARK: Test
 struct Test {
+    func test_simd(left: SIMD64<UInt8>, right: SIMD64<UInt8>) -> Bool {
+        return left == right
+    }
     static var size : Int { 8 } 
     typealias ByteBuffer = (UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8, UInt8)
 
@@ -166,5 +210,9 @@ struct Test {
 
     mutating func set(index: Int, char: UInt8) {
         self[index] = char
+    }
+
+    var simd : SIMD8<UInt8> {
+        SIMD8<UInt8>(buffer.0, buffer.1, buffer.2, buffer.3, buffer.4, buffer.5, buffer.6, buffer.7)
     }
 }

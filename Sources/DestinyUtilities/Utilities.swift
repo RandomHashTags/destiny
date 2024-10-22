@@ -154,6 +154,9 @@ public struct Route {
     }
 }
 
+// MARK: Request
 public struct Request : ~Copyable {
+    public let method:HTTPRequest.Method
+    public let path:StackString64
     public let headers:[HTTPField.Name:String]
 }
