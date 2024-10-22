@@ -103,6 +103,20 @@ public extension SocketProtocol where Self : ~Copyable {
 // MARK: SocketProtocol writing
 public extension SocketProtocol where Self : ~Copyable {
     @inlinable
+    func writeSIMD<T: SIMD>(_ simd: inout T) throws where T.Scalar: BinaryInteger {
+        var err:Error? = nil
+        withUnsafeBytes(of: simd) { p in
+            do {
+                try writeBuffer(p.baseAddress!, length: simd.leadingNonzeroByteCount)
+            } catch {
+                err = error
+            }
+        }
+        if let err:Error = err {
+            throw err
+        }
+    }
+    @inlinable
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
         guard !closed else { return }
         var sent:Int = 0

@@ -15,18 +15,18 @@ import DestinyUtilities
 struct DestinyTests {
     @Test func example() {
         var stack_string32:StackString32 = StackString32()
-        for i in 0..<StackString32.size {
+        for i in 0..<StackString32.scalarCount {
             stack_string32[i] = UInt8(65 + i)
         }
         stack_string32[15] = 32 // space
         let values:[StackString32] = stack_string32.split(separator: 32)
         for value in values {
-            print(value.description + " \(value.buffer)")
+            print(value.description + " \(value)")
         }
 
         var string:String = "test"
         let test:StackString32 = StackString32(&string)
-        print("test=\(test) \(test.buffer)")
+        print("test=\(test)")
         return;
 
         let static_string_router:Router = #router(

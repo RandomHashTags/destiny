@@ -46,26 +46,62 @@ public extension SIMD where Scalar : BinaryInteger {
         self = item
     }
 
-    var leadingZeroByteCount : Int {
-        var amount:Int = 0
+    /// - Complexity: O(_n_) where _n_ equals `scalarCount`
+    var leadingNonzeroByteCount : Int {
         for i in 0..<scalarCount {
             if self[i] == 0 {
-                amount = i
-                break
+                return i
             }
         }
-        return amount
+        return 0
     }
 
     func hasPrefix<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger, Scalar == T.Scalar {
-        var copy:T = T()
+        var nibble:T = T()
         for i in 0..<T.scalarCount {
-            copy[i] = self[i]
+            nibble[i] = self[i]
         }
-        return simd == copy
+        return nibble == simd
+    }
+
+    func split(separator: Scalar) -> [Self] {
+        var anchor:Int = 0, array:[Self] = []
+        array.reserveCapacity(2)
+        for i in 0..<scalarCount {
+            if self[i] == separator {
+                var slice:Self = Self(), slice_index:Int = 0
+                if anchor != 0 {
+                    anchor += 1
+                }
+                if anchor < i {
+                    for j in anchor..<i {
+                        slice[slice_index] = self[anchor + j]
+                        slice_index += 1
+                    }
+                    if slice_index != 0 {
+                        array.append(slice)
+                    }
+                    anchor = i
+                }
+            }
+        }
+        if array.isEmpty {
+            return [self]
+        }
+        var ending_slice:Self = Self(), slice_index:Int = 0
+        if anchor != 0 {
+            anchor += 1
+        }
+        for i in anchor..<scalarCount {
+            ending_slice[slice_index] = self[i]
+            slice_index += 1
+        }
+        array.append(ending_slice)
+        return array
     }
 }
 
+/*
 // MARK: StackString128
 @StackString(bufferLength: 128)
 public struct StackString128 : StackStringProtocol {
@@ -94,4 +130,4 @@ public struct StackString96 : StackStringProtocol {
 // MARK: StackString192
 @StackString(bufferLength: 192)
 public struct StackString192 : StackStringProtocol {
-}
+}*/
