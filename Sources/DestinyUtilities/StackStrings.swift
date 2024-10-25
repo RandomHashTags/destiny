@@ -34,8 +34,8 @@ public extension SIMD where Scalar : BinaryInteger {
     }
 
     /// Whether or not this SIMD is prefixed with certain integers.
-    /// - Complexity: O(1)
-    func hasPrefix<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger, Scalar == T.Scalar {
+    /// - Complexity: O(_n_) where _n_ equals the target SIMD's `scalarCount`.
+    func hasPrefixSIMD<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger, Scalar == T.Scalar {
         var nibble:T = T()
         for i in 0..<T.scalarCount {
             nibble[i] = self[i]
@@ -77,5 +77,92 @@ public extension SIMD where Scalar : BinaryInteger {
         }
         array.append(ending_slice)
         return array
+    }
+}
+
+// MARK: hasPrefix O(1)
+public extension SIMD4<UInt8> {
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
+        return simd == SIMD2<UInt8>(self[0], self[1])
+    }
+}
+public extension SIMD8<UInt8> {
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
+        return simd == SIMD2<UInt8>(self[0], self[1])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
+        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
+    }
+}
+public extension SIMD16<UInt8> {
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
+        return simd == SIMD2<UInt8>(self[0], self[1])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
+        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD8<UInt8>) -> Bool {
+        return simd == SIMD8<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7])
+    }
+}
+public extension SIMD32<UInt8> {
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
+        return simd == SIMD2<UInt8>(self[0], self[1])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
+        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD8<UInt8>) -> Bool {
+        return simd == SIMD8<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD16<UInt8>) -> Bool {
+        return simd == SIMD16<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7], self[8], self[9], self[10], self[11], self[12], self[13], self[14], self[15])
+    }
+}
+public extension SIMD64<UInt8> {
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
+        return simd == SIMD2<UInt8>(self[0], self[1])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
+        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD8<UInt8>) -> Bool {
+        return simd == SIMD8<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD16<UInt8>) -> Bool {
+        return simd == SIMD16<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7], self[8], self[9], self[10], self[11], self[12], self[13], self[14], self[15])
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    func hasPrefix(_ simd: SIMD32<UInt8>) -> Bool {
+        return simd == SIMD32<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7], self[8], self[9], self[10], self[11], self[12], self[13], self[14], self[15], self[16], self[17], self[18], self[19], self[20], self[21], self[22], self[23], self[24], self[25], self[26], self[27], self[28], self[29], self[30], self[31])
     }
 }

@@ -81,76 +81,72 @@ public final class Server : Service, DestinyClientAcceptor {
             close(serverFD)
             throw Server.Error.listenFailed()
         }
-        let static_responses:[StackString32:RouteResponseProtocol] = Self.static_responses(for: router)
+        let static_responses:[StackString32:RouteResponseProtocol] = router.staticResponses
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port)"))
         await withTaskCancellationOrGracefulShutdownHandler {
-            not_found_response.withUTF8Buffer { not_found_response_pointer in
-                for _ in 0..<threads-1 {
+            //not_found_response.withUTF8Buffer { not_found_response_pointer in
+                /*for _ in 0..<threads-1 {
                     Thread.detachNewThread {
                         while !Task.isCancelled && !Task.isShuttingDownGracefully {
                             do {
-                                let client:Int32 = try Server.client(fileDescriptor: serverFD)
+                                let client:Int32 = try await Server.client(fileDescriptor: serverFD)
                                 try Self.process_client(client: client, static_responses: static_responses, not_found_response_pointer: not_found_response_pointer)
                             } catch {
                                 self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                             }
                         }
                     }
-                }
+                }*/
                 while !Task.isCancelled && !Task.isShuttingDownGracefully {
                     do {
-                        let client:Int32 = try Server.client(fileDescriptor: serverFD)
-                        try Self.process_client(client: client, static_responses: static_responses, not_found_response_pointer: not_found_response_pointer)
+                        let client:Int32 = try await Server.client(fileDescriptor: serverFD)
+                        try await Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
                     } catch {
                         self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                     }
                 }
-            }
+            //}
         } onCancelOrGracefulShutdown: {
             close(serverFD)
         }
     }
-    @inlinable
-    static func static_responses(for router: Router) -> [StackString32:RouteResponseProtocol] {
-        var responses:[StackString32:RouteResponseProtocol] = [:]
-        responses.reserveCapacity(router.staticResponses.count)
-        for (path, responder) in router.staticResponses {
-            responses[path] = responder
-        }
-        return responses
-    }
 
     @inlinable
-    static func client(fileDescriptor: Int32) throws -> Int32 {
-        var addr:sockaddr = sockaddr(), len:socklen_t = 0
-        let client:Int32 = accept(fileDescriptor, &addr, &len)
-        if client <= 0 {
-            throw SocketError.acceptFailed()
+    static func client(fileDescriptor: Int32) async throws -> Int32 {
+        return try await withCheckedThrowingContinuation { continuation in
+            var addr:sockaddr = sockaddr(), len:socklen_t = 0
+            let client:Int32 = accept(fileDescriptor, &addr, &len)
+            if client <= 0 {
+                continuation.resume(throwing: SocketError.acceptFailed())
+                return
+            }
+            continuation.resume(returning: client)
         }
-        return client
     }
 
     @inlinable
     static func process_client(
         client: Int32,
         static_responses: [StackString32:RouteResponseProtocol],
-        not_found_response_pointer: UnsafeBufferPointer<UInt8>
-    ) throws {
+        not_found_response: StaticString
+    ) async throws {
         let client_socket:Socket = Socket(fileDescriptor: client)
         let token:StackString32 = try client_socket.readLineStackString()
         if let responder:RouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
-                //try await responder.respondAsync(to: client_socket)
+                try await responder.respondAsync(to: client_socket)
             } else {
                 try responder.respond(to: client_socket)
             }
         } else {
             var err:Swift.Error? = nil
-            do {
-                try client_socket.writeBuffer(not_found_response_pointer.baseAddress!, length: not_found_response_pointer.count)
-            } catch {
-                err = error
+            not_found_response.withUTF8Buffer {
+                do {
+                    try client_socket.writeBuffer($0.baseAddress!, length: $0.count)
+                } catch {
+                    err = error
+                }
             }
             if let error:Swift.Error = err {
                 throw error
