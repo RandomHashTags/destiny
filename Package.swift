@@ -7,7 +7,7 @@ import CompilerPluginSupport
 let package = Package(
     name: "destiny",
     platforms: [
-        .macOS(.v13)
+        .macOS(.v14)
     ],
     products: [
         .library(
