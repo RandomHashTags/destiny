@@ -13,6 +13,48 @@ import Destiny
 import DestinyUtilities
 
 struct DestinyTests {
+    @Test func simd_leadingNonzeroByteCount() {
+        var string:String = "siuerbnieprsbgsrgnpeirfnpae"
+        var ss32:StackString32 = StackString32(&string)
+        #expect(ss32.leadingNonzeroByteCount == 27)
+
+        string = "ouerb\0gouwrgoruegbrotugbrotgenrotgurteg"
+        ss32 = StackString32(&string)
+        #expect(ss32.leadingNonzeroByteCount == 5)
+
+        string = ""
+        var ss2:StackString2 = StackString2(&string)
+        #expect(ss2.leadingNonzeroByteCount == 0)
+
+        string = "a"
+        ss2 = StackString2(&string)
+        #expect(ss2.leadingNonzeroByteCount == 1)
+    }
+    @Test func simd_hasPrefix() {
+        var string:String = "testing brother!?!"
+        let test:StackString32 = StackString32(&string)
+        #expect(test.hasPrefix(SIMD2<UInt8>(x: Character("t").asciiValue!, y: Character("e").asciiValue!)))
+        #expect(test.hasPrefix(SIMD4<UInt8>(Character("t").asciiValue!, Character("e").asciiValue!, Character("s").asciiValue!, Character("t").asciiValue!)))
+        #expect(test.hasPrefix(SIMD8<UInt8>(Character("t").asciiValue!, Character("e").asciiValue!, Character("s").asciiValue!, Character("t").asciiValue!, Character("i").asciiValue!, Character("n").asciiValue!, Character("g").asciiValue!, Character(" ").asciiValue!)))
+        #expect(test.hasPrefix(SIMD16<UInt8>(
+            Character("t").asciiValue!,
+            Character("e").asciiValue!,
+            Character("s").asciiValue!,
+            Character("t").asciiValue!,
+            Character("i").asciiValue!,
+            Character("n").asciiValue!,
+            Character("g").asciiValue!,
+            Character(" ").asciiValue!,
+            Character("b").asciiValue!,
+            Character("r").asciiValue!,
+            Character("o").asciiValue!,
+            Character("t").asciiValue!,
+            Character("h").asciiValue!,
+            Character("e").asciiValue!,
+            Character("r").asciiValue!,
+            Character("!").asciiValue!
+        )))
+    }
     @Test func example() {
         var stack_string32:StackString32 = StackString32()
         for i in 0..<StackString32.scalarCount {
@@ -20,13 +62,7 @@ struct DestinyTests {
         }
         stack_string32[15] = 32 // space
         let values:[StackString32] = stack_string32.split(separator: 32)
-        for value in values {
-            print(value.description + " \(value)")
-        }
-
-        var string:String = "test"
-        let test:StackString32 = StackString32(&string)
-        print("test=\(test)")
+        #expect(values.count == 2)
         return;
 
         let static_string_router:Router = #router(

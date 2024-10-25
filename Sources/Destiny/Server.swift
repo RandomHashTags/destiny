@@ -88,8 +88,8 @@ public final class Server : Service {
                     for _ in 0..<maxPendingConnections {
                         group.addTask {
                             do {
-                                let client:Int32 = try await Server.client(fileDescriptor: serverFD)
-                                // TODO: move the processing of clients to a dedicated detached Thread/Task
+                                let client:Int32 = try Server.client(fileDescriptor: serverFD)
+                                // TODO: move the processing of clients to a dedicated detached Thread/Task (or different system core)
                                 try await Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
                             } catch {
                                 self.logger.error(Logger.Message(stringLiteral: "\(error)"))
@@ -98,23 +98,19 @@ public final class Server : Service {
                     }
                 }
             }
-            
         } onCancelOrGracefulShutdown: {
             close(serverFD)
         }
     }
 
     @inlinable
-    static func client(fileDescriptor: Int32) async throws -> Int32 {
-        return try await withCheckedThrowingContinuation { continuation in
-            var addr:sockaddr = sockaddr(), len:socklen_t = 0
-            let client:Int32 = accept(fileDescriptor, &addr, &len)
-            if client <= 0 {
-                continuation.resume(throwing: SocketError.acceptFailed())
-                return
-            }
-            continuation.resume(returning: client)
+    static func client(fileDescriptor: Int32) throws -> Int32 {
+        var addr:sockaddr = sockaddr(), len:socklen_t = 0
+        let client:Int32 = accept(fileDescriptor, &addr, &len)
+        if client <= 0 {
+            throw SocketError.acceptFailed()
         }
+        return client
     }
 
     @inlinable

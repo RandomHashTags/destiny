@@ -13,6 +13,7 @@ public typealias StackString32 = SIMD32<UInt8>
 public typealias StackString64 = SIMD64<UInt8>
 
 public extension SIMD where Scalar : BinaryInteger {
+    /// - Complexity: O(_n_), where _n_ equals the lesser of `string.count` & `scalarCount`.
     init(_ string: inout String) {
         var item:Self = Self()
         string.withUTF8 { p in
@@ -23,18 +24,18 @@ public extension SIMD where Scalar : BinaryInteger {
         self = item
     }
 
-    /// - Complexity: O(_n_) where _n_ equals `scalarCount`.
-    var leadingNonzeroByteCount : Int { // TODO: make SIMD fast
+    /// - Complexity: O(_n_), where _n_ equals `scalarCount`.
+    var leadingNonzeroByteCountSIMD : Int {
         for i in 0..<scalarCount {
             if self[i] == 0 {
                 return i
             }
         }
-        return 0
+        return scalarCount
     }
 
     /// Whether or not this SIMD is prefixed with certain integers.
-    /// - Complexity: O(_n_) where _n_ equals the target SIMD's `scalarCount`.
+    /// - Complexity: O(_n_), where _n_ equals the target SIMD's `scalarCount`.
     func hasPrefixSIMD<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger, Scalar == T.Scalar {
         var nibble:T = T()
         for i in 0..<T.scalarCount {
@@ -80,89 +81,185 @@ public extension SIMD where Scalar : BinaryInteger {
     }
 }
 
+// MARK: leadingNonzeroByteCount O(1)
+public extension SIMD2 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    var leadingNonzeroByteCount : Int {
+        if x == 0 { return 0 }
+        if y == 0 { return 1 }
+        return scalarCount
+    }
+}
+public extension SIMD4 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    var leadingNonzeroByteCount : Int {
+        let all_nonzero:SIMDMask<SIMD2<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf .!= .zero) != all_nonzero {
+            return lowHalf.leadingNonzeroByteCount
+        }
+        if (highHalf .!= .zero) != all_nonzero {
+            return 2 + highHalf.leadingNonzeroByteCount
+        }
+        return scalarCount
+    }
+}
+public extension SIMD8 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    var leadingNonzeroByteCount : Int {
+        let all_nonzero:SIMDMask<SIMD4<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf .!= .zero) != all_nonzero {
+            return lowHalf.leadingNonzeroByteCount
+        }
+        if (highHalf .!= .zero) != all_nonzero {
+            return 4 + highHalf.leadingNonzeroByteCount
+        }
+        return scalarCount
+    }
+}
+public extension SIMD16 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    var leadingNonzeroByteCount : Int {
+        let all_nonzero:SIMDMask<SIMD8<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf .!= .zero) != all_nonzero {
+            return lowHalf.leadingNonzeroByteCount
+        }
+        if (highHalf .!= .zero) != all_nonzero {
+            return 8 + highHalf.leadingNonzeroByteCount
+        }
+        return scalarCount
+    }
+}
+public extension SIMD32 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    var leadingNonzeroByteCount : Int {
+        let all_nonzero:SIMDMask<SIMD16<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf .!= .zero) != all_nonzero {
+            return lowHalf.leadingNonzeroByteCount
+        }
+        if (highHalf .!= .zero) != all_nonzero {
+            return 16 + highHalf.leadingNonzeroByteCount
+        }
+        return scalarCount
+    }
+}
+public extension SIMD64 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    var leadingNonzeroByteCount : Int {
+        let all_nonzero:SIMDMask<SIMD32<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf .!= .zero) != all_nonzero {
+            return lowHalf.leadingNonzeroByteCount
+        }
+        if (highHalf .!= .zero) != all_nonzero {
+            return 32 + highHalf.leadingNonzeroByteCount
+        }
+        return scalarCount
+    }
+}
+
 // MARK: hasPrefix O(1)
-public extension SIMD4<UInt8> {
+public extension SIMD4 where Scalar : BinaryInteger {
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
-        return simd == SIMD2<UInt8>(self[0], self[1])
+    @inlinable
+    func hasPrefix(_ simd: SIMD2<Scalar>) -> Bool {
+        return simd == lowHalf
     }
 }
-public extension SIMD8<UInt8> {
+public extension SIMD8 where Scalar : BinaryInteger {
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
-        return simd == SIMD2<UInt8>(self[0], self[1])
+    @inlinable
+    func hasPrefix(_ simd: SIMD2<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf
     }
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
-        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
-    }
-}
-public extension SIMD16<UInt8> {
-    /// Whether or not this SIMD is prefixed with certain integers.
-    /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
-        return simd == SIMD2<UInt8>(self[0], self[1])
-    }
-    /// Whether or not this SIMD is prefixed with certain integers.
-    /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
-        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
-    }
-    /// Whether or not this SIMD is prefixed with certain integers.
-    /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD8<UInt8>) -> Bool {
-        return simd == SIMD8<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7])
+    @inlinable
+    func hasPrefix(_ simd: SIMD4<Scalar>) -> Bool {
+        return simd == lowHalf
     }
 }
-public extension SIMD32<UInt8> {
+public extension SIMD16 where Scalar : BinaryInteger {
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
-        return simd == SIMD2<UInt8>(self[0], self[1])
+    @inlinable
+    func hasPrefix(_ simd: SIMD2<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf.lowHalf
     }
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
-        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
+    @inlinable
+    func hasPrefix(_ simd: SIMD4<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf
     }
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD8<UInt8>) -> Bool {
-        return simd == SIMD8<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7])
-    }
-    /// Whether or not this SIMD is prefixed with certain integers.
-    /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD16<UInt8>) -> Bool {
-        return simd == SIMD16<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7], self[8], self[9], self[10], self[11], self[12], self[13], self[14], self[15])
+    @inlinable
+    func hasPrefix(_ simd: SIMD8<Scalar>) -> Bool {
+        return simd == lowHalf
     }
 }
-public extension SIMD64<UInt8> {
+public extension SIMD32 where Scalar : BinaryInteger {
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD2<UInt8>) -> Bool {
-        return simd == SIMD2<UInt8>(self[0], self[1])
+    @inlinable
+    func hasPrefix(_ simd: SIMD2<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf.lowHalf.lowHalf
     }
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD4<UInt8>) -> Bool {
-        return simd == SIMD4<UInt8>(self[0], self[1], self[2], self[3])
+    @inlinable
+    func hasPrefix(_ simd: SIMD4<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf.lowHalf
     }
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD8<UInt8>) -> Bool {
-        return simd == SIMD8<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7])
+    @inlinable
+    func hasPrefix(_ simd: SIMD8<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf
     }
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD16<UInt8>) -> Bool {
-        return simd == SIMD16<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7], self[8], self[9], self[10], self[11], self[12], self[13], self[14], self[15])
+    @inlinable
+    func hasPrefix(_ simd: SIMD16<Scalar>) -> Bool {
+        return simd == lowHalf
+    }
+}
+public extension SIMD64 where Scalar : BinaryInteger {
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    @inlinable
+    func hasPrefix(_ simd: SIMD2<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf.lowHalf.lowHalf.lowHalf
     }
     /// Whether or not this SIMD is prefixed with certain integers.
     /// - Complexity: O(1)
-    func hasPrefix(_ simd: SIMD32<UInt8>) -> Bool {
-        return simd == SIMD32<UInt8>(self[0], self[1], self[2], self[3], self[4], self[5], self[6], self[7], self[8], self[9], self[10], self[11], self[12], self[13], self[14], self[15], self[16], self[17], self[18], self[19], self[20], self[21], self[22], self[23], self[24], self[25], self[26], self[27], self[28], self[29], self[30], self[31])
+    @inlinable
+    func hasPrefix(_ simd: SIMD4<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf.lowHalf.lowHalf
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    @inlinable
+    func hasPrefix(_ simd: SIMD8<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf.lowHalf
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    @inlinable
+    func hasPrefix(_ simd: SIMD16<Scalar>) -> Bool {
+        return simd == lowHalf.lowHalf
+    }
+    /// Whether or not this SIMD is prefixed with certain integers.
+    /// - Complexity: O(1)
+    @inlinable
+    func hasPrefix(_ simd: SIMD32<Scalar>) -> Bool {
+        return simd == self.lowHalf
     }
 }

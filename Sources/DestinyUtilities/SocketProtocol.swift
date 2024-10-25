@@ -107,7 +107,7 @@ public extension SocketProtocol where Self : ~Copyable {
         var err:Error? = nil
         withUnsafeBytes(of: simd) { p in
             do {
-                try writeBuffer(p.baseAddress!, length: simd.leadingNonzeroByteCount)
+                try writeBuffer(p.baseAddress!, length: simd.leadingNonzeroByteCountSIMD)
             } catch {
                 err = error
             }
