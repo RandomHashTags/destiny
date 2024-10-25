@@ -11,9 +11,7 @@ import Logging
 import DestinyUtilities
 
 // MARK: Server
-public final class Server : Service, DestinyClientAcceptor {
-    public var connections:Set<Int32> = Set(minimumCapacity: 50)
-
+public final class Server : Service {
     let threads:Int
     let address:String?
     let port:in_port_t
@@ -83,30 +81,24 @@ public final class Server : Service, DestinyClientAcceptor {
         }
         let static_responses:[StackString32:RouteResponseProtocol] = router.staticResponses
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
-        logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port)"))
+        logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
         await withTaskCancellationOrGracefulShutdownHandler {
-            //not_found_response.withUTF8Buffer { not_found_response_pointer in
-                /*for _ in 0..<threads-1 {
-                    Thread.detachNewThread {
-                        while !Task.isCancelled && !Task.isShuttingDownGracefully {
+            while !Task.isCancelled && !Task.isShuttingDownGracefully {
+                await withDiscardingTaskGroup { group in
+                    for _ in 0..<maxPendingConnections {
+                        group.addTask {
                             do {
                                 let client:Int32 = try await Server.client(fileDescriptor: serverFD)
-                                try Self.process_client(client: client, static_responses: static_responses, not_found_response_pointer: not_found_response_pointer)
+                                // TODO: move the processing of clients to a dedicated detached Thread/Task
+                                try await Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
                             } catch {
                                 self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                             }
                         }
                     }
-                }*/
-                while !Task.isCancelled && !Task.isShuttingDownGracefully {
-                    do {
-                        let client:Int32 = try await Server.client(fileDescriptor: serverFD)
-                        try await Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
-                    } catch {
-                        self.logger.error(Logger.Message(stringLiteral: "\(error)"))
-                    }
                 }
-            //}
+            }
+            
         } onCancelOrGracefulShutdown: {
             close(serverFD)
         }
@@ -153,9 +145,6 @@ public final class Server : Service, DestinyClientAcceptor {
             }
         }
     }
-}
-public protocol DestinyClientAcceptor : AnyObject {
-    var connections : Set<Int32> { get set }
 }
 // MARK: Server.Error
 extension Server {

@@ -14,6 +14,7 @@ let application:Application = Application(
         Server(
             threads: 8,
             port: 8080,
+            maxPendingConnections: 16,
             router: #router(
                 returnType: .staticString,
                 version: "HTTP/1.1",

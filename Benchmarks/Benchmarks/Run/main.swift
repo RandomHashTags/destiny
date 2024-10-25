@@ -42,7 +42,7 @@ try! LoggingSystem.bootstrap(from: &environment)
 
 let logger:Logger = Logger(label: "destiny.application.benchmark")
 let application:App = App(services: [
-    destiny_service(port: 8080),
+    //destiny_service(port: 8080),
     hummingbird_service(port: 8081),
     vapor_service(port: 8082)
 ], logger: logger)
@@ -77,11 +77,11 @@ func destiny_service(port: UInt16) -> Destiny.Application {
 
 // MARK: Hummingbird
 func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<BasicRequestContext>> {
-    let router = Hummingbird.Router()
-    let buffer:ByteBuffer = ByteBuffer(string: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
+    let router:Hummingbird.Router<BasicRequestContext> = Hummingbird.Router()
+    let body:Hummingbird.ResponseBody = .init(byteBuffer: ByteBuffer(string: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"))
     let headers:HTTPFields = HTTPFields(dictionaryLiteral: (.contentType, "text/html"))
     router.get(RouterPath("test")) { request, _ -> Response in
-        return Response(status: .ok, headers: headers, body: .init(byteBuffer: buffer))
+        return Response(status: .ok, headers: headers, body: body)
     }
     let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname(hostname, port: port)))
     return app
