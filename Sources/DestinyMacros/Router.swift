@@ -56,6 +56,9 @@ enum Router : ExpressionMacro {
             case .data:
                 get_returned_type = { response(valueType: "Data", bytes([UInt8]($0.utf8))) }
                 break
+            case .unsafeBufferPointer:
+                get_returned_type = { response(valueType: "UnsafeBufferPointer", "StaticString(\"" + $0 + "\").withUTF8Buffer { $0 }") }
+                break
             default:
                 get_returned_type = { response(valueType: "StaticString", "\"" + $0 + "\"") }
                 break

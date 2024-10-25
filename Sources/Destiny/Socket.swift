@@ -37,12 +37,15 @@ public extension SocketProtocol where Self : ~Copyable {
     func readLineStackString<T: SIMD>() throws -> T where T.Scalar: BinaryInteger { // read just the method, path & http version
         var string:T = T()
         var i:Int = 0, index:T.Scalar = 0
-        while index != 10 && i != T.scalarCount {
-            index = T.Scalar(try self.readByte())
-            if index > 13 {
-                string[i] = index
-                i += 1
+        while true {
+            index = try T.Scalar(readByte())
+            if index == 10 || i == T.scalarCount {
+                break
+            } else if index == 13 {
+                continue
             }
+            string[i] = index
+            i += 1
         }
         return string
     }

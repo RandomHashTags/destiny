@@ -32,4 +32,4 @@ public struct Application : Service {
     }
 }
 
-func strerror() -> String { String(cString: strerror(errno)) }
+@inlinable func strerror() -> String { String(cString: strerror(errno)) }

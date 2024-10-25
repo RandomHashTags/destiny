@@ -39,8 +39,10 @@ public extension SocketProtocol where Self : ~Copyable {
     @inlinable
     func readByte() throws -> UInt8 {
         var result:UInt8 = 0
-        read(fileDescriptor, &result, 1)
-        guard result > 0 else { throw SocketError.readFailed() }
+        let bytes_read:Int = read(fileDescriptor, &result, 1)
+        if bytes_read < 1 {
+            throw SocketError.readSingleByteFailed()
+        }
         return result
     }
     /// Reads multiple bytes and loads them into an UInt8 array
@@ -59,13 +61,28 @@ public extension SocketProtocol where Self : ~Copyable {
     func readLine() throws -> String {
         var line:String = ""
         var index:UInt8 = 0
-        while index != 10 {
+        while true {
             index = try self.readByte()
-            if index > 13 {
-                line.append(Character(UnicodeScalar(index)))
+            if index == 10 {
+                break
+            } else if index == 13 {
+                continue
             }
+            line.append(Character(UnicodeScalar(index)))
         }
         return line
+    }
+
+    @inlinable
+    func readHeaders() throws -> [String:String] {
+        var headers:[String:String] = [:]
+        while case let line:String = try readLine(), !line.isEmpty {
+            let values:[Substring] = line.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true)
+            if let header:Substring = values.first, let value:Substring = values.last {
+                headers[header.lowercased()] = value.trimmingCharacters(in: .whitespaces)
+            }
+        }
+        return headers
     }
 
     /*
@@ -88,10 +105,12 @@ public extension SocketProtocol where Self : ~Copyable {
         var bytes_read:Int = 0
         guard let baseAddress:UnsafeMutablePointer<UInt8> = buffer.baseAddress else { return 0 }
         while bytes_read < length {
-            let to_read:Int = min(bytes_read + Self.bufferLength, length)
+            let to_read:Int = min(Self.bufferLength, length - bytes_read)
             let read_bytes:Int = read(fileDescriptor, baseAddress + bytes_read, to_read)
-            guard read_bytes > 0 else {
-                throw SocketError.readFailed()
+            if read_bytes < 0 { // error
+                throw SocketError.readBufferFailed()
+            } else if read_bytes == 0 { // end of file
+                break
             }
             bytes_read += read_bytes
         }
@@ -121,7 +140,11 @@ public extension SocketProtocol where Self : ~Copyable {
         guard !closed else { return }
         var sent:Int = 0
         while sent < length {
+            #if os(Linux)
+            let result:Int = send(fileDescriptor, pointer + sent, length - sent, Int32(MSG_NOSIGNAL))
+            #else
             let result:Int = write(fileDescriptor, pointer + sent, length - sent)
+            #endif
             if result <= 0 { throw SocketError.writeFailed() }
             sent += result
         }
@@ -132,6 +155,7 @@ public extension SocketProtocol where Self : ~Copyable {
 public enum SocketError : Error {
     case acceptFailed(String = String(cString: strerror(errno)))
     case writeFailed(String = String(cString: strerror(errno)))
-    case readFailed(String = String(cString: strerror(errno)))
+    case readSingleByteFailed(String = String(cString: strerror(errno)))
+    case readBufferFailed(String = String(cString: strerror(errno)))
     case invalidStatus(String = String(cString: strerror(errno)))
 }

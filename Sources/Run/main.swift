@@ -14,9 +14,9 @@ let application:Application = Application(
         Server(
             threads: 8,
             port: 8080,
-            maxPendingConnections: 16,
+            maxPendingConnections: 1000,
             router: #router(
-                returnType: .staticString,
+                returnType: .unsafeBufferPointer,
                 version: "HTTP/1.1",
                 middleware: [
                     StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok)

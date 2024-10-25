@@ -105,9 +105,9 @@ public final class Server : Service {
 
     @inlinable
     static func client(fileDescriptor: Int32) throws -> Int32 {
-        var addr:sockaddr = sockaddr(), len:socklen_t = 0
-        let client:Int32 = accept(fileDescriptor, &addr, &len)
-        if client <= 0 {
+        var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
+        let client:Int32 = accept(fileDescriptor, UnsafeMutableRawPointer(&addr).assumingMemoryBound(to: sockaddr.self), &len)
+        if client == -1 {
             throw SocketError.acceptFailed()
         }
         return client
@@ -121,6 +121,7 @@ public final class Server : Service {
     ) async throws {
         let client_socket:Socket = Socket(fileDescriptor: client)
         let token:StackString32 = try client_socket.readLineStackString()
+        //let headers:[String:String] = try client_socket.readHeaders()
         if let responder:RouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
                 try await responder.respondAsync(to: client_socket)

@@ -30,6 +30,19 @@ public struct RouteResponseStaticString : RouteResponseProtocol {
     @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
 }
 
+// MARK: StaticStringPointer
+public struct RouteResponseUnsafeBufferPointer : RouteResponseProtocol {
+    public let value:UnsafeBufferPointer<UInt8>
+    public init(_ value: UnsafeBufferPointer<UInt8>) { self.value = value }
+    @inlinable public var isAsync : Bool { false }
+
+    @inlinable
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
+        try socket.writeBuffer(value.baseAddress!, length: value.count)
+    }
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+}
+
 // MARK: String
 public struct RouteResponseString : RouteResponseProtocol {
     public let value:String

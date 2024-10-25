@@ -36,6 +36,7 @@ public struct Router : Sendable {
 public enum RouterReturnType : String {
     case staticString, uint8Array, uint16Array
     case data
+    case unsafeBufferPointer
 }
 
 // MARK: Middleware
