@@ -6,14 +6,14 @@
 //
 
 import SwiftCompilerPlugin
-import SwiftSyntaxMacros
 import SwiftDiagnostics
+import SwiftSyntaxMacros
 
 // MARK: ErrorDiagnostic
-struct DiagnosticMsg : DiagnosticMessage {
-    let message:String
-    let diagnosticID:MessageID
-    let severity:DiagnosticSeverity
+struct DiagnosticMsg: DiagnosticMessage {
+    let message: String
+    let diagnosticID: MessageID
+    let severity: DiagnosticSeverity
 
     init(id: String, message: String, severity: DiagnosticSeverity = .error) {
         self.message = message
@@ -21,14 +21,13 @@ struct DiagnosticMsg : DiagnosticMessage {
         self.severity = severity
     }
 }
-extension DiagnosticMsg : FixItMessage {
-    var fixItID : MessageID { diagnosticID }
+extension DiagnosticMsg: FixItMessage {
+    var fixItID: MessageID { diagnosticID }
 }
 
-
 @main
-struct DestinyMacros : CompilerPlugin {
-    let providingMacros:[any Macro.Type] = [
+struct DestinyMacros: CompilerPlugin {
+    let providingMacros: [any Macro.Type] = [
         Router.self
     ]
 }

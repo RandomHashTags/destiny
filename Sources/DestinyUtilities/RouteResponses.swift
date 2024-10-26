@@ -8,14 +8,14 @@
 import Foundation
 
 // MARK: StaticString
-public struct RouteResponseStaticString : RouteResponseProtocol {
-    public let value:StaticString
+public struct RouteResponseStaticString: RouteResponseProtocol {
+    public let value: StaticString
     public init(_ value: StaticString) { self.value = value }
-    @inlinable public var isAsync : Bool { false }
+    @inlinable public var isAsync: Bool { true }
 
     @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
-        var err:Error? = nil
+        var err: Error? = nil
         value.withUTF8Buffer {
             do {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
@@ -23,31 +23,49 @@ public struct RouteResponseStaticString : RouteResponseProtocol {
                 err = error
             }
         }
-        if let err:Error = err {
+        if let err: Error = err {
             throw err
         }
     }
-    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T)
+        async throws
+    {
+        var err: Error? = nil
+        value.withUTF8Buffer {
+            do {
+                try socket.writeBufferIfNotCancelled($0.baseAddress!, length: $0.count)
+            } catch {
+                err = error
+            }
+        }
+        if let err: Error = err {
+            throw err
+        }
+    }
 }
 
 // MARK: StaticStringPointer
-public struct RouteResponseUnsafeBufferPointer : RouteResponseProtocol {
-    public let value:UnsafeBufferPointer<UInt8>
+public struct RouteResponseUnsafeBufferPointer: RouteResponseProtocol {
+    public let value: UnsafeBufferPointer<UInt8>
     public init(_ value: UnsafeBufferPointer<UInt8>) { self.value = value }
-    @inlinable public var isAsync : Bool { false }
+    @inlinable public var isAsync: Bool { true }
 
     @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
         try socket.writeBuffer(value.baseAddress!, length: value.count)
     }
-    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T)
+        async throws
+    {
+        try socket.writeBufferIfNotCancelled(value.baseAddress!, length: value.count)
+    }
 }
 
 // MARK: String
-public struct RouteResponseString : RouteResponseProtocol {
-    public let value:String
+public struct RouteResponseString: RouteResponseProtocol {
+    public let value: String
     public init(_ value: String) { self.value = value }
-    @inlinable public var isAsync : Bool { false }
+    @inlinable public var isAsync: Bool { true }
 
     @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
@@ -55,14 +73,20 @@ public struct RouteResponseString : RouteResponseProtocol {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
-    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T)
+        async throws
+    {
+        try value.utf8.withContiguousStorageIfAvailable {
+            try socket.writeBufferIfNotCancelled($0.baseAddress!, length: $0.count)
+        }
+    }
 }
 
 // MARK: UInt8Array
-public struct RouteResponseUInt8Array : RouteResponseProtocol {
-    public let value:[UInt8]
+public struct RouteResponseUInt8Array: RouteResponseProtocol {
+    public let value: [UInt8]
     public init(_ value: [UInt8]) { self.value = value }
-    @inlinable public var isAsync : Bool { false }
+    @inlinable public var isAsync: Bool { true }
 
     @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
@@ -70,14 +94,18 @@ public struct RouteResponseUInt8Array : RouteResponseProtocol {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
-    public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+    public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        try value.withUnsafeBufferPointer {
+            try socket.writeBufferIfNotCancelled($0.baseAddress!, length: $0.count)
+        }
+    }
 }
 
 // MARK: UInt16Array
-public struct RouteResponseUInt16Array : RouteResponseProtocol {
-    public let value:[UInt16]
+public struct RouteResponseUInt16Array: RouteResponseProtocol {
+    public let value: [UInt16]
     public init(_ value: [UInt16]) { self.value = value }
-    @inlinable public var isAsync : Bool { false }
+    @inlinable public var isAsync: Bool { true }
 
     @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
@@ -85,14 +113,20 @@ public struct RouteResponseUInt16Array : RouteResponseProtocol {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
-    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T)
+        async throws
+    {
+        try value.withUnsafeBufferPointer {
+            try socket.writeBufferIfNotCancelled($0.baseAddress!, length: $0.count)
+        }
+    }
 }
 
 // MARK: Data
-public struct RouteResponseData : RouteResponseProtocol {
-    public let value:Data
+public struct RouteResponseData: RouteResponseProtocol {
+    public let value: Data
     public init(_ value: Data) { self.value = value }
-    @inlinable public var isAsync : Bool { false }
+    @inlinable public var isAsync: Bool { true }
 
     @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
@@ -100,5 +134,11 @@ public struct RouteResponseData : RouteResponseProtocol {
             try socket.writeBuffer($0.baseAddress!, length: value.count)
         }
     }
-    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+    @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T)
+        async throws
+    {
+        try value.withUnsafeBytes {
+            try socket.writeBufferIfNotCancelled($0.baseAddress!, length: value.count)
+        }
+    }
 }
