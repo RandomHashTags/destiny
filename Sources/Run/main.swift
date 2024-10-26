@@ -21,13 +21,12 @@ let application:Application = Application(
                 middleware: [
                     StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok)
                 ],
-                Route(
+                StaticRoute(
                     method: .get,
                     path: "test",
                     contentType: .html,
                     charset: "UTF-8",
-                    staticResult: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"),
-                    dynamicResult: nil
+                    result: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
                 )
             ),
             logger: Logger(label: "destiny.http.server")

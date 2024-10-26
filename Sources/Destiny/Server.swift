@@ -12,6 +12,8 @@ import DestinyUtilities
 
 // MARK: Server
 public final class Server : Service {
+    public static var shared:Server! = nil
+
     let threads:Int
     let address:String?
     let port:in_port_t
@@ -33,6 +35,7 @@ public final class Server : Service {
         self.maxPendingConnections = maxPendingConnections
         self.router = router
         self.logger = logger
+        Self.shared = self
     }
 
     public func run() async throws {
@@ -84,18 +87,19 @@ public final class Server : Service {
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
         await withTaskCancellationOrGracefulShutdownHandler {
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
-                await withDiscardingTaskGroup { group in
+                await withTaskGroup(of: Void.self) { group in
                     for _ in 0..<maxPendingConnections {
                         group.addTask {
                             do {
-                                let client:Int32 = try Server.client(fileDescriptor: serverFD)
+                                let client:Int32 = try Self.client(serverFD: serverFD)
                                 // TODO: move the processing of clients to a dedicated detached Thread/Task (or different system core)
-                                try await Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
+                                try Self.process_client(client: client, static_responses: static_responses, not_found_response: not_found_response)
                             } catch {
                                 self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                             }
                         }
                     }
+                    await group.waitForAll()
                 }
             }
         } onCancelOrGracefulShutdown: {
@@ -104,9 +108,9 @@ public final class Server : Service {
     }
 
     @inlinable
-    static func client(fileDescriptor: Int32) throws -> Int32 {
+    static func client(serverFD: Int32) throws -> Int32 {
         var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
-        let client:Int32 = accept(fileDescriptor, UnsafeMutableRawPointer(&addr).assumingMemoryBound(to: sockaddr.self), &len)
+        let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
         if client == -1 {
             throw SocketError.acceptFailed()
         }
@@ -118,13 +122,14 @@ public final class Server : Service {
         client: Int32,
         static_responses: [StackString32:RouteResponseProtocol],
         not_found_response: StaticString
-    ) async throws {
+    ) throws {
+        defer { close(client) }
         let client_socket:Socket = Socket(fileDescriptor: client)
         let token:StackString32 = try client_socket.readLineStackString()
         //let headers:[String:String] = try client_socket.readHeaders()
         if let responder:RouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
-                try await responder.respondAsync(to: client_socket)
+                //try await responder.respondAsync(to: client_socket)
             } else {
                 try responder.respond(to: client_socket)
             }
@@ -146,8 +151,8 @@ public final class Server : Service {
 // MARK: Server.Error
 extension Server {
     enum Error : Swift.Error {
-        case socketCreationFailed(String = strerror())
-        case bindFailed(String = strerror())
-        case listenFailed(String = strerror())
+        case socketCreationFailed(String = cerror())
+        case bindFailed(String = cerror())
+        case listenFailed(String = cerror())
     }
 }

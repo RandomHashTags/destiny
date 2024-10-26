@@ -17,7 +17,7 @@ enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var returnType:RouterReturnType = .staticString
         var version:String = "HTTP/1.1"
-        var middleware:[StaticMiddleware] = [], routes:[Route] = []
+        var middleware:[StaticMiddleware] = [], routes:[StaticRoute] = []
         for argument in node.as(MacroExpansionExprSyntax.self)!.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
@@ -142,7 +142,7 @@ extension Router {
         var middleware:[StaticMiddleware] = []
         for element in array {
             if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToStatuses:Set<HTTPResponse.Status> = [], appliesToContentTypes:Set<Route.ContentType> = []
+                var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToStatuses:Set<HTTPResponse.Status> = [], appliesToContentTypes:Set<HTTPField.ContentType> = []
                 var appliesStatus:HTTPResponse.Status? = nil
                 var appliesHeaders:[String:String] = [:]
                 for argument in function.arguments {
@@ -154,7 +154,7 @@ extension Router {
                             appliesToStatuses = Set(argument.expression.array!.elements.map({ parse_status($0.expression.memberAccess!.declName.baseName.text) }))
                             break
                         case "appliesToContentTypes":
-                            appliesToContentTypes = Set(argument.expression.array!.elements.map({ Route.ContentType(rawValue: "\($0.expression.memberAccess!.declName.baseName.text)")! }))
+                            appliesToContentTypes = Set(argument.expression.array!.elements.map({ HTTPField.ContentType(rawValue: "\($0.expression.memberAccess!.declName.baseName.text)") }))
                             break
                         case "appliesStatus":
                             appliesStatus = parse_status(argument.expression.memberAccess!.declName.baseName.text)
@@ -186,11 +186,11 @@ extension Router {
 
 // MARK: Parse Route
 extension Router {
-    static func parse_route(_ syntax: FunctionCallExprSyntax) -> Route {
+    static func parse_route(_ syntax: FunctionCallExprSyntax) -> StaticRoute {
         var method:HTTPRequest.Method = .get, path:String = ""
         var status:HTTPResponse.Status? = nil
-        var contentType:Route.ContentType = .text, charset:String = "UTF-8"
-        var staticResult:Route.Result? = nil
+        var contentType:HTTPField.ContentType = .txt, charset:String? = nil
+        var staticResult:RouteResult = .string("")
         for argument in syntax.arguments {
             let key:String = argument.label!.text
             switch key {
@@ -204,7 +204,7 @@ extension Router {
                     status = parse_status(argument.expression.memberAccess!.declName.baseName.text)
                     break
                 case "contentType":
-                    contentType = Route.ContentType(rawValue: argument.expression.memberAccess!.declName.baseName.text)!
+                    contentType = HTTPField.ContentType(rawValue: argument.expression.memberAccess!.declName.baseName.text)
                     break
                 case "charset":
                     charset = argument.expression.stringLiteral!.string
@@ -226,7 +226,7 @@ extension Router {
                     break
             }
         }
-        return Route(method: method, path: path, status: status, contentType: contentType, charset: charset, staticResult: staticResult, dynamicResult: nil)
+        return StaticRoute(method: method, path: path, status: status, contentType: contentType, charset: charset, result: staticResult)
     }
 
     // MARK: Parse Status

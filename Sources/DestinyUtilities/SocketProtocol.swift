@@ -11,26 +11,9 @@ import Foundation
 public protocol SocketProtocol : ~Copyable {
     static var bufferLength : Int { get }
     var fileDescriptor : Int32 { get }
-    var closed : Bool { get set }
-    @inlinable
-    consuming func consume()
 
     @inlinable
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
-}
-
-public extension SocketProtocol where Self : ~Copyable {
-    consuming func consume() {
-        guard !closed else { return }
-        closed = true
-        close(fileDescriptor)
-    }
-
-    @inlinable
-    func deinitalize() {
-        guard !closed else { return }
-        close(fileDescriptor)
-    }
 }
 
 // MARK: SocketProtocol reading
@@ -39,7 +22,7 @@ public extension SocketProtocol where Self : ~Copyable {
     @inlinable
     func readByte() throws -> UInt8 {
         var result:UInt8 = 0
-        let bytes_read:Int = read(fileDescriptor, &result, 1)
+        let bytes_read:Int = recv(fileDescriptor, &result, 1, 0)
         if bytes_read < 1 {
             throw SocketError.readSingleByteFailed()
         }
@@ -137,7 +120,6 @@ public extension SocketProtocol where Self : ~Copyable {
     }
     @inlinable
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
-        guard !closed else { return }
         var sent:Int = 0
         while sent < length {
             #if os(Linux)
@@ -153,9 +135,10 @@ public extension SocketProtocol where Self : ~Copyable {
 
 // MARK: SocketError
 public enum SocketError : Error {
-    case acceptFailed(String = String(cString: strerror(errno)))
-    case writeFailed(String = String(cString: strerror(errno)))
-    case readSingleByteFailed(String = String(cString: strerror(errno)))
-    case readBufferFailed(String = String(cString: strerror(errno)))
-    case invalidStatus(String = String(cString: strerror(errno)))
+    case acceptFailed(String = cerror())
+    case writeFailed(String = cerror())
+    case readSingleByteFailed(String = cerror())
+    case readBufferFailed(String = cerror())
+    case invalidStatus(String = cerror())
+    case closeFailure(String = cerror())
 }

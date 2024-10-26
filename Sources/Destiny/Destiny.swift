@@ -12,7 +12,7 @@ import ServiceLifecycle
 import Logging
 
 @freestanding(expression)
-public macro router(returnType: RouterReturnType, version: String, middleware: [StaticMiddleware], _ routes: Route...) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
+public macro router(returnType: RouterReturnType, version: String, middleware: [StaticMiddleware], _ routes: RouteProtocol...) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
 
 // MARK: Application
 public struct Application : Service {
@@ -31,5 +31,3 @@ public struct Application : Service {
         try await service_group.run()
     }
 }
-
-@inlinable func strerror() -> String { String(cString: strerror(errno)) }

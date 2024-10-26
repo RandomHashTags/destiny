@@ -60,14 +60,12 @@ func destiny_service(port: UInt16) -> Destiny.Application {
                 middleware: [
                     StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html])
                 ],
-                Route(
+                StaticRoute(
                     method: .get,
                     path: "test",
                     status: .ok,
                     contentType: .html,
-                    charset: "UTF-8",
-                    staticResult: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"),
-                    dynamicResult: nil
+                    result: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
                 )
             ), logger: server_logger
         )

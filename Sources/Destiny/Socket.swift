@@ -6,8 +6,8 @@
 //
 
 import Foundation
+import Logging
 import DestinyUtilities
-
 
 // MARK: Socket
 public struct Socket : SocketProtocol, ~Copyable {
@@ -21,30 +21,26 @@ public struct Socket : SocketProtocol, ~Copyable {
     }
     public static let bufferLength:Int = 1024
     public let fileDescriptor:Int32
-    public var closed:Bool
 
     public init(fileDescriptor: Int32) {
         self.fileDescriptor = fileDescriptor
-        closed = false
         Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
-
-    deinit { deinitalize() }
 }
 
 public extension SocketProtocol where Self : ~Copyable {
     @inlinable
     func readLineStackString<T: SIMD>() throws -> T where T.Scalar: BinaryInteger { // read just the method, path & http version
         var string:T = T()
-        var i:Int = 0, index:T.Scalar = 0
+        var i:Int = 0, char:UInt8 = 0
         while true {
-            index = try T.Scalar(readByte())
-            if index == 10 || i == T.scalarCount {
+            char = try readByte()
+            if char == 10 || i == T.scalarCount {
                 break
-            } else if index == 13 {
+            } else if char == 13 {
                 continue
             }
-            string[i] = index
+            string[i] = T.Scalar(char)
             i += 1
         }
         return string
