@@ -5,12 +5,10 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-import Testing
-
-import HTTPTypes
-
 import Destiny
 import DestinyUtilities
+import HTTPTypes
+import Testing
 
 struct DestinyTests {
     @Test func simd_leadingNonzeroByteCount() {
@@ -71,13 +69,12 @@ struct DestinyTests {
             middleware: [
                 StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
-            Route(
+            StaticRoute(
                 method: .get,
                 path: "test",
                 contentType: .html,
                 charset: "UTF-8",
-                staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
-                dynamicResult: nil
+                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             )
         )
         let static_string_router2:Router = #router(
@@ -86,14 +83,13 @@ struct DestinyTests {
             middleware: [
                 StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
-            Route(
+            StaticRoute(
                 method: .get,
                 path: "test",
                 status: .movedPermanently,
                 contentType: .html,
                 charset: "UTF-8",
-                staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
-                dynamicResult: nil
+                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             )
         )
         let uint8Array_router:Router = #router(
@@ -102,13 +98,12 @@ struct DestinyTests {
             middleware: [
                 StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
-            Route(
+            StaticRoute(
                 method: .get,
                 path: "test",
                 contentType: .html,
                 charset: "UTF-8",
-                staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
-                dynamicResult: nil
+                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             )
         )
         let uint16Array_router:Router = #router(
@@ -117,13 +112,12 @@ struct DestinyTests {
             middleware: [
                 StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
-            Route(
+            StaticRoute(
                 method: .get,
                 path: "test",
                 contentType: .html,
                 charset: "UTF-8",
-                staticResult: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>"),
-                dynamicResult: nil
+                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             )
         )
     }

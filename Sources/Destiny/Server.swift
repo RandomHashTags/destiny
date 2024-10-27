@@ -5,16 +5,15 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-import Foundation
-import ServiceLifecycle
-import Logging
 import DestinyUtilities
+import Foundation
+import Logging
+import ServiceLifecycle
 
 // MARK: Server
 public final class Server : Service {
     public static var shared:Server! = nil
 
-    let threads:Int
     let address:String?
     let port:in_port_t
     let maxPendingConnections:Int32
@@ -22,14 +21,12 @@ public final class Server : Service {
     let logger:Logger
 
     public init(
-        threads: Int,
         address: String? = nil,
         port: in_port_t,
         maxPendingConnections: Int32 = SOMAXCONN,
         router: Router,
         logger: Logger
     ) {
-        self.threads = threads
         self.address = address
         self.port = port
         self.maxPendingConnections = maxPendingConnections

@@ -6,8 +6,8 @@
 //
 
 import SwiftCompilerPlugin
-import SwiftSyntaxMacros
 import SwiftDiagnostics
+import SwiftSyntaxMacros
 
 // MARK: ErrorDiagnostic
 struct DiagnosticMsg : DiagnosticMessage {

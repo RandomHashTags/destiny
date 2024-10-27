@@ -5,9 +5,9 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+import DestinyUtilities
 import Foundation
 import Logging
-import DestinyUtilities
 
 // MARK: Socket
 public struct Socket : SocketProtocol, ~Copyable {

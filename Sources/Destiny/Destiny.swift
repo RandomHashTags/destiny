@@ -5,11 +5,11 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-import Foundation
 import DestinyUtilities
+import Foundation
 import HTTPTypes
-import ServiceLifecycle
 import Logging
+import ServiceLifecycle
 
 @freestanding(expression)
 public macro router(returnType: RouterReturnType, version: String, middleware: [StaticMiddleware], _ routes: RouteProtocol...) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")

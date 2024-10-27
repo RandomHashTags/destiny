@@ -5,13 +5,12 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+import DestinyUtilities
+import Foundation
+import HTTPTypes
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
-import SwiftDiagnostics
-import HTTPTypes
-import DestinyUtilities
-
-import Foundation
 
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
@@ -233,7 +232,7 @@ extension Router {
     static func parse_status(_ key: String) -> HTTPResponse.Status {
         switch key {
             case "continue": return .continue
-            case "switchingProtocols": return.switchingProtocols
+            case "switchingProtocols": return .switchingProtocols
             case "earlyHints": return .earlyHints
             case "ok": return .ok
             case "created": return .created

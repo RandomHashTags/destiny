@@ -34,12 +34,6 @@ public extension SocketProtocol where Self : ~Copyable {
         return try [UInt8](unsafeUninitializedCapacity: length, initializingWith: { $1 = try readBuffer(into: &$0, length: length) })
     }
 
-
-    /*@inlinable
-    func readBytes<T: StackStringProtocol>(length: Int) throws -> T {
-
-    }*/
-
     @inlinable
     func readLine() throws -> String {
         var line:String = ""
