@@ -28,11 +28,6 @@ public extension SocketProtocol where Self : ~Copyable {
         }
         return result
     }
-    /// Reads multiple bytes and loads them into an UInt8 array
-    @inlinable
-    func readBytes(length: Int) throws -> [UInt8] {
-        return try [UInt8](unsafeUninitializedCapacity: length, initializingWith: { $1 = try readBuffer(into: &$0, length: length) })
-    }
 
     @inlinable
     func readLine() throws -> String {
@@ -62,28 +57,20 @@ public extension SocketProtocol where Self : ~Copyable {
         return headers
     }
 
-    /*
-    /// Reads multiple bytes and loads them into an UInt8 array
-    @inlinable
-    func read<T : Decodable>(decoder: Decoder) throws -> T {
-        let length:Int = MemoryLayout<T>.size
-        var buffer:UnsafeMutableBufferPointer<UInt8> = .allocate(capacity: length)
-        try read(into: &buffer, length: length)
-        return buffer.withUnsafeBytes {
-            $0.withMemoryRebound(to: T.self, { _ in
-                T.init(from: decoder)
-            })
-        }
-    }*/
-
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readBuffer(into buffer: inout UnsafeMutableBufferPointer<UInt8>, length: Int) throws -> Int {
-        var bytes_read:Int = 0
+    func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int) throws -> Int {
         guard let baseAddress:UnsafeMutablePointer<UInt8> = buffer.baseAddress else { return 0 }
+        return try readBuffer(into: baseAddress, length: length)
+    }
+    /// Reads multiple bytes and writes them into a buffer
+    @inlinable
+    func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int) throws -> Int {
+        var bytes_read:Int = 0
         while bytes_read < length {
+            if Task.isCancelled { return 0 }
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read_bytes:Int = read(fileDescriptor, baseAddress + bytes_read, to_read)
+            let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, 0)
             if read_bytes < 0 { // error
                 throw SocketError.readBufferFailed()
             } else if read_bytes == 0 { // end of file
@@ -116,6 +103,7 @@ public extension SocketProtocol where Self : ~Copyable {
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
         var sent:Int = 0
         while sent < length {
+            if Task.isCancelled { return }
             #if os(Linux)
             let result:Int = send(fileDescriptor, pointer + sent, length - sent, Int32(MSG_NOSIGNAL))
             #else

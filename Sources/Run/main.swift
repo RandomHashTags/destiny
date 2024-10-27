@@ -5,9 +5,10 @@
 //  Created by Evan Anderson on 10/18/24.
 //
 
-import Logging
 import Destiny
 import DestinyUtilities
+import HTTPTypes
+import Logging
 
 let application:Application = Application(
     services: [
@@ -15,17 +16,28 @@ let application:Application = Application(
             port: 8080,
             maxPendingConnections: 1000,
             router: #router(
-                returnType: .unsafeBufferPointer,
+                returnType: .staticString,
                 version: "HTTP/1.1",
                 middleware: [
-                    StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html], appliesStatus: .ok)
+                    StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html, .json, .txt], appliesStatus: .ok)
                 ],
                 StaticRoute(
                     method: .get,
-                    path: "test",
+                    path: "html",
                     contentType: .html,
-                    charset: "UTF-8",
-                    result: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
+                    result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
+                ),
+                StaticRoute(
+                    method: .get,
+                    path: "json",
+                    contentType: .json,
+                    result: .string("{\"this_outcome_was_inevitable_and_was_your_destiny\":true}")
+                ),
+                StaticRoute(
+                    method: .get,
+                    path: "txt",
+                    contentType: .txt,
+                    result: .string("just a regular txt page; t'was your destiny")
                 )
             ),
             logger: Logger(label: "destiny.http.server")

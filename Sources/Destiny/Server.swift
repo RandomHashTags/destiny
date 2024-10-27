@@ -120,7 +120,10 @@ public final class Server : Service {
         static_responses: [StackString32:RouteResponseProtocol],
         not_found_response: StaticString
     ) throws {
-        defer { close(client) }
+        defer {
+            shutdown(client, 2) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
+            close(client)
+        }
         let client_socket:Socket = Socket(fileDescriptor: client)
         let token:StackString32 = try client_socket.readLineStackString()
         //let headers:[String:String] = try client_socket.readHeaders()

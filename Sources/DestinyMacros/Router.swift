@@ -83,58 +83,6 @@ enum Router : ExpressionMacro {
     }
 }
 
-// MARK: Parse Router
-/*
-extension Router {
-    static func parse_router(_ node: some FreestandingMacroExpansionSyntax) -> DestinyUtilities.Router {
-        var returnType:RouterReturnType = .staticString
-        var version:String = "HTTP/1.1"
-        var middleware:[Middleware] = [], routes:[Route] = []
-        for argument in node.as(MacroExpansionExprSyntax.self)!.arguments.children(viewMode: .all) {
-            if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
-                if let key:String = child.label?.text {
-                    switch key {
-                        case "returnType":
-                            returnType = RouterReturnType(rawValue: child.expression.memberAccess!.declName.baseName.text)!
-                            break
-                        case "version":
-                            version = child.expression.stringLiteral!.string
-                            break
-                        case "middleware":
-                            middleware = parse_middleware(child.expression.array!.elements)
-                            break
-                        default:
-                            break
-                    }
-                } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
-                    routes.append(parse_route(function))
-                }
-            }
-        }
-        let get_returned_type:(String) -> RouteResponseProtocol
-        switch returnType {
-            case .uint8Array:
-                get_returned_type = { RouteResponseUInt8Array([UInt8]($0.description.utf8)) }
-                break
-            case .uint16Array:
-                get_returned_type = { RouteResponseUInt16Array([UInt16]($0.description.utf16)) }
-                break
-            case .data:
-                get_returned_type = { RouteResponseData(Data([UInt8]($0.description.utf8))) }
-                break
-            default:
-                get_returned_type = { RouteResponseString($0) }
-                break
-        }
-        var static_responses:[Substring:RouteResponseProtocol] = [:]
-        for route in routes {
-            let response:String = route.response(returnType: returnType, version: version, middleware: middleware)
-            static_responses[route.method.rawValue + " /" + route.path] = RouteResponseString(response)
-        }
-        return DestinyUtilities.Router(staticResponses: static_responses)
-    }
-}*/
-
 // MARK: Parse Middleware
 extension Router {
     static func parse_middleware(_ array: ArrayElementListSyntax) -> [StaticMiddleware] {
@@ -189,7 +137,7 @@ extension Router {
         var method:HTTPRequest.Method = .get, path:String = ""
         var status:HTTPResponse.Status? = nil
         var contentType:HTTPField.ContentType = .txt, charset:String? = nil
-        var staticResult:RouteResult = .string("")
+        var result:RouteResult = .string("")
         for argument in syntax.arguments {
             let key:String = argument.label!.text
             switch key {
@@ -208,11 +156,11 @@ extension Router {
                 case "charset":
                     charset = argument.expression.stringLiteral!.string
                     break
-                case "staticResult":
+                case "result":
                     if let function:FunctionCallExprSyntax = argument.expression.functionCall {
                         switch function.calledExpression.memberAccess!.declName.baseName.text {
                             case "string":
-                                staticResult = .string(function.arguments.first!.expression.stringLiteral!.string)
+                                result = .string(function.arguments.first!.expression.stringLiteral!.string)
                                 break
                             case "bytes":
                                 break
@@ -225,7 +173,7 @@ extension Router {
                     break
             }
         }
-        return StaticRoute(method: method, path: path, status: status, contentType: contentType, charset: charset, result: staticResult)
+        return StaticRoute(method: method, path: path, status: status, contentType: contentType, charset: charset, result: result)
     }
 
     // MARK: Parse Status

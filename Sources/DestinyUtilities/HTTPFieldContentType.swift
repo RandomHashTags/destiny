@@ -86,10 +86,92 @@ public extension HTTPField {
 
         public var description : String { rawValue }
 
+        // We don't use a jump table because it is a waste of memory & performance overhead (dictionary look up)
         public init(rawValue: String) {
-            self = .custom(rawValue)
+            switch rawValue {
+                case "aac": self = .aac
+                case "abw": self = .abw
+                case "apng": self = .apng
+                case "arc": self = .arc
+                case "avif": self = .avif
+                case "avi": self = .avi
+                case "azw": self = .azw
+                case "bin": self = .bin
+                case "bmp": self = .bmp
+                case "bz": self = .bz
+                case "bz2": self = .bz2
+                case "cda": self = .cda
+                case "csh": self = .csh
+                case "css": self = .css
+                case "csv": self = .csv
+                case "doc": self = .doc
+                case "docx": self = .docx
+                case "eot": self = .eot
+                case "epub": self = .epub
+                case "gz": self = .gz
+                case "gif": self = .gif
+                case "htm": self = .htm
+                case "html": self = .html
+                case "ico": self = .ico
+                case "ics": self = .ics
+                case "jar": self = .jar
+                case "jpeg": self = .jpeg
+                case "jpg": self = .jpg
+                case "js": self = .js
+                case "javascript": self = .javascript
+                case "json": self = .json
+                case "jsonld": self = .jsonld
+                case "mid": self = .mid
+                case "midi": self = .midi
+                case "mjs": self = .mjs
+                case "mp3": self = .mp3
+                case "mp4": self = .mp4
+                case "mpeg": self = .mpeg
+                case "mpkg": self = .mpkg
+                case "odp": self = .odp
+                case "ods": self = .ods
+                case "odt": self = .odt
+                case "oga": self = .oga
+                case "ogv": self = .ogv
+                case "ogx": self = .ogx
+                case "opus": self = .opus
+                case "otf": self = .otf
+                case "png": self = .png
+                case "pdf": self = .pdf
+                case "php": self = .php
+                case "ppt": self = .ppt
+                case "pptx": self = .pptx
+                case "rar": self = .rar
+                case "rtf": self = .rtf
+                case "sh": self = .sh
+                case "svg": self = .svg
+                case "tar": self = .tar
+                case "tif": self = .tif
+                case "tiff": self = .tiff
+                case "ts": self = .ts
+                case "ttf": self = .ttf
+                case "txt": self = .txt
+                case "vsd": self = .vsd
+                case "wav": self = .wav
+                case "weba": self = .weba
+                case "webm": self = .webm
+                case "webp": self = .webp
+                case "woff": self = .woff
+                case "woff2": self = .woff2
+                case "xhtml": self = .xhtml
+                case "xls": self = .xls
+                case "xlsx": self = .xlsx
+                case "xml": self = .xml
+                case "xul": self = .xul
+                case "zip": self = .zip
+                case "_3gp": self = ._3gp
+                case "_3g2": self = ._3g2
+                case "_7z": self = ._7z
+                default: self = .custom(rawValue)
+            }
         }
 
+        // MARK: RawValue
         public var rawValue : String {
             switch self {
             case .aac: return "audio/aac"

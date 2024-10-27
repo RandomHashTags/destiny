@@ -10,3 +10,6 @@ Package.resolved
 StackStrings.d
 StackStrings.o
 StackStrings.swiftdeps*
+HTTPFieldContentType.d
+HTTPFieldContentType.o
+HTTPFieldContentType.swiftdeps*
