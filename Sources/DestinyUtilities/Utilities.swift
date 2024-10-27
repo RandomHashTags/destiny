@@ -153,8 +153,8 @@ public struct StaticRoute : RouteProtocol {
         for (header, value) in headers {
             string += header + ": " + value + "\\r\\n"
         }
-        // TODO: fix ERR_CONTENT_LENGTH_MISMATCH 200 (OK) | calculation is somehow incorrect for json & html
-        string += HTTPField.Name.contentLength.rawName + ": \(result.count)"
+        let content_length:Int = result_string.count - result_string.ranges(of: "\\").count
+        string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
         return string + "\\r\\n\\r\\n" + result_string
     }
 }
