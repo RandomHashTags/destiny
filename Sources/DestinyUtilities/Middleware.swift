@@ -9,7 +9,7 @@ import HTTPTypes
 import SwiftSyntax
 
 // MARK: MiddlewareProtocol
-public protocol MiddlewareProtocol : Hashable {
+public protocol MiddlewareProtocol {
     var middlewareType : MiddlewareType { get }
     var appliesToMethods : Set<HTTPRequest.Method> { get }
     var appliesToStatuses : Set<HTTPResponse.Status> { get }

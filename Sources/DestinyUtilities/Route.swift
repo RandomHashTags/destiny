@@ -23,7 +23,7 @@ public protocol RouteProtocol {
 
 // MARK: StaticRouteProtocol
 public protocol StaticRouteProtocol : RouteProtocol {
-    func response(version: String, middleware: [any StaticMiddlewareProtocol]) -> String
+    func response(version: String, middleware: [StaticMiddlewareProtocol]) -> String
 }
 public extension StaticRouteProtocol {
     var routeType : RouteType { .static }
@@ -31,7 +31,7 @@ public extension StaticRouteProtocol {
 
 // MARK: DynamicRouteProtocol
 public protocol DynamicRouteProtocol : RouteProtocol {
-    func response(version: String, middleware: [any DynamicMiddlewareProtocol], request: borrowing Request) -> String
+    func response(middleware: [DynamicMiddlewareProtocol], request: borrowing Request) -> String
 }
 public extension DynamicRouteProtocol {
     var routeType : RouteType { .dynamic }

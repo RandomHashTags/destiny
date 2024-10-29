@@ -30,10 +30,10 @@ enum Router : ExpressionMacro {
                             break
                         case "middleware":
                             for element in child.expression.array!.elements {
-                                //print("Router;expansion;key==middleware;element=\(element.debugDescription)")
-                                if let function_call:FunctionCallExprSyntax = element.expression.functionCall {
+                                //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
+                                if let function:FunctionCallExprSyntax = element.expression.functionCall {
                                     // TODO: check whether it is static or dynamic
-                                    middleware.append(StaticMiddleware.parse(function_call))
+                                    middleware.append(StaticMiddleware.parse(function))
                                 } else if let macro_expansion:MacroExpansionExprSyntax = element.expression.macroExpansion {
                                     // TODO: support custom middleware
                                 } else {
@@ -46,7 +46,8 @@ enum Router : ExpressionMacro {
                 } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
                     // TODO: check whether it is static or dynamic
                     routes.append(StaticRoute.parse(function))
-                } else { // custom route
+                } else {
+                    // TODO: support custom routes
                 }
             }
         }
@@ -74,8 +75,8 @@ enum Router : ExpressionMacro {
                 get_returned_type = { response(valueType: "StaticString", "\"" + $0 + "\"") }
                 break
         }
-        let static_routes:[any StaticRouteProtocol] = routes.compactMap({ $0.routeType == .static ? ($0 as! StaticRouteProtocol) : nil })
-        let static_middleware:[any StaticMiddlewareProtocol] = middleware.compactMap({ $0.middlewareType == .static ? ($0 as! any StaticMiddlewareProtocol) : nil })
+        let static_routes:[StaticRouteProtocol] = routes.compactMap({ $0.routeType == .static ? ($0 as! StaticRouteProtocol) : nil })
+        let static_middleware:[StaticMiddlewareProtocol] = middleware.compactMap({ $0.middlewareType == .static ? ($0 as! StaticMiddlewareProtocol) : nil })
         let static_responses:String = static_routes.map({
             let value:String = get_returned_type($0.response(version: version, middleware: static_middleware))
             var string:String = $0.method.rawValue + " /" + $0.path + " " + version

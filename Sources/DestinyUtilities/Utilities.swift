@@ -45,6 +45,7 @@ public enum RouterReturnType : String {
 // MARK: Request
 public struct Request : ~Copyable {
     public let method:HTTPRequest.Method
-    public let path:StackString64
+    public let path:StackString32
+    public let version:String
     public let headers:[HTTPField.Name:String]
 }

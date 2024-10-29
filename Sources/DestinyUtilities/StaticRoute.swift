@@ -33,7 +33,7 @@ public struct StaticRoute : StaticRouteProtocol {
         self.result = result
     }
 
-    public func response(version: String, middleware: [any StaticMiddlewareProtocol]) -> String {
+    public func response(version: String, middleware: [StaticMiddlewareProtocol]) -> String {
         var response_status:HTTPResponse.Status? = status
         var headers:[String:String] = [:]
         headers[HTTPField.Name.contentType.rawName] = contentType.rawValue + (charset != nil ? "; charset=" + charset! : "")
