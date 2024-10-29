@@ -10,7 +10,6 @@ import SwiftSyntax
 
 // MARK: MiddlewareProtocol
 public protocol MiddlewareProtocol {
-    var middlewareType : MiddlewareType { get }
     var appliesToMethods : Set<HTTPRequest.Method> { get }
     var appliesToStatuses : Set<HTTPResponse.Status> { get }
     var appliesToContentTypes : Set<HTTPField.ContentType> { get }
@@ -21,15 +20,14 @@ public protocol MiddlewareProtocol {
     static func parse(_ syntax: FunctionCallExprSyntax) -> Self
 }
 
-public enum MiddlewareType {
-    case `static`, dynamic
-}
-
 // MARK: DynamicMiddlewareProtocol
 public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
-}
-public extension DynamicMiddlewareProtocol {
-    var middlewareType : MiddlewareType { .dynamic }
+    var isAsync : Bool { get }
+    
+    func shouldHandle(request: borrowing Request) -> Bool
+
+    func handle(request: borrowing Request, response: inout DynamicResponse)
+    func handleAsync(request: borrowing Request, response: inout DynamicResponse) async
 }
 
 /*
@@ -59,7 +57,4 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 
 // MARK: StaticMiddlewareProtocol
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
-}
-public extension StaticMiddlewareProtocol {
-    var middlewareType : MiddlewareType { .static }
 }

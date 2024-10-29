@@ -31,7 +31,9 @@ extension RouteResponses {
                 throw err
             }
         }
-        @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            try respond(to: socket)
+        }
     }
 }
 
@@ -46,7 +48,9 @@ extension RouteResponses {
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
             try socket.writeBuffer(value.baseAddress!, length: value.count)
         }
-        @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            try respond(to: socket)
+        }
     }
 }
 
@@ -63,7 +67,9 @@ extension RouteResponses {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
         }
-        @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            try respond(to: socket)
+        }
     }
 }
 
@@ -80,7 +86,9 @@ extension RouteResponses {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
         }
-        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            try respond(to: socket)
+        }
     }
 }
 
@@ -97,7 +105,9 @@ extension RouteResponses {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
         }
-        @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            try respond(to: socket)
+        }
     }
 }
 
@@ -115,6 +125,8 @@ extension RouteResponses {
                 try socket.writeBuffer($0.baseAddress!, length: value.count)
             }
         }
-        @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {}
+        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            try respond(to: socket)
+        }
     }
 }

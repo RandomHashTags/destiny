@@ -76,12 +76,12 @@ public struct StaticRoute : StaticRouteProtocol {
 }
 
 public extension StaticRoute {
-    static func parse(_ syntax: FunctionCallExprSyntax) -> StaticRoute {
+    static func parse(_ function: FunctionCallExprSyntax) -> StaticRoute {
         var method:HTTPRequest.Method = .get, path:String = ""
         var status:HTTPResponse.Status? = nil
         var contentType:HTTPField.ContentType = .txt, charset:String? = nil
         var result:RouteResult = .string("")
-        for argument in syntax.arguments {
+        for argument in function.arguments {
             let key:String = argument.label!.text
             switch key {
                 case "method":

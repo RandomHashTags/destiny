@@ -11,35 +11,39 @@ import SwiftSyntax
 
 // MARK: RouteProtocol
 public protocol RouteProtocol {
-    var routeType : RouteType { get }
-
     var method : HTTPRequest.Method { get }
     var path : String { get }
     var status : HTTPResponse.Status? { get }
     var result : RouteResult { get }
 
-    static func parse(_ syntax: FunctionCallExprSyntax) -> Self
+    static func parse(_ function: FunctionCallExprSyntax) -> Self
 }
 
 // MARK: StaticRouteProtocol
 public protocol StaticRouteProtocol : RouteProtocol {
     func response(version: String, middleware: [StaticMiddlewareProtocol]) -> String
 }
-public extension StaticRouteProtocol {
-    var routeType : RouteType { .static }
-}
 
 // MARK: DynamicRouteProtocol
 public protocol DynamicRouteProtocol : RouteProtocol {
     func response(middleware: [DynamicMiddlewareProtocol], request: borrowing Request) -> String
 }
-public extension DynamicRouteProtocol {
-    var routeType : RouteType { .dynamic }
-}
 
-// MARK: RouteType
-public enum RouteType {
-    case `static`, dynamic
+// MARK: DynamicResponse
+public struct DynamicResponse {
+    public var status:HTTPResponse.Status
+    public var result:RouteResult
+    public var headers:[String:String]
+
+    public init(
+        status: HTTPResponse.Status,
+        result: RouteResult,
+        headers: [String:String]
+    ) {
+        self.status = status
+        self.result = result
+        self.headers = headers
+    }
 }
 
 // MARK: RouteResult

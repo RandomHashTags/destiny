@@ -30,9 +30,14 @@ public struct RouterGroup : Sendable {
 // MARK: Router
 public struct Router : Sendable {
     public let staticResponses:[StackString32:RouteResponseProtocol]
+    public let dynamicMiddleware:[DynamicMiddlewareProtocol]
 
-    public init(staticResponses: [StackString32:RouteResponseProtocol]) {
+    public init(
+        staticResponses: [StackString32:RouteResponseProtocol],
+        dynamicMiddleware: [DynamicMiddlewareProtocol]
+    ) {
         self.staticResponses = staticResponses
+        self.dynamicMiddleware = dynamicMiddleware
     }
 }
 
@@ -48,4 +53,5 @@ public struct Request : ~Copyable {
     public let path:StackString32
     public let version:String
     public let headers:[HTTPField.Name:String]
+    public let body:String
 }
