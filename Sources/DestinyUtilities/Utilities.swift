@@ -90,11 +90,13 @@ public enum RouteType {
 public enum RouteResult {
     case string(String)
     case bytes([UInt8])
+    case json(Encodable)
 
     var count : Int {
         switch self {
             case .string(let string): return string.utf8.count
             case .bytes(let bytes): return bytes.count
+            case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
         }
     }
 }
@@ -147,6 +149,14 @@ public struct StaticRoute : RouteProtocol {
                 break
             case .bytes(let bytes):
                 result_string = bytes.map({ "\($0)" }).joined()
+                break
+            case .json(let encodable):
+                do {
+                    let data:Data = try JSONEncoder().encode(encodable)
+                    result_string = String(data: data, encoding: .utf8) ?? "{\"error\":400\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
+                } catch {
+                    result_string = "{\"error\":400,\"reason\":\"\(error)\"}"
+                }
                 break
         }
         var string:String = version + " \(response_status ?? HTTPResponse.Status.notImplemented)\\r\\n"

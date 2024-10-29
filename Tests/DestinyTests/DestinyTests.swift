@@ -53,16 +53,32 @@ struct DestinyTests {
             Character("!").asciiValue!
         )))
     }
-    @Test func example() {
-        var stack_string32:StackString32 = StackString32()
-        for i in 0..<StackString32.scalarCount {
-            stack_string32[i] = UInt8(65 + i)
-        }
-        stack_string32[15] = 32 // space
-        let values:[StackString32] = stack_string32.split(separator: 32)
-        #expect(values.count == 2)
-        return;
+    @Test func simd_split4() throws {
+        let ss:StackString4 = StackString4(31, 32, 33, 34)
+        var values:[StackString4] = ss.split(separator: 32)
 
+        try #require(values.count == 2, Comment(rawValue: "\(values)"))
+        #expect(values[0] == SIMD4(31, 0, 0, 0))
+        #expect(values[1] == SIMD4(33, 34, 0, 0))
+
+        values = ss.split(separator: 35)
+        try #require(values.count == 1)
+        #expect(values[0] == ss)
+
+        values = ss.split(separator: 33)
+        try #require(values.count == 2, Comment(rawValue: "\(values)"))
+        #expect(values[0] == SIMD4(31, 32, 0 ,0))
+        #expect(values[1] == SIMD4(34, 0, 0, 0))
+
+        values = ss.split(separator: 34)
+        try #require(values.count == 1, Comment(rawValue: "\(values)"))
+        #expect(values[0] == SIMD4(31, 32, 33, 0))
+
+        values = ss.split(separator: 31)
+        try #require(values.count == 1, Comment(rawValue: "\(values)"))
+        #expect(values[0] == SIMD4(32, 33, 34, 0))
+    }
+    @Test func example() {
         let static_string_router:Router = #router(
             returnType: .staticString,
             version: "HTTP/2.0",

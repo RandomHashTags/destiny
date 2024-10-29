@@ -77,9 +77,9 @@ enum Router : ExpressionMacro {
             for _ in 0..<length {
                 buffer += ", 0"
             }
-            return "StackString32(\(buffer)):" + value
-        }).joined(separator: ",")
-        return "\(raw: "Router(staticResponses: [" + (static_responses.isEmpty ? ":" : static_responses) + "])")"
+            return "// \(string)\nStackString32(\(buffer)):" + value
+        }).joined(separator: ",\n")
+        return "\(raw: "Router(staticResponses: [\n" + (static_responses.isEmpty ? ":" : static_responses) + "\n])")"
     }
 }
 
@@ -162,7 +162,10 @@ extension Router {
                             case "string":
                                 result = .string(function.arguments.first!.expression.stringLiteral!.string)
                                 break
+                            case "json":
+                                break
                             case "bytes":
+                                result = .bytes(function.arguments.first!.expression.array!.elements.map({ UInt8($0.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)! }))
                                 break
                             default:
                                 break
