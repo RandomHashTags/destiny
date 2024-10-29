@@ -19,7 +19,8 @@ let application:Application = Application(
                 returnType: .staticString,
                 version: "HTTP/1.1",
                 middleware: [
-                    StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html, .json, .txt], appliesStatus: .ok)
+                    StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html, .json, .txt], appliesStatus: .ok),
+                    //StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.javascript], appliesStatus: .badRequest)
                 ],
                 StaticRoute(
                     method: .get,

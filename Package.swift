@@ -31,7 +31,8 @@ let package = Package(
             dependencies: [
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
-                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle")
+                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
+                .product(name: "SwiftSyntax", package: "swift-syntax")
             ]
         ),
         .target(
