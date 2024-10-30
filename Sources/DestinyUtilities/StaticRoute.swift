@@ -33,7 +33,8 @@ public struct StaticRoute : StaticRouteProtocol {
         self.result = result
     }
 
-    public func response(version: String, middleware: [StaticMiddlewareProtocol]) -> String {
+    public func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String {
+        let result_string:String = try result.string()
         var response_status:HTTPResponse.Status? = status
         var headers:[String:String] = [:]
         headers[HTTPField.Name.contentType.rawName] = contentType.rawValue + (charset != nil ? "; charset=" + charset! : "")
@@ -47,23 +48,6 @@ public struct StaticRoute : StaticRouteProtocol {
                     headers[header] = value
                 }
             }
-        }
-        let result_string:String
-        switch result {
-            case .string(let string):
-                result_string = string
-                break
-            case .bytes(let bytes):
-                result_string = bytes.map({ "\($0)" }).joined()
-                break
-            case .json(let encodable):
-                do {
-                    let data:Data = try JSONEncoder().encode(encodable)
-                    result_string = String(data: data, encoding: .utf8) ?? "{\"error\":400\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
-                } catch {
-                    result_string = "{\"error\":400,\"reason\":\"\(error)\"}"
-                }
-                break
         }
         var string:String = version + " \(response_status ?? HTTPResponse.Status.notImplemented)\\r\\n"
         for (header, value) in headers {

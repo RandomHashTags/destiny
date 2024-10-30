@@ -8,7 +8,7 @@
 import HTTPTypes
 
 public extension HTTPField {
-    enum ContentType : Hashable, CustomStringConvertible {
+    enum ContentType : Hashable, CustomStringConvertible, Sendable {
         case aac
         case abw
         case apng

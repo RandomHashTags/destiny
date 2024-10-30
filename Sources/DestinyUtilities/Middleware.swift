@@ -9,7 +9,7 @@ import HTTPTypes
 import SwiftSyntax
 
 // MARK: MiddlewareProtocol
-public protocol MiddlewareProtocol {
+public protocol MiddlewareProtocol : Sendable {
     var appliesToMethods : Set<HTTPRequest.Method> { get }
     var appliesToStatuses : Set<HTTPResponse.Status> { get }
     var appliesToContentTypes : Set<HTTPField.ContentType> { get }
@@ -17,7 +17,7 @@ public protocol MiddlewareProtocol {
     var appliesStatus : HTTPResponse.Status? { get }
     var appliesHeaders : [String:String] { get }
 
-    static func parse(_ syntax: FunctionCallExprSyntax) -> Self
+    static func parse(_ function: FunctionCallExprSyntax) -> Self
 }
 
 // MARK: DynamicMiddlewareProtocol
@@ -26,8 +26,8 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
     
     func shouldHandle(request: borrowing Request) -> Bool
 
-    func handle(request: borrowing Request, response: inout DynamicResponse)
-    func handleAsync(request: borrowing Request, response: inout DynamicResponse) async
+    func handle(request: borrowing Request, response: inout DynamicResponse) throws
+    func handleAsync(request: borrowing Request, response: inout DynamicResponse) async throws
 }
 
 /*

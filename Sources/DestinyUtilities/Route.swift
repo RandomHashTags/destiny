@@ -21,7 +21,7 @@ public protocol RouteProtocol {
 
 // MARK: StaticRouteProtocol
 public protocol StaticRouteProtocol : RouteProtocol {
-    func response(version: String, middleware: [StaticMiddlewareProtocol]) -> String
+    func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String
 }
 
 // MARK: DynamicRouteProtocol
@@ -30,33 +30,61 @@ public protocol DynamicRouteProtocol : RouteProtocol {
 }
 
 // MARK: DynamicResponse
-public struct DynamicResponse {
+public struct DynamicResponse : Sendable {
+    public var version:String
     public var status:HTTPResponse.Status
-    public var result:RouteResult
     public var headers:[String:String]
+    public var result:RouteResult
 
     public init(
+        version: String,
         status: HTTPResponse.Status,
-        result: RouteResult,
-        headers: [String:String]
+        headers: [String:String],
+        result: RouteResult
     ) {
+        self.version = version
         self.status = status
-        self.result = result
         self.headers = headers
+        self.result = result
+    }
+
+    package func response() throws -> String {
+        let result_string:String = try result.string()
+        var string:String = version + " \(status)\\r\\n"
+        for (header, value) in headers {
+            string += header + ": " + value + "\\r\\n"
+        }
+        let content_length:Int = result_string.count - result_string.ranges(of: "\\").count
+        string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
+        return string + "\\r\\n\\r\\n" + result_string
     }
 }
 
 // MARK: RouteResult
-public enum RouteResult {
+public enum RouteResult : Sendable {
     case string(String)
     case bytes([UInt8])
-    case json(Encodable)
+    case json(Encodable & Sendable)
 
-    var count : Int {
+    public var count : Int {
         switch self {
             case .string(let string): return string.utf8.count
             case .bytes(let bytes): return bytes.count
             case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
+        }
+    }
+
+    package func string() throws -> String {
+        switch self {
+            case .string(let string): return string
+            case .bytes(let bytes): return bytes.map({ "\($0)" }).joined()
+            case .json(let encodable):
+                do {
+                    let data:Data = try JSONEncoder().encode(encodable)
+                    return String(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
+                } catch {
+                    return "{\"error\":500,\"reason\":\"\(error)\"}"
+                }
         }
     }
 }

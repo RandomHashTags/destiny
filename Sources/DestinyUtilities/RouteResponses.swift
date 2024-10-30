@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import HTTPTypes
 
 public enum RouteResponses {
 }
 
 // MARK: StaticString
 extension RouteResponses {
-    public struct StaticString : RouteResponseProtocol {
+    public struct StaticString : StaticRouteResponseProtocol {
         public let value:Swift.StaticString
         public init(_ value: Swift.StaticString) { self.value = value }
         @inlinable public var isAsync : Bool { false }
@@ -39,7 +40,7 @@ extension RouteResponses {
 
 // MARK: UnsafeBufferPointer
 extension RouteResponses {
-    public struct UnsafeBufferPointer : RouteResponseProtocol {
+    public struct UnsafeBufferPointer : StaticRouteResponseProtocol {
         public let value:Swift.UnsafeBufferPointer<UInt8>
         public init(_ value: Swift.UnsafeBufferPointer<UInt8>) { self.value = value }
         @inlinable public var isAsync : Bool { false }
@@ -56,7 +57,7 @@ extension RouteResponses {
 
 // MARK: String
 extension RouteResponses {
-    public struct String : RouteResponseProtocol {
+    public struct String : StaticRouteResponseProtocol {
         public let value:Swift.String
         public init(_ value: Swift.String) { self.value = value }
         @inlinable public var isAsync : Bool { false }
@@ -75,7 +76,7 @@ extension RouteResponses {
 
 // MARK: UInt8Array
 extension RouteResponses {
-    public struct UInt8Array : RouteResponseProtocol {
+    public struct UInt8Array : StaticRouteResponseProtocol {
         public let value:[UInt8]
         public init(_ value: [UInt8]) { self.value = value }
         @inlinable public var isAsync : Bool { false }
@@ -94,7 +95,7 @@ extension RouteResponses {
 
 // MARK: UInt16Array
 extension RouteResponses {
-    public struct UInt16Array : RouteResponseProtocol {
+    public struct UInt16Array : StaticRouteResponseProtocol {
         public let value:[UInt16]
         public init(_ value: [UInt16]) { self.value = value }
         @inlinable public var isAsync : Bool { false }
@@ -111,10 +112,9 @@ extension RouteResponses {
     }
 }
 
-
 // MARK: Data
 extension RouteResponses {
-    public struct Data : RouteResponseProtocol {
+    public struct Data : StaticRouteResponseProtocol {
         public let value:Foundation.Data
         public init(_ value: Foundation.Data) { self.value = value }
         @inlinable public var isAsync : Bool { false }
@@ -127,6 +127,48 @@ extension RouteResponses {
         }
         public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try respond(to: socket)
+        }
+    }
+}
+
+// MARK: Dynamic
+extension RouteResponses {
+    public struct Dynamic : DynamicRouteResponseProtocol {
+        public let async:Bool
+        public let method:HTTPRequest.Method
+        public let path:Swift.String
+        public let version:Swift.String
+        public let defaultResponse:DynamicResponse
+        public let logic:(@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)?
+        public let asyncLogic:(@Sendable (borrowing Request, inout DynamicResponse) async throws -> Void)?
+
+        public init(
+            async: Bool,
+            method: HTTPRequest.Method,
+            path: Swift.String,
+            version: Swift.String,
+            defaultResponse: DynamicResponse,
+            logic: (@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)?,
+            asyncLogic: (@Sendable (borrowing Request, inout DynamicResponse) async throws -> Void)?
+        ) {
+            self.async = async
+            self.method = method
+            self.path = path
+            self.version = version
+            self.defaultResponse = defaultResponse
+            self.logic = logic
+            self.asyncLogic = asyncLogic
+        }
+
+        @inlinable public var isAsync : Bool { async }
+
+        @inlinable
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) throws {
+            try logic!(request, &response)
+        }
+        @inlinable
+        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) async throws {
+            try await asyncLogic!(request, &response)
         }
     }
 }
