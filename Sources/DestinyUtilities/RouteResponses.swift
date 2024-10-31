@@ -134,41 +134,67 @@ extension RouteResponses {
 // MARK: Dynamic
 extension RouteResponses {
     public struct Dynamic : DynamicRouteResponseProtocol {
-        public let async:Bool
         public let method:HTTPRequest.Method
         public let path:Swift.String
         public let version:Swift.String
         public let defaultResponse:DynamicResponse
-        public let logic:(@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)?
-        public let asyncLogic:(@Sendable (borrowing Request, inout DynamicResponse) async throws -> Void)?
+        public let logic:(@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)
 
         public init(
-            async: Bool,
             method: HTTPRequest.Method,
             path: Swift.String,
             version: Swift.String,
             defaultResponse: DynamicResponse,
-            logic: (@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)?,
-            asyncLogic: (@Sendable (borrowing Request, inout DynamicResponse) async throws -> Void)?
+            logic: @escaping (@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)
         ) {
-            self.async = async
             self.method = method
             self.path = path
             self.version = version
             self.defaultResponse = defaultResponse
             self.logic = logic
-            self.asyncLogic = asyncLogic
         }
 
-        @inlinable public var isAsync : Bool { async }
+        @inlinable public var isAsync : Bool { false }
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) throws {
-            try logic!(request, &response)
+            try logic(request, &response)
+            try response.response().utf8.withContiguousStorageIfAvailable {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            }
         }
+        @inlinable public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) async throws {}
+    }
+    public struct DynamicAsync : DynamicRouteResponseProtocol {
+        public let method:HTTPRequest.Method
+        public let path:Swift.String
+        public let version:Swift.String
+        public let defaultResponse:DynamicResponse
+        public let logic:(@Sendable (borrowing Request, inout DynamicResponse) async throws -> Void)
+
+        public init(
+            method: HTTPRequest.Method,
+            path: Swift.String,
+            version: Swift.String,
+            defaultResponse: DynamicResponse,
+            logic: @escaping (@Sendable (borrowing Request, inout DynamicResponse) async throws -> Void)
+        ) {
+            self.method = method
+            self.path = path
+            self.version = version
+            self.defaultResponse = defaultResponse
+            self.logic = logic
+        }
+
+        @inlinable public var isAsync : Bool { true }
+        @inlinable public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) throws {}
+
         @inlinable
         public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) async throws {
-            try await asyncLogic!(request, &response)
+            try await logic(request, &response)
+            try response.response().utf8.withContiguousStorageIfAvailable {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            }
         }
     }
 }

@@ -7,6 +7,7 @@
 
 import Destiny
 import DestinyUtilities
+import Foundation
 import HTTPTypes
 import Logging
 
@@ -20,7 +21,17 @@ let application:Application = Application(
                 version: "HTTP/1.1",
                 middleware: [
                     StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html, .json, .txt], appliesStatus: .ok),
-                    //StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.javascript], appliesStatus: .badRequest)
+                    //StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.javascript], appliesStatus: .badRequest),
+                    DynamicMiddleware(
+                        async: false,
+                        shouldHandleLogic: { request in
+                            return request.method == .post
+                        },
+                        handleLogic: { request, response in
+                            response.headers["Womp-Womp"] = UUID().uuidString
+                        },
+                        handleLogicAsync: nil
+                    )
                 ],
                 StaticRoute(
                     method: .get,

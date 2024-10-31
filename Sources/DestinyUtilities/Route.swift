@@ -48,6 +48,7 @@ public struct DynamicResponse : Sendable {
         self.result = result
     }
 
+    @inlinable
     package func response() throws -> String {
         let result_string:String = try result.string()
         var string:String = version + " \(status)\\r\\n"
@@ -74,6 +75,7 @@ public enum RouteResult : Sendable {
         }
     }
 
+    @inlinable
     package func string() throws -> String {
         switch self {
             case .string(let string): return string
@@ -93,6 +95,7 @@ public enum RouteResult : Sendable {
 extension SyntaxProtocol {
     var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
     var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
+    var booleanLiteral : BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
     var memberAccess : MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
     var array : ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
     var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }

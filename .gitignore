@@ -7,9 +7,9 @@ DerivedData
 .netrc
 .vscode
 Package.resolved
-StackStrings.d
-StackStrings.o
-StackStrings.swiftdeps*
+DynamicMiddleware.d
+DynamicMiddleware.o
+DynamicMiddleware.swiftdeps*
 HTTPFieldContentType.d
 HTTPFieldContentType.o
 HTTPFieldContentType.swiftdeps*

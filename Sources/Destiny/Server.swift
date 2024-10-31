@@ -12,9 +12,7 @@ import Logging
 import ServiceLifecycle
 
 // MARK: Server
-public final class Server : Service {
-    public static var shared:Server! = nil
-
+public actor Server : Service {
     let address:String?
     let port:in_port_t
     let maxPendingConnections:Int32
@@ -33,7 +31,6 @@ public final class Server : Service {
         self.maxPendingConnections = maxPendingConnections
         self.router = router
         self.logger = logger
-        Self.shared = self
     }
 
     public func run() async throws {
@@ -82,6 +79,7 @@ public final class Server : Service {
         }
         let static_responses:[StackString32:StaticRouteResponseProtocol] = router.staticResponses
         let dynamic_responses:[StackString32:DynamicRouteResponseProtocol] = router.dynamicResponses
+        let dynamic_middleware:[DynamicMiddlewareProtocol] = router.dynamicMiddleware
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
         await withTaskCancellationOrGracefulShutdownHandler {
@@ -92,7 +90,7 @@ public final class Server : Service {
                             do {
                                 let client:Int32 = try Self.client(serverFD: serverFD)
                                 // TODO: move the processing of clients to a dedicated detached Thread/Task (or different system core)
-                                try Self.process_client(client: client, static_responses: static_responses, dynamic_responses: dynamic_responses, not_found_response: not_found_response)
+                                try await Self.process_client(client: client, static_responses: static_responses, dynamic_responses: dynamic_responses, dynamic_middleware: dynamic_middleware, not_found_response: not_found_response)
                             } catch {
                                 self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                             }
@@ -121,30 +119,40 @@ public final class Server : Service {
         client: Int32,
         static_responses: [StackString32:StaticRouteResponseProtocol],
         dynamic_responses: [StackString32:DynamicRouteResponseProtocol],
+        dynamic_middleware: [DynamicMiddlewareProtocol],
         not_found_response: StaticString
-    ) throws {
+    ) async throws {
         defer {
             shutdown(client, 2) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
         let client_socket:Socket = Socket(fileDescriptor: client)
         let token:StackString32 = try client_socket.readLineStackString()
-        //let headers:[String:String] = try client_socket.readHeaders()
         if let responder:StaticRouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
-                //try await responder.respondAsync(to: client_socket)
+                try await responder.respondAsync(to: client_socket)
             } else {
                 try responder.respond(to: client_socket)
             }
-        } else if let responder:DynamicRouteResponseProtocol = dynamic_responses[token] { // TODO: finish (sourcekit-lsp coredump problem)
+        } else if let responder:DynamicRouteResponseProtocol = dynamic_responses[token] {
             var response:DynamicResponse = responder.defaultResponse
             var headers:[String:String] = [:]
             for (key, value) in try client_socket.readHeaders() {
                 headers[key] = value
             }
             let request:Request = Request(method: responder.method, path: responder.path, version: responder.version, headers: headers, body: "")
+            let handlers:[DynamicMiddlewareProtocol] = dynamic_middleware.filter({
+                return $0.shouldHandle(request: request)
+            })
+            for middleware in handlers {
+                if middleware.isAsync {
+                    try await middleware.handleAsync(request: request, response: &response)
+                } else {
+                    try middleware.handle(request: request, response: &response)
+                }
+            }
             if responder.isAsync {
-                //try await responder.respondAsync(to: client_socket, request: request)
+                try await responder.respondAsync(to: client_socket, request: request, response: &response)
             } else {
                 try responder.respond(to: client_socket, request: request, response: &response)
             }
