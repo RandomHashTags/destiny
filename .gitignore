@@ -10,6 +10,9 @@ Package.resolved
 DynamicMiddleware.d
 DynamicMiddleware.o
 DynamicMiddleware.swiftdeps*
+DynamicRoute.d
+DynamicRoute.o
+DynamicRoute.swiftdeps*
 HTTPFieldContentType.d
 HTTPFieldContentType.o
 HTTPFieldContentType.swiftdeps*

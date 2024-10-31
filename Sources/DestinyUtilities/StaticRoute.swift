@@ -14,7 +14,8 @@ public struct StaticRoute : StaticRouteProtocol {
     public let method:HTTPRequest.Method
     public package(set) var path:String
     public let status:HTTPResponse.Status?
-    public let contentType:HTTPField.ContentType, charset:String?
+    public let contentType:HTTPField.ContentType
+    public let charset:String?
     public let result:RouteResult
 
     public init(
@@ -40,7 +41,7 @@ public struct StaticRoute : StaticRouteProtocol {
         headers[HTTPField.Name.contentType.rawName] = contentType.rawValue + (charset != nil ? "; charset=" + charset! : "")
         for middleware in middleware {
             if middleware.appliesToMethods.contains(method) && middleware.appliesToContentTypes.contains(contentType)
-                    && (response_status != nil ? middleware.appliesToStatuses.contains(response_status!) : true) {
+                    && (response_status == nil || middleware.appliesToStatuses.isEmpty || middleware.appliesToStatuses.contains(response_status!)) {
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     response_status = applied_status
                 }

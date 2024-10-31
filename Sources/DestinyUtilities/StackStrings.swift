@@ -82,10 +82,11 @@ public extension SIMD where Scalar : BinaryInteger {
     }
 }
 public extension SIMD where Scalar == UInt8 {
-    /// - Complexity: O(_n_), where _n_ equals `scalarCount`.
+    /// - Complexity: O(_n_ * 2), where _n_ equals `leadingNonzeroByteCountSIMD`.
     func string() -> String {
-        var characters:[Character] = [Character](repeating: Character(Unicode.Scalar(0)), count: scalarCount)
-        for i in 0..<scalarCount {
+        let amount:Int = leadingNonzeroByteCountSIMD
+        var characters:[Character] = [Character](repeating: Character(Unicode.Scalar(0)), count: amount)
+        for i in 0..<amount {
             characters[i] = Character(Unicode.Scalar(self[i]))
         }
         return String(characters)

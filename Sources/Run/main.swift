@@ -21,11 +21,12 @@ let application:Application = Application(
                 version: "HTTP/1.1",
                 middleware: [
                     StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html, .json, .txt], appliesStatus: .ok),
+                    StaticMiddleware(appliesToMethods: [.get], appliesHeaders: ["You-Posted":"true"]),
                     //StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.javascript], appliesStatus: .badRequest),
                     DynamicMiddleware(
                         async: false,
                         shouldHandleLogic: { request in
-                            return request.method == .post
+                            return request.method == .get
                         },
                         handleLogic: { request, response in
                             response.headers["Womp-Womp"] = UUID().uuidString
@@ -57,6 +58,16 @@ let application:Application = Application(
                     path: "bytes",
                     contentType: .txt,
                     result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+                ),
+                DynamicRoute(
+                    async: false,
+                    method: .get,
+                    path: "dynamic",
+                    handler: { request, response in
+                        response.headers[HTTPField.Name.contentType.rawName] = HTTPField.ContentType.txt.rawValue
+                        response.result = .string(UUID().uuidString)
+                    },
+                    handlerAsync: nil
                 )
             ),
             logger: Logger(label: "destiny.http.server")

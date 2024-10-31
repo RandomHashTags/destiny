@@ -134,22 +134,22 @@ extension RouteResponses {
 // MARK: Dynamic
 extension RouteResponses {
     public struct Dynamic : DynamicRouteResponseProtocol {
+        public let version:Swift.String
         public let method:HTTPRequest.Method
         public let path:Swift.String
-        public let version:Swift.String
         public let defaultResponse:DynamicResponse
-        public let logic:(@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)
+        public let logic:@Sendable (borrowing Request, inout DynamicResponse) throws -> Void
 
         public init(
+            version: Swift.String,
             method: HTTPRequest.Method,
             path: Swift.String,
-            version: Swift.String,
             defaultResponse: DynamicResponse,
             logic: @escaping (@Sendable (borrowing Request, inout DynamicResponse) throws -> Void)
         ) {
+            self.version = version
             self.method = method
             self.path = path
-            self.version = version
             self.defaultResponse = defaultResponse
             self.logic = logic
         }
@@ -159,7 +159,7 @@ extension RouteResponses {
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) throws {
             try logic(request, &response)
-            try response.response().utf8.withContiguousStorageIfAvailable {
+            try response.response(version: request.version).utf8.withContiguousStorageIfAvailable {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
         }
@@ -192,7 +192,7 @@ extension RouteResponses {
         @inlinable
         public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) async throws {
             try await logic(request, &response)
-            try response.response().utf8.withContiguousStorageIfAvailable {
+            try response.response(version: request.version).utf8.withContiguousStorageIfAvailable {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
         }

@@ -135,15 +135,11 @@ public actor Server : Service {
                 try responder.respond(to: client_socket)
             }
         } else if let responder:DynamicRouteResponseProtocol = dynamic_responses[token] {
-            var response:DynamicResponse = responder.defaultResponse
-            var headers:[String:String] = [:]
-            for (key, value) in try client_socket.readHeaders() {
-                headers[key] = value
-            }
+            let headers:[String:String] = try client_socket.readHeaders()
             let request:Request = Request(method: responder.method, path: responder.path, version: responder.version, headers: headers, body: "")
-            let handlers:[DynamicMiddlewareProtocol] = dynamic_middleware.filter({
-                return $0.shouldHandle(request: request)
-            })
+
+            let handlers:[DynamicMiddlewareProtocol] = dynamic_middleware.filter({ $0.shouldHandle(request: request) })
+            var response:DynamicResponse = responder.defaultResponse
             for middleware in handlers {
                 if middleware.isAsync {
                     try await middleware.handleAsync(request: request, response: &response)

@@ -33,7 +33,6 @@ enum Router : ExpressionMacro {
                             for element in child.expression.array!.elements {
                                 //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
                                 if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                                    // TODO: check whether it is static or dynamic
                                     if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
                                         middleware.append(DynamicMiddleware.parse(function))
                                     } else {
@@ -51,7 +50,11 @@ enum Router : ExpressionMacro {
                 } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
                     // TODO: check whether it is static or dynamic
                     //print("Router;expansion;route;function=\(function)")
-                    routes.append((StaticRoute.parse(function), function))
+                    if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
+                        routes.append((DynamicRoute.parse(version: version, middleware: middleware.compactMap({ $0 as? StaticMiddlewareProtocol }), function), function))
+                    } else {
+                        routes.append((StaticRoute.parse(function), function))
+                    }
                 } else {
                     // TODO: support custom routes
                 }
@@ -82,7 +85,7 @@ enum Router : ExpressionMacro {
                 break
         }
         let static_routes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = routes.compactMap({ $0.0 is StaticRouteProtocol ? ($0.0 as! StaticRouteProtocol, $0.1) : nil })
-        //let dynamic_routes:[DynamicRouteProtocol] = routes.compactMap({ $0 as? DynamicRouteProtocol })
+        let dynamic_routes:[DynamicRouteProtocol] = routes.compactMap({ $0.0 as? DynamicRouteProtocol })
         let static_middleware:[StaticMiddlewareProtocol] = middleware.compactMap({ $0 as? StaticMiddlewareProtocol })
         let dynamic_middleware:[DynamicMiddlewareProtocol] = middleware.compactMap({ $0 as? DynamicMiddlewareProtocol })
         let static_responses:String = static_routes.isEmpty ? ":" : "\n" + static_routes.compactMap({ (route, function) in
@@ -97,10 +100,17 @@ enum Router : ExpressionMacro {
                 return nil
             }
         }).joined(separator: ",\n") + "\n"
+        let dynamic_routes_string:String = dynamic_routes.isEmpty ? ":" : "\n" + dynamic_routes.compactMap({ route in
+            var string:String = route.method.rawValue + " /" + route.path + " " + version
+            let buffer:StackString32 = StackString32(&string)
+            let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
+            let responder:String = "RouteResponses.Dynamic\(route.isAsync ? "Async" : "")(version: \"\(version)\", method: HTTPRequest.Method(rawValue: \"\(route.method.rawValue)\")!, path: \"\(route.path)\", defaultResponse: \(route.defaultResponse.debugDescription), logic: \(logic))"
+            return "// \(string)\n\(buffer) : \(responder)"
+        }).joined(separator: ",\n") + "\n"
         let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({
             return $0.description
         }).joined(separator: ",\n") + "\n"
-        return "\(raw: "Router(\nstaticResponses: [\(static_responses)],\ndynamicResponses: [:],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
+        return "\(raw: "Router(\nstaticResponses: [\(static_responses)],\ndynamicResponses: [\(dynamic_routes_string)],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
     }
 }
 

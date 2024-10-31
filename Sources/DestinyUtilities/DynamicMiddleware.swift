@@ -48,7 +48,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 public extension DynamicMiddleware {
     static func parse(_ function: FunctionCallExprSyntax) -> DynamicMiddleware {
         var async:Bool = false
-        var shouldHandleLogic:String = "false"
+        var shouldHandleLogic:String = "{ _ in false }"
         var handleLogic:String = "nil"
         var handleLogicAsync:String = "nil"
         for argument in function.arguments {
@@ -69,7 +69,7 @@ public extension DynamicMiddleware {
                     break
             }
         }
-        var middleware:DynamicMiddleware = DynamicMiddleware(async: async, shouldHandleLogic: {_ in false }, handleLogic: nil, handleLogicAsync: nil)
+        var middleware:DynamicMiddleware = DynamicMiddleware(async: async, shouldHandleLogic: { _ in false }, handleLogic: nil, handleLogicAsync: nil)
         middleware.logic = "async: \(async), shouldHandleLogic: \(shouldHandleLogic), handleLogic: \(handleLogic), handleLogicAsync: \(handleLogicAsync)"
         return middleware
     }

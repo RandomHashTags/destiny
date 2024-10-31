@@ -14,51 +14,25 @@ public protocol RouteProtocol {
     var method : HTTPRequest.Method { get }
     var path : String { get }
     var status : HTTPResponse.Status? { get }
-    var result : RouteResult { get }
-
-    static func parse(_ function: FunctionCallExprSyntax) -> Self
 }
 
 // MARK: StaticRouteProtocol
 public protocol StaticRouteProtocol : RouteProtocol {
+    var result : RouteResult { get }
+
     func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String
+
+    static func parse(_ function: FunctionCallExprSyntax) -> Self
 }
 
 // MARK: DynamicRouteProtocol
 public protocol DynamicRouteProtocol : RouteProtocol {
-    func response(middleware: [DynamicMiddlewareProtocol], request: borrowing Request) -> String
-}
+    var defaultResponse : DynamicResponse { get }
+    var isAsync : Bool { get }
+    var handlerLogic : String { get }
+    var handlerLogicAsync : String { get }
 
-// MARK: DynamicResponse
-public struct DynamicResponse : Sendable {
-    public var version:String
-    public var status:HTTPResponse.Status
-    public var headers:[String:String]
-    public var result:RouteResult
-
-    public init(
-        version: String,
-        status: HTTPResponse.Status,
-        headers: [String:String],
-        result: RouteResult
-    ) {
-        self.version = version
-        self.status = status
-        self.headers = headers
-        self.result = result
-    }
-
-    @inlinable
-    package func response() throws -> String {
-        let result_string:String = try result.string()
-        var string:String = version + " \(status)\\r\\n"
-        for (header, value) in headers {
-            string += header + ": " + value + "\\r\\n"
-        }
-        let content_length:Int = result_string.count - result_string.ranges(of: "\\").count
-        string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
-        return string + "\\r\\n\\r\\n" + result_string
-    }
+    static func parse(version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self
 }
 
 // MARK: RouteResult
