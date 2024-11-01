@@ -127,7 +127,7 @@ public actor Server : Service {
             close(client)
         }
         let client_socket:Socket = Socket(fileDescriptor: client)
-        let token:StackString32 = try client_socket.readLineStackString()
+        let token:StackString32 = try client_socket.readLineSIMD()
         if let responder:StaticRouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
                 try await responder.respondAsync(to: client_socket)

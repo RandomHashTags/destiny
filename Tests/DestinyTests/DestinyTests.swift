@@ -78,6 +78,11 @@ struct DestinyTests {
         try #require(values.count == 1, Comment(rawValue: "\(values)"))
         #expect(values[0] == SIMD4(32, 33, 34, 0))
     }
+    @Test func simd_string() throws {
+        var string:String = "brooooooooo !"
+        let ss:StackString64 = StackString64(&string)
+        #expect(ss.string() == "brooooooooo !")
+    }
     @Test func example() {
         let static_string_router:Router = #router(
             returnType: .staticString,

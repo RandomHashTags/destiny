@@ -28,22 +28,3 @@ public struct Socket : SocketProtocol, ~Copyable {
         Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
 }
-
-public extension SocketProtocol where Self : ~Copyable {
-    @inlinable
-    func readLineStackString<T: SIMD>() throws -> T where T.Scalar: BinaryInteger { // read just the method, path & http version
-        var string:T = T()
-        var i:Int = 0, char:UInt8 = 0
-        while true {
-            char = try readByte()
-            if char == 10 || i == T.scalarCount {
-                break
-            } else if char == 13 {
-                continue
-            }
-            string[i] = T.Scalar(char)
-            i += 1
-        }
-        return string
-    }
-}

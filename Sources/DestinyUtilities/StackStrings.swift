@@ -83,13 +83,111 @@ public extension SIMD where Scalar : BinaryInteger {
 }
 public extension SIMD where Scalar == UInt8 {
     /// - Complexity: O(_n_ * 2), where _n_ equals `leadingNonzeroByteCountSIMD`.
-    func string() -> String {
+    func stringSIMD() -> String {
         let amount:Int = leadingNonzeroByteCountSIMD
         var characters:[Character] = [Character](repeating: Character(Unicode.Scalar(0)), count: amount)
         for i in 0..<amount {
             characters[i] = Character(Unicode.Scalar(self[i]))
         }
         return String(characters)
+    }
+}
+
+// MARK: string() O(1)
+extension SIMD2 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func chars() -> [Scalar] {
+        return x == 0 ? [] : y == 0 ? [x] : [x, y]
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func string() -> String {
+        return String(decoding: chars(), as: UTF8.self)
+    }
+}
+extension SIMD4 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func chars() -> [Scalar] {
+        if (self .!= .zero) == .init(repeating: true) {
+            return [x, y, z, w]
+        }
+        if (lowHalf .!= .zero) != .init(repeating: true) {
+            return lowHalf.chars()
+        }
+        return [x, y] + highHalf.chars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func string() -> String {
+        return String(decoding: chars(), as: UTF8.self)
+    }
+}
+extension SIMD8 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func chars() -> [Scalar] {
+        if (lowHalf .!= .zero) != .init(repeating: true) {
+            return lowHalf.chars()
+        }
+        return lowHalf.chars() + highHalf.chars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func string() -> String {
+        return String(decoding: chars(), as: UTF8.self)
+    }
+}
+extension SIMD16 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func chars() -> [Scalar] {
+        if (lowHalf .!= .zero) != .init(repeating: true) {
+            return lowHalf.chars()
+        }
+        return lowHalf.chars() + highHalf.chars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func string() -> String {
+        return String(decoding: chars(), as: UTF8.self)
+    }
+}
+extension SIMD32 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func chars() -> [Scalar] {
+        if (lowHalf .!= .zero) != .init(repeating: true) {
+            return lowHalf.chars()
+        }
+        return lowHalf.chars() + highHalf.chars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func string() -> String {
+        return String(decoding: chars(), as: UTF8.self)
+    }
+}
+extension SIMD64 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func chars() -> [Scalar] {
+        if (lowHalf .!= .zero) != .init(repeating: true) {
+            return lowHalf.chars()
+        }
+        return lowHalf.chars() + highHalf.chars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func string() -> String {
+        return String(decoding: chars(), as: UTF8.self)
     }
 }
 

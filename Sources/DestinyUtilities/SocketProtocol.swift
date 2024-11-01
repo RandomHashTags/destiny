@@ -23,9 +23,22 @@ public extension SocketProtocol where Self : ~Copyable {
     func readByte() throws -> UInt8 {
         var result:UInt8 = 0
         let bytes_read:Int = recv(fileDescriptor, &result, 1, 0)
-        if bytes_read < 1 {
+        if bytes_read < 0 {
             throw SocketError.readSingleByteFailed()
         }
+        return result
+    }
+
+    /// Reads multiple bytes and loads them into a SIMD vector.
+    @inlinable
+    func readBytesSIMD<T: SIMD>() throws -> T {
+        var result:T = T()
+        try withUnsafeMutablePointer(to: &result, { p in
+            let bytes_read:Int = recv(fileDescriptor, p, T.scalarCount, 0)
+            if bytes_read < 0 {
+                throw SocketError.readSingleByteFailed()
+            }
+        })
         return result
     }
 
@@ -46,7 +59,7 @@ public extension SocketProtocol where Self : ~Copyable {
     }
 
     @inlinable
-    func readHeaders() throws -> [String:String] {
+    func readHeaders() throws -> [String:String] { // TODO: make faster (replace with a SIMD/StackString equivalent)
         var headers:[String:String] = [:]
         while case let line:String = try readLine(), !line.isEmpty {
             let values:[Substring] = line.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true)
@@ -112,6 +125,26 @@ public extension SocketProtocol where Self : ~Copyable {
             if result <= 0 { throw SocketError.writeFailed() }
             sent += result
         }
+    }
+}
+
+// MARK: Misc
+public extension SocketProtocol where Self : ~Copyable {
+    @inlinable
+    func readLineSIMD<T: SIMD>() throws -> T where T.Scalar: BinaryInteger { // read just the method, path & http version
+        var string:T = T()
+        var i:Int = 0, char:UInt8 = 0
+        while true {
+            char = try readByte()
+            if char == 10 || i == T.scalarCount {
+                break
+            } else if char == 13 {
+                continue
+            }
+            string[i] = T.Scalar(char)
+            i += 1
+        }
+        return string
     }
 }
 

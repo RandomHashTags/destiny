@@ -27,11 +27,17 @@ public protocol StaticRouteProtocol : RouteProtocol {
 
 // MARK: DynamicRouteProtocol
 public protocol DynamicRouteProtocol : RouteProtocol {
+    /// The default response computed by this route's method & path, and any corresponding static middleware.
     var defaultResponse : DynamicResponse { get }
+    /// Whether or not this dynamic route responds asynchronously or synchronously.
     var isAsync : Bool { get }
+    /// A string representation of the synchronous handler logic, required when parsing from the router macro.
     var handlerLogic : String { get }
+    /// A string representation of the asynchronous handler logic, required when parsing from the router macro.
     var handlerLogicAsync : String { get }
 
+    /// Parsing logic for this dynamic route.
+    /// - Warning: You need to assign `handlerLogic` or `handlerLogicAsync` properly.
     static func parse(version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self
 }
 
