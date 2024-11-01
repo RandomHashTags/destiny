@@ -46,12 +46,14 @@ public enum RouteResult : Sendable {
     case string(String)
     case bytes([UInt8])
     case json(Encodable & Sendable)
+    case error(Error)
 
     public var count : Int {
         switch self {
             case .string(let string): return string.utf8.count
             case .bytes(let bytes): return bytes.count
             case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
+            case .error(let error): return "\(error)".count
         }
     }
 
@@ -67,6 +69,7 @@ public enum RouteResult : Sendable {
                 } catch {
                     return "{\"error\":500,\"reason\":\"\(error)\"}"
                 }
+            case .error(let error): return "\(error)"
         }
     }
 }

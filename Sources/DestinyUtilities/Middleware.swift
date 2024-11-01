@@ -21,39 +21,17 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol, CustomStringConv
     var isAsync : Bool { get }
     
     /// Whether or not this middleware should handle a request.
-    func shouldHandle(request: borrowing Request) -> Bool
+    @inlinable func shouldHandle(request: borrowing Request, response: borrowing DynamicResponse) -> Bool
 
-    func handle(request: borrowing Request, response: inout DynamicResponse) throws
-    func handleAsync(request: borrowing Request, response: inout DynamicResponse) async throws
+    @inlinable func handle(request: borrowing Request, response: inout DynamicResponse) throws
+    @inlinable func handleAsync(request: borrowing Request, response: inout DynamicResponse) async throws
+
+    @inlinable func onError(request: borrowing Request, response: inout DynamicResponse, error: Error)
+    @inlinable func onErrorAsync(request: borrowing Request, response: inout DynamicResponse, error: Error) async
 }
 
-/*
-// MARK: DynamicMiddleware
-public struct DynamicMiddleware : DynamicMiddlewareProtocol {
-    public let appliesToMethods:Set<HTTPRequest.Method>
-    public let appliesToStatuses:Set<HTTPResponse.Status>
-    public let appliesToContentTypes:Set<HTTPField.ContentType>
-
-    public let appliesStatus:HTTPResponse.Status?
-    public let appliesHeaders:[String:String]
-
-    public init(
-        appliesToMethods: Set<HTTPRequest.Method> = [],
-        appliesToStatuses: Set<HTTPResponse.Status> = [],
-        appliesToContentTypes: Set<HTTPField.ContentType> = [],
-        appliesStatus: HTTPResponse.Status? = nil,
-        appliesHeaders: [String:String] = [:]
-    ) {
-        self.appliesToMethods = appliesToMethods
-        self.appliesToStatuses = appliesToStatuses
-        self.appliesToContentTypes = appliesToContentTypes
-        self.appliesStatus = appliesStatus
-        self.appliesHeaders = appliesHeaders
-    }
-}*/
-
 // MARK: StaticMiddlewareProtocol
-/// A `MiddlewareProtocol` that handles routes at compile time.
+/// A `MiddlewareProtocol` that handles routes only at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesToMethods : Set<HTTPRequest.Method> { get }
     var appliesToStatuses : Set<HTTPResponse.Status> { get }

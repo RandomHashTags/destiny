@@ -34,7 +34,9 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 
 public extension StaticMiddleware {
     static func parse(_ function: FunctionCallExprSyntax) -> Self {
-        var appliesToMethods:Set<HTTPRequest.Method> = [], appliesToStatuses:Set<HTTPResponse.Status> = [], appliesToContentTypes:Set<HTTPField.ContentType> = []
+        var appliesToMethods:Set<HTTPRequest.Method> = []
+        var appliesToStatuses:Set<HTTPResponse.Status> = []
+        var appliesToContentTypes:Set<HTTPField.ContentType> = []
         var appliesStatus:HTTPResponse.Status? = nil
         var appliesHeaders:[String:String] = [:]
         for argument in function.arguments {

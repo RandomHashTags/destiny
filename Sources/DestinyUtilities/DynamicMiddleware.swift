@@ -9,28 +9,40 @@ import HTTPTypes
 import SwiftSyntax
 
 public struct DynamicMiddleware : DynamicMiddlewareProtocol {
+    public static let defaultOnError:@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse, _ error: Error) -> Void = { request, response, error in
+        response.status = .internalServerError
+        response.headers[HTTPField.Name.contentType.rawName] = HTTPField.ContentType.json.rawValue
+        response.result = .string("{\"error\":true,\"reason\":\"\(error)\"}")
+    }
+
     public let async:Bool
-    public let shouldHandleLogic:@Sendable (_ request: borrowing Request) -> Bool
+    public let shouldHandleLogic:@Sendable (_ request: borrowing Request, _ response: borrowing DynamicResponse) -> Bool
     public let handleLogic:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?
     public let handleLogicAsync:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?
+    public let onError:@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse, _ error: Error) -> Void
+    public let onErrorAsync:@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse, _ error: Error) async -> Void
 
     fileprivate var logic:String = ""
 
     public init(
         async: Bool,
-        shouldHandleLogic: @escaping @Sendable (_ request: borrowing Request) -> Bool,
+        shouldHandleLogic: @escaping @Sendable (_ request: borrowing Request, _ response: borrowing DynamicResponse) -> Bool,
         handleLogic: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?,
-        handleLogicAsync: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?
+        handleLogicAsync: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?,
+        onError: @escaping @Sendable (_ request: borrowing Request, _ response: inout DynamicResponse, _ error: Error) -> Void = DynamicMiddleware.defaultOnError,
+        onErrorAsync: @escaping @Sendable (_ request: borrowing Request, _ response: inout DynamicResponse, _ error: Error) async -> Void = DynamicMiddleware.defaultOnError
     ) {
         self.async = async
         self.shouldHandleLogic = shouldHandleLogic
         self.handleLogic = handleLogic
         self.handleLogicAsync = handleLogicAsync
+        self.onError = onError
+        self.onErrorAsync = onErrorAsync
     }
 
     public var isAsync: Bool { async }
 
-    public func shouldHandle(request: borrowing Request) -> Bool { shouldHandleLogic(request) }
+    public func shouldHandle(request: borrowing Request, response: borrowing DynamicResponse) -> Bool { shouldHandleLogic(request, response) }
 
     public func handle(request: borrowing Request, response: inout DynamicResponse) throws {
         try handleLogic!(request, &response)
@@ -40,7 +52,14 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
         try await handleLogicAsync!(request, &response)
     }
 
-    public var description: String {
+    public func onError(request: borrowing Request, response: inout DynamicResponse, error: Error) {
+        onError(request, &response, error)
+    }
+    public func onErrorAsync(request: borrowing Request, response: inout DynamicResponse, error: any Error) async {
+        await onErrorAsync(request, &response, error)
+    }
+
+    public var description : String {
         return "DynamicMiddleware(\(logic))"
     }
 }
@@ -48,9 +67,11 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 public extension DynamicMiddleware {
     static func parse(_ function: FunctionCallExprSyntax) -> DynamicMiddleware {
         var async:Bool = false
-        var shouldHandleLogic:String = "{ _ in false }"
+        var shouldHandleLogic:String = "{ _, _ in false }"
         var handleLogic:String = "nil"
         var handleLogicAsync:String = "nil"
+        var onError:String = "nil"
+        var onErrorAsync:String = "nil"
         for argument in function.arguments {
             switch argument.label!.text {
                 case "async":
@@ -65,12 +86,32 @@ public extension DynamicMiddleware {
                 case "handleLogicAsync":
                     handleLogicAsync = "\(argument.expression)"
                     break
+                case "onError":
+                    onError = "\(argument.expression)"
+                    break
+                case "onErrorAsync":
+                    onErrorAsync = "\(argument.expression)"
+                    break
                 default:
                     break
             }
         }
-        var middleware:DynamicMiddleware = DynamicMiddleware(async: async, shouldHandleLogic: { _ in false }, handleLogic: nil, handleLogicAsync: nil)
-        middleware.logic = "async: \(async), shouldHandleLogic: \(shouldHandleLogic), handleLogic: \(handleLogic), handleLogicAsync: \(handleLogicAsync)"
+        var middleware:DynamicMiddleware = DynamicMiddleware(
+            async: async,
+            shouldHandleLogic: { _, _ in false },
+            handleLogic: nil,
+            handleLogicAsync: nil,
+            onError: DynamicMiddleware.defaultOnError,
+            onErrorAsync: DynamicMiddleware.defaultOnError
+        )
+        let default_on_error:String = "DynamicMiddleware.defaultOnError"
+        if onError == "nil" {
+            onError = default_on_error
+        }
+        if onErrorAsync == "nil" {
+            onErrorAsync = default_on_error
+        }
+        middleware.logic = "async: \(async), shouldHandleLogic: \(shouldHandleLogic), handleLogic: \(handleLogic), handleLogicAsync: \(handleLogicAsync), onError: \(onError), onErrorAsync: \(onErrorAsync)"
         return middleware
     }
 }

@@ -276,6 +276,73 @@ public extension SIMD8 where Scalar : BinaryInteger {
     }
 }*/
 
+// MARK: leadingNonByteCount O(1)
+// implementation should never change
+public extension SIMD2 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    func leadingNonByteCount(byte: Scalar) -> Int {
+        if x == byte { return 0 }
+        if y == byte { return 1 }
+        return scalarCount
+    }
+}
+public extension SIMD4 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    func leadingNonByteCount(byte: Scalar) -> Int {
+        let byte_simd:SIMD2<Scalar> = .init(repeating: byte)
+        let all_nonbyte:SIMDMask<SIMD2<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 2 + highHalf.leadingNonzeroByteCount }
+        return scalarCount
+    }
+}
+public extension SIMD8 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    func leadingNonByteCount(byte: Scalar) -> Int {
+        let byte_simd:SIMD4<Scalar> = .init(repeating: byte)
+        let all_nonbyte:SIMDMask<SIMD4<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 4 + highHalf.leadingNonzeroByteCount }
+        return scalarCount
+    }
+}
+public extension SIMD16 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    func leadingNonByteCount(byte: Scalar) -> Int {
+        let byte_simd:SIMD8<Scalar> = .init(repeating: byte)
+        let all_nonbyte:SIMDMask<SIMD8<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 8 + highHalf.leadingNonzeroByteCount }
+        return scalarCount
+    }
+}
+public extension SIMD32 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    func leadingNonByteCount(byte: Scalar) -> Int {
+        let byte_simd:SIMD16<Scalar> = .init(repeating: byte)
+        let all_nonbyte:SIMDMask<SIMD16<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 16 + highHalf.leadingNonzeroByteCount }
+        return scalarCount
+    }
+}
+public extension SIMD64 where Scalar : BinaryInteger {
+    /// - Complexity: O(1)
+    @inlinable
+    func leadingNonByteCount(byte: Scalar) -> Int {
+        let byte_simd:SIMD32<Scalar> = .init(repeating: byte)
+        let all_nonbyte:SIMDMask<SIMD32<Scalar.SIMDMaskScalar>> = .init(repeating: true)
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 32 + highHalf.leadingNonzeroByteCount }
+        return scalarCount
+    }
+}
+
 // MARK: leadingNonzeroByteCount O(1)
 // implementation should never change
 public extension SIMD2 where Scalar : BinaryInteger {
@@ -292,7 +359,7 @@ public extension SIMD4 where Scalar : BinaryInteger {
     @inlinable
     var leadingNonzeroByteCount : Int {
         let all_nonzero:SIMDMask<SIMD2<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf .!= .zero) != all_nonzero  { return lowHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= .zero) != all_nonzero { return lowHalf.leadingNonzeroByteCount }
         if (highHalf .!= .zero) != all_nonzero { return 2 + highHalf.leadingNonzeroByteCount }
         return scalarCount
     }
@@ -302,7 +369,7 @@ public extension SIMD8 where Scalar : BinaryInteger {
     @inlinable
     var leadingNonzeroByteCount : Int {
         let all_nonzero:SIMDMask<SIMD4<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf .!= .zero) != all_nonzero  { return lowHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= .zero) != all_nonzero { return lowHalf.leadingNonzeroByteCount }
         if (highHalf .!= .zero) != all_nonzero { return 4 + highHalf.leadingNonzeroByteCount }
         return scalarCount
     }
@@ -312,7 +379,7 @@ public extension SIMD16 where Scalar : BinaryInteger {
     @inlinable
     var leadingNonzeroByteCount : Int {
         let all_nonzero:SIMDMask<SIMD8<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf .!= .zero) != all_nonzero  { return lowHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= .zero) != all_nonzero { return lowHalf.leadingNonzeroByteCount }
         if (highHalf .!= .zero) != all_nonzero { return 8 + highHalf.leadingNonzeroByteCount }
         return scalarCount
     }
@@ -322,7 +389,7 @@ public extension SIMD32 where Scalar : BinaryInteger {
     @inlinable
     var leadingNonzeroByteCount : Int {
         let all_nonzero:SIMDMask<SIMD16<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf .!= .zero) != all_nonzero  { return lowHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= .zero) != all_nonzero { return lowHalf.leadingNonzeroByteCount }
         if (highHalf .!= .zero) != all_nonzero { return 16 + highHalf.leadingNonzeroByteCount }
         return scalarCount
     }
@@ -332,7 +399,7 @@ public extension SIMD64 where Scalar : BinaryInteger {
     @inlinable
     var leadingNonzeroByteCount : Int {
         let all_nonzero:SIMDMask<SIMD32<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf .!= .zero) != all_nonzero  { return lowHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= .zero) != all_nonzero { return lowHalf.leadingNonzeroByteCount }
         if (highHalf .!= .zero) != all_nonzero { return 32 + highHalf.leadingNonzeroByteCount }
         return scalarCount
     }
@@ -395,3 +462,10 @@ public extension SIMD64 where Scalar : BinaryInteger {
     /// - Complexity: O(1)
     @inlinable func hasPrefix(_ simd: SIMD32<Scalar>) -> Bool { simd == lowHalf }
 }
+
+/*
+// MARK: hasSuffix O(1)
+public extension SIMD2 where Scalar : BinaryInteger {
+    @inlinable func hasSuffix(_ simd: SIMD2<Scalar>) -> Bool {
+    }
+}*/

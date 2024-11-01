@@ -11,6 +11,10 @@ import HTTPTypes
 import Logging
 import ServiceLifecycle
 
+/// The default macro to create a `Router`.
+///
+/// - Parameters:
+///   - middleware: handled in the order it is declared. Put your most important middleware first (static middleware is computed & discarded at compile time)
 @freestanding(expression)
 public macro router(
     returnType: RouterReturnType,

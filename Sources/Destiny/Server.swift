@@ -13,24 +13,30 @@ import ServiceLifecycle
 
 // MARK: Server
 public actor Server : Service {
-    let address:String?
-    let port:in_port_t
-    let maxPendingConnections:Int32
-    let router:Router
-    let logger:Logger
+    public let address:String?
+    public var port:in_port_t
+    public var maxPendingConnections:Int32
+    public let router:Router
+    public let logger:Logger
+    public let onLoad:(() -> Void)?
+    public let onShutdown:(() -> Void)?
 
     public init(
         address: String? = nil,
         port: in_port_t,
         maxPendingConnections: Int32 = SOMAXCONN,
         router: Router,
-        logger: Logger
+        logger: Logger,
+        onLoad: (() -> Void)? = nil,
+        onShutdown: (() -> Void)? = nil
     ) {
         self.address = address
         self.port = port
         self.maxPendingConnections = maxPendingConnections
         self.router = router
         self.logger = logger
+        self.onLoad = onLoad
+        self.onShutdown = onShutdown
     }
 
     public func run() async throws {
@@ -81,8 +87,10 @@ public actor Server : Service {
         let dynamic_responses:[StackString32:DynamicRouteResponseProtocol] = router.dynamicResponses
         let dynamic_middleware:[DynamicMiddlewareProtocol] = router.dynamicMiddleware
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
+        let on_shutdown:(() -> Void)? = onShutdown
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
         await withTaskCancellationOrGracefulShutdownHandler {
+            onLoad?()
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 await withTaskGroup(of: Void.self) { group in
                     for _ in 0..<maxPendingConnections {
@@ -100,6 +108,7 @@ public actor Server : Service {
                 }
             }
         } onCancelOrGracefulShutdown: {
+            on_shutdown?()
             close(serverFD)
         }
     }
@@ -138,13 +147,24 @@ public actor Server : Service {
             let headers:[String:String] = try client_socket.readHeaders()
             let request:Request = Request(method: responder.method, path: responder.path, version: responder.version, headers: headers, body: "")
 
-            let handlers:[DynamicMiddlewareProtocol] = dynamic_middleware.filter({ $0.shouldHandle(request: request) })
             var response:DynamicResponse = responder.defaultResponse
-            for middleware in handlers {
-                if middleware.isAsync {
-                    try await middleware.handleAsync(request: request, response: &response)
-                } else {
-                    try middleware.handle(request: request, response: &response)
+            //let handlers:[DynamicMiddlewareProtocol] = dynamic_middleware.filter({ $0.shouldHandle(request: request) })
+            for middleware in dynamic_middleware {
+                if middleware.shouldHandle(request: request, response: response) {
+                    do {
+                        if middleware.isAsync {
+                            try await middleware.handleAsync(request: request, response: &response)
+                        } else {
+                            try middleware.handle(request: request, response: &response)
+                        }
+                    } catch {
+                        if middleware.isAsync {
+                            await middleware.onErrorAsync(request: request, response: &response, error: error)
+                        } else {
+                            middleware.onError(request: request, response: &response, error: error)
+                        }
+                        break
+                    }
                 }
             }
             if responder.isAsync {

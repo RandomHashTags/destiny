@@ -25,7 +25,7 @@ let application:Application = Application(
                     //StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.javascript], appliesStatus: .badRequest),
                     DynamicMiddleware(
                         async: false,
-                        shouldHandleLogic: { request in
+                        shouldHandleLogic: { request, response in
                             return request.method == .get
                         },
                         handleLogic: { request, response in

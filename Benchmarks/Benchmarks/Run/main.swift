@@ -53,7 +53,7 @@ try await application.run()
 func destiny_service(port: UInt16) -> Destiny.Application {
     let server_logger:Logger = Logger(label: "destiny.http.server")
     return Destiny.Application(services: [
-        Destiny.Server(threads: 8, address: hostname, port: port, maxPendingConnections: 5000, router:
+        Destiny.Server(address: hostname, port: port, maxPendingConnections: 5000, router:
             #router(
                 returnType: .staticString,
                 version: "HTTP/1.1",
@@ -78,8 +78,12 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
     let router:Hummingbird.Router<BasicRequestContext> = Hummingbird.Router()
     let body:Hummingbird.ResponseBody = .init(byteBuffer: ByteBuffer(string: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"))
     let headers:HTTPFields = HTTPFields(dictionaryLiteral: (.contentType, "text/html"))
-    router.get(RouterPath("test")) { request, _ -> Response in
+    router.get(RouterPath("test")) { request, _ in
         return Response(status: .ok, headers: headers, body: body)
+    }
+    router.get(RouterPath("error")) { request, _ in
+        throw CustomError.yeet
+        return ""
     }
     let app = Hummingbird.Application(router: router, configuration: .init(address: .hostname(hostname, port: port)))
     return app
@@ -106,5 +110,15 @@ func vapor_application(port: Int) -> Vapor.Application {
     app.on(.GET, ["test"]) { request in
         return Vapor.Response(status: .ok, version: request.version, headers: headers, body: body)
     }
+    app.on(.GET, ["error"]) { request in
+        throw CustomError.yeet
+        return ""
+    }
     return app
+}
+
+
+// MARK: Error
+enum CustomError : Error {
+    case yeet
 }

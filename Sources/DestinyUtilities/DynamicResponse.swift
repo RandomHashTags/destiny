@@ -29,8 +29,7 @@ public struct DynamicResponse : Sendable, CustomDebugStringConvertible {
         for (header, value) in headers {
             string += header + ": " + value + "\r\n"
         }
-        let content_length:Int = result_string.count
-        string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
+        string += HTTPField.Name.contentLength.rawName + ": \(result_string.count)"
         return string + "\r\n\r\n" + result_string
     }
 
