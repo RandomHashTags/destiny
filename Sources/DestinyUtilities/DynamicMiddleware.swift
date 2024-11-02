@@ -8,6 +8,7 @@
 import HTTPTypes
 import SwiftSyntax
 
+/// The default Dynamic Middleware that powers Destiny's dynamic middleware which handles requests to dynamic routes.
 public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     public static let defaultOnError:@Sendable (_ request: borrowing Request, _ response: inout DynamicResponse, _ error: Error) -> Void = { request, response, error in
         response.status = .internalServerError

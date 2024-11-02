@@ -11,11 +11,14 @@ import SwiftSyntax
 // MARK: MiddlewareProtocol
 /// The core Middleware protocol that powers Destiny's Middleware.
 public protocol MiddlewareProtocol : Sendable {
+    /// Parsing logic for this middleware. Computed at compile time.
+    /// - Parameters:
+    ///   - function: The SwiftSyntax expression that represents this middleware at compile time.
     static func parse(_ function: FunctionCallExprSyntax) -> Self
 }
 
 // MARK: DynamicMiddlewareProtocol
-/// A `MiddlewareProtocol` that handles requests dynamically.
+/// The core `MiddlewareProtocol` that powers Destiny's dynamic middleware which handles requests to dynamic routes.
 public protocol DynamicMiddlewareProtocol : MiddlewareProtocol, CustomStringConvertible {
     /// Whether or not this middleware handles a request asynchronously or synchronously.
     var isAsync : Bool { get }
@@ -31,12 +34,17 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol, CustomStringConv
 }
 
 // MARK: StaticMiddlewareProtocol
-/// A `MiddlewareProtocol` that handles routes only at compile time.
+/// The core `MiddlewareProtocol` that powers Destiny's static middleware which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
+    /// What request methods this static middleware applies to.
     var appliesToMethods : Set<HTTPRequest.Method> { get }
+    /// What response statuses this static middleware applies to.
     var appliesToStatuses : Set<HTTPResponse.Status> { get }
+    /// What content types this static middleware applies to.
     var appliesToContentTypes : Set<HTTPField.ContentType> { get }
 
+    /// What request status this static middleware applies to static/dynamic routes.
     var appliesStatus : HTTPResponse.Status? { get }
+    /// What response headers this static middleware applies to static/dynamic routes.
     var appliesHeaders : [String:String] { get }
 }

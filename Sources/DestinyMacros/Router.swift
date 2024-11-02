@@ -104,7 +104,7 @@ enum Router : ExpressionMacro {
             var string:String = route.method.rawValue + " /" + route.path + " " + version
             let buffer:StackString32 = StackString32(&string)
             let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
-            let responder:String = "RouteResponses.Dynamic\(route.isAsync ? "Async" : "")(version: \"\(version)\", method: HTTPRequest.Method(rawValue: \"\(route.method.rawValue)\")!, path: \"\(route.path)\", defaultResponse: \(route.defaultResponse.debugDescription), logic: \(logic))"
+            let responder:String = route.responder(version: version, logic: logic)
             return "// \(string)\n\(buffer) : \(responder)"
         }).joined(separator: ",\n") + "\n"
         let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({

@@ -59,6 +59,13 @@ let application:Application = Application(
                     contentType: .txt,
                     result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
                 ),
+                StaticRoute(
+                    method: .get,
+                    path: "error",
+                    status: .badRequest,
+                    contentType: .json,
+                    result: .error(CustomError.yipyip)
+                ),
                 DynamicRoute(
                     async: false,
                     method: .get,
@@ -79,4 +86,7 @@ try await application.run()
 
 struct StaticJSONResponse : Encodable {
     let this_outcome_was_inevitable_and_was_your_destiny:Bool
+}
+enum CustomError : Error {
+    case yipyip
 }

@@ -14,12 +14,12 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let method:HTTPRequest.Method
     public let path:String
     public let status:HTTPResponse.Status?
-    public package(set) var defaultResponse:DynamicResponse
+    public fileprivate(set) var defaultResponse:DynamicResponse
     public let handler:((_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?
     public let handlerAsync:((_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?
 
-    public package(set) var handlerLogic:String = "nil"
-    public package(set) var handlerLogicAsync:String = "nil"
+    public fileprivate(set) var handlerLogic:String = "nil"
+    public fileprivate(set) var handlerLogicAsync:String = "nil"
 
     public init(
         async: Bool,
@@ -36,6 +36,10 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.defaultResponse = .init(status: .notImplemented, headers: [:], result: .string(""))
         self.handler = handler
         self.handlerAsync = handlerAsync
+    }
+
+    public func responder(version: String, logic: String) -> String {
+        return "RouteResponses.Dynamic\(isAsync ? "Async" : "")(version: \"\(version)\", method: .\(method.caseName!), path: \"\(path)\", defaultResponse: \(defaultResponse.debugDescription), logic: \(logic))"
     }
 }
 

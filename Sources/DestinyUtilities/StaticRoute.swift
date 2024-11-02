@@ -95,6 +95,8 @@ public extension StaticRoute {
                             case "bytes":
                                 result = .bytes(function.arguments.first!.expression.array!.elements.map({ UInt8($0.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)! }))
                                 break
+                            case "error":
+                                break
                             default:
                                 break
                         }

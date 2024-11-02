@@ -8,8 +8,11 @@
 import HTTPTypes
 
 public struct DynamicResponse : Sendable, CustomDebugStringConvertible {
+    /// The response status.
     public var status:HTTPResponse.Status
+    /// The response headers.
     public var headers:[String:String]
+    /// The response content.
     public var result:RouteResult
 
     public init(
@@ -34,6 +37,6 @@ public struct DynamicResponse : Sendable, CustomDebugStringConvertible {
     }
 
     public var debugDescription : String {
-        return "DynamicResponse(status: .\(HTTPResponse.Status.parseCaseName(code: status.code)), headers: \(headers), result: .\(result))"
+        return "DynamicResponse(status: .\(status.caseName!), headers: \(headers), result: .\(result))"
     }
 }

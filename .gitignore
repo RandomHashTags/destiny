@@ -16,3 +16,6 @@ DynamicRoute.swiftdeps*
 HTTPFieldContentType.d
 HTTPFieldContentType.o
 HTTPFieldContentType.swiftdeps*
+HTTPRequestMethodParse.d
+HTTPRequestMethodParse.o
+HTTPRequestMethodParse.swiftdeps*

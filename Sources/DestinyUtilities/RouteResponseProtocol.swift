@@ -7,19 +7,19 @@
 
 import HTTPTypes
 
-/// The core Route Responder Protocol that describes how to respond to requests.
+/// The core Route Responder protocol that powers Destiny's route responses.
 public protocol RouteResponseProtocol : Sendable {
     /// Whether or not this `RouteResponseProtocol` responds asynchronously or synchronously.
     @inlinable var isAsync : Bool { get }
 }
 
-/// The core Static Route Responder Protocol that describes how to respond to requests at compile time.
+/// The core Static Route Responder protocol that responds to requests to static routes at compile time.
 public protocol StaticRouteResponseProtocol : RouteResponseProtocol {
     @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws
     @inlinable func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws
 }
 
-/// The core Dynamic Route Responder Protocol that describes how to respond to dynamic requests.
+/// The core Dynamic Route Responder protocol that responds to requests dynamically.
 public protocol DynamicRouteResponseProtocol : RouteResponseProtocol {
     var version : String { get }
     var method : HTTPRequest.Method { get }

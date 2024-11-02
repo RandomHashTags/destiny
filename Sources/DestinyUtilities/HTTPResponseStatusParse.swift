@@ -9,7 +9,7 @@ import HTTPTypes
 
 public extension HTTPResponse.Status {
     // MARK: Parse by code
-    static func parseCaseName(code: Int) -> String {
+    var caseName : String? {
         switch code {
         case 100: return "continue"
         case 101: return "switchingProtocols"
@@ -64,7 +64,7 @@ public extension HTTPResponse.Status {
         case 504: return "gatewayTimeout"
         case 505: return "httpVersionNotSupported"
         case 511: return "networkAuthenticationRequired"
-        default: return "\(code)"
+        default: return nil
         }
     }
     // MARK: Parse by case name

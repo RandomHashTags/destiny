@@ -10,9 +10,13 @@ import HTTPTypes
 import SwiftSyntax
 
 // MARK: RouteProtocol
+/// The core Route protocol that powers Destiny's Routing.
 public protocol RouteProtocol {
+    /// The http method of this route.
     var method : HTTPRequest.Method { get }
+    /// The path of this route.
     var path : String { get }
+    /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status? { get }
 }
 
@@ -20,8 +24,17 @@ public protocol RouteProtocol {
 public protocol StaticRouteProtocol : RouteProtocol {
     var result : RouteResult { get }
 
+    /// Returns a string representing a complete HTTP Response.
+    /// - Warning: You should apply any statuses and headers using the middleware.
+    /// - Parameters:
+    ///   - version: The HTTP version associated with the `Router`.
+    ///   - middleware: The static middleware the associated `Router` has.
+    /// - Throws: any error; if thrown: a compile error is thrown describing the issue
     func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String
 
+    /// Parsing logic for this static route. Computed at compile time.
+    /// - Parameters:
+    ///   - function: The SwiftSyntax expression that represents this route at compile time.
     static func parse(_ function: FunctionCallExprSyntax) -> Self
 }
 
@@ -36,8 +49,21 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// A string representation of the asynchronous handler logic, required when parsing from the router macro.
     var handlerLogicAsync : String { get }
 
-    /// Parsing logic for this dynamic route.
+    /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponseProtocol`.
+    /// 
+    /// Loads the route responder in a `Router`'s dynamic route responses. Conputed at compile time.
+    /// - Parameters:
+    ///   - version: The HTTP version associated with the `Router`.
+    ///   - logic: The string representation of the synchronous/asynchronous handler logic this route has.
+    func responder(version: String, logic: String) -> String
+
+    /// Parsing logic for this dynamic route. Computed at compile time.
     /// - Warning: You need to assign `handlerLogic` or `handlerLogicAsync` properly.
+    /// - Warning: You should apply any statuses and headers using the middleware.
+    /// - Parameters:
+    ///   - version: The HTTP version associated with the `Router`.
+    ///   - middleware: The static middleware the associated `Router` has.
+    ///   - function: The SwiftSyntax expression that represents this route at compile time.
     static func parse(version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self
 }
 
