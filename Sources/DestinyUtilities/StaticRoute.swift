@@ -12,7 +12,7 @@ import SwiftSyntax
 // MARK: StaticRoute
 public struct StaticRoute : StaticRouteProtocol {
     public let method:HTTPRequest.Method
-    public package(set) var path:String
+    public package(set) var path:[String]
     public let status:HTTPResponse.Status?
     public let contentType:HTTPField.ContentType
     public let charset:String?
@@ -20,7 +20,7 @@ public struct StaticRoute : StaticRouteProtocol {
 
     public init(
         method: HTTPRequest.Method,
-        path: String,
+        path: [String],
         status: HTTPResponse.Status? = nil,
         contentType: HTTPField.ContentType,
         charset: String? = nil,
@@ -66,7 +66,8 @@ public struct StaticRoute : StaticRouteProtocol {
 
 public extension StaticRoute {
     static func parse(_ function: FunctionCallExprSyntax) -> StaticRoute {
-        var method:HTTPRequest.Method = .get, path:String = ""
+        var method:HTTPRequest.Method = .get
+        var path:[String] = []
         var status:HTTPResponse.Status? = nil
         var contentType:HTTPField.ContentType = .txt, charset:String? = nil
         var result:RouteResult = .string("")
@@ -77,7 +78,7 @@ public extension StaticRoute {
                     method = HTTPRequest.Method(rawValue: "\(argument.expression.memberAccess!.declName.baseName.text)".uppercased())!
                     break
                 case "path":
-                    path = argument.expression.stringLiteral!.string
+                    path = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
                     break
                 case "status":
                     status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text)

@@ -92,7 +92,7 @@ struct DestinyTests {
             ],
             StaticRoute(
                 method: .get,
-                path: "test",
+                path: ["test"],
                 contentType: .html,
                 charset: "UTF-8",
                 result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
@@ -106,7 +106,7 @@ struct DestinyTests {
             ],
             StaticRoute(
                 method: .get,
-                path: "test",
+                path: ["test"],
                 status: .movedPermanently,
                 contentType: .html,
                 charset: "UTF-8",
@@ -121,7 +121,7 @@ struct DestinyTests {
             ],
             StaticRoute(
                 method: .get,
-                path: "test",
+                path: ["test"],
                 contentType: .html,
                 charset: "UTF-8",
                 result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
@@ -135,7 +135,7 @@ struct DestinyTests {
             ],
             StaticRoute(
                 method: .get,
-                path: "test",
+                path: ["test"],
                 contentType: .html,
                 charset: "UTF-8",
                 result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")

@@ -37,32 +37,32 @@ let application:Application = Application(
                 ],
                 StaticRoute(
                     method: .get,
-                    path: "html",
+                    path: ["html"],
                     contentType: .html,
                     result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
                 ),
                 StaticRoute(
                     method: .get,
-                    path: "json",
+                    path: ["json"],
                     contentType: .json,
                     result: .string("{\"this_outcome_was_inevitable_and_was_your_destiny\":true}")
                     //result: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
                 ),
                 StaticRoute(
                     method: .get,
-                    path: "txt",
+                    path: ["txt"],
                     contentType: .txt,
                     result: .string("just a regular txt page; t'was your destiny")
                 ),
                 StaticRoute(
                     method: .get,
-                    path: "bytes",
+                    path: ["bytes"],
                     contentType: .txt,
                     result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
                 ),
                 StaticRoute(
                     method: .get,
-                    path: "error",
+                    path: ["error"],
                     status: .badRequest,
                     contentType: .json,
                     result: .error(CustomError.yipyip)
@@ -70,7 +70,7 @@ let application:Application = Application(
                 DynamicRoute(
                     async: false,
                     method: .get,
-                    path: "dynamic",
+                    path: ["dynamic"],
                     contentType: .txt,
                     handler: { request, response in
                         response.result = .string(UUID().uuidString)

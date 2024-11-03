@@ -92,7 +92,7 @@ enum Router : ExpressionMacro {
             do {
                 let response:String = try route.response(version: version, middleware: static_middleware)
                 let value:String = get_returned_type(response)
-                var string:String = route.method.rawValue + " /" + route.path + " " + version
+                var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
                 let buffer:StackString32 = StackString32(&string)
                 return "// \(string)\n\(buffer) : " + value
             } catch {
@@ -101,7 +101,7 @@ enum Router : ExpressionMacro {
             }
         }).joined(separator: ",\n") + "\n"
         let dynamic_routes_string:String = dynamic_routes.isEmpty ? ":" : "\n" + dynamic_routes.compactMap({ route in
-            var string:String = route.method.rawValue + " /" + route.path + " " + version
+            var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
             let buffer:StackString32 = StackString32(&string)
             let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
             let responder:String = route.responder(version: version, logic: logic)

@@ -12,7 +12,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     public let isAsync:Bool
     public let method:HTTPRequest.Method
-    public let path:String
+    public let path:[String]
     public let status:HTTPResponse.Status?
     public let contentType:HTTPField.ContentType
     public fileprivate(set) var defaultResponse:DynamicResponse
@@ -25,7 +25,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public init(
         async: Bool,
         method: HTTPRequest.Method,
-        path: String,
+        path: [String],
         status: HTTPResponse.Status? = nil,
         contentType: HTTPField.ContentType,
         handler: ((_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?,
@@ -50,7 +50,7 @@ public extension DynamicRoute {
     static func parse(version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> DynamicRoute {
         var async:Bool = false
         var method_string:String = ".get"
-        var path:String = ""
+        var path:[String] = []
         var status:HTTPResponse.Status = .notImplemented
         var content_type:HTTPField.ContentType = .txt
         var handler:String = "nil", handlerAsync:String = "nil"
@@ -64,7 +64,7 @@ public extension DynamicRoute {
                     method_string = argument.expression.memberAccess!.declName.baseName.text.uppercased()
                     break
                 case "path":
-                    path = argument.expression.stringLiteral!.string
+                    path = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
                     break
                 case "status":
                     status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text) ?? .notImplemented
