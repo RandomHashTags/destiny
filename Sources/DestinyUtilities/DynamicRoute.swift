@@ -14,6 +14,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let method:HTTPRequest.Method
     public let path:String
     public let status:HTTPResponse.Status?
+    public let contentType:HTTPField.ContentType
     public fileprivate(set) var defaultResponse:DynamicResponse
     public let handler:((_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?
     public let handlerAsync:((_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?
@@ -26,6 +27,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         method: HTTPRequest.Method,
         path: String,
         status: HTTPResponse.Status? = nil,
+        contentType: HTTPField.ContentType,
         handler: ((_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?,
         handlerAsync: ((_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?
     ) {
@@ -33,6 +35,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.method = method
         self.path = path
         self.status = status
+        self.contentType = contentType
         self.defaultResponse = .init(status: .notImplemented, headers: [:], result: .string(""))
         self.handler = handler
         self.handlerAsync = handlerAsync
@@ -48,7 +51,8 @@ public extension DynamicRoute {
         var async:Bool = false
         var method_string:String = ".get"
         var path:String = ""
-        var status_string:String? = nil
+        var status:HTTPResponse.Status = .notImplemented
+        var content_type:HTTPField.ContentType = .txt
         var handler:String = "nil", handlerAsync:String = "nil"
         for argument in function.arguments {
             let key:String = argument.label!.text
@@ -63,7 +67,11 @@ public extension DynamicRoute {
                     path = argument.expression.stringLiteral!.string
                     break
                 case "status":
-                    status_string = argument.expression.memberAccess!.declName.baseName.text
+                    status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text) ?? .notImplemented
+                    break
+                case "contentType":
+                    // TODO: fix .custom()
+                    content_type = HTTPField.ContentType.init(rawValue: argument.expression.memberAccess!.declName.baseName.text)
                     break
                 case "handler":
                     handler = "\(argument.expression)"
@@ -76,24 +84,23 @@ public extension DynamicRoute {
             }
         }
         let method:HTTPRequest.Method = HTTPRequest.Method(rawValue: method_string)!
-        var status:HTTPResponse.Status? = status_string != nil ? HTTPResponse.Status.parse(status_string!) : nil
         var headers:[String:String] = [:]
         for middleware in middleware {
-            if middleware.appliesToMethods.contains(method)
-                    && (status == nil || middleware.appliesToStatuses.isEmpty || middleware.appliesToStatuses.contains(status!)) {
+            if middleware.handles(method: method, contentType: content_type, status: status) {
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     status = applied_status
+                }
+                if let applied_content_type:HTTPField.ContentType = middleware.appliesContentType {
+                    content_type = applied_content_type
                 }
                 for (header, value) in middleware.appliesHeaders {
                     headers[header] = value
                 }
             }
         }
-        if status == nil {
-            status = .notImplemented
-        }
-        var route:DynamicRoute = DynamicRoute(async: async, method: method, path: path, status: status, handler: nil, handlerAsync: nil)
-        route.defaultResponse = DynamicResponse(status: status!, headers: headers, result: .string(""))
+        headers[HTTPField.Name.contentType.rawName] = content_type.rawValue
+        var route:DynamicRoute = DynamicRoute(async: async, method: method, path: path, status: status, contentType: content_type, handler: nil, handlerAsync: nil)
+        route.defaultResponse = DynamicResponse(status: status, headers: headers, result: .string(""))
         route.handlerLogic = handler
         route.handlerLogicAsync = handlerAsync
         return route

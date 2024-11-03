@@ -58,7 +58,7 @@ func destiny_service(port: UInt16) -> Destiny.Application {
                 returnType: .staticString,
                 version: "HTTP/1.1",
                 middleware: [
-                    StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html])
+                    StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html])
                 ],
                 StaticRoute(
                     method: .get,

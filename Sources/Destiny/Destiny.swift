@@ -14,7 +14,9 @@ import ServiceLifecycle
 /// The default macro to create a `Router`.
 ///
 /// - Parameters:
-///   - middleware: handled in the order it is declared. Put your most important middleware first (static middleware is computed & discarded at compile time)
+///   - version: The HTTP version this router responds to.
+///   - middleware: The middleware this router contains. All middlware is handled in the order they are declared (Put your most important middleware first).
+///   - routes: The routes that this router contains. All routes are subject to this route's middleware.
 @freestanding(expression)
 public macro router(
     returnType: RouterReturnType,

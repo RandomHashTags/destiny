@@ -18,6 +18,8 @@ public protocol RouteProtocol {
     var path : String { get }
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status? { get }
+    /// The default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
+    var contentType : HTTPField.ContentType { get }
 }
 
 // MARK: StaticRouteProtocol
@@ -28,7 +30,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
     ///   - version: The HTTP version associated with the `Router`.
-    ///   - middleware: The static middleware the associated `Router` has.
+    ///   - middleware: The static middleware the associated `Router` uses.
     /// - Throws: any error; if thrown: a compile error is thrown describing the issue
     func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String
 
@@ -51,10 +53,10 @@ public protocol DynamicRouteProtocol : RouteProtocol {
 
     /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponseProtocol`.
     /// 
-    /// Loads the route responder in a `Router`'s dynamic route responses. Conputed at compile time.
+    /// Loads the route responder in a `Router`'s dynamic route responses. Computed at compile time.
     /// - Parameters:
     ///   - version: The HTTP version associated with the `Router`.
-    ///   - logic: The string representation of the synchronous/asynchronous handler logic this route has.
+    ///   - logic: The string representation of the synchronous/asynchronous handler logic this route uses.
     func responder(version: String, logic: String) -> String
 
     /// Parsing logic for this dynamic route. Computed at compile time.
@@ -62,7 +64,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
     ///   - version: The HTTP version associated with the `Router`.
-    ///   - middleware: The static middleware the associated `Router` has.
+    ///   - middleware: The static middleware the associated `Router` uses.
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
     static func parse(version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self
 }

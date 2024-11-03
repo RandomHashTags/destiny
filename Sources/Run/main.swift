@@ -20,9 +20,10 @@ let application:Application = Application(
                 returnType: .staticString,
                 version: "HTTP/1.1",
                 middleware: [
-                    StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.html, .json, .txt], appliesStatus: .ok),
-                    StaticMiddleware(appliesToMethods: [.get], appliesHeaders: ["You-Posted":"true"]),
-                    //StaticMiddleware(appliesToMethods: [.get], appliesToContentTypes: [.javascript], appliesStatus: .badRequest),
+                    StaticMiddleware(handlesMethods: [.get], handlesStatuses: [.notImplemented], handlesContentTypes: [.html, .json, .txt], appliesStatus: .ok),
+                    StaticMiddleware(handlesMethods: [.get], appliesHeaders: ["You-GET'd":"true"]),
+                    StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
+                    //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
                     DynamicMiddleware(
                         async: false,
                         shouldHandleLogic: { request, response in
@@ -70,8 +71,8 @@ let application:Application = Application(
                     async: false,
                     method: .get,
                     path: "dynamic",
+                    contentType: .txt,
                     handler: { request, response in
-                        response.headers[HTTPField.Name.contentType.rawName] = HTTPField.ContentType.txt.rawValue
                         response.result = .string(UUID().uuidString)
                     },
                     handlerAsync: nil

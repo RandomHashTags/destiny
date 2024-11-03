@@ -36,15 +36,27 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol, CustomStringConv
 // MARK: StaticMiddlewareProtocol
 /// The core `MiddlewareProtocol` that powers Destiny's static middleware which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
-    /// What request methods this static middleware applies to.
-    var appliesToMethods : Set<HTTPRequest.Method> { get }
-    /// What response statuses this static middleware applies to.
-    var appliesToStatuses : Set<HTTPResponse.Status> { get }
-    /// What content types this static middleware applies to.
-    var appliesToContentTypes : Set<HTTPField.ContentType> { get }
+    /// What route request methods this middleware handles.
+    /// - Warning: `nil` makes it handle all methods.
+    var handlesMethods : Set<HTTPRequest.Method>? { get }
+    /// What route response statuses this middleware handles.
+    /// - Warning: `nil` makes it handle all statuses.
+    var handlesStatuses : Set<HTTPResponse.Status>? { get }
+    /// What route content types this middleware handles.
+    /// - Warning: `nil` makes it handle all content types.
+    var handlesContentTypes : Set<HTTPField.ContentType>? { get }
 
-    /// What request status this static middleware applies to static/dynamic routes.
+    /// What response status this middleware applies to routes.
     var appliesStatus : HTTPResponse.Status? { get }
-    /// What response headers this static middleware applies to static/dynamic routes.
+    /// What content type this middleware applies to routes.
+    var appliesContentType : HTTPField.ContentType? { get }
+    /// What response headers this middleware applies to routes.
     var appliesHeaders : [String:String] { get }
+}
+public extension StaticMiddlewareProtocol {
+    func handles(method: HTTPRequest.Method, contentType: HTTPField.ContentType, status: HTTPResponse.Status) -> Bool {
+        return (handlesMethods == nil || handlesMethods!.contains(method))
+            && (handlesContentTypes == nil || handlesContentTypes!.contains(contentType))
+            && (handlesStatuses == nil || handlesStatuses!.contains(status))
+    }
 }

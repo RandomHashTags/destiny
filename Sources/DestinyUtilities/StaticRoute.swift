@@ -36,21 +36,25 @@ public struct StaticRoute : StaticRouteProtocol {
 
     public func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String {
         let result_string:String = try result.string()
-        var response_status:HTTPResponse.Status? = status
+        var response_status:HTTPResponse.Status = status ?? .notImplemented
+        var content_type:HTTPField.ContentType = contentType
         var headers:[String:String] = [:]
-        headers[HTTPField.Name.contentType.rawName] = contentType.rawValue + (charset != nil ? "; charset=" + charset! : "")
+        
         for middleware in middleware {
-            if middleware.appliesToMethods.contains(method) && middleware.appliesToContentTypes.contains(contentType)
-                    && (response_status == nil || middleware.appliesToStatuses.isEmpty || middleware.appliesToStatuses.contains(response_status!)) {
+            if middleware.handles(method: method, contentType: content_type, status: response_status) {
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     response_status = applied_status
+                }
+                if let applies_content_type:HTTPField.ContentType = middleware.appliesContentType {
+                    content_type = applies_content_type
                 }
                 for (header, value) in middleware.appliesHeaders {
                     headers[header] = value
                 }
             }
         }
-        var string:String = version + " \(response_status ?? HTTPResponse.Status.notImplemented)\\r\\n"
+        headers[HTTPField.Name.contentType.rawName] = content_type.rawValue + (charset != nil ? "; charset=" + charset! : "")
+        var string:String = version + " \(response_status)\\r\\n"
         for (header, value) in headers {
             string += header + ": " + value + "\\r\\n"
         }

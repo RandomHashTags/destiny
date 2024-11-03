@@ -68,7 +68,7 @@ public extension HTTPResponse.Status {
         }
     }
     // MARK: Parse by case name
-    static func parse(_ key: String) -> HTTPResponse.Status {
+    static func parse(_ key: String) -> HTTPResponse.Status? {
         switch key {
             case "continue": return .continue
             case "switchingProtocols": return .switchingProtocols
@@ -124,7 +124,7 @@ public extension HTTPResponse.Status {
             case "httpVersionNotSupported": return .httpVersionNotSupported
             case "networkAuthenticationRequired": return .networkAuthenticationRequired
 
-            default: return .internalServerError
+            default: return nil
         }
     }
 }
