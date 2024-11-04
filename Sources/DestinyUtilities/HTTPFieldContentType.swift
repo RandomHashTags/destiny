@@ -86,7 +86,7 @@ public extension HTTPField {
 
         public var description : String { rawValue }
 
-        // We don't use a jump table because it is a waste of memory & performance overhead (dictionary look up)
+        // MARK: init(rawValue)
         public init(rawValue: String) {
             switch rawValue {
                 case "aac": self = .aac

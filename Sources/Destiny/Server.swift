@@ -83,8 +83,8 @@ public actor Server : Service {
             close(serverFD)
             throw Server.Error.listenFailed()
         }
-        let static_responses:[StackString32:StaticRouteResponseProtocol] = router.staticResponses
-        let dynamic_responses:[StackString32:DynamicRouteResponseProtocol] = router.dynamicResponses
+        let static_responses:[DestinyRoutePathType:StaticRouteResponseProtocol] = router.staticResponses
+        let dynamic_responses:[DestinyRoutePathType:DynamicRouteResponseProtocol] = router.dynamicResponses
         let dynamic_middleware:[DynamicMiddlewareProtocol] = router.dynamicMiddleware
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         let on_shutdown:(() -> Void)? = onShutdown
@@ -126,8 +126,8 @@ public actor Server : Service {
     @inlinable
     static func process_client(
         client: Int32,
-        static_responses: [StackString32:StaticRouteResponseProtocol],
-        dynamic_responses: [StackString32:DynamicRouteResponseProtocol],
+        static_responses: [DestinyRoutePathType:StaticRouteResponseProtocol],
+        dynamic_responses: [DestinyRoutePathType:DynamicRouteResponseProtocol],
         dynamic_middleware: [DynamicMiddlewareProtocol],
         not_found_response: StaticString
     ) async throws {
@@ -136,7 +136,7 @@ public actor Server : Service {
             close(client)
         }
         let client_socket:Socket = Socket(fileDescriptor: client)
-        let token:StackString32 = try client_socket.readLineSIMD()
+        let token:DestinyRoutePathType = try client_socket.readLineSIMD()
         if let responder:StaticRouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
                 try await responder.respondAsync(to: client_socket)

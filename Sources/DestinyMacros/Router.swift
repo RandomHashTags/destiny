@@ -17,8 +17,10 @@ enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var returnType:RouterReturnType = .staticString
         var version:String = "HTTP/1.1"
-        var middleware:[any MiddlewareProtocol] = []
-        var routes:[(RouteProtocol, FunctionCallExprSyntax)] = []
+        var static_middleware:[StaticMiddlewareProtocol] = []
+        var dynamic_middleware:[DynamicMiddlewareProtocol] = []
+        var static_routes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = []
+        var dynamic_routes:[DynamicRouteProtocol] = []
         for argument in node.macroExpansion!.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
@@ -36,9 +38,9 @@ enum Router : ExpressionMacro {
                                 //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
                                 if let function:FunctionCallExprSyntax = element.expression.functionCall {
                                     if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
-                                        middleware.append(DynamicMiddleware.parse(function))
+                                        dynamic_middleware.append(DynamicMiddleware.parse(function))
                                     } else {
-                                        middleware.append(StaticMiddleware.parse(function))
+                                        static_middleware.append(StaticMiddleware.parse(function))
                                     }
                                 } else if let macro_expansion:MacroExpansionExprSyntax = element.expression.macroExpansion {
                                     // TODO: support custom middleware
@@ -50,45 +52,60 @@ enum Router : ExpressionMacro {
                             break
                     }
                 } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
-                    // TODO: check whether it is static or dynamic
                     //print("Router;expansion;route;function=\(function)")
                     if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
-                        routes.append((DynamicRoute.parse(version: version, middleware: middleware.compactMap({ $0 as? StaticMiddlewareProtocol }), function), function))
+                        dynamic_routes.append(DynamicRoute.parse(version: version, middleware: static_middleware, function))
                     } else {
-                        routes.append((StaticRoute.parse(function), function))
+                        static_routes.append((StaticRoute.parse(function), function))
                     }
                 } else {
                     // TODO: support custom routes
                 }
             }
         }
-        let static_routes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = routes.compactMap({ $0.0 is StaticRouteProtocol ? ($0.0 as! StaticRouteProtocol, $0.1) : nil })
-        let dynamic_routes:[DynamicRouteProtocol] = routes.compactMap({ $0.0 as? DynamicRouteProtocol })
-        let static_middleware:[StaticMiddlewareProtocol] = middleware.compactMap({ $0 as? StaticMiddlewareProtocol })
-        let dynamic_middleware:[DynamicMiddlewareProtocol] = middleware.compactMap({ $0 as? DynamicMiddlewareProtocol })
-        let static_responses:String = static_routes.isEmpty ? ":" : "\n" + static_routes.compactMap({ (route, function) in
+        let static_responses:String = parse_static_routes_string(context: context, returnType: returnType, version: version, middleware: static_middleware, static_routes)
+        let dynamic_routes_string:String = parse_dynamic_routes_string(version: version, dynamic_routes)
+        let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ $0.description }).joined(separator: ",\n") + "\n"
+        return "\(raw: "Router(\nstaticResponses: [\(static_responses)],\ndynamicResponses: [\(dynamic_routes_string)],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
+    }
+}
+// MARK: Parse static routes string
+private extension Router {
+    static func parse_static_routes_string(context: some MacroExpansionContext, returnType: RouterReturnType, version: String, middleware: [StaticMiddlewareProtocol], _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]) -> String {
+        return routes.isEmpty ? ":" : "\n" + routes.compactMap({ (route, function) in
             do {
-                let response:String = try route.response(version: version, middleware: static_middleware)
+                let response:String = try route.response(version: version, middleware: middleware)
                 let value:String = returnType.encode(response)
                 var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
-                let buffer:StackString32 = StackString32(&string)
+                let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
                 return "// \(string)\n\(buffer) : " + value
             } catch {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
                 return nil
             }
         }).joined(separator: ",\n") + "\n"
-        let dynamic_routes_string:String = dynamic_routes.isEmpty ? ":" : "\n" + dynamic_routes.compactMap({ route in
+    }
+}
+// MARK: Parse dynamic routes string
+private extension Router {
+    static func parse_dynamic_routes_string(version: String, _ routes: [DynamicRouteProtocol]) -> String {
+        var parameterized:[DynamicRouteProtocol] = []
+        var parameterless:[DynamicRouteProtocol] = []
+        for route in routes {
+            if route.path.first(where: { $0[$0.startIndex] == ":" }) != nil {
+                parameterized.append(route)
+            } else {
+                parameterless.append(route)
+            }
+        }
+        let parameterless_string:String = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route in
             var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
-            let buffer:StackString32 = StackString32(&string)
+            let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
             let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
             let responder:String = route.responder(version: version, logic: logic)
             return "// \(string)\n\(buffer) : \(responder)"
         }).joined(separator: ",\n") + "\n"
-        let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({
-            return $0.description
-        }).joined(separator: ",\n") + "\n"
-        return "\(raw: "Router(\nstaticResponses: [\(static_responses)],\ndynamicResponses: [\(dynamic_routes_string)],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
+        return parameterless_string
     }
 }
 

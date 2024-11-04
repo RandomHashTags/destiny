@@ -10,6 +10,8 @@ import HTTPTypes
 
 @inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
 
+public typealias DestinyRoutePathType = StackString32
+
 // MARK: RouterGroup
 public struct RouterGroup : Sendable {
     public let method:HTTPRequest.Method?
@@ -29,13 +31,13 @@ public struct RouterGroup : Sendable {
 
 // MARK: Router
 public struct Router : Sendable {
-    public let staticResponses:[StackString32:StaticRouteResponseProtocol]
-    public let dynamicResponses:[StackString32:DynamicRouteResponseProtocol]
+    public let staticResponses:[DestinyRoutePathType:StaticRouteResponseProtocol]
+    public let dynamicResponses:[DestinyRoutePathType:DynamicRouteResponseProtocol]
     public let dynamicMiddleware:[DynamicMiddlewareProtocol]
     
     public init(
-        staticResponses: [StackString32:StaticRouteResponseProtocol],
-        dynamicResponses: [StackString32:DynamicRouteResponseProtocol],
+        staticResponses: [DestinyRoutePathType:StaticRouteResponseProtocol],
+        dynamicResponses: [DestinyRoutePathType:DynamicRouteResponseProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol]
     ) {
         self.staticResponses = staticResponses
@@ -43,27 +45,6 @@ public struct Router : Sendable {
         self.dynamicResponses = dynamicResponses
     }
 }
-/*
-public struct RouterNew : Sendable {
-    public let staticResponses:[StackString32:RouteResponseProtocol]
-
-    public init(
-        version: String,
-        middleware: [any MiddlewareProtocol],
-        _ routes: RouteProtocol...
-    ) {
-        var static_responses:[StackString32:RouteResponseProtocol] = [:]
-        let static_middleware:[StaticMiddlewareProtocol] = middleware.compactMap({ $0 as? StaticMiddlewareProtocol })
-        let static_routes:[StaticRouteProtocol] = routes.compactMap({ $0 as? StaticRouteProtocol })
-        for route in static_routes {
-            let response:String = route.response(version: version, middleware: static_middleware)
-            var string:String = route.method.rawValue + " /" + route.path + " " + version
-            let ss:StackString32 = StackString32(&string)
-            static_responses[ss] = RouteResponses.String(response)
-        }
-        staticResponses = static_responses
-    }
-}*/
 
 public struct RouterReturnType {
     public static func bytes<T: FixedWidthInteger>(_ bytes: [T]) -> String {
