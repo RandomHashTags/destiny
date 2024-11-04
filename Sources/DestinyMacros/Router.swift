@@ -15,6 +15,9 @@ import SwiftSyntaxMacros
 
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
+        /*let arguments = node.macroExpansion!.arguments
+        let test:Test = Router.restructure(arguments: arguments)
+        print("Router;expansion;test;restructure;test=\(test)")*/
         var returnType:RouterReturnType = .staticString
         var version:String = "HTTP/1.1"
         var static_middleware:[StaticMiddlewareProtocol] = []
@@ -121,4 +124,103 @@ extension SyntaxProtocol {
 
 extension StringLiteralExprSyntax {
     var string : String { "\(segments)" }
+}
+
+protocol Restructable {
+    /// The macro arguments to decode at compile time.
+    static var variables : Set<String> { get }
+
+    init()
+
+    /// Assigned at compile time.
+    mutating func assign(variable: String, value: Any?)
+
+    /// Computed at compile time.
+    static func handleFunction(variable: String, function: FunctionCallExprSyntax) -> Any?
+
+    static func handleMacroExpansion(variable: String, expansion: MacroExpansionExprSyntax) -> Any?
+}
+
+struct Test : Restructable {
+    static let variables:Set<String> = ["version", "returnType", "middleware"]
+
+    var version:String
+    var returnType:RouterReturnType
+    var static_middleware:[StaticMiddlewareProtocol]
+    var dynamic_middleware:[DynamicMiddlewareProtocol]
+
+    init() {
+        version = ""
+        returnType = RouterReturnType.unsafeBufferPointer
+        static_middleware = []
+        dynamic_middleware = []
+    }
+
+    mutating func assign(variable: String, value: Any?) {
+        switch variable {
+            case "version": version = value as! String
+            case "returnType": returnType = RouterReturnType.init(rawValue: value as! String) ?? .unsafeBufferPointer
+            case "middleware":
+                let middleware:[MiddlewareProtocol] = value as! [MiddlewareProtocol]
+                static_middleware = middleware.compactMap({ $0 as? StaticMiddlewareProtocol })
+                dynamic_middleware = middleware.compactMap({ $0 as? DynamicMiddlewareProtocol })
+                break
+            default: break
+        }
+    }
+
+    static func handleFunction(variable: String, function: FunctionCallExprSyntax) -> Any? {
+        switch variable {
+            case "middleware":
+                if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
+                    return DynamicMiddleware.parse(function)
+                } else {
+                    return StaticMiddleware.parse(function)
+                }
+            default:
+                return nil
+        }
+    }
+
+    static func handleMacroExpansion(variable: String, expansion: MacroExpansionExprSyntax) -> Any? {
+        return nil
+    }
+}
+
+extension Router {
+    static func restructure<T: Restructable>(arguments: LabeledExprListSyntax) -> T {
+        var value:T = T()
+        for argument in arguments.children(viewMode: .all) {
+            if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
+                if let key:String = child.label?.text {
+                    if T.variables.contains(key) {
+                        value.assign(variable: key, value: restructure_expression(value, key: key, child.expression))
+                    }
+                }
+            }
+        }
+        return value
+    }
+    static func restructure_expression<T : Restructable>(_ structure: T, key: String, _ expr: ExprSyntax) -> Any? {
+        if let string:String = expr.stringLiteral?.string
+            ?? expr.as(IntegerLiteralExprSyntax.self)?.literal.text
+            ?? expr.as(FloatLiteralExprSyntax.self)?.literal.text {
+            return string
+        }
+        if let decl = expr.memberAccess?.declName.baseName.text {
+            return decl
+        }
+        if let function:FunctionCallExprSyntax = expr.functionCall {
+            return T.handleFunction(variable: key, function: function)
+        }
+        if let expansion:MacroExpansionExprSyntax = expr.macroExpansion {
+            return T.handleMacroExpansion(variable: key, expansion: expansion)
+        }
+        if let array:ArrayElementListSyntax = expr.array?.elements {
+            return array.map({ restructure_expression(structure, key: key, $0.expression) })
+        }
+        if let closure:ClosureExprSyntax = expr.as(ClosureExprSyntax.self) {
+        }
+        return nil
+    }
 }
