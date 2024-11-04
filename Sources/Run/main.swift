@@ -13,7 +13,7 @@ import Logging
 
 let application:Application = Application(
     services: [
-        Server(
+        Server<Socket>(
             port: 8080,
             maxPendingConnections: 1000,
             router: #router(

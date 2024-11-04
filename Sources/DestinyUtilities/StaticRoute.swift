@@ -53,12 +53,14 @@ public struct StaticRoute : StaticRouteProtocol {
                 }
             }
         }
-        headers[HTTPField.Name.contentType.rawName] = content_type.rawValue + (charset != nil ? "; charset=" + charset! : "")
+        headers[HTTPField.Name.contentType.rawName] = nil
+        headers[HTTPField.Name.contentLength.rawName] = nil
         var string:String = version + " \(response_status)\\r\\n"
         for (header, value) in headers {
             string += header + ": " + value + "\\r\\n"
         }
         let content_length:Int = result_string.count - result_string.ranges(of: "\\").count
+        string += HTTPField.Name.contentType.rawName + ": " + content_type.rawValue + (charset != nil ? "; charset=" + charset! : "") + "\\r\\n"
         string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
         return string + "\\r\\n\\r\\n" + result_string
     }

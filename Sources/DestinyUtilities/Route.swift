@@ -26,7 +26,7 @@ public protocol RouteProtocol {
 public protocol StaticRouteProtocol : RouteProtocol {
     var result : RouteResult { get }
 
-    /// Returns a string representing a complete HTTP Response.
+    /// Returns a string representing a complete HTTP Response. Computed at compile time.
     /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
     ///   - version: The HTTP version associated with the `Router`.

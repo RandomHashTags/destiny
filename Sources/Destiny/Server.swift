@@ -12,7 +12,7 @@ import Logging
 import ServiceLifecycle
 
 // MARK: Server
-public actor Server : Service {
+public actor Server<T: SocketProtocol & ~Copyable> : Service {    
     public let address:String?
     public var port:in_port_t
     public var maxPendingConnections:Int32
@@ -46,7 +46,7 @@ public actor Server : Service {
         let serverFD:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
         #endif
         if serverFD == -1 {
-            throw Server.Error.socketCreationFailed()
+            throw ServerError.socketCreationFailed()
         }
         Socket.noSigPipe(fileDescriptor: serverFD)
         #if os(Linux)
@@ -77,11 +77,11 @@ public actor Server : Service {
         }
         if binded == -1 {
             close(serverFD)
-            throw Server.Error.bindFailed()
+            throw ServerError.bindFailed()
         }
         if listen(serverFD, maxPendingConnections) == -1 {
             close(serverFD)
-            throw Server.Error.listenFailed()
+            throw ServerError.listenFailed()
         }
         let static_responses:[DestinyRoutePathType:StaticRouteResponseProtocol] = router.staticResponses
         let dynamic_responses:[DestinyRoutePathType:DynamicRouteResponseProtocol] = router.dynamicResponses
@@ -98,7 +98,14 @@ public actor Server : Service {
                             do {
                                 let client:Int32 = try Self.client(serverFD: serverFD)
                                 // TODO: move the processing of clients to a dedicated detached Thread/Task (or different system core)
-                                try await Self.process_client(client: client, static_responses: static_responses, dynamic_responses: dynamic_responses, dynamic_middleware: dynamic_middleware, not_found_response: not_found_response)
+                                try await ClientProcessing.process_client(
+                                    client: client,
+                                    client_socket: T(fileDescriptor: client),
+                                    static_responses: static_responses,
+                                    dynamic_responses: dynamic_responses,
+                                    dynamic_middleware: dynamic_middleware,
+                                    not_found_response: not_found_response
+                                )
                             } catch {
                                 self.logger.error(Logger.Message(stringLiteral: "\(error)"))
                             }
@@ -122,10 +129,13 @@ public actor Server : Service {
         }
         return client
     }
-
+}
+// MARK: Client Processing
+enum ClientProcessing {
     @inlinable
-    static func process_client(
+    static func process_client<T: SocketProtocol & ~Copyable>(
         client: Int32,
+        client_socket: borrowing T,
         static_responses: [DestinyRoutePathType:StaticRouteResponseProtocol],
         dynamic_responses: [DestinyRoutePathType:DynamicRouteResponseProtocol],
         dynamic_middleware: [DynamicMiddlewareProtocol],
@@ -135,7 +145,6 @@ public actor Server : Service {
             shutdown(client, 2) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
-        let client_socket:Socket = Socket(fileDescriptor: client)
         let token:DestinyRoutePathType = try client_socket.readLineSIMD()
         if let responder:StaticRouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
@@ -187,11 +196,9 @@ public actor Server : Service {
         }
     }
 }
-// MARK: Server.Error
-extension Server {
-    enum Error : Swift.Error {
-        case socketCreationFailed(String = cerror())
-        case bindFailed(String = cerror())
-        case listenFailed(String = cerror())
-    }
+// MARK: ServerError
+enum ServerError : Swift.Error {
+    case socketCreationFailed(String = cerror())
+    case bindFailed(String = cerror())
+    case listenFailed(String = cerror())
 }

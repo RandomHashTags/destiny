@@ -12,8 +12,21 @@ public protocol SocketProtocol : ~Copyable {
     static var bufferLength : Int { get }
     var fileDescriptor : Int32 { get }
 
+    init(fileDescriptor: Int32)
+
     @inlinable
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
+}
+
+public extension SocketProtocol where Self : ~Copyable {
+    @inlinable
+    static func noSigPipe(fileDescriptor: Int32) {
+        #if os(Linux)
+        #else
+        var no_sig_pipe:Int32 = 0
+        setsockopt(fileDescriptor, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(MemoryLayout<Int32>.size))
+        #endif
+    }
 }
 
 // MARK: SocketProtocol reading
