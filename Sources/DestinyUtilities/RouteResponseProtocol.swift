@@ -23,7 +23,7 @@ public protocol StaticRouteResponseProtocol : RouteResponseProtocol {
 public protocol DynamicRouteResponseProtocol : RouteResponseProtocol {
     var version : String { get }
     var method : HTTPRequest.Method { get }
-    var path: String { get }
+    var path: [String] { get }
     var defaultResponse : DynamicResponse { get }
 
     @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) throws

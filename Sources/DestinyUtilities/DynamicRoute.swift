@@ -42,7 +42,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 
     public func responder(version: String, logic: String) -> String {
-        return "RouteResponses.Dynamic\(isAsync ? "Async" : "")(version: \"\(version)\", method: .\(method.caseName!), path: \"\(path)\", defaultResponse: \(defaultResponse.debugDescription), logic: \(logic))"
+        return "RouteResponses.Dynamic\(isAsync ? "Async" : "")(version: \"\(version)\", method: .\(method.caseName!), path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logic))"
     }
 }
 

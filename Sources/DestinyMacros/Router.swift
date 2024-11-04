@@ -24,7 +24,9 @@ enum Router : ExpressionMacro {
                 if let key:String = child.label?.text {
                     switch key {
                         case "returnType":
-                            returnType = RouterReturnType(rawValue: child.expression.memberAccess!.declName.baseName.text)!
+                            if let rawValue:String = child.expression.memberAccess?.declName.baseName.text {
+                                returnType = RouterReturnType(rawValue: rawValue) ?? .staticString
+                            }
                             break
                         case "version":
                             version = child.expression.stringLiteral!.string
@@ -60,30 +62,6 @@ enum Router : ExpressionMacro {
                 }
             }
         }
-        let get_returned_type:(String) -> String
-        func bytes<T: FixedWidthInteger>(_ bytes: [T]) -> String {
-            return "[" + bytes.map({ "\($0)" }).joined(separator: ",") + "]"
-        }
-        func response(valueType: String, _ string: String) -> String {
-            return "RouteResponses." + valueType + "(" + string + ")"
-        }
-        switch returnType {
-            case .uint8Array:
-                get_returned_type = { response(valueType: "UInt8Array", bytes([UInt8]($0.utf8))) }
-                break
-            case .uint16Array:
-                get_returned_type = { response(valueType: "UInt16Array", bytes([UInt16]($0.utf16))) }
-                break
-            case .data:
-                get_returned_type = { response(valueType: "Data", bytes([UInt8]($0.utf8))) }
-                break
-            case .unsafeBufferPointer:
-                get_returned_type = { response(valueType: "UnsafeBufferPointer", "StaticString(\"" + $0 + "\").withUTF8Buffer { $0 }") }
-                break
-            default:
-                get_returned_type = { response(valueType: "StaticString", "\"" + $0 + "\"") }
-                break
-        }
         let static_routes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = routes.compactMap({ $0.0 is StaticRouteProtocol ? ($0.0 as! StaticRouteProtocol, $0.1) : nil })
         let dynamic_routes:[DynamicRouteProtocol] = routes.compactMap({ $0.0 as? DynamicRouteProtocol })
         let static_middleware:[StaticMiddlewareProtocol] = middleware.compactMap({ $0 as? StaticMiddlewareProtocol })
@@ -91,7 +69,7 @@ enum Router : ExpressionMacro {
         let static_responses:String = static_routes.isEmpty ? ":" : "\n" + static_routes.compactMap({ (route, function) in
             do {
                 let response:String = try route.response(version: version, middleware: static_middleware)
-                let value:String = get_returned_type(response)
+                let value:String = returnType.encode(response)
                 var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
                 let buffer:StackString32 = StackString32(&string)
                 return "// \(string)\n\(buffer) : " + value
