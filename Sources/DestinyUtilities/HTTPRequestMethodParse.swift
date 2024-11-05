@@ -35,7 +35,7 @@ public extension HTTPRequest.Method {
             case "options", "OPTIONS": return .options
             case "trace", "TRACE":     return .trace
             case "patch", "PATCH":     return .patch
-            default: return .init(key)
+            default:                   return .init(key)
         }
     }
 }

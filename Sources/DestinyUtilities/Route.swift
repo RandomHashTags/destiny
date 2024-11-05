@@ -10,7 +10,7 @@ import HTTPTypes
 import SwiftSyntax
 
 // MARK: RouteProtocol
-/// The core Route protocol that powers Destiny's Routing.
+/// The core Route protocol that powers Destiny's routing.
 public protocol RouteProtocol {
     /// The http method of this route.
     var method : HTTPRequest.Method { get }
@@ -23,15 +23,17 @@ public protocol RouteProtocol {
 }
 
 // MARK: StaticRouteProtocol
+/// The core `RouteProtocol` that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
     var result : RouteResult { get }
 
-    /// Returns a string representing a complete HTTP Response. Computed at compile time.
+    /// The HTTP Response of this route. Computed at compile time.
     /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
     ///   - version: The HTTP version associated with the `Router`.
     ///   - middleware: The static middleware the associated `Router` uses.
-    /// - Throws: any error; if thrown: a compile error is thrown describing the issue
+    /// - Throws: any error; if thrown: a compile error is thrown describing the issue.
+    /// - Returns: a string representing a complete HTTP Response.
     func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String
 
     /// Parsing logic for this static route. Computed at compile time.
@@ -41,8 +43,9 @@ public protocol StaticRouteProtocol : RouteProtocol {
 }
 
 // MARK: DynamicRouteProtocol
+/// The core `RouteProtocol` that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
-    /// The default response computed by this route's method & path, and any corresponding static middleware.
+    /// The default HTTP Response computed by default values and static middleware.
     var defaultResponse : DynamicResponse { get }
     /// Whether or not this dynamic route responds asynchronously or synchronously.
     var isAsync : Bool { get }

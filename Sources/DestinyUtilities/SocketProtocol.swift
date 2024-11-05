@@ -8,8 +8,13 @@
 import Foundation
 
 // MARK: SocketProtocol
+/// The core Socket protocol that powers how Destiny handles incoming network requests.
 public protocol SocketProtocol : ~Copyable {
+    /// The maximum amount of bytes to read at a single time.
     static var bufferLength : Int { get }
+    /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
+    /// 
+    /// - Warning: Do not close this file descriptor. It is closed automatically by the server.
     var fileDescriptor : Int32 { get }
 
     init(fileDescriptor: Int32)
@@ -18,6 +23,7 @@ public protocol SocketProtocol : ~Copyable {
     @inlinable func readHeaders() throws -> [String:String] // TODO: make faster (replace with a SIMD/StackString equivalent)
 
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int) throws -> Int
+    /// Writes a buffer to the socket.
     @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 }
 

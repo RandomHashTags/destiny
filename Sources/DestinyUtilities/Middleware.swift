@@ -54,6 +54,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesHeaders : [String:String] { get }
 }
 public extension StaticMiddlewareProtocol {
+    @inlinable
     func handles(method: HTTPRequest.Method, contentType: HTTPField.ContentType, status: HTTPResponse.Status) -> Bool {
         return (handlesMethods == nil || handlesMethods!.contains(method))
             && (handlesContentTypes == nil || handlesContentTypes!.contains(contentType))

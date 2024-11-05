@@ -10,6 +10,7 @@ import HTTPTypes
 import SwiftSyntax
 
 // MARK: StaticRoute
+/// The default Static Route that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
     public let method:HTTPRequest.Method
     public package(set) var path:[String]
@@ -86,7 +87,11 @@ public extension StaticRoute {
                     status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text)
                     break
                 case "contentType":
-                    contentType = HTTPField.ContentType(rawValue: argument.expression.memberAccess!.declName.baseName.text)
+                    if let member:String = argument.expression.memberAccess?.declName.baseName.text {
+                        contentType = HTTPField.ContentType(rawValue: member)
+                    } else {
+                        contentType = .custom(argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
+                    }
                     break
                 case "charset":
                     charset = argument.expression.stringLiteral!.string

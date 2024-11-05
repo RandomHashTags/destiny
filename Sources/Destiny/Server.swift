@@ -15,6 +15,8 @@ import ServiceLifecycle
 public actor Server<T: SocketProtocol & ~Copyable> : Service {    
     public let address:String?
     public var port:in_port_t
+    /// The maximum amount of pending connections this Server will accept at a time.
+    /// This value is capped at the system's limit (`ulimit -n`).
     public var maxPendingConnections:Int32
     public let router:Router
     public let logger:Logger
@@ -32,7 +34,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
     ) {
         self.address = address
         self.port = port
-        self.maxPendingConnections = maxPendingConnections
+        self.maxPendingConnections = min(SOMAXCONN, maxPendingConnections)
         self.router = router
         self.logger = logger
         self.onLoad = onLoad
@@ -157,7 +159,6 @@ enum ClientProcessing {
             let request:Request = Request(method: responder.method, path: responder.path, version: responder.version, headers: headers, body: "")
 
             var response:DynamicResponse = responder.defaultResponse
-            //let handlers:[DynamicMiddlewareProtocol] = dynamic_middleware.filter({ $0.shouldHandle(request: request) })
             for middleware in dynamic_middleware {
                 if middleware.shouldHandle(request: request, response: response) {
                     do {

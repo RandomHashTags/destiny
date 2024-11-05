@@ -8,8 +8,8 @@
 import HTTPTypes
 import SwiftSyntax
 
+/// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
-
     public let isAsync:Bool
     public let method:HTTPRequest.Method
     public let path:[String]
@@ -70,8 +70,11 @@ public extension DynamicRoute {
                     status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text) ?? .notImplemented
                     break
                 case "contentType":
-                    // TODO: fix .custom()
-                    content_type = HTTPField.ContentType.init(rawValue: argument.expression.memberAccess!.declName.baseName.text)
+                    if let member:String = argument.expression.memberAccess?.declName.baseName.text {
+                        content_type = HTTPField.ContentType.init(rawValue: member)
+                    } else {
+                        content_type = .custom(argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
+                    }
                     break
                 case "handler":
                     handler = "\(argument.expression)"
