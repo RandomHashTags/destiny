@@ -135,7 +135,7 @@ enum ClientProcessing {
     @inlinable
     static func process_client<T: SocketProtocol & ~Copyable>(
         client: Int32,
-        client_socket: borrowing T,
+        client_socket: consuming T,
         static_responses: [DestinyRoutePathType:StaticRouteResponseProtocol],
         dynamic_responses: [DestinyRoutePathType:DynamicRouteResponseProtocol],
         dynamic_middleware: [DynamicMiddlewareProtocol],

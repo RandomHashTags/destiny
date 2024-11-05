@@ -126,7 +126,7 @@ extension StringLiteralExprSyntax {
     var string : String { "\(segments)" }
 }
 
-protocol Restructable {
+protocol Restructurable {
     /// The macro arguments to decode at compile time.
     static var variables : Set<String> { get }
 
@@ -141,7 +141,7 @@ protocol Restructable {
     static func handleMacroExpansion(variable: String, expansion: MacroExpansionExprSyntax) -> Any?
 }
 
-struct Test : Restructable {
+struct Test : Restructurable {
     static let variables:Set<String> = ["version", "returnType", "middleware"]
 
     var version:String
@@ -188,7 +188,7 @@ struct Test : Restructable {
 }
 
 extension Router {
-    static func restructure<T: Restructable>(arguments: LabeledExprListSyntax) -> T {
+    static func restructure<T: Restructurable>(arguments: LabeledExprListSyntax) -> T {
         var value:T = T()
         for argument in arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
@@ -201,7 +201,7 @@ extension Router {
         }
         return value
     }
-    static func restructure_expression<T : Restructable>(_ structure: T, key: String, _ expr: ExprSyntax) -> Any? {
+    static func restructure_expression<T : Restructurable>(_ structure: T, key: String, _ expr: ExprSyntax) -> Any? {
         if let string:String = expr.stringLiteral?.string
             ?? expr.as(IntegerLiteralExprSyntax.self)?.literal.text
             ?? expr.as(FloatLiteralExprSyntax.self)?.literal.text {
