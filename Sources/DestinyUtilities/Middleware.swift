@@ -24,33 +24,33 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol, CustomStringConv
     var isAsync : Bool { get }
     
     /// Whether or not this middleware should handle a request.
-    @inlinable func shouldHandle(request: borrowing Request, response: borrowing DynamicResponse) -> Bool
+    @inlinable func shouldHandle(request: borrowing Request, response: borrowing DynamicResponseProtocol) -> Bool
 
-    @inlinable func handle(request: borrowing Request, response: inout DynamicResponse) throws
-    @inlinable func handleAsync(request: borrowing Request, response: inout DynamicResponse) async throws
+    @inlinable func handle(request: borrowing Request, response: inout DynamicResponseProtocol) throws
+    @inlinable func handleAsync(request: borrowing Request, response: inout DynamicResponseProtocol) async throws
 
-    @inlinable func onError(request: borrowing Request, response: inout DynamicResponse, error: Error)
-    @inlinable func onErrorAsync(request: borrowing Request, response: inout DynamicResponse, error: Error) async
+    @inlinable func onError(request: borrowing Request, response: inout DynamicResponseProtocol, error: Error)
+    @inlinable func onErrorAsync(request: borrowing Request, response: inout DynamicResponseProtocol, error: Error) async
 }
 
 // MARK: StaticMiddlewareProtocol
 /// The core `MiddlewareProtocol` that powers Destiny's static middleware which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
-    /// What route request methods this middleware handles.
+    /// What static & dynamic route request methods this middleware handles at compile time.
     /// - Warning: `nil` makes it handle all methods.
     var handlesMethods : Set<HTTPRequest.Method>? { get }
-    /// What route response statuses this middleware handles.
+    /// What static & dynamic route response statuses this middleware handles at compile time.
     /// - Warning: `nil` makes it handle all statuses.
     var handlesStatuses : Set<HTTPResponse.Status>? { get }
-    /// What route content types this middleware handles.
+    /// What static & dynamic route content types this middleware handles at compile time.
     /// - Warning: `nil` makes it handle all content types.
     var handlesContentTypes : Set<HTTPField.ContentType>? { get }
 
-    /// What response status this middleware applies to routes.
+    /// What response status this middleware applies to static & dynamic routes at compile time.
     var appliesStatus : HTTPResponse.Status? { get }
-    /// What content type this middleware applies to routes.
+    /// What content type this middleware applies to static & dynamic routes at compile time.
     var appliesContentType : HTTPField.ContentType? { get }
-    /// What response headers this middleware applies to routes.
+    /// What response headers this middleware applies to static & dynamic routes at compile time.
     var appliesHeaders : [String:String] { get }
 }
 public extension StaticMiddlewareProtocol {

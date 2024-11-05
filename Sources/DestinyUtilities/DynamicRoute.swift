@@ -15,9 +15,9 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let path:[String]
     public let status:HTTPResponse.Status?
     public let contentType:HTTPField.ContentType
-    public fileprivate(set) var defaultResponse:DynamicResponse
-    public let handler:((_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?
-    public let handlerAsync:((_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?
+    public fileprivate(set) var defaultResponse:DynamicResponseProtocol
+    public let handler:((_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?
+    public let handlerAsync:((_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
 
     public fileprivate(set) var handlerLogic:String = "nil"
     public fileprivate(set) var handlerLogicAsync:String = "nil"
@@ -28,15 +28,15 @@ public struct DynamicRoute : DynamicRouteProtocol {
         path: [String],
         status: HTTPResponse.Status? = nil,
         contentType: HTTPField.ContentType,
-        handler: ((_ request: borrowing Request, _ response: inout DynamicResponse) throws -> Void)?,
-        handlerAsync: ((_ request: borrowing Request, _ response: inout DynamicResponse) async throws -> Void)?
+        handler: ((_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?,
+        handlerAsync: ((_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
     ) {
         isAsync = async
         self.method = method
         self.path = path
         self.status = status
         self.contentType = contentType
-        self.defaultResponse = .init(status: .notImplemented, headers: [:], result: .string(""))
+        self.defaultResponse = DynamicResponse.init(status: .notImplemented, headers: [:], result: .string(""))
         self.handler = handler
         self.handlerAsync = handlerAsync
     }

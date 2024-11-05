@@ -24,8 +24,8 @@ public protocol DynamicRouteResponseProtocol : RouteResponseProtocol {
     var version : String { get }
     var method : HTTPRequest.Method { get }
     var path: [String] { get }
-    var defaultResponse : DynamicResponse { get }
+    var defaultResponse : DynamicResponseProtocol { get }
 
-    @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) throws
-    @inlinable func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponse) async throws
+    @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) throws
+    @inlinable func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) async throws
 }

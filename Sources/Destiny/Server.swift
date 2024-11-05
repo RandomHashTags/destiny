@@ -158,7 +158,7 @@ enum ClientProcessing {
             let headers:[String:String] = try client_socket.readHeaders()
             let request:Request = Request(method: responder.method, path: responder.path, version: responder.version, headers: headers, body: "")
 
-            var response:DynamicResponse = responder.defaultResponse
+            var response:DynamicResponseProtocol = responder.defaultResponse
             for middleware in dynamic_middleware {
                 if middleware.shouldHandle(request: request, response: response) {
                     do {

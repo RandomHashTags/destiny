@@ -7,12 +7,9 @@
 
 import HTTPTypes
 
-public struct DynamicResponse : Sendable, CustomDebugStringConvertible {
-    /// The response status.
+public struct DynamicResponse : DynamicResponseProtocol {
     public var status:HTTPResponse.Status
-    /// The response headers.
     public var headers:[String:String]
-    /// The response content.
     public var result:RouteResult
 
     public init(
@@ -26,7 +23,7 @@ public struct DynamicResponse : Sendable, CustomDebugStringConvertible {
     }
 
     @inlinable
-    package func response(version: String) throws -> String {
+    public func response(version: String) throws -> String {
         let result_string:String = try result.string()
         var string:String = version + " \(status)\r\n"
         for (header, value) in headers {

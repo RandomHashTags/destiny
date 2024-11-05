@@ -46,7 +46,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
 /// The core `RouteProtocol` that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
     /// The default HTTP Response computed by default values and static middleware.
-    var defaultResponse : DynamicResponse { get }
+    var defaultResponse : DynamicResponseProtocol { get }
     /// Whether or not this dynamic route responds asynchronously or synchronously.
     var isAsync : Bool { get }
     /// A string representation of the synchronous handler logic, required when parsing from the router macro.
