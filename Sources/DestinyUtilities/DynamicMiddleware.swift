@@ -60,7 +60,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
         await onErrorAsync(request, &response, error)
     }
 
-    public var description : String {
+    public var debugDescription : String {
         return "DynamicMiddleware(\(logic))"
     }
 }

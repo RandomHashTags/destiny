@@ -34,6 +34,15 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         self.appliesContentType = appliesContentType
         self.appliesHeaders = appliesHeaders
     }
+
+    public var debugDescription : String {
+        let handles_methods:String = handlesMethods != nil ? "[" + handlesMethods!.map({ "." + $0.caseName! }).joined(separator: ",") + "]" : "nil"
+        let handles_statuses:String = handlesStatuses != nil ? "[" + handlesStatuses!.map({ "." + $0.caseName! }).joined(separator: ",") + "]" : "nil"
+        let handles_content_types:String = handlesContentTypes != nil ? "[" + handlesContentTypes!.map({ "." + $0.caseName }).joined(separator: ",") + "]" : "nil"
+        let applies_content_type:String = appliesContentType != nil ? "." + appliesContentType!.caseName : "nil"
+        let applies_status:String = appliesStatus != nil ? "." + appliesStatus!.caseName! : "nil"
+        return "StaticMiddleware(handlesMethods: \(handles_methods), handlesStatuses: \(handles_statuses), handlesContentTypes: \(handles_content_types), appliesStatus: \(applies_status), appliesContentType: \(applies_content_type), appliesHeaders: \(appliesHeaders))"
+    }
 }
 
 public extension StaticMiddleware {

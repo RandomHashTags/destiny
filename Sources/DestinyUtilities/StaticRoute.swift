@@ -13,14 +13,16 @@ import SwiftSyntaxMacros
 // MARK: StaticRoute
 /// The default Static Route that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
+    public let returnType:RouteReturnType
     public let method:HTTPRequest.Method
     public let path:[String]
-    public let status:HTTPResponse.Status?
-    public let contentType:HTTPField.ContentType
+    public var status:HTTPResponse.Status?
+    public var contentType:HTTPField.ContentType
     public let charset:String?
     public let result:RouteResult
 
     public init(
+        returnType: RouteReturnType = .staticString,
         method: HTTPRequest.Method,
         path: [String],
         status: HTTPResponse.Status? = nil,
@@ -28,6 +30,7 @@ public struct StaticRoute : StaticRouteProtocol {
         charset: String? = nil,
         result: RouteResult
     ) {
+        self.returnType = returnType
         self.method = method
         self.path = path
         self.status = status
@@ -66,10 +69,15 @@ public struct StaticRoute : StaticRouteProtocol {
         string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
         return string + "\\r\\n\\r\\n" + result_string
     }
+
+    public func responder(version: String, middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponseProtocol? {
+        return try RouteResponses.String(returnType.encode(response(version: version, middleware: middleware)))
+    }
 }
 
 public extension StaticRoute {
     static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self? {
+        var returnType:RouteReturnType = .staticString
         var method:HTTPRequest.Method = .get
         var path:[String] = []
         var status:HTTPResponse.Status? = nil
@@ -78,6 +86,11 @@ public extension StaticRoute {
         for argument in function.arguments {
             let key:String = argument.label!.text
             switch key {
+                case "returnType":
+                    if let rawValue:String = argument.expression.memberAccess?.declName.baseName.text {
+                        returnType = RouteReturnType(rawValue: rawValue) ?? .staticString
+                    }
+                    break
                 case "method":
                     method = HTTPRequest.Method(rawValue: "\(argument.expression.memberAccess!.declName.baseName.text)".uppercased())!
                     break
@@ -119,6 +132,6 @@ public extension StaticRoute {
                     break
             }
         }
-        return StaticRoute(method: method, path: path, status: status, contentType: contentType, charset: charset, result: result)
+        return StaticRoute(returnType: returnType, method: method, path: path, status: status, contentType: contentType, charset: charset, result: result)
     }
 }

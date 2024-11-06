@@ -15,9 +15,9 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let method:HTTPRequest.Method
     public let path:[PathComponent]
     public let parameterPathIndexes:Set<Int>
-    public let status:HTTPResponse.Status?
-    public let contentType:HTTPField.ContentType
-    public fileprivate(set) var defaultResponse:DynamicResponseProtocol
+    public var status:HTTPResponse.Status?
+    public var contentType:HTTPField.ContentType
+    public var defaultResponse:DynamicResponseProtocol
     public let handler:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?
     public let handlerAsync:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
 
@@ -46,6 +46,22 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     public func responder(version: String, logic: String) -> String {
         return "RouteResponses.Dynamic\(isAsync ? "Async" : "")(version: \"\(version)\", method: .\(method.caseName!), path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logic))"
+    }
+
+    public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
+        for middleware in middleware {
+            if middleware.handles(method: method, contentType: contentType, status: status!) {
+                if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
+                    status = applied_status
+                }
+                if let applied_content_type:HTTPField.ContentType = middleware.appliesContentType {
+                    contentType = applied_content_type
+                }
+                for (header, value) in middleware.appliesHeaders {
+                    defaultResponse.headers[header] = value
+                }
+            }
+        }
     }
 
     public var debugDescription : String {

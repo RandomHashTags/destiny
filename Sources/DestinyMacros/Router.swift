@@ -18,7 +18,6 @@ enum Router : ExpressionMacro {
         /*let arguments = node.macroExpansion!.arguments
         let test:Test = Router.restructure(arguments: arguments)
         print("Router;expansion;test;restructure;test=\(test)")*/
-        var returnType:RouterReturnType = .staticString
         var version:String = "HTTP/1.1"
         var static_middleware:[StaticMiddlewareProtocol] = []
         var dynamic_middleware:[DynamicMiddlewareProtocol] = []
@@ -28,11 +27,6 @@ enum Router : ExpressionMacro {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
                     switch key {
-                        case "returnType":
-                            if let rawValue:String = child.expression.memberAccess?.declName.baseName.text {
-                                returnType = RouterReturnType(rawValue: rawValue) ?? .staticString
-                            }
-                            break
                         case "version":
                             version = child.expression.stringLiteral!.string
                             break
@@ -68,19 +62,20 @@ enum Router : ExpressionMacro {
                 }
             }
         }
-        let static_responses:String = parse_static_routes_string(context: context, returnType: returnType, version: version, middleware: static_middleware, static_routes)
+        let static_responses:String = parse_static_routes_string(context: context, version: version, middleware: static_middleware, static_routes)
         let dynamic_routes_string:String = parse_dynamic_routes_string(version: version, dynamic_routes)
-        let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ $0.description }).joined(separator: ",\n") + "\n"
-        return "\(raw: "Router(\nversion: \"\(version)\",\nstaticResponses: [\(static_responses)],\ndynamicResponses: \(dynamic_routes_string),\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
+        let static_middleware_string:String = static_middleware.isEmpty ? "" : "\n" + static_middleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
+        let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
+        return "\(raw: "Router(\nversion: \"\(version)\",\nstaticResponses: [\(static_responses)],\ndynamicResponses: \(dynamic_routes_string),\nstaticMiddleware: [\(static_middleware_string)],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
     }
 }
 // MARK: Parse static routes string
 private extension Router {
-    static func parse_static_routes_string(context: some MacroExpansionContext, returnType: RouterReturnType, version: String, middleware: [StaticMiddlewareProtocol], _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]) -> String {
+    static func parse_static_routes_string(context: some MacroExpansionContext, version: String, middleware: [StaticMiddlewareProtocol], _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]) -> String {
         return routes.isEmpty ? ":" : "\n" + routes.compactMap({ (route, function) in
             do {
                 let response:String = try route.response(version: version, middleware: middleware)
-                let value:String = returnType.encode(response)
+                let value:String = route.returnType.encode(response)
                 var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
                 let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
                 return "// \(string)\n\(buffer) : " + value
@@ -119,7 +114,7 @@ private extension Router {
                 let responder:String = route.responder(version: version, logic: logic)
                 parameterized_responses_string += "// \(string)\n" + responder + "\n"
                 return "// \(string)\n" + route.debugDescription
-            }).joined(separator: ",\n")
+            }).joined(separator: ",\n") + "\n"
         }
         return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterized_string)],\nparameterizedResponses: [\(parameterized_responses_string)])"
     }
@@ -155,16 +150,14 @@ protocol Restructurable {
 }
 
 struct Test : Restructurable {
-    static let variables:Set<String> = ["version", "returnType", "middleware"]
+    static let variables:Set<String> = ["version", "middleware"]
 
     var version:String
-    var returnType:RouterReturnType
     var static_middleware:[StaticMiddlewareProtocol]
     var dynamic_middleware:[DynamicMiddlewareProtocol]
 
     init() {
         version = ""
-        returnType = RouterReturnType.unsafeBufferPointer
         static_middleware = []
         dynamic_middleware = []
     }
@@ -172,7 +165,6 @@ struct Test : Restructurable {
     mutating func assign(variable: String, value: Any?) {
         switch variable {
             case "version": version = value as! String
-            case "returnType": returnType = RouterReturnType.init(rawValue: value as! String) ?? .unsafeBufferPointer
             case "middleware":
                 let middleware:[MiddlewareProtocol] = value as! [MiddlewareProtocol]
                 static_middleware = middleware.compactMap({ $0 as? StaticMiddlewareProtocol })

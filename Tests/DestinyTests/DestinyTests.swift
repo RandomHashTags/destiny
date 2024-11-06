@@ -94,7 +94,6 @@ struct DestinyTests {
     }
     @Test func example() {
         let static_string_router:Router = #router(
-            returnType: .staticString,
             version: "HTTP/2.0",
             middleware: [
                 StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
@@ -108,7 +107,6 @@ struct DestinyTests {
             )
         )
         let static_string_router2:Router = #router(
-            returnType: .staticString,
             version: "HTTP/2.0",
             middleware: [
                 StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
@@ -123,7 +121,6 @@ struct DestinyTests {
             )
         )
         let uint8Array_router:Router = #router(
-            returnType: .uint8Array,
             version: "HTTP/2.0",
             middleware: [
                 StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
@@ -137,7 +134,6 @@ struct DestinyTests {
             )
         )
         let uint16Array_router:Router = #router(
-            returnType: .uint16Array,
             version: "HTTP/2.0",
             middleware: [
                 StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])

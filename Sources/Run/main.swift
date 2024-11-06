@@ -17,7 +17,6 @@ let application:Application = Application(
             port: 8080,
             maxPendingConnections: 1000,
             router: #router(
-                returnType: .staticString,
                 version: "HTTP/1.1",
                 middleware: [
                     StaticMiddleware(handlesMethods: [.get], handlesStatuses: [.notImplemented], handlesContentTypes: [.html, .json, .txt], appliesStatus: .ok),

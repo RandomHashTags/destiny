@@ -10,7 +10,7 @@ import SwiftSyntax
 
 // MARK: MiddlewareProtocol
 /// The core Middleware protocol that powers Destiny's Middleware.
-public protocol MiddlewareProtocol : Sendable {
+public protocol MiddlewareProtocol : Sendable, CustomDebugStringConvertible {
     /// Parsing logic for this middleware. Computed at compile time.
     /// - Parameters:
     ///   - function: The SwiftSyntax expression that represents this middleware at compile time.
@@ -19,7 +19,7 @@ public protocol MiddlewareProtocol : Sendable {
 
 // MARK: DynamicMiddlewareProtocol
 /// The core `MiddlewareProtocol` that powers Destiny's dynamic middleware which handles requests to dynamic routes.
-public protocol DynamicMiddlewareProtocol : MiddlewareProtocol, CustomStringConvertible {
+public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
     /// Whether or not this middleware handles a request asynchronously or synchronously.
     var isAsync : Bool { get }
     

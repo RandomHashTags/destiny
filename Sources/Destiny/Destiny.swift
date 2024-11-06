@@ -18,7 +18,6 @@ import ServiceLifecycle
 ///   - routes: The routes that this router contains. All routes are subject to this route's middleware.
 @freestanding(expression)
 public macro router(
-    returnType: RouterReturnType,
     version: String,
     middleware: [any MiddlewareProtocol],
     _ routes: RouteProtocol...
