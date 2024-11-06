@@ -18,7 +18,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
     /// The maximum amount of pending connections this Server will accept at a time.
     /// This value is capped at the system's limit (`ulimit -n`).
     public var maxPendingConnections:Int32
-    public let router:Router
+    public var router:Router
     public let logger:Logger
     public let onLoad:(() -> Void)?
     public let onShutdown:(() -> Void)?

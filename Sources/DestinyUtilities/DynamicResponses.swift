@@ -6,9 +6,9 @@
 //
 
 public struct DynamicResponses : Sendable {
-    public let parameterless:[DestinyRoutePathType:DynamicRouteResponseProtocol]
-    public let parameterized:[DynamicRouteProtocol]
-    public let parameterizedResponses:[DynamicRouteResponseProtocol]
+    public private(set) var parameterless:[DestinyRoutePathType:DynamicRouteResponseProtocol]
+    public private(set) var parameterized:[DynamicRouteProtocol]
+    public private(set) var parameterizedResponses:[DynamicRouteResponseProtocol]
 
     public init(
         parameterless: [DestinyRoutePathType:DynamicRouteResponseProtocol],
@@ -18,6 +18,17 @@ public struct DynamicResponses : Sendable {
         self.parameterless = parameterless
         self.parameterized = parameterized
         self.parameterizedResponses = parameterizedResponses
+    }
+
+    mutating func register(version: String, route: DynamicRouteProtocol, responder: DynamicRouteResponseProtocol) {
+        if route.path.count(where: { $0.isParameter }) == 0 {
+            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version
+            let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
+            parameterless[buffer] = responder
+        } else {
+            parameterized.append(route)
+            parameterizedResponses.append(responder)
+        }
     }
 
     public subscript(_ token: DestinyRoutePathType) -> ([String], DynamicRouteProtocol?, DynamicRouteResponseProtocol)? {

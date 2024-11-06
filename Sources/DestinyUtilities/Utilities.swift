@@ -29,24 +29,7 @@ public struct RouterGroup : Sendable {
     }
 }
 
-// MARK: Router
-public struct Router : Sendable {
-    public let staticResponses:[DestinyRoutePathType:StaticRouteResponseProtocol]
-    public let dynamicResponses:DynamicResponses
-    public let dynamicMiddleware:[DynamicMiddlewareProtocol]
-    
-    public init(
-        staticResponses: [DestinyRoutePathType:StaticRouteResponseProtocol],
-        dynamicResponses: DynamicResponses,
-        dynamicMiddleware: [DynamicMiddlewareProtocol]
-    ) {
-        self.staticResponses = staticResponses
-        self.dynamicMiddleware = dynamicMiddleware
-        self.dynamicResponses = dynamicResponses
-    }
-}
-
-public struct RouterReturnType {
+public struct RouterReturnType : Sendable {
     public static func bytes<T: FixedWidthInteger>(_ bytes: [T]) -> String {
         return "[" + bytes.map({ "\($0)" }).joined(separator: ",") + "]"
     }

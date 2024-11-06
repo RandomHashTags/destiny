@@ -71,7 +71,7 @@ enum Router : ExpressionMacro {
         let static_responses:String = parse_static_routes_string(context: context, returnType: returnType, version: version, middleware: static_middleware, static_routes)
         let dynamic_routes_string:String = parse_dynamic_routes_string(version: version, dynamic_routes)
         let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ $0.description }).joined(separator: ",\n") + "\n"
-        return "\(raw: "Router(\nstaticResponses: [\(static_responses)],\ndynamicResponses: \(dynamic_routes_string),\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
+        return "\(raw: "Router(\nversion: \"\(version)\",\nstaticResponses: [\(static_responses)],\ndynamicResponses: \(dynamic_routes_string),\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
     }
 }
 // MARK: Parse static routes string
@@ -112,13 +112,12 @@ private extension Router {
         }).joined(separator: ",\n") + "\n"
         var parameterized_string:String = "", parameterized_responses_string:String = ""
         if !parameterized.isEmpty {
-            parameterized_string += "\n"
             parameterized_responses_string += "\n"
-            parameterized_string += parameterized.map({ route in
+            parameterized_string += "\n" + parameterized.map({ route in
                 let string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version
                 let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
                 let responder:String = route.responder(version: version, logic: logic)
-                parameterized_responses_string += responder + "\n"
+                parameterized_responses_string += "// \(string)\n" + responder + "\n"
                 return "// \(string)\n" + route.debugDescription
             }).joined(separator: ",\n")
         }
