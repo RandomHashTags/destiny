@@ -137,6 +137,7 @@ extension RouteResponses {
         public let version:Swift.String
         public let method:HTTPRequest.Method
         public let path:[Swift.String]
+        public var parameters:[Swift.String:Swift.String] = [:]
         public let defaultResponse:DynamicResponseProtocol
         public let logic:@Sendable (borrowing Request, inout DynamicResponseProtocol) throws -> Void
 
@@ -168,6 +169,7 @@ extension RouteResponses {
     public struct DynamicAsync : DynamicRouteResponseProtocol {
         public let method:HTTPRequest.Method
         public let path:[Swift.String]
+        public var parameters:[Swift.String:Swift.String] = [:]
         public let version:Swift.String
         public let defaultResponse:DynamicResponseProtocol
         public let logic:(@Sendable (borrowing Request, inout DynamicResponseProtocol) async throws -> Void)

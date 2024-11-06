@@ -49,30 +49,24 @@ public extension SIMD where Scalar : BinaryInteger {
         var anchor:Int = 0, array:[Self] = []
         array.reserveCapacity(2)
         for i in 0..<scalarCount {
-            if self[i] == separator {
-                var slice:Self = Self(), slice_index:Int = 0
-                if anchor != 0 {
-                    anchor += 1
-                }
+            if self[i] == separator {                
                 if anchor < i {
+                    var slice:Self = Self(), slice_index:Int = 0
                     for j in anchor..<i {
-                        slice[slice_index] = self[anchor + j]
+                        slice[slice_index] = self[j]
                         slice_index += 1
                     }
                     if slice_index != 0 {
                         array.append(slice)
                     }
-                    anchor = i
                 }
+                anchor = i+1
             }
         }
         if array.isEmpty {
             return [self]
         }
         var ending_slice:Self = Self(), slice_index:Int = 0
-        if anchor != 0 {
-            anchor += 1
-        }
         for i in anchor..<scalarCount {
             ending_slice[slice_index] = self[i]
             slice_index += 1

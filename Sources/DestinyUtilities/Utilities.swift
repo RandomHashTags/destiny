@@ -32,12 +32,12 @@ public struct RouterGroup : Sendable {
 // MARK: Router
 public struct Router : Sendable {
     public let staticResponses:[DestinyRoutePathType:StaticRouteResponseProtocol]
-    public let dynamicResponses:[DestinyRoutePathType:DynamicRouteResponseProtocol]
+    public let dynamicResponses:DynamicResponses
     public let dynamicMiddleware:[DynamicMiddlewareProtocol]
     
     public init(
         staticResponses: [DestinyRoutePathType:StaticRouteResponseProtocol],
-        dynamicResponses: [DestinyRoutePathType:DynamicRouteResponseProtocol],
+        dynamicResponses: DynamicResponses,
         dynamicMiddleware: [DynamicMiddlewareProtocol]
     ) {
         self.staticResponses = staticResponses

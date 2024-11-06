@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 
 // MARK: RouteProtocol
 /// The core Route protocol that powers Destiny's routing.
-public protocol RouteProtocol {
+public protocol RouteProtocol : Sendable {
     /// The http method of this route.
     var method : HTTPRequest.Method { get }
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
@@ -22,7 +22,7 @@ public protocol RouteProtocol {
 }
 
 // MARK: StaticRouteProtocol
-/// The core `RouteProtocol` that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
+/// The core Route protocol that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
     /// The path of this route.
     var path : [String] { get }
@@ -45,11 +45,12 @@ public protocol StaticRouteProtocol : RouteProtocol {
 }
 
 // MARK: DynamicRouteProtocol
-/// The core `RouteProtocol` that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
-public protocol DynamicRouteProtocol : RouteProtocol {
+/// The core Route protocol that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
+public protocol DynamicRouteProtocol : RouteProtocol, CustomDebugStringConvertible {
     /// The path of this route.
     var path : [PathComponent] { get }
-
+    /// Where this route accepts parameters in its path.
+    var parameterPathIndexes : Set<Int> { get }
     /// The default HTTP Response computed by default values and static middleware.
     var defaultResponse : DynamicResponseProtocol { get }
     /// Whether or not this dynamic route responds asynchronously or synchronously.

@@ -76,6 +76,16 @@ let application:Application = Application(
                         response.result = .string(UUID().uuidString)
                     },
                     handlerAsync: nil
+                ),
+                DynamicRoute(
+                    async: false,
+                    method: .get,
+                    path: ["dynamic", ":text"],
+                    contentType: .txt,
+                    handler: { request, response in
+                        response.result = .string(response.parameters["text"] ?? "nil")
+                    },
+                    handlerAsync: nil
                 )
             ),
             logger: Logger(label: "destiny.http.server")

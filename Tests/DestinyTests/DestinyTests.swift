@@ -53,6 +53,15 @@ struct DestinyTests {
             Character("!").asciiValue!
         )))
     }
+    @Test func simd_split() throws {
+        var string:String = "GET /dynamic/text HTTP/1.1"
+        var ss:StackString32 = StackString32(&string)
+        var values:[StackString32] = ss.splitSIMD(separator: 32) // space
+        try #require(values.count == 3)
+        #expect(values[0].string() == "GET")
+        #expect(values[1].string() == "/dynamic/text")
+        #expect(values[2].string() == "HTTP/1.1")
+    }
     @Test func simd_split4() throws {
         let ss:StackString4 = StackString4(31, 32, 33, 34)
         var values:[StackString4] = ss.split(separator: 32)

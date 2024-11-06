@@ -11,15 +11,18 @@ public struct DynamicResponse : DynamicResponseProtocol {
     public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult
+    public var parameters:[String:String]
 
     public init(
         status: HTTPResponse.Status,
         headers: [String:String],
-        result: RouteResult
+        result: RouteResult,
+        parameters: [String:String]
     ) {
         self.status = status
         self.headers = headers
         self.result = result
+        self.parameters = parameters
     }
 
     @inlinable
@@ -34,6 +37,6 @@ public struct DynamicResponse : DynamicResponseProtocol {
     }
 
     public var debugDescription : String {
-        return "DynamicResponse(status: .\(status.caseName!), headers: \(headers), result: .\(result))"
+        return "DynamicResponse(status: .\(status.caseName!), headers: \(headers), result: .\(result), parameters: \(parameters))"
     }
 }

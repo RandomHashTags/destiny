@@ -7,7 +7,7 @@
 
 import HTTPTypes
 
-/// The core Dynamic Response protocol that powers how Destiny manages a dynamic response to dynamic routes.
+/// The core Dynamic Response protocol that powers how Destiny manages a HTTP Response to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
     /// The response status.
     var status : HTTPResponse.Status { get set }
@@ -16,7 +16,10 @@ public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible
     /// The response content.
     var result : RouteResult { get set }
 
-    /// The complete HTTP Response to send to the client.
+    /// The parameters associated with the route, that get updated upon requests.
+    var parameters : [String:String] { get set }
+
+    /// The complete HTTP Response that gets sent to the client.
     /// - Parameters:
     ///   - version: The HTTP version associated with the route.
     @inlinable func response(version: String) throws -> String

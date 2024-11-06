@@ -86,7 +86,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
             throw ServerError.listenFailed()
         }
         let static_responses:[DestinyRoutePathType:StaticRouteResponseProtocol] = router.staticResponses
-        let dynamic_responses:[DestinyRoutePathType:DynamicRouteResponseProtocol] = router.dynamicResponses
+        let dynamic_responses:DynamicResponses = router.dynamicResponses
         let dynamic_middleware:[DynamicMiddlewareProtocol] = router.dynamicMiddleware
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         let on_shutdown:(() -> Void)? = onShutdown
@@ -139,7 +139,7 @@ enum ClientProcessing {
         client: Int32,
         client_socket: consuming T,
         static_responses: [DestinyRoutePathType:StaticRouteResponseProtocol],
-        dynamic_responses: [DestinyRoutePathType:DynamicRouteResponseProtocol],
+        dynamic_responses: DynamicResponses,
         dynamic_middleware: [DynamicMiddlewareProtocol],
         not_found_response: StaticString
     ) async throws {
@@ -154,11 +154,16 @@ enum ClientProcessing {
             } else {
                 try responder.respond(to: client_socket)
             }
-        } else if let responder:DynamicRouteResponseProtocol = dynamic_responses[token] {
+        } else if let (path, route, responder):([String], DynamicRouteProtocol?, DynamicRouteResponseProtocol) = dynamic_responses[token] {
             let headers:[String:String] = try client_socket.readHeaders()
-            let request:Request = Request(method: responder.method, path: responder.path, version: responder.version, headers: headers, body: "")
+            let request:Request = Request(method: responder.method, path: path, version: responder.version, headers: headers, body: "")
 
             var response:DynamicResponseProtocol = responder.defaultResponse
+            if let route:DynamicRouteProtocol = route {
+                for index in route.parameterPathIndexes {
+                    response.parameters[route.path[index].value] = path[index]
+                }
+            }
             for middleware in dynamic_middleware {
                 if middleware.shouldHandle(request: request, response: response) {
                     do {
