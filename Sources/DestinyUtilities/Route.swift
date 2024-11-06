@@ -8,14 +8,13 @@
 import Foundation
 import HTTPTypes
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 // MARK: RouteProtocol
 /// The core Route protocol that powers Destiny's routing.
 public protocol RouteProtocol {
     /// The http method of this route.
     var method : HTTPRequest.Method { get }
-    /// The path of this route.
-    var path : [String] { get }
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status? { get }
     /// The default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
@@ -25,6 +24,9 @@ public protocol RouteProtocol {
 // MARK: StaticRouteProtocol
 /// The core `RouteProtocol` that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
+    /// The path of this route.
+    var path : [String] { get }
+
     var result : RouteResult { get }
 
     /// The HTTP Response of this route. Computed at compile time.
@@ -39,12 +41,15 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// Parsing logic for this static route. Computed at compile time.
     /// - Parameters:
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
-    static func parse(_ function: FunctionCallExprSyntax) -> Self
+    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self?
 }
 
 // MARK: DynamicRouteProtocol
 /// The core `RouteProtocol` that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
+    /// The path of this route.
+    var path : [PathComponent] { get }
+
     /// The default HTTP Response computed by default values and static middleware.
     var defaultResponse : DynamicResponseProtocol { get }
     /// Whether or not this dynamic route responds asynchronously or synchronously.
@@ -69,7 +74,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     ///   - version: The HTTP version associated with the `Router`.
     ///   - middleware: The static middleware the associated `Router` uses.
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
-    static func parse(version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self
+    static func parse(context: some MacroExpansionContext, version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
 }
 
 // MARK: RouteResult

@@ -7,12 +7,13 @@
 
 import HTTPTypes
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 /// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public let isAsync:Bool
     public let method:HTTPRequest.Method
-    public let path:[String]
+    public let path:[PathComponent]
     public let status:HTTPResponse.Status?
     public let contentType:HTTPField.ContentType
     public fileprivate(set) var defaultResponse:DynamicResponseProtocol
@@ -25,7 +26,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public init(
         async: Bool,
         method: HTTPRequest.Method,
-        path: [String],
+        path: [PathComponent],
         status: HTTPResponse.Status? = nil,
         contentType: HTTPField.ContentType,
         handler: ((_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?,
@@ -47,10 +48,10 @@ public struct DynamicRoute : DynamicRouteProtocol {
 }
 
 public extension DynamicRoute {
-    static func parse(version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> DynamicRoute {
+    static func parse(context: some MacroExpansionContext, version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var async:Bool = false
         var method_string:String = ".get"
-        var path:[String] = []
+        var path:[PathComponent] = []
         var status:HTTPResponse.Status = .notImplemented
         var content_type:HTTPField.ContentType = .txt
         var handler:String = "nil", handlerAsync:String = "nil"
@@ -64,7 +65,22 @@ public extension DynamicRoute {
                     method_string = argument.expression.memberAccess!.declName.baseName.text.uppercased()
                     break
                 case "path":
-                    path = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
+                    path = argument.expression.array!.elements.map({
+                        if var string:String = $0.expression.stringLiteral?.string {
+                            let is_parameter:Bool = string[string.startIndex] == ":"
+                            string.replace(":", with: "")
+                            return is_parameter ? .parameter(string) : .literal(string)
+                        } else {
+                            let function:FunctionCallExprSyntax = $0.expression.functionCall!
+                            let target:String = function.calledExpression.memberAccess!.declName.baseName.text
+                            let value:String = function.arguments.first!.expression.stringLiteral!.string.replacing(":", with: "")
+                            switch target {
+                                case "literal": return .literal(value)
+                                case "parameter": return .parameter(value)
+                                default: return .literal(value)
+                            }
+                        }
+                    })
                     break
                 case "status":
                     status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text) ?? .notImplemented

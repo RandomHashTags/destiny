@@ -19,3 +19,6 @@ HTTPFieldContentType.swiftdeps*
 HTTPRequestMethodParse.d
 HTTPRequestMethodParse.o
 HTTPRequestMethodParse.swiftdeps*
+PathComponent.d
+PathComponent.o
+PathComponent.swiftdeps*

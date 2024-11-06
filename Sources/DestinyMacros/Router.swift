@@ -57,9 +57,11 @@ enum Router : ExpressionMacro {
                 } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
                     //print("Router;expansion;route;function=\(function)")
                     if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
-                        dynamic_routes.append(DynamicRoute.parse(version: version, middleware: static_middleware, function))
-                    } else {
-                        static_routes.append((StaticRoute.parse(function), function))
+                        if let route:DynamicRouteProtocol = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
+                            dynamic_routes.append(route)
+                        }
+                    } else if let route:StaticRouteProtocol = StaticRoute.parse(context: context, function) {
+                        static_routes.append((route, function))
                     }
                 } else {
                     // TODO: support custom routes
@@ -95,14 +97,14 @@ private extension Router {
         var parameterized:[DynamicRouteProtocol] = []
         var parameterless:[DynamicRouteProtocol] = []
         for route in routes {
-            if route.path.first(where: { $0[$0.startIndex] == ":" }) != nil {
+            if route.path.first(where: { $0.isParameter }) != nil {
                 parameterized.append(route)
             } else {
                 parameterless.append(route)
             }
         }
         let parameterless_string:String = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route in
-            var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
+            var string:String = route.method.rawValue + " /" + route.path.map({ $0.description }).joined(separator: "/") + " " + version
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
             let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
             let responder:String = route.responder(version: version, logic: logic)

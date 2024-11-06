@@ -8,12 +8,13 @@
 import Foundation
 import HTTPTypes
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 // MARK: StaticRoute
 /// The default Static Route that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
     public let method:HTTPRequest.Method
-    public package(set) var path:[String]
+    public let path:[String]
     public let status:HTTPResponse.Status?
     public let contentType:HTTPField.ContentType
     public let charset:String?
@@ -68,7 +69,7 @@ public struct StaticRoute : StaticRouteProtocol {
 }
 
 public extension StaticRoute {
-    static func parse(_ function: FunctionCallExprSyntax) -> StaticRoute {
+    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self? {
         var method:HTTPRequest.Method = .get
         var path:[String] = []
         var status:HTTPResponse.Status? = nil
