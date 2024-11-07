@@ -5,19 +5,18 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+import HTTPTypes
+
 public struct DynamicResponses : Sendable {
     public private(set) var parameterless:[DestinyRoutePathType:DynamicRouteResponseProtocol]
-    public private(set) var parameterized:[DynamicRouteProtocol]
-    public private(set) var parameterizedResponses:[DynamicRouteResponseProtocol]
+    public private(set) var parameterized:[[DynamicRouteResponseProtocol]]
 
     public init(
         parameterless: [DestinyRoutePathType:DynamicRouteResponseProtocol],
-        parameterized: [DynamicRouteProtocol],
-        parameterizedResponses: [DynamicRouteResponseProtocol]
+        parameterized: [[DynamicRouteResponseProtocol]]
     ) {
         self.parameterless = parameterless
         self.parameterized = parameterized
-        self.parameterizedResponses = parameterizedResponses
     }
 
     mutating func register(version: String, route: DynamicRouteProtocol, responder: DynamicRouteResponseProtocol) {
@@ -26,29 +25,36 @@ public struct DynamicResponses : Sendable {
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
             parameterless[buffer] = responder
         } else {
-            parameterized.append(route)
-            parameterizedResponses.append(responder)
+            if parameterized.count <= route.path.count {
+                for _ in parameterized.count...route.path.count {
+                    parameterized.append([])
+                }
+            }
+            parameterized[route.path.count].append(responder)
         }
     }
 
-    public subscript(_ token: DestinyRoutePathType) -> ([String], DynamicRouteProtocol?, DynamicRouteResponseProtocol)? {
-        if let responder:DynamicRouteResponseProtocol = parameterless[token] {
-            return (responder.path, nil, responder)
+    public subscript(_ token: DestinyRoutePathType) -> (HTTPStartLine, DynamicRouteResponseProtocol)? {
+        let spaced:[DestinyRoutePathType] = token.splitSIMD(separator: 32) // 32 = space
+        guard let version:String = spaced.get(2)?.string(), let method:HTTPRequest.Method = HTTPRequest.Method.parse(spaced[0].string()) else {
+            return nil
         }
-        let values:[String] = token.splitSIMD(separator: 32)[1].splitSIMD(separator: 47).map({ $0.string() }) // 32 = space; 1 = the target route path; 47 = slash
-        for (index, route) in parameterized.enumerated() {
-            if route.path.count == values.count {
-                var found:Bool = true
-                for i in 0..<values.count {
-                    let path:PathComponent = route.path[i]
-                    if !path.isParameter && path.value != values[i] {
-                        found = false
-                        break
-                    }
+        let values:[String] = spaced[1].splitSIMD(separator: 47).map({ $0.string() }) // 1 = the target route path; 47 = slash
+        if let responder:DynamicRouteResponseProtocol = parameterless[token] {
+            return (HTTPStartLine(method: method, path: values, version: version), responder)
+        }
+        guard let routes:[DynamicRouteResponseProtocol] = parameterized.get(values.count) else { return nil }
+        for route in routes {
+            var found:Bool = true
+            for i in 0..<values.count {
+                let path:PathComponent = route.path[i]
+                if !path.isParameter && path.value != values[i] {
+                    found = false
+                    break
                 }
-                if found {
-                    return (values, route, parameterizedResponses[index])
-                }
+            }
+            if found {
+                return (HTTPStartLine(method: method, path: values, version: version), route)
             }
         }
         return nil

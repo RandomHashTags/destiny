@@ -15,7 +15,7 @@ import SwiftSyntaxMacros
 public struct StaticRoute : StaticRouteProtocol {
     public let returnType:RouteReturnType
     public let method:HTTPRequest.Method
-    public let path:[String]
+    public private(set) var path:[String]
     public var status:HTTPResponse.Status?
     public var contentType:HTTPMediaType
     public let charset:String?
@@ -24,7 +24,7 @@ public struct StaticRoute : StaticRouteProtocol {
     public init(
         returnType: RouteReturnType = .staticString,
         method: HTTPRequest.Method,
-        path: [String],
+        path: [StaticString],
         status: HTTPResponse.Status? = nil,
         contentType: HTTPMediaType,
         charset: String? = nil,
@@ -32,7 +32,7 @@ public struct StaticRoute : StaticRouteProtocol {
     ) {
         self.returnType = returnType
         self.method = method
-        self.path = path
+        self.path = path.map({ $0.description })
         self.status = status
         self.contentType = contentType
         self.charset = charset
@@ -132,6 +132,8 @@ public extension StaticRoute {
                     break
             }
         }
-        return StaticRoute(returnType: returnType, method: method, path: path, status: status, contentType: contentType, charset: charset, result: result)
+        var route:StaticRoute = StaticRoute(returnType: returnType, method: method, path: [], status: status, contentType: contentType, charset: charset, result: result)
+        route.path = path
+        return route
     }
 }

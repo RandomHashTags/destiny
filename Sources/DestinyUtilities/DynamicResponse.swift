@@ -8,17 +8,20 @@
 import HTTPTypes
 
 public struct DynamicResponse : DynamicResponseProtocol {
+    public var version:String
     public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult
     public var parameters:[String:String]
 
     public init(
+        version: String,
         status: HTTPResponse.Status,
         headers: [String:String],
         result: RouteResult,
         parameters: [String:String]
     ) {
+        self.version = version
         self.status = status
         self.headers = headers
         self.result = result
@@ -26,7 +29,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
     }
 
     @inlinable
-    public func response(version: String) throws -> String {
+    public func response() throws -> String {
         let result_string:String = try result.string()
         var string:String = version + " \(status)\r\n"
         for (header, value) in headers {
@@ -37,6 +40,6 @@ public struct DynamicResponse : DynamicResponseProtocol {
     }
 
     public var debugDescription : String {
-        return "DynamicResponse(status: .\(status.caseName!), headers: \(headers), result: .\(result), parameters: \(parameters))"
+        return "DynamicResponse(version: \"\(version)\", status: .\(status.caseName!), headers: \(headers), result: .\(result), parameters: \(parameters))"
     }
 }

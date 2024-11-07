@@ -22,3 +22,6 @@ HTTPRequestMethodParse.swiftdeps*
 PathComponent.d
 PathComponent.o
 PathComponent.swiftdeps*
+SequenceExtensions.d
+SequenceExtensions.o
+SequenceExtensions.swiftdeps*

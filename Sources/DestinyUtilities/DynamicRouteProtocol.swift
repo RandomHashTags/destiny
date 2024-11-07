@@ -10,15 +10,13 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 /// The core Route protocol that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
-public protocol DynamicRouteProtocol : RouteProtocol, CustomDebugStringConvertible {
+public protocol DynamicRouteProtocol : RouteProtocol {
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status? { get set }
     /// The default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
     var contentType : HTTPMediaType { get set }
     /// The path of this route.
     var path : [PathComponent] { get }
-    /// Where this route accepts parameters in its path.
-    var parameterPathIndexes : Set<Int> { get }
     /// The default HTTP Response computed by default values and static middleware.
     var defaultResponse : DynamicResponseProtocol { get set }
     /// Whether or not this dynamic route responds asynchronously or synchronously.
@@ -32,9 +30,8 @@ public protocol DynamicRouteProtocol : RouteProtocol, CustomDebugStringConvertib
     /// 
     /// Loads the route responder in a `Router`'s dynamic route responses.
     /// - Parameters:
-    ///   - version: The HTTP version associated with the `Router`.
     ///   - logic: The string representation of the synchronous/asynchronous handler logic this route uses.
-    func responder(version: String, logic: String) -> String
+    func responder(logic: String) -> String
 
     /// Applies static middleware to this route.
     /// 

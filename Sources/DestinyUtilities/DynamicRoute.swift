@@ -14,7 +14,6 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let isAsync:Bool
     public let method:HTTPRequest.Method
     public let path:[PathComponent]
-    public let parameterPathIndexes:Set<Int>
     public var status:HTTPResponse.Status?
     public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponseProtocol
@@ -30,22 +29,21 @@ public struct DynamicRoute : DynamicRouteProtocol {
         path: [PathComponent],
         status: HTTPResponse.Status? = nil,
         contentType: HTTPMediaType,
-        handler: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?,
-        handlerAsync: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
+        handler: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)? = nil,
+        handlerAsync: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)? = nil
     ) {
         isAsync = async
         self.method = method
         self.path = path
-        parameterPathIndexes = Set(path.enumerated().compactMap({ $1.isParameter ? $0 : nil }))
         self.status = status
         self.contentType = contentType
-        self.defaultResponse = DynamicResponse.init(status: .notImplemented, headers: [:], result: .string(""), parameters: [:])
+        self.defaultResponse = DynamicResponse.init(version: "HTTP/1.1", status: .notImplemented, headers: [:], result: .string(""), parameters: [:])
         self.handler = handler
         self.handlerAsync = handlerAsync
     }
 
-    public func responder(version: String, logic: String) -> String {
-        return "RouteResponses.Dynamic\(isAsync ? "Async" : "")(version: \"\(version)\", method: .\(method.caseName!), path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logic))"
+    public func responder(logic: String) -> String {
+        return "CompiledDynamicRoute(async: \(isAsync), path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(isAsync ? "nil" : logic), logicAsync: \(isAsync ? logic : "nil"))"
     }
 
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
@@ -62,14 +60,6 @@ public struct DynamicRoute : DynamicRouteProtocol {
                 }
             }
         }
-    }
-
-    public var debugDescription : String {
-        var status_string:String = "nil"
-        if let status:HTTPResponse.Status = status {
-            status_string = ".\(status.caseName!)"
-        }
-        return "DynamicRoute(async: \(isAsync), method: .\(method.caseName!), path: \(path), status: \(status_string), contentType: \(contentType.debugDescription), handler: \(handlerLogic), handlerAsync: \(handlerLogicAsync))"
     }
 }
 
@@ -134,7 +124,7 @@ public extension DynamicRoute {
         }
         headers[HTTPField.Name.contentType.rawName] = content_type.rawValue
         var route:DynamicRoute = DynamicRoute(async: async, method: method, path: path, status: status, contentType: content_type, handler: nil, handlerAsync: nil)
-        route.defaultResponse = DynamicResponse(status: status, headers: headers, result: .string(""), parameters: parameters)
+        route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, result: .string(""), parameters: parameters)
         route.handlerLogic = handler
         route.handlerLogicAsync = handlerAsync
         return route

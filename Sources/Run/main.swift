@@ -54,6 +54,7 @@ let application:Application = Application(
                     result: .string("just a regular txt page; t'was your destiny")
                 ),
                 StaticRoute(
+                    returnType: .uint8Array,
                     method: .get,
                     path: ["bytes"],
                     contentType: HTTPMediaType.Text.plain,
@@ -73,8 +74,7 @@ let application:Application = Application(
                     contentType: HTTPMediaType.Text.plain,
                     handler: { request, response in
                         response.result = .string(UUID().uuidString)
-                    },
-                    handlerAsync: nil
+                    }
                 ),
                 DynamicRoute(
                     async: false,
@@ -83,8 +83,7 @@ let application:Application = Application(
                     contentType: HTTPMediaType.Text.plain,
                     handler: { request, response in
                         response.result = .string(response.parameters["text"] ?? "nil")
-                    },
-                    handlerAsync: nil
+                    }
                 )
             ),
             logger: Logger(label: "destiny.http.server")

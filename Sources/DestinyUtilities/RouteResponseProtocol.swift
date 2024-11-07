@@ -21,11 +21,16 @@ public protocol StaticRouteResponseProtocol : RouteResponseProtocol {
 
 /// The core Dynamic Route Response protocol that powers Destiny's responses of requests to dynamic routes.
 public protocol DynamicRouteResponseProtocol : RouteResponseProtocol {
-    var version : String { get }
-    var method : HTTPRequest.Method { get }
-    var path : [String] { get }
-    var parameters : [String:String] { get set }
+    /// The path of the route.
+    var path : [PathComponent] { get }
+    /// The indexes where the parameters are location in the `path`.
+    var parameterPathIndexes : Set<Int> { get }
+    /// The default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
     var defaultResponse : DynamicResponseProtocol { get }
+    /// The synchronous work to execute upon requests. Should be called from `respond`.
+    var logic : (@Sendable (borrowing Request, inout DynamicResponseProtocol) throws -> Void)? { get }
+    /// The asynchronous work to execute upon requests. Should be called from `respondAsync`.
+    var logicAsync : (@Sendable (borrowing Request, inout DynamicResponseProtocol) async throws -> Void)? { get }
 
     @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) throws
     @inlinable func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) async throws

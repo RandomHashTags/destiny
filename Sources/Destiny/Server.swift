@@ -154,15 +154,13 @@ enum ClientProcessing {
             } else {
                 try responder.respond(to: client_socket)
             }
-        } else if let (path, route, responder):([String], DynamicRouteProtocol?, DynamicRouteResponseProtocol) = dynamic_responses[token] {
+        } else if let (start_line, route):(HTTPStartLine, DynamicRouteResponseProtocol) = dynamic_responses[token] {
             let headers:[String:String] = try client_socket.readHeaders()
-            let request:Request = Request(method: responder.method, path: path, version: responder.version, headers: headers, body: "")
+            let request:Request = Request(method: start_line.method, path: start_line.path, version: start_line.version, headers: headers, body: "")
 
-            var response:DynamicResponseProtocol = responder.defaultResponse
-            if let route:DynamicRouteProtocol = route {
-                for index in route.parameterPathIndexes {
-                    response.parameters[route.path[index].value] = path[index]
-                }
+            var response:DynamicResponseProtocol = route.defaultResponse
+            for index in route.parameterPathIndexes {
+                response.parameters[route.path[index].value] = start_line.path[index]
             }
             for middleware in dynamic_middleware {
                 if middleware.shouldHandle(request: request, response: response) {
@@ -182,10 +180,10 @@ enum ClientProcessing {
                     }
                 }
             }
-            if responder.isAsync {
-                try await responder.respondAsync(to: client_socket, request: request, response: &response)
+            if route.isAsync {
+                try await route.respondAsync(to: client_socket, request: request, response: &response)
             } else {
-                try responder.respond(to: client_socket, request: request, response: &response)
+                try route.respond(to: client_socket, request: request, response: &response)
             }
         } else {
             var err:Swift.Error? = nil

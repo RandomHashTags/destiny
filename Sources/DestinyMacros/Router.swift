@@ -102,21 +102,26 @@ private extension Router {
             var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
             let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
-            let responder:String = route.responder(version: version, logic: logic)
+            let responder:String = route.responder(logic: logic)
             return "// \(string)\n\(buffer) : \(responder)"
         }).joined(separator: ",\n") + "\n"
-        var parameterized_string:String = "", parameterized_responses_string:String = ""
+        var parameterized_by_path_count:[String] = []
+        var parameterized_string:String = ""
         if !parameterized.isEmpty {
-            parameterized_responses_string += "\n"
-            parameterized_string += "\n" + parameterized.map({ route in
+            for route in parameterized {
+                if parameterized_by_path_count.count <= route.path.count {
+                    for _ in 0...(route.path.count - parameterized_by_path_count.count) {
+                        parameterized_by_path_count.append("")
+                    }
+                }
                 let string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version
                 let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
-                let responder:String = route.responder(version: version, logic: logic)
-                parameterized_responses_string += "// \(string)\n" + responder + "\n"
-                return "// \(string)\n" + route.debugDescription
-            }).joined(separator: ",\n") + "\n"
+                let responder:String = route.responder(logic: logic)
+                parameterized_by_path_count[route.path.count].append("\n// \(string)\n" + responder)
+            }
+            parameterized_string = "\n" + parameterized_by_path_count.map({ "[\($0.isEmpty ? "" : $0 + "\n")]" }).joined(separator: ",\n") + "\n"
         }
-        return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterized_string)],\nparameterizedResponses: [\(parameterized_responses_string)])"
+        return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterized_string)])"
     }
 }
 
