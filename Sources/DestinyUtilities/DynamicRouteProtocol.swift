@@ -14,7 +14,7 @@ public protocol DynamicRouteProtocol : RouteProtocol, CustomDebugStringConvertib
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status? { get set }
     /// The default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
-    var contentType : HTTPField.ContentType { get set }
+    var contentType : HTTPMediaType { get set }
     /// The path of this route.
     var path : [PathComponent] { get }
     /// Where this route accepts parameters in its path.

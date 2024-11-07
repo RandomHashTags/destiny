@@ -19,7 +19,7 @@ let application:Application = Application(
             router: #router(
                 version: "HTTP/1.1",
                 middleware: [
-                    StaticMiddleware(handlesMethods: [.get], handlesStatuses: [.notImplemented], handlesContentTypes: [.html, .json, .txt], appliesStatus: .ok),
+                    StaticMiddleware(handlesMethods: [.get], handlesStatuses: [.notImplemented], handlesContentTypes: [HTTPMediaType.Text.html, HTTPMediaType.Application.json, HTTPMediaType.Text.plain], appliesStatus: .ok),
                     StaticMiddleware(handlesMethods: [.get], appliesHeaders: ["You-GET'd":"true"]),
                     StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
                     //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
@@ -37,40 +37,40 @@ let application:Application = Application(
                 StaticRoute(
                     method: .get,
                     path: ["html"],
-                    contentType: .html,
+                    contentType: HTTPMediaType.Text.html,
                     result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
                 ),
                 StaticRoute(
                     method: .get,
                     path: ["json"],
-                    contentType: .json,
+                    contentType: HTTPMediaType.Application.json,
                     result: .string("{\"this_outcome_was_inevitable_and_was_your_destiny\":true}")
                     //result: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
                 ),
                 StaticRoute(
                     method: .get,
                     path: ["txt"],
-                    contentType: .txt,
+                    contentType: HTTPMediaType.Text.plain,
                     result: .string("just a regular txt page; t'was your destiny")
                 ),
                 StaticRoute(
                     method: .get,
                     path: ["bytes"],
-                    contentType: .txt,
+                    contentType: HTTPMediaType.Text.plain,
                     result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
                 ),
                 StaticRoute(
                     method: .get,
                     path: ["error"],
                     status: .badRequest,
-                    contentType: .json,
+                    contentType: HTTPMediaType.Application.json,
                     result: .error(CustomError.yipyip)
                 ),
                 DynamicRoute(
                     async: false,
                     method: .get,
                     path: ["dynamic"],
-                    contentType: .txt,
+                    contentType: HTTPMediaType.Text.plain,
                     handler: { request, response in
                         response.result = .string(UUID().uuidString)
                     },
@@ -80,7 +80,7 @@ let application:Application = Application(
                     async: false,
                     method: .get,
                     path: ["dynamic", ":text"],
-                    contentType: .txt,
+                    contentType: HTTPMediaType.Text.plain,
                     handler: { request, response in
                         response.result = .string(response.parameters["text"] ?? "nil")
                     },

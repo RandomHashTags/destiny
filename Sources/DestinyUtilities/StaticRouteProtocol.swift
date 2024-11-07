@@ -15,7 +15,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status? { get }
     /// The default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
-    var contentType : HTTPField.ContentType { get }
+    var contentType : HTTPMediaType { get }
     /// The path of this route.
     var path : [String] { get }
 

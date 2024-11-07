@@ -16,7 +16,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:Set<Int>
     public var status:HTTPResponse.Status?
-    public var contentType:HTTPField.ContentType
+    public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponseProtocol
     public let handler:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?
     public let handlerAsync:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
@@ -29,7 +29,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         method: HTTPRequest.Method,
         path: [PathComponent],
         status: HTTPResponse.Status? = nil,
-        contentType: HTTPField.ContentType,
+        contentType: HTTPMediaType,
         handler: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?,
         handlerAsync: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
     ) {
@@ -54,7 +54,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     status = applied_status
                 }
-                if let applied_content_type:HTTPField.ContentType = middleware.appliesContentType {
+                if let applied_content_type:HTTPMediaType = middleware.appliesContentType {
                     contentType = applied_content_type
                 }
                 for (header, value) in middleware.appliesHeaders {
@@ -69,7 +69,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         if let status:HTTPResponse.Status = status {
             status_string = ".\(status.caseName!)"
         }
-        return "DynamicRoute(async: \(isAsync), method: .\(method.caseName!), path: \(path), status: \(status_string), contentType: .\(contentType.caseName), handler: \(handlerLogic), handlerAsync: \(handlerLogicAsync))"
+        return "DynamicRoute(async: \(isAsync), method: .\(method.caseName!), path: \(path), status: \(status_string), contentType: \(contentType.debugDescription), handler: \(handlerLogic), handlerAsync: \(handlerLogicAsync))"
     }
 }
 
@@ -79,7 +79,7 @@ public extension DynamicRoute {
         var method_string:String = ".get"
         var path:[PathComponent] = []
         var status:HTTPResponse.Status = .notImplemented
-        var content_type:HTTPField.ContentType = .txt
+        var content_type:HTTPMediaType = HTTPMediaType.Text.plain
         var handler:String = "nil", handlerAsync:String = "nil"
         var parameters:[String:String] = [:]
         for argument in function.arguments {
@@ -102,9 +102,9 @@ public extension DynamicRoute {
                     break
                 case "contentType":
                     if let member:String = argument.expression.memberAccess?.declName.baseName.text {
-                        content_type = HTTPField.ContentType.init(rawValue: member)
+                        content_type = HTTPMediaType.parse(member) ?? HTTPMediaType(rawValue: member, caseName: member, debugDescription: member)
                     } else {
-                        content_type = .custom(argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
+                        content_type = HTTPMediaType(rawValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string, caseName: "", debugDescription: "")
                     }
                     break
                 case "handler":
@@ -124,7 +124,7 @@ public extension DynamicRoute {
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     status = applied_status
                 }
-                if let applied_content_type:HTTPField.ContentType = middleware.appliesContentType {
+                if let applied_content_type:HTTPMediaType = middleware.appliesContentType {
                     content_type = applied_content_type
                 }
                 for (header, value) in middleware.appliesHeaders {

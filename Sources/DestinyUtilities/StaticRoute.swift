@@ -17,7 +17,7 @@ public struct StaticRoute : StaticRouteProtocol {
     public let method:HTTPRequest.Method
     public let path:[String]
     public var status:HTTPResponse.Status?
-    public var contentType:HTTPField.ContentType
+    public var contentType:HTTPMediaType
     public let charset:String?
     public let result:RouteResult
 
@@ -26,7 +26,7 @@ public struct StaticRoute : StaticRouteProtocol {
         method: HTTPRequest.Method,
         path: [String],
         status: HTTPResponse.Status? = nil,
-        contentType: HTTPField.ContentType,
+        contentType: HTTPMediaType,
         charset: String? = nil,
         result: RouteResult
     ) {
@@ -42,7 +42,7 @@ public struct StaticRoute : StaticRouteProtocol {
     public func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String {
         let result_string:String = try result.string()
         var response_status:HTTPResponse.Status = status ?? .notImplemented
-        var content_type:HTTPField.ContentType = contentType
+        var content_type:HTTPMediaType = contentType
         var headers:[String:String] = [:]
         
         for middleware in middleware {
@@ -50,7 +50,7 @@ public struct StaticRoute : StaticRouteProtocol {
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     response_status = applied_status
                 }
-                if let applies_content_type:HTTPField.ContentType = middleware.appliesContentType {
+                if let applies_content_type:HTTPMediaType = middleware.appliesContentType {
                     content_type = applies_content_type
                 }
                 for (header, value) in middleware.appliesHeaders {
@@ -81,7 +81,7 @@ public extension StaticRoute {
         var method:HTTPRequest.Method = .get
         var path:[String] = []
         var status:HTTPResponse.Status? = nil
-        var contentType:HTTPField.ContentType = .txt, charset:String? = nil
+        var contentType:HTTPMediaType = HTTPMediaType.Text.plain, charset:String? = nil
         var result:RouteResult = .string("")
         for argument in function.arguments {
             let key:String = argument.label!.text
@@ -102,9 +102,9 @@ public extension StaticRoute {
                     break
                 case "contentType":
                     if let member:String = argument.expression.memberAccess?.declName.baseName.text {
-                        contentType = HTTPField.ContentType(rawValue: member)
+                        contentType = HTTPMediaType.parse(member) ?? HTTPMediaType(rawValue: member, caseName: member, debugDescription: member)
                     } else {
-                        contentType = .custom(argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
+                        contentType = HTTPMediaType(rawValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string, caseName: "", debugDescription: "")
                     }
                     break
                 case "charset":

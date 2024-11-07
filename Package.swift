@@ -26,9 +26,19 @@ let package = Package(
         .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1")
     ],
     targets: [
+        .macro(
+            name: "DestinyUtilityMacros",
+            dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                .product(name: "SwiftDiagnostics", package: "swift-syntax")
+            ]
+        ),
         .target(
             name: "DestinyUtilities",
             dependencies: [
+                "DestinyUtilityMacros",
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
@@ -47,6 +57,7 @@ let package = Package(
         .macro(
             name: "DestinyMacros",
             dependencies: [
+                "DestinyUtilityMacros",
                 "DestinyUtilities",
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),

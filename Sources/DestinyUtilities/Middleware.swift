@@ -44,18 +44,18 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var handlesStatuses : Set<HTTPResponse.Status>? { get }
     /// What static & dynamic route content types this middleware handles at compile time.
     /// - Warning: `nil` makes it handle all content types.
-    var handlesContentTypes : Set<HTTPField.ContentType>? { get }
+    var handlesContentTypes : Set<HTTPMediaType>? { get }
 
     /// What response status this middleware applies to static & dynamic routes at compile time.
     var appliesStatus : HTTPResponse.Status? { get }
     /// What content type this middleware applies to static & dynamic routes at compile time.
-    var appliesContentType : HTTPField.ContentType? { get }
+    var appliesContentType : HTTPMediaType? { get }
     /// What response headers this middleware applies to static & dynamic routes at compile time.
     var appliesHeaders : [String:String] { get }
 }
 public extension StaticMiddlewareProtocol {
     @inlinable
-    func handles(method: HTTPRequest.Method, contentType: HTTPField.ContentType, status: HTTPResponse.Status) -> Bool {
+    func handles(method: HTTPRequest.Method, contentType: HTTPMediaType, status: HTTPResponse.Status) -> Bool {
         return (handlesMethods == nil || handlesMethods!.contains(method))
             && (handlesContentTypes == nil || handlesContentTypes!.contains(contentType))
             && (handlesStatuses == nil || handlesStatuses!.contains(status))

@@ -9,6 +9,20 @@ import Foundation
 import HTTPTypes
 import SwiftSyntax
 
+@attached(member, names: arbitrary)
+macro HTTPFieldContentTypes(
+    application: [String:String],
+    audio: [String:String],
+    font: [String:String],
+    haptics: [String:String],
+    image: [String:String],
+    message: [String:String],
+    model: [String:String],
+    multipart: [String:String],
+    text: [String:String],
+    video: [String:String]
+) = #externalMacro(module: "DestinyUtilityMacros", type: "HTTPFieldContentTypes")
+
 @inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
 
 public typealias DestinyRoutePathType = StackString32
@@ -37,7 +51,8 @@ public struct Request : ~Copyable {
 }
 
 // MARK: SwiftSyntax Misc
-extension SyntaxProtocol {
+package extension SyntaxProtocol {
+    var macroExpansion : MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
     var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
     var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
     var booleanLiteral : BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
@@ -46,6 +61,6 @@ extension SyntaxProtocol {
     var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
 }
 
-extension StringLiteralExprSyntax {
+package extension StringLiteralExprSyntax {
     var string : String { "\(segments)" }
 }

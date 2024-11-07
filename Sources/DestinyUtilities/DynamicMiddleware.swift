@@ -12,7 +12,7 @@ import SwiftSyntax
 public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     public static let defaultOnError:@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol, _ error: Error) -> Void = { request, response, error in
         response.status = .internalServerError
-        response.headers[HTTPField.Name.contentType.rawName] = HTTPField.ContentType.json.rawValue
+        response.headers[HTTPField.Name.contentType.rawName] = HTTPMediaType.Application.json.rawValue
         response.result = .string("{\"error\":true,\"reason\":\"\(error)\"}")
     }
 

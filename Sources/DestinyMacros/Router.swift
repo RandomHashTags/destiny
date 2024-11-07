@@ -120,20 +120,6 @@ private extension Router {
     }
 }
 
-// MARK: Misc
-extension SyntaxProtocol {
-    var macroExpansion : MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
-    var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
-    var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
-    var memberAccess : MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
-    var array : ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
-    var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
-}
-
-extension StringLiteralExprSyntax {
-    var string : String { "\(segments)" }
-}
-
 protocol Restructurable {
     /// The macro arguments to decode at compile time.
     static var variables : Set<String> { get }
