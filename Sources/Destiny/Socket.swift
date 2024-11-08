@@ -62,10 +62,10 @@ public extension Socket {
 
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
-    func readLineSIMD2<T : SIMD>() throws -> (T, Int) where T.Scalar == UInt8 { // read just the method, path & http version
+    func readLineSIMD2<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 { // read just the method, path & http version
         var string:T = T()
         let read:Int = try withUnsafeMutableBytes(of: &string) { p in
-            return try readSIMDBuffer(into: p.baseAddress!, length: T.scalarCount)
+            return try readSIMDBuffer(into: p.baseAddress!, length: length)
         }
         return (string, read)
     }
@@ -76,7 +76,7 @@ public extension Socket {
         var head_count:Int = 0
         var token:DestinyRoutePathType = .init()
         while true {
-            let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD2()
+            let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD2(length: 64)
             if head_count == 0 {
                 token = line.lowHalf
             }
@@ -160,15 +160,12 @@ public extension Socket {
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
-        var bytes_read:Int = 0
         if Task.isCancelled { return 0 }
-        let to_read:Int = min(Self.bufferLength, length - bytes_read)
-        let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, 0)
+        let read_bytes:Int = recv(fileDescriptor, baseAddress, length, 0)
         if read_bytes < 0 { // error
             throw SocketError.readBufferFailed()
         }
-        bytes_read += read_bytes
-        return bytes_read
+        return read_bytes
     }
 }
 
