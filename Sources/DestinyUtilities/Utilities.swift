@@ -29,27 +29,36 @@ public typealias DestinyRoutePathType = StackString32
 
 // MARK: Request
 public struct Request : ~Copyable {
-    public let token:DestinyRoutePathType
-    public let method:HTTPRequest.Method
-    public let path:[String]
-    public let version:String
-    public let headers:[String:String]
-    public let body:String
+    public let startLine:DestinyRoutePathType
+    public let methodSIMD:StackString8
+    public let uri:DestinyRoutePathType
+    public let version:HTTPVersion
+    //public let headers:[String:String]
+    //public let headers:[StackString64:String]
+    //public let body:String
+
+    public lazy var method : HTTPRequest.Method? = {
+        return HTTPRequest.Method.parse(methodSIMD)
+    }()
+    public lazy var path : [String] = {
+        return uri.splitSIMD(separator: 47).map({ $0.string() })
+    }()
 
     public init(
-        token: DestinyRoutePathType,
-        method: HTTPRequest.Method,
-        path: [String],
-        version: String,
-        headers: [String:String],
-        body: String
+        tokens: [SIMD64<UInt8>]
     ) {
-        self.token = token
-        self.method = method
-        self.path = path
-        self.version = version
-        self.headers = headers
-        self.body = body
+        var startLine:SIMD64<UInt8> = tokens[0]
+        let values:[SIMD64<UInt8>] = startLine.splitSIMD(separator: 32) // space
+        let first_back_slash_index:Int = startLine.leadingNonByteCount(byte: 13) // \r
+        startLine.keep(first_back_slash_index)
+        self.startLine = startLine.lowHalf
+        methodSIMD = values[0].lowHalf.lowHalf.lowHalf
+        uri = values[1].lowHalf
+        version = HTTPVersion(values[2].lowHalf)
+    }
+
+    public var description : String {
+        return startLine.string() + " (" + methodSIMD.string() + "; " + uri.string() + ";" + version.token.string() + ")"
     }
 }
 

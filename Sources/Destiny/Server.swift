@@ -147,44 +147,40 @@ enum ClientProcessing {
             shutdown(client, 2) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
-        //let request:Request = try client_socket.loadRequest()
-        let token:DestinyRoutePathType = try client_socket.readLineSIMD()
-        if let responder:StaticRouteResponseProtocol = static_responses[token] {
+        var request:Request = try client_socket.loadRequest()
+        if let responder:StaticRouteResponseProtocol = static_responses[request.startLine] {
             if responder.isAsync {
                 try await responder.respondAsync(to: client_socket)
             } else {
                 try responder.respond(to: client_socket)
             }
-        } else if let (start_line, route):(HTTPStartLine, DynamicRouteResponseProtocol) = dynamic_responses[token] {
-            let headers:[String:String] = try client_socket.readHeaders()
-            let request:Request = Request(token: token, method: start_line.method, path: start_line.path, version: start_line.version, headers: headers, body: "")
-
-            var response:DynamicResponseProtocol = route.defaultResponse
-            for index in route.parameterPathIndexes {
-                response.parameters[route.path[index].value] = start_line.path[index]
+        } else if let responder:DynamicRouteResponseProtocol = dynamic_responses.responder(for: &request) {
+            var response:DynamicResponseProtocol = responder.defaultResponse
+            for index in responder.parameterPathIndexes {
+                response.parameters[responder.path[index].value] = request.path[index]
             }
             for middleware in dynamic_middleware {
-                if middleware.shouldHandle(request: request, response: response) {
+                if middleware.shouldHandle(request: &request, response: response) {
                     do {
                         if middleware.isAsync {
-                            try await middleware.handleAsync(request: request, response: &response)
+                            try await middleware.handleAsync(request: &request, response: &response)
                         } else {
-                            try middleware.handle(request: request, response: &response)
+                            try middleware.handle(request: &request, response: &response)
                         }
                     } catch {
                         if middleware.isAsync {
-                            await middleware.onErrorAsync(request: request, response: &response, error: error)
+                            await middleware.onErrorAsync(request: &request, response: &response, error: error)
                         } else {
-                            middleware.onError(request: request, response: &response, error: error)
+                            middleware.onError(request: &request, response: &response, error: error)
                         }
                         break
                     }
                 }
             }
-            if route.isAsync {
-                try await route.respondAsync(to: client_socket, request: request, response: &response)
+            if responder.isAsync {
+                try await responder.respondAsync(to: client_socket, request: request, response: &response)
             } else {
-                try route.respond(to: client_socket, request: request, response: &response)
+                try responder.respond(to: client_socket, request: request, response: &response)
             }
         } else {
             var err:Swift.Error? = nil

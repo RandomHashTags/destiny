@@ -34,16 +34,11 @@ public struct DynamicResponses : Sendable {
         }
     }
 
-    public subscript(_ token: DestinyRoutePathType) -> (HTTPStartLine, DynamicRouteResponseProtocol)? {
-        let spaced:[DestinyRoutePathType] = token.splitSIMD(separator: 32) // 32 = space
-        guard let version:String = spaced.get(2)?.string(), let method:HTTPRequest.Method = HTTPRequest.Method.parse(spaced[0].string()) else {
-            return nil
+    public func responder(for request: inout Request) -> DynamicRouteResponseProtocol? {
+        if let responder:DynamicRouteResponseProtocol = parameterless[request.startLine] {
+            return responder
         }
-        let values:[String] = spaced[1].splitSIMD(separator: 47).map({ $0.string() }) // 1 = the target route path; 47 = slash
-        let start_line:HTTPStartLine = HTTPStartLine(method: method, path: values, version: version)
-        if let responder:DynamicRouteResponseProtocol = parameterless[token] {
-            return (start_line, responder)
-        }
+        let values:[String] = request.path
         guard let routes:[DynamicRouteResponseProtocol] = parameterized.get(values.count) else { return nil }
         for route in routes {
             var found:Bool = true
@@ -55,7 +50,7 @@ public struct DynamicResponses : Sendable {
                 }
             }
             if found {
-                return (start_line, route)
+                return route
             }
         }
         return nil

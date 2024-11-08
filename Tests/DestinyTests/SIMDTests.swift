@@ -9,8 +9,8 @@ import DestinyUtilities
 import Testing
 
 struct SIMDTests {
-
-    @Test func simd_leadingNonzeroByteCount() {
+    // MARK: leadingNonzeroByteCount
+    @Test func leadingNonzeroByteCount() {
         var string:String = "siuerbnieprsbgsrgnpeirfnpae"
         var ss32:StackString32 = StackString32(&string)
         #expect(ss32.leadingNonzeroByteCount == 27)
@@ -28,7 +28,19 @@ struct SIMDTests {
         #expect(ss2.leadingNonzeroByteCount == 1)
     }
 
-    @Test func simd_trailingNonzeroByteCount() {
+    // MARK: leadingNonByteCount
+    @Test func leadingNonByteCount() {
+        var string:String = "siuerbnieprsbgsrgnpeirfnpae"
+        var ss32:StackString32 = StackString32(&string)
+        #expect(ss32.leadingNonByteCount(byte: 92) == 32)
+
+        string = "ouerb\\gouwrgoruegbrotugbrotgenrotgurteg"
+        ss32 = StackString32(&string)
+        #expect(ss32.leadingNonByteCount(byte: 92) == 5)
+    }
+
+    // MARK: trailingNonzeroByteCount
+    @Test func trailingNonzeroByteCount() {
         var string:String = "siuerbnieprsbgsrgnpeirfnpae"
         var ss32:StackString32 = StackString32(&string)
         #expect(ss32.trailingNonzeroByteCount == 0)
@@ -46,7 +58,8 @@ struct SIMDTests {
         #expect(ss2.trailingNonzeroByteCount == 0)
     }
 
-    @Test func simd_trailingZeroByteCount() {
+    // MARK: trailingZeroByteCount
+    @Test func trailingZeroByteCount() {
         var string:String = "siuerbnieprsbgsrgnpeirfnpae"
         var ss32:StackString32 = StackString32(&string)
         #expect(ss32.trailingZeroByteCount == 5)
@@ -64,7 +77,8 @@ struct SIMDTests {
         #expect(ss2.trailingZeroByteCount == 1, Comment(rawValue: ss2.string()))
     }
 
-    @Test func simd_hasPrefix() {
+    // MARK: hasPrefix
+    @Test func hasPrefix() {
         var string:String = "testing brother!?!"
         let test:StackString32 = StackString32(&string)
         #expect(test.hasPrefix(SIMD2<UInt8>(x: Character("t").asciiValue!, y: Character("e").asciiValue!)))
@@ -90,7 +104,8 @@ struct SIMDTests {
         )))
     }
 
-    @Test func simd_split() throws {
+    // MARK: split
+    @Test func split() throws {
         var string:String = "GET /dynamic/text HTTP/1.1"
         var ss:StackString32 = StackString32(&string)
         var values:[StackString32] = ss.splitSIMD(separator: 32) // space
@@ -100,7 +115,8 @@ struct SIMDTests {
         #expect(values[2].string() == "HTTP/1.1")
     }
 
-    @Test func simd_split4() throws {
+    // MARK: split4
+    @Test func split4() throws {
         let ss:StackString4 = StackString4(31, 32, 33, 34)
         var values:[StackString4] = ss.split(separator: 32)
 
@@ -126,13 +142,15 @@ struct SIMDTests {
         #expect(values[0] == SIMD4(32, 33, 34, 0))
     }
 
-    @Test func simd_string() {
+    // MARK: string
+    @Test func string() {
         var string:String = "brooooooooo !"
         let ss:StackString64 = StackString64(&string)
         #expect(ss.string() == "brooooooooo !")
     }
 
-    @Test func simd_drop() {
+    // MARK: drop
+    @Test func drop() {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
         var ss64:StackString64 = StackString64(&string)
         ss64.drop(1)
@@ -145,16 +163,35 @@ struct SIMDTests {
         #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034r")
     }
 
-    @Test func simd_keep() {
+    // MARK: keep
+    @Test func keep() {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
         var ss64:StackString64 = StackString64(&string)
         ss64.keep(35)
         #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034rgg3")
+
+        ss64.keep(31)
+        #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034")
 
         ss64.keep(14)
         #expect(ss64.string() == "iuebrgow eg347")
 
         ss64.keep(8)
         #expect(ss64.string() == "iuebrgow")
+
+        ss64.keep(7)
+        #expect(ss64.string() == "iuebrgo")
+
+        ss64.keep(6)
+        #expect(ss64.string() == "iuebrg")
+
+        ss64.keep(5)
+        #expect(ss64.string() == "iuebr")
+
+        ss64.keep(4)
+        #expect(ss64.string() == "iueb")
+
+        ss64.keep(3)
+        #expect(ss64.string() == "iue")
     }
 }

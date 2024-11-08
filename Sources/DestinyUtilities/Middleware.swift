@@ -24,13 +24,13 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
     var isAsync : Bool { get }
     
     /// Whether or not this middleware should handle a request.
-    @inlinable func shouldHandle(request: borrowing Request, response: borrowing DynamicResponseProtocol) -> Bool
+    @inlinable func shouldHandle(request: inout Request, response: borrowing DynamicResponseProtocol) -> Bool
 
-    @inlinable func handle(request: borrowing Request, response: inout DynamicResponseProtocol) throws
-    @inlinable func handleAsync(request: borrowing Request, response: inout DynamicResponseProtocol) async throws
+    @inlinable func handle(request: inout Request, response: inout DynamicResponseProtocol) throws
+    @inlinable func handleAsync(request: inout Request, response: inout DynamicResponseProtocol) async throws
 
-    @inlinable func onError(request: borrowing Request, response: inout DynamicResponseProtocol, error: Error)
-    @inlinable func onErrorAsync(request: borrowing Request, response: inout DynamicResponseProtocol, error: Error) async
+    @inlinable func onError(request: inout Request, response: inout DynamicResponseProtocol, error: Error)
+    @inlinable func onErrorAsync(request: inout Request, response: inout DynamicResponseProtocol, error: Error) async
 }
 
 // MARK: StaticMiddlewareProtocol

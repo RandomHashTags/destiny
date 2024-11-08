@@ -21,9 +21,6 @@ public protocol SocketProtocol : ~Copyable {
 
     @inlinable func loadRequest() throws -> Request
 
-    @inlinable func readLineSIMD<T: SIMD>() throws -> T where T.Scalar == UInt8
-    @inlinable func readHeaders() throws -> [String:String] // TODO: make faster (replace with a SIMD/StackString equivalent)
-
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int) throws -> Int
     /// Writes a buffer to the socket.
     @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws

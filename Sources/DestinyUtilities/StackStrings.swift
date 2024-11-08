@@ -290,8 +290,8 @@ public extension SIMD4 where Scalar : BinaryInteger {
     func leadingNonByteCount(byte: Scalar) -> Int {
         let byte_simd:SIMD2<Scalar> = .init(repeating: byte)
         let all_nonbyte:SIMDMask<SIMD2<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
-        if (highHalf .!= byte_simd) != all_nonbyte { return 2 + highHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonByteCount(byte: byte) }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 2 + highHalf.leadingNonByteCount(byte: byte) }
         return scalarCount
     }
 }
@@ -301,8 +301,8 @@ public extension SIMD8 where Scalar : BinaryInteger {
     func leadingNonByteCount(byte: Scalar) -> Int {
         let byte_simd:SIMD4<Scalar> = .init(repeating: byte)
         let all_nonbyte:SIMDMask<SIMD4<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
-        if (highHalf .!= byte_simd) != all_nonbyte { return 4 + highHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonByteCount(byte: byte) }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 4 + highHalf.leadingNonByteCount(byte: byte) }
         return scalarCount
     }
 }
@@ -312,8 +312,8 @@ public extension SIMD16 where Scalar : BinaryInteger {
     func leadingNonByteCount(byte: Scalar) -> Int {
         let byte_simd:SIMD8<Scalar> = .init(repeating: byte)
         let all_nonbyte:SIMDMask<SIMD8<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
-        if (highHalf .!= byte_simd) != all_nonbyte { return 8 + highHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonByteCount(byte: byte) }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 8 + highHalf.leadingNonByteCount(byte: byte) }
         return scalarCount
     }
 }
@@ -323,8 +323,8 @@ public extension SIMD32 where Scalar : BinaryInteger {
     func leadingNonByteCount(byte: Scalar) -> Int {
         let byte_simd:SIMD16<Scalar> = .init(repeating: byte)
         let all_nonbyte:SIMDMask<SIMD16<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
-        if (highHalf .!= byte_simd) != all_nonbyte { return 16 + highHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonByteCount(byte: byte) }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 16 + highHalf.leadingNonByteCount(byte: byte) }
         return scalarCount
     }
 }
@@ -334,8 +334,8 @@ public extension SIMD64 where Scalar : BinaryInteger {
     func leadingNonByteCount(byte: Scalar) -> Int {
         let byte_simd:SIMD32<Scalar> = .init(repeating: byte)
         let all_nonbyte:SIMDMask<SIMD32<Scalar.SIMDMaskScalar>> = .init(repeating: true)
-        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonzeroByteCount }
-        if (highHalf .!= byte_simd) != all_nonbyte { return 32 + highHalf.leadingNonzeroByteCount }
+        if (lowHalf  .!= byte_simd) != all_nonbyte { return lowHalf.leadingNonByteCount(byte: byte) }
+        if (highHalf .!= byte_simd) != all_nonbyte { return 32 + highHalf.leadingNonByteCount(byte: byte) }
         return scalarCount
     }
 }
@@ -739,9 +739,9 @@ public extension SIMD64 where Scalar : BinaryInteger {
 public extension SIMD2 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
-    /// - Complexity: O(1)
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
+    /// - Complexity: O(1)
     @inlinable
     mutating func keep(_ length: Int) {
         switch length {
@@ -759,9 +759,9 @@ public extension SIMD2 where Scalar : BinaryInteger {
 public extension SIMD4 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
-    /// - Complexity: O(1)
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
+    /// - Complexity: O(1)
     @inlinable
     mutating func keep(_ length: Int) {
         switch length {
@@ -787,9 +787,9 @@ public extension SIMD4 where Scalar : BinaryInteger {
 public extension SIMD8 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
-    /// - Complexity: O(1)
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
+    /// - Complexity: O(1)
     @inlinable
     mutating func keep(_ length: Int) {
         switch length {
@@ -811,9 +811,9 @@ public extension SIMD8 where Scalar : BinaryInteger {
 public extension SIMD16 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
-    /// - Complexity: O(1)
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
+    /// - Complexity: O(1)
     @inlinable
     mutating func keep(_ length: Int) {
         switch length {
@@ -835,9 +835,9 @@ public extension SIMD16 where Scalar : BinaryInteger {
 public extension SIMD32 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
-    /// - Complexity: O(1)
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
+    /// - Complexity: O(1)
     @inlinable
     mutating func keep(_ length: Int) {
         switch length {
@@ -859,9 +859,9 @@ public extension SIMD32 where Scalar : BinaryInteger {
 public extension SIMD64 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
-    /// - Complexity: O(1)
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
+    /// - Complexity: O(1)
     @inlinable
     mutating func keep(_ length: Int) {
         switch length {

@@ -31,28 +31,15 @@ public extension Socket {
         return result
     }
 
-    /// Reads multiple bytes and loads them into a SIMD vector.
-    @inlinable
-    func readBytesSIMD<T: SIMD>() throws -> T {
-        var result:T = T()
-        try withUnsafeMutablePointer(to: &result, { p in
-            let bytes_read:Int = recv(fileDescriptor, p, T.scalarCount, 0)
-            if bytes_read < 0 {
-                throw SocketError.readSingleByteFailed()
-            }
-        })
-        return result
-    }
-
     @inlinable
     func readLine() throws -> String {
         var line:String = ""
         var index:UInt8 = 0
         while true {
             index = try self.readByte()
-            if index == 10 {
+            if index == 10 { // line feed (\n)
                 break
-            } else if index == 13 {
+            } else if index == 13 { // carriage return (\r)
                 continue
             }
             line.append(Character(UnicodeScalar(index)))
@@ -73,34 +60,17 @@ public extension Socket {
     func loadRequest() throws -> Request {
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(10) // maximum of 640 bytes; decent starting point
-        var head_count:Int = 0
-        var token:DestinyRoutePathType = .init()
         while true {
             let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD2(length: 64)
-            if head_count == 0 {
-                token = line.lowHalf
-            }
             if read == 0 {
                 break
             }
             test.append(line)
-            head_count += read
             if read < 64 {
                 break
             }
         }
-        print("test strings=\(test.map({ $0.string() }))")
-        return Request(token: token, method: .get, path: ["dynamic", "rekt"], version: "HTTP/1.1", headers: [:], body: "")
-    }
-
-    /// Reads `scalarCount` characters and loads them into the target SIMD.
-    @inlinable
-    func readLineSIMD<T : SIMD>() throws -> T where T.Scalar == UInt8 { // read just the method, path & http version
-        var string:T = T()
-        let _:Int = try withUnsafeMutableBytes(of: &string) { p in
-            return try readBuffer(into: p.baseAddress!, length: T.scalarCount)
-        }
-        return string
+        return Request(tokens: test)
     }
 
     @inlinable
