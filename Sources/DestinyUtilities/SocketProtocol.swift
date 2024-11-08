@@ -19,7 +19,9 @@ public protocol SocketProtocol : ~Copyable {
 
     init(fileDescriptor: Int32)
 
-    @inlinable func readLineSIMD<T: SIMD>() throws -> T where T.Scalar: BinaryInteger
+    @inlinable func loadRequest() throws -> Request
+
+    @inlinable func readLineSIMD<T: SIMD>() throws -> T where T.Scalar == UInt8
     @inlinable func readHeaders() throws -> [String:String] // TODO: make faster (replace with a SIMD/StackString equivalent)
 
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int) throws -> Int

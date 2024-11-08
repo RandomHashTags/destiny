@@ -82,7 +82,7 @@ public extension DynamicRoute {
                     method_string = argument.expression.memberAccess!.declName.baseName.text.uppercased()
                     break
                 case "path":
-                    path = argument.expression.array!.elements.map({ PathComponent.parse($0.expression) })
+                    path = argument.expression.array!.elements.map({ PathComponent(expression: $0.expression) })
                     for component in path.filter({ $0.isParameter }) {
                         parameters[component.value] = ""
                     }

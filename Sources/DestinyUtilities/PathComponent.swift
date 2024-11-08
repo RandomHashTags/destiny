@@ -7,6 +7,7 @@
 
 import SwiftSyntax
 
+/// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 public enum PathComponent : Sendable, CustomStringConvertible, ExpressibleByStringLiteral {
     public typealias StringLiteralType = String
     public typealias ExtendedGraphemeClusterLiteralType = String
@@ -15,16 +16,20 @@ public enum PathComponent : Sendable, CustomStringConvertible, ExpressibleByStri
     case literal(String)
     case parameter(String)
 
+    public init(expression: ExprSyntax) {
+        self = .init(stringLiteral: expression.stringLiteral?.string ?? expression.functionCall!.calledExpression.memberAccess!.declName.baseName.text)
+    }
     public init(stringLiteral value: String) {
         if value.first == ":" {
-            self = .parameter(String(value[value.index(after: value.startIndex)...]))
+            self = .parameter(value[value.index(after: value.startIndex)...].replacingOccurrences(of: ":", with: ""))
         } else {
-            self = .literal(value)
+            self = .literal(value.replacingOccurrences(of: ":", with: ""))
         }
     }
 
     public var description : String { "\"" + slug + "\"" }
 
+    /// Whether or not this component is a parameter.
     public var isParameter : Bool {
         switch self {
             case .literal(_):   return false
@@ -32,6 +37,7 @@ public enum PathComponent : Sendable, CustomStringConvertible, ExpressibleByStri
         }
     }
 
+    /// String representation of this component including the delimiter, if it is a parameter. Used to determine where parameters are located in a route's path at compile time.
     public var slug : String {
         switch self {
             case .literal(let value):   return value
@@ -39,29 +45,11 @@ public enum PathComponent : Sendable, CustomStringConvertible, ExpressibleByStri
         }
     }
 
+    /// String representation of this component where the delimiter is omitted (only the name of the path is present).
     public var value : String {
         switch self {
             case .literal(let value):   return value
             case .parameter(let value): return value
-        }
-    }
-}
-
-public extension PathComponent {
-    static func parse(_ expression: ExprSyntax) -> Self {
-        if var string:String = expression.stringLiteral?.string {
-            let is_parameter:Bool = string[string.startIndex] == ":"
-            string.replace(":", with: "")
-            return is_parameter ? .parameter(string) : .literal(string)
-        } else {
-            let function:FunctionCallExprSyntax = expression.functionCall!
-            let target:String = function.calledExpression.memberAccess!.declName.baseName.text
-            let value:String = function.arguments.first!.expression.stringLiteral!.string.replacing(":", with: "")
-            switch target {
-                case "literal": return .literal(value)
-                case "parameter": return .parameter(value)
-                default: return .literal(value)
-            }
         }
     }
 }

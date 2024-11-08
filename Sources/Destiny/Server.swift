@@ -147,6 +147,7 @@ enum ClientProcessing {
             shutdown(client, 2) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
+        //let request:Request = try client_socket.loadRequest()
         let token:DestinyRoutePathType = try client_socket.readLineSIMD()
         if let responder:StaticRouteResponseProtocol = static_responses[token] {
             if responder.isAsync {
@@ -156,7 +157,7 @@ enum ClientProcessing {
             }
         } else if let (start_line, route):(HTTPStartLine, DynamicRouteResponseProtocol) = dynamic_responses[token] {
             let headers:[String:String] = try client_socket.readHeaders()
-            let request:Request = Request(method: start_line.method, path: start_line.path, version: start_line.version, headers: headers, body: "")
+            let request:Request = Request(token: token, method: start_line.method, path: start_line.path, version: start_line.version, headers: headers, body: "")
 
             var response:DynamicResponseProtocol = route.defaultResponse
             for index in route.parameterPathIndexes {

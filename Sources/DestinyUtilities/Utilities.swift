@@ -29,6 +29,7 @@ public typealias DestinyRoutePathType = StackString32
 
 // MARK: Request
 public struct Request : ~Copyable {
+    public let token:DestinyRoutePathType
     public let method:HTTPRequest.Method
     public let path:[String]
     public let version:String
@@ -36,12 +37,14 @@ public struct Request : ~Copyable {
     public let body:String
 
     public init(
+        token: DestinyRoutePathType,
         method: HTTPRequest.Method,
         path: [String],
         version: String,
         headers: [String:String],
         body: String
     ) {
+        self.token = token
         self.method = method
         self.path = path
         self.version = version

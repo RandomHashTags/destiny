@@ -40,8 +40,9 @@ public struct DynamicResponses : Sendable {
             return nil
         }
         let values:[String] = spaced[1].splitSIMD(separator: 47).map({ $0.string() }) // 1 = the target route path; 47 = slash
+        let start_line:HTTPStartLine = HTTPStartLine(method: method, path: values, version: version)
         if let responder:DynamicRouteResponseProtocol = parameterless[token] {
-            return (HTTPStartLine(method: method, path: values, version: version), responder)
+            return (start_line, responder)
         }
         guard let routes:[DynamicRouteResponseProtocol] = parameterized.get(values.count) else { return nil }
         for route in routes {
@@ -54,7 +55,7 @@ public struct DynamicResponses : Sendable {
                 }
             }
             if found {
-                return (HTTPStartLine(method: method, path: values, version: version), route)
+                return (start_line, route)
             }
         }
         return nil

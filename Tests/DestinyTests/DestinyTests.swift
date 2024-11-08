@@ -28,6 +28,40 @@ struct DestinyTests {
         ss2 = StackString2(&string)
         #expect(ss2.leadingNonzeroByteCount == 1)
     }
+    @Test func simd_trailingNonzeroByteCount() {
+        var string:String = "siuerbnieprsbgsrgnpeirfnpae"
+        var ss32:StackString32 = StackString32(&string)
+        #expect(ss32.trailingNonzeroByteCount == 0)
+
+        string = "ouerbgouwrgoruegbrotugbtg\0enrotg"
+        ss32 = StackString32(&string)
+        #expect(ss32.trailingNonzeroByteCount == 6)
+
+        string = ""
+        var ss2:StackString2 = StackString2(&string)
+        #expect(ss2.trailingNonzeroByteCount == 0)
+
+        string = "a"
+        ss2 = StackString2(&string)
+        #expect(ss2.trailingNonzeroByteCount == 0)
+    }
+    @Test func simd_trailingZeroByteCount() {
+        var string:String = "siuerbnieprsbgsrgnpeirfnpae"
+        var ss32:StackString32 = StackString32(&string)
+        #expect(ss32.trailingZeroByteCount == 5)
+
+        string = "ouerbgouwrgoruegbrotugbtg\0enrotg"
+        ss32 = StackString32(&string)
+        #expect(ss32.trailingZeroByteCount == 0)
+
+        string = ""
+        var ss2:StackString2 = StackString2(&string)
+        #expect(ss2.trailingZeroByteCount == 2, Comment(rawValue: ss2.string()))
+
+        string = "a"
+        ss2 = StackString2(&string)
+        #expect(ss2.trailingZeroByteCount == 1, Comment(rawValue: ss2.string()))
+    }
     @Test func simd_hasPrefix() {
         var string:String = "testing brother!?!"
         let test:StackString32 = StackString32(&string)
@@ -93,55 +127,39 @@ struct DestinyTests {
         #expect(ss.string() == "brooooooooo !")
     }
     @Test func example() {
-        let static_string_router:Router = #router(
+        let _:Router = #router(
             version: "HTTP/2.0",
             middleware: [
-                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaType.Text.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             StaticRoute(
                 method: .get,
-                path: ["test"],
-                contentType: .html,
+                path: ["test1"],
+                contentType: HTTPMediaType.Text.html,
                 charset: "UTF-8",
                 result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
-            )
-        )
-        let static_string_router2:Router = #router(
-            version: "HTTP/2.0",
-            middleware: [
-                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
-            ],
+            ),
             StaticRoute(
                 method: .get,
-                path: ["test"],
+                path: ["test2"],
                 status: .movedPermanently,
-                contentType: .html,
+                contentType: HTTPMediaType.Text.html,
                 charset: "UTF-8",
                 result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
-            )
-        )
-        let uint8Array_router:Router = #router(
-            version: "HTTP/2.0",
-            middleware: [
-                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
-            ],
+            ),
             StaticRoute(
+                returnType: .uint8Array,
                 method: .get,
-                path: ["test"],
-                contentType: .html,
+                path: ["test3"],
+                contentType: HTTPMediaType.Text.html,
                 charset: "UTF-8",
                 result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
-            )
-        )
-        let uint16Array_router:Router = #router(
-            version: "HTTP/2.0",
-            middleware: [
-                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
-            ],
+            ),
             StaticRoute(
+                returnType: .uint16Array,
                 method: .get,
                 path: ["test"],
-                contentType: .html,
+                contentType: HTTPMediaType.Text.html,
                 charset: "UTF-8",
                 result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             )
