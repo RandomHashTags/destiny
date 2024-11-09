@@ -18,7 +18,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
     /// The maximum amount of pending connections this Server will accept at a time.
     /// This value is capped at the system's limit (`ulimit -n`).
     public var maxPendingConnections:Int32
-    public var router:Router
+    public var router:RouterProtocol
     public let logger:Logger
     public let onLoad:(() -> Void)?
     public let onShutdown:(() -> Void)?
@@ -27,7 +27,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
         address: String? = nil,
         port: in_port_t,
         maxPendingConnections: Int32 = SOMAXCONN,
-        router: Router,
+        router: RouterProtocol,
         logger: Logger,
         onLoad: (() -> Void)? = nil,
         onShutdown: (() -> Void)? = nil
@@ -85,9 +85,6 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
             close(serverFD)
             throw ServerError.listenFailed()
         }
-        let static_responses:[DestinyRoutePathType:StaticRouteResponseProtocol] = router.staticResponses
-        let dynamic_responses:DynamicResponses = router.dynamicResponses
-        let dynamic_middleware:[DynamicMiddlewareProtocol] = router.dynamicMiddleware
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         let on_shutdown:(() -> Void)? = onShutdown
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
@@ -103,9 +100,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
                                 try await ClientProcessing.process_client(
                                     client: client,
                                     client_socket: T(fileDescriptor: client),
-                                    static_responses: static_responses,
-                                    dynamic_responses: dynamic_responses,
-                                    dynamic_middleware: dynamic_middleware,
+                                    router: self.router,
                                     not_found_response: not_found_response
                                 )
                             } catch {
@@ -138,9 +133,7 @@ enum ClientProcessing {
     static func process_client<T: SocketProtocol & ~Copyable>(
         client: Int32,
         client_socket: consuming T,
-        static_responses: [DestinyRoutePathType:StaticRouteResponseProtocol],
-        dynamic_responses: DynamicResponses,
-        dynamic_middleware: [DynamicMiddlewareProtocol],
+        router: borrowing RouterProtocol,
         not_found_response: StaticString
     ) async throws {
         defer {
@@ -148,18 +141,18 @@ enum ClientProcessing {
             close(client)
         }
         var request:Request = try client_socket.loadRequest()
-        if let responder:StaticRouteResponseProtocol = static_responses[request.startLine] {
+        if let responder:StaticRouteResponseProtocol = router.staticResponder(for: request.startLine) {
             if responder.isAsync {
                 try await responder.respondAsync(to: client_socket)
             } else {
                 try responder.respond(to: client_socket)
             }
-        } else if let responder:DynamicRouteResponseProtocol = dynamic_responses.responder(for: &request) {
+        } else if let responder:DynamicRouteResponseProtocol = router.dynamicResponder(for: &request) {
             var response:DynamicResponseProtocol = responder.defaultResponse
             for index in responder.parameterPathIndexes {
                 response.parameters[responder.path[index].value] = request.path[index]
             }
-            for middleware in dynamic_middleware {
+            for middleware in router.dynamicMiddleware {
                 if middleware.shouldHandle(request: &request, response: response) {
                     do {
                         if middleware.isAsync {

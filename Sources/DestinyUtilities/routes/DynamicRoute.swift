@@ -9,7 +9,7 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile, is modified upon requests.
+/// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public let isAsync:Bool
     public let method:HTTPRequest.Method

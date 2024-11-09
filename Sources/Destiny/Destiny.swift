@@ -21,7 +21,7 @@ public macro router(
     version: String,
     middleware: [any MiddlewareProtocol],
     _ routes: RouteProtocol...
-) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
+) -> RouterProtocol = #externalMacro(module: "DestinyMacros", type: "Router")
 
 // MARK: Application
 public struct Application : Service {
