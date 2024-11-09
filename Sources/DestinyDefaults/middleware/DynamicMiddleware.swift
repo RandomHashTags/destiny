@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 10/31/24.
 //
 
+import DestinyUtilities
 import HTTPTypes
 import SwiftSyntax
 
@@ -66,7 +67,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 }
 
 public extension DynamicMiddleware {
-    static func parse(_ function: FunctionCallExprSyntax) -> DynamicMiddleware {
+    static func parse(_ function: FunctionCallExprSyntax) -> Self {
         var async:Bool = false
         var shouldHandleLogic:String = "{ _, _ in false }"
         var handleLogic:String = "nil"

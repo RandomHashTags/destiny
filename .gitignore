@@ -7,6 +7,9 @@ DerivedData
 .netrc
 .vscode
 Package.resolved
+StaticMiddleware.d
+StaticMiddleware.o
+StaticMiddleware.swiftdeps*
 DynamicMiddleware.d
 DynamicMiddleware.o
 DynamicMiddleware.swiftdeps*

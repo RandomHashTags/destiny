@@ -28,14 +28,14 @@ public protocol DynamicRouteProtocol : RouteProtocol {
 
     /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponseProtocol`. Computed at compile time.
     /// 
-    /// Loads the route responder in a `Router`'s dynamic route responses.
+    /// Loads the route responder in a `RouterProtocol`'s dynamic route responses.
     /// - Parameters:
     ///   - logic: The string representation of the synchronous/asynchronous handler logic this route uses.
     func responder(logic: String) -> String
 
     /// Applies static middleware to this route.
     /// 
-    /// Specifically used when adding dynamic routes to a `Router` after the server has already started.
+    /// Specifically used when adding dynamic routes to a `RouterProtocol` after the server has already started.
     /// 
     /// If `contentType == nil`, it gets set to `notImplemented` before this function is called.
     /// - Parameters:
@@ -46,8 +46,8 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// - Warning: You need to assign `handlerLogic` or `handlerLogicAsync` properly.
     /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
-    ///   - version: The HTTP version associated with the `Router`.
-    ///   - middleware: The static middleware the associated `Router` uses.
+    ///   - version: The HTTP version associated with the `RouterProtocol`.
+    ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
     static func parse(context: some MacroExpansionContext, version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
 }

@@ -6,7 +6,7 @@
 //
 
 /// The core Router protocol that powers how Destiny handles middleware and routes.
-public protocol RouterProtocol : Sendable {
+public protocol RouterProtocol : Sendable, ~Copyable {
 
     /// All the dynamic middleware that is registered to this router. Ordered in descending order of importance.
     var dynamicMiddleware : [DynamicMiddlewareProtocol] { get }

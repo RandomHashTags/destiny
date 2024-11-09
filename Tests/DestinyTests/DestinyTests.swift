@@ -6,7 +6,6 @@
 //
 
 import Destiny
-import DestinyUtilities
 import HTTPTypes
 import Testing
 

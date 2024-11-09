@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+import DestinyUtilities
 import HTTPTypes
 
 public struct DynamicResponses : Sendable {
@@ -39,18 +40,18 @@ public struct DynamicResponses : Sendable {
             return responder
         }
         let values:[String] = request.path
-        guard let routes:[DynamicRouteResponseProtocol] = parameterized.get(values.count) else { return nil }
-        for route in routes {
+        guard let responders:[DynamicRouteResponseProtocol] = parameterized.get(values.count) else { return nil }
+        for responder in responders {
             var found:Bool = true
             for i in 0..<values.count {
-                let path:PathComponent = route.path[i]
+                let path:PathComponent = responder.path[i]
                 if !path.isParameter && path.value != values[i] {
                     found = false
                     break
                 }
             }
             if found {
-                return route
+                return responder
             }
         }
         return nil

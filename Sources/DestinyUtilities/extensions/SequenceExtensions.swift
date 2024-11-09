@@ -6,7 +6,7 @@
 //
 
 // MARK: Array
-extension Array {
+package extension Array {
     func get(_ index: Int) -> Element? {
         return index < count ? self[index] : nil
     }

@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 11/7/24.
 //
 
+import DestinyUtilities
 import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros

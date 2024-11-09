@@ -5,7 +5,8 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-import DestinyUtilities
+@_exported import DestinyDefaults
+@_exported import DestinyUtilities
 import HTTPTypes
 import Logging
 import ServiceLifecycle
@@ -15,13 +16,13 @@ import ServiceLifecycle
 /// - Parameters:
 ///   - version: The HTTP version this router responds to.
 ///   - middleware: The middleware this router contains. All middlware is handled in the order they are declared (Put your most important middleware first).
-///   - routes: The routes that this router contains. All routes are subject to this route's middleware.
+///   - routes: The routes that this router contains. All routes are subject to this router's middleware.
 @freestanding(expression)
 public macro router(
     version: String,
     middleware: [any MiddlewareProtocol],
     _ routes: RouteProtocol...
-) -> RouterProtocol = #externalMacro(module: "DestinyMacros", type: "Router")
+) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
 
 // MARK: Application
 public struct Application : Service {

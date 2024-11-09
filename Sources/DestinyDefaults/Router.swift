@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+import DestinyUtilities
 import HTTPTypes
 
 /// The default Router implementation that powers how Destiny handles middleware and routes.

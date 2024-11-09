@@ -24,8 +24,8 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// The HTTP Response of this route. Computed at compile time.
     /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
-    ///   - version: The HTTP version associated with the `Router`.
-    ///   - middleware: The static middleware the associated `Router` uses.
+    ///   - version: The HTTP version associated with the `RouterProtocol`.
+    ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     /// - Throws: any error; if thrown: a compile error is thrown describing the issue.
     /// - Returns: a string representing a complete HTTP Response.
     func response(version: String, middleware: [StaticMiddlewareProtocol]) throws -> String
@@ -34,8 +34,8 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// 
     /// Specifically used when registering this route after the server has already started.
     /// - Parameters:
-    ///   - version: The HTTP version associated with the `Router`.
-    ///   - middleware: The static middleware the associated `Router` uses.
+    ///   - version: The HTTP version associated with the `RouterProtocol`.
+    ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     /// - Throws: any error.
     func responder(version: String, middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponseProtocol?
 

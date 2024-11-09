@@ -7,8 +7,6 @@
 
 import Foundation
 import HTTPTypes
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 /// The core Route protocol that powers Destiny's routing.
 public protocol RouteProtocol : Sendable {

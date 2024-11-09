@@ -47,9 +47,16 @@ let package = Package(
             ]
         ),
         .target(
+            name: "DestinyDefaults",
+            dependencies: [
+                "DestinyUtilities"
+            ]
+        ),
+        .target(
             name: "Destiny",
             dependencies: [
                 "DestinyMacros",
+                "DestinyDefaults",
                 "DestinyUtilities"
             ]
         ),
@@ -58,6 +65,7 @@ let package = Package(
             name: "DestinyMacros",
             dependencies: [
                 "DestinyUtilityMacros",
+                "DestinyDefaults",
                 "DestinyUtilities",
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
