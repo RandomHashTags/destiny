@@ -149,49 +149,49 @@ struct SIMDTests {
         #expect(ss.string() == "brooooooooo !")
     }
 
-    // MARK: drop
-    @Test func drop() {
+    // MARK: dropTrailing
+    @Test func dropTrailing() {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
         var ss64:StackString64 = StackString64(&string)
-        ss64.drop(1)
+        ss64.dropTrailing(1)
         #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580t")
 
-        ss64.drop(5)
+        ss64.dropTrailing(5)
         #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4")
 
-        ss64.drop(32)
+        ss64.dropTrailing(32)
         #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034r")
     }
 
-    // MARK: keep
-    @Test func keep() {
+    // MARK: keepLeading
+    @Test func keepLeading() {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
         var ss64:StackString64 = StackString64(&string)
-        ss64.keep(35)
+        ss64.keepLeading(35)
         #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034rgg3")
 
-        ss64.keep(31)
+        ss64.keepLeading(31)
         #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034")
 
-        ss64.keep(14)
+        ss64.keepLeading(14)
         #expect(ss64.string() == "iuebrgow eg347")
 
-        ss64.keep(8)
+        ss64.keepLeading(8)
         #expect(ss64.string() == "iuebrgow")
 
-        ss64.keep(7)
+        ss64.keepLeading(7)
         #expect(ss64.string() == "iuebrgo")
 
-        ss64.keep(6)
+        ss64.keepLeading(6)
         #expect(ss64.string() == "iuebrg")
 
-        ss64.keep(5)
+        ss64.keepLeading(5)
         #expect(ss64.string() == "iuebr")
 
-        ss64.keep(4)
+        ss64.keepLeading(4)
         #expect(ss64.string() == "iueb")
 
-        ss64.keep(3)
+        ss64.keepLeading(3)
         #expect(ss64.string() == "iue")
     }
 }

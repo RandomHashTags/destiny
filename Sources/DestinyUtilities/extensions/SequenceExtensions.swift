@@ -11,3 +11,6 @@ package extension Array {
         return index < count ? self[index] : nil
     }
 }
+public extension Array where Element == SIMD64<UInt8> {
+    // TODO: finish
+}

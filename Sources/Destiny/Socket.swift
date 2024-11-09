@@ -49,7 +49,7 @@ public extension Socket {
 
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
-    func readLineSIMD2<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 { // read just the method, path & http version
+    func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 { // read just the method, path & http version
         var string:T = T()
         let read:Int = try withUnsafeMutableBytes(of: &string) { p in
             return try readSIMDBuffer(into: p.baseAddress!, length: length)
@@ -59,9 +59,9 @@ public extension Socket {
 
     func loadRequest() throws -> Request {
         var test:[SIMD64<UInt8>] = []
-        test.reserveCapacity(10) // maximum of 640 bytes; decent starting point
+        test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
-            let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD2(length: 64)
+            let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD(length: 64)
             if read == 0 {
                 break
             }
@@ -70,7 +70,10 @@ public extension Socket {
                 break
             }
         }
-        return Request(tokens: test)
+        guard let request:Request = Request(tokens: test) else {
+            throw SocketError.malformedRequest
+        }
+        return request 
     }
 
     @inlinable
@@ -87,19 +90,19 @@ public extension Socket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int) throws -> Int {
+    func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
         guard let baseAddress:UnsafeMutablePointer<UInt8> = buffer.baseAddress else { return 0 }
-        return try readBuffer(into: baseAddress, length: length)
+        return try readBuffer(into: baseAddress, length: length, flags: flags)
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int) throws -> Int {
+    func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
         var bytes_read:Int = 0
         while bytes_read < length {
             if Task.isCancelled { return 0 }
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, 0)
+            let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
             if read_bytes < 0 { // error
                 throw SocketError.readBufferFailed()
             } else if read_bytes == 0 { // end of file
@@ -111,12 +114,12 @@ public extension Socket {
     }
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
+    func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
         var bytes_read:Int = 0
         while bytes_read < length {
             if Task.isCancelled { return 0 }
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, 0)
+            let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
             if read_bytes < 0 { // error
                 throw SocketError.readBufferFailed()
             } else if read_bytes == 0 { // end of file

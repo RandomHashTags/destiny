@@ -591,7 +591,7 @@ public extension SIMD2 where Scalar : BinaryInteger {
     }
 }*/
 
-// MARK: drop O(1)
+// MARK: dropTrailing O(1)
 // implementation should never change
 public extension SIMD2 where Scalar : BinaryInteger {
     /// Sets the trailing scalars to zero. 
@@ -600,7 +600,7 @@ public extension SIMD2 where Scalar : BinaryInteger {
     ///   - length: The number of trailing scalars to set to zero.
     /// - Complexity: O(1)
     @inlinable
-    mutating func drop(_ length: Int) {
+    mutating func dropTrailing(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 break
@@ -620,7 +620,7 @@ public extension SIMD4 where Scalar : BinaryInteger {
     ///   - length: The number of trailing scalars to set to zero.
     /// - Complexity: O(1)
     @inlinable
-    mutating func drop(_ length: Int) {
+    mutating func dropTrailing(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 break
@@ -647,16 +647,16 @@ public extension SIMD8 where Scalar : BinaryInteger {
     ///   - length: The number of trailing scalars to set to zero.
     /// - Complexity: O(1)
     @inlinable
-    mutating func drop(_ length: Int) {
+    mutating func dropTrailing(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 break
             case 1...4:
-                highHalf.drop(length)
+                highHalf.dropTrailing(length)
                 break
             case 5...7:
                 highHalf = .init()
-                lowHalf.drop(length - 4)
+                lowHalf.dropTrailing(length - 4)
                 break
             default:
                 self = .init()
@@ -670,16 +670,16 @@ public extension SIMD16 where Scalar : BinaryInteger {
     /// - Parameters:
     ///   - length: The number of trailing scalars to set to zero.
     /// - Complexity: O(1)
-    mutating func drop(_ length: Int) {
+    mutating func dropTrailing(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 break
             case 1...8:
-                highHalf.drop(length)
+                highHalf.dropTrailing(length)
                 break
             case 9...15:
                 highHalf = .init()
-                lowHalf.drop(length - 8)
+                lowHalf.dropTrailing(length - 8)
                 break
             default:
                 self = .init()
@@ -693,16 +693,16 @@ public extension SIMD32 where Scalar : BinaryInteger {
     /// - Parameters:
     ///   - length: The number of trailing scalars to set to zero.
     /// - Complexity: O(1)
-    mutating func drop(_ length: Int) {
+    mutating func dropTrailing(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 break
             case 1...16:
-                highHalf.drop(length)
+                highHalf.dropTrailing(length)
                 break
             case 17...31:
                 highHalf = .init()
-                lowHalf.drop(length - 16)
+                lowHalf.dropTrailing(length - 16)
                 break
             default:
                 self = .init()
@@ -716,16 +716,16 @@ public extension SIMD64 where Scalar : BinaryInteger {
     /// - Parameters:
     ///   - length: The number of trailing scalars to set to zero.
     /// - Complexity: O(1)
-    mutating func drop(_ length: Int) {
+    mutating func dropTrailing(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 break
             case 1...32:
-                highHalf.drop(length)
+                highHalf.dropTrailing(length)
                 break
             case 33...63:
                 highHalf = .init()
-                lowHalf.drop(length - 32)
+                lowHalf.dropTrailing(length - 32)
                 break
             default:
                 self = .init()
@@ -734,7 +734,7 @@ public extension SIMD64 where Scalar : BinaryInteger {
     }
 }
 
-// MARK: keep O(1)
+// MARK: keepLeading O(1)
 // implementation should never change
 public extension SIMD2 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
@@ -743,7 +743,7 @@ public extension SIMD2 where Scalar : BinaryInteger {
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keep(_ length: Int) {
+    mutating func keepLeading(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 self = .init()
@@ -763,7 +763,7 @@ public extension SIMD4 where Scalar : BinaryInteger {
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keep(_ length: Int) {
+    mutating func keepLeading(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 self = .init()
@@ -791,17 +791,17 @@ public extension SIMD8 where Scalar : BinaryInteger {
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keep(_ length: Int) {
+    mutating func keepLeading(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 self = .init()
                 break
             case 1...4:
-                lowHalf.keep(length)
+                lowHalf.keepLeading(length)
                 highHalf = .init()
                 break
             case 5...7:
-                highHalf.keep(length - 4)
+                highHalf.keepLeading(length - 4)
                 break
             default:
                 break
@@ -815,17 +815,17 @@ public extension SIMD16 where Scalar : BinaryInteger {
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keep(_ length: Int) {
+    mutating func keepLeading(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 self = .init()
                 break
             case 1...8:
-                lowHalf.keep(length)
+                lowHalf.keepLeading(length)
                 highHalf = .init()
                 break
             case 9...15:
-                highHalf.keep(length - 8)
+                highHalf.keepLeading(length - 8)
                 break
             default:
                 break
@@ -839,17 +839,17 @@ public extension SIMD32 where Scalar : BinaryInteger {
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keep(_ length: Int) {
+    mutating func keepLeading(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 self = .init()
                 break
             case 1...16:
-                lowHalf.keep(length)
+                lowHalf.keepLeading(length)
                 highHalf = .init()
                 break
             case 17...31:
-                highHalf.keep(length - 16)
+                highHalf.keepLeading(length - 16)
                 break
             default:
                 break
@@ -863,17 +863,17 @@ public extension SIMD64 where Scalar : BinaryInteger {
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keep(_ length: Int) {
+    mutating func keepLeading(_ length: Int) {
         switch length {
             case _ where length <= 0:
                 self = .init()
                 break
             case 1...32:
-                lowHalf.keep(length)
+                lowHalf.keepLeading(length)
                 highHalf = .init()
                 break
             case 33...63:
-                highHalf.keep(length - 32)
+                highHalf.keepLeading(length - 32)
                 break
             default:
                 break

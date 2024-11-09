@@ -22,7 +22,7 @@ public protocol SocketProtocol : ~Copyable {
     /// Loads the bare minimum data required to process a request.
     @inlinable func loadRequest() throws -> Request
 
-    @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int) throws -> Int
+    @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws -> Int
     /// Writes a buffer to the socket.
     @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 }
@@ -46,4 +46,5 @@ public enum SocketError : Error {
     case readBufferFailed(String = cerror())
     case invalidStatus(String = cerror())
     case closeFailure(String = cerror())
+    case malformedRequest
 }
