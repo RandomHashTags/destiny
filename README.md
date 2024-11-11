@@ -19,7 +19,7 @@ coming soon...
 ### Static
 Initial testing of a basic HTML response shows that this library has the lowest server latency and most consistent timings **when serving the same content**.
 ### Dynamic
-coming soon...
+Depends on how much dynamic content you add, but initial testing compared to a Static response cost only a few microseconds more (~10-50). I am actively researching and testing improvements.
 
 ### Conclusion
 This library is the clear leader in reliability, performance and efficiency. Static content offer the best performance, while dynamic content still tops the charts.

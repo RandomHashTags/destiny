@@ -18,17 +18,19 @@ enum Router : ExpressionMacro {
         /*let arguments = node.macroExpansion!.arguments
         let test:Test = Router.restructure(arguments: arguments)
         print("Router;expansion;test;restructure;test=\(test)")*/
-        var version:String = "HTTP/1.1"
+        var version:HTTPVersion = .v1_1
         var static_middleware:[StaticMiddlewareProtocol] = []
         var dynamic_middleware:[DynamicMiddlewareProtocol] = []
         var static_routes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = []
-        var dynamic_routes:[DynamicRouteProtocol] = []
+        var dynamic_routes:[(DynamicRouteProtocol, FunctionCallExprSyntax)] = []
         for argument in node.macroExpansion!.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
                     switch key {
                         case "version":
-                            version = child.expression.stringLiteral!.string
+                            if let parsed:HTTPVersion = HTTPVersion.parse(child.expression) {
+                                version = parsed
+                            }
                             break
                         case "middleware":
                             for element in child.expression.array!.elements {
@@ -52,9 +54,9 @@ enum Router : ExpressionMacro {
                     //print("Router;expansion;route;function=\(function)")
                     if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
                         if let route:DynamicRouteProtocol = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
-                            dynamic_routes.append(route)
+                            dynamic_routes.append((route, function))
                         }
-                    } else if let route:StaticRouteProtocol = StaticRoute.parse(context: context, function) {
+                    } else if let route:StaticRouteProtocol = StaticRoute.parse(context: context, version: version, function) {
                         static_routes.append((route, function))
                     }
                 } else {
@@ -62,23 +64,38 @@ enum Router : ExpressionMacro {
                 }
             }
         }
-        let static_responses:String = parse_static_routes_string(context: context, version: version, middleware: static_middleware, static_routes)
-        let dynamic_routes_string:String = parse_dynamic_routes_string(version: version, dynamic_routes)
-        let static_middleware_string:String = static_middleware.isEmpty ? "" : "\n" + static_middleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
-        let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
-        return "\(raw: "Router(\nversion: \"\(version)\",\nstaticResponses: [\(static_responses)],\ndynamicResponses: \(dynamic_routes_string),\nstaticMiddleware: [\(static_middleware_string)],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
+        let static_responses:String = parse_static_routes_string(context: context, middleware: static_middleware, static_routes)
+        let dynamic_routes_string:String = parse_dynamic_routes_string(context: context, dynamic_routes)
+        let static_middleware_string:String = static_middleware.isEmpty ? "" : "\n" + static_middleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
+        let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
+        return "\(raw: "Router(\nstaticResponses: [\(static_responses)],\ndynamicResponses: \(dynamic_routes_string),\nstaticMiddleware: [\(static_middleware_string)],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
     }
 }
+
+private extension Router {
+    static func route_path_already_registered(context: some MacroExpansionContext, node: some SyntaxProtocol, _ string: String) {
+        context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "routePathAlreadyRegistered", message: "Route path (\(string)) already registered.")))
+    }
+}
+
 // MARK: Parse static routes string
 private extension Router {
-    static func parse_static_routes_string(context: some MacroExpansionContext, version: String, middleware: [StaticMiddlewareProtocol], _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]) -> String {
+    static func parse_static_routes_string(context: some MacroExpansionContext, middleware: [StaticMiddlewareProtocol], _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]) -> String {
+        var registered_paths:Set<String> = []
+        registered_paths.reserveCapacity(routes.count)
         return routes.isEmpty ? ":" : "\n" + routes.compactMap({ (route, function) in
             do {
-                let response:String = try route.response(version: version, middleware: middleware)
-                let value:String = route.returnType.encode(response)
-                var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + version
-                let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                return "// \(string)\n\(buffer) : " + value
+                var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + route.version.string
+                if registered_paths.contains(string) {
+                    route_path_already_registered(context: context, node: function, string)
+                    return nil
+                } else {
+                    registered_paths.insert(string)
+                    let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
+                    let response:String = try route.response(middleware: middleware)
+                    let value:String = route.returnType.encode(response)
+                    return "// \(string)\n\(buffer) : " + value
+                }
             } catch {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
                 return nil
@@ -88,36 +105,50 @@ private extension Router {
 }
 // MARK: Parse dynamic routes string
 private extension Router {
-    static func parse_dynamic_routes_string(version: String, _ routes: [DynamicRouteProtocol]) -> String {
-        var parameterized:[DynamicRouteProtocol] = []
-        var parameterless:[DynamicRouteProtocol] = []
+    static func parse_dynamic_routes_string(context: some MacroExpansionContext, _ routes: [(DynamicRouteProtocol, FunctionCallExprSyntax)]) -> String {
+        var parameterized:[(DynamicRouteProtocol, FunctionCallExprSyntax)] = []
+        var parameterless:[(DynamicRouteProtocol, FunctionCallExprSyntax)] = []
         for route in routes {
-            if route.path.first(where: { $0.isParameter }) != nil {
+            if route.0.path.first(where: { $0.isParameter }) != nil {
                 parameterized.append(route)
             } else {
                 parameterless.append(route)
             }
         }
-        let parameterless_string:String = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route in
-            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version
-            let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-            let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
-            let responder:String = route.responder(logic: logic)
-            return "// \(string)\n\(buffer) : \(responder)"
+        var registered_paths:Set<String> = []
+        registered_paths.reserveCapacity(routes.count)
+        let parameterless_string:String = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route, function in
+            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + route.version.string
+            if registered_paths.contains(string) {
+                route_path_already_registered(context: context, node: function, string)
+                return nil
+            } else {
+                registered_paths.insert(string)
+                let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
+                let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
+                let responder:String = route.responder(logic: logic)
+                return "// \(string)\n\(buffer) : \(responder)"
+            }
         }).joined(separator: ",\n") + "\n"
         var parameterized_by_path_count:[String] = []
         var parameterized_string:String = ""
         if !parameterized.isEmpty {
-            for route in parameterized {
+            for (route, function) in parameterized {
                 if parameterized_by_path_count.count <= route.path.count {
                     for _ in 0...(route.path.count - parameterized_by_path_count.count) {
                         parameterized_by_path_count.append("")
                     }
                 }
-                let string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version
-                let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
-                let responder:String = route.responder(logic: logic)
-                parameterized_by_path_count[route.path.count].append("\n// \(string)\n" + responder)
+                var string:String = route.method.rawValue + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
+                if !registered_paths.contains(string) {
+                    registered_paths.insert(string)
+                    string = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + route.version.string
+                    let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
+                    let responder:String = route.responder(logic: logic)
+                    parameterized_by_path_count[route.path.count].append("\n// \(string)\n" + responder)
+                } else {
+                    route_path_already_registered(context: context, node: function, string)
+                }
             }
             parameterized_string = "\n" + parameterized_by_path_count.map({ "[\($0.isEmpty ? "" : $0 + "\n")]" }).joined(separator: ",\n") + "\n"
         }

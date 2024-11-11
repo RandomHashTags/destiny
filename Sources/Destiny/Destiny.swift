@@ -19,7 +19,7 @@ import ServiceLifecycle
 ///   - routes: The routes that this router contains. All routes are subject to this router's middleware.
 @freestanding(expression)
 public macro router(
-    version: String,
+    version: HTTPVersion,
     middleware: [any MiddlewareProtocol],
     _ routes: RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")

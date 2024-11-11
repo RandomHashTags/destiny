@@ -134,7 +134,7 @@ enum ClientProcessing {
         client: Int32,
         client_socket: consuming T,
         router: borrowing RouterProtocol,
-        not_found_response: StaticString
+        not_found_response: borrowing StaticString
     ) async throws {
         defer {
             shutdown(client, 2) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)

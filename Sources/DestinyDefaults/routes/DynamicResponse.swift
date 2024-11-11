@@ -9,14 +9,14 @@ import DestinyUtilities
 import HTTPTypes
 
 public struct DynamicResponse : DynamicResponseProtocol {
-    public var version:String
+    public var version:HTTPVersion
     public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult
     public var parameters:[String:String]
 
     public init(
-        version: String,
+        version: HTTPVersion,
         status: HTTPResponse.Status,
         headers: [String:String],
         result: RouteResult,
@@ -32,15 +32,14 @@ public struct DynamicResponse : DynamicResponseProtocol {
     @inlinable
     public func response() throws -> String {
         let result_string:String = try result.string()
-        var string:String = version + " \(status)\r\n"
+        var string:String = version.string + " \(status)\r\n"
         for (header, value) in headers {
             string += header + ": " + value + "\r\n"
         }
-        string += HTTPField.Name.contentLength.rawName + ": \(result_string.count)"
-        return string + "\r\n\r\n" + result_string
+        return string + HTTPField.Name.contentLength.rawName + ": \(result_string.count)\r\n\r\n" + result_string
     }
 
     public var debugDescription : String {
-        return "DynamicResponse(version: \"\(version)\", status: .\(status.caseName!), headers: \(headers), result: .\(result), parameters: \(parameters))"
+        return "DynamicResponse(version: \(version), status: .\(status.caseName!), headers: \(headers), result: .\(result), parameters: \(parameters))"
     }
 }

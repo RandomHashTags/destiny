@@ -13,6 +13,7 @@ import SwiftSyntaxMacros
 /// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public let isAsync:Bool
+    public let version:HTTPVersion!
     public let method:HTTPRequest.Method
     public let path:[PathComponent]
     public var status:HTTPResponse.Status?
@@ -26,6 +27,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     public init(
         async: Bool,
+        version: HTTPVersion? = nil,
         method: HTTPRequest.Method,
         path: [PathComponent],
         status: HTTPResponse.Status? = nil,
@@ -34,11 +36,12 @@ public struct DynamicRoute : DynamicRouteProtocol {
         handlerAsync: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)? = nil
     ) {
         isAsync = async
+        self.version = version
         self.method = method
         self.path = path
         self.status = status
         self.contentType = contentType
-        self.defaultResponse = DynamicResponse.init(version: "HTTP/1.1", status: .notImplemented, headers: [:], result: .string(""), parameters: [:])
+        self.defaultResponse = DynamicResponse.init(version: .v1_1, status: .notImplemented, headers: [:], result: .string(""), parameters: [:])
         self.handler = handler
         self.handlerAsync = handlerAsync
     }
@@ -49,7 +52,10 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
         for middleware in middleware {
-            if middleware.handles(method: method, contentType: contentType, status: status!) {
+            if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status!) {
+                if let applied_version:HTTPVersion = middleware.appliesVersion {
+                    defaultResponse.version = applied_version
+                }
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     status = applied_status
                 }
@@ -65,7 +71,8 @@ public struct DynamicRoute : DynamicRouteProtocol {
 }
 
 public extension DynamicRoute {
-    static func parse(context: some MacroExpansionContext, version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
+    static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
+        var version:HTTPVersion = version
         var async:Bool = false
         var method_string:String = ".get"
         var path:[PathComponent] = []
@@ -78,6 +85,11 @@ public extension DynamicRoute {
             switch key {
                 case "async":
                     async = argument.expression.booleanLiteral!.literal.text == "true"
+                    break
+                case "version":
+                    if let parsed:HTTPVersion = HTTPVersion.parse(argument.expression) {
+                        version = parsed
+                    }
                     break
                 case "method":
                     method_string = argument.expression.memberAccess!.declName.baseName.text.uppercased()
@@ -111,7 +123,10 @@ public extension DynamicRoute {
         let method:HTTPRequest.Method = HTTPRequest.Method(rawValue: method_string)!
         var headers:[String:String] = [:]
         for middleware in middleware {
-            if middleware.handles(method: method, contentType: content_type, status: status) {
+            if middleware.handles(version: version, method: method, contentType: content_type, status: status) {
+                if let applied_version:HTTPVersion = middleware.appliesVersion {
+                    version = applied_version
+                }
                 if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
                     status = applied_status
                 }
@@ -124,7 +139,7 @@ public extension DynamicRoute {
             }
         }
         headers[HTTPField.Name.contentType.rawName] = content_type.rawValue
-        var route:DynamicRoute = DynamicRoute(async: async, method: method, path: path, status: status, contentType: content_type, handler: nil, handlerAsync: nil)
+        var route:DynamicRoute = DynamicRoute(async: async, version: version, method: method, path: path, status: status, contentType: content_type, handler: nil, handlerAsync: nil)
         route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, result: .string(""), parameters: parameters)
         route.handlerLogic = handler
         route.handlerLogicAsync = handlerAsync

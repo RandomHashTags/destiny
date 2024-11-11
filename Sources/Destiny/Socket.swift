@@ -76,18 +76,6 @@ public extension Socket {
         return request 
     }
 
-    @inlinable
-    func readHeaders() throws -> [String:String] {
-        var headers:[String:String] = [:]
-        while case let line:String = try readLine(), !line.isEmpty {
-            let values:[Substring] = line.split(separator: ":", maxSplits: 1, omittingEmptySubsequences: true)
-            if let header:Substring = values.first, let value:Substring = values.last {
-                headers[header.lowercased()] = value.trimmingCharacters(in: .whitespaces)
-            }
-        }
-        return headers
-    }
-
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {

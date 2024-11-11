@@ -49,5 +49,5 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     ///   - version: The HTTP version associated with the `RouterProtocol`.
     ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
-    static func parse(context: some MacroExpansionContext, version: String, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
+    static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
 }

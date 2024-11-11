@@ -16,10 +16,14 @@ let application:Application = Application(
     services: [
         Server<Socket>(
             port: 8080,
-            maxPendingConnections: 1000,
             router: #router(
-                version: "HTTP/1.1",
+                version: .v1_1,
                 middleware: [
+                    StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"]),
+                    StaticMiddleware(handlesVersions: [.v1_1], appliesHeaders: ["Version":"destiny1.1"]),
+                    StaticMiddleware(handlesVersions: [.v2_0], appliesHeaders: ["Version":"destiny2.0"]),
+                    StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
+                    StaticMiddleware(appliesHeaders: ["Server":"destiny"]),
                     StaticMiddleware(handlesMethods: [.get], handlesStatuses: [.notImplemented], handlesContentTypes: [HTTPMediaType.Text.html, HTTPMediaType.Application.json, HTTPMediaType.Text.plain], appliesStatus: .ok),
                     StaticMiddleware(handlesMethods: [.get], appliesHeaders: ["You-GET'd":"true"]),
                     StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
@@ -38,6 +42,13 @@ let application:Application = Application(
                 StaticRoute(
                     method: .get,
                     path: ["html"],
+                    contentType: HTTPMediaType.Text.html,
+                    result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
+                ),
+                StaticRoute(
+                    version: .v2_0,
+                    method: .get,
+                    path: ["html2"],
                     contentType: HTTPMediaType.Text.html,
                     result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
                 ),
@@ -74,6 +85,18 @@ let application:Application = Application(
                     path: ["dynamic"],
                     contentType: HTTPMediaType.Text.plain,
                     handler: { request, response in
+                        response.headers["Date"] = Date().formatted()
+                        response.result = .string(UUID().uuidString)
+                    }
+                ),
+                DynamicRoute(
+                    async: false,
+                    version: .v2_0,
+                    method: .get,
+                    path: ["dynamic2"],
+                    contentType: HTTPMediaType.Text.plain,
+                    handler: { request, response in
+                        response.headers["Date"] = Date().formatted()
                         response.result = .string(UUID().uuidString)
                     }
                 ),
