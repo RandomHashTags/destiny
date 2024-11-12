@@ -40,7 +40,7 @@ extension RouteResponses {
 
 // MARK: UnsafeBufferPointer
 extension RouteResponses {
-    public struct UnsafeBufferPointer : StaticRouteResponseProtocol {
+    public struct UnsafeBufferPointer : @unchecked Sendable, StaticRouteResponseProtocol {
         public let value:Swift.UnsafeBufferPointer<UInt8>
         public init(_ value: Swift.UnsafeBufferPointer<UInt8>) { self.value = value }
         @inlinable public var isAsync : Bool { false }

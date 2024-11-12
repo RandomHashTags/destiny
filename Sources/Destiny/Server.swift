@@ -12,25 +12,28 @@ import Logging
 import ServiceLifecycle
 
 // MARK: Server
-public actor Server<T: SocketProtocol & ~Copyable> : Service {    
+public actor Server<C : SocketProtocol & ~Copyable, R: RouterProtocol & ~Copyable> : ServerProtocol {
+    public typealias ClientSocket = C
+    public typealias ServerRouter = R
+
     public let address:String?
     public var port:in_port_t
     /// The maximum amount of pending connections this Server will accept at a time.
     /// This value is capped at the system's limit (`ulimit -n`).
     public var maxPendingConnections:Int32
-    public var router:RouterProtocol
+    public var router:R
     public let logger:Logger
-    public let onLoad:(() -> Void)?
-    public let onShutdown:(() -> Void)?
+    public let onLoad:(@Sendable () -> Void)?
+    public let onShutdown:(@Sendable () -> Void)?
 
     public init(
         address: String? = nil,
         port: in_port_t,
         maxPendingConnections: Int32 = SOMAXCONN,
-        router: RouterProtocol,
+        router: consuming R,
         logger: Logger,
-        onLoad: (() -> Void)? = nil,
-        onShutdown: (() -> Void)? = nil
+        onLoad: (@Sendable () -> Void)? = nil,
+        onShutdown: (@Sendable () -> Void)? = nil
     ) {
         self.address = address
         self.port = port
@@ -86,7 +89,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
             throw ServerError.listenFailed()
         }
         let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
-        let on_shutdown:(() -> Void)? = onShutdown
+        let on_shutdown:(@Sendable () -> Void)? = onShutdown
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
         await withTaskCancellationOrGracefulShutdownHandler {
             onLoad?()
@@ -99,7 +102,7 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
                                 // TODO: move the processing of clients to a dedicated detached Thread/Task (or different system core)
                                 try await ClientProcessing.process_client(
                                     client: client,
-                                    client_socket: T(fileDescriptor: client),
+                                    client_socket: ClientSocket(fileDescriptor: client),
                                     router: self.router,
                                     not_found_response: not_found_response
                                 )
@@ -130,10 +133,10 @@ public actor Server<T: SocketProtocol & ~Copyable> : Service {
 // MARK: Client Processing
 enum ClientProcessing {
     @inlinable
-    static func process_client<T: SocketProtocol & ~Copyable>(
+    static func process_client<C: SocketProtocol & ~Copyable, R: RouterProtocol & ~Copyable>(
         client: Int32,
-        client_socket: consuming T,
-        router: borrowing RouterProtocol,
+        client_socket: consuming C,
+        router: borrowing R,
         not_found_response: borrowing StaticString
     ) async throws {
         defer {

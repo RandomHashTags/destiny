@@ -9,7 +9,6 @@ import Foundation
 import ServiceLifecycle
 
 public protocol ServerProtocol : Service {
-    associatedtype ClientSocket = SocketProtocol
-    associatedtype ClientRequest = RequestProtocol
-    associatedtype ServerRouter = RouterProtocol
+    typealias ClientSocket = SocketProtocol & ~Copyable
+    typealias ServerRouter = RouterProtocol & ~Copyable
 }

@@ -34,7 +34,7 @@ public struct RouteReturnType : Sendable {
         encode: { response(valueType: "UnsafeBufferPointer", "StaticString(\"" + $0 + "\").withUTF8Buffer { $0 }") }
     )
 
-    public static var custom:[String:RouteReturnType] = [:]
+    //public static var custom:[String:RouteReturnType] = [:]
     
     public let rawValue:String
     public let encode:@Sendable (String) -> String
@@ -51,8 +51,9 @@ public struct RouteReturnType : Sendable {
             case "data":                self = .data
             case "unsafeBufferPointer": self = .unsafeBufferPointer
             default:
-                guard let target:RouteReturnType = Self.custom[rawValue] else { return nil }
-                self = target
+                return nil
+                /*guard let target:RouteReturnType = Self.custom[rawValue] else { return nil }
+                self = target*/
         }
     }
 }
