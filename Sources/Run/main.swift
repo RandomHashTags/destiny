@@ -86,7 +86,7 @@ let application:Application = Application(
                     contentType: HTTPMediaType.Text.plain,
                     handler: { request, response in
                         response.headers["Date"] = Date().formatted()
-                        response.result = .string(UUID().uuidString)
+                        response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
                     }
                 ),
                 DynamicRoute(

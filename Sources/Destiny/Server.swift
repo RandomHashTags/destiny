@@ -174,9 +174,9 @@ enum ClientProcessing {
                 }
             }
             if responder.isAsync {
-                try await responder.respondAsync(to: client_socket, request: request, response: &response)
+                try await responder.respondAsync(to: client_socket, request: &request, response: &response)
             } else {
-                try responder.respond(to: client_socket, request: request, response: &response)
+                try responder.respond(to: client_socket, request: &request, response: &response)
             }
         } else {
             var err:Swift.Error? = nil

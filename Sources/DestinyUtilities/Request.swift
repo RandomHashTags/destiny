@@ -23,8 +23,23 @@ public struct Request : RequestProtocol, ~Copyable {
         return uri.splitSIMD(separator: 47).map({ $0.string() }) // 47 = /
     }()
 
-    public lazy var headers : [StackString64:String] = {
-        var dictionary:[StackString64:String] = [:]
+    /// Temporary value; will be making it use SIMD in the near future
+    public lazy var headers : [String:String] = { // TODO: make SIMD
+        var string:String = ""
+        string.reserveCapacity(tokens.count * 64)
+        for i in 0..<tokens.count {
+            string += tokens[i].string()
+        }
+        let values:[Substring] = string.split(separator: "\r\n")
+        guard values.count > 1 else { return [:] }
+        var dictionary:[String:String] = [:]
+        dictionary.reserveCapacity(values.count-1)
+        for i in 1..<values.count {
+            let header:Substring = values[i]
+            if let index:Substring.Index = header.firstIndex(of: ":") {
+                dictionary[String(header[header.startIndex..<index])] = String(header[header.index(index, offsetBy: 2)...])
+            }
+        }
         return dictionary
     }()
 

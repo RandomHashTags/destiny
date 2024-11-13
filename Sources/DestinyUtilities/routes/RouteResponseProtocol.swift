@@ -28,10 +28,10 @@ public protocol DynamicRouteResponseProtocol : RouteResponseProtocol {
     /// The default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
     var defaultResponse : DynamicResponseProtocol { get }
     /// The synchronous work to execute upon requests. Should be called from `respond`.
-    var logic : (@Sendable (borrowing Request, inout DynamicResponseProtocol) throws -> Void)? { get }
+    var logic : (@Sendable (inout Request, inout DynamicResponseProtocol) throws -> Void)? { get }
     /// The asynchronous work to execute upon requests. Should be called from `respondAsync`.
-    var logicAsync : (@Sendable (borrowing Request, inout DynamicResponseProtocol) async throws -> Void)? { get }
+    var logicAsync : (@Sendable (inout Request, inout DynamicResponseProtocol) async throws -> Void)? { get }
 
-    @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) throws
-    @inlinable func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) async throws
+    @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout Request, response: inout DynamicResponseProtocol) throws
+    @inlinable func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout Request, response: inout DynamicResponseProtocol) async throws
 }

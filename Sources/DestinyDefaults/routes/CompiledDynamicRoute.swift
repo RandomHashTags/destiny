@@ -15,15 +15,15 @@ public struct CompiledDynamicRoute : DynamicRouteResponseProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:Set<Int>
     public let defaultResponse:DynamicResponseProtocol
-    public let logic:(@Sendable (borrowing Request, inout DynamicResponseProtocol) throws -> Void)?
-    public let logicAsync:(@Sendable (borrowing Request, inout DynamicResponseProtocol) async throws -> Void)?
+    public let logic:(@Sendable (inout Request, inout DynamicResponseProtocol) throws -> Void)?
+    public let logicAsync:(@Sendable (inout Request, inout DynamicResponseProtocol) async throws -> Void)?
 
     public init(
         async: Bool,
         path: [PathComponent],
         defaultResponse: DynamicResponseProtocol,
-        logic: (@Sendable (borrowing Request, inout DynamicResponseProtocol) throws -> Void)?,
-        logicAsync: (@Sendable (borrowing Request, inout DynamicResponseProtocol) async throws -> Void)?
+        logic: (@Sendable (inout Request, inout DynamicResponseProtocol) throws -> Void)?,
+        logicAsync: (@Sendable (inout Request, inout DynamicResponseProtocol) async throws -> Void)?
     ) {
         isAsync = async
         self.path = path
@@ -35,15 +35,15 @@ public struct CompiledDynamicRoute : DynamicRouteResponseProtocol {
 
 
     @inlinable
-    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) throws {
-        try logic!(request, &response)
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout Request, response: inout DynamicResponseProtocol) throws {
+        try logic!(&request, &response)
         try response.response().utf8.withContiguousStorageIfAvailable {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
     @inlinable
-    public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: borrowing Request, response: inout DynamicResponseProtocol) async throws {
-        try await logicAsync!(request, &response)
+    public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout Request, response: inout DynamicResponseProtocol) async throws {
+        try await logicAsync!(&request, &response)
         try response.response().utf8.withContiguousStorageIfAvailable {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }

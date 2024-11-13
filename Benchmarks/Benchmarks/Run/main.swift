@@ -49,6 +49,7 @@ let application:App = App(services: [
 try await application.run()
 
 
+/*
 // MARK: Destiny
 func destiny_service(port: UInt16) -> Destiny.Application {
     let server_logger:Logger = Logger(label: "destiny.http.server")
@@ -70,7 +71,7 @@ func destiny_service(port: UInt16) -> Destiny.Application {
             ), logger: server_logger
         )
     ], logger: logger)
-}
+}*/
 
 
 // MARK: Hummingbird
@@ -78,7 +79,7 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
     let router:Hummingbird.Router<BasicRequestContext> = Hummingbird.Router()
     let body:Hummingbird.ResponseBody = .init(byteBuffer: ByteBuffer(string: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"))
     let headers:HTTPFields = HTTPFields(dictionaryLiteral: (.contentType, "text/html"))
-    router.get(RouterPath("test")) { request, _ in
+    router.get(RouterPath("html")) { request, _ in
         return Response(status: .ok, headers: headers, body: body)
     }
     router.get(RouterPath("error")) { request, _ in
@@ -107,7 +108,7 @@ func vapor_application(port: Int) -> Vapor.Application {
 
     let body:Vapor.Response.Body = .init(staticString: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
     let headers:HTTPHeaders = HTTPHeaders(dictionaryLiteral: (HTTPHeaders.Name.contentType.description, "text/html"))
-    app.on(.GET, ["test"]) { request in
+    app.on(.GET, ["html"]) { request in
         return Vapor.Response(status: .ok, version: request.version, headers: headers, body: body)
     }
     app.on(.GET, ["error"]) { request in

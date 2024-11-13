@@ -19,8 +19,8 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public var status:HTTPResponse.Status?
     public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponseProtocol
-    public let handler:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)?
-    public let handlerAsync:(@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
+    public let handler:(@Sendable (_ request: inout Request, _ response: inout DynamicResponseProtocol) throws -> Void)?
+    public let handlerAsync:(@Sendable (_ request: inout Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
 
     public fileprivate(set) var handlerLogic:String = "nil"
     public fileprivate(set) var handlerLogicAsync:String = "nil"
@@ -32,8 +32,8 @@ public struct DynamicRoute : DynamicRouteProtocol {
         path: [PathComponent],
         status: HTTPResponse.Status? = nil,
         contentType: HTTPMediaType,
-        handler: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) throws -> Void)? = nil,
-        handlerAsync: (@Sendable (_ request: borrowing Request, _ response: inout DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout Request, _ response: inout DynamicResponseProtocol) throws -> Void)? = nil,
+        handlerAsync: (@Sendable (_ request: inout Request, _ response: inout DynamicResponseProtocol) async throws -> Void)? = nil
     ) {
         isAsync = async
         self.version = version
