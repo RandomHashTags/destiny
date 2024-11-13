@@ -70,11 +70,11 @@ struct SIMDTests {
 
         string = ""
         var ss2:StackString2 = StackString2(&string)
-        #expect(ss2.trailingZeroByteCount == 2, Comment(rawValue: ss2.string()))
+        #expect(ss2.trailingZeroByteCount == 2, Comment(rawValue: ss2.leadingString()))
 
         string = "a"
         ss2 = StackString2(&string)
-        #expect(ss2.trailingZeroByteCount == 1, Comment(rawValue: ss2.string()))
+        #expect(ss2.trailingZeroByteCount == 1, Comment(rawValue: ss2.leadingString()))
     }
 
     // MARK: hasPrefix
@@ -110,9 +110,9 @@ struct SIMDTests {
         var ss:StackString32 = StackString32(&string)
         var values:[StackString32] = ss.splitSIMD(separator: 32) // space
         try #require(values.count == 3)
-        #expect(values[0].string() == "GET")
-        #expect(values[1].string() == "/dynamic/text")
-        #expect(values[2].string() == "HTTP/1.1")
+        #expect(values[0].leadingString() == "GET")
+        #expect(values[1].leadingString() == "/dynamic/text")
+        #expect(values[2].leadingString() == "HTTP/1.1")
     }
 
     // MARK: split4
@@ -143,10 +143,10 @@ struct SIMDTests {
     }
 
     // MARK: string
-    @Test func string() {
+    @Test func leadingString() {
         var string:String = "brooooooooo !"
         let ss:StackString64 = StackString64(&string)
-        #expect(ss.string() == "brooooooooo !")
+        #expect(ss.leadingString() == "brooooooooo !")
     }
 
     // MARK: dropTrailing
@@ -154,13 +154,13 @@ struct SIMDTests {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
         var ss64:StackString64 = StackString64(&string)
         ss64.dropTrailing(1)
-        #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580t")
+        #expect(ss64.leadingString() == "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580t")
 
         ss64.dropTrailing(5)
-        #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4")
+        #expect(ss64.leadingString() == "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4")
 
         ss64.dropTrailing(32)
-        #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034r")
+        #expect(ss64.leadingString() == "iuebrgow eg347h0t34h t30834r034r")
     }
 
     // MARK: keepLeading
@@ -168,30 +168,62 @@ struct SIMDTests {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
         var ss64:StackString64 = StackString64(&string)
         ss64.keepLeading(35)
-        #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034rgg3")
+        #expect(ss64.leadingString() == "iuebrgow eg347h0t34h t30834r034rgg3")
 
         ss64.keepLeading(31)
-        #expect(ss64.string() == "iuebrgow eg347h0t34h t30834r034")
+        #expect(ss64.leadingString() == "iuebrgow eg347h0t34h t30834r034")
 
         ss64.keepLeading(14)
-        #expect(ss64.string() == "iuebrgow eg347")
+        #expect(ss64.leadingString() == "iuebrgow eg347")
 
         ss64.keepLeading(8)
-        #expect(ss64.string() == "iuebrgow")
+        #expect(ss64.leadingString() == "iuebrgow")
 
         ss64.keepLeading(7)
-        #expect(ss64.string() == "iuebrgo")
+        #expect(ss64.leadingString() == "iuebrgo")
 
         ss64.keepLeading(6)
-        #expect(ss64.string() == "iuebrg")
+        #expect(ss64.leadingString() == "iuebrg")
 
         ss64.keepLeading(5)
-        #expect(ss64.string() == "iuebr")
+        #expect(ss64.leadingString() == "iuebr")
 
         ss64.keepLeading(4)
-        #expect(ss64.string() == "iueb")
+        #expect(ss64.leadingString() == "iueb")
 
         ss64.keepLeading(3)
-        #expect(ss64.string() == "iue")
+        #expect(ss64.leadingString() == "iue")
+    }
+
+    // MARK: keepTrailing
+    @Test func keepTrailing() {
+        var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
+        var ss64:StackString64 = StackString64(&string)
+        ss64.keepTrailing(35)
+        #expect(ss64.trailingString() == "34rgg3q 632 q  0928j3 m939n3 4580tw")
+
+        ss64.keepTrailing(31)
+        #expect(ss64.trailingString() == "g3q 632 q  0928j3 m939n3 4580tw")
+
+        ss64.keepTrailing(14)
+        #expect(ss64.trailingString() == " m939n3 4580tw")
+
+        ss64.keepTrailing(8)
+        #expect(ss64.trailingString() == "3 4580tw")
+
+        ss64.keepTrailing(7)
+        #expect(ss64.trailingString() == " 4580tw")
+
+        ss64.keepTrailing(6)
+        #expect(ss64.trailingString() == "4580tw")
+
+        ss64.keepTrailing(5)
+        #expect(ss64.trailingString() == "580tw")
+
+        ss64.keepTrailing(4)
+        #expect(ss64.trailingString() == "80tw")
+
+        ss64.keepTrailing(3)
+        #expect(ss64.trailingString() == "0tw")
     }
 }

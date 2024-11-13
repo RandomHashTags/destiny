@@ -24,6 +24,12 @@ public extension SIMD where Scalar : BinaryInteger {
         self = item
     }
 
+    /// - Complexity: O(_n_), where _n_ equals the lesser of `string.count` & `scalarCount`.
+    init(_ string: String) {
+        var s:String = string
+        self = .init(&s)
+    }
+
     /// - Complexity: O(_n_), where _n_ equals `scalarCount`.
     var leadingNonzeroByteCountSIMD : Int {
         for i in 0..<scalarCount {
@@ -87,101 +93,221 @@ public extension SIMD where Scalar == UInt8 {
     }
 }
 
-// MARK: string() O(1)
+// MARK: scalars() O(1)
+// implementation should never change
+public extension SIMD2 where Scalar == UInt8 {
+    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+}
+public extension SIMD4 where Scalar == UInt8 {
+    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+}
+public extension SIMD8 where Scalar == UInt8 {
+    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+}
+public extension SIMD16 where Scalar == UInt8 {
+    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+}
+public extension SIMD32 where Scalar == UInt8 {
+    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+}
+public extension SIMD64 where Scalar == UInt8 {
+    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+}
+
+// MARK: leadingString() O(1)
+// implementation should never change
 extension SIMD2 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func chars() -> [Scalar] {
+    func leadingChars() -> [Scalar] {
         return x == 0 ? [] : y == 0 ? [x] : [x, y]
     }
     /// Creates a `String` based on this vector's values.
     /// - Complexity: O(1)
     @inlinable
-    public func string() -> String {
-        return String(decoding: chars(), as: UTF8.self)
+    public func leadingString() -> String {
+        return String(decoding: leadingChars(), as: UTF8.self)
     }
 }
 extension SIMD4 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func chars() -> [Scalar] {
+    func leadingChars() -> [Scalar] {
         if (self .!= .zero) == .init(repeating: true) {
             return [x, y, z, w]
         }
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.chars()
+            return lowHalf.leadingChars()
         }
-        return [x, y] + highHalf.chars()
+        return [x, y] + highHalf.leadingChars()
     }
     /// Creates a `String` based on this vector's values.
     /// - Complexity: O(1)
     @inlinable
-    public func string() -> String {
-        return String(decoding: chars(), as: UTF8.self)
+    public func leadingString() -> String {
+        return String(decoding: leadingChars(), as: UTF8.self)
     }
 }
 extension SIMD8 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func chars() -> [Scalar] {
+    func leadingChars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.chars()
+            return lowHalf.leadingChars()
         }
-        return lowHalf.chars() + highHalf.chars()
+        return lowHalf.leadingChars() + highHalf.leadingChars()
     }
     /// Creates a `String` based on this vector's values.
     /// - Complexity: O(1)
     @inlinable
-    public func string() -> String {
-        return String(decoding: chars(), as: UTF8.self)
+    public func leadingString() -> String {
+        return String(decoding: leadingChars(), as: UTF8.self)
     }
 }
 extension SIMD16 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func chars() -> [Scalar] {
+    func leadingChars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.chars()
+            return lowHalf.leadingChars()
         }
-        return lowHalf.chars() + highHalf.chars()
+        return lowHalf.leadingChars() + highHalf.leadingChars()
     }
     /// Creates a `String` based on this vector's values.
     /// - Complexity: O(1)
     @inlinable
-    public func string() -> String {
-        return String(decoding: chars(), as: UTF8.self)
+    public func leadingString() -> String {
+        return String(decoding: leadingChars(), as: UTF8.self)
     }
 }
 extension SIMD32 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func chars() -> [Scalar] {
+    func leadingChars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.chars()
+            return lowHalf.leadingChars()
         }
-        return lowHalf.chars() + highHalf.chars()
+        return lowHalf.leadingChars() + highHalf.leadingChars()
     }
     /// Creates a `String` based on this vector's values.
     /// - Complexity: O(1)
     @inlinable
-    public func string() -> String {
-        return String(decoding: chars(), as: UTF8.self)
+    public func leadingString() -> String {
+        return String(decoding: leadingChars(), as: UTF8.self)
     }
 }
 extension SIMD64 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func chars() -> [Scalar] {
+    func leadingChars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.chars()
+            return lowHalf.leadingChars()
         }
-        return lowHalf.chars() + highHalf.chars()
+        return lowHalf.leadingChars() + highHalf.leadingChars()
     }
     /// Creates a `String` based on this vector's values.
     /// - Complexity: O(1)
     @inlinable
-    public func string() -> String {
-        return String(decoding: chars(), as: UTF8.self)
+    public func leadingString() -> String {
+        return String(decoding: leadingChars(), as: UTF8.self)
+    }
+}
+
+// MARK: trailingString O(1)
+extension SIMD2 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func trailingChars() -> [Scalar] {
+        return y == 0 ? [] : x == 0 ? [y] : [x, y]
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func trailingString() -> String {
+        return String(decoding: trailingChars(), as: UTF8.self)
+    }
+}
+extension SIMD4 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func trailingChars() -> [Scalar] {
+        if (self .!= .zero) == .init(repeating: true) {
+            return [x, y, z, w]
+        }
+        if (highHalf .!= .zero) != .init(repeating: true) {
+            return highHalf.trailingChars()
+        }
+        return lowHalf.trailingChars() + [z, w]
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func trailingString() -> String {
+        return String(decoding: trailingChars(), as: UTF8.self)
+    }
+}
+extension SIMD8 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func trailingChars() -> [Scalar] {
+        if (highHalf .!= .zero) != .init(repeating: true) {
+            return highHalf.trailingChars()
+        }
+        return lowHalf.trailingChars() + [highHalf.x, highHalf.y, highHalf.z, highHalf.w]
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func trailingString() -> String {
+        return String(decoding: trailingChars(), as: UTF8.self)
+    }
+}
+extension SIMD16 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func trailingChars() -> [Scalar] {
+        if (highHalf .!= .zero) != .init(repeating: true) {
+            return highHalf.trailingChars()
+        }
+        return lowHalf.trailingChars() + highHalf.scalars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func trailingString() -> String {
+        return String(decoding: trailingChars(), as: UTF8.self)
+    }
+}
+extension SIMD32 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func trailingChars() -> [Scalar] {
+        if (highHalf .!= .zero) != .init(repeating: true) {
+            return highHalf.trailingChars()
+        }
+        return lowHalf.trailingChars() + highHalf.scalars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func trailingString() -> String {
+        return String(decoding: trailingChars(), as: UTF8.self)
+    }
+}
+extension SIMD64 where Scalar == UInt8 {
+    /// - Complexity: O(1)
+    @inlinable
+    func trailingChars() -> [Scalar] {
+        if (highHalf .!= .zero) != .init(repeating: true) {
+            return highHalf.trailingChars()
+        }
+        return lowHalf.trailingChars() + highHalf.scalars()
+    }
+    /// Creates a `String` based on this vector's values.
+    /// - Complexity: O(1)
+    @inlinable
+    public func trailingString() -> String {
+        return String(decoding: trailingChars(), as: UTF8.self)
     }
 }
 
@@ -874,6 +1000,153 @@ public extension SIMD64 where Scalar : BinaryInteger {
                 break
             case 33...63:
                 highHalf.keepLeading(length - 32)
+                break
+            default:
+                break
+        }
+    }
+}
+
+// MARK: keepTrailing O(1)
+// implementation should never change
+public extension SIMD2 where Scalar : BinaryInteger {
+    /// Keeps the trailing scalar values and sets everything else to zero.
+    /// 
+    /// - Parameters:
+    ///   - length: The number of trailing scalars to keep.
+    /// - Complexity: O(1)
+    @inlinable
+    mutating func keepTrailing(_ length: Int) {
+        switch length {
+            case _ where length <= 0:
+                self = .init()
+                break
+            case 1:
+                x = 0
+                break
+            default:
+                break
+        }
+    }
+}
+public extension SIMD4 where Scalar : BinaryInteger {
+    /// Keeps the trailing scalar values and sets everything else to zero.
+    /// 
+    /// - Parameters:
+    ///   - length: The number of trailing scalars to keep.
+    /// - Complexity: O(1)
+    @inlinable
+    mutating func keepTrailing(_ length: Int) {
+        switch length {
+            case _ where length <= 0:
+                self = .init()
+                break
+            case 1:
+                x = 0
+                y = 0
+                z = 0
+                break
+            case 2:
+                lowHalf = .init()
+                break
+            case 3:
+                x = 0
+                break
+            default:
+                break
+        }
+    }
+}
+public extension SIMD8 where Scalar : BinaryInteger {
+    /// Keeps the trailing scalar values and sets everything else to zero.
+    /// 
+    /// - Parameters:
+    ///   - length: The number of trailing scalars to keep.
+    /// - Complexity: O(1)
+    @inlinable
+    mutating func keepTrailing(_ length: Int) {
+        switch length {
+            case _ where length <= 0:
+                self = .init()
+                break
+            case 1...4:
+                lowHalf = .init()
+                highHalf.keepTrailing(length)
+                break
+            case 5...7:
+                lowHalf.keepTrailing(length - 4)
+                break
+            default:
+                break
+        }
+    }
+}
+public extension SIMD16 where Scalar : BinaryInteger {
+    /// Keeps the trailing scalar values and sets everything else to zero.
+    /// 
+    /// - Parameters:
+    ///   - length: The number of trailing scalars to keep.
+    /// - Complexity: O(1)
+    @inlinable
+    mutating func keepTrailing(_ length: Int) {
+        switch length {
+            case _ where length <= 0:
+                self = .init()
+                break
+            case 1...8:
+                lowHalf = .init()
+                highHalf.keepTrailing(length)
+                break
+            case 9...15:
+                lowHalf.keepTrailing(length - 8)
+                break
+            default:
+                break
+        }
+    }
+}
+public extension SIMD32 where Scalar : BinaryInteger {
+    /// Keeps the trailing scalar values and sets everything else to zero.
+    /// 
+    /// - Parameters:
+    ///   - length: The number of trailing scalars to keep.
+    /// - Complexity: O(1)
+    @inlinable
+    mutating func keepTrailing(_ length: Int) {
+        switch length {
+            case _ where length <= 0:
+                self = .init()
+                break
+            case 1...16:
+                lowHalf = .init()
+                highHalf.keepTrailing(length)
+                break
+            case 17...31:
+                lowHalf.keepTrailing(length - 16)
+                break
+            default:
+                break
+        }
+    }
+}
+public extension SIMD64 where Scalar : BinaryInteger {
+    /// Keeps the trailing scalar values and sets everything else to zero.
+    /// 
+    /// - Parameters:
+    ///   - length: The number of trailing scalars to keep.
+    /// - Complexity: O(1)
+    @inlinable
+    mutating func keepTrailing(_ length: Int) {
+        switch length {
+            case _ where length <= 0:
+                self = .init()
+                break
+            case 1...32:
+                lowHalf = .init()
+                highHalf.keepTrailing(length)
+                break
+            case 33...63:
+                lowHalf.keepTrailing(length - 32)
                 break
             default:
                 break

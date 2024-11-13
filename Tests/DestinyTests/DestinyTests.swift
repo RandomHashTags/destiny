@@ -12,7 +12,7 @@ import Testing
 struct DestinyTests {
     @Test func example() {
         let _:Router = #router(
-            version: "HTTP/2.0",
+            version: .v2_0,
             middleware: [
                 StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaType.Text.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
