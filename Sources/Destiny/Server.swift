@@ -99,7 +99,7 @@ public struct Server<C : SocketProtocol & ~Copyable, R: RouterProtocol> : Server
                     for _ in 0..<maxPendingConnections {
                         group.addTask {
                             do {
-                                let client:Int32 = try Self.client(serverFD: serverFD)
+                                let client:Int32 = try await Self.client(serverFD: serverFD)
                                 try await ClientProcessing.process_client(
                                     client: client,
                                     client_socket: ClientSocket(fileDescriptor: client),
@@ -121,13 +121,16 @@ public struct Server<C : SocketProtocol & ~Copyable, R: RouterProtocol> : Server
     }
 
     @inlinable
-    static func client(serverFD: Int32) throws -> Int32 {
-        var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
-        let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
-        if client == -1 {
-            throw SocketError.acceptFailed()
+    static func client(serverFD: Int32) async throws -> Int32 {
+        return try await withCheckedThrowingContinuation { continuation in
+            var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
+            let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
+            if client == -1 {
+                continuation.resume(throwing: SocketError.acceptFailed())
+                return
+            }
+            continuation.resume(returning: client)
         }
-        return client
     }
 }
 // MARK: Client Processing
