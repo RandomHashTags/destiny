@@ -22,7 +22,9 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let handler:(@Sendable (_ request: inout Request, _ response: inout DynamicResponseProtocol) throws -> Void)?
     public let handlerAsync:(@Sendable (_ request: inout Request, _ response: inout DynamicResponseProtocol) async throws -> Void)?
 
+    /// A string representation of the synchronous handler logic, required when parsing from the router macro.
     public fileprivate(set) var handlerLogic:String = "nil"
+    /// A string representation of the asynchronous handler logic, required when parsing from the router macro.
     public fileprivate(set) var handlerLogicAsync:String = "nil"
 
     public init(

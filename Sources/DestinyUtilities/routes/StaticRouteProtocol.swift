@@ -38,10 +38,10 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// - Throws: any error.
     func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponseProtocol?
 
-    /// Parsing logic for this static route. Computed at compile time.
+    /// Parsing logic for this route. Computed at compile time.
     /// - Parameters:
     ///   - context: The macro expansion context where this route is being parsed from.
-    ///   - version: The http version of the `RouterProtocol` this middleware is assigned to.
+    ///   - version: The `HTTPVersion` of the `RouterProtocol` this middleware is assigned to.
     ///   - function: The SwiftSyntax expression that represents this route.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
 }

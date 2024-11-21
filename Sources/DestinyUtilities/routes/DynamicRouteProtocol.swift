@@ -21,10 +21,6 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     var defaultResponse : DynamicResponseProtocol { get set }
     /// Whether or not this dynamic route responds asynchronously or synchronously.
     var isAsync : Bool { get }
-    /// A string representation of the synchronous handler logic, required when parsing from the router macro.
-    var handlerLogic : String { get }
-    /// A string representation of the asynchronous handler logic, required when parsing from the router macro.
-    var handlerLogicAsync : String { get }
 
     /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponseProtocol`. Computed at compile time.
     /// 

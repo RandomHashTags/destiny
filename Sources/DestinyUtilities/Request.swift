@@ -49,18 +49,25 @@ public struct Request : RequestProtocol, ~Copyable {
         var values:[SIMD64<UInt8>] = []
         values.reserveCapacity(10)
 
-        let carriage_returns:SIMD64<UInt8> = .init(repeating: 13)
-        let absent_character:SIMDMask<SIMD64<UInt8>.MaskStorage> = .init(repeating: false)
-        for token in tokens {
-            if (token .== carriage_returns) == absent_character { // no carriage return in token
+        for var token in tokens {
+            let cr_index:Int = token.leadingNonByteCount(byte: 13) // \r
+            if cr_index == 64 { // no carriage return in token
             } else { // carriage return in token
+                token.keepLeading(cr_index-1)
                 let colon_index:Int = token.leadingNonByteCount(byte: 58)
                 if colon_index != 64 { // has colon in token
-                    var header:SIMD64<UInt8> = token, value:SIMD64<UInt8> = token
-                    header.keepLeading(colon_index)
+                    var header:SIMD64<UInt8> = token
+                    header.keepLeading(colon_index-1)
                     headers.append(header)
+
+                    var value:SIMD64<UInt8> = token
+                    value.keepTrailing(64 - cr_index)
+                    values.append(value)
                 }
             }
+        }
+        for i in 0..<headers.count {
+            print("headersSIMD;i=\(i);header=" + headers[i].leadingString() + ";value=" + values[i].trailingString())
         }
     }
 
@@ -80,6 +87,8 @@ public struct Request : RequestProtocol, ~Copyable {
         methodSIMD = values[0].lowHalf.lowHalf.lowHalf
         uri = values[1].lowHalf
         version = HTTPVersion(versionSIMD.lowHalf)
+
+        headersSIMD()
     }
 
     public var description : String {

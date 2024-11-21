@@ -19,10 +19,10 @@ enum Router : ExpressionMacro {
         let test:Test = Router.restructure(arguments: arguments)
         print("Router;expansion;test;restructure;test=\(test)")*/
         var version:HTTPVersion = .v1_1
-        var static_middleware:[StaticMiddlewareProtocol] = []
-        var dynamic_middleware:[DynamicMiddlewareProtocol] = []
-        var static_routes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = []
-        var dynamic_routes:[(DynamicRouteProtocol, FunctionCallExprSyntax)] = []
+        var static_middleware:[StaticMiddleware] = []
+        var dynamic_middleware:[DynamicMiddleware] = []
+        var static_routes:[(StaticRoute, FunctionCallExprSyntax)] = []
+        var dynamic_routes:[(DynamicRoute, FunctionCallExprSyntax)] = []
         for argument in node.macroExpansion!.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
@@ -53,10 +53,10 @@ enum Router : ExpressionMacro {
                 } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
                     //print("Router;expansion;route;function=\(function)")
                     if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
-                        if let route:DynamicRouteProtocol = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
+                        if let route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
                             dynamic_routes.append((route, function))
                         }
-                    } else if let route:StaticRouteProtocol = StaticRoute.parse(context: context, version: version, function) {
+                    } else if let route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
                         static_routes.append((route, function))
                     }
                 } else {
@@ -80,7 +80,7 @@ private extension Router {
 
 // MARK: Parse static routes string
 private extension Router {
-    static func parse_static_routes_string(context: some MacroExpansionContext, middleware: [StaticMiddlewareProtocol], _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]) -> String {
+    static func parse_static_routes_string(context: some MacroExpansionContext, middleware: [StaticMiddleware], _ routes: [(StaticRoute, FunctionCallExprSyntax)]) -> String {
         var registered_paths:Set<String> = []
         registered_paths.reserveCapacity(routes.count)
         return routes.isEmpty ? ":" : "\n" + routes.compactMap({ (route, function) in
@@ -105,9 +105,9 @@ private extension Router {
 }
 // MARK: Parse dynamic routes string
 private extension Router {
-    static func parse_dynamic_routes_string(context: some MacroExpansionContext, _ routes: [(DynamicRouteProtocol, FunctionCallExprSyntax)]) -> String {
-        var parameterized:[(DynamicRouteProtocol, FunctionCallExprSyntax)] = []
-        var parameterless:[(DynamicRouteProtocol, FunctionCallExprSyntax)] = []
+    static func parse_dynamic_routes_string(context: some MacroExpansionContext, _ routes: [(DynamicRoute, FunctionCallExprSyntax)]) -> String {
+        var parameterized:[(DynamicRoute, FunctionCallExprSyntax)] = []
+        var parameterless:[(DynamicRoute, FunctionCallExprSyntax)] = []
         for route in routes {
             if route.0.path.first(where: { $0.isParameter }) != nil {
                 parameterized.append(route)
