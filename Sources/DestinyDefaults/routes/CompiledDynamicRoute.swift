@@ -10,7 +10,7 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-public struct CompiledDynamicRoute : DynamicRouteResponseProtocol {
+public struct CompiledDynamicRoute : DynamicRouteResponderProtocol {
     public let isAsync:Bool
     public let path:[PathComponent]
     public let parameterPathIndexes:Set<Int>

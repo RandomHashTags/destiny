@@ -78,7 +78,7 @@ public struct StaticRoute : StaticRouteProtocol {
         return string + "\\r\\n\\r\\n" + result_string
     }
 
-    public func responder(middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponseProtocol? {
+    public func responder(middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
         return try RouteResponses.String(returnType.encode(response(middleware: middleware)))
     }
 }

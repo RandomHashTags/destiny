@@ -12,19 +12,19 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     var dynamicMiddleware : [DynamicMiddlewareProtocol] { get }
 
     /// Get the static responder responsible for a static route based on its path.
-    @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponseProtocol?
+    @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol?
 
     /// Gets the dynamic responder responsible for a dynamic route based on its path.
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func dynamicResponder(for request: inout Request) -> DynamicRouteResponseProtocol?
+    @inlinable func dynamicResponder(for request: inout Request) -> DynamicRouteResponderProtocol?
 
     /// Registers a static route to this router after the server has started.
     mutating func register(_ route: StaticRouteProtocol) throws
 
     /// Registers a dynamic route with its responder to this router after the server has started.
-    mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponseProtocol) throws
+    mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) throws
 
     /// Registers a static middleware at the given index to this router after the server has started.
     mutating func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws

@@ -9,7 +9,7 @@ import HTTPTypes
 
 /// The core Dynamic Response protocol that powers how Destiny manages a HTTP Response to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
-    /// The response HTTP version.
+    /// The response `HTTPVersion`.
     var version : HTTPVersion { get set }
     /// The response status.
     var status : HTTPResponse.Status { get set }

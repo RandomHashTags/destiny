@@ -14,7 +14,7 @@ import ServiceLifecycle
 /// The default macro to create a `Router`.
 ///
 /// - Parameters:
-///   - version: The HTTP version this router responds to. All routes not having a version declared adopt this one.
+///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
 ///   - middleware: The middleware this router contains. All middlware is handled in the order they are declared (put your most important middleware first).
 ///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(expression)

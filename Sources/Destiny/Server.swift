@@ -144,13 +144,13 @@ enum ClientProcessing {
             close(client)
         }
         var request:Request = try client_socket.loadRequest()
-        if let responder:StaticRouteResponseProtocol = router.staticResponder(for: request.startLine) {
+        if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
             if responder.isAsync {
                 try await responder.respondAsync(to: client_socket)
             } else {
                 try responder.respond(to: client_socket)
             }
-        } else if let responder:DynamicRouteResponseProtocol = router.dynamicResponder(for: &request) {
+        } else if let responder:DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
             var response:DynamicResponseProtocol = responder.defaultResponse
             for index in responder.parameterPathIndexes {
                 response.parameters[responder.path[index].value] = request.path[index]

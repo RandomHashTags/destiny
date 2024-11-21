@@ -9,18 +9,18 @@ import DestinyUtilities
 import HTTPTypes
 
 public struct DynamicResponses : Sendable {
-    public private(set) var parameterless:[DestinyRoutePathType:DynamicRouteResponseProtocol]
-    public private(set) var parameterized:[[DynamicRouteResponseProtocol]]
+    public private(set) var parameterless:[DestinyRoutePathType:DynamicRouteResponderProtocol]
+    public private(set) var parameterized:[[DynamicRouteResponderProtocol]]
 
     public init(
-        parameterless: [DestinyRoutePathType:DynamicRouteResponseProtocol],
-        parameterized: [[DynamicRouteResponseProtocol]]
+        parameterless: [DestinyRoutePathType:DynamicRouteResponderProtocol],
+        parameterized: [[DynamicRouteResponderProtocol]]
     ) {
         self.parameterless = parameterless
         self.parameterized = parameterized
     }
 
-    mutating func register(version: HTTPVersion, route: DynamicRouteProtocol, responder: DynamicRouteResponseProtocol) {
+    mutating func register(version: HTTPVersion, route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) {
         if route.path.count(where: { $0.isParameter }) == 0 {
             var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version.string
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
@@ -35,12 +35,12 @@ public struct DynamicResponses : Sendable {
         }
     }
 
-    public func responder(for request: inout Request) -> DynamicRouteResponseProtocol? {
-        if let responder:DynamicRouteResponseProtocol = parameterless[request.startLine] {
+    public func responder(for request: inout Request) -> DynamicRouteResponderProtocol? {
+        if let responder:DynamicRouteResponderProtocol = parameterless[request.startLine] {
             return responder
         }
         let values:[String] = request.path
-        guard let responders:[DynamicRouteResponseProtocol] = parameterized.get(values.count) else { return nil }
+        guard let responders:[DynamicRouteResponderProtocol] = parameterized.get(values.count) else { return nil }
         for responder in responders {
             var found:Bool = true
             for i in 0..<values.count {

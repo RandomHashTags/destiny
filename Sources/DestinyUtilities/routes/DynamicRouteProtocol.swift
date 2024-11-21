@@ -22,7 +22,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// Whether or not this dynamic route responds asynchronously or synchronously.
     var isAsync : Bool { get }
 
-    /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponseProtocol`. Computed at compile time.
+    /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponderProtocol`. Computed at compile time.
     /// 
     /// Loads the route responder in a `RouterProtocol`'s dynamic route responses.
     /// - Parameters:
@@ -42,7 +42,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// - Warning: You need to assign `handlerLogic` or `handlerLogicAsync` properly.
     /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
-    ///   - version: The HTTP version associated with the `RouterProtocol`.
+    ///   - version: The `HTTPVersion` associated with the `RouterProtocol`.
     ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?

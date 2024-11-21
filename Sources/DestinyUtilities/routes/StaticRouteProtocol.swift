@@ -30,13 +30,13 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// - Returns: a string representing a complete HTTP Response.
     func response(middleware: [StaticMiddlewareProtocol]) throws -> String
 
-    /// The `StaticRouteResponseProtocol` responder for this route.
+    /// The `StaticRouteResponderProtocol` responder for this route.
     /// 
     /// Specifically used when registering this route after the server has already started.
     /// - Parameters:
     ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     /// - Throws: any error.
-    func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponseProtocol?
+    func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol?
 
     /// Parsing logic for this route. Computed at compile time.
     /// - Parameters:
