@@ -20,33 +20,6 @@ public struct Socket : SocketProtocol, ~Copyable {
 }
 // MARK: Socket reading
 public extension Socket {
-    /// Reads 1 byte
-    @inlinable
-    func readByte() throws -> UInt8 {
-        var result:UInt8 = 0
-        let bytes_read:Int = recv(fileDescriptor, &result, 1, 0)
-        if bytes_read < 0 {
-            throw SocketError.readSingleByteFailed()
-        }
-        return result
-    }
-
-    @inlinable
-    func readLine() throws -> String {
-        var line:String = ""
-        var index:UInt8 = 0
-        while true {
-            index = try self.readByte()
-            if index == 10 { // line feed (\n)
-                break
-            } else if index == 13 { // carriage return (\r)
-                continue
-            }
-            line.append(Character(UnicodeScalar(index)))
-        }
-        return line
-    }
-
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
     func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 { // read just the method, path & http version
@@ -57,6 +30,7 @@ public extension Socket {
         return (string, read)
     }
 
+    @inlinable
     func loadRequest() throws -> Request {
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
@@ -70,10 +44,10 @@ public extension Socket {
                 break
             }
         }
-        guard let request:Request = Request(tokens: test) else {
+        guard let request:Request = Request.init(tokens: test) else {
             throw SocketError.malformedRequest
         }
-        return request 
+        return request
     }
 
     /// Reads multiple bytes and writes them into a buffer

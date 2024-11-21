@@ -7,7 +7,7 @@
 
 import HTTPTypes
 
-public struct Request : RequestProtocol, ~Copyable {
+public struct Request : RequestProtocol {
     private let tokens:[SIMD64<UInt8>]
     private let headersBeginIndex:Int
     public let startLine:DestinyRoutePathType
@@ -88,7 +88,7 @@ public struct Request : RequestProtocol, ~Copyable {
         uri = values[1].lowHalf
         version = HTTPVersion(versionSIMD.lowHalf)
 
-        headersSIMD()
+        //headersSIMD()
     }
 
     public var description : String {

@@ -12,7 +12,8 @@ import Logging
 import ServiceLifecycle
 
 // MARK: Server
-public actor Server<C : SocketProtocol & ~Copyable, R: RouterProtocol & ~Copyable> : ServerProtocol {
+/// The default `ServerProtocol` implementation Destiny uses.
+public struct Server<C : SocketProtocol & ~Copyable, R: RouterProtocol> : ServerProtocol {
     public typealias ClientSocket = C
     public typealias ServerRouter = R
 
@@ -99,11 +100,10 @@ public actor Server<C : SocketProtocol & ~Copyable, R: RouterProtocol & ~Copyabl
                         group.addTask {
                             do {
                                 let client:Int32 = try Self.client(serverFD: serverFD)
-                                // TODO: move the processing of clients to a dedicated detached Thread/Task (or different system core)
                                 try await ClientProcessing.process_client(
                                     client: client,
                                     client_socket: ClientSocket(fileDescriptor: client),
-                                    router: self.router,
+                                    router: router,
                                     not_found_response: not_found_response
                                 )
                             } catch {
@@ -135,12 +135,12 @@ enum ClientProcessing {
     @inlinable
     static func process_client<C: SocketProtocol & ~Copyable, R: RouterProtocol & ~Copyable>(
         client: Int32,
-        client_socket: consuming C,
+        client_socket: borrowing C,
         router: borrowing R,
         not_found_response: borrowing StaticString
     ) async throws {
         defer {
-            shutdown(client, 2) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
+            shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
         var request:Request = try client_socket.loadRequest()
