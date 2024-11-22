@@ -146,7 +146,7 @@ enum ClientProcessing {
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
-        var request:Request = try client_socket.loadRequest()
+        var request:RequestProtocol = try client_socket.loadRequest()
         if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
             if responder.isAsync {
                 try await responder.respondAsync(to: client_socket)

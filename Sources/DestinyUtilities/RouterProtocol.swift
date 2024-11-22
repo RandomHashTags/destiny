@@ -18,7 +18,7 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func dynamicResponder(for request: inout Request) -> DynamicRouteResponderProtocol?
+    @inlinable func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol?
 
     /// Registers a static route to this router after the server has started.
     mutating func register(_ route: StaticRouteProtocol) throws

@@ -33,7 +33,7 @@ public struct Router : RouterProtocol {
         return staticResponses[startLine]
     }
     @inlinable
-    public func dynamicResponder(for request: inout Request) -> DynamicRouteResponderProtocol? {
+    public func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
         return dynamicResponses.responder(for: &request)
     }
 

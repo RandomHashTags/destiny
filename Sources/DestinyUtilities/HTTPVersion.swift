@@ -12,7 +12,9 @@ public struct HTTPVersion : Sendable, Hashable, CustomStringConvertible {
         return left.token == right.token
     }
 
+    /// `SIMD8<UInt8>` representation of this HTTP Version.
     public let token:StackString8
+    /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
     public let string:String
 
     package init(token: StackString8, string: String) {
@@ -83,17 +85,15 @@ public extension HTTPVersion {
 
 public extension HTTPVersion {
     static func parse(_ expr: ExprSyntax) -> HTTPVersion? {
-        if let string:String = expr.memberAccess?.declName.baseName.text {
-            switch string {
-                case "v0_9": return .v0_9
-                case "v1_0": return .v1_0
-                case "v1_1": return .v1_1
-                case "v1_2": return .v1_2
-                case "v2_0": return .v2_0
-                case "v3_0": return .v3_0
-                default: return nil
-            }
+        guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
+        switch string {
+            case "v0_9": return .v0_9
+            case "v1_0": return .v1_0
+            case "v1_1": return .v1_1
+            case "v1_2": return .v1_2
+            case "v2_0": return .v2_0
+            case "v3_0": return .v3_0
+            default: return nil
         }
-        return nil
     }
 }

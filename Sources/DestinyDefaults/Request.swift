@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 11/11/24.
 //
 
+import DestinyUtilities
 import HTTPTypes
 
 public struct Request : RequestProtocol {

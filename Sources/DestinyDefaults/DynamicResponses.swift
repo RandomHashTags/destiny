@@ -35,7 +35,7 @@ public struct DynamicResponses : Sendable {
         }
     }
 
-    public func responder(for request: inout Request) -> DynamicRouteResponderProtocol? {
+    public func responder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
         if let responder:DynamicRouteResponderProtocol = parameterless[request.startLine] {
             return responder
         }

@@ -31,7 +31,7 @@ public extension Socket {
     }
 
     @inlinable
-    func loadRequest() throws -> Request {
+    func loadRequest() throws -> RequestProtocol {
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
