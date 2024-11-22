@@ -14,7 +14,7 @@ import Logging
 
 let application:Application = Application(
     services: [
-        Server<Socket, Router>(
+        Server<Socket>(
             port: 8080,
             router: #router(
                 version: .v1_1,

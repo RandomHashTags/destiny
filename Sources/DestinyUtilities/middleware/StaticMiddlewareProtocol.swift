@@ -32,6 +32,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesHeaders : [String:String] { get }
 }
 public extension StaticMiddlewareProtocol {
+    /// Whether or not this middleware handles a route with the given options.
     @inlinable
     func handles(
         version: HTTPVersion,

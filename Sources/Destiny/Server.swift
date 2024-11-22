@@ -13,16 +13,15 @@ import ServiceLifecycle
 
 // MARK: Server
 /// The default `ServerProtocol` implementation Destiny uses.
-public struct Server<C : SocketProtocol & ~Copyable, R: RouterProtocol> : ServerProtocol {
+public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
     public typealias ClientSocket = C
-    public typealias ServerRouter = R
 
     public let address:String?
     public var port:in_port_t
     /// The maximum amount of pending connections this Server will accept at a time.
     /// This value is capped at the system's limit (`ulimit -n`).
     public var maxPendingConnections:Int32
-    public var router:R
+    public var router:RouterProtocol
     public let logger:Logger
     public let onLoad:(@Sendable () -> Void)?
     public let onShutdown:(@Sendable () -> Void)?
@@ -31,7 +30,7 @@ public struct Server<C : SocketProtocol & ~Copyable, R: RouterProtocol> : Server
         address: String? = nil,
         port: in_port_t,
         maxPendingConnections: Int32 = SOMAXCONN,
-        router: consuming R,
+        router: consuming RouterProtocol,
         logger: Logger,
         onLoad: (@Sendable () -> Void)? = nil,
         onShutdown: (@Sendable () -> Void)? = nil
@@ -136,10 +135,10 @@ public struct Server<C : SocketProtocol & ~Copyable, R: RouterProtocol> : Server
 // MARK: Client Processing
 enum ClientProcessing {
     @inlinable
-    static func process_client<C: SocketProtocol & ~Copyable, R: RouterProtocol & ~Copyable>(
+    static func process_client<C: SocketProtocol & ~Copyable>(
         client: Int32,
         client_socket: borrowing C,
-        router: borrowing R,
+        router: borrowing RouterProtocol,
         not_found_response: borrowing StaticString
     ) async throws {
         defer {
