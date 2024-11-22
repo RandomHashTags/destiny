@@ -34,6 +34,9 @@ RequestProtocol.swiftdeps*
 RouteResponderProtocol.d
 RouteResponderProtocol.o
 RouteResponderProtocol.swiftdeps*
+RouterGroupProtocol.d
+RouterGroupProtocol.o
+RouterGroupProtocol.swiftdeps*
 Server.d
 Server.o
 Server.swiftdeps*

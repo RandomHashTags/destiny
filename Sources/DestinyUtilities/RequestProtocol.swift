@@ -9,7 +9,11 @@ import HTTPTypes
 
 /// The core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
+    //associatedtype Storage : RequestStorageProtocol
+
     init?(tokens: [SIMD64<UInt8>])
+
+    //var storage : Storage { get set }
 
     /// The HTTP start-line.
     var startLine : DestinyRoutePathType { get }
@@ -21,3 +25,17 @@ public protocol RequestProtocol : Sendable, ~Copyable {
     /// The request headers.
     var headers : [String:String] { mutating get }
 }
+
+/*
+/// The core Request Storage protocol that lays out how data for a request is stored.
+/// 
+/// Some examples of data that is usually stored include:
+/// - Authentication headers
+/// - Cookies
+/// - Unique IDs
+public protocol RequestStorageProtocol : Sendable, ~Copyable {
+    /// - Returns: The stored value for the associated key.
+    func get<K, V>(key: K) -> V?
+    /// Stores the value for the associated key.
+    func set<K, V>(key: K, value: V?)
+}*/
