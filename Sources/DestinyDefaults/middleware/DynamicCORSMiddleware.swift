@@ -12,7 +12,8 @@ import SwiftSyntax
 /// The default dynamic `CORSMiddlewareProtocol` that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
-    private let modifications:[@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void]
+    private let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void
+    private let logicDebugDescription:String
 
     /// Default initializer to create a `DynamicCORSMiddleware`.
     ///
@@ -31,45 +32,40 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         exposedHeaders: Set<HTTPField.Name>? = nil,
         maxAge: Int? = 3600 // one hour
     ) {
-        var modifications:[@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void] = []
-        modifications.reserveCapacity(5)
+        var ddModifications:String = "{\n"
         switch allowedOrigin {
             case .all:
-                modifications.append { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = "*" }
+                ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"*\""
             case .any(let origins):
-                modifications.append {
-                    guard let origin:String = $0.headers[HTTPField.Name.origin.rawName], origins.contains(origin) else { return }
-                    $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin
-                }
+                ddModifications += "if let origin:String = $0.headers[HTTPField.Name.origin.rawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
             case .custom(let s):
-                modifications.append { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = s }
+                ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"" + s + "\""
             case .none:
                 break
             case .originBased:
-                modifications.append {
-                    $1.headers[HTTPField.Name.vary.rawName] = "origin"
-                    guard let origin:String = $0.headers[HTTPField.Name.origin.rawName] else { return }
-                    $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin
-                }
+                ddModifications += "$1.headers[HTTPField.Name.vary.rawName] = \"origin\"; if let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
         }
 
         let allowedHeaders:String = allowedHeaders.map({ $0.rawName  }).joined(separator: ",")
         let allowedMethods:String = allowedMethods.map({ $0.rawValue }).joined(separator: ",")
-        modifications.append {
-            $1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = allowedHeaders
-            $1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = allowedMethods
-        }
+        ddModifications += "; $1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = \"" + allowedHeaders + "\"; $1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = \"" + allowedMethods + "\""
         if allowCredentials {
-            modifications.append { $1.headers[HTTPField.Name.accessControlAllowCredentials.rawName] = "true" }
+            ddModifications += "; $1.headers[HTTPField.Name.accessControlAllowCredentials.rawName] = \"true\""
         }
         if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
-            modifications.append { $1.headers[HTTPField.Name.accessControlExposeHeaders.rawName] = exposedHeaders }
+            ddModifications += "; $1.headers[HTTPField.Name.accessControlExposeHeaders.rawName] = \"" + exposedHeaders + "\""
         }
         if let maxAge:Int = maxAge {
             let s:String = String(maxAge)
-            modifications.append { $1.headers[HTTPField.Name.accessControlMaxAge.rawName] = s }
+            ddModifications += "; $1.headers[HTTPField.Name.accessControlMaxAge.rawName] = \"" + s + "\""
         }
-        self.modifications = modifications
+        self.logic = { _, _ in }
+        self.logicDebugDescription = ddModifications + " }"
+    }
+
+    public init(logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void) {
+        self.logic = logic
+        self.logicDebugDescription = ""
     }
 
     public var isAsync : Bool { false }
@@ -79,9 +75,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
     }
 
     public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) throws {
-        for modification in modifications {
-            modification(&request, &response)
-        }
+        logic(&request, &response)
     }
 
     public func handleAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {}
@@ -90,14 +84,12 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 
     public func onErrorAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) async {}
 
-    
-
-    public var debugDescription: String { "DynamicCORSMiddleware()" }
+    public var debugDescription : String { "DynamicCORSMiddleware(logic: \(logicDebugDescription)\n)" }
 
 }
 
 public extension DynamicCORSMiddleware {
-    static func parse(_ function: FunctionCallExprSyntax) -> Self { // TODO: finish
+    static func parse(_ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased
         var allowedHeaders:Set<HTTPField.Name> = [.accept, .authorization, .contentType, .origin]
         var allowedMethods:Set<HTTPRequest.Method> = [.get, .post, .put, .options, .delete, .patch]
@@ -105,23 +97,37 @@ public extension DynamicCORSMiddleware {
         var maxAge:Int? = 600
         var exposedHeaders:Set<HTTPField.Name>? = nil
         for argument in function.arguments {
-            //print("DynamicCORSMiddleware;parse;argument=" + argument.debugDescription)
             switch argument.label!.text {
                 case "allowedOrigin":
-                    break
+                    if let decl:String = argument.expression.memberAccess?.declName.baseName.text {
+                        switch decl {
+                            case "all": allowedOrigin = .all
+                            case "none": allowedOrigin = .none
+                            case "originBased": allowedOrigin = .originBased
+                            default: break
+                        }
+                    } else if let function:FunctionCallExprSyntax = argument.expression.functionCall {
+                        switch function.calledExpression.memberAccess!.declName.baseName.text {
+                            case "any": allowedOrigin = .any(Set(function.arguments.first!.expression.array!.elements.map({ $0.expression.stringLiteral!.string })))
+                            case "custom": allowedOrigin = .custom(function.arguments.first!.expression.stringLiteral!.string)
+                            default: break
+                        }
+                    }
                 case "allowedHeaders":
-                    break
+                    allowedHeaders = Set(argument.array!.elements.compactMap({ HTTPField.Name.parse(caseName: $0.memberAccess!.declName.baseName.text) }))
                 case "allowedMethods":
                     allowedMethods = Set(argument.array!.elements.compactMap({ HTTPRequest.Method.parse($0.memberAccess!.declName.baseName.text) }))
-                    break
                 case "allowCredentials":
                     allowCredentials = argument.expression.as(BooleanLiteralExprSyntax.self)?.literal.text == "true"
                 case "maxAge":
                     if let s:String = argument.expression.as(IntegerLiteralExprSyntax.self)?.literal.text {
                         maxAge = Int(s)
+                    } else if argument.expression.is(NilLiteralExprSyntax.self) {
+                        maxAge = nil
                     }
                 case "exposedHeaders":
-                    break
+                    guard let values:[HTTPField.Name] = argument.array?.elements.compactMap({ HTTPField.Name.parse(caseName: $0.memberAccess!.declName.baseName.text) }) else { break }
+                    exposedHeaders = Set(values)
                 default:
                     break
             }

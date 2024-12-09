@@ -20,7 +20,7 @@ enum Router : ExpressionMacro {
         print("Router;expansion;test;restructure;test=\(test)")*/
         var version:HTTPVersion = .v1_1
         var static_middleware:[StaticMiddleware] = []
-        var dynamic_middleware:[DynamicMiddleware] = []
+        var dynamic_middleware:[DynamicMiddlewareProtocol] = []
         var static_routes:[(StaticRoute, FunctionCallExprSyntax)] = []
         var dynamic_routes:[(DynamicRoute, FunctionCallExprSyntax)] = []
         for argument in node.macroExpansion!.arguments.children(viewMode: .all) {
@@ -36,10 +36,12 @@ enum Router : ExpressionMacro {
                             for element in child.expression.array!.elements {
                                 //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
                                 if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                                    if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
-                                        dynamic_middleware.append(DynamicMiddleware.parse(function))
-                                    } else {
-                                        static_middleware.append(StaticMiddleware.parse(function))
+                                    let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text
+                                    switch decl {
+                                        case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(function))
+                                        case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(function))
+                                        case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(function))
+                                        default: break
                                     }
                                 } else if let macro_expansion:MacroExpansionExprSyntax = element.expression.macroExpansion {
                                     // TODO: support custom middleware
