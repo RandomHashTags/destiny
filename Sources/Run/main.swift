@@ -28,6 +28,7 @@ let application:Application = Application(
                     StaticMiddleware(handlesMethods: [.get], appliesHeaders: ["You-GET'd":"true"]),
                     StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
                     //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
+                    DynamicCORSMiddleware(),
                     DynamicMiddleware(
                         async: false,
                         shouldHandleLogic: { request, response in

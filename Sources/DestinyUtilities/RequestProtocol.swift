@@ -17,11 +17,13 @@ public protocol RequestProtocol : Sendable, ~Copyable {
 
     /// The HTTP start-line.
     var startLine : DestinyRoutePathType { get }
-    /// The request method.
+
+    /// The optional request method.
     var method : HTTPRequest.Method? { mutating get }
 
     /// The endpoint the request wants to reach, separated by the forward slash character.
     var path : [String] { mutating get }
+    
     /// The request headers.
     var headers : [String:String] { mutating get }
 }
