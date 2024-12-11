@@ -24,7 +24,7 @@ macro HTTPFieldContentTypes(
 
 @inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
 
-public typealias DestinyRoutePathType = StackString32
+public typealias DestinyRoutePathType = StackString64
 
 // MARK: SwiftSyntax Misc
 package extension ExprSyntax {

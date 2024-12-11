@@ -84,10 +84,10 @@ public struct Request : RequestProtocol {
         //print("Utilities;Request;init;first_carriage_return_index=\(first_carriage_return_index);startLine=\(startLine.leadingString())")
         //print("shifted bytes=\((startLine &<< UInt8((first_carriage_return_index + 2) * 8)))")
         startLine.keepLeading(first_carriage_return_index)
-        self.startLine = startLine.lowHalf
+        self.startLine = startLine
         methodSIMD = values[0].lowHalf.lowHalf.lowHalf
-        uri = values[1].lowHalf
-        version = HTTPVersion(versionSIMD.lowHalf)
+        uri = values[1]
+        version = HTTPVersion(versionSIMD)
 
         //headersSIMD()
     }

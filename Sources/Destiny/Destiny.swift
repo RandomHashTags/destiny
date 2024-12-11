@@ -21,8 +21,8 @@ import ServiceLifecycle
 @freestanding(expression)
 public macro router(
     version: HTTPVersion,
-    redirects: [HTTPRequest.Method : [HTTPResponse.Status : [String:String]]] = [:],
     middleware: [any MiddlewareProtocol],
+    redirects: [HTTPRequest.Method : [HTTPResponse.Status : [String:String]]] = [:],
     _ routes: RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
 

@@ -23,7 +23,7 @@ public struct HTTPVersion : Sendable, Hashable, CustomStringConvertible {
         self.string = string
     }
     public init(_ path: DestinyRoutePathType) {
-        switch path.lowHalf.lowHalf {
+        switch path.lowHalf.lowHalf.lowHalf {
             case Self.v0_9simd: self = .v0_9
             case Self.v1_0simd: self = .v1_0
             case Self.v1_1simd: self = .v1_1
