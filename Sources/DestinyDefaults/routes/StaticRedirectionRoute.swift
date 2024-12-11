@@ -15,8 +15,8 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     public let version:HTTPVersion!
     public let method:HTTPRequest.Method
     public let status:HTTPResponse.Status
-    public private(set) var from:[String]
-    public private(set) var to:[String]
+    public package(set) var from:[String]
+    public package(set) var to:[String]
 
     public init(
         version: HTTPVersion? = nil,
