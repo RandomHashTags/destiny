@@ -21,7 +21,7 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
     /// The maximum amount of pending connections this Server will accept at a time.
     /// This value is capped at the system's limit (`ulimit -n`).
     public var maxPendingConnections:Int32
-    public var router:RouterProtocol
+    public let router:RouterProtocol
     public let logger:Logger
     public let onLoad:(@Sendable () -> Void)?
     public let onShutdown:(@Sendable () -> Void)?
@@ -35,6 +35,27 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         onLoad: (@Sendable () -> Void)? = nil,
         onShutdown: (@Sendable () -> Void)? = nil
     ) {
+        var address:String? = address
+        var port:in_port_t = port
+        var maxPendingConnections:Int32 = maxPendingConnections
+        var option:Int = 0
+        for (index, argument) in CommandLine.arguments.enumerated() {
+            if index != 0 && index % 2 == 0 {
+                switch option {
+                    case 0: address = argument
+                    case 1: port = UInt16(argument) ?? port
+                    case 2: maxPendingConnections = Int32(argument) ?? maxPendingConnections
+                    default: break
+                }
+            } else {
+                switch argument {
+                    case "--hostname", "-h": option = 0
+                    case "--port", "-p": option = 1
+                    case "--maxpendingconnections", "-mpc": option = 2
+                    default: option = -1
+                }
+            }
+        }
         self.address = address
         self.port = port
         self.maxPendingConnections = min(SOMAXCONN, maxPendingConnections)
@@ -43,7 +64,8 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         self.onLoad = onLoad
         self.onShutdown = onShutdown
     }
-
+    
+    // MARK: Run
     public func run() async throws {
         #if os(Linux)
         let serverFD:Int32 = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
@@ -119,6 +141,7 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         }
     }
 
+    // MARK: Accept client
     @inlinable
     static func client(serverFD: Int32) async throws -> Int32 {
         return try await withCheckedThrowingContinuation { continuation in

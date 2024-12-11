@@ -15,11 +15,13 @@ Features like compression, embedded support, TLS, and Web Sockets are coming soo
 - <s>Register middleware/routes after starting server</s> (Nov 8, 2024)
 - <s>Support multiple data representations</s> (Nov 8, 2024)
 - <s>Routes with custom parameters</s> (Nov 8, 2024)
+- <s>Configure settings via Command Line Arguments</s> (Dec 11, 2024)
 - CORS (Dynamic CORS implemented Dec 9, 2024)
 - Router Groups
 - Redirects
 - Queries
 - Commands
+- Preprocessor flags
 - Data Validation (form, POST, etc)
 - Authentication
 - Compression
@@ -39,6 +41,44 @@ Features like compression, embedded support, TLS, and Web Sockets are coming soo
 ## Getting started
 
 coming soon...
+
+### Command Line Arguments
+
+Command Line Arguments are prefixed using double hyphens. Command Line Argument aliases are prefixed using a single hyphen.
+
+<details>
+
+<summary>hostname</summary>
+
+Assign the hostname of the server.
+
+- Aliases: `h`
+- Usage: `--hostname <hostname>`
+
+</details>
+
+<details>
+
+<summary>port</summary>
+
+Assigns the port of the server.
+
+- Aliases: `p`
+- Usage: `--port <port>`
+
+</details>
+
+<details>
+
+<summary>maxpendingconnections</summary>
+
+Assigns the maximum pending connections the server can queue.
+
+- Aliases: `mpc`
+- Usage: `--maxpendingconnections <max pending connections>`
+
+</details>
+
 
 ## Benchmarks
 

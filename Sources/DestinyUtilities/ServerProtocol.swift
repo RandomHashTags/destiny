@@ -13,9 +13,12 @@ import ServiceLifecycle
 public protocol ServerProtocol : Service {
     typealias ClientSocket = SocketProtocol & ~Copyable
 
+    /// The main router for the server.
+    var router : RouterProtocol { get }
+
     var logger : Logger { get }
 
-    /// Called when this server loads successfully, just before it accepts incoming network requests.
+    /// Called when the server loads successfully, just before it accepts incoming network requests.
     var onLoad : (@Sendable () -> Void)? { get }
 
     /// Called when the server terminates.

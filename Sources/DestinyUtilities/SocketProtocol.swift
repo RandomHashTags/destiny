@@ -12,6 +12,7 @@ import Foundation
 public protocol SocketProtocol : ~Copyable {
     /// The maximum amount of bytes to read at a single time.
     static var bufferLength : Int { get }
+    
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 
     /// - Warning: Do not close this file descriptor. It is closed automatically by the server.
@@ -23,6 +24,7 @@ public protocol SocketProtocol : ~Copyable {
     @inlinable func loadRequest() throws -> RequestProtocol
 
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws -> Int
+
     /// Writes a buffer to the socket.
     @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 }

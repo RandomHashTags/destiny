@@ -14,6 +14,7 @@ public struct HTTPVersion : Sendable, Hashable, CustomStringConvertible {
 
     /// `SIMD8<UInt8>` representation of this HTTP Version.
     public let token:StackString8
+    
     /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
     public let string:String
 

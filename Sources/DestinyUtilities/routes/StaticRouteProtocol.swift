@@ -13,12 +13,16 @@ import SwiftSyntaxMacros
 public protocol StaticRouteProtocol : RouteProtocol {
     /// The return type of this router, which the `result` gets encoded to.
     var returnType : RouteReturnType { get }
+
     /// The default status of this route.
     var status : HTTPResponse.Status? { get }
+
     /// The default content type of this route.
     var contentType : HTTPMediaType { get }
+
     /// The path of this route.
     var path : [String] { get }
+    
     /// The content you want to return from this route.
     var result : RouteResult { get }
 

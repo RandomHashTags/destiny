@@ -41,6 +41,7 @@ public struct CompiledDynamicRoute : DynamicRouteResponderProtocol {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
+    
     @inlinable
     public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {
         try await logicAsync!(&request, &response)

@@ -14,8 +14,10 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
     @inlinable func shouldHandle(request: inout RequestProtocol, response: borrowing DynamicResponseProtocol) -> Bool
 
     @inlinable func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) throws
+
     @inlinable func handleAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws
 
     @inlinable func onError(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error)
+    
     @inlinable func onErrorAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) async
 }

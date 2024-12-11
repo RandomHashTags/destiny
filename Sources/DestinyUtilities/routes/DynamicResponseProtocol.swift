@@ -11,10 +11,13 @@ import HTTPTypes
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
     /// The response `HTTPVersion`.
     var version : HTTPVersion { get set }
+
     /// The response status.
     var status : HTTPResponse.Status { get set }
+
     /// The response headers.
     var headers : [String:String] { get set }
+    
     /// The response content.
     var result : RouteResult { get set }
 
