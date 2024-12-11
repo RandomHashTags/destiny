@@ -27,7 +27,7 @@ macro HTTPFieldContentTypes(
 public typealias DestinyRoutePathType = StackString32
 
 // MARK: SwiftSyntax Misc
-package extension SyntaxProtocol {
+package extension ExprSyntax {
     var macroExpansion : MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
     var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
     var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }

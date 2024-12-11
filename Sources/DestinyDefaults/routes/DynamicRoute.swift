@@ -10,6 +10,7 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+// MARK: DynamicRoute
 /// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public let isAsync:Bool
@@ -72,11 +73,12 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 }
 
+// MARK: Parse
 public extension DynamicRoute {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
         var async:Bool = false
-        var method_string:String = ".get"
+        var method:HTTPRequest.Method = .get
         var path:[PathComponent] = []
         var status:HTTPResponse.Status = .notImplemented
         var content_type:HTTPMediaType = HTTPMediaType.Text.plain
@@ -87,24 +89,19 @@ public extension DynamicRoute {
             switch key {
                 case "async":
                     async = argument.expression.booleanLiteral!.literal.text == "true"
-                    break
                 case "version":
                     if let parsed:HTTPVersion = HTTPVersion.parse(argument.expression) {
                         version = parsed
                     }
-                    break
                 case "method":
-                    method_string = argument.expression.memberAccess!.declName.baseName.text.uppercased()
-                    break
+                    method = HTTPRequest.Method(expr: argument.expression) ?? method
                 case "path":
                     path = argument.expression.array!.elements.map({ PathComponent(expression: $0.expression) })
                     for component in path.filter({ $0.isParameter }) {
                         parameters[component.value] = ""
                     }
-                    break
                 case "status":
-                    status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text) ?? .notImplemented
-                    break
+                    status = HTTPResponse.Status(expr: argument.expression) ?? status
                 case "contentType":
                     if let member:String = argument.expression.memberAccess?.declName.baseName.text {
                         content_type = HTTPMediaType.parse(member) ?? HTTPMediaType(rawValue: member, caseName: member, debugDescription: member)
@@ -122,7 +119,6 @@ public extension DynamicRoute {
                     break
             }
         }
-        let method:HTTPRequest.Method = HTTPRequest.Method(rawValue: method_string)!
         var headers:[String:String] = [:]
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: content_type, status: status) {

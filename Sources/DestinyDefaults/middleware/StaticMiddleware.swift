@@ -88,10 +88,10 @@ public extension StaticMiddleware {
                     handlesVersions = Set(argument.expression.array!.elements.compactMap({ HTTPVersion.parse($0.expression) }))
                     break
                 case "handlesMethods":
-                    handlesMethods = Set(argument.expression.array!.elements.map({ HTTPRequest.Method(rawValue: "\($0.expression.memberAccess!.declName.baseName.text)".uppercased())! }))
+                    handlesMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
                     break
                 case "handlesStatuses":
-                    handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponse.Status.parse($0.expression.memberAccess!.declName.baseName.text) }))
+                    handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponse.Status(expr: $0.expression) }))
                     break
                 case "handlesContentTypes":
                     handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))

@@ -17,8 +17,8 @@ Features like compression, embedded support, TLS, and Web Sockets are coming soo
 - <s>Routes with custom parameters</s> (Nov 8, 2024)
 - <s>Configure settings via Command Line Arguments</s> (Dec 11, 2024)
 - CORS (Dynamic CORS implemented Dec 9, 2024)
+- Redirects (Static Redirects implemented Dec 11, 2024)
 - Router Groups
-- Redirects
 - Queries
 - Commands
 - Preprocessor flags

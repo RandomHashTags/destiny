@@ -38,6 +38,18 @@ let application:Application = Application(
                         handleLogicAsync: nil
                     )
                 ],
+                StaticRedirectionRoute(
+                    method: .get,
+                    status: .temporaryRedirect,
+                    from: ["redirectfrom"],
+                    to: ["redirectto"]
+                ),
+                StaticRoute(
+                    method: .get,
+                    path: ["redirectto"],
+                    contentType: HTTPMediaType.Text.html,
+                    result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>")
+                ),
                 StaticRoute(
                     method: .get,
                     path: ["html"],

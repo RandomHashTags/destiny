@@ -6,8 +6,15 @@
 //
 
 import HTTPTypes
+import SwiftSyntax
 
 public extension HTTPRequest.Method {
+    // MARK: Init ExprSyntax
+    init?(expr: ExprSyntax) {
+        guard let caseName:String = expr.memberAccess?.declName.baseName.text, let method:HTTPRequest.Method = HTTPRequest.Method(rawValue: caseName.uppercased()) else { return nil }
+        self = method
+    }
+    
     // MARK: caseName
     var caseName : String? {
         switch self {

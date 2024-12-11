@@ -20,10 +20,11 @@ enum Router : ExpressionMacro {
         print("Router;expansion;test;restructure;test=\(test)")*/
         var version:HTTPVersion = .v1_1
         var static_middleware:[StaticMiddleware] = []
+        var static_redirects:[(RedirectionRouteProtocol, FunctionCallExprSyntax)] = []
         var dynamic_middleware:[DynamicMiddlewareProtocol] = []
         var static_routes:[(StaticRoute, FunctionCallExprSyntax)] = []
         var dynamic_routes:[(DynamicRoute, FunctionCallExprSyntax)] = []
-        for argument in node.macroExpansion!.arguments.children(viewMode: .all) {
+        for argument in node.as(ExprSyntax.self)!.macroExpansion!.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
                     switch key {
@@ -31,6 +32,8 @@ enum Router : ExpressionMacro {
                             if let parsed:HTTPVersion = HTTPVersion.parse(child.expression) {
                                 version = parsed
                             }
+                            break
+                        case "redirects":
                             break
                         case "middleware":
                             for element in child.expression.array!.elements {
@@ -54,19 +57,31 @@ enum Router : ExpressionMacro {
                     }
                 } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
                     //print("Router;expansion;route;function=\(function)")
-                    if function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text.starts(with: "Dynamic") {
-                        if let route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
-                            dynamic_routes.append((route, function))
+                    if let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                        switch decl {
+                            case "DynamicRoute":
+                                if let route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
+                                    dynamic_routes.append((route, function))
+                                }
+                            case "StaticRoute":
+                                if let route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
+                                    static_routes.append((route, function))
+                                }
+                            case "StaticRedirectionRoute":
+                                if let route:StaticRedirectionRoute = StaticRedirectionRoute.parse(context: context, version: version, function) {
+                                    static_redirects.append((route, function))
+                                }
+                            default:
+                                break
                         }
-                    } else if let route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
-                        static_routes.append((route, function))
                     }
+                    
                 } else {
                     // TODO: support custom routes
                 }
             }
         }
-        let static_responses:String = parse_static_routes_string(context: context, middleware: static_middleware, static_routes)
+        let static_responses:String = parse_static_routes_string(context: context, redirects: static_redirects, middleware: static_middleware, static_routes)
         let dynamic_routes_string:String = parse_dynamic_routes_string(context: context, dynamic_routes)
         let static_middleware_string:String = static_middleware.isEmpty ? "" : "\n" + static_middleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
         let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
@@ -82,10 +97,36 @@ private extension Router {
 
 // MARK: Parse static routes string
 private extension Router {
-    static func parse_static_routes_string(context: some MacroExpansionContext, middleware: [StaticMiddleware], _ routes: [(StaticRoute, FunctionCallExprSyntax)]) -> String {
+    static func parse_static_routes_string(
+        context: some MacroExpansionContext,
+        redirects: [(RedirectionRouteProtocol, FunctionCallExprSyntax)],
+        middleware: [StaticMiddleware],
+        _ routes: [(StaticRoute, FunctionCallExprSyntax)]
+    ) -> String {
         var registered_paths:Set<String> = []
         registered_paths.reserveCapacity(routes.count)
-        return routes.isEmpty ? ":" : "\n" + routes.compactMap({ (route, function) in
+        guard !routes.isEmpty else { return ":" }
+        var string:String = "\n"
+        if !redirects.isEmpty {
+            string += redirects.compactMap({ (route, function) in
+                do {
+                    var string:String = route.method.rawValue + " /" + route.from.joined(separator: "/") + " " + route.version.string
+                    if registered_paths.contains(string) {
+                        route_path_already_registered(context: context, node: function, string)
+                        return nil
+                    } else {
+                        registered_paths.insert(string)
+                        let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
+                        let response:String = try route.response()
+                        let value:String = RouteReturnType.staticString.encode(response)
+                        return "// \(string)\n\(buffer) : " + value
+                    }
+                } catch {
+                    return nil
+                }
+            }).joined(separator: ",\n") + ",\n"
+        }
+        string += routes.compactMap({ (route, function) in
             do {
                 var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + route.version.string
                 if registered_paths.contains(string) {
@@ -102,7 +143,8 @@ private extension Router {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
                 return nil
             }
-        }).joined(separator: ",\n") + "\n"
+        }).joined(separator: ",\n")
+        return string + "\n"
     }
 }
 // MARK: Parse dynamic routes string

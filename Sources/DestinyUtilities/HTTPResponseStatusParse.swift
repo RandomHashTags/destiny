@@ -6,8 +6,15 @@
 //
 
 import HTTPTypes
+import SwiftSyntax
 
 public extension HTTPResponse.Status {
+    // MARK: Init ExprSyntax
+    init?(expr: ExprSyntax) {
+        guard let string:String = expr.memberAccess?.declName.baseName.text, let status:Self = Self.parse(string) else { return nil }
+        self = status
+    }
+
     // MARK: Parse by code
     var caseName : String? {
         switch code {

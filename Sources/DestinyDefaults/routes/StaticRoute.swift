@@ -68,14 +68,7 @@ public struct StaticRoute : StaticRouteProtocol {
         }
         headers[HTTPField.Name.contentType.rawName] = nil
         headers[HTTPField.Name.contentLength.rawName] = nil
-        var string:String = version.string + " \(response_status)\\r\\n"
-        for (header, value) in headers {
-            string += header + ": " + value + "\\r\\n"
-        }
-        let content_length:Int = result_string.count - result_string.ranges(of: "\\").count
-        string += HTTPField.Name.contentType.rawName + ": " + content_type.rawValue + (charset != nil ? "; charset=" + charset! : "") + "\\r\\n"
-        string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
-        return string + "\\r\\n\\r\\n" + result_string
+        return DestinyDefaults.httpResponse(version: version, status: response_status, headers: headers, result: result_string, contentType: content_type, charset: charset)
     }
 
     public func responder(middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
@@ -83,6 +76,7 @@ public struct StaticRoute : StaticRouteProtocol {
     }
 }
 
+// MARK: Parse
 public extension StaticRoute {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
@@ -96,23 +90,19 @@ public extension StaticRoute {
             let key:String = argument.label!.text
             switch key {
                 case "version":
-                    if let parsed:HTTPVersion = HTTPVersion.parse(argument.expression) {
-                        version = parsed
-                    }
-                    break
+                    version = HTTPVersion.parse(argument.expression) ?? version
                 case "returnType":
                     if let rawValue:String = argument.expression.memberAccess?.declName.baseName.text {
                         returnType = RouteReturnType(rawValue: rawValue) ?? .staticString
                     }
                     break
                 case "method":
-                    method = HTTPRequest.Method(rawValue: "\(argument.expression.memberAccess!.declName.baseName.text)".uppercased())!
-                    break
+                    method = HTTPRequest.Method(expr: argument.expression) ?? method
                 case "path":
                     path = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
                     break
                 case "status":
-                    status = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text)
+                    status = HTTPResponse.Status(expr: argument.expression)
                     break
                 case "contentType":
                     if let member:String = argument.expression.memberAccess?.declName.baseName.text {

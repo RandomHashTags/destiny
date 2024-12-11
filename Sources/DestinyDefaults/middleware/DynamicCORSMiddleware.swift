@@ -114,9 +114,9 @@ public extension DynamicCORSMiddleware {
                         }
                     }
                 case "allowedHeaders":
-                    allowedHeaders = Set(argument.array!.elements.compactMap({ HTTPField.Name.parse(caseName: $0.memberAccess!.declName.baseName.text) }))
+                    allowedHeaders = Set(argument.expression.array!.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }))
                 case "allowedMethods":
-                    allowedMethods = Set(argument.array!.elements.compactMap({ HTTPRequest.Method.parse($0.memberAccess!.declName.baseName.text) }))
+                    allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
                 case "allowCredentials":
                     allowCredentials = argument.expression.as(BooleanLiteralExprSyntax.self)?.literal.text == "true"
                 case "maxAge":
@@ -126,7 +126,7 @@ public extension DynamicCORSMiddleware {
                         maxAge = nil
                     }
                 case "exposedHeaders":
-                    guard let values:[HTTPField.Name] = argument.array?.elements.compactMap({ HTTPField.Name.parse(caseName: $0.memberAccess!.declName.baseName.text) }) else { break }
+                    guard let values:[HTTPField.Name] = argument.expression.array?.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }) else { break }
                     exposedHeaders = Set(values)
                 default:
                     break
