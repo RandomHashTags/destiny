@@ -18,12 +18,18 @@ let package = Package(
     dependencies: [
         // Macros
         .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
+
         // Request/Response types
         .package(url: "https://github.com/apple/swift-http-types", from: "1.3.0"),
+
         // Logging
         .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
+
         // Service runtime
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1")
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1"),
+
+        // Compression
+        //.package(url: "https://github.com/mw99/DataCompression", from: "3.8.0") // macOS only
     ],
     targets: [
         .macro(

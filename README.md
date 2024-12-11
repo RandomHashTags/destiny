@@ -8,6 +8,34 @@ It provides a router (which is used via a Swift Macro) that accepts router group
 
 Features like compression, embedded support, TLS, and Web Sockets are coming soon.
 
+## Roadmap
+
+- <s>Custom hostname and port</s> (Nov 8, 2024)
+- <s>Middleware and Routes</s> (Nov 8, 2024)
+- <s>Register middleware/routes after starting server</s> (Nov 8, 2024)
+- <s>Support multiple data representations</s> (Nov 8, 2024)
+- <s>Routes with custom parameters</s> (Nov 8, 2024)
+- CORS (Dynamic CORS implemented Dec 9, 2024)
+- Router Groups
+- Redirects
+- Queries
+- Commands
+- Data Validation (form, POST, etc)
+- Authentication
+- Compression
+- Hybrid Routes
+- TLS/SSL
+- Web Sockets
+- SIMD processing for headers
+- Response streaming
+- Support custom middleware & routes in default `#router`
+- Support third-party macro expansions in `#router`
+- Unit testing middleware/routes/requests
+- Better handling of clients to unlock more throughput
+- CSS & JavaScript minification (separate repo?)
+- Swift-APNS (separate repo?)
+- Embedded support
+
 ## Getting started
 
 coming soon...
