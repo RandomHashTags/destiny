@@ -30,7 +30,7 @@ enum HTTPFieldContentTypes : MemberMacro {
             }
             inits_string += "\ndefault: return nil\n}\n}"
 
-            var string:String = "public enum \(key.capitalized) {\n"
+            var string:String = "// MARK: \(key.capitalized)\npublic enum \(key.capitalized) {\n"
             string += cases_string + "\n\n" + inits_string + "\n}"
             decls.append("\(raw: string)")
         }

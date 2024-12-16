@@ -7,7 +7,10 @@
 
 import HTTPTypes
 
-/// All recognized media types by the IANA (https://www.iana.org/assignments/media-types/media-types.xhtml).
+/// All recognized media types by the IANA (https://www.iana.org/assignments/media-types/media-types.xhtml), with additional media types.
+/// 
+/// Additional Media Types
+/// - xGoogleProtobuf & xProtobuf: Protocol Buffers (https://protobuf.dev/)
 @HTTPFieldContentTypes(
     application: [
         "calendarJSON" : "calendar+json",
@@ -82,6 +85,8 @@ import HTTPTypes
         "xx509NextCACert" : "x-x509-next-ca-cert",
 
         "xml" : "",
+        "xGoogleProtobuf" : "x-google-protobuf",
+        "xProtobuf" : "x-protobuf",
 
         "yaml" : "",
         "yang" : "",
@@ -458,7 +463,7 @@ import HTTPTypes
         "vp9" : "VP9"
     ]
 )
-public struct HTTPMediaType : Sendable, Hashable, CustomStringConvertible, CustomDebugStringConvertible {
+public struct HTTPMediaType : CustomDebugStringConvertible, CustomStringConvertible, Hashable, Sendable {
     public let rawValue:String
     public let caseName:String
     public let description:String
