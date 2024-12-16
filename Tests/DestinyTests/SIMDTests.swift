@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 11/8/24.
 //
 
+#if swift(>=6.0)
+
 import DestinyUtilities
 import Testing
 
@@ -227,3 +229,5 @@ struct SIMDTests {
         #expect(ss64.trailingString() == "0tw")
     }
 }
+
+#endif

@@ -53,6 +53,12 @@ let application:Application = Application(
                 ),
                 StaticRoute(
                     method: .get,
+                    path: ["bro?what=dude"],
+                    contentType: HTTPMediaType.Application.json,
+                    result: .string("{\"bing\":\"bonged\"}")
+                ),
+                StaticRoute(
+                    method: .get,
                     path: ["html"],
                     contentType: HTTPMediaType.Text.html,
                     result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")

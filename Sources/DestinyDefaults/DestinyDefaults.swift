@@ -9,7 +9,8 @@ import DestinyUtilities
 import HTTPTypes
 
 public enum DestinyDefaults {
-    static func httpResponse(
+    @inlinable
+    public static func httpResponse(
         version: HTTPVersion,
         status: HTTPResponse.Status,
         headers: [String:String],

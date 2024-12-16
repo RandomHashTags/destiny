@@ -9,6 +9,7 @@ import DestinyUtilities
 import HTTPTypes
 import SwiftSyntax
 
+// MARK: DynamicCORSMiddleware
 /// The default dynamic `CORSMiddlewareProtocol` that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
@@ -88,6 +89,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 
 }
 
+// MARK: Parse
 public extension DynamicCORSMiddleware {
     static func parse(_ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased

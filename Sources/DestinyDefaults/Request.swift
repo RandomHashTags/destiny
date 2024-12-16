@@ -44,6 +44,26 @@ public struct Request : RequestProtocol {
         return dictionary
     }()
 
+    public lazy var query : [String:String] = {
+        guard (uri .== .init(repeating: 63)) != .init(repeating: false), // make sure a question mark is present
+                let targets:[DestinyRoutePathType] = uri.splitSIMD(separator: 63).get(1)?.splitSIMD(separator: 38) // 63 -> ? | 38 -> &
+        else {
+            return [:]
+        }
+        var queries:[String:String] = [:]
+        queries.reserveCapacity(targets.count)
+        for var key in targets {
+            let equalsIndex:Int = key.leadingNonByteCount(byte: 61) // 61 -> =
+            var value:DestinyRoutePathType = copy key
+            // TODO: shift SIMD right `equalsIndex+1`
+            value.keepLeading(value.leadingNonzeroByteCount)
+
+            key.keepLeading(equalsIndex)
+            queries[key.leadingString()] = value.stringSIMD()
+        }
+        return queries
+    }()
+
     public func headersSIMD() {
         var headers:[SIMD64<UInt8>] = []
         headers.reserveCapacity(10)

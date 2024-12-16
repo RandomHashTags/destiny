@@ -732,10 +732,8 @@ public extension SIMD2 where Scalar : BinaryInteger {
                 break
             case 1:
                 self[1] = 0
-                break
             default:
                 self = .init()
-                break
         }
     }
 }
@@ -752,17 +750,13 @@ public extension SIMD4 where Scalar : BinaryInteger {
                 break
             case 1:
                 highHalf[1] = 0
-                break
             case 2:
                 highHalf = .init()
-                break
             case 3:
                 highHalf = .init()
                 lowHalf[1] = 0
-                break
             default:
                 self = .init()
-                break
         }
     }
 }
@@ -779,14 +773,11 @@ public extension SIMD8 where Scalar : BinaryInteger {
                 break
             case 1...4:
                 highHalf.dropTrailing(length)
-                break
             case 5...7:
                 highHalf = .init()
                 lowHalf.dropTrailing(length - 4)
-                break
             default:
                 self = .init()
-                break
         }
     }
 }
@@ -802,14 +793,11 @@ public extension SIMD16 where Scalar : BinaryInteger {
                 break
             case 1...8:
                 highHalf.dropTrailing(length)
-                break
             case 9...15:
                 highHalf = .init()
                 lowHalf.dropTrailing(length - 8)
-                break
             default:
                 self = .init()
-                break
         }
     }
 }
@@ -825,14 +813,11 @@ public extension SIMD32 where Scalar : BinaryInteger {
                 break
             case 1...16:
                 highHalf.dropTrailing(length)
-                break
             case 17...31:
                 highHalf = .init()
                 lowHalf.dropTrailing(length - 16)
-                break
             default:
                 self = .init()
-                break
         }
     }
 }
@@ -848,14 +833,11 @@ public extension SIMD64 where Scalar : BinaryInteger {
                 break
             case 1...32:
                 highHalf.dropTrailing(length)
-                break
             case 33...63:
                 highHalf = .init()
                 lowHalf.dropTrailing(length - 32)
-                break
             default:
                 self = .init()
-                break
         }
     }
 }
@@ -873,10 +855,8 @@ public extension SIMD2 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1:
                 y = 0
-                break
             default:
                 break
         }
@@ -893,18 +873,14 @@ public extension SIMD4 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1:
                 y = 0
                 z = 0
                 w = 0
-                break
             case 2:
                 highHalf = .init()
-                break
             case 3:
                 w = 0
-                break
             default:
                 break
         }
@@ -921,14 +897,11 @@ public extension SIMD8 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...4:
                 lowHalf.keepLeading(length)
                 highHalf = .init()
-                break
             case 5...7:
                 highHalf.keepLeading(length - 4)
-                break
             default:
                 break
         }
@@ -945,14 +918,11 @@ public extension SIMD16 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...8:
                 lowHalf.keepLeading(length)
                 highHalf = .init()
-                break
             case 9...15:
                 highHalf.keepLeading(length - 8)
-                break
             default:
                 break
         }
@@ -969,14 +939,11 @@ public extension SIMD32 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...16:
                 lowHalf.keepLeading(length)
                 highHalf = .init()
-                break
             case 17...31:
                 highHalf.keepLeading(length - 16)
-                break
             default:
                 break
         }
@@ -993,14 +960,11 @@ public extension SIMD64 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...32:
                 lowHalf.keepLeading(length)
                 highHalf = .init()
-                break
             case 33...63:
                 highHalf.keepLeading(length - 32)
-                break
             default:
                 break
         }
@@ -1020,10 +984,8 @@ public extension SIMD2 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1:
                 x = 0
-                break
             default:
                 break
         }
@@ -1040,18 +1002,14 @@ public extension SIMD4 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1:
                 x = 0
                 y = 0
                 z = 0
-                break
             case 2:
                 lowHalf = .init()
-                break
             case 3:
                 x = 0
-                break
             default:
                 break
         }
@@ -1068,14 +1026,11 @@ public extension SIMD8 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...4:
                 lowHalf = .init()
                 highHalf.keepTrailing(length)
-                break
             case 5...7:
                 lowHalf.keepTrailing(length - 4)
-                break
             default:
                 break
         }
@@ -1092,14 +1047,11 @@ public extension SIMD16 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...8:
                 lowHalf = .init()
                 highHalf.keepTrailing(length)
-                break
             case 9...15:
                 lowHalf.keepTrailing(length - 8)
-                break
             default:
                 break
         }
@@ -1116,14 +1068,11 @@ public extension SIMD32 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...16:
                 lowHalf = .init()
                 highHalf.keepTrailing(length)
-                break
             case 17...31:
                 lowHalf.keepTrailing(length - 16)
-                break
             default:
                 break
         }
@@ -1140,14 +1089,11 @@ public extension SIMD64 where Scalar : BinaryInteger {
         switch length {
             case _ where length <= 0:
                 self = .init()
-                break
             case 1...32:
                 lowHalf = .init()
                 highHalf.keepTrailing(length)
-                break
             case 33...63:
                 lowHalf.keepTrailing(length - 32)
-                break
             default:
                 break
         }

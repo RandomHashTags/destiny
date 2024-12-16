@@ -19,6 +19,7 @@ Features like compression, embedded support, TLS, and Web Sockets are coming soo
 - CORS (Dynamic CORS implemented Dec 9, 2024)
 - Redirects (Static Redirects implemented Dec 11, 2024)
 - Router Groups
+- Metric Middleware
 - Queries
 - Commands
 - Preprocessor flags

@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+#if swift(>=6.0)
+
 import Destiny
 import HTTPTypes
 import Testing
@@ -50,3 +52,5 @@ struct DestinyTests {
         )
     }
 }
+
+#endif
