@@ -119,97 +119,97 @@ public extension SIMD64 where Scalar == UInt8 {
 extension SIMD2 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func leadingChars() -> [Scalar] {
+    func leadingScalars() -> [Scalar] {
         return x == 0 ? [] : y == 0 ? [x] : [x, y]
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's leading scalars.
     /// - Complexity: O(1)
     @inlinable
     public func leadingString() -> String {
-        return String(decoding: leadingChars(), as: UTF8.self)
+        return String(decoding: leadingScalars(), as: UTF8.self)
     }
 }
 extension SIMD4 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func leadingChars() -> [Scalar] {
+    func leadingScalars() -> [Scalar] {
         if (self .!= .zero) == .init(repeating: true) {
             return [x, y, z, w]
         }
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.leadingChars()
+            return lowHalf.leadingScalars()
         }
-        return [x, y] + highHalf.leadingChars()
+        return [x, y] + highHalf.leadingScalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's leading scalars.
     /// - Complexity: O(1)
     @inlinable
     public func leadingString() -> String {
-        return String(decoding: leadingChars(), as: UTF8.self)
+        return String(decoding: leadingScalars(), as: UTF8.self)
     }
 }
 extension SIMD8 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func leadingChars() -> [Scalar] {
+    func leadingScalars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.leadingChars()
+            return lowHalf.leadingScalars()
         }
-        return lowHalf.leadingChars() + highHalf.leadingChars()
+        return lowHalf.leadingScalars() + highHalf.leadingScalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's leading scalars.
     /// - Complexity: O(1)
     @inlinable
     public func leadingString() -> String {
-        return String(decoding: leadingChars(), as: UTF8.self)
+        return String(decoding: leadingScalars(), as: UTF8.self)
     }
 }
 extension SIMD16 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func leadingChars() -> [Scalar] {
+    func leadingScalars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.leadingChars()
+            return lowHalf.leadingScalars()
         }
-        return lowHalf.leadingChars() + highHalf.leadingChars()
+        return lowHalf.leadingScalars() + highHalf.leadingScalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's leading scalars.
     /// - Complexity: O(1)
     @inlinable
     public func leadingString() -> String {
-        return String(decoding: leadingChars(), as: UTF8.self)
+        return String(decoding: leadingScalars(), as: UTF8.self)
     }
 }
 extension SIMD32 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func leadingChars() -> [Scalar] {
+    func leadingScalars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.leadingChars()
+            return lowHalf.leadingScalars()
         }
-        return lowHalf.leadingChars() + highHalf.leadingChars()
+        return lowHalf.leadingScalars() + highHalf.leadingScalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's leading scalars.
     /// - Complexity: O(1)
     @inlinable
     public func leadingString() -> String {
-        return String(decoding: leadingChars(), as: UTF8.self)
+        return String(decoding: leadingScalars(), as: UTF8.self)
     }
 }
 extension SIMD64 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func leadingChars() -> [Scalar] {
+    func leadingScalars() -> [Scalar] {
         if (lowHalf .!= .zero) != .init(repeating: true) {
-            return lowHalf.leadingChars()
+            return lowHalf.leadingScalars()
         }
-        return lowHalf.leadingChars() + highHalf.leadingChars()
+        return lowHalf.leadingScalars() + highHalf.leadingScalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's leading scalars.
     /// - Complexity: O(1)
     @inlinable
     public func leadingString() -> String {
-        return String(decoding: leadingChars(), as: UTF8.self)
+        return String(decoding: leadingScalars(), as: UTF8.self)
     }
 }
 
@@ -217,97 +217,97 @@ extension SIMD64 where Scalar == UInt8 {
 extension SIMD2 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func trailingChars() -> [Scalar] {
+    func trailingScalars() -> [Scalar] {
         return y == 0 ? [] : x == 0 ? [y] : [x, y]
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's trailing scalars.
     /// - Complexity: O(1)
     @inlinable
     public func trailingString() -> String {
-        return String(decoding: trailingChars(), as: UTF8.self)
+        return String(decoding: trailingScalars(), as: UTF8.self)
     }
 }
 extension SIMD4 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func trailingChars() -> [Scalar] {
+    func trailingScalars() -> [Scalar] {
         if (self .!= .zero) == .init(repeating: true) {
             return [x, y, z, w]
         }
         if (highHalf .!= .zero) != .init(repeating: true) {
-            return highHalf.trailingChars()
+            return highHalf.trailingScalars()
         }
-        return lowHalf.trailingChars() + [z, w]
+        return lowHalf.trailingScalars() + [z, w]
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's trailing scalars.
     /// - Complexity: O(1)
     @inlinable
     public func trailingString() -> String {
-        return String(decoding: trailingChars(), as: UTF8.self)
+        return String(decoding: trailingScalars(), as: UTF8.self)
     }
 }
 extension SIMD8 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func trailingChars() -> [Scalar] {
+    func trailingScalars() -> [Scalar] {
         if (highHalf .!= .zero) != .init(repeating: true) {
-            return highHalf.trailingChars()
+            return highHalf.trailingScalars()
         }
-        return lowHalf.trailingChars() + [highHalf.x, highHalf.y, highHalf.z, highHalf.w]
+        return lowHalf.trailingScalars() + [highHalf.x, highHalf.y, highHalf.z, highHalf.w]
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's trailing scalars.
     /// - Complexity: O(1)
     @inlinable
     public func trailingString() -> String {
-        return String(decoding: trailingChars(), as: UTF8.self)
+        return String(decoding: trailingScalars(), as: UTF8.self)
     }
 }
 extension SIMD16 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func trailingChars() -> [Scalar] {
+    func trailingScalars() -> [Scalar] {
         if (highHalf .!= .zero) != .init(repeating: true) {
-            return highHalf.trailingChars()
+            return highHalf.trailingScalars()
         }
-        return lowHalf.trailingChars() + highHalf.scalars()
+        return lowHalf.trailingScalars() + highHalf.scalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's trailing scalars.
     /// - Complexity: O(1)
     @inlinable
     public func trailingString() -> String {
-        return String(decoding: trailingChars(), as: UTF8.self)
+        return String(decoding: trailingScalars(), as: UTF8.self)
     }
 }
 extension SIMD32 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func trailingChars() -> [Scalar] {
+    func trailingScalars() -> [Scalar] {
         if (highHalf .!= .zero) != .init(repeating: true) {
-            return highHalf.trailingChars()
+            return highHalf.trailingScalars()
         }
-        return lowHalf.trailingChars() + highHalf.scalars()
+        return lowHalf.trailingScalars() + highHalf.scalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's trailing scalars.
     /// - Complexity: O(1)
     @inlinable
     public func trailingString() -> String {
-        return String(decoding: trailingChars(), as: UTF8.self)
+        return String(decoding: trailingScalars(), as: UTF8.self)
     }
 }
 extension SIMD64 where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func trailingChars() -> [Scalar] {
+    func trailingScalars() -> [Scalar] {
         if (highHalf .!= .zero) != .init(repeating: true) {
-            return highHalf.trailingChars()
+            return highHalf.trailingScalars()
         }
-        return lowHalf.trailingChars() + highHalf.scalars()
+        return lowHalf.trailingScalars() + highHalf.scalars()
     }
-    /// Creates a `String` based on this vector's values.
+    /// Creates a `String` based on this vector's trailing scalars.
     /// - Complexity: O(1)
     @inlinable
     public func trailingString() -> String {
-        return String(decoding: trailingChars(), as: UTF8.self)
+        return String(decoding: trailingScalars(), as: UTF8.self)
     }
 }
 
