@@ -21,6 +21,7 @@ import HTTPTypes
         "dnsMessage" : "dns-message",
 
         "example" : "",
+        "excel" : "vnd.ms-excel",
 
         "geoJSON" : "geo+json",
         "geoJSONSeq" : "geo+json-seq",
@@ -37,6 +38,8 @@ import HTTPTypes
         "jwkSetJWT" : "jwk-set+jwt",
         "jwt" : "",
 
+        "ldJSON" : "ld+json",
+
         "manifestJSON" : "manifest+json",
         "mp4" : "",
         "msword" : "",
@@ -52,6 +55,8 @@ import HTTPTypes
         "pgpEncrypted" : "php-encrypted",
         "pgpKeys" : "pgp-keys",
         "pgpSignature" : "pgp-signature",
+        "portableExecutable" : "vnd.microsoft.portable-executable",
+        "powerpoint" : "vnd.ms-powerpoint",
 
         "rtf" : "",
         "rtploopback" : "",
@@ -95,7 +100,11 @@ import HTTPTypes
         "zlib" : "",
         "zstd" : ""
     ],
-    audio: [:],
+    audio: [
+        "mpeg" : "",
+
+        "ogg" : ""
+    ],
     font: [
         "collection" : "",
         "otf" : "",
