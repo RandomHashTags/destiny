@@ -235,7 +235,8 @@ private extension Router {
         for technique in route.supportedCompressionTechniques {
             if let compressed:CompressionResult<[UInt8]> = technique.compress(data: body) {
                 httpResponse.result = .bytes(compressed.data)
-                httpResponse.headers[HTTPField.Name.acceptEncoding.rawName] = technique.acceptEncodingName
+                httpResponse.headers[HTTPField.Name.contentEncoding.rawName] = technique.acceptEncodingName
+                httpResponse.headers[HTTPField.Name.vary.rawName] = HTTPField.Name.acceptEncoding.rawName
                 do {
                     let bytes:[UInt8] = try httpResponse.bytes()
                     responder.conditionsDescription += "\n{ $0.headers[HTTPField.Name.acceptEncoding.rawName]?.contains(\"" + technique.acceptEncodingName + "\") ?? false }"
