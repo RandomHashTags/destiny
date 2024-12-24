@@ -18,6 +18,7 @@ Features like compression, embedded support, TLS, and Web Sockets are coming soo
 - <s>Configure settings via Command Line Arguments</s> (Dec 11, 2024)
 - CORS (Dynamic CORS implemented Dec 9, 2024)
 - Redirects (Static Redirects implemented Dec 11, 2024)
+- Compression (see [Swift Compression](https://github.com/RandomHashTags/swift-compression))
 - Router Groups
 - Metric Middleware
 - Queries
@@ -25,12 +26,11 @@ Features like compression, embedded support, TLS, and Web Sockets are coming soo
 - Preprocessor flags
 - Data Validation (form, POST, etc)
 - Authentication
-- Compression
 - Hybrid Routes
 - TLS/SSL
 - Web Sockets
 - SIMD processing for headers
-- Response streaming
+- Response/data streaming
 - Support custom middleware & routes in default `#router`
 - Support third-party macro expansions in `#router`
 - Unit testing middleware/routes/requests
