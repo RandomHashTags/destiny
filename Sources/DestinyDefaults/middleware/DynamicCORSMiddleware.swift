@@ -35,16 +35,16 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
     ) {
         var ddModifications:String = "{\n"
         switch allowedOrigin {
-            case .all:
-                ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"*\""
-            case .any(let origins):
-                ddModifications += "if let origin:String = $0.headers[HTTPField.Name.origin.rawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
-            case .custom(let s):
-                ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"" + s + "\""
-            case .none:
-                break
-            case .originBased:
-                ddModifications += "$1.headers[HTTPField.Name.vary.rawName] = \"origin\"; if let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
+        case .all:
+            ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"*\""
+        case .any(let origins):
+            ddModifications += "if let origin:String = $0.headers[HTTPField.Name.origin.rawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
+        case .custom(let s):
+            ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"" + s + "\""
+        case .none:
+            break
+        case .originBased:
+            ddModifications += "$1.headers[HTTPField.Name.vary.rawName] = \"origin\"; if let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
         }
 
         let allowedHeaders:String = allowedHeaders.map({ $0.rawName  }).joined(separator: ",")
@@ -100,38 +100,38 @@ public extension DynamicCORSMiddleware {
         var exposedHeaders:Set<HTTPField.Name>? = nil
         for argument in function.arguments {
             switch argument.label!.text {
-                case "allowedOrigin":
-                    if let decl:String = argument.expression.memberAccess?.declName.baseName.text {
-                        switch decl {
-                            case "all": allowedOrigin = .all
-                            case "none": allowedOrigin = .none
-                            case "originBased": allowedOrigin = .originBased
-                            default: break
-                        }
-                    } else if let function:FunctionCallExprSyntax = argument.expression.functionCall {
-                        switch function.calledExpression.memberAccess!.declName.baseName.text {
-                            case "any": allowedOrigin = .any(Set(function.arguments.first!.expression.array!.elements.map({ $0.expression.stringLiteral!.string })))
-                            case "custom": allowedOrigin = .custom(function.arguments.first!.expression.stringLiteral!.string)
-                            default: break
-                        }
+            case "allowedOrigin":
+                if let decl:String = argument.expression.memberAccess?.declName.baseName.text {
+                    switch decl {
+                    case "all": allowedOrigin = .all
+                    case "none": allowedOrigin = .none
+                    case "originBased": allowedOrigin = .originBased
+                    default: break
                     }
-                case "allowedHeaders":
-                    allowedHeaders = Set(argument.expression.array!.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }))
-                case "allowedMethods":
-                    allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
-                case "allowCredentials":
-                    allowCredentials = argument.expression.as(BooleanLiteralExprSyntax.self)?.literal.text == "true"
-                case "maxAge":
-                    if let s:String = argument.expression.as(IntegerLiteralExprSyntax.self)?.literal.text {
-                        maxAge = Int(s)
-                    } else if argument.expression.is(NilLiteralExprSyntax.self) {
-                        maxAge = nil
+                } else if let function:FunctionCallExprSyntax = argument.expression.functionCall {
+                    switch function.calledExpression.memberAccess!.declName.baseName.text {
+                    case "any": allowedOrigin = .any(Set(function.arguments.first!.expression.array!.elements.map({ $0.expression.stringLiteral!.string })))
+                    case "custom": allowedOrigin = .custom(function.arguments.first!.expression.stringLiteral!.string)
+                    default: break
                     }
-                case "exposedHeaders":
-                    guard let values:[HTTPField.Name] = argument.expression.array?.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }) else { break }
-                    exposedHeaders = Set(values)
-                default:
-                    break
+                }
+            case "allowedHeaders":
+                allowedHeaders = Set(argument.expression.array!.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }))
+            case "allowedMethods":
+                allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
+            case "allowCredentials":
+                allowCredentials = argument.expression.as(BooleanLiteralExprSyntax.self)?.literal.text == "true"
+            case "maxAge":
+                if let s:String = argument.expression.as(IntegerLiteralExprSyntax.self)?.literal.text {
+                    maxAge = Int(s)
+                } else if argument.expression.is(NilLiteralExprSyntax.self) {
+                    maxAge = nil
+                }
+            case "exposedHeaders":
+                guard let values:[HTTPField.Name] = argument.expression.array?.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }) else { break }
+                exposedHeaders = Set(values)
+            default:
+                break
             }
         }
         return Self(allowedOrigin: allowedOrigin, allowedHeaders: allowedHeaders, allowedMethods: allowedMethods, allowCredentials: allowCredentials, exposedHeaders: exposedHeaders, maxAge: maxAge)

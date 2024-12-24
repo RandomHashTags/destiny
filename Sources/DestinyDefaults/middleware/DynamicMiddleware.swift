@@ -76,26 +76,26 @@ public extension DynamicMiddleware {
         var onErrorAsync:String = "nil"
         for argument in function.arguments {
             switch argument.label!.text {
-                case "async":
-                    async = argument.expression.booleanLiteral!.literal.text == "true"
-                    break
-                case "shouldHandleLogic":
-                    shouldHandleLogic = "\(argument.expression)"
-                    break
-                case "handleLogic":
-                    handleLogic = "\(argument.expression)"
-                    break
-                case "handleLogicAsync":
-                    handleLogicAsync = "\(argument.expression)"
-                    break
-                case "onError":
-                    onError = "\(argument.expression)"
-                    break
-                case "onErrorAsync":
-                    onErrorAsync = "\(argument.expression)"
-                    break
-                default:
-                    break
+            case "async":
+                async = argument.expression.booleanLiteral!.literal.text == "true"
+                break
+            case "shouldHandleLogic":
+                shouldHandleLogic = "\(argument.expression)"
+                break
+            case "handleLogic":
+                handleLogic = "\(argument.expression)"
+                break
+            case "handleLogicAsync":
+                handleLogicAsync = "\(argument.expression)"
+                break
+            case "onError":
+                onError = "\(argument.expression)"
+                break
+            case "onErrorAsync":
+                onErrorAsync = "\(argument.expression)"
+                break
+            default:
+                break
             }
         }
         var middleware:DynamicMiddleware = DynamicMiddleware(

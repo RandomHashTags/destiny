@@ -6,6 +6,7 @@
 //
 
 import HTTPTypes
+import SwiftCompression
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -30,4 +31,12 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     ///   - version: The `HTTPVersion` of the `RouterProtocol` this middleware is assigned to.
     ///   - function: The SwiftSyntax expression that represents this route.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
+}
+
+// Redirects do not use compression.
+public extension RedirectionRouteProtocol {
+    var supportedCompressionTechniques : Set<CompressionTechnique> {
+        get { [] }
+        set {}
+    }
 }

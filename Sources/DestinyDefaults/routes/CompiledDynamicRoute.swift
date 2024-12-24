@@ -33,6 +33,10 @@ public struct CompiledDynamicRoute : DynamicRouteResponderProtocol {
         self.logicAsync = logicAsync
     }
 
+    public var debugDescription : String {
+        return "CompiledDynamicRoute(async: \(isAsync), path: \(path), defaultResponse: \(defaultResponse), logic: nil, logicAsync: nil)" // TODO: fix
+    }
+
 
     @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout RequestProtocol, response: inout DynamicResponseProtocol) throws {

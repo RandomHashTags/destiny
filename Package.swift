@@ -29,7 +29,7 @@ let package = Package(
         .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1"),
 
         // Compression
-        //.package(url: "https://github.com/mw99/DataCompression", from: "3.8.0") // macOS only
+        .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")
     ],
     targets: [
         .macro(
@@ -47,6 +47,7 @@ let package = Package(
                 "DestinyUtilityMacros",
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
+                .product(name: "SwiftCompression", package: "swift-compression"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax")

@@ -15,26 +15,36 @@ public enum RouteResult : Sendable {
 
     public var count : Int {
         switch self {
-            case .string(let string): return string.utf8.count
-            case .bytes(let bytes): return bytes.count
-            case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
-            case .error(let error): return "\(error)".count
+        case .string(let string): return string.utf8.count
+        case .bytes(let bytes): return bytes.count
+        case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
+        case .error(let error): return "\(error)".count
         }
     }
 
     @inlinable
     package func string() throws -> String {
         switch self {
-            case .string(let string): return string
-            case .bytes(let bytes): return bytes.map({ "\($0)" }).joined()
-            case .json(let encodable):
-                do {
-                    let data:Data = try JSONEncoder().encode(encodable)
-                    return String(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
-                } catch {
-                    return "{\"error\":500,\"reason\":\"\(error)\"}"
-                }
-            case .error(let error): return "\(error)"
+        case .string(let string): return string
+        case .bytes(let bytes): return String.init(decoding: bytes, as: UTF8.self)
+        case .json(let encodable):
+            do {
+                let data:Data = try JSONEncoder().encode(encodable)
+                return String(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
+            } catch {
+                return "{\"error\":500,\"reason\":\"\(error)\"}"
+            }
+        case .error(let error): return "\(error)"
+        }
+    }
+
+    @inlinable
+    package func bytes() throws -> [UInt8] {
+        switch self {
+        case .string(let s): return [UInt8](s.utf8)
+        case .bytes(let b): return b
+        case .json(let e): return [] // TODO: finish
+        case .error(let e): return [] // TODO: finish
         }
     }
 }

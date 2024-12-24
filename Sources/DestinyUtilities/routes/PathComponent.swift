@@ -8,7 +8,7 @@
 import SwiftSyntax
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
-public enum PathComponent : Sendable, CustomStringConvertible, ExpressibleByStringLiteral {
+public enum PathComponent : CustomStringConvertible, ExpressibleByStringLiteral, Sendable {
     public typealias StringLiteralType = String
     public typealias ExtendedGraphemeClusterLiteralType = String
     public typealias UnicodeScalarLiteralType = String
@@ -32,24 +32,24 @@ public enum PathComponent : Sendable, CustomStringConvertible, ExpressibleByStri
     /// Whether or not this component is a parameter.
     public var isParameter : Bool {
         switch self {
-            case .literal(_):   return false
-            case .parameter(_): return true
+        case .literal(_):   return false
+        case .parameter(_): return true
         }
     }
 
     /// String representation of this component including the delimiter, if it is a parameter. Used to determine where parameters are located in a route's path at compile time.
     public var slug : String {
         switch self {
-            case .literal(let value):   return value
-            case .parameter(let value): return ":" + value
+        case .literal(let value):   return value
+        case .parameter(let value): return ":" + value
         }
     }
 
     /// String representation of this component where the delimiter is omitted (only the name of the path is present).
     public var value : String {
         switch self {
-            case .literal(let value):   return value
-            case .parameter(let value): return value
+        case .literal(let value):   return value
+        case .parameter(let value): return value
         }
     }
 }

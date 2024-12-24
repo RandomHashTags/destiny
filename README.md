@@ -4,40 +4,39 @@
 
 Destiny is a standalone lightweight web server that makes use of the latest Swift features to push performance to the absolute limits of the Swift Language, and designed to require the minimum amount of dependencies.
 
-It provides a router (which is used via a Swift Macro) that accepts router groups, middleware and routes for processing requests.
+It provides a router (which is used via a Swift Macro) that accepts router groups, redirects, middleware and routes for processing requests.
 
-Features like compression, embedded support, TLS, and Web Sockets are coming soon.
+Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 
 ## Roadmap
 
-- <s>Custom hostname and port</s> (Nov 8, 2024)
-- <s>Middleware and Routes</s> (Nov 8, 2024)
-- <s>Register middleware/routes after starting server</s> (Nov 8, 2024)
-- <s>Support multiple data representations</s> (Nov 8, 2024)
-- <s>Routes with custom parameters</s> (Nov 8, 2024)
-- <s>Configure settings via Command Line Arguments</s> (Dec 11, 2024)
-- CORS (Dynamic CORS implemented Dec 9, 2024)
-- Redirects (Static Redirects implemented Dec 11, 2024)
-- Compression (see [Swift Compression](https://github.com/RandomHashTags/swift-compression))
-- Router Groups
-- Metric Middleware
-- Queries
-- Commands
-- Preprocessor flags
-- Data Validation (form, POST, etc)
-- Authentication
-- Hybrid Routes
-- TLS/SSL
-- Web Sockets
-- SIMD processing for headers
-- Response/data streaming
-- Support custom middleware & routes in default `#router`
-- Support third-party macro expansions in `#router`
-- Unit testing middleware/routes/requests
-- Better handling of clients to unlock more throughput
-- CSS & JavaScript minification (separate repo?)
-- Swift-APNS (separate repo?)
-- Embedded support
+- [x] Custom hostname and port <b>(Nov 8, 2024)</b>
+- [x] Middleware and Routes <b>(Nov 8, 2024)</b>
+- [x] Register middleware/routes after starting server <b>(Nov 8, 2024)</b>
+- [x] Support multiple data representations <b>(Nov 8, 2024)</b>
+- [x] Routes with custom parameters <b>(Nov 8, 2024)</b>
+- [x] Configure settings via Command Line Arguments <b>(Dec 11, 2024)</b>
+- [x] Compression <b>(Dec 24, 2024 | see [Swift Compression](https://github.com/RandomHashTags/swift-compression))</b>
+- [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ConditionalRouteResponderProtocol.swift))</b>
+- [ ] CORS <b>(Dynamic CORS implemented Dec 9, 2024)</b>
+- [ ] Redirects <b>(Static Redirects implemented Dec 11, 2024)</b>
+- [ ] Router Groups
+- [ ] Metric Middleware
+- [ ] Queries
+- [ ] Commands
+- [ ] Data Validation (form, POST, etc)
+- [ ] Authentication
+- [ ] TLS/SSL
+- [ ] Web Sockets
+- [ ] SIMD processing for headers
+- [ ] Response/data streaming
+- [ ] Support custom middleware & routes in default `#router`
+- [ ] Support third-party macro expansions in `#router`
+- [ ] Unit testing middleware/routes/requests
+- [ ] Better handling of clients to unlock more throughput
+- [ ] CSS & JavaScript minification (separate repo?)
+- [ ] Swift-APNS (separate repo?)
+- [ ] Embedded support
 
 ## Getting started
 

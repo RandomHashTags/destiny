@@ -18,46 +18,46 @@ public extension HTTPRequest.Method {
     // MARK: caseName
     var caseName : String? {
         switch self {
-            case .get:     return "get"
-            case .head:    return "head"
-            case .post:    return "post"
-            case .put:     return "put"
-            case .delete:  return "delete"
-            case .connect: return "connect"
-            case .options: return "options"
-            case .trace:   return "trace"
-            case .patch:   return "patch"
-            default:       return nil
+        case .get:     return "get"
+        case .head:    return "head"
+        case .post:    return "post"
+        case .put:     return "put"
+        case .delete:  return "delete"
+        case .connect: return "connect"
+        case .options: return "options"
+        case .trace:   return "trace"
+        case .patch:   return "patch"
+        default:       return nil
         }
     }
     // MARK: Parse by key
     static func parse(_ key: String) -> Self? {
         switch key {
-            case "get", "GET":         return .get
-            case "head", "HEAD":       return .head
-            case "post", "POST":       return .post
-            case "put", "PUT":         return .put
-            case "delete", "DELETE":   return .delete
-            case "connect", "CONNECT": return .connect
-            case "options", "OPTIONS": return .options
-            case "trace", "TRACE":     return .trace
-            case "patch", "PATCH":     return .patch
-            default:                   return .init(key)
+        case "get", "GET":         return .get
+        case "head", "HEAD":       return .head
+        case "post", "POST":       return .post
+        case "put", "PUT":         return .put
+        case "delete", "DELETE":   return .delete
+        case "connect", "CONNECT": return .connect
+        case "options", "OPTIONS": return .options
+        case "trace", "TRACE":     return .trace
+        case "patch", "PATCH":     return .patch
+        default:                   return .init(key)
         }
     }
     // MARK: Parse by SIMD key
     static func parse(_ key: StackString8) -> Self? {
         switch key {
-            case Self.getSIMD:     return .get
-            case Self.headSIMD:    return .head
-            case Self.postSIMD:    return .post
-            case Self.putSIMD:     return .put
-            case Self.deleteSIMD:  return .delete
-            case Self.connectSIMD: return .connect
-            case Self.optionsSIMD: return .options
-            case Self.traceSIMD:   return .trace
-            case Self.patchSIMD:   return .patch
-            default:               return .init(key.stringSIMD())
+        case Self.getSIMD:     return .get
+        case Self.headSIMD:    return .head
+        case Self.postSIMD:    return .post
+        case Self.putSIMD:     return .put
+        case Self.deleteSIMD:  return .delete
+        case Self.connectSIMD: return .connect
+        case Self.optionsSIMD: return .options
+        case Self.traceSIMD:   return .trace
+        case Self.patchSIMD:   return .patch
+        default:               return .init(key.stringSIMD())
         }
     }
     static let getSIMD:StackString8 = StackString8(71, 69, 84, 0, 0, 0, 0, 0)

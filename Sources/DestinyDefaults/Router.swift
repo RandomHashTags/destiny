@@ -12,6 +12,7 @@ import HTTPTypes
 public struct Router : RouterProtocol {
     public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]
     public private(set) var dynamicResponses:DynamicResponses
+    public private(set) var conditionalResponses:[DestinyRoutePathType:ConditionalRouteResponderProtocol]
 
     public private(set) var staticMiddleware:[StaticMiddlewareProtocol]
     public private(set) var dynamicMiddleware:[DynamicMiddlewareProtocol]
@@ -19,11 +20,13 @@ public struct Router : RouterProtocol {
     public init(
         staticResponses: [DestinyRoutePathType:StaticRouteResponderProtocol],
         dynamicResponses: DynamicResponses,
+        conditionalResponses: [DestinyRoutePathType:ConditionalRouteResponderProtocol],
         staticMiddleware: [StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol]
     ) {
         self.staticResponses = staticResponses
         self.dynamicMiddleware = dynamicMiddleware
+        self.conditionalResponses = conditionalResponses
         self.staticMiddleware = staticMiddleware
         self.dynamicResponses = dynamicResponses
     }
@@ -36,6 +39,11 @@ public struct Router : RouterProtocol {
     public func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
         return dynamicResponses.responder(for: &request)
     }
+    
+    @inlinable
+    public func conditionalResponder(for request: inout RequestProtocol) -> RouteResponderProtocol? {
+        return conditionalResponses[request.startLine]?.responder(for: &request)
+    }
 
     public mutating func register(_ route: StaticRouteProtocol) throws {
         guard let responder:StaticRouteResponderProtocol = try route.responder(middleware: staticMiddleware) else { return }
@@ -45,9 +53,6 @@ public struct Router : RouterProtocol {
     }
     public mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) throws {
         var copy:DynamicRouteProtocol = route
-        if copy.status == nil {
-            copy.status = .notImplemented
-        }
         copy.applyStaticMiddleware(staticMiddleware)
         dynamicResponses.register(version: copy.version, route: copy, responder: responder)
     }

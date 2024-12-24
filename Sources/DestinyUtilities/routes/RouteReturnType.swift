@@ -29,10 +29,10 @@ public struct RouteReturnType : Sendable {
         rawValue: "data",
         encode: { response(valueType: "Data", bytes([UInt8]($0.utf8))) }
     )
-    public static let unsafeBufferPointer:RouteReturnType = RouteReturnType(
+    /*public static let unsafeBufferPointer:RouteReturnType = RouteReturnType(
         rawValue: "unsafeBufferPointer",
         encode: { response(valueType: "UnsafeBufferPointer", "StaticString(\"" + $0 + "\").withUTF8Buffer { $0 }") }
-    )
+    )*/
 
     //public static var custom:[String:RouteReturnType] = [:]
     
@@ -45,15 +45,15 @@ public struct RouteReturnType : Sendable {
     }
     public init?(rawValue: String) {
         switch rawValue {
-            case "staticString":        self = .staticString
-            case "uint8Array":          self = .uint8Array
-            case "uint16Array":         self = .uint16Array
-            case "data":                self = .data
-            case "unsafeBufferPointer": self = .unsafeBufferPointer
-            default:
-                return nil
-                /*guard let target:RouteReturnType = Self.custom[rawValue] else { return nil }
-                self = target*/
+        case "staticString":        self = .staticString
+        case "uint8Array":          self = .uint8Array
+        case "uint16Array":         self = .uint16Array
+        case "data":                self = .data
+        //case "unsafeBufferPointer": self = .unsafeBufferPointer
+        default:
+            return nil
+            /*guard let target:RouteReturnType = Self.custom[rawValue] else { return nil }
+            self = target*/
         }
     }
 }

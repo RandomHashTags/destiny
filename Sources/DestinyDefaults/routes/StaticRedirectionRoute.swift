@@ -12,14 +12,14 @@ import SwiftSyntaxMacros
 
 // MARK: StaticRedirectionRoute
 public struct StaticRedirectionRoute : RedirectionRouteProtocol {
-    public let version:HTTPVersion!
+    public let version:HTTPVersion
     public let method:HTTPRequest.Method
     public let status:HTTPResponse.Status
     public package(set) var from:[String]
     public package(set) var to:[String]
 
     public init(
-        version: HTTPVersion? = nil,
+        version: HTTPVersion = .v1_0,
         method: HTTPRequest.Method,
         status: HTTPResponse.Status,
         from: [StaticString],
@@ -47,14 +47,13 @@ public extension StaticRedirectionRoute {
         var to:[String] = []
         var status:HTTPResponse.Status = .movedPermanently
         for argument in function.arguments {
-            let key:String = argument.label!.text
-            switch key {
-                case "version": version = HTTPVersion.parse(argument.expression) ?? version
-                case "method": method = HTTPRequest.Method(expr: argument.expression) ?? method
-                case "status": status = HTTPResponse.Status(expr: argument.expression) ?? status
-                case "from": from = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
-                case "to": to = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
-                default: break
+            switch argument.label!.text {
+            case "version": version = HTTPVersion.parse(argument.expression) ?? version
+            case "method": method = HTTPRequest.Method(expr: argument.expression) ?? method
+            case "status": status = HTTPResponse.Status(expr: argument.expression) ?? status
+            case "from": from = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
+            case "to": to = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
+            default: break
             }
         }
         var route:Self = Self(version: version, method: method, status: status, from: [], to: [])

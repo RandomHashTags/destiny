@@ -8,6 +8,7 @@
 import DestinyUtilities
 import HTTPTypes
 
+/// The default storage where Destiny handles dynamic routes.
 public struct DynamicResponses : Sendable {
     public private(set) var parameterless:[DestinyRoutePathType:DynamicRouteResponderProtocol]
     public private(set) var parameterized:[[DynamicRouteResponderProtocol]]

@@ -84,35 +84,27 @@ public extension StaticMiddleware {
         var appliesHeaders:[String:String] = [:]
         for argument in function.arguments {
             switch argument.label!.text {
-                case "handlesVersions":
-                    handlesVersions = Set(argument.expression.array!.elements.compactMap({ HTTPVersion.parse($0.expression) }))
-                    break
-                case "handlesMethods":
-                    handlesMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
-                    break
-                case "handlesStatuses":
-                    handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponse.Status(expr: $0.expression) }))
-                    break
-                case "handlesContentTypes":
-                    handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))
-                    break
-                case "appliesVersion":
-                    appliesVersion = HTTPVersion.parse(argument.expression)
-                    break
-                case "appliesStatus":
-                    appliesStatus = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text)
-                    break
-                case "appliesContentType":
-                    appliesContentType = HTTPMediaType.parse(argument.expression.memberAccess!.declName.baseName.text)
-                    break
-                case "appliesHeaders":
-                    let dictionary:[(String, String)] = argument.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.map({ ($0.key.stringLiteral!.string, $0.value.stringLiteral!.string) })
-                    for (key, value) in dictionary {
-                        appliesHeaders[key] = value
-                    }
-                    break
-                default:
-                    break
+            case "handlesVersions":
+                handlesVersions = Set(argument.expression.array!.elements.compactMap({ HTTPVersion.parse($0.expression) }))
+            case "handlesMethods":
+                handlesMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
+            case "handlesStatuses":
+                handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponse.Status(expr: $0.expression) }))
+            case "handlesContentTypes":
+                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))
+            case "appliesVersion":
+                appliesVersion = HTTPVersion.parse(argument.expression)
+            case "appliesStatus":
+                appliesStatus = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text)
+            case "appliesContentType":
+                appliesContentType = HTTPMediaType.parse(argument.expression.memberAccess!.declName.baseName.text)
+            case "appliesHeaders":
+                let dictionary:[(String, String)] = argument.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.map({ ($0.key.stringLiteral!.string, $0.value.stringLiteral!.string) })
+                for (key, value) in dictionary {
+                    appliesHeaders[key] = value
+                }
+            default:
+                break
             }
         }
         return StaticMiddleware(

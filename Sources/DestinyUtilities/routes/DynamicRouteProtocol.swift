@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 /// The core Route protocol that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
-    var status : HTTPResponse.Status? { get set }
+    var status : HTTPResponse.Status { get set }
 
     /// The default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
     var contentType : HTTPMediaType { get set }

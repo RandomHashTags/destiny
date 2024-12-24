@@ -9,6 +9,7 @@ import DestinyDefaults
 import DestinyUtilities
 import Foundation
 import HTTPTypes
+import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -19,6 +20,7 @@ enum Router : ExpressionMacro {
         let test:Test = Router.restructure(arguments: arguments)
         print("Router;expansion;test;restructure;test=\(test)")*/
         var version:HTTPVersion = .v1_1
+        var supportedCompressionTechniques:Set<CompressionTechnique> = []
         var static_middleware:[StaticMiddleware] = []
         var static_redirects:[(RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamic_middleware:[DynamicMiddlewareProtocol] = []
@@ -29,47 +31,51 @@ enum Router : ExpressionMacro {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 if let key:String = child.label?.text {
                     switch key {
-                        case "version":
-                            version = HTTPVersion.parse(child.expression) ?? version
-                        case "redirects":
-                            parse_redirects(context: context, version: version, dictionary: child.expression.dictionary!, static_redirects: &static_redirects, dynamic_redirects: &dynamic_redirects)
-                        case "middleware":
-                            for element in child.expression.array!.elements {
-                                //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
-                                if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                                    let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text
-                                    switch decl {
-                                        case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(function))
-                                        case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(function))
-                                        case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(function))
-                                        default: break
-                                    }
-                                } else if let macro_expansion:MacroExpansionExprSyntax = element.expression.macroExpansion {
-                                    // TODO: support custom middleware
-                                } else {
+                    case "version":
+                        version = HTTPVersion.parse(child.expression) ?? version
+                    case "supportedCompressionTechniques":
+                        supportedCompressionTechniques = Set(child.expression.array!.elements.compactMap({ CompressionTechnique.init($0.expression) }))
+                    case "redirects":
+                        parse_redirects(context: context, version: version, dictionary: child.expression.dictionary!, static_redirects: &static_redirects, dynamic_redirects: &dynamic_redirects)
+                    case "middleware":
+                        for element in child.expression.array!.elements {
+                            //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
+                            if let function:FunctionCallExprSyntax = element.expression.functionCall {
+                                let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text
+                                switch decl {
+                                case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(function))
+                                case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(function))
+                                case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(function))
+                                default: break
                                 }
+                            } else if let _:MacroExpansionExprSyntax = element.expression.macroExpansion {
+                                // TODO: support custom middleware
+                            } else {
                             }
-                        default:
-                            break
+                        }
+                    default:
+                        break
                     }
                 } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
                     //print("Router;expansion;route;function=\(function)")
                     if let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                         switch decl {
-                            case "DynamicRoute":
-                                if let route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
-                                    dynamic_routes.append((route, function))
-                                }
-                            case "StaticRoute":
-                                if let route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
-                                    static_routes.append((route, function))
-                                }
-                            case "StaticRedirectionRoute":
-                                if let route:StaticRedirectionRoute = StaticRedirectionRoute.parse(context: context, version: version, function) {
-                                    static_redirects.append((route, function))
-                                }
-                            default:
-                                break
+                        case "DynamicRoute":
+                            if var route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
+                                route.supportedCompressionTechniques.formUnion(supportedCompressionTechniques)
+                                dynamic_routes.append((route, function))
+                            }
+                        case "StaticRoute":
+                            if var route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
+                                route.supportedCompressionTechniques.formUnion(supportedCompressionTechniques)
+                                static_routes.append((route, function))
+                            }
+                        case "StaticRedirectionRoute":
+                            if let route:StaticRedirectionRoute = StaticRedirectionRoute.parse(context: context, version: version, function) {
+                                static_redirects.append((route, function))
+                            }
+                        default:
+                            break
                         }
                     }
                     
@@ -79,11 +85,31 @@ enum Router : ExpressionMacro {
             }
         }
         var registered_paths:Set<String> = []
-        let static_responses:String = parse_static_routes_string(context: context, registered_paths: &registered_paths, redirects: static_redirects, middleware: static_middleware, static_routes)
-        let dynamic_routes_string:String = parse_dynamic_routes_string(context: context, registered_paths: &registered_paths, dynamic_routes)
+        var conditionalResponders:[RoutePath:ConditionalRouteResponderProtocol] = [:]
+        let static_responses:String = static_routes_string(context: context, registered_paths: &registered_paths, conditionalResponders: &conditionalResponders, redirects: static_redirects, middleware: static_middleware, static_routes)
+        let dynamic_routes_string:String = dynamic_routes_string(context: context, registered_paths: &registered_paths, dynamic_routes)
         let static_middleware_string:String = static_middleware.isEmpty ? "" : "\n" + static_middleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
         let dynamic_middleware_string:String = dynamic_middleware.isEmpty ? "" : "\n" + dynamic_middleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
-        return "\(raw: "Router(\nstaticResponses: [\(static_responses)],\ndynamicResponses: \(dynamic_routes_string),\nstaticMiddleware: [\(static_middleware_string)],\ndynamicMiddleware: [\(dynamic_middleware_string)]\n)")"
+
+        var conditionalRespondersString:String
+        if conditionalResponders.isEmpty {
+            conditionalRespondersString = ":"
+        } else {
+            conditionalRespondersString = ""
+            for (routePath, route) in conditionalResponders {
+                conditionalRespondersString += "\n\(routePath.comment)\n\(routePath.path) : \(route.debugDescription),"
+            }
+            conditionalRespondersString.removeLast()
+            conditionalRespondersString += "\n"
+        }
+
+        var string:String = "Router(\nstaticResponses: [\(static_responses)],"
+        string += "\ndynamicResponses: \(dynamic_routes_string),"
+        string += "\nconditionalResponses: [\(conditionalRespondersString)],"
+        string += "\nstaticMiddleware: [\(static_middleware_string)],"
+        string += "\ndynamicMiddleware: [\(dynamic_middleware_string)]"
+        string += "\n)"
+        return "\(raw: string)"
     }
 }
 
@@ -93,7 +119,7 @@ private extension Router {
     }
 }
 
-// MARK: Parse redirects
+// MARK: Redirects
 private extension Router {
     static func parse_redirects(
         context: some MacroExpansionContext,
@@ -125,11 +151,12 @@ private extension Router {
     }
 }
 
-// MARK: Parse static routes string
+// MARK: Static routes string
 private extension Router {
-    static func parse_static_routes_string(
+    static func static_routes_string(
         context: some MacroExpansionContext,
         registered_paths: inout Set<String>,
+        conditionalResponders: inout [RoutePath:ConditionalRouteResponderProtocol],
         redirects: [(RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [StaticMiddleware],
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
@@ -164,9 +191,14 @@ private extension Router {
                 } else {
                     registered_paths.insert(string)
                     let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                    let response:String = try route.response(middleware: middleware)
-                    let value:String = route.returnType.encode(response)
-                    return "// \(string)\n\(buffer) : " + value
+                    let httpResponse:CompleteHTTPResponse = route.response(middleware: middleware)
+                    if route.supportedCompressionTechniques.isEmpty {
+                        let value:String = try route.returnType.encode(httpResponse.string())
+                        return "// \(string)\n\(buffer) : " + value
+                    } else {
+                        conditionalRoute(context: context, conditionalResponders: &conditionalResponders, route: route, function: function, string: string, buffer: buffer, httpResponse: httpResponse)
+                        return nil
+                    }
                 }
             } catch {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
@@ -176,9 +208,60 @@ private extension Router {
         return string + "\n"
     }
 }
-// MARK: Parse dynamic routes string
+
+// MARK: Conditional route
 private extension Router {
-    static func parse_dynamic_routes_string(
+    static func conditionalRoute(
+        context: some MacroExpansionContext,
+        conditionalResponders: inout [RoutePath:ConditionalRouteResponderProtocol],
+        route: RouteProtocol,
+        function: FunctionCallExprSyntax,
+        string: String,
+        buffer: DestinyRoutePathType,
+        httpResponse: CompleteHTTPResponse
+    ) {
+        guard let result:RouteResult = httpResponse.result else { return }
+        let body:[UInt8]
+        do {
+            body = try result.bytes()
+        } catch {
+            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the CompleteHTTPResponse bytes: \(error).")))
+            return
+        }
+        var httpResponse:CompleteHTTPResponse = httpResponse
+        var responder:ConditionalRouteResponder = ConditionalRouteResponder(isAsync: false, conditions: [], responders: [])
+        responder.conditionsDescription.removeLast() // ]
+        responder.respondersDescription.removeLast() // ]
+        for technique in route.supportedCompressionTechniques {
+            if let compressed:CompressionResult<[UInt8]> = technique.compress(data: body) {
+                httpResponse.result = .bytes(compressed.data)
+                httpResponse.headers[HTTPField.Name.acceptEncoding.rawName] = technique.acceptEncodingName
+                do {
+                    let bytes:[UInt8] = try httpResponse.bytes()
+                    responder.conditionsDescription += "\n{ $0.headers[HTTPField.Name.acceptEncoding.rawName]?.contains(\"" + technique.acceptEncodingName + "\") ?? false }"
+                    responder.respondersDescription += "\n" + RouteResponses.UInt8Array(bytes).debugDescription
+                } catch {
+                    context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the CompleteHTTPResponse bytes using the " + technique.rawValue + " compression technique: \(error).")))
+                }
+            } else {
+                context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "compressionFailed", message: "Failed to compress route data using the " + technique.rawValue + " technique.", severity: .warning)))
+            }
+        }
+        responder.conditionsDescription += "\n]"
+        responder.respondersDescription += "\n]"
+        conditionalResponders[RoutePath(comment: "// \(string)", path: buffer)] = responder
+    }
+}
+
+// MARK: RoutePath
+struct RoutePath : Hashable {
+    let comment:String
+    let path:DestinyRoutePathType
+}
+
+// MARK: Dynamic routes string
+private extension Router {
+    static func dynamic_routes_string(
         context: some MacroExpansionContext,
         registered_paths: inout Set<String>,
         _ routes: [(DynamicRoute, FunctionCallExprSyntax)]

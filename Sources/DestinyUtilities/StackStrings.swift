@@ -728,12 +728,12 @@ public extension SIMD2 where Scalar : BinaryInteger {
     @inlinable
     mutating func dropTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                break
-            case 1:
-                self[1] = 0
-            default:
-                self = .init()
+        case _ where length <= 0:
+            break
+        case 1:
+            self[1] = 0
+        default:
+            self = .init()
         }
     }
 }
@@ -746,17 +746,17 @@ public extension SIMD4 where Scalar : BinaryInteger {
     @inlinable
     mutating func dropTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                break
-            case 1:
-                highHalf[1] = 0
-            case 2:
-                highHalf = .init()
-            case 3:
-                highHalf = .init()
-                lowHalf[1] = 0
-            default:
-                self = .init()
+        case _ where length <= 0:
+            break
+        case 1:
+            highHalf[1] = 0
+        case 2:
+            highHalf = .init()
+        case 3:
+            highHalf = .init()
+            lowHalf[1] = 0
+        default:
+            self = .init()
         }
     }
 }
@@ -769,15 +769,15 @@ public extension SIMD8 where Scalar : BinaryInteger {
     @inlinable
     mutating func dropTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                break
-            case 1...4:
-                highHalf.dropTrailing(length)
-            case 5...7:
-                highHalf = .init()
-                lowHalf.dropTrailing(length - 4)
-            default:
-                self = .init()
+        case _ where length <= 0:
+            break
+        case 1...4:
+            highHalf.dropTrailing(length)
+        case 5...7:
+            highHalf = .init()
+            lowHalf.dropTrailing(length - 4)
+        default:
+            self = .init()
         }
     }
 }
@@ -789,15 +789,15 @@ public extension SIMD16 where Scalar : BinaryInteger {
     /// - Complexity: O(1)
     mutating func dropTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                break
-            case 1...8:
-                highHalf.dropTrailing(length)
-            case 9...15:
-                highHalf = .init()
-                lowHalf.dropTrailing(length - 8)
-            default:
-                self = .init()
+        case _ where length <= 0:
+            break
+        case 1...8:
+            highHalf.dropTrailing(length)
+        case 9...15:
+            highHalf = .init()
+            lowHalf.dropTrailing(length - 8)
+        default:
+            self = .init()
         }
     }
 }
@@ -809,15 +809,15 @@ public extension SIMD32 where Scalar : BinaryInteger {
     /// - Complexity: O(1)
     mutating func dropTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                break
-            case 1...16:
-                highHalf.dropTrailing(length)
-            case 17...31:
-                highHalf = .init()
-                lowHalf.dropTrailing(length - 16)
-            default:
-                self = .init()
+        case _ where length <= 0:
+            break
+        case 1...16:
+            highHalf.dropTrailing(length)
+        case 17...31:
+            highHalf = .init()
+            lowHalf.dropTrailing(length - 16)
+        default:
+            self = .init()
         }
     }
 }
@@ -829,15 +829,15 @@ public extension SIMD64 where Scalar : BinaryInteger {
     /// - Complexity: O(1)
     mutating func dropTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                break
-            case 1...32:
-                highHalf.dropTrailing(length)
-            case 33...63:
-                highHalf = .init()
-                lowHalf.dropTrailing(length - 32)
-            default:
-                self = .init()
+        case _ where length <= 0:
+            break
+        case 1...32:
+            highHalf.dropTrailing(length)
+        case 33...63:
+            highHalf = .init()
+            lowHalf.dropTrailing(length - 32)
+        default:
+            self = .init()
         }
     }
 }
@@ -853,12 +853,12 @@ public extension SIMD2 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepLeading(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1:
-                y = 0
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1:
+            y = 0
+        default:
+            break
         }
     }
 }
@@ -871,18 +871,18 @@ public extension SIMD4 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepLeading(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1:
-                y = 0
-                z = 0
-                w = 0
-            case 2:
-                highHalf = .init()
-            case 3:
-                w = 0
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1:
+            y = 0
+            z = 0
+            w = 0
+        case 2:
+            highHalf = .init()
+        case 3:
+            w = 0
+        default:
+            break
         }
     }
 }
@@ -895,15 +895,15 @@ public extension SIMD8 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepLeading(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...4:
-                lowHalf.keepLeading(length)
-                highHalf = .init()
-            case 5...7:
-                highHalf.keepLeading(length - 4)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...4:
+            lowHalf.keepLeading(length)
+            highHalf = .init()
+        case 5...7:
+            highHalf.keepLeading(length - 4)
+        default:
+            break
         }
     }
 }
@@ -916,15 +916,15 @@ public extension SIMD16 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepLeading(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...8:
-                lowHalf.keepLeading(length)
-                highHalf = .init()
-            case 9...15:
-                highHalf.keepLeading(length - 8)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...8:
+            lowHalf.keepLeading(length)
+            highHalf = .init()
+        case 9...15:
+            highHalf.keepLeading(length - 8)
+        default:
+            break
         }
     }
 }
@@ -937,15 +937,15 @@ public extension SIMD32 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepLeading(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...16:
-                lowHalf.keepLeading(length)
-                highHalf = .init()
-            case 17...31:
-                highHalf.keepLeading(length - 16)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...16:
+            lowHalf.keepLeading(length)
+            highHalf = .init()
+        case 17...31:
+            highHalf.keepLeading(length - 16)
+        default:
+            break
         }
     }
 }
@@ -958,15 +958,15 @@ public extension SIMD64 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepLeading(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...32:
-                lowHalf.keepLeading(length)
-                highHalf = .init()
-            case 33...63:
-                highHalf.keepLeading(length - 32)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...32:
+            lowHalf.keepLeading(length)
+            highHalf = .init()
+        case 33...63:
+            highHalf.keepLeading(length - 32)
+        default:
+            break
         }
     }
 }
@@ -982,12 +982,12 @@ public extension SIMD2 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1:
-                x = 0
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1:
+            x = 0
+        default:
+            break
         }
     }
 }
@@ -1000,18 +1000,18 @@ public extension SIMD4 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1:
-                x = 0
-                y = 0
-                z = 0
-            case 2:
-                lowHalf = .init()
-            case 3:
-                x = 0
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1:
+            x = 0
+            y = 0
+            z = 0
+        case 2:
+            lowHalf = .init()
+        case 3:
+            x = 0
+        default:
+            break
         }
     }
 }
@@ -1024,15 +1024,15 @@ public extension SIMD8 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...4:
-                lowHalf = .init()
-                highHalf.keepTrailing(length)
-            case 5...7:
-                lowHalf.keepTrailing(length - 4)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...4:
+            lowHalf = .init()
+            highHalf.keepTrailing(length)
+        case 5...7:
+            lowHalf.keepTrailing(length - 4)
+        default:
+            break
         }
     }
 }
@@ -1045,15 +1045,15 @@ public extension SIMD16 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...8:
-                lowHalf = .init()
-                highHalf.keepTrailing(length)
-            case 9...15:
-                lowHalf.keepTrailing(length - 8)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...8:
+            lowHalf = .init()
+            highHalf.keepTrailing(length)
+        case 9...15:
+            lowHalf.keepTrailing(length - 8)
+        default:
+            break
         }
     }
 }
@@ -1066,15 +1066,15 @@ public extension SIMD32 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...16:
-                lowHalf = .init()
-                highHalf.keepTrailing(length)
-            case 17...31:
-                lowHalf.keepTrailing(length - 16)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...16:
+            lowHalf = .init()
+            highHalf.keepTrailing(length)
+        case 17...31:
+            lowHalf.keepTrailing(length - 16)
+        default:
+            break
         }
     }
 }
@@ -1087,15 +1087,15 @@ public extension SIMD64 where Scalar : BinaryInteger {
     @inlinable
     mutating func keepTrailing(_ length: Int) {
         switch length {
-            case _ where length <= 0:
-                self = .init()
-            case 1...32:
-                lowHalf = .init()
-                highHalf.keepTrailing(length)
-            case 33...63:
-                lowHalf.keepTrailing(length - 32)
-            default:
-                break
+        case _ where length <= 0:
+            self = .init()
+        case 1...32:
+            lowHalf = .init()
+            highHalf.keepTrailing(length)
+        case 33...63:
+            lowHalf.keepTrailing(length - 32)
+        default:
+            break
         }
     }
 }

@@ -42,17 +42,17 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         for (index, argument) in CommandLine.arguments.enumerated() {
             if index != 0 && index % 2 == 0 {
                 switch option {
-                    case 0: address = argument
-                    case 1: port = UInt16(argument) ?? port
-                    case 2: maxPendingConnections = Int32(argument) ?? maxPendingConnections
-                    default: break
+                case 0: address = argument
+                case 1: port = UInt16(argument) ?? port
+                case 2: maxPendingConnections = Int32(argument) ?? maxPendingConnections
+                default: break
                 }
             } else {
                 switch argument {
-                    case "--hostname", "-h": option = 0
-                    case "--port", "-p": option = 1
-                    case "--maxpendingconnections", "-mpc": option = 2
-                    default: option = -1
+                case "--hostname", "-h": option = 0
+                case "--port", "-p": option = 1
+                case "--maxpendingconnections", "-mpc": option = 2
+                default: option = -1
                 }
             }
         }
@@ -170,38 +170,14 @@ enum ClientProcessing {
         }
         var request:RequestProtocol = try client_socket.loadRequest()
         if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
-            if responder.isAsync {
-                try await responder.respondAsync(to: client_socket)
-            } else {
-                try responder.respond(to: client_socket)
-            }
+            try await staticResponse(client_socket: client_socket, responder: responder)
         } else if let responder:DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
-            var response:DynamicResponseProtocol = responder.defaultResponse
-            for index in responder.parameterPathIndexes {
-                response.parameters[responder.path[index].value] = request.path[index]
-            }
-            for middleware in router.dynamicMiddleware {
-                if middleware.shouldHandle(request: &request, response: response) {
-                    do {
-                        if middleware.isAsync {
-                            try await middleware.handleAsync(request: &request, response: &response)
-                        } else {
-                            try middleware.handle(request: &request, response: &response)
-                        }
-                    } catch {
-                        if middleware.isAsync {
-                            await middleware.onErrorAsync(request: &request, response: &response, error: error)
-                        } else {
-                            middleware.onError(request: &request, response: &response, error: error)
-                        }
-                        break
-                    }
-                }
-            }
-            if responder.isAsync {
-                try await responder.respondAsync(to: client_socket, request: &request, response: &response)
-            } else {
-                try responder.respond(to: client_socket, request: &request, response: &response)
+            try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: responder)
+        } else if let responder:RouteResponderProtocol = router.conditionalResponder(for: &request) {
+            if let staticResponder:StaticRouteResponderProtocol = responder as? StaticRouteResponderProtocol {
+                try await staticResponse(client_socket: client_socket, responder: staticResponder)
+            } else if let dynamicResponder:DynamicRouteResponderProtocol = responder as? DynamicRouteResponderProtocol {
+                try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: dynamicResponder)
             }
         } else {
             var err:Swift.Error? = nil
@@ -215,6 +191,54 @@ enum ClientProcessing {
             if let error:Swift.Error = err {
                 throw error
             }
+        }
+    }
+
+    @inlinable
+    static func staticResponse<C: SocketProtocol & ~Copyable>(
+        client_socket: borrowing C,
+        responder: StaticRouteResponderProtocol
+    ) async throws {
+        if responder.isAsync {
+            try await responder.respondAsync(to: client_socket)
+        } else {
+            try responder.respond(to: client_socket)
+        }
+    }
+
+    @inlinable
+    static func dynamicResponse<C: SocketProtocol & ~Copyable>(
+        client_socket: borrowing C,
+        router: borrowing RouterProtocol,
+        request: inout RequestProtocol,
+        responder: DynamicRouteResponderProtocol
+    ) async throws {
+        var response:DynamicResponseProtocol = responder.defaultResponse
+        for index in responder.parameterPathIndexes {
+            response.parameters[responder.path[index].value] = request.path[index]
+        }
+        for middleware in router.dynamicMiddleware {
+            if middleware.shouldHandle(request: &request, response: response) {
+                do {
+                    if middleware.isAsync {
+                        try await middleware.handleAsync(request: &request, response: &response)
+                    } else {
+                        try middleware.handle(request: &request, response: &response)
+                    }
+                } catch {
+                    if middleware.isAsync {
+                        await middleware.onErrorAsync(request: &request, response: &response, error: error)
+                    } else {
+                        middleware.onError(request: &request, response: &response, error: error)
+                    }
+                    break
+                }
+            }
+        }
+        if responder.isAsync {
+            try await responder.respondAsync(to: client_socket, request: &request, response: &response)
+        } else {
+            try responder.respond(to: client_socket, request: &request, response: &response)
         }
     }
 }

@@ -16,6 +16,7 @@ let application:Application = Application(
             port: 8080,
             router: #router(
                 version: .v1_1,
+                supportedCompressionTechniques: [],
                 middleware: [
                     StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"]),
                     StaticMiddleware(handlesVersions: [.v1_1], appliesHeaders: ["Version":"destiny1.1"]),

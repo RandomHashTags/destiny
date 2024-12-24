@@ -24,13 +24,13 @@ public struct HTTPVersion : Sendable, Hashable, CustomStringConvertible {
     }
     public init(_ path: DestinyRoutePathType) {
         switch path.lowHalf.lowHalf.lowHalf {
-            case Self.v0_9simd: self = .v0_9
-            case Self.v1_0simd: self = .v1_0
-            case Self.v1_1simd: self = .v1_1
-            case Self.v1_2simd: self = .v1_2
-            case Self.v2_0simd: self = .v2_0
-            case Self.v3_0simd: self = .v3_0
-            default: self = .v0_9
+        case Self.v0_9simd: self = .v0_9
+        case Self.v1_0simd: self = .v1_0
+        case Self.v1_1simd: self = .v1_1
+        case Self.v1_2simd: self = .v1_2
+        case Self.v2_0simd: self = .v2_0
+        case Self.v3_0simd: self = .v3_0
+        default: self = .v0_9
         }
     }
 
@@ -40,14 +40,14 @@ public struct HTTPVersion : Sendable, Hashable, CustomStringConvertible {
 
     public var description : String {
         switch token {
-            case Self.v0_9simd: return ".v0_9"
-            case Self.v1_0simd: return ".v1_0"
-            case Self.v1_1simd: return ".v1_1"
-            case Self.v1_2simd: return ".v1_2"
-            case Self.v2_0simd: return ".v2_0"
-            case Self.v3_0simd: return ".v3_0"
-            default:
-                return "HTTPVersion(token: \(token), string: \"\(string)\")"
+        case Self.v0_9simd: return ".v0_9"
+        case Self.v1_0simd: return ".v1_0"
+        case Self.v1_1simd: return ".v1_1"
+        case Self.v1_2simd: return ".v1_2"
+        case Self.v2_0simd: return ".v2_0"
+        case Self.v3_0simd: return ".v3_0"
+        default:
+            return "HTTPVersion(token: \(token), string: \"\(string)\")"
         }
     }
 }
@@ -88,13 +88,13 @@ public extension HTTPVersion {
     static func parse(_ expr: ExprSyntax) -> HTTPVersion? {
         guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
         switch string {
-            case "v0_9": return .v0_9
-            case "v1_0": return .v1_0
-            case "v1_1": return .v1_1
-            case "v1_2": return .v1_2
-            case "v2_0": return .v2_0
-            case "v3_0": return .v3_0
-            default: return nil
+        case "v0_9": return .v0_9
+        case "v1_0": return .v1_0
+        case "v1_1": return .v1_1
+        case "v1_2": return .v1_2
+        case "v2_0": return .v2_0
+        case "v3_0": return .v3_0
+        default: return nil
         }
     }
 }
