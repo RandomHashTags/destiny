@@ -20,7 +20,7 @@ enum Router : ExpressionMacro {
         let test:Test = Router.restructure(arguments: arguments)
         print("Router;expansion;test;restructure;test=\(test)")*/
         var version:HTTPVersion = .v1_1
-        var supportedCompressionTechniques:Set<CompressionTechnique> = []
+        var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var static_middleware:[StaticMiddleware] = []
         var static_redirects:[(RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamic_middleware:[DynamicMiddlewareProtocol] = []
@@ -33,8 +33,8 @@ enum Router : ExpressionMacro {
                     switch key {
                     case "version":
                         version = HTTPVersion.parse(child.expression) ?? version
-                    case "supportedCompressionTechniques":
-                        supportedCompressionTechniques = Set(child.expression.array!.elements.compactMap({ CompressionTechnique.init($0.expression) }))
+                    case "supportedCompressionAlgorithms":
+                        supportedCompressionAlgorithms = Set(child.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
                     case "redirects":
                         parse_redirects(context: context, version: version, dictionary: child.expression.dictionary!, static_redirects: &static_redirects, dynamic_redirects: &dynamic_redirects)
                     case "middleware":
@@ -62,12 +62,12 @@ enum Router : ExpressionMacro {
                         switch decl {
                         case "DynamicRoute":
                             if var route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
-                                route.supportedCompressionTechniques.formUnion(supportedCompressionTechniques)
+                                route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
                                 dynamic_routes.append((route, function))
                             }
                         case "StaticRoute":
                             if var route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
-                                route.supportedCompressionTechniques.formUnion(supportedCompressionTechniques)
+                                route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
                                 static_routes.append((route, function))
                             }
                         case "StaticRedirectionRoute":
@@ -192,7 +192,7 @@ private extension Router {
                     registered_paths.insert(string)
                     let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
                     let httpResponse:CompleteHTTPResponse = route.response(middleware: middleware)
-                    if route.supportedCompressionTechniques.isEmpty {
+                    if route.supportedCompressionAlgorithms.isEmpty {
                         let value:String = try route.returnType.encode(httpResponse.string())
                         return "// \(string)\n\(buffer) : " + value
                     } else {
@@ -232,20 +232,25 @@ private extension Router {
         var responder:ConditionalRouteResponder = ConditionalRouteResponder(isAsync: false, conditions: [], responders: [])
         responder.conditionsDescription.removeLast() // ]
         responder.respondersDescription.removeLast() // ]
-        for technique in route.supportedCompressionTechniques {
-            if let compressed:CompressionResult<[UInt8]> = technique.compress(data: body) {
-                httpResponse.result = .bytes(compressed.data)
-                httpResponse.headers[HTTPField.Name.contentEncoding.rawName] = technique.acceptEncodingName
-                httpResponse.headers[HTTPField.Name.vary.rawName] = HTTPField.Name.acceptEncoding.rawName
+        for algorithm in route.supportedCompressionAlgorithms {
+            if let technique:any Compressor = algorithm.technique {
                 do {
-                    let bytes:[UInt8] = try httpResponse.bytes()
-                    responder.conditionsDescription += "\n{ $0.headers[HTTPField.Name.acceptEncoding.rawName]?.contains(\"" + technique.acceptEncodingName + "\") ?? false }"
-                    responder.respondersDescription += "\n" + RouteResponses.UInt8Array(bytes).debugDescription
+                    let compressed:CompressionResult<[UInt8]> = try body.compressed(using: technique)
+                    httpResponse.result = .bytes(compressed.data)
+                    httpResponse.headers[HTTPField.Name.contentEncoding.rawName] = algorithm.acceptEncodingName
+                    httpResponse.headers[HTTPField.Name.vary.rawName] = HTTPField.Name.acceptEncoding.rawName
+                    do {
+                        let bytes:[UInt8] = try httpResponse.bytes()
+                        responder.conditionsDescription += "\n{ $0.headers[HTTPField.Name.acceptEncoding.rawName]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
+                        responder.respondersDescription += "\n" + RouteResponses.UInt8Array(bytes).debugDescription
+                    } catch {
+                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the CompleteHTTPResponse bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
+                    }
                 } catch {
-                    context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the CompleteHTTPResponse bytes using the " + technique.rawValue + " compression technique: \(error).")))
+                    context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "compressionError", message: "Encountered error while compressing bytes using the " + algorithm.rawValue + " algorithm: \(error).")))
                 }
             } else {
-                context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "compressionFailed", message: "Failed to compress route data using the " + technique.rawValue + " technique.", severity: .warning)))
+                context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "noTechniqueForCompressionAlgorithm", message: "Failed to compress route data using the " + algorithm.rawValue + " algorithm.", severity: .warning)))
             }
         }
         responder.conditionsDescription += "\n]"

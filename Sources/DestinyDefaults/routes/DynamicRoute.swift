@@ -21,7 +21,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public var status:HTTPResponse.Status
     public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponseProtocol
-    public var supportedCompressionTechniques:Set<CompressionTechnique>
+    public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
     public let handler:(@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) throws -> Void)?
     public let handlerAsync:(@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void)?
 
@@ -37,7 +37,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
         contentType: HTTPMediaType,
-        supportedCompressionTechniques: Set<CompressionTechnique> = [],
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: (@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) throws -> Void)? = nil,
         handlerAsync: (@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void)? = nil
     ) {
@@ -48,7 +48,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.status = status
         self.contentType = contentType
         self.defaultResponse = DynamicResponse.init(version: .v1_1, status: .notImplemented, headers: [:], result: .string(""), parameters: [:])
-        self.supportedCompressionTechniques = supportedCompressionTechniques
+        self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
         self.handlerAsync = handlerAsync
     }
@@ -86,7 +86,7 @@ public extension DynamicRoute {
         var path:[PathComponent] = []
         var status:HTTPResponse.Status = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaType.Text.plain
-        var supportedCompressionTechniques:Set<CompressionTechnique> = []
+        var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler:String = "nil", handlerAsync:String = "nil"
         var parameters:[String:String] = [:]
         for argument in function.arguments {
@@ -113,8 +113,8 @@ public extension DynamicRoute {
                 } else {
                     contentType = HTTPMediaType(rawValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string, caseName: "", debugDescription: "")
                 }
-            case "supportedCompressionTechniques":
-                supportedCompressionTechniques = Set(argument.expression.array!.elements.compactMap({ CompressionTechnique($0.expression) }))
+            case "supportedCompressionAlgorithms":
+                supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
             case "handler":
                 handler = "\(argument.expression)"
             case "handlerAsync":
@@ -148,7 +148,7 @@ public extension DynamicRoute {
             path: path,
             status: status,
             contentType: contentType,
-            supportedCompressionTechniques: supportedCompressionTechniques,
+            supportedCompressionAlgorithms: supportedCompressionAlgorithms,
             handler: nil,
             handlerAsync: nil
         )

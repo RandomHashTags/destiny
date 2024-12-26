@@ -8,16 +8,18 @@
 import SwiftCompression
 import SwiftSyntax
 
-public extension CompressionTechnique {
-    init?(_ expr: ExprSyntax) {
+public extension CompressionAlgorithm {
+    static func parse(_ expr: ExprSyntax) -> Self? {
         let key:String
-        if let string:String = expr.memberAccess?.declName.baseName.text ?? expr.functionCall?.calledExpression.memberAccess?.declName.baseName.text {
+        guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
+        if let string:String = function.calledExpression.memberAccess?.declName.baseName.text {
             key = string
         } else {
             return nil
         }
+        let arguments:SyntaxChildren = function.arguments.children(viewMode: .all)
         switch key {
-        case "aac": self = .aac
+        /*case "aac": self = .aac
         case "mp3": self = .mp3
 
         case "arithmetic": self = .arithmetic
@@ -25,16 +27,37 @@ public extension CompressionTechnique {
 
         case "bwt": self = .bwt
         case "deflate": self = .deflate
-        case "huffman": self = .huffman(rootNode: nil)
+        case "huffmanCoding": self = .huffman(rootNode: nil)
         case "json": self = .json
-        case "lz4": self = .lz4
-        case "lz77": self = .lz77(windowSize: 0, bufferSize: 0) // TODO: finish
-        case "lz78": self = .lz78
+        case "lz4": self = .lz4*/
+        case "lz77":
+            var windowSize:Int = 0, bufferSize:Int = 0, offsetBitWidth:Int = 0
+            for child in arguments {
+                let labeled:LabeledExprSyntax = child.as(LabeledExprSyntax.self)!
+                switch labeled.label!.text {
+                    case "windowSize": windowSize = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
+                    case "bufferSize": bufferSize = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
+                    case "offsetBitWidth": offsetBitWidth = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
+                    default: break
+                }
+            }
+            return .lz77(windowSize: windowSize, bufferSize: bufferSize, offsetBitWidth: offsetBitWidth)
+        /*case "lz78": self = .lz78
         case "lzw": self = .lzw
-        case "mtf": self = .mtf
-        case "runLength": self = .runLength(minRun: 0, alwaysIncludeRunCount: false) // TOOD: finish
-        case "snappy": self = .snappy
-        case "snappyFramed": self = .snappyFramed
+        case "mtf": self = .mtf*/
+        case "runLengthEncoding":
+            var minRun:Int = 0, alwaysIncludeRunCount:Bool = false
+            for child in arguments {
+                let labeled:LabeledExprSyntax = child.as(LabeledExprSyntax.self)!
+                switch labeled.label!.text {
+                    case "minRun": minRun = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
+                    case "alwaysIncludeRunCount": alwaysIncludeRunCount = labeled.expression.booleanLiteral!.literal.text == "true"
+                    default: break
+                }
+            }
+            return .runLengthEncoding(minRun: minRun, alwaysIncludeRunCount: alwaysIncludeRunCount)
+        case "snappy": return CompressionAlgorithm.snappy
+        /*case "snappyFramed": self = .snappyFramed
         case "zstd": self = .zstd
 
         case "_7z": self = ._7z
@@ -50,16 +73,28 @@ public extension CompressionTechnique {
         case "eliasDelta": self = .eliasDelta
         case "eliasGamma": self = .eliasGamma
         case "eliasOmega": self = .eliasOmega
-        case "fibonacci": self = .fibonacci
+        case "fibonacci": self = .fibonacci*/
 
-        case "dnaBinaryEncoding": self = .dnaBinaryEncoding() // TODO: finish
-        case "dnaSingleBlockEncoding": self = .dnaSingleBlockEncoding
+        case "dnaBinaryEncoding":
+            var baseBits:[UInt8:[Bool]] = [:]
+            for child in arguments {
+                let labeled:LabeledExprSyntax = child.as(LabeledExprSyntax.self)!
+                switch labeled.label!.text {
+                    case "baseBits":
+                        labeled.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.forEach({
+                            baseBits[UInt8($0.key.as(IntegerLiteralExprSyntax.self)!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.literal.text == "true" })
+                        })
+                    default: break
+                }
+            }
+            return .dnaBinaryEncoding(baseBits: baseBits)
+        /*case "dnaSingleBlockEncoding": self = .dnaSingleBlockEncoding
 
         case "boringSSL": self = .boringSSL
 
         case "av1": self = .av1
         case "dirac": self = .dirac
-        case "mpeg": self = .mpeg
+        case "mpeg": self = .mpeg*/
         default: return nil
         }
     }
@@ -67,14 +102,10 @@ public extension CompressionTechnique {
     var acceptEncodingName : String {
         switch self {
             case .brotli: return "br"
-            case .huffman(let root): return "huffman"
-            case .lz77(let windowSize, let bufferSize): return "lz77"
+            case .huffmanCoding: return "huffman"
             case .lzw: return "compress"
-            case .runLength(let minRun, let alwaysIncludeRunCount): return "runLength"
 
             case ._7z: return "7z"
-
-            case .dnaBinaryEncoding(let baseBits): return "dnaBinaryEncoding"
             default: return rawValue
         }
     }

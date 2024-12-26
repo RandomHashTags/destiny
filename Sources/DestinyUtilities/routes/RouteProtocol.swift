@@ -16,6 +16,6 @@ public protocol RouteProtocol : Sendable {
     /// The http method of this route.
     var method : HTTPRequest.Method { get }
 
-    /// The supported compression techniques that this route can use to compress its response.
-    var supportedCompressionTechniques : Set<CompressionTechnique> { get set }
+    /// The supported compression algorithms that this route can use to compress its response.
+    var supportedCompressionAlgorithms : Set<CompressionAlgorithm> { get set }
 }

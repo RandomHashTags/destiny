@@ -23,7 +23,7 @@ public struct StaticRoute : StaticRouteProtocol {
     public let contentType:HTTPMediaType
     public let charset:String?
     public let result:RouteResult
-    public var supportedCompressionTechniques:Set<CompressionTechnique>
+    public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
     public init(
         version: HTTPVersion = .v1_0,
@@ -34,7 +34,7 @@ public struct StaticRoute : StaticRouteProtocol {
         contentType: HTTPMediaType,
         charset: String? = nil,
         result: RouteResult,
-        supportedCompressionTechniques: Set<CompressionTechnique> = []
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) {
         self.version = version
         self.returnType = returnType
@@ -44,7 +44,7 @@ public struct StaticRoute : StaticRouteProtocol {
         self.contentType = contentType
         self.charset = charset
         self.result = result
-        self.supportedCompressionTechniques = supportedCompressionTechniques
+        self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
     }
 
     public func response(middleware: [StaticMiddlewareProtocol]) -> CompleteHTTPResponse {
@@ -90,7 +90,7 @@ public extension StaticRoute {
         var status:HTTPResponse.Status = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaType.Text.plain, charset:String? = nil
         var result:RouteResult = .string("")
-        var supportedCompressionTechniques:Set<CompressionTechnique> = []
+        var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         for argument in function.arguments {
             switch argument.label!.text {
             case "version":
@@ -123,8 +123,8 @@ public extension StaticRoute {
                     default:       break
                     }
                 }
-            case "supportedCompressionTechniques":
-                supportedCompressionTechniques = Set(argument.expression.array!.elements.compactMap({ CompressionTechnique($0.expression) }))
+            case "supportedCompressionAlgorithms":
+                supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
             default:
                 break
             }
@@ -138,7 +138,7 @@ public extension StaticRoute {
             contentType: contentType,
             charset: charset,
             result: result,
-            supportedCompressionTechniques: supportedCompressionTechniques
+            supportedCompressionAlgorithms: supportedCompressionAlgorithms
         )
         route.path = path
         return route
