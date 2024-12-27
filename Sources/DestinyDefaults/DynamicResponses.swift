@@ -9,7 +9,7 @@ import DestinyUtilities
 import HTTPTypes
 
 /// The default storage where Destiny handles dynamic routes.
-public struct DynamicResponses : Sendable {
+public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:DynamicRouteResponderProtocol]
 
@@ -22,6 +22,25 @@ public struct DynamicResponses : Sendable {
     ) {
         self.parameterless = parameterless
         self.parameterized = parameterized
+    }
+
+    public var debugDescription: String {
+        var parameterlessString:String = "[:]"
+        if !parameterless.isEmpty {
+            parameterlessString.removeLast(2)
+            parameterlessString += "\n" + parameterless.map({ "// \($0.key.stringSIMD())\n\($0.key)" + ":" + $0.value.debugDescription }).joined(separator: ",\n") + "\n]"
+        }
+        var parameterizedString:String = "[]"
+        if !parameterized.isEmpty {
+            parameterizedString.removeLast()
+            parameterizedString += "\n" + parameterized.map({ "[" + $0.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]" }).joined(separator: ",\n") + "\n]"
+        }
+        return """
+        DynamicResponses(
+            parameterless: \(parameterlessString),
+            parameterized: \(parameterizedString)
+        )
+        """
     }
 
     @inlinable

@@ -10,16 +10,26 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     /// All the dynamic middleware that is registered to this router. Ordered in descending order of importance.
     var dynamicMiddleware : [DynamicMiddlewareProtocol] { get }
 
-    /// Get the static responder responsible for a static route.
+    /// The router groups attached to this router.
+    var routerGroups : [RouterGroupProtocol] { get }
+
+    /// The static responder responsible for a static route.
+    /// 
+    /// - Parameters:
+    ///   - startLine: The request's HTTP start line.
+    /// - Returns: The static responder responsible for the `startLine`.
     @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol?
 
-    /// Get the dynamic responder responsible for a dynamic route.
+    /// The dynamic responder responsible for a dynamic route.
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
     @inlinable func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol?
 
-    /// Get the conditional responder responsible for a route.
+    /// The conditional responder responsible for a route.
+    /// 
+    /// - Parameters:
+    ///   - request: The incoming network requets.
     @inlinable func conditionalResponder(for request: inout RequestProtocol) -> RouteResponderProtocol?
 
     /// Registers a static route to this router.

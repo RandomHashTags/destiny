@@ -15,20 +15,23 @@ public struct CompiledDynamicRoute : DynamicRouteResponderProtocol {
     public let parameterPathIndexes:Set<Int>
     public let defaultResponse:DynamicResponseProtocol
     public let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void
+    private let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
         defaultResponse: DynamicResponseProtocol,
-        logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) throws -> Void
+        logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void,
+        logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
         parameterPathIndexes = Set(path.enumerated().compactMap({ $1.isParameter ? $0 : nil }))
         self.defaultResponse = defaultResponse
         self.logic = logic
+        self.logicDebugDescription = logicDebugDescription
     }
 
     public var debugDescription : String {
-        return "CompiledDynamicRoute(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: nil)" // TODO: fix
+        return "CompiledDynamicRoute(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logicDebugDescription))"
     }
 
     @inlinable

@@ -319,7 +319,7 @@ private extension Router {
             } else {
                 registered_paths.insert(string)
                 let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                let responder:String = route.responder(logic: route.handlerLogic)
+                let responder:String = route.responderDebugDescription
                 return "// \(string)\n\(buffer) : \(responder)"
             }
         }).joined(separator: ",\n") + "\n"
@@ -336,7 +336,7 @@ private extension Router {
                 if !registered_paths.contains(string) {
                     registered_paths.insert(string)
                     string = route.startLine
-                    let responder:String = route.responder(logic: route.handlerLogic)
+                    let responder:String = route.responderDebugDescription
                     parameterized_by_path_count[route.path.count].append("\n// \(string)\n" + responder)
                 } else {
                     route_path_already_registered(context: context, node: function, string)

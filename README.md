@@ -18,9 +18,9 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [x] Configure settings via Command Line Arguments <b>(Dec 11, 2024)</b>
 - [x] Compression <b>(Dec 24, 2024 | see [Swift Compression](https://github.com/RandomHashTags/swift-compression))</b>
 - [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ConditionalRouteResponderProtocol.swift))</b>
+- [x] Router Groups <b>(Dec 27, 2024)</b>
 - [ ] CORS <b>(Dynamic CORS implemented Dec 9, 2024)</b>
 - [ ] Redirects <b>(Static Redirects implemented Dec 11, 2024)</b>
-- [ ] Router Groups
 - [ ] Metric Middleware
 - [ ] Queries
 - [ ] Commands

@@ -19,12 +19,14 @@ import SwiftCompression
 ///   - supportedCompressionAlgorithms: The supported compression algorithms. All routes will be updated to support these.
 ///   - redirects: The redirects this router contains. Dynamic & Static redirects are automatically created based on this input.
 ///   - middleware: The middleware this router contains. All middleware is handled in the order they are declared (put your most important middleware first).
+///   - redirects: The redirects this router contains.
+///   - routerGroups: The router groups this router contains.
 ///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(expression)
 public macro router(
     version: HTTPVersion,
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-    middleware: [any MiddlewareProtocol],
+    middleware: [MiddlewareProtocol],
     redirects: [HTTPRequest.Method : [HTTPResponse.Status : [String:String]]] = [:],
     routerGroups: [RouterGroupProtocol] = [],
     _ routes: RouteProtocol...

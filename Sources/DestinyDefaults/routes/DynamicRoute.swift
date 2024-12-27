@@ -23,7 +23,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
     public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
 
-    /// A string representation of the synchronous handler logic, required when parsing from the router macro.
+    /// A string representation of the handler logic, required when parsing from the router macro.
     public fileprivate(set) var handlerLogic:String = "{ _, _ in }"
 
     public init(
@@ -45,8 +45,13 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.handler = handler
     }
 
-    public func responder(logic: String) -> String {
-        return "CompiledDynamicRoute(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(logic)\n)"
+    @inlinable
+    public func responder() -> DynamicRouteResponderProtocol {
+        return CompiledDynamicRoute(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerLogic)
+    }
+
+    public var responderDebugDescription : String {
+        return "CompiledDynamicRoute(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerLogic)\n)"
     }
 
     public var debugDescription: String {
@@ -67,14 +72,14 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
         for middleware in middleware {
             if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
-                if let applied_version:HTTPVersion = middleware.appliesVersion {
-                    defaultResponse.version = applied_version
+                if let appliedVersion:HTTPVersion = middleware.appliesVersion {
+                    defaultResponse.version = appliedVersion
                 }
-                if let applied_status:HTTPResponse.Status = middleware.appliesStatus {
-                    status = applied_status
+                if let appliedStatus:HTTPResponse.Status = middleware.appliesStatus {
+                    status = appliedStatus
                 }
-                if let applied_content_type:HTTPMediaType = middleware.appliesContentType {
-                    contentType = applied_content_type
+                if let appliedContentType:HTTPMediaType = middleware.appliesContentType {
+                    contentType = appliedContentType
                 }
                 for (header, value) in middleware.appliesHeaders {
                     defaultResponse.headers[header] = value

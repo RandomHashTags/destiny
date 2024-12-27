@@ -23,29 +23,27 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// The default HTTP Response computed by default values and static middleware.
     var defaultResponse : DynamicResponseProtocol { get set }
 
-    /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponderProtocol`. Computed at compile time.
-    /// 
-    /// Loads the route responder in a `RouterProtocol`'s dynamic route responses.
-    /// - Parameters:
-    ///   - logic: The string representation of the synchronous/asynchronous handler logic this route uses.
-    func responder(logic: String) -> String
+    /// - Returns: The responder for this route.
+    @inlinable func responder() -> DynamicRouteResponderProtocol
+
+    /// A string representing an initialized route responder conforming to `DynamicRouteResponderProtocol`.
+    var responderDebugDescription : String { get }
 
     /// Applies static middleware to this route.
     /// 
-    /// Specifically used when adding dynamic routes to a `RouterProtocol` after the server has already started.
-    /// 
-    /// If `contentType == nil`, it gets set to `notImplemented` before this function is called.
     /// - Parameters:
     ///   - middleware: The static middleware to apply to this route.
     mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol])
 
     /// Parsing logic for this dynamic route. Computed at compile time.
-    /// - Warning: You need to assign `handlerLogic` or `handlerLogicAsync` properly.
-    /// - Warning: You should apply any statuses and headers using the middleware.
+    /// 
     /// - Parameters:
+    ///   - context: The macro expansion context.
     ///   - version: The `HTTPVersion` associated with the `RouterProtocol`.
     ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
+    /// - Warning: You need to assign `handlerLogic` properly.
+    /// - Warning: You should apply any statuses and headers using the middleware.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
 }
 

@@ -29,7 +29,7 @@ public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {
     }
 
     @inlinable
-    public func responder(for request: inout any RequestProtocol) -> RouteResponderProtocol? {
+    public func responder(for request: inout RequestProtocol) -> RouteResponderProtocol? {
         for (index, condition) in conditions.enumerated() {
             if condition(&request) {
                 return responders[index]

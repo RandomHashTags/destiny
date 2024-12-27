@@ -7,7 +7,7 @@
 
 import SwiftSyntax
 
-public struct HTTPVersion : Sendable, Hashable, CustomStringConvertible {
+public struct HTTPVersion : CustomStringConvertible, Hashable, Sendable {
     public static func == (left: Self, right: Self) -> Bool {
         return left.token == right.token
     }

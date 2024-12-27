@@ -148,6 +148,6 @@ public extension RouterGroup {
                 }
             }
         }
-        return CompiledRouterGroup(endpoint: endpoint, staticMiddleware: staticMiddleware, staticRoutes: staticRoutes, dynamicRoutes: dynamicRoutes)
+        return CompiledRouterGroup(endpoint: endpoint, staticMiddleware: staticMiddleware, dynamicMiddleware: dynamicMiddleware, staticRoutes: staticRoutes, dynamicRoutes: dynamicRoutes)
     }
 }

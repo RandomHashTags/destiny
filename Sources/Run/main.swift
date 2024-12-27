@@ -55,6 +55,14 @@ let application:Application = Application(
                             path: ["hoopla"],
                             contentType: HTTPMediaType.Text.plain,
                             result: .string("rly dud")
+                        ),
+                        DynamicRoute(
+                            method: .get,
+                            path: ["HOOPLA"],
+                            contentType: HTTPMediaType.Text.plain,
+                            handler: { _, response in
+                                response.result = .string("RLY DUD")
+                            }
                         )
                     ),
                 ],

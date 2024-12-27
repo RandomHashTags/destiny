@@ -21,7 +21,7 @@ public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible
     /// The response content.
     var result : RouteResult { get set }
 
-    /// The parameters associated with the route, that get updated upon requests.
+    /// The parameters associated with the route. Updated upon requests.
     var parameters : [String:String] { get set }
 
     /// The complete HTTP Response that gets sent to the client.

@@ -176,10 +176,19 @@ enum ClientProcessing {
         } else if let responder:RouteResponderProtocol = router.conditionalResponder(for: &request) {
             if let staticResponder:StaticRouteResponderProtocol = responder as? StaticRouteResponderProtocol {
                 try await staticResponse(client_socket: client_socket, responder: staticResponder)
-            } else if let dynamicResponder:DynamicRouteResponderProtocol = responder as? DynamicRouteResponderProtocol {
-                try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: dynamicResponder)
+            } else if let responder:DynamicRouteResponderProtocol = responder as? DynamicRouteResponderProtocol {
+                try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: responder)
             }
         } else {
+            for group in router.routerGroups {
+                if let responder:StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
+                    try await staticResponse(client_socket: client_socket, responder: responder)
+                    return
+                } else if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
+                    try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: responder)
+                    return
+                }
+            }
             var err:Swift.Error? = nil
             not_found_response.withUTF8Buffer {
                 do {

@@ -40,9 +40,17 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     
     /// What response headers this middleware applies to static & dynamic routes.
     var appliesHeaders : [String:String] { get }
+
+    /// Whether or not this middleware handles a route with the given options.
+    @inlinable
+    func handles(
+        version: HTTPVersion,
+        method: HTTPRequest.Method,
+        contentType: HTTPMediaType,
+        status: HTTPResponse.Status
+    ) -> Bool
 }
 public extension StaticMiddlewareProtocol {
-    /// Whether or not this middleware handles a route with the given options.
     @inlinable
     func handles(
         version: HTTPVersion,
