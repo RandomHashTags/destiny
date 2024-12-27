@@ -26,6 +26,7 @@ public macro router(
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [any MiddlewareProtocol],
     redirects: [HTTPRequest.Method : [HTTPResponse.Status : [String:String]]] = [:],
+    routerGroups: [RouterGroupProtocol] = [],
     _ routes: RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
 

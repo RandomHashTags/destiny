@@ -28,7 +28,7 @@ public struct CompiledDynamicRoute : DynamicRouteResponderProtocol {
     }
 
     public var debugDescription : String {
-        return "CompiledDynamicRoute(path: \(path), defaultResponse: \(defaultResponse), logic: nil)" // TODO: fix
+        return "CompiledDynamicRoute(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: nil)" // TODO: fix
     }
 
     @inlinable

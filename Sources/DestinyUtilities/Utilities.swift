@@ -32,6 +32,7 @@ package extension ExprSyntax {
     var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
     var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
     var booleanLiteral : BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
+    var integerLiteral : IntegerLiteralExprSyntax? { self.as(IntegerLiteralExprSyntax.self) }
     var memberAccess : MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
     var array : ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
     var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }

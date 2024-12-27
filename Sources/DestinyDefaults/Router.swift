@@ -16,19 +16,23 @@ public struct Router : RouterProtocol {
 
     public private(set) var staticMiddleware:[StaticMiddlewareProtocol]
     public private(set) var dynamicMiddleware:[DynamicMiddlewareProtocol]
+
+    public private(set) var routerGroups:[RouterGroupProtocol]
     
     public init(
         staticResponses: [DestinyRoutePathType:StaticRouteResponderProtocol],
         dynamicResponses: DynamicResponses,
         conditionalResponses: [DestinyRoutePathType:ConditionalRouteResponderProtocol],
         staticMiddleware: [StaticMiddlewareProtocol],
-        dynamicMiddleware: [DynamicMiddlewareProtocol]
+        dynamicMiddleware: [DynamicMiddlewareProtocol],
+        routerGroups: [RouterGroupProtocol]
     ) {
         self.staticResponses = staticResponses
         self.dynamicMiddleware = dynamicMiddleware
         self.conditionalResponses = conditionalResponses
         self.staticMiddleware = staticMiddleware
         self.dynamicResponses = dynamicResponses
+        self.routerGroups = routerGroups
     }
 
     @inlinable
@@ -43,6 +47,26 @@ public struct Router : RouterProtocol {
     @inlinable
     public func conditionalResponder(for request: inout RequestProtocol) -> RouteResponderProtocol? {
         return conditionalResponses[request.startLine]?.responder(for: &request)
+    }
+
+    @inlinable
+    public func routerGroupStaticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol? {
+        for group in routerGroups {
+            if let responder:StaticRouteResponderProtocol = group.staticResponder(for: startLine) {
+                return responder
+            }
+        }
+        return nil
+    }
+
+    @inlinable
+    public func routerGroupDynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
+        for group in routerGroups {
+            if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
+                return responder
+            }
+        }
+        return nil
     }
 
     public mutating func register(_ route: StaticRouteProtocol) throws {

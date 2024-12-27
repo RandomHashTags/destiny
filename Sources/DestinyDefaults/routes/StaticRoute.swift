@@ -47,6 +47,22 @@ public struct StaticRoute : StaticRouteProtocol {
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
     }
 
+    public var debugDescription : String {
+        return """
+        StaticRoute(
+            version: \(version),
+            returnType: .\(returnType.rawValue),
+            method: .\(method.caseName!),
+            path: \(path),
+            status: .\(status.caseName!),
+            contentType: \(contentType.debugDescription),
+            charset: \(charset ?? "nil"),
+            result: \(result.debugDescription),
+            supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))]
+        )
+        """
+    }
+
     public func response(middleware: [StaticMiddlewareProtocol]) -> CompleteHTTPResponse {
         var version:HTTPVersion = version
         var response_status:HTTPResponse.Status = status
@@ -74,7 +90,7 @@ public struct StaticRoute : StaticRouteProtocol {
     }
 
     @inlinable
-    public func responder(middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
+    public func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
         let result:String = try returnType.encode(response(middleware: middleware).string())
         return RouteResponses.String(result)
     }
@@ -117,9 +133,9 @@ public extension StaticRoute {
                 if let function:FunctionCallExprSyntax = argument.expression.functionCall {
                     switch function.calledExpression.memberAccess!.declName.baseName.text {
                     case "string": result = .string(function.arguments.first!.expression.stringLiteral!.string)
-                    case "json":   break
-                    case "bytes":  result = .bytes(function.arguments.first!.expression.array!.elements.map({ UInt8($0.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)! }))
-                    case "error":  break
+                    case "json":   break // TODO: fix
+                    case "bytes":  result = .bytes(function.arguments.first!.expression.array!.elements.map({ UInt8($0.expression.integerLiteral!.literal.text)! }))
+                    case "error":  break // TODO: fix
                     default:       break
                     }
                 }

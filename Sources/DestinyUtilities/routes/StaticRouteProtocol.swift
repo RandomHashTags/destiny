@@ -51,3 +51,9 @@ public protocol StaticRouteProtocol : RouteProtocol {
     ///   - function: The SwiftSyntax expression that represents this route.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
 }
+
+public extension StaticRouteProtocol {
+    var startLine : String {
+        return method.rawValue + " /" + path.joined(separator: "/") + " " + version.string
+    }
+}

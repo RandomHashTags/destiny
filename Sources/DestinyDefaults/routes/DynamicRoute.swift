@@ -24,7 +24,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
 
     /// A string representation of the synchronous handler logic, required when parsing from the router macro.
-    public fileprivate(set) var handlerLogic:String = "nil"
+    public fileprivate(set) var handlerLogic:String = "{ _, _ in }"
 
     public init(
         version: HTTPVersion = .v1_0,
@@ -46,7 +46,21 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 
     public func responder(logic: String) -> String {
-        return "CompiledDynamicRoute(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logic))"
+        return "CompiledDynamicRoute(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(logic)\n)"
+    }
+
+    public var debugDescription: String {
+        return """
+        DynamicRoute(
+            version: \(version),
+            method: .\(method.caseName!),
+            path: [\(path.map({ $0.debugDescription }).joined(separator: ","))],
+            status: .\(status.caseName!),
+            contentType: \(contentType.caseName),
+            supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))],
+            handler: \(handlerLogic)
+        )
+        """
     }
 
     @inlinable

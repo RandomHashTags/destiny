@@ -44,6 +44,20 @@ let application:Application = Application(
                         ]
                     ]
                 ],
+                routerGroups: [
+                    RouterGroup(
+                        endpoint: "grouped",
+                        staticMiddleware: [
+                            StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
+                        ],
+                        StaticRoute(
+                            method: .get,
+                            path: ["hoopla"],
+                            contentType: HTTPMediaType.Text.plain,
+                            result: .string("rly dud")
+                        )
+                    ),
+                ],
                 StaticRoute(
                     method: .get,
                     path: ["redirectto"],

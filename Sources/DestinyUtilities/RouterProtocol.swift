@@ -22,15 +22,15 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     /// Get the conditional responder responsible for a route.
     @inlinable func conditionalResponder(for request: inout RequestProtocol) -> RouteResponderProtocol?
 
-    /// Registers a static route to this router after the server has started.
+    /// Registers a static route to this router.
     mutating func register(_ route: StaticRouteProtocol) throws
 
-    /// Registers a dynamic route with its responder to this router after the server has started.
+    /// Registers a dynamic route with its responder to this router.
     mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) throws
 
-    /// Registers a static middleware at the given index to this router after the server has started.
+    /// Registers a static middleware at the given index to this router.
     mutating func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws
 
-    /// Registers a dynamic middleware at the given index to this router after the server has started.
+    /// Registers a dynamic middleware at the given index to this router.
     mutating func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws
 }

@@ -49,7 +49,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     }
 
     public var debugDescription : String {
-        return "DynamicMiddleware(\(logic))"
+        return "DynamicMiddleware(\n\(logic)\n)"
     }
 }
 
@@ -82,7 +82,7 @@ public extension DynamicMiddleware {
         if onError == "nil" {
             onError = default_on_error
         }
-        middleware.logic = "shouldHandleLogic: \(shouldHandleLogic), handleLogic: \(handleLogic), onError: \(onError)"
+        middleware.logic = "shouldHandleLogic: \(shouldHandleLogic),\nhandleLogic: \(handleLogic),\nonError: \(onError)"
         return middleware
     }
 }

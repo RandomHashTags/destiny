@@ -7,11 +7,20 @@
 
 import Foundation
 
-public enum RouteResult : Sendable {
+public enum RouteResult : CustomDebugStringConvertible, Sendable {
     case string(String)
     case bytes([UInt8])
     case json(Encodable & Sendable)
     case error(Error)
+
+    public var debugDescription : String {
+        switch self {
+            case .string(let s): return ".string(\"\(s)\")"
+            case .bytes(let b): return ".bytes([\(b.map({ String(describing: $0) }).joined(separator: ","))])"
+            case .json(let e): return ".json()" // TODO: fix
+            case .error(let e): return ".error()" // TODO: fix
+        }
+    }
 
     @inlinable
     public var count : Int {

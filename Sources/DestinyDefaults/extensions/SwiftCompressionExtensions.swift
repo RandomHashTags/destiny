@@ -17,7 +17,7 @@ public extension CompressionAlgorithm {
         } else {
             return nil
         }
-        let arguments:SyntaxChildren = function.arguments.children(viewMode: .all)
+        let arguments:LabeledExprListSyntax = function.arguments
         switch key {
         /*case "aac": self = .aac
         case "mp3": self = .mp3
@@ -33,11 +33,10 @@ public extension CompressionAlgorithm {
         case "lz77":
             var windowSize:Int = 0, bufferSize:Int = 0, offsetBitWidth:Int = 0
             for child in arguments {
-                let labeled:LabeledExprSyntax = child.as(LabeledExprSyntax.self)!
-                switch labeled.label!.text {
-                    case "windowSize": windowSize = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
-                    case "bufferSize": bufferSize = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
-                    case "offsetBitWidth": offsetBitWidth = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
+                switch child.label!.text {
+                    case "windowSize": windowSize = Int(child.expression.integerLiteral!.literal.text)!
+                    case "bufferSize": bufferSize = Int(child.expression.integerLiteral!.literal.text)!
+                    case "offsetBitWidth": offsetBitWidth = Int(child.expression.integerLiteral!.literal.text)!
                     default: break
                 }
             }
@@ -48,10 +47,9 @@ public extension CompressionAlgorithm {
         case "runLengthEncoding":
             var minRun:Int = 0, alwaysIncludeRunCount:Bool = false
             for child in arguments {
-                let labeled:LabeledExprSyntax = child.as(LabeledExprSyntax.self)!
-                switch labeled.label!.text {
-                    case "minRun": minRun = Int(labeled.expression.as(IntegerLiteralExprSyntax.self)!.literal.text)!
-                    case "alwaysIncludeRunCount": alwaysIncludeRunCount = labeled.expression.booleanLiteral!.literal.text == "true"
+                switch child.label!.text {
+                    case "minRun": minRun = Int(child.expression.integerLiteral!.literal.text)!
+                    case "alwaysIncludeRunCount": alwaysIncludeRunCount = child.expression.booleanLiteral!.literal.text == "true"
                     default: break
                 }
             }
@@ -78,11 +76,10 @@ public extension CompressionAlgorithm {
         case "dnaBinaryEncoding":
             var baseBits:[UInt8:[Bool]] = [:]
             for child in arguments {
-                let labeled:LabeledExprSyntax = child.as(LabeledExprSyntax.self)!
-                switch labeled.label!.text {
+                switch child.label!.text {
                     case "baseBits":
-                        labeled.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.forEach({
-                            baseBits[UInt8($0.key.as(IntegerLiteralExprSyntax.self)!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.literal.text == "true" })
+                        child.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.forEach({
+                            baseBits[UInt8($0.key.integerLiteral!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.literal.text == "true" })
                         })
                     default: break
                 }

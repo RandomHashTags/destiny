@@ -48,3 +48,9 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     ///   - function: The SwiftSyntax expression that represents this route at compile time.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
 }
+
+public extension DynamicRouteProtocol {
+    var startLine : String {
+        return method.rawValue + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
+    }
+}

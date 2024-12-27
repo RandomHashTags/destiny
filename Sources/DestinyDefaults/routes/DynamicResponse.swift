@@ -40,6 +40,6 @@ public struct DynamicResponse : DynamicResponseProtocol {
     }
 
     public var debugDescription : String {
-        return "DynamicResponse(version: \(version), status: .\(status.caseName!), headers: \(headers), result: .\(result), parameters: \(parameters))"
+        return "DynamicResponse(version: \(version), status: .\(status.caseName!), headers: \(headers), result: \(result.debugDescription), parameters: \(parameters))"
     }
 }

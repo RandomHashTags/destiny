@@ -6,60 +6,148 @@
 //
 
 import DestinyUtilities
+import SwiftSyntax
+import SwiftSyntaxMacros
 
+// MARK: RouterGroup
+/// The default Router Group that powers how Destiny handles grouped routes.
 public struct RouterGroup : RouterGroupProtocol {
-    public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]
-    public private(set) var dynamicResponses:DynamicResponses
-    public private(set) var conditionalResponses:[DestinyRoutePathType:ConditionalRouteResponderProtocol]
+    public let endpoint:String
+    public let staticRoutes:[StaticRouteProtocol]
+    public let dynamicRoutes:[DynamicRouteProtocol]
 
-    public private(set) var staticMiddleware:[StaticMiddlewareProtocol]
-    public private(set) var dynamicMiddleware:[DynamicMiddlewareProtocol]
+    public let staticMiddleware:[StaticMiddlewareProtocol]
+    public let dynamicMiddleware:[DynamicMiddlewareProtocol]
 
     public init(
         endpoint: String,
-        staticRoutes: [StaticRouteProtocol] = [],
-        dynamicRoutes: [DynamicRouteProtocol] = [],
-        conditionalResponders: [DestinyRoutePathType:ConditionalRouteResponderProtocol] = [:],
         staticMiddleware: [StaticMiddlewareProtocol] = [],
-        dynamicMiddleware: [DynamicMiddlewareProtocol] = []
-    ) throws {
-        let prefixEndpoints:[String] = endpoint.split(separator: "/").map({ String($0) })
-        var updatedStaticResponders:[DestinyRoutePathType:StaticRouteResponderProtocol] = [:]
-        for var route in staticRoutes {
-            if let responder:StaticRouteResponderProtocol = try route.responder(middleware: staticMiddleware) {
-                route.path.insert(contentsOf: prefixEndpoints, at: 0)
-                updatedStaticResponders[DestinyRoutePathType.init(route.path.joined(separator: "/"))] = responder
+        dynamicMiddleware: [DynamicMiddlewareProtocol] = [],
+        _ routes: RouteProtocol...
+    ) {
+        self.init(endpoint: endpoint, staticMiddleware: staticMiddleware, dynamicMiddleware: dynamicMiddleware, routes)
+    }
+    public init(
+        endpoint: String,
+        staticMiddleware: [StaticMiddlewareProtocol] = [],
+        dynamicMiddleware: [DynamicMiddlewareProtocol] = [],
+        _ routes: [RouteProtocol]
+    ) {
+        self.endpoint = endpoint
+        self.staticMiddleware = staticMiddleware
+        self.dynamicMiddleware = dynamicMiddleware
+        var staticRoutes:[StaticRouteProtocol] = [], dynamicRoutes:[DynamicRouteProtocol] = []
+        for route in routes {
+            if let route:StaticRouteProtocol = route as? StaticRouteProtocol {
+                staticRoutes.append(route)
+            } else if let route:DynamicRouteProtocol = route as? DynamicRouteProtocol {
+                dynamicRoutes.append(route)
             }
         }
-        self.staticResponses = updatedStaticResponders
+        self.staticRoutes = staticRoutes
+        self.dynamicRoutes = dynamicRoutes
+    }
+    public init(
+        endpoint: String,
+        staticMiddleware: [StaticMiddlewareProtocol],
+        dynamicMiddleware: [DynamicMiddlewareProtocol],
+        staticRoutes: [StaticRouteProtocol],
+        dynamicRoutes: [DynamicRouteProtocol]
+    ) {
+        self.endpoint = endpoint
+        self.staticMiddleware = staticMiddleware
+        self.dynamicMiddleware = dynamicMiddleware
+        let prefixEndpoints:[String] = endpoint.split(separator: "/").map({ String($0) })
+        var updatedStaticRoutes:[StaticRouteProtocol] = []
+        for var route in staticRoutes {
+            route.path.insert(contentsOf: prefixEndpoints, at: 0)
+            updatedStaticRoutes.append(route)
+        }
+        self.staticRoutes = updatedStaticRoutes
+        self.dynamicRoutes = dynamicRoutes
+    }
 
-        var parameterless:[DestinyRoutePathType:DynamicRouteResponderProtocol] = [:]
-        var parameterized:[[any DynamicRouteResponderProtocol]] = []
-        if !dynamicRoutes.isEmpty {
-            let prefixPathComponentEndpoints:[PathComponent] = prefixEndpoints.map({ .literal($0) })
-            for var route in dynamicRoutes {
-                route.path.insert(contentsOf: prefixPathComponentEndpoints, at: 0)
-                if route.path.first(where: { $0.isParameter }) == nil {
-                } else {
+    public var debugDescription : String {
+        var staticMiddlewareString:String = "[]"
+        if !staticMiddleware.isEmpty {
+            staticMiddlewareString.removeLast()
+            staticMiddlewareString += "\n"
+            staticMiddlewareString += staticMiddleware.map({ $0.debugDescription }).joined(separator: ",\n")
+            staticMiddlewareString += "\n]"
+        }
+        var staticRoutesString:String = "[]"
+        if !staticRoutes.isEmpty {
+            staticRoutesString.removeLast()
+            staticRoutesString += "\n"
+            staticRoutesString += staticRoutes.map({ $0.debugDescription }).joined(separator: ",\n")
+            staticRoutesString += "\n]"
+        }
+        var dynamicRoutesString:String = "[]"
+        if !staticRoutes.isEmpty {
+            dynamicRoutesString.removeLast()
+            dynamicRoutesString += "\n"
+            dynamicRoutesString += dynamicRoutes.map({ $0.debugDescription }).joined(separator: ",\n")
+            dynamicRoutesString += "\n]"
+        }
+        return "RouterGroup(\nendpoint: \"\(endpoint)\",\nstaticMiddleware: \(staticMiddlewareString),\ndynamicMiddleware: [],\nstaticRoutes: \(staticRoutesString),\ndynamicRoutes: \(dynamicRoutesString))"
+    }
+
+    public func staticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol? { return nil }
+    public func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? { return nil }
+}
+
+// MARK: Parse
+public extension RouterGroup {
+    static func parse(
+        context: some MacroExpansionContext,
+        version: HTTPVersion,
+        staticMiddleware: [StaticMiddlewareProtocol],
+        dynamicMiddleware: [DynamicMiddlewareProtocol],
+        _ function: FunctionCallExprSyntax
+    ) -> RouterGroupProtocol {
+        var endpoint:String = ""
+        var conditionalResponders:[DestinyRoutePathType:ConditionalRouteResponderProtocol] = [:]
+        var staticMiddleware:[StaticMiddlewareProtocol] = staticMiddleware
+        var dynamicMiddleware:[DynamicMiddlewareProtocol] = dynamicMiddleware
+        var staticRoutes:[StaticRouteProtocol] = []
+        var dynamicRoutes:[DynamicRouteProtocol] = []
+        for argument in function.arguments {
+            if let label:String = argument.label?.text {
+                switch label {
+                    case "endpoint":
+                        endpoint = argument.expression.stringLiteral!.string
+                    case "staticMiddleware":
+                        for argument in argument.expression.array!.elements {
+                            if let function:FunctionCallExprSyntax = argument.expression.functionCall {
+                                staticMiddleware.append(StaticMiddleware.parse(function))
+                            }
+                        }
+                    case "dynamicMiddleware":
+                        for argument in argument.expression.array!.elements {
+                            if let function:FunctionCallExprSyntax = argument.expression.functionCall {
+                                dynamicMiddleware.append(DynamicMiddleware.parse(function))
+                            }
+                        }
+                    default:
+                        break
+                }
+            } else if let function:FunctionCallExprSyntax = argument.expression.functionCall {
+                if let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                    switch decl {
+                        case "StaticRoute":
+                            if let route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
+                                staticRoutes.append(route)
+                            }
+                        case "DynamicRoute":
+                            if let route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: staticMiddleware, function) {
+                                dynamicRoutes.append(route)
+                            }
+                        default:
+                            break
+                    }
                 }
             }
         }
-        self.dynamicResponses = .init(parameterless: parameterless, parameterized: parameterized)
-
-        self.conditionalResponses = conditionalResponders
-        self.staticMiddleware = staticMiddleware
-        self.dynamicMiddleware = dynamicMiddleware
-    }
-
-    @inlinable
-    public func responder(for request: inout RequestProtocol) -> RouteResponderProtocol? {
-        if let responder:StaticRouteResponderProtocol = staticResponses[request.startLine] {
-            return responder
-        } else if let responder:DynamicRouteResponderProtocol = dynamicResponses.responder(for: &request) {
-            return responder
-        } else if let responder:ConditionalRouteResponderProtocol = conditionalResponses[request.startLine] {
-            return responder
-        }
-        return nil
+        return CompiledRouterGroup(endpoint: endpoint, staticMiddleware: staticMiddleware, staticRoutes: staticRoutes, dynamicRoutes: dynamicRoutes)
     }
 }

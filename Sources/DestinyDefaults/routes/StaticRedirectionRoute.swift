@@ -32,6 +32,10 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
         self.to = to.map({ $0.description })
     }
 
+    public var debugDescription : String {
+        return "StaticRedirectionRoute(version: \(version), method: .\(method.caseName!), status: .\(status.caseName!), from: \(from), to: \(to))"
+    }
+
     public func response() throws -> String {
         let headers:[String:String] = ["Location" : "/" + to.joined(separator: "/")]
         return DestinyDefaults.httpResponse(version: version, status: status, headers: headers, result: nil, contentType: nil, charset: nil)

@@ -8,7 +8,7 @@
 import SwiftSyntax
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
-public enum PathComponent : CustomStringConvertible, ExpressibleByStringLiteral, Sendable {
+public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Sendable {
     public typealias StringLiteralType = String
     public typealias ExtendedGraphemeClusterLiteralType = String
     public typealias UnicodeScalarLiteralType = String
@@ -27,6 +27,12 @@ public enum PathComponent : CustomStringConvertible, ExpressibleByStringLiteral,
         }
     }
 
+    public var debugDescription : String {
+        switch self {
+            case .literal(let s): return ".literal(\"\(s)\")"
+            case .parameter(let s): return ".parameter(\"\(s)\")"
+        }
+    }
     public var description : String { "\"" + slug + "\"" }
 
     /// Whether or not this component is a parameter.
