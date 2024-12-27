@@ -13,7 +13,7 @@ import SwiftSyntax
 /// The default dynamic `CORSMiddlewareProtocol` that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
-    private let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void
+    public let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
     /// Default initializer to create a `DynamicCORSMiddleware`.
@@ -69,21 +69,19 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         self.logicDebugDescription = ""
     }
 
-    public var isAsync : Bool { false }
-
+    @inlinable
     public func shouldHandle(request: inout RequestProtocol, response: borrowing DynamicResponseProtocol) -> Bool {
         return request.headers[HTTPField.Name.origin.rawName] != nil
     }
 
-    public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) throws {
-        logic(&request, &response)
+    @inlinable
+    public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {
+        try await logic(&request, &response)
     }
 
-    public func handleAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {}
-
-    public func onError(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) {}
-
-    public func onErrorAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) async {}
+    @inlinable
+    public func onError(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) {
+    }
 
     public var debugDescription : String { "DynamicCORSMiddleware(logic: \(logicDebugDescription)\n)" }
 

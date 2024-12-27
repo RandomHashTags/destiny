@@ -25,10 +25,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public var isAsync : Bool { false }
-
-        @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             var err:Error? = nil
             value.withUTF8Buffer {
                 do {
@@ -41,11 +38,6 @@ extension RouteResponses {
                 throw err
             }
         }
-
-        @inlinable
-        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            try respond(to: socket)
-        }
     }
 }
 
@@ -57,16 +49,10 @@ extension RouteResponses {
         public init(_ value: Swift.UnsafeBufferPointer<UInt8>) {
             self.value = value
         }
-        @inlinable public var isAsync : Bool { false }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try socket.writeBuffer(value.baseAddress!, length: value.count)
-        }
-
-        @inlinable
-        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            try respond(to: socket)
         }
     }
 }*/
@@ -84,18 +70,11 @@ extension RouteResponses {
             return "RouteResponses.String(\"" + value + "\")"
         }
 
-        @inlinable public var isAsync : Bool { false }
-
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.utf8.withContiguousStorageIfAvailable {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
-        }
-
-        @inlinable
-        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            try respond(to: socket)
         }
     }
 }
@@ -114,18 +93,10 @@ extension RouteResponses {
         }
 
         @inlinable
-        public var isAsync : Bool { false }
-
-        @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.withUnsafeBufferPointer {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
-        }
-
-        @inlinable
-        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            try respond(to: socket)
         }
     }
 }
@@ -144,18 +115,10 @@ extension RouteResponses {
         }
 
         @inlinable
-        public var isAsync : Bool { false }
-
-        @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.withUnsafeBufferPointer {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
-        }
-
-        @inlinable
-        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            try respond(to: socket)
         }
     }
 }
@@ -174,18 +137,10 @@ extension RouteResponses {
         }
 
         @inlinable
-        public var isAsync : Bool { false }
-
-        @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) throws {
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.withUnsafeBytes {
                 try socket.writeBuffer($0.baseAddress!, length: value.count)
             }
-        }
-
-        @inlinable
-        public func respondAsync<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            try respond(to: socket)
         }
     }
 }

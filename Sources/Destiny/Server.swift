@@ -199,11 +199,7 @@ enum ClientProcessing {
         client_socket: borrowing C,
         responder: StaticRouteResponderProtocol
     ) async throws {
-        if responder.isAsync {
-            try await responder.respondAsync(to: client_socket)
-        } else {
-            try responder.respond(to: client_socket)
-        }
+        try await responder.respond(to: client_socket)
     }
 
     @inlinable
@@ -220,26 +216,14 @@ enum ClientProcessing {
         for middleware in router.dynamicMiddleware {
             if middleware.shouldHandle(request: &request, response: response) {
                 do {
-                    if middleware.isAsync {
-                        try await middleware.handleAsync(request: &request, response: &response)
-                    } else {
-                        try middleware.handle(request: &request, response: &response)
-                    }
+                    try await middleware.handle(request: &request, response: &response)
                 } catch {
-                    if middleware.isAsync {
-                        await middleware.onErrorAsync(request: &request, response: &response, error: error)
-                    } else {
-                        middleware.onError(request: &request, response: &response, error: error)
-                    }
+                    await middleware.onError(request: &request, response: &response, error: error)
                     break
                 }
             }
         }
-        if responder.isAsync {
-            try await responder.respondAsync(to: client_socket, request: &request, response: &response)
-        } else {
-            try responder.respond(to: client_socket, request: &request, response: &response)
-        }
+        try await responder.respond(to: client_socket, request: &request, response: &response)
     }
 }
 // MARK: ServerError

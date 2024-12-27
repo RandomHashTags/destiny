@@ -14,34 +14,27 @@ import SwiftSyntaxMacros
 // MARK: DynamicRoute
 /// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
-    public let isAsync:Bool
     public let version:HTTPVersion
     public let method:HTTPRequest.Method
-    public let path:[PathComponent]
+    public var path:[PathComponent]
     public var status:HTTPResponse.Status
     public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponseProtocol
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
-    public let handler:(@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) throws -> Void)?
-    public let handlerAsync:(@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void)?
+    public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
 
     /// A string representation of the synchronous handler logic, required when parsing from the router macro.
     public fileprivate(set) var handlerLogic:String = "nil"
-    /// A string representation of the asynchronous handler logic, required when parsing from the router macro.
-    public fileprivate(set) var handlerLogicAsync:String = "nil"
 
     public init(
-        async: Bool,
         version: HTTPVersion = .v1_0,
         method: HTTPRequest.Method,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
         contentType: HTTPMediaType,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: (@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) throws -> Void)? = nil,
-        handlerAsync: (@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) {
-        isAsync = async
         self.version = version
         self.method = method
         self.path = path
@@ -50,13 +43,13 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.defaultResponse = DynamicResponse.init(version: .v1_1, status: .notImplemented, headers: [:], result: .string(""), parameters: [:])
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
-        self.handlerAsync = handlerAsync
     }
 
     public func responder(logic: String) -> String {
-        return "CompiledDynamicRoute(async: \(isAsync), path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(isAsync ? "nil" : logic), logicAsync: \(isAsync ? logic : "nil"))"
+        return "CompiledDynamicRoute(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logic))"
     }
 
+    @inlinable
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
         for middleware in middleware {
             if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
@@ -81,19 +74,16 @@ public struct DynamicRoute : DynamicRouteProtocol {
 public extension DynamicRoute {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
-        var async:Bool = false
         var method:HTTPRequest.Method = .get
         var path:[PathComponent] = []
         var status:HTTPResponse.Status = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaType.Text.plain
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
-        var handler:String = "nil", handlerAsync:String = "nil"
+        var handler:String = "nil"
         var parameters:[String:String] = [:]
         for argument in function.arguments {
             let key:String = argument.label!.text
             switch key {
-            case "async":
-                async = argument.expression.booleanLiteral!.literal.text == "true"
             case "version":
                 if let parsed:HTTPVersion = HTTPVersion.parse(argument.expression) {
                     version = parsed
@@ -117,8 +107,6 @@ public extension DynamicRoute {
                 supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
             case "handler":
                 handler = "\(argument.expression)"
-            case "handlerAsync":
-                handlerAsync = "\(argument.expression)"
             default:
                 break
             }
@@ -142,19 +130,16 @@ public extension DynamicRoute {
         }
         headers[HTTPField.Name.contentType.rawName] = contentType.rawValue
         var route:DynamicRoute = DynamicRoute(
-            async: async,
             version: version,
             method: method,
             path: path,
             status: status,
             contentType: contentType,
             supportedCompressionAlgorithms: supportedCompressionAlgorithms,
-            handler: nil,
-            handlerAsync: nil
+            handler: { _, _ in }
         )
         route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, result: .string(""), parameters: parameters)
         route.handlerLogic = handler
-        route.handlerLogicAsync = handlerAsync
         return route
     }
 }

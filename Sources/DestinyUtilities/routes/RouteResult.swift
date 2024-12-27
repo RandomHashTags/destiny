@@ -13,6 +13,7 @@ public enum RouteResult : Sendable {
     case json(Encodable & Sendable)
     case error(Error)
 
+    @inlinable
     public var count : Int {
         switch self {
         case .string(let string): return string.utf8.count

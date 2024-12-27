@@ -7,17 +7,10 @@
 
 /// The core `MiddlewareProtocol` that powers Destiny's dynamic middleware which handles requests to dynamic routes.
 public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
-    /// Whether or not this middleware handles a request asynchronously or synchronously.
-    var isAsync : Bool { get }
-    
     /// Whether or not this middleware should handle a request.
     @inlinable func shouldHandle(request: inout RequestProtocol, response: borrowing DynamicResponseProtocol) -> Bool
 
-    @inlinable func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) throws
+    @inlinable func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws
 
-    @inlinable func handleAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws
-
-    @inlinable func onError(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error)
-    
-    @inlinable func onErrorAsync(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) async
+    @inlinable func onError(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) async
 }

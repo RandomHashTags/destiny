@@ -10,7 +10,6 @@ import SwiftCompression
 
 /// The default Conditional Route Responder that powers Destiny's routing where multiple responders are computed at compile time, but only one should be selected based on the request.
 public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {
-    public let isAsync:Bool
     public private(set) var conditions:[@Sendable (inout RequestProtocol) -> Bool]
     public private(set) var responders:[RouteResponderProtocol]
 
@@ -18,17 +17,15 @@ public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {
     package var respondersDescription:String = "[]"
 
     public init(
-        isAsync: Bool,
         conditions: [@Sendable (inout RequestProtocol) -> Bool],
         responders: [RouteResponderProtocol]
     ) {
-        self.isAsync = isAsync
         self.conditions = conditions
         self.responders = responders
     }
 
     public var debugDescription : String {
-        return "ConditionalRouteResponder(\nisAsync: \(isAsync),\nconditions: \(conditionsDescription),\nresponders: \(respondersDescription)\n)"
+        return "ConditionalRouteResponder(\nconditions: \(conditionsDescription),\nresponders: \(respondersDescription)\n)"
     }
 
     @inlinable

@@ -21,7 +21,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
     var contentType : HTTPMediaType { get }
 
     /// The path of this route.
-    var path : [String] { get }
+    var path : [String] { get set }
     
     /// The content returned from this route.
     var result : RouteResult { get }

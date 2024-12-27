@@ -18,7 +18,7 @@ public struct StaticRoute : StaticRouteProtocol {
     public let version:HTTPVersion
     public let returnType:RouteReturnType
     public let method:HTTPRequest.Method
-    public private(set) var path:[String]
+    public var path:[String]
     public let status:HTTPResponse.Status
     public let contentType:HTTPMediaType
     public let charset:String?

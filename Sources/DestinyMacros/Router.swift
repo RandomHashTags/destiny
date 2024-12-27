@@ -229,7 +229,7 @@ private extension Router {
             return
         }
         var httpResponse:CompleteHTTPResponse = httpResponse
-        var responder:ConditionalRouteResponder = ConditionalRouteResponder(isAsync: false, conditions: [], responders: [])
+        var responder:ConditionalRouteResponder = ConditionalRouteResponder(conditions: [], responders: [])
         responder.conditionsDescription.removeLast() // ]
         responder.respondersDescription.removeLast() // ]
         for algorithm in route.supportedCompressionAlgorithms {
@@ -289,8 +289,7 @@ private extension Router {
             } else {
                 registered_paths.insert(string)
                 let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
-                let responder:String = route.responder(logic: logic)
+                let responder:String = route.responder(logic: route.handlerLogic)
                 return "// \(string)\n\(buffer) : \(responder)"
             }
         }).joined(separator: ",\n") + "\n"
@@ -307,8 +306,7 @@ private extension Router {
                 if !registered_paths.contains(string) {
                     registered_paths.insert(string)
                     string = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + route.version.string
-                    let logic:String = route.isAsync ? route.handlerLogicAsync : route.handlerLogic
-                    let responder:String = route.responder(logic: logic)
+                    let responder:String = route.responder(logic: route.handlerLogic)
                     parameterized_by_path_count[route.path.count].append("\n// \(string)\n" + responder)
                 } else {
                     route_path_already_registered(context: context, node: function, string)

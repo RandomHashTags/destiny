@@ -72,6 +72,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     }
 }
 
+// MARK: Parse
 public extension StaticMiddleware {
     static func parse(_ function: FunctionCallExprSyntax) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil

@@ -6,6 +6,7 @@
 //
 
 public struct RouteReturnType : Sendable {
+    @inlinable
     public static func bytes<T: FixedWidthInteger>(_ bytes: [T]) -> String {
         return "[" + bytes.map({ "\($0)" }).joined(separator: ",") + "]"
     }
@@ -13,18 +14,25 @@ public struct RouteReturnType : Sendable {
         return "RouteResponses." + valueType + "(" + string + ")"
     }
     
+    /// - Returns: The encoded string is a `StaticString`.
     public static let staticString:RouteReturnType = RouteReturnType(
         rawValue: "staticString",
         encode: { response(valueType: "StaticString", "\"" + $0 + "\"") }
     )
+
+    /// - Returns: The encoded string as a `[UInt8]`.
     public static let uint8Array:RouteReturnType = RouteReturnType(
         rawValue: "uint8Array",
         encode: { response(valueType: "UInt8Array", bytes([UInt8]($0.utf8))) }
     )
+
+    /// - Returns: The encoded string as a `[UInt16]`.
     public static let uint16Array:RouteReturnType = RouteReturnType(
         rawValue: "uint16Array",
         encode: { response(valueType: "UInt16Array", bytes([UInt16]($0.utf16))) }
     )
+
+    /// - Returns: The encoded string as a Foundation `Data`.
     public static let data:RouteReturnType = RouteReturnType(
         rawValue: "data",
         encode: { response(valueType: "Data", bytes([UInt8]($0.utf8))) }

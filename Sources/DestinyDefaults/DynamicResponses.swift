@@ -10,8 +10,11 @@ import HTTPTypes
 
 /// The default storage where Destiny handles dynamic routes.
 public struct DynamicResponses : Sendable {
-    public private(set) var parameterless:[DestinyRoutePathType:DynamicRouteResponderProtocol]
-    public private(set) var parameterized:[[DynamicRouteResponderProtocol]]
+    /// The dynamic routes without parameters.
+    public var parameterless:[DestinyRoutePathType:DynamicRouteResponderProtocol]
+
+    /// The dynamic routes with parameters.
+    public var parameterized:[[DynamicRouteResponderProtocol]]
 
     public init(
         parameterless: [DestinyRoutePathType:DynamicRouteResponderProtocol],
@@ -21,7 +24,8 @@ public struct DynamicResponses : Sendable {
         self.parameterized = parameterized
     }
 
-    mutating func register(version: HTTPVersion, route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) {
+    @inlinable
+    public mutating func register(version: HTTPVersion, route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) {
         if route.path.count(where: { $0.isParameter }) == 0 {
             var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version.string
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
@@ -36,6 +40,7 @@ public struct DynamicResponses : Sendable {
         }
     }
 
+    @inlinable
     public func responder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
         if let responder:DynamicRouteResponderProtocol = parameterless[request.startLine] {
             return responder

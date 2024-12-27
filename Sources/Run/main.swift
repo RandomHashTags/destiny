@@ -29,14 +29,12 @@ let application:Application = Application(
                     //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
                     DynamicCORSMiddleware(),
                     DynamicMiddleware(
-                        async: false,
                         shouldHandleLogic: { request, response in
                             return request.method == .get
                         },
                         handleLogic: { request, response in
                             response.headers["Womp-Womp"] = UUID().uuidString
-                        },
-                        handleLogicAsync: nil
+                        }
                     )
                 ],
                 redirects: [
@@ -99,7 +97,6 @@ let application:Application = Application(
                     result: .error(CustomError.yipyip)
                 ),
                 DynamicRoute(
-                    async: false,
                     method: .get,
                     path: ["dynamic"],
                     contentType: HTTPMediaType.Text.plain,
@@ -109,7 +106,6 @@ let application:Application = Application(
                     }
                 ),
                 DynamicRoute(
-                    async: false,
                     version: .v2_0,
                     method: .get,
                     path: ["dynamic2"],
@@ -120,7 +116,6 @@ let application:Application = Application(
                     }
                 ),
                 DynamicRoute(
-                    async: false,
                     method: .get,
                     path: ["dynamic", ":text"],
                     contentType: HTTPMediaType.Text.plain,

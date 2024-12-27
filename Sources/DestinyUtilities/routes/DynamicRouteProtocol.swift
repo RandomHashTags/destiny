@@ -18,13 +18,10 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     var contentType : HTTPMediaType { get set }
 
     /// The path of this route.
-    var path : [PathComponent] { get }
+    var path : [PathComponent] { get set }
 
     /// The default HTTP Response computed by default values and static middleware.
     var defaultResponse : DynamicResponseProtocol { get set }
-    
-    /// Whether or not this dynamic route responds asynchronously or synchronously.
-    var isAsync : Bool { get }
 
     /// Returns a string representing an initialized route responder conforming to `DynamicRouteResponderProtocol`. Computed at compile time.
     /// 
