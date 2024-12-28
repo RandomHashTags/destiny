@@ -110,7 +110,6 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
             close(serverFD)
             throw ServerError.listenFailed()
         }
-        let not_found_response:StaticString = StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")
         let on_shutdown:(@Sendable () -> Void)? = onShutdown
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
         await withTaskCancellationOrGracefulShutdownHandler {
@@ -124,8 +123,8 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
                                 try await ClientProcessing.process_client(
                                     client: client,
                                     socket: ClientSocket(fileDescriptor: client),
-                                    router: router,
-                                    not_found_response: not_found_response
+                                    logger: logger,
+                                    router: router
                                 )
                             } catch {
                                 self.logger.error(Logger.Message(stringLiteral: "\(error)"))
@@ -166,14 +165,17 @@ enum ClientProcessing {
     static func process_client<C: SocketProtocol & ~Copyable>(
         client: Int32,
         socket: borrowing C,
-        router: borrowing RouterProtocol,
-        not_found_response: borrowing StaticString
+        logger: Logger,
+        router: borrowing RouterProtocol
     ) async throws {
         defer {
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
         var request:RequestProtocol = try socket.loadRequest()
+        #if DEBUG
+        logger.info(Logger.Message(stringLiteral: request.startLine.stringSIMD()))
+        #endif
         if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
             try await staticResponse(socket: socket, responder: responder)
         } else if let responder:DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
@@ -194,17 +196,7 @@ enum ClientProcessing {
                     return
                 }
             }
-            var err:Swift.Error? = nil
-            not_found_response.withUTF8Buffer {
-                do {
-                    try socket.writeBuffer($0.baseAddress!, length: $0.count)
-                } catch {
-                    err = error
-                }
-            }
-            if let error:Swift.Error = err {
-                throw error
-            }
+            try await router.notFoundResponse(socket: socket, request: &request)
         }
     }
 

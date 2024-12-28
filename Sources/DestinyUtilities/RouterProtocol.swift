@@ -29,8 +29,14 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     /// The conditional responder responsible for a route.
     /// 
     /// - Parameters:
-    ///   - request: The incoming network requets.
+    ///   - request: The incoming network request.
     @inlinable func conditionalResponder(for request: inout RequestProtocol) -> RouteResponderProtocol?
+
+    /// The responder for requests to unregistered endpoints.
+    /// 
+    /// - Parameters:
+    ///   - request: The incoming network request.
+    @inlinable func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout RequestProtocol) async throws
 
     /// Registers a static route to this router.
     mutating func register(_ route: StaticRouteProtocol) throws

@@ -18,8 +18,13 @@ public struct Router : RouterProtocol {
     public private(set) var dynamicMiddleware:[DynamicMiddlewareProtocol]
 
     public private(set) var routerGroups:[RouterGroupProtocol]
+
+    public let dynamicNotFoundResponder:DynamicRouteResponderProtocol?
+    public let staticNotFoundResponder:StaticRouteResponderProtocol
     
     public init(
+        dynamicNotFoundResponder: DynamicRouteResponderProtocol? = nil,
+        staticNotFoundResponder: StaticRouteResponderProtocol,
         staticResponses: [DestinyRoutePathType:StaticRouteResponderProtocol],
         dynamicResponses: DynamicResponses,
         conditionalResponses: [DestinyRoutePathType:ConditionalRouteResponderProtocol],
@@ -27,6 +32,8 @@ public struct Router : RouterProtocol {
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         routerGroups: [RouterGroupProtocol]
     ) {
+        self.dynamicNotFoundResponder = dynamicNotFoundResponder
+        self.staticNotFoundResponder = staticNotFoundResponder
         self.staticResponses = staticResponses
         self.dynamicMiddleware = dynamicMiddleware
         self.conditionalResponses = conditionalResponses
@@ -67,6 +74,15 @@ public struct Router : RouterProtocol {
             }
         }
         return nil
+    }
+
+    @inlinable
+    public func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout RequestProtocol) async throws {
+        if let responder:DynamicRouteResponderProtocol = dynamicNotFoundResponder {
+            //try await responder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
+        } else {
+            try await staticNotFoundResponder.respond(to: socket)
+        }
     }
 
     public mutating func register(_ route: StaticRouteProtocol) throws {

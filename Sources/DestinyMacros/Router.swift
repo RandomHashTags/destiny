@@ -16,10 +16,9 @@ import SwiftSyntaxMacros
 
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
-        /*let arguments = node.macroExpansion!.arguments
-        let test:Test = Router.restructure(arguments: arguments)
-        print("Router;expansion;test;restructure;test=\(test)")*/
         var version:HTTPVersion = .v1_1
+        var dynamicNotFoundResponder:String = "nil"
+        var staticNotFoundResponder:String = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var static_middleware:[StaticMiddlewareProtocol] = []
         var static_redirects:[(RedirectionRouteProtocol, SyntaxProtocol)] = []
@@ -34,6 +33,10 @@ enum Router : ExpressionMacro {
                     switch key {
                     case "version":
                         version = HTTPVersion.parse(child.expression) ?? version
+                    case "dynamicNotFoundResponder":
+                        dynamicNotFoundResponder = "\(child.expression)"
+                    case "staticNotFoundResponder":
+                        staticNotFoundResponder = "\(child.expression)"
                     case "supportedCompressionAlgorithms":
                         supportedCompressionAlgorithms = Set(child.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
                     case "redirects":
@@ -117,7 +120,10 @@ enum Router : ExpressionMacro {
             conditionalRespondersString += "\n"
         }
 
-        var string:String = "Router(\nstaticResponses: [\(static_responses)],"
+        var string:String = "Router("
+        string += "\ndynamicNotFoundResponder: \(dynamicNotFoundResponder),"
+        string += "\nstaticNotFoundResponder: \(staticNotFoundResponder),"
+        string += "\nstaticResponses: [\(static_responses)],"
         string += "\ndynamicResponses: \(dynamic_routes_string),"
         string += "\nconditionalResponses: [\(conditionalRespondersString)],"
         string += "\nstaticMiddleware: [\(static_middleware_string)],"
