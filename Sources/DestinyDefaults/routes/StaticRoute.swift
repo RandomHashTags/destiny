@@ -66,19 +66,19 @@ public struct StaticRoute : StaticRouteProtocol {
 
     public func response(middleware: [StaticMiddlewareProtocol]) -> CompleteHTTPResponse {
         var version:HTTPVersion = version
-        var response_status:HTTPResponse.Status = status
+        var status:HTTPResponse.Status = status
         var content_type:HTTPMediaType = contentType
         var headers:[String:String] = [:]
         for middleware in middleware {
-            if middleware.handles(version: version, method: method, contentType: content_type, status: response_status) {
-                if let applies_version:HTTPVersion = middleware.appliesVersion {
-                    version = applies_version
+            if middleware.handles(version: version, method: method, contentType: content_type, status: status) {
+                if let appliesVersion:HTTPVersion = middleware.appliesVersion {
+                    version = appliesVersion
                 }
-                if let applies_status:HTTPResponse.Status = middleware.appliesStatus {
-                    response_status = applies_status
+                if let appliesStatus:HTTPResponse.Status = middleware.appliesStatus {
+                    status = appliesStatus
                 }
-                if let applies_content_type:HTTPMediaType = middleware.appliesContentType {
-                    content_type = applies_content_type
+                if let appliesContentType:HTTPMediaType = middleware.appliesContentType {
+                    content_type = appliesContentType
                 }
                 for (header, value) in middleware.appliesHeaders {
                     headers[header] = value
@@ -87,7 +87,7 @@ public struct StaticRoute : StaticRouteProtocol {
         }
         headers[HTTPField.Name.contentType.rawName] = nil
         headers[HTTPField.Name.contentLength.rawName] = nil
-        return CompleteHTTPResponse(version: version, status: response_status, headers: headers, result: result, contentType: content_type, charset: charset)
+        return CompleteHTTPResponse(version: version, status: status, headers: headers, result: result, contentType: content_type, charset: charset)
     }
 
     @inlinable

@@ -9,36 +9,36 @@ import HTTPTypes
 
 /// The core `MiddlewareProtocol` that powers Destiny's static middleware which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
-    /// What static & dynamic route request versions this middleware handles.
+    /// The route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
     var handlesVersions : Set<HTTPVersion>? { get }
 
-    /// What static & dynamic route request methods this middleware handles.
+    /// The route request methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
     var handlesMethods : Set<HTTPRequest.Method>? { get }
 
-    /// What static & dynamic route response statuses this middleware handles.
+    /// The route response statuses this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all statuses.
     var handlesStatuses : Set<HTTPResponse.Status>? { get }
 
-    /// What static & dynamic route content types this middleware handles.
+    /// The route content types this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all content types.
     var handlesContentTypes : Set<HTTPMediaType>? { get }
 
-    /// What response version this middleware applies to static & dynamic routes.
+    /// The response version this middleware applies to routes.
     var appliesVersion : HTTPVersion? { get }
 
-    /// What response status this middleware applies to static & dynamic routes.
+    /// The response status this middleware applies to routes.
     var appliesStatus : HTTPResponse.Status? { get }
 
-    /// What response content type this middleware applies to static & dynamic routes.
+    /// The response content type this middleware applies to routes.
     var appliesContentType : HTTPMediaType? { get }
     
-    /// What response headers this middleware applies to static & dynamic routes.
+    /// The response headers this middleware applies to routes.
     var appliesHeaders : [String:String] { get }
 
     /// Whether or not this middleware handles a route with the given options.

@@ -29,5 +29,5 @@ public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
         staticMiddleware: [StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
-    ) -> RouterGroupProtocol
+    ) -> Self
 }

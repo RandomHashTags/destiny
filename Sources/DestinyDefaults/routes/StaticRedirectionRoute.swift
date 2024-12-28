@@ -11,6 +11,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRedirectionRoute
+/// The default static Redirection Route that powers how Destiny handles redirects for static routes.
 public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     public let version:HTTPVersion
     public let method:HTTPRequest.Method
