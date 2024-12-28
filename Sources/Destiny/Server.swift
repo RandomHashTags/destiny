@@ -123,7 +123,7 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
                                 let client:Int32 = try await Self.client(serverFD: serverFD)
                                 try await ClientProcessing.process_client(
                                     client: client,
-                                    client_socket: ClientSocket(fileDescriptor: client),
+                                    socket: ClientSocket(fileDescriptor: client),
                                     router: router,
                                     not_found_response: not_found_response
                                 )
@@ -139,6 +139,11 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
             on_shutdown?()
             close(serverFD)
         }
+    }
+
+    // MARK: Shutdown
+    public func shutdown() async throws {
+        try await gracefulShutdown()
     }
 
     // MARK: Accept client
@@ -160,7 +165,7 @@ enum ClientProcessing {
     @inlinable
     static func process_client<C: SocketProtocol & ~Copyable>(
         client: Int32,
-        client_socket: borrowing C,
+        socket: borrowing C,
         router: borrowing RouterProtocol,
         not_found_response: borrowing StaticString
     ) async throws {
@@ -168,31 +173,31 @@ enum ClientProcessing {
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
-        var request:RequestProtocol = try client_socket.loadRequest()
+        var request:RequestProtocol = try socket.loadRequest()
         if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
-            try await staticResponse(client_socket: client_socket, responder: responder)
+            try await staticResponse(socket: socket, responder: responder)
         } else if let responder:DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
-            try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: responder)
+            try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
         } else if let responder:RouteResponderProtocol = router.conditionalResponder(for: &request) {
             if let staticResponder:StaticRouteResponderProtocol = responder as? StaticRouteResponderProtocol {
-                try await staticResponse(client_socket: client_socket, responder: staticResponder)
+                try await staticResponse(socket: socket, responder: staticResponder)
             } else if let responder:DynamicRouteResponderProtocol = responder as? DynamicRouteResponderProtocol {
-                try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: responder)
+                try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
             }
         } else {
             for group in router.routerGroups {
                 if let responder:StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
-                    try await staticResponse(client_socket: client_socket, responder: responder)
+                    try await staticResponse(socket: socket, responder: responder)
                     return
                 } else if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
-                    try await dynamicResponse(client_socket: client_socket, router: router, request: &request, responder: responder)
+                    try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
                     return
                 }
             }
             var err:Swift.Error? = nil
             not_found_response.withUTF8Buffer {
                 do {
-                    try client_socket.writeBuffer($0.baseAddress!, length: $0.count)
+                    try socket.writeBuffer($0.baseAddress!, length: $0.count)
                 } catch {
                     err = error
                 }
@@ -205,15 +210,15 @@ enum ClientProcessing {
 
     @inlinable
     static func staticResponse<C: SocketProtocol & ~Copyable>(
-        client_socket: borrowing C,
+        socket: borrowing C,
         responder: StaticRouteResponderProtocol
     ) async throws {
-        try await responder.respond(to: client_socket)
+        try await responder.respond(to: socket)
     }
 
     @inlinable
     static func dynamicResponse<C: SocketProtocol & ~Copyable>(
-        client_socket: borrowing C,
+        socket: borrowing C,
         router: borrowing RouterProtocol,
         request: inout RequestProtocol,
         responder: DynamicRouteResponderProtocol
@@ -232,7 +237,7 @@ enum ClientProcessing {
                 }
             }
         }
-        try await responder.respond(to: client_socket, request: &request, response: &response)
+        try await responder.respond(to: socket, request: &request, response: &response)
     }
 }
 // MARK: ServerError

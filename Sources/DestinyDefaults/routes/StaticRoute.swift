@@ -9,6 +9,7 @@ import DestinyUtilities
 import Foundation
 import HTTPTypes
 import SwiftCompression
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -118,7 +119,7 @@ public extension StaticRoute {
             case "method":
                 method = HTTPRequest.Method(expr: argument.expression) ?? method
             case "path":
-                path = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
+                path = PathComponent.parseArray(context: context, argument.expression)
             case "status":
                 status = HTTPResponse.Status(expr: argument.expression) ?? .notImplemented
             case "contentType":

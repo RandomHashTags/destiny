@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import SwiftDiagnostics
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 @attached(member, names: arbitrary)
 macro HTTPFieldContentTypes(
@@ -25,6 +27,28 @@ macro HTTPFieldContentTypes(
 @inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
 
 public typealias DestinyRoutePathType = StackString64
+
+// MARK: DiagnosticMsg
+struct DiagnosticMsg : DiagnosticMessage {
+    let message:String
+    let diagnosticID:MessageID
+    let severity:DiagnosticSeverity
+
+    init(id: String, message: String, severity: DiagnosticSeverity = .error) {
+        self.message = message
+        self.diagnosticID = MessageID(domain: "DestinyUtilities", id: id)
+        self.severity = severity
+    }
+}
+extension DiagnosticMsg : FixItMessage {
+    var fixItID : MessageID { diagnosticID }
+}
+
+package extension Diagnostic {
+    static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: SyntaxProtocol) {
+        context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "spacesNotAllowedInRoutePath", message: "Spaces aren't allowed in route paths.")))
+    }
+}
 
 // MARK: SwiftSyntax Misc
 package extension ExprSyntax {

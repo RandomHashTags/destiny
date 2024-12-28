@@ -32,6 +32,8 @@ public struct DynamicRoute : DynamicRouteProtocol {
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
         contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) {
@@ -40,18 +42,18 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.path = path
         self.status = status
         self.contentType = contentType
-        self.defaultResponse = DynamicResponse.init(version: .v1_1, status: .notImplemented, headers: [:], result: .string(""), parameters: [:])
+        self.defaultResponse = DynamicResponse.init(version: .v1_1, status: .notImplemented, headers: headers, result: result, parameters: [:])
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
     }
 
     @inlinable
     public func responder() -> DynamicRouteResponderProtocol {
-        return CompiledDynamicRoute(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerLogic)
+        return DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerLogic)
     }
 
     public var responderDebugDescription : String {
-        return "CompiledDynamicRoute(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerLogic)\n)"
+        return "DynamicRouteResponder(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerLogic)\n)"
     }
 
     public var debugDescription: String {
@@ -110,7 +112,7 @@ public extension DynamicRoute {
             case "method":
                 method = HTTPRequest.Method(expr: argument.expression) ?? method
             case "path":
-                path = argument.expression.array!.elements.map({ PathComponent(expression: $0.expression) })
+                path = PathComponent.parseArray(context: context, argument.expression)
                 for component in path.filter({ $0.isParameter }) {
                     parameters[component.value] = ""
                 }

@@ -1,5 +1,5 @@
 //
-//  CompiledDynamicRoute.swift
+//  DynamicRouteResponder.swift
 //
 //
 //  Created by Evan Anderson on 11/7/24.
@@ -10,7 +10,8 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-public struct CompiledDynamicRoute : DynamicRouteResponderProtocol {
+/// The default Dynamic Route responder.
+public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:Set<Int>
     public let defaultResponse:DynamicResponseProtocol
@@ -31,7 +32,7 @@ public struct CompiledDynamicRoute : DynamicRouteResponderProtocol {
     }
 
     public var debugDescription : String {
-        return "CompiledDynamicRoute(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logicDebugDescription))"
+        return "DynamicRouteResponder(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logicDebugDescription))"
     }
 
     @inlinable

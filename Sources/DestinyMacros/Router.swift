@@ -305,7 +305,7 @@ private extension Router {
         var parameterized:[(DynamicRoute, FunctionCallExprSyntax)] = []
         var parameterless:[(DynamicRoute, FunctionCallExprSyntax)] = []
         for route in routes {
-            if route.0.path.first(where: { $0.isParameter }) != nil {
+            if route.0.path.count(where: { $0.isParameter }) != 0 {
                 parameterized.append(route)
             } else {
                 parameterless.append(route)

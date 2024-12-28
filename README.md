@@ -10,30 +10,43 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 
 ## Roadmap
 
+### Completed
+
 - [x] Custom hostname and port <b>(Nov 8, 2024)</b>
 - [x] Middleware and Routes <b>(Nov 8, 2024)</b>
 - [x] Register middleware/routes after starting server <b>(Nov 8, 2024)</b>
 - [x] Support multiple data representations <b>(Nov 8, 2024)</b>
-- [x] Routes with custom parameters <b>(Nov 8, 2024)</b>
+- [x] Routes with parameters <b>(Nov 8, 2024)</b>
 - [x] Configure settings via Command Line Arguments <b>(Dec 11, 2024)</b>
 - [x] Compression <b>(Dec 24, 2024 | see [Swift Compression](https://github.com/RandomHashTags/swift-compression))</b>
 - [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ConditionalRouteResponderProtocol.swift))</b>
 - [x] Router Groups <b>(Dec 27, 2024)</b>
+
+### WIP
+
 - [ ] CORS <b>(Dynamic CORS implemented Dec 9, 2024)</b>
 - [ ] Redirects <b>(Static Redirects implemented Dec 11, 2024)</b>
-- [ ] Metric Middleware
-- [ ] Queries
 - [ ] Commands
+- [ ] DocC Documentation and tutorials
+- [ ] Unit testing
+- [ ] SIMD processing for better performance
+
+### TODO
+
+- [ ] Metric Middleware
+- [ ] File Middleware
+- [ ] Cache Middleware
+- [ ] Route queries
+- [ ] Case insensitive routes
+- [ ] Routes with wildcards
+- [ ] Response/data streaming
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
 - [ ] TLS/SSL
 - [ ] Web Sockets
-- [ ] SIMD processing for headers
-- [ ] Response/data streaming
+- [ ] Better handling of clients to unlock more throughput
 - [ ] Support custom middleware & routes in default `#router`
 - [ ] Support third-party macro expansions in `#router`
-- [ ] Unit testing middleware/routes/requests
-- [ ] Better handling of clients to unlock more throughput
 - [ ] CSS & JavaScript minification (separate repo?)
 - [ ] Swift-APNS (separate repo?)
 - [ ] Embedded support

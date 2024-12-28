@@ -55,8 +55,8 @@ public extension StaticRedirectionRoute {
             case "version": version = HTTPVersion.parse(argument.expression) ?? version
             case "method": method = HTTPRequest.Method(expr: argument.expression) ?? method
             case "status": status = HTTPResponse.Status(expr: argument.expression) ?? status
-            case "from": from = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
-            case "to": to = argument.expression.array!.elements.map({ $0.expression.stringLiteral!.string })
+            case "from": from = PathComponent.parseArray(context: context, argument.expression)
+            case "to": to = PathComponent.parseArray(context: context, argument.expression)
             default: break
             }
         }

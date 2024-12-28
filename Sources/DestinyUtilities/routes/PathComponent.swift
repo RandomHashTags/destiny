@@ -5,19 +5,40 @@
 //  Created by Evan Anderson on 11/5/24.
 //
 
+import SwiftDiagnostics
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Sendable {
+    case literal(String)
+    case parameter(String)
+
     public typealias StringLiteralType = String
     public typealias ExtendedGraphemeClusterLiteralType = String
     public typealias UnicodeScalarLiteralType = String
 
-    case literal(String)
-    case parameter(String)
+    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
+        return expr.array?.elements.compactMap({
+            guard let string:String = $0.expression.stringLiteral?.string else { return nil }
+            if string.contains(" ") {
+                Diagnostic.spacesNotAllowedInRoutePath(context: context, node: $0.expression)
+                return nil
+            }
+            return string
+        }) ?? []
+    }
+    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [PathComponent] {
+        return expr.array?.elements.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []
+    }
 
-    public init(expression: ExprSyntax) {
-        self = .init(stringLiteral: expression.stringLiteral?.string ?? expression.functionCall!.calledExpression.memberAccess!.declName.baseName.text)
+    public init?(context: some MacroExpansionContext, expression: ExprSyntax) {
+        guard let string:String = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess!.declName.baseName.text else { return nil }
+        if string.contains(" ") {
+            Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expression)
+            return nil
+        }
+        self = .init(stringLiteral: string)
     }
     public init(stringLiteral value: String) {
         if value.first == ":" {

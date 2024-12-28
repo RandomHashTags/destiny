@@ -10,7 +10,7 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-// MARK: ErrorDiagnostic
+// MARK: DiagnosticMsg
 struct DiagnosticMsg : DiagnosticMessage {
     let message:String
     let diagnosticID:MessageID
