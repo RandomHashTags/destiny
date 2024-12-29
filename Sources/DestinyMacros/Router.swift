@@ -17,6 +17,13 @@ import SwiftSyntaxMacros
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var version:HTTPVersion = .v1_1
+        var errorResponder:String = """
+            StaticErrorResponder { error in
+            RouteResponses.String(CompleteHTTPResponse(
+                version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string("{"error":true,"reason":"\\(error)"}"), contentType: HTTPMediaType.Application.json, charset: nil)
+            )
+        }
+        """
         var dynamicNotFoundResponder:String = "nil"
         var staticNotFoundResponder:String = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
@@ -33,6 +40,8 @@ enum Router : ExpressionMacro {
                     switch key {
                     case "version":
                         version = HTTPVersion.parse(child.expression) ?? version
+                    case "errorResponder":
+                        errorResponder = "\(child.expression)"
                     case "dynamicNotFoundResponder":
                         dynamicNotFoundResponder = "\(child.expression)"
                     case "staticNotFoundResponder":
@@ -121,6 +130,7 @@ enum Router : ExpressionMacro {
         }
 
         var string:String = "Router("
+        string += "\nerrorResponder: \(errorResponder),"
         string += "\ndynamicNotFoundResponder: \(dynamicNotFoundResponder),"
         string += "\nstaticNotFoundResponder: \(staticNotFoundResponder),"
         string += "\nstaticResponses: [\(static_responses)],"
@@ -202,7 +212,7 @@ private extension Router {
         if !redirects.isEmpty {
             string += redirects.compactMap({ (route, function) in
                 do {
-                    var string:String = route.method.rawValue + " /" + route.from.joined(separator: "/") + " " + route.version.string
+                    var string:String = route.method.rawValue + " /" + route.from.joined(separator: "/") + " " + route.version.string()
                     if registered_paths.contains(string) {
                         route_path_already_registered(context: context, node: function, string)
                         return nil
@@ -220,7 +230,7 @@ private extension Router {
         }
         string += routes.compactMap({ (route, function) in
             do {
-                var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + route.version.string
+                var string:String = route.startLine
                 if registered_paths.contains(string) {
                     route_path_already_registered(context: context, node: function, string)
                     return nil
@@ -318,7 +328,7 @@ private extension Router {
             }
         }
         let parameterless_string:String = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route, function in
-            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + route.version.string
+            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + route.version.string()
             if registered_paths.contains(string) {
                 route_path_already_registered(context: context, node: function, string)
                 return nil
@@ -338,7 +348,7 @@ private extension Router {
                         parameterized_by_path_count.append("")
                     }
                 }
-                var string:String = route.method.rawValue + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
+                var string:String = route.method.rawValue + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string()
                 if !registered_paths.contains(string) {
                     registered_paths.insert(string)
                     string = route.startLine

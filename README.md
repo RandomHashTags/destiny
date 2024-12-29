@@ -21,6 +21,7 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [x] Compression <b>(Dec 24, 2024 | see [Swift Compression](https://github.com/RandomHashTags/swift-compression))</b>
 - [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ConditionalRouteResponderProtocol.swift))</b>
 - [x] Router Groups <b>(Dec 27, 2024)</b>
+- [x] Error Middleware <b>(Dec 29, 2024 | see [ErrorResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ErrorResponderProtocol.swift))</b>
 
 ### WIP
 
@@ -32,7 +33,6 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [ ] SIMD processing for better performance
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
-- [ ] Error Middleware
 
 ### TODO
 

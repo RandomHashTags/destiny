@@ -18,17 +18,18 @@ public enum DestinyDefaults {
         contentType: HTTPMediaType?,
         charset: String?
     ) -> String {
-        var string:String = version.string + " \(status)\\r\\n"
+        let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
+        var string:String = version.string() + " \(status)" + suffix
         for (header, value) in headers {
-            string += header + ": " + value + "\\r\\n"
+            string += header + ": " + value + suffix
         }
         if let result:String = result {
-            let content_length:Int = result.count - result.ranges(of: "\\").count
+            let content_length:Int = result.utf8.count
             if let contentType:HTTPMediaType = contentType {
-                string += HTTPField.Name.contentType.rawName + ": " + contentType.rawValue + (charset != nil ? "; charset=" + charset! : "") + "\\r\\n"
+                string += HTTPField.Name.contentType.rawName + ": " + contentType.rawValue + (charset != nil ? "; charset=" + charset! : "") + suffix
             }
             string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
-            string += "\\r\\n\\r\\n" + result
+            string += suffix + suffix + result
         }
         return string
     }

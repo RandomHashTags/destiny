@@ -49,6 +49,6 @@ public protocol DynamicRouteProtocol : RouteProtocol {
 
 public extension DynamicRouteProtocol {
     var startLine : String {
-        return method.rawValue + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
+        return method.rawValue + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string()
     }
 }

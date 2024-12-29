@@ -52,6 +52,6 @@ public protocol StaticRouteProtocol : RouteProtocol {
 
 public extension StaticRouteProtocol {
     var startLine : String {
-        return method.rawValue + " /" + path.joined(separator: "/") + " " + version.string
+        return method.rawValue + " /" + path.joined(separator: "/") + " " + version.string()
     }
 }

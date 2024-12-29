@@ -8,19 +8,11 @@
 import SwiftSyntax
 
 public struct HTTPVersion : CustomStringConvertible, Hashable, Sendable {
-    public static func == (left: Self, right: Self) -> Bool {
-        return left.token == right.token
-    }
-
     /// `SIMD8<UInt8>` representation of this HTTP Version.
     public let token:StackString8
-    
-    /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
-    public let string:String
 
-    package init(token: StackString8, string: String) {
+    package init(token: StackString8) {
         self.token = token
-        self.string = string
     }
     public init(_ path: DestinyRoutePathType) {
         switch path.lowHalf.lowHalf.lowHalf {
@@ -30,12 +22,8 @@ public struct HTTPVersion : CustomStringConvertible, Hashable, Sendable {
         case Self.v1_2simd: self = .v1_2
         case Self.v2_0simd: self = .v2_0
         case Self.v3_0simd: self = .v3_0
-        default: self = .v0_9
+        default:            self = .v1_1
         }
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(token)
     }
 
     public var description : String {
@@ -46,8 +34,20 @@ public struct HTTPVersion : CustomStringConvertible, Hashable, Sendable {
         case Self.v1_2simd: return ".v1_2"
         case Self.v2_0simd: return ".v2_0"
         case Self.v3_0simd: return ".v3_0"
-        default:
-            return "HTTPVersion(token: \(token), string: \"\(string)\")"
+        default:            return "HTTPVersion(token: \(token))"
+        }
+    }
+
+    /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
+    public func string() -> String {
+        switch token {
+        case Self.v0_9simd: return "HTTP/0.9"
+        case Self.v1_0simd: return "HTTP/1.0"
+        case Self.v1_1simd: return "HTTP/1.1"
+        case Self.v1_2simd: return "HTTP/1.2"
+        case Self.v2_0simd: return "HTTP/2.0"
+        case Self.v3_0simd: return "HTTP/3.0"
+        default:            return "HTTP/1.1"
         }
     }
 }
@@ -66,7 +66,7 @@ public extension HTTPVersion {
         return token
     }
     private static func get(major: UInt8, minor: UInt8) -> HTTPVersion {
-        return HTTPVersion(token: get_simd(major: major, minor: minor), string: "HTTP/\(major).\(minor)")
+        return HTTPVersion(token: get_simd(major: major, minor: minor))
     }
 
     static let v0_9:HTTPVersion = get(major: 0, minor: 9)

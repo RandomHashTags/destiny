@@ -18,11 +18,13 @@ public struct Router : RouterProtocol {
     public private(set) var dynamicMiddleware:[DynamicMiddlewareProtocol]
 
     public private(set) var routerGroups:[RouterGroupProtocol]
-
+    
+    public let errorResponder:ErrorResponderProtocol
     public let dynamicNotFoundResponder:DynamicRouteResponderProtocol?
     public let staticNotFoundResponder:StaticRouteResponderProtocol
     
     public init(
+        errorResponder: ErrorResponderProtocol,
         dynamicNotFoundResponder: DynamicRouteResponderProtocol? = nil,
         staticNotFoundResponder: StaticRouteResponderProtocol,
         staticResponses: [DestinyRoutePathType:StaticRouteResponderProtocol],
@@ -32,6 +34,7 @@ public struct Router : RouterProtocol {
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         routerGroups: [RouterGroupProtocol]
     ) {
+        self.errorResponder = errorResponder
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder
         self.staticResponses = staticResponses
@@ -77,6 +80,11 @@ public struct Router : RouterProtocol {
     }
 
     @inlinable
+    public func errorResponder(for request: inout RequestProtocol) -> ErrorResponderProtocol {
+        return errorResponder
+    }
+
+    @inlinable
     public func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout RequestProtocol) async throws {
         if let responder:DynamicRouteResponderProtocol = dynamicNotFoundResponder {
             //try await responder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
@@ -87,7 +95,7 @@ public struct Router : RouterProtocol {
 
     public mutating func register(_ route: StaticRouteProtocol) throws {
         guard let responder:StaticRouteResponderProtocol = try route.responder(middleware: staticMiddleware) else { return }
-        var string:String = route.method.rawValue + " /" + route.path.joined(separator: "/") + " " + route.version.string
+        var string:String = route.startLine
         let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
         staticResponses[buffer] = responder
     }

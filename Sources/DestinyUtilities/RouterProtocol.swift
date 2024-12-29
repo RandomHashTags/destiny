@@ -32,6 +32,9 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     ///   - request: The incoming network request.
     @inlinable func conditionalResponder(for request: inout RequestProtocol) -> RouteResponderProtocol?
 
+    /// The error responder.
+    @inlinable func errorResponder(for request: inout RequestProtocol) -> ErrorResponderProtocol
+
     /// The responder for requests to unregistered endpoints.
     /// 
     /// - Parameters:

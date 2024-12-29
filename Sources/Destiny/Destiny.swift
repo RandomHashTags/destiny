@@ -16,6 +16,7 @@ import SwiftCompression
 ///
 /// - Parameters:
 ///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
+///   - errorResponder: The error responder when an error is thrown from a route.
 ///   - dynamicNotFoundResponder: The dynamic responder for requests to unregistered endpoints.
 ///   - staticNotFoundResponder: The static responder for requests to unregistered endpoints.
 ///   - supportedCompressionAlgorithms: The supported compression algorithms. All routes will be updated to support these.
@@ -27,6 +28,11 @@ import SwiftCompression
 @freestanding(expression)
 public macro router(
     version: HTTPVersion,
+    errorResponder: ErrorResponderProtocol = StaticErrorResponder { error in
+        RouteResponses.String(CompleteHTTPResponse(
+            version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string(#"{"error":true,"reason":"\#(error)"}"#), contentType: HTTPMediaType.Application.json, charset: "UTF-8")
+        )
+    },
     dynamicNotFoundResponder: DynamicRouteResponderProtocol? = nil,
     staticNotFoundResponder: StaticRouteResponderProtocol? = nil,
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -42,7 +48,7 @@ public struct Application : Service {
     public let logger:Logger
 
     public init(
-        services: [Service] = [],
+        services: [Service],
         logger: Logger
     ) {
         self.services = services

@@ -74,18 +74,9 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
         for middleware in middleware {
             if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
-                if let appliedVersion:HTTPVersion = middleware.appliesVersion {
-                    defaultResponse.version = appliedVersion
-                }
-                if let appliedStatus:HTTPResponse.Status = middleware.appliesStatus {
-                    status = appliedStatus
-                }
-                if let appliedContentType:HTTPMediaType = middleware.appliesContentType {
-                    contentType = appliedContentType
-                }
-                for (header, value) in middleware.appliesHeaders {
-                    defaultResponse.headers[header] = value
-                }
+                var appliedVersion:HTTPVersion = defaultResponse.version
+                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers)
+                defaultResponse.version = appliedVersion
             }
         }
     }
@@ -135,18 +126,7 @@ public extension DynamicRoute {
         var headers:[String:String] = [:]
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
-                if let appliedVersion:HTTPVersion = middleware.appliesVersion {
-                    version = appliedVersion
-                }
-                if let appliedStatus:HTTPResponse.Status = middleware.appliesStatus {
-                    status = appliedStatus
-                }
-                if let appliedContentType:HTTPMediaType = middleware.appliesContentType {
-                    contentType = appliedContentType
-                }
-                for (header, value) in middleware.appliesHeaders {
-                    headers[header] = value
-                }
+                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
             }
         }
         headers[HTTPField.Name.contentType.rawName] = contentType.rawValue

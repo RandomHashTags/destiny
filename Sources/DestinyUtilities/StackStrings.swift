@@ -13,7 +13,7 @@ public typealias StackString32 = SIMD32<UInt8>
 public typealias StackString64 = SIMD64<UInt8>
 
 public extension SIMD where Scalar : BinaryInteger {
-    /// - Complexity: O(_n_), where _n_ equals the lesser of `string.count` & `scalarCount`.
+    /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
     init(_ string: inout String) {
         var item:Self = Self()
         string.withUTF8 { p in
@@ -24,13 +24,13 @@ public extension SIMD where Scalar : BinaryInteger {
         self = item
     }
 
-    /// - Complexity: O(_n_), where _n_ equals the lesser of `string.count` & `scalarCount`.
+    /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
     init(_ string: String) {
         var s:String = string
         self = .init(&s)
     }
 
-    /// - Complexity: O(_n_), where _n_ equals `scalarCount`.
+    /// - Complexity: O(1).
     var leadingNonzeroByteCountSIMD : Int {
         for i in 0..<scalarCount {
             if self[i] == 0 {

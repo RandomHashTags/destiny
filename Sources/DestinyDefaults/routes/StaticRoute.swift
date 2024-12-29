@@ -71,18 +71,7 @@ public struct StaticRoute : StaticRouteProtocol {
         var headers:[String:String] = [:]
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: content_type, status: status) {
-                if let appliesVersion:HTTPVersion = middleware.appliesVersion {
-                    version = appliesVersion
-                }
-                if let appliesStatus:HTTPResponse.Status = middleware.appliesStatus {
-                    status = appliesStatus
-                }
-                if let appliesContentType:HTTPMediaType = middleware.appliesContentType {
-                    content_type = appliesContentType
-                }
-                for (header, value) in middleware.appliesHeaders {
-                    headers[header] = value
-                }
+                middleware.apply(version: &version, contentType: &content_type, status: &status, headers: &headers)
             }
         }
         headers[HTTPField.Name.contentType.rawName] = nil

@@ -7,6 +7,6 @@
 
 /// The core Static Route Responder protocol that handles requests to static routes.
 public protocol StaticRouteResponderProtocol : RouteResponderProtocol {
-    /// Write a response to a socket.
+    /// Writes a response to a socket.
     @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws
 }

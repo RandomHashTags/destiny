@@ -116,6 +116,14 @@ let application:Application = Application(
                 ),
                 DynamicRoute(
                     method: .get,
+                    path: ["error2"],
+                    contentType: HTTPMediaType.Text.plain,
+                    handler: { request, response in
+                        throw CustomError.yipyip
+                    }
+                ),
+                DynamicRoute(
+                    method: .get,
                     path: ["dynamic"],
                     contentType: HTTPMediaType.Text.plain,
                     handler: { request, response in

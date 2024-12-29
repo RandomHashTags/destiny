@@ -32,7 +32,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
     @inlinable
     public func response() throws -> String {
         let result_string:String = try result.string()
-        var string:String = version.string + " \(status)\r\n"
+        var string:String = version.string() + " \(status)\r\n"
         for (header, value) in headers {
             string += header + ": " + value + "\r\n"
         }

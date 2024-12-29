@@ -176,6 +176,21 @@ enum ClientProcessing {
         #if DEBUG
         logger.info(Logger.Message(stringLiteral: request.startLine.stringSIMD()))
         #endif
+        do {
+            if try await !respond(socket: socket, request: &request, router: router) {
+                try await router.notFoundResponse(socket: socket, request: &request)
+            }
+        } catch {
+            await router.errorResponder(for: &request).respond(to: socket, with: error, for: &request, logger: logger)
+        }
+    }
+
+    @inlinable
+    static func respond<C: SocketProtocol & ~Copyable>(
+        socket: borrowing C,
+        request: inout RequestProtocol,
+        router: borrowing RouterProtocol
+    ) async throws -> Bool {
         if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
             try await staticResponse(socket: socket, responder: responder)
         } else if let responder:DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
@@ -190,14 +205,15 @@ enum ClientProcessing {
             for group in router.routerGroups {
                 if let responder:StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
                     try await staticResponse(socket: socket, responder: responder)
-                    return
+                    return true
                 } else if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
                     try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
-                    return
+                    return true
                 }
             }
-            try await router.notFoundResponse(socket: socket, request: &request)
+            return false
         }
+        return true
     }
 
     @inlinable

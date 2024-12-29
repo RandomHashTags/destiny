@@ -46,7 +46,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     @inlinable
     public mutating func register(version: HTTPVersion, route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) {
         if route.path.count(where: { $0.isParameter }) == 0 {
-            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version.string
+            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version.string()
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
             parameterless[buffer] = responder
         } else {

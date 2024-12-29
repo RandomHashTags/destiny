@@ -49,6 +49,15 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
         contentType: HTTPMediaType,
         status: HTTPResponse.Status
     ) -> Bool
+
+    /// Updates the given variables by applying this middleware.
+    @inlinable
+    func apply(
+        version: inout HTTPVersion,
+        contentType: inout HTTPMediaType,
+        status: inout HTTPResponse.Status,
+        headers: inout [String:String]
+    )
 }
 public extension StaticMiddlewareProtocol {
     @inlinable
@@ -62,5 +71,26 @@ public extension StaticMiddlewareProtocol {
             && (handlesMethods == nil || handlesMethods!.contains(method))
             && (handlesContentTypes == nil || handlesContentTypes!.contains(contentType))
             && (handlesStatuses == nil || handlesStatuses!.contains(status))
+    }
+
+    @inlinable
+    func apply(
+        version: inout HTTPVersion,
+        contentType: inout HTTPMediaType,
+        status: inout HTTPResponse.Status,
+        headers: inout [String:String]
+    ) {
+        if let appliesVersion:HTTPVersion = appliesVersion {
+            version = appliesVersion
+        }
+        if let appliesStatus:HTTPResponse.Status = appliesStatus {
+            status = appliesStatus
+        }
+        if let appliesContentType:HTTPMediaType = appliesContentType {
+            contentType = appliesContentType
+        }
+        for (header, value) in appliesHeaders {
+            headers[header] = value
+        }
     }
 }

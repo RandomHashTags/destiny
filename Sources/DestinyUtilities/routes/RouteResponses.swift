@@ -65,6 +65,9 @@ extension RouteResponses {
         public init(_ value: Swift.String) {
             self.value = value
         }
+        public init(_ response: CompleteHTTPResponse) {
+            value = (try? response.string()) ?? ""
+        }
 
         public var debugDescription : Swift.String {
             return "RouteResponses.String(\"" + value + "\")"
