@@ -10,7 +10,7 @@ import HTTPTypes
 import SwiftSyntax
 
 // MARK: StaticMiddleware
-/// The default Static Middleware that powers Destiny's static middleware which handles static & dynamic routes at compile time.
+/// The default Static Middleware which handles static & dynamic routes at compile time.
 public struct StaticMiddleware : StaticMiddlewareProtocol {
     public let handlesVersions:Set<HTTPVersion>?
     public let handlesMethods:Set<HTTPRequest.Method>?

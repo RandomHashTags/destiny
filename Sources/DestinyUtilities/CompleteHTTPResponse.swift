@@ -8,6 +8,7 @@
 import Foundation
 import HTTPTypes
 
+/// The default storage for a complete HTTP response.
 public struct CompleteHTTPResponse : Sendable {
     public var version:HTTPVersion
     public var status:HTTPResponse.Status

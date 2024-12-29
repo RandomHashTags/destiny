@@ -28,14 +28,10 @@ let application:Application = Application(
                     StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
                     //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
                     DynamicCORSMiddleware(),
-                    DynamicMiddleware(
-                        shouldHandleLogic: { request, response in
-                            return request.method == .get
-                        },
-                        handleLogic: { request, response in
-                            response.headers["Womp-Womp"] = UUID().uuidString
-                        }
-                    )
+                    DynamicMiddleware({ request, response in
+                        guard request.method == .get else { return }
+                        response.headers["Womp-Womp"] = UUID().uuidString
+                    })
                 ],
                 redirects: [
                     .get : [

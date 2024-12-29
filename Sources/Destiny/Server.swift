@@ -127,7 +127,7 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
                                     router: router
                                 )
                             } catch {
-                                self.logger.error(Logger.Message(stringLiteral: "\(error)"))
+                                self.logger.warning(Logger.Message(stringLiteral: "\(error)"))
                             }
                         }
                     }
@@ -220,14 +220,7 @@ enum ClientProcessing {
             response.parameters[responder.path[index].value] = request.path[index]
         }
         for middleware in router.dynamicMiddleware {
-            if middleware.shouldHandle(request: &request, response: response) {
-                do {
-                    try await middleware.handle(request: &request, response: &response)
-                } catch {
-                    await middleware.onError(request: &request, response: &response, error: error)
-                    break
-                }
-            }
+            try await middleware.handle(request: &request, response: &response)
         }
         try await responder.respond(to: socket, request: &request, response: &response)
     }

@@ -9,7 +9,7 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Route protocol that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
+/// The core Static Route protocol where a complete HTTP Response is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
     /// The return type of this router, which the `result` gets encoded to.
     var returnType : RouteReturnType { get }
@@ -26,24 +26,22 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// The content returned from this route.
     var result : RouteResult { get }
 
-    /// The HTTP Response of this route. Computed at compile time.
+    /// The HTTP Response of this route.
     /// 
-    /// - Warning: You should apply any statuses and headers using the middleware.
     /// - Parameters:
-    ///   - middleware: The static middleware the associated `RouterProtocol` uses.
+    ///   - middleware: Static middleware that this route will apply.
     /// - Returns: A `CompleteHTTPResponse`.
+    /// - Warning: You should apply any statuses and headers using the middleware.
     func response(middleware: [StaticMiddlewareProtocol]) -> CompleteHTTPResponse
 
     /// The `StaticRouteResponderProtocol` responder for this route.
     /// 
-    /// Used when registering this route after the server has already started.
-    /// 
     /// - Parameters:
-    ///   - middleware: The static middleware the associated `RouterProtocol` uses.
+    ///   - middleware: Static middleware that this route will apply.
     /// - Throws: any error.
     func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol?
 
-    /// Parsing logic for this route. Computed at compile time.
+    /// Parsing logic for this route.
     /// 
     /// - Parameters:
     ///   - context: The macro expansion context where this route is being parsed from.

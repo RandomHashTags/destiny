@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 10/18/24.
 //
 
-/// The core Dynamic Route Responder protocol that powers Destiny's responses of requests to dynamic routes.
+/// The core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
     /// The path of the route.
     var path : [PathComponent] { get }
@@ -16,5 +16,6 @@ public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
     /// The default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
     var defaultResponse : DynamicResponseProtocol { get }
 
-    @inlinable func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws
+    /// Write the response to the socket.
+    @inlinable func respond<S: SocketProtocol & ~Copyable>(to socket: borrowing S, request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws
 }

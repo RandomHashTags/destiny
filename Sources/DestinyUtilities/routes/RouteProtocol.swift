@@ -8,7 +8,7 @@
 import HTTPTypes
 import SwiftCompression
 
-/// The core Route protocol that powers Destiny's routing.
+/// The core Route protocol.
 public protocol RouteProtocol : CustomDebugStringConvertible, Sendable {
     /// The HTTPVersion associated with this route.
     var version : HTTPVersion { get }

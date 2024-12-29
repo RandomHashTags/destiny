@@ -9,6 +9,6 @@
 public protocol ConditionalRouteResponderProtocol : CustomDebugStringConvertible, RouteResponderProtocol {
     /// - Parameters:
     ///   - request: The request.
-    /// - Returns: A `RouteResponderProtocol` based on the request.
+    /// - Returns: The responder for the request.
     func responder(for request: inout RequestProtocol) -> RouteResponderProtocol?
 }

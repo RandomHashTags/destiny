@@ -12,7 +12,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: DynamicRoute
-/// The default Dynamic Route that powers Destiny's dynamic routing where a complete HTTP Response, computed at compile time, is modified upon requests.
+/// The default Dynamic Route where a complete HTTP Response, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public let version:HTTPVersion
     public let method:HTTPRequest.Method
@@ -24,7 +24,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
 
     /// A string representation of the handler logic, required when parsing from the router macro.
-    public fileprivate(set) var handlerLogic:String = "{ _, _ in }"
+    @usableFromInline package var handlerLogic:String = "{ _, _ in }"
 
     public init(
         version: HTTPVersion = .v1_0,

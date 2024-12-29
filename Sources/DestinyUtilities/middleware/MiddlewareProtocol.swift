@@ -7,9 +7,9 @@
 
 import SwiftSyntax
 
-/// The core Middleware protocol that powers Destiny's Middleware.
+/// The core Middleware protocol.
 public protocol MiddlewareProtocol : Sendable, CustomDebugStringConvertible {
-    /// Parsing logic for this middleware. Computed at compile time.
+    /// Parsing logic for this middleware.
     /// 
     /// - Parameters:
     ///   - function: The SwiftSyntax expression that represents this middleware at compile time.

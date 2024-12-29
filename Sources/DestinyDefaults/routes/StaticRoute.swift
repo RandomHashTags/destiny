@@ -14,7 +14,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRoute
-/// The default Static Route that powers Destiny's static routing where a complete HTTP Response is computed at compile time.
+/// The default Static Route where a complete HTTP Response is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
     public let version:HTTPVersion
     public let returnType:RouteReturnType

@@ -8,6 +8,7 @@
 import DestinyUtilities
 import HTTPTypes
 
+/// The default storage for a request.
 public struct Request : RequestProtocol {
     private let tokens:[SIMD64<UInt8>]
     private let headersBeginIndex:Int
@@ -25,14 +26,14 @@ public struct Request : RequestProtocol {
     }()
 
     /// Temporary value; will be making it use SIMD in the near future
-    public lazy var headers : [String:String] = { // TODO: make SIMD
+    public lazy var headers : any HTTPHeadersProtocol = { // TODO: make SIMD
         var string:String = ""
         string.reserveCapacity(tokens.count * 64)
         for i in 0..<tokens.count {
             string += tokens[i].leadingString()
         }
         let values:[Substring] = string.split(separator: "\r\n")
-        guard values.count > 1 else { return [:] }
+        guard values.count > 1 else { return HTTPHeaders() }
         var dictionary:[String:String] = [:]
         dictionary.reserveCapacity(values.count-1)
         for i in 1..<values.count {
@@ -41,7 +42,7 @@ public struct Request : RequestProtocol {
                 dictionary[String(header[header.startIndex..<index])] = String(header[header.index(index, offsetBy: 2)...])
             }
         }
-        return dictionary
+        return HTTPHeaders(dictionary)
     }()
 
     public lazy var query : [String:String] = {

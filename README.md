@@ -30,11 +30,13 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [ ] DocC Documentation and tutorials
 - [ ] Unit testing
 - [ ] SIMD processing for better performance
+- [ ] File Middleware
+- [ ] Rate Limit Middleware
+- [ ] Error Middleware
 
 ### TODO
 
 - [ ] Metric Middleware
-- [ ] File Middleware
 - [ ] Cache Middleware
 - [ ] Route queries
 - [ ] Case insensitive routes

@@ -44,46 +44,40 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         case .none:
             break
         case .originBased:
-            ddModifications += "$1.headers[HTTPField.Name.vary.rawName] = \"origin\"; if let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
+            ddModifications += "$1.headers[HTTPField.Name.vary.rawName, default: \"\"] = \"origin\""
+            ddModifications += "\nif let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
         }
 
         let allowedHeaders:String = allowedHeaders.map({ $0.rawName  }).joined(separator: ",")
         let allowedMethods:String = allowedMethods.map({ $0.rawValue }).joined(separator: ",")
-        ddModifications += "; $1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = \"" + allowedHeaders + "\"; $1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = \"" + allowedMethods + "\""
+        ddModifications += "\n$1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = \"" + allowedHeaders + "\""
+        ddModifications += "\n$1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = \"" + allowedMethods + "\""
         if allowCredentials {
-            ddModifications += "; $1.headers[HTTPField.Name.accessControlAllowCredentials.rawName] = \"true\""
+            ddModifications += "\n$1.headers[HTTPField.Name.accessControlAllowCredentials.rawName] = \"true\""
         }
         if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
-            ddModifications += "; $1.headers[HTTPField.Name.accessControlExposeHeaders.rawName] = \"" + exposedHeaders + "\""
+            ddModifications += "\n$1.headers[HTTPField.Name.accessControlExposeHeaders.rawName] = \"" + exposedHeaders + "\""
         }
         if let maxAge:Int = maxAge {
             let s:String = String(maxAge)
-            ddModifications += "; $1.headers[HTTPField.Name.accessControlMaxAge.rawName] = \"" + s + "\""
+            ddModifications += "\n$1.headers[HTTPField.Name.accessControlMaxAge.rawName] = \"" + s + "\""
         }
         self.logic = { _, _ in }
         self.logicDebugDescription = ddModifications + " }"
     }
 
-    public init(logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void) {
+    public init(_ logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void) {
         self.logic = logic
-        self.logicDebugDescription = ""
-    }
-
-    @inlinable
-    public func shouldHandle(request: inout RequestProtocol, response: borrowing DynamicResponseProtocol) -> Bool {
-        return request.headers[HTTPField.Name.origin.rawName] != nil
+        self.logicDebugDescription = "{ _, _ in }"
     }
 
     @inlinable
     public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {
+        guard request.headers.has(HTTPField.Name.origin.rawName) else { return }
         try await logic(&request, &response)
     }
 
-    @inlinable
-    public func onError(request: inout RequestProtocol, response: inout DynamicResponseProtocol, error: Error) {
-    }
-
-    public var debugDescription : String { "DynamicCORSMiddleware(logic: \(logicDebugDescription)\n)" }
+    public var debugDescription : String { "DynamicCORSMiddleware \(logicDebugDescription)" }
 
 }
 

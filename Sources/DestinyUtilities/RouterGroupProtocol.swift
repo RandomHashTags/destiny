@@ -8,14 +8,14 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Router Group protocol that powers how Destiny handles routes grouped by a single endpoint.
+/// The core Router Group protocol that handles routes grouped by a single endpoint.
 public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
 
     @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol?
     
     @inlinable func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol?
 
-    /// Parsing logic for this router group. Computed at compile time.
+    /// Parsing logic for this router group.
     /// 
     /// - Parameters:
     ///   - context: The macro expansion context.

@@ -8,7 +8,7 @@
 import Foundation
 
 // MARK: SocketProtocol
-/// The core Socket protocol that powers how Destiny handles incoming network requests.
+/// The core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol : ~Copyable {
     /// The maximum amount of bytes to read at a single time.
     static var bufferLength : Int { get }
@@ -21,8 +21,9 @@ public protocol SocketProtocol : ~Copyable {
     init(fileDescriptor: Int32)
 
     /// Loads the bare minimum data required to process a request.
-    @inlinable func loadRequest() throws -> RequestProtocol
+    @inlinable func loadRequest() throws -> any RequestProtocol
 
+    /// Reads a buffer from the socket.
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws -> Int
 
     /// Writes a buffer to the socket.
