@@ -27,7 +27,7 @@ public enum DestinyDefaults {
         if let result:String = result {
             let content_length:Int = result.utf8.count
             if let contentType:HTTPMediaType = contentType {
-                string += HTTPField.Name.contentType.rawName + ": " + contentType.rawValue + (charset != nil ? "; charset=" + charset! : "") + suffix
+                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset! : "") + suffix
             }
             string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
             string += suffix + suffix + result

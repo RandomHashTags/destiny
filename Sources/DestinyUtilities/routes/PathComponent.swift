@@ -19,31 +19,33 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     public typealias UnicodeScalarLiteralType = String
 
     public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
+        var array:[String] = []
         if let literal:[Substring] = expr.stringLiteral?.string.split(separator: "/") {
-            return literal.compactMap({
-                if $0.contains(" ") {
+            for substring in literal {
+                if substring.contains(" ") {
                     Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expr)
-                    return nil
+                    return []
                 }
-                return String($0)
-            })
-        } else {
-            return expr.array?.elements.compactMap({
-                guard let string:String = $0.expression.stringLiteral?.string else { return nil }
+                array.append(String(substring))
+            }
+        } else if let arrayElements:ArrayElementListSyntax = expr.array?.elements {
+            for element in arrayElements {
+                guard let string:String = element.expression.stringLiteral?.string else { return [] }
                 if string.contains(" ") {
-                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: $0.expression)
-                    return nil
+                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: element.expression)
+                    return []
                 }
-                return string
-            }) ?? []
+                array.append(string)
+            }
         }
+        return array
     }
     public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [PathComponent] {
         return expr.array?.elements.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []
     }
 
     public init?(context: some MacroExpansionContext, expression: ExprSyntax) {
-        guard let string:String = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess!.declName.baseName.text else { return nil }
+        guard let string:String = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess?.declName.baseName.text else { return nil }
         if string.contains(" ") {
             Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expression)
             return nil

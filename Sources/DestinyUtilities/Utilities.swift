@@ -10,19 +10,11 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-@attached(member, names: arbitrary)
-macro HTTPFieldContentTypes(
-    application: [String:String],
-    audio: [String:String],
-    font: [String:String],
-    haptics: [String:String],
-    image: [String:String],
-    message: [String:String],
-    model: [String:String],
-    multipart: [String:String],
-    text: [String:String],
-    video: [String:String]
-) = #externalMacro(module: "DestinyUtilityMacros", type: "HTTPFieldContentTypes")
+@freestanding(declaration, names: arbitrary)
+macro HTTPFieldContentType(
+    category: String,
+    values: [String:String]
+) = #externalMacro(module: "DestinyUtilityMacros", type: "HTTPFieldContentType")
 
 @inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
 

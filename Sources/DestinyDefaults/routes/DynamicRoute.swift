@@ -26,12 +26,12 @@ public struct DynamicRoute : DynamicRouteProtocol {
     /// A string representation of the handler logic, required when parsing from the router macro.
     @usableFromInline package var handlerLogic:String = "{ _, _ in }"
 
-    public init(
+    public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         method: HTTPRequest.Method,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -41,7 +41,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.method = method
         self.path = path
         self.status = status
-        self.contentType = contentType
+        self.contentType = contentType.structure
         self.defaultResponse = DynamicResponse.init(version: .v1_1, status: .notImplemented, headers: headers, result: result, parameters: [:])
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
@@ -89,7 +89,7 @@ public extension DynamicRoute {
         var method:HTTPRequest.Method = .get
         var path:[PathComponent] = []
         var status:HTTPResponse.Status = .notImplemented
-        var contentType:HTTPMediaType = HTTPMediaType.Text.plain
+        var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler:String = "nil"
         var parameters:[String:String] = [:]
@@ -111,9 +111,9 @@ public extension DynamicRoute {
                 status = HTTPResponse.Status(expr: argument.expression) ?? status
             case "contentType":
                 if let member:String = argument.expression.memberAccess?.declName.baseName.text {
-                    contentType = HTTPMediaType.parse(member) ?? HTTPMediaType(rawValue: member, caseName: member, debugDescription: member)
+                    contentType = HTTPMediaTypes.parse(member) ?? contentType
                 } else {
-                    contentType = HTTPMediaType(rawValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string, caseName: "", debugDescription: "")
+                    contentType = HTTPMediaType(debugDescription: "", httpValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
                 }
             case "supportedCompressionAlgorithms":
                 supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
@@ -129,7 +129,7 @@ public extension DynamicRoute {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
             }
         }
-        headers[HTTPField.Name.contentType.rawName] = contentType.rawValue
+        headers[HTTPField.Name.contentType.rawName] = contentType.httpValue
         var route:DynamicRoute = DynamicRoute(
             version: version,
             method: method,
@@ -147,11 +147,11 @@ public extension DynamicRoute {
 
 // MARK: Convenience inits
 public extension DynamicRoute {
-    static func get(
+    static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -160,11 +160,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .get, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func head(
+    static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -173,11 +173,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .head, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func post(
+    static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -186,11 +186,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .post, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func put(
+    static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -199,11 +199,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .put, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func delete(
+    static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -212,11 +212,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .delete, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func connect(
+    static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -225,11 +225,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .connect, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func options(
+    static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -238,11 +238,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .options, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func trace(
+    static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -251,11 +251,11 @@ public extension DynamicRoute {
         return Self(version: version, method: .trace, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
-    static func patch(
+    static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
-        contentType: HTTPMediaType,
+        contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],

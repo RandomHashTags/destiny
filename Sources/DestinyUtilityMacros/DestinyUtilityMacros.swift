@@ -30,7 +30,7 @@ extension DiagnosticMsg : FixItMessage {
 @main
 struct DestinyUtilityMacros : CompilerPlugin {
     let providingMacros:[any Macro.Type] = [
-        HTTPFieldContentTypes.self
+        HTTPFieldContentType.self
     ]
 }
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftSyntax
 
 public enum RouteResult : CustomDebugStringConvertible, Sendable {
     case string(String)
@@ -55,6 +56,19 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .bytes(let b): return b
         case .json(let e): return [] // TODO: finish
         case .error(let e): return [] // TODO: finish
+        }
+    }
+}
+
+public extension RouteResult {
+    init?(expr: ExprSyntax) {
+        guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
+        switch function.calledExpression.memberAccess!.declName.baseName.text {
+        case "string": self = .string(function.arguments.first!.expression.stringLiteral!.string)
+        case "json":   return nil // TODO: fix
+        case "bytes":  self = .bytes(function.arguments.first!.expression.array!.elements.map({ UInt8($0.expression.integerLiteral!.literal.text)! }))
+        case "error":  return nil // TODO: fix
+        default:       return nil
         }
     }
 }

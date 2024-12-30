@@ -55,5 +55,5 @@ public protocol RouterProtocol : Sendable, ~Copyable {
 
 
     /// Registers a static route with the GET HTTP method to this router.
-    //mutating func get() throws
+    //mutating func get(_ path: [String], responder: RouteResponderProtocol) throws
 }

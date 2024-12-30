@@ -21,7 +21,7 @@ enum Router : ExpressionMacro {
         var errorResponder:String = """
             StaticErrorResponder { error in
             RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.Application.json, charset: nil)
+                version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaTypes.Application.json, charset: nil)
             )
         }
         """
@@ -35,93 +35,91 @@ enum Router : ExpressionMacro {
         var static_routes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = []
         var dynamic_routes:[(DynamicRoute, FunctionCallExprSyntax)] = []
         var routerGroups:[RouterGroupProtocol] = []
-        for argument in node.as(ExprSyntax.self)!.macroExpansion!.arguments.children(viewMode: .all) {
-            if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
-                if let key:String = child.label?.text {
-                    switch key {
-                    case "version":
-                        version = HTTPVersion.parse(child.expression) ?? version
-                    case "errorResponder":
-                        errorResponder = "\(child.expression)"
-                    case "dynamicNotFoundResponder":
-                        dynamicNotFoundResponder = "\(child.expression)"
-                    case "staticNotFoundResponder":
-                        staticNotFoundResponder = "\(child.expression)"
-                    case "supportedCompressionAlgorithms":
-                        supportedCompressionAlgorithms = Set(child.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
-                    case "redirects":
-                        parse_redirects(context: context, version: version, dictionary: child.expression.dictionary!, static_redirects: &static_redirects, dynamic_redirects: &dynamic_redirects)
-                    case "middleware":
-                        for element in child.expression.array!.elements {
-                            //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
-                            if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                                let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text
+        for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
+            if let key:String = child.label?.text {
+                switch key {
+                case "version":
+                    version = HTTPVersion.parse(child.expression) ?? version
+                case "errorResponder":
+                    errorResponder = "\(child.expression)"
+                case "dynamicNotFoundResponder":
+                    dynamicNotFoundResponder = "\(child.expression)"
+                case "staticNotFoundResponder":
+                    staticNotFoundResponder = "\(child.expression)"
+                case "supportedCompressionAlgorithms":
+                    supportedCompressionAlgorithms = Set(child.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
+                case "redirects":
+                    parse_redirects(context: context, version: version, dictionary: child.expression.dictionary!, static_redirects: &static_redirects, dynamic_redirects: &dynamic_redirects)
+                case "middleware":
+                    for element in child.expression.array!.elements {
+                        //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
+                        if let function:FunctionCallExprSyntax = element.expression.functionCall {
+                            let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text
+                            switch decl {
+                            case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(context: context, function))
+                            case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(context: context, function))
+                            case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(context: context, function))
+                            default: break
+                            }
+                        } else if let _:MacroExpansionExprSyntax = element.expression.macroExpansion {
+                            // TODO: support custom middleware
+                        } else {
+                        }
+                    }
+                case "routerGroups":
+                    for element in child.expression.array!.elements {
+                        if let function:FunctionCallExprSyntax = element.expression.functionCall {
+                            if let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                                 switch decl {
-                                case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(context: context, function))
-                                case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(context: context, function))
-                                case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(context: context, function))
-                                default: break
+                                case "RouterGroup":
+                                    routerGroups.append(RouterGroup.parse(context: context, version: version, staticMiddleware: static_middleware, dynamicMiddleware: dynamic_middleware, function))
+                                default:
+                                    break
                                 }
-                            } else if let _:MacroExpansionExprSyntax = element.expression.macroExpansion {
-                                // TODO: support custom middleware
-                            } else {
                             }
                         }
-                    case "routerGroups":
-                        for element in child.expression.array!.elements {
-                            if let function:FunctionCallExprSyntax = element.expression.functionCall {
-                                if let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                                    switch decl {
-                                    case "RouterGroup":
-                                        routerGroups.append(RouterGroup.parse(context: context, version: version, staticMiddleware: static_middleware, dynamicMiddleware: dynamic_middleware, function))
-                                    default:
-                                        break
-                                    }
-                                }
+                    }
+                default:
+                    break
+                }
+            } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
+                //print("Router;expansion;route;function=\(function.debugDescription)")
+                let decl:String?
+                var targetMethod:HTTPRequest.Method? = nil
+                if let member = function.calledExpression.memberAccess {
+                    decl = member.base?.as(DeclReferenceExprSyntax.self)?.baseName.text
+                    targetMethod = HTTPRequest.Method.parse(member.declName.baseName.text)
+                } else {
+                    decl = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
+                }
+                if let decl:String = decl {
+                    switch decl {
+                    case "DynamicRoute":
+                        if var route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
+                            if let method:HTTPRequest.Method = targetMethod {
+                                route.method = method
                             }
+                            route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
+                            dynamic_routes.append((route, function))
+                        }
+                    case "StaticRoute":
+                        if var route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
+                            if let method:HTTPRequest.Method = targetMethod {
+                                route.method = method
+                            }
+                            route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
+                            static_routes.append((route, function))
+                        }
+                    case "StaticRedirectionRoute":
+                        if let route:StaticRedirectionRoute = StaticRedirectionRoute.parse(context: context, version: version, function) {
+                            static_redirects.append((route, function))
                         }
                     default:
                         break
                     }
-                } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
-                    //print("Router;expansion;route;function=\(function.debugDescription)")
-                    let decl:String?
-                    var targetMethod:HTTPRequest.Method? = nil
-                    if let member = function.calledExpression.memberAccess {
-                        decl = member.base?.as(DeclReferenceExprSyntax.self)?.baseName.text
-                        targetMethod = HTTPRequest.Method.parse(member.declName.baseName.text)
-                    } else {
-                        decl = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
-                    }
-                    if let decl:String = decl {
-                        switch decl {
-                        case "DynamicRoute":
-                            if var route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
-                                if let method:HTTPRequest.Method = targetMethod {
-                                    route.method = method
-                                }
-                                route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
-                                dynamic_routes.append((route, function))
-                            }
-                        case "StaticRoute":
-                            if var route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
-                                if let method:HTTPRequest.Method = targetMethod {
-                                    route.method = method
-                                }
-                                route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
-                                static_routes.append((route, function))
-                            }
-                        case "StaticRedirectionRoute":
-                            if let route:StaticRedirectionRoute = StaticRedirectionRoute.parse(context: context, version: version, function) {
-                                static_redirects.append((route, function))
-                            }
-                        default:
-                            break
-                        }
-                    }
-                } else {
-                    // TODO: support custom routes
                 }
+            } else {
+                // TODO: support custom routes
             }
         }
         var registered_paths:Set<String> = []
@@ -145,6 +143,7 @@ enum Router : ExpressionMacro {
         }
 
         var string:String = "Router("
+        string += "\nversion: \(version),"
         string += "\nerrorResponder: \(errorResponder),"
         string += "\ndynamicNotFoundResponder: \(dynamicNotFoundResponder),"
         string += "\nstaticNotFoundResponder: \(staticNotFoundResponder),"

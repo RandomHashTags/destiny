@@ -47,6 +47,7 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [ ] TLS/SSL
 - [ ] Web Sockets
 - [ ] Better handling of clients to unlock more throughput
+- [ ] Optimal Memory Layout for stored objects
 - [ ] Support custom middleware & routes in default `#router`
 - [ ] Support third-party macro expansions in `#router`
 - [ ] CSS & JavaScript minification (separate repo?)

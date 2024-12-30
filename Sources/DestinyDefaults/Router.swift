@@ -10,6 +10,7 @@ import HTTPTypes
 
 /// The default Router that handles middleware, routes and router groups.
 public struct Router : RouterProtocol {
+    public let version:HTTPVersion
     public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]
     public private(set) var dynamicResponses:DynamicResponses
     public private(set) var conditionalResponses:[DestinyRoutePathType:ConditionalRouteResponderProtocol]
@@ -24,6 +25,7 @@ public struct Router : RouterProtocol {
     public var staticNotFoundResponder:StaticRouteResponderProtocol
     
     public init(
+        version: HTTPVersion,
         errorResponder: ErrorResponderProtocol,
         dynamicNotFoundResponder: DynamicRouteResponderProtocol? = nil,
         staticNotFoundResponder: StaticRouteResponderProtocol,
@@ -34,6 +36,7 @@ public struct Router : RouterProtocol {
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         routerGroups: [RouterGroupProtocol]
     ) {
+        self.version = version
         self.errorResponder = errorResponder
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder

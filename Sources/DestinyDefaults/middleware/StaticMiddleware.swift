@@ -27,7 +27,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: Set<HTTPRequest.Method>? = nil,
         handlesStatuses: Set<HTTPResponse.Status>? = nil,
-        handlesContentTypes: Set<HTTPMediaType>? = nil,
+        handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponse.Status? = nil,
         appliesContentType: HTTPMediaType? = nil,
@@ -36,7 +36,11 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
         self.handlesStatuses = handlesStatuses
-        self.handlesContentTypes = handlesContentTypes
+        if let handlesContentTypes:[any HTTPMediaTypeProtocol] = handlesContentTypes {
+            self.handlesContentTypes = Set(handlesContentTypes.map({ $0.structure }))
+        } else {
+            self.handlesContentTypes = nil
+        }
         self.appliesVersion = appliesVersion
         self.appliesStatus = appliesStatus
         self.appliesContentType = appliesContentType
@@ -93,13 +97,13 @@ public extension StaticMiddleware {
             case "handlesStatuses":
                 handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponse.Status(expr: $0.expression) }))
             case "handlesContentTypes":
-                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))
+                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaTypes.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))
             case "appliesVersion":
                 appliesVersion = HTTPVersion.parse(argument.expression)
             case "appliesStatus":
                 appliesStatus = HTTPResponse.Status.parse(argument.expression.memberAccess!.declName.baseName.text)
             case "appliesContentType":
-                appliesContentType = HTTPMediaType.parse(argument.expression.memberAccess!.declName.baseName.text)
+                appliesContentType = HTTPMediaTypes.parse(argument.expression.memberAccess!.declName.baseName.text)
             case "appliesHeaders":
                 appliesHeaders = HTTPField.parse(context: context, argument.expression)
             default:
@@ -110,7 +114,7 @@ public extension StaticMiddleware {
             handlesVersions: handlesVersions,
             handlesMethods: handlesMethods,
             handlesStatuses: handlesStatuses,
-            handlesContentTypes: handlesContentTypes,
+            handlesContentTypes: handlesContentTypes != nil ? Array(handlesContentTypes!) : nil,
             appliesVersion: appliesVersion,
             appliesStatus: appliesStatus,
             appliesContentType: appliesContentType,
