@@ -1,5 +1,5 @@
 //
-//  HTTPRequestMethodParse.swift
+//  HTTPRequestMethodExtensions.swift
 //
 //
 //  Created by Evan Anderson on 11/2/24.
@@ -14,22 +14,7 @@ public extension HTTPRequest.Method {
         guard let caseName:String = expr.memberAccess?.declName.baseName.text, let method:HTTPRequest.Method = HTTPRequest.Method(rawValue: caseName.uppercased()) else { return nil }
         self = method
     }
-    
-    // MARK: caseName
-    var caseName : String? {
-        switch self {
-        case .get:     return "get"
-        case .head:    return "head"
-        case .post:    return "post"
-        case .put:     return "put"
-        case .delete:  return "delete"
-        case .connect: return "connect"
-        case .options: return "options"
-        case .trace:   return "trace"
-        case .patch:   return "patch"
-        default:       return nil
-        }
-    }
+
     // MARK: Parse by key
     static func parse(_ key: String) -> Self? {
         switch key {
@@ -45,6 +30,7 @@ public extension HTTPRequest.Method {
         default:                   return .init(key)
         }
     }
+
     // MARK: Parse by SIMD key
     static func parse(_ key: StackString8) -> Self? {
         switch key {
@@ -69,4 +55,11 @@ public extension HTTPRequest.Method {
     static let optionsSIMD:StackString8 = StackString8(79, 80, 84, 73, 79, 78, 83, 0)
     static let traceSIMD:StackString8 = StackString8(84, 82, 65, 67, 69, 0, 0, 0)
     static let patchSIMD:StackString8 = StackString8(80, 65, 84, 67, 72, 0, 0, 0)
+}
+
+// MARK: CustomDebugStringConvertible
+extension HTTPRequest.Method : CustomDebugStringConvertible {
+    public var debugDescription : String {
+        return "HTTPRequest.Method(\"\(rawValue)\")!"
+    }
 }

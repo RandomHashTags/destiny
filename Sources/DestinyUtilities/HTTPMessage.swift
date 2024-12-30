@@ -9,7 +9,7 @@ import HTTPTypes
 
 // MARK: HTTPMessage
 /// The default storage for a HTTP Message.
-public struct HTTPMessage : Sendable {
+public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
     public var version:HTTPVersion
     public var status:HTTPResponse.Status
     public var headers:[String:String]
@@ -31,6 +31,10 @@ public struct HTTPMessage : Sendable {
         self.result = result
         self.contentType = contentType
         self.charset = charset
+    }
+
+    public var debugDescription : String {
+        return "HTTPMessage(version: \(version), status: \(status.debugDescription), headers: \(headers), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset != nil ? "\"" + charset! + "\"" : "nil"))" // TODO: fix
     }
 
     /// - Parameters:

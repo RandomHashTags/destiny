@@ -53,9 +53,9 @@ public struct StaticRoute : StaticRouteProtocol {
         StaticRoute(
             version: \(version),
             returnType: .\(returnType.rawValue),
-            method: .\(method.caseName!),
+            method: \(method.debugDescription),
             path: \(path),
-            status: .\(status.caseName!),
+            status: \(status.debugDescription),
             contentType: \(contentType.debugDescription),
             charset: \(charset ?? "nil"),
             result: \(result.debugDescription),

@@ -8,6 +8,7 @@
 import DestinyUtilities
 import HTTPTypes
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 // MARK: DynamicCORSMiddleware
 /// The default dynamic `CORSMiddlewareProtocol` that enables CORS for dynamic requests.
@@ -83,7 +84,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 
 // MARK: Parse
 public extension DynamicCORSMiddleware {
-    static func parse(_ function: FunctionCallExprSyntax) -> Self {
+    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased
         var allowedHeaders:Set<HTTPField.Name> = [.accept, .authorization, .contentType, .origin]
         var allowedMethods:Set<HTTPRequest.Method> = [.get, .post, .put, .options, .delete, .patch]
@@ -108,7 +109,9 @@ public extension DynamicCORSMiddleware {
                     }
                 }
             case "allowedHeaders":
-                allowedHeaders = Set(argument.expression.array!.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }))
+                allowedHeaders = Set(argument.expression.array!.elements.compactMap({
+                    HTTPField.Name(caseName: $0.expression.memberAccess!.declName.baseName.text)
+                }))
             case "allowedMethods":
                 allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
             case "allowCredentials":
@@ -120,7 +123,7 @@ public extension DynamicCORSMiddleware {
                     maxAge = nil
                 }
             case "exposedHeaders":
-                guard let values:[HTTPField.Name] = argument.expression.array?.elements.compactMap({ HTTPField.Name.parse(caseName: $0.expression.memberAccess!.declName.baseName.text) }) else { break }
+                guard let values:[HTTPField.Name] = argument.expression.array?.elements.compactMap({ HTTPField.Name(caseName: $0.expression.memberAccess!.declName.baseName.text) }) else { break }
                 exposedHeaders = Set(values)
             default:
                 break

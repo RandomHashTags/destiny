@@ -60,10 +60,10 @@ public struct DynamicRoute : DynamicRouteProtocol {
         return """
         DynamicRoute(
             version: \(version),
-            method: .\(method.caseName!),
+            method: \(method.debugDescription),
             path: [\(path.map({ $0.debugDescription }).joined(separator: ","))],
-            status: .\(status.caseName!),
-            contentType: \(contentType.caseName),
+            status: \(status.debugDescription),
+            contentType: \(contentType.debugDescription),
             supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))],
             handler: \(handlerLogic)
         )

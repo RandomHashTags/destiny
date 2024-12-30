@@ -154,13 +154,13 @@ public extension RouterGroup {
                     case "staticMiddleware":
                         for argument in argument.expression.array!.elements {
                             if let function:FunctionCallExprSyntax = argument.expression.functionCall {
-                                staticMiddleware.append(StaticMiddleware.parse(function))
+                                staticMiddleware.append(StaticMiddleware.parse(context: context, function))
                             }
                         }
                     case "dynamicMiddleware":
                         for argument in argument.expression.array!.elements {
                             if let function:FunctionCallExprSyntax = argument.expression.functionCall {
-                                dynamicMiddleware.append(DynamicMiddleware.parse(function))
+                                dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
                             }
                         }
                     default:

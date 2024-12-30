@@ -8,6 +8,7 @@
 import DestinyUtilities
 import HTTPTypes
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 // MARK: StaticMiddleware
 /// The default Static Middleware which handles static & dynamic routes at compile time.
@@ -48,10 +49,10 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
             values.append("handlesVersions: [" + versions.map({ "\($0)" }).joined(separator: ",") + "]")
         }
         if let methods:Set<HTTPRequest.Method> = handlesMethods {
-            values.append("handlesMethods: [" + methods.map({ "." + $0.caseName! }).joined(separator: ",") + "]")
+            values.append("handlesMethods: [" + methods.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         if let statuses:Set<HTTPResponse.Status> = handlesStatuses {
-            values.append("handlesStatuses: [" + statuses.map({ "." + $0.caseName! }).joined(separator: ",") + "]")
+            values.append("handlesStatuses: [" + statuses.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         if let contentTypes:Set<HTTPMediaType> = handlesContentTypes {
             values.append("handlesContentTypes: [" + contentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
@@ -60,10 +61,10 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
             values.append("appliesVersion: \(appliesVersion)")
         }
         if let appliesStatus:HTTPResponse.Status = appliesStatus {
-            values.append("appliesStatus: ." + appliesStatus.caseName!)
+            values.append("appliesStatus: \(appliesStatus.debugDescription)")
         }
         if let appliesContentType:HTTPMediaType = appliesContentType {
-            values.append("appliesStatus: ." + appliesContentType.caseName)
+            values.append("appliesStatus: \(appliesContentType.debugDescription)")
         }
         if !appliesHeaders.isEmpty {
             values.append("appliesHeaders: \(appliesHeaders)")
@@ -74,7 +75,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 
 // MARK: Parse
 public extension StaticMiddleware {
-    static func parse(_ function: FunctionCallExprSyntax) -> Self {
+    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil
         var handlesMethods:Set<HTTPRequest.Method>? = nil
         var handlesStatuses:Set<HTTPResponse.Status>? = nil
@@ -100,10 +101,7 @@ public extension StaticMiddleware {
             case "appliesContentType":
                 appliesContentType = HTTPMediaType.parse(argument.expression.memberAccess!.declName.baseName.text)
             case "appliesHeaders":
-                let dictionary:[(String, String)] = argument.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.map({ ($0.key.stringLiteral!.string, $0.value.stringLiteral!.string) })
-                for (key, value) in dictionary {
-                    appliesHeaders[key] = value
-                }
+                appliesHeaders = HTTPField.parse(context: context, argument.expression)
             default:
                 break
             }

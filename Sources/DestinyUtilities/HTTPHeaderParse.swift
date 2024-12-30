@@ -6,80 +6,112 @@
 //
 
 import HTTPTypes
+import SwiftDiagnostics
+import SwiftSyntax
+import SwiftSyntaxMacros
 
 public extension HTTPField.Name {
-    static func parse(caseName: String) -> HTTPField.Name? {
+    init?(caseName: String) {
         switch caseName {
-        case "accept":                          return .accept
-        case "acceptEncoding":                  return .acceptEncoding
-        case "acceptLanguage":                  return .acceptLanguage
-        case "acceptRanges":                    return .acceptRanges
-        case "accessControlAllowCredentials":   return .accessControlAllowCredentials
-        case "accessControlAllowHeaders":       return .accessControlAllowHeaders
-        case "accessControlAllowMethods":       return .accessControlAllowMethods
-        case "accessControlAllowOrigin":        return .accessControlAllowOrigin
-        case "accessControlExposeHeaders":      return .accessControlExposeHeaders
-        case "accessControlMaxAge":             return .accessControlMaxAge
-        case "accessControlRequestHeaders":     return .accessControlRequestHeaders
-        case "accessControlRequestMethod":      return .accessControlRequestMethod
-        case "age":                             return .age
-        case "allow":                           return .allow
-        case "authenticationInfo":              return .authenticationInfo
-        case "authorization":                   return .authorization
-        case "cacheControl":                    return .cacheControl
-        case "connection":                      return .connection
-        case "contentDisposition":              return .contentDisposition
-        case "contentEncoding":                 return .contentEncoding
-        case "contentLanguage":                 return .contentLanguage
-        case "contentLength":                   return .contentLength
-        case "contentLocation":                 return .contentLocation
-        case "contentRange":                    return .contentRange
-        case "contentSecurityPolicy":           return .contentSecurityPolicy
-        case "contentSecurityPolicyReportOnly": return .contentSecurityPolicyReportOnly
-        case "contentType":                     return .contentType
-        case "cookie":                          return .cookie
-        case "crossOriginResourcePolicy":       return .crossOriginResourcePolicy
-        case "date":                            return .date
-        case "earlyData":                       return .earlyData
-        case "eTag":                            return .eTag
-        case "expect":                          return .expect
-        case "expires":                         return .expires
-        case "from":                            return .from
-        case "ifMatch":                         return .ifMatch
-        case "ifModifiedSince":                 return .ifModifiedSince
-        case "ifNoneMatch":                     return .ifNoneMatch
-        case "ifRange":                         return .ifRange
-        case "ifUnmodifiedSince":               return .ifUnmodifiedSince
-        case "lastModified":                    return .lastModified
-        case "location":                        return .location
-        case "maxForwards":                     return .maxForwards
-        case "origin":                          return .origin
-        case "priority":                        return .priority
-        case "proxyAuthenticate":               return .proxyAuthenticate
-        case "proxyAuthenticationInfo":         return .proxyAuthenticationInfo
-        case "proxyAuthorization":              return .proxyAuthorization
-        case "proxyStatus":                     return .proxyStatus
-        case "range":                           return .range
-        case "referer":                         return .referer
-        case "retryAfter":                      return .retryAfter
-        case "secPurpose":                      return .secPurpose
-        case "secWebSocketAccept":              return .secWebSocketAccept
-        case "secWebSocketExtensions":          return .secWebSocketExtensions
-        case "secWebSocketKey":                 return .secWebSocketKey
-        case "secWebSocketProtocol":            return .secWebSocketProtocol
-        case "secWebSocketVersion":             return .secWebSocketVersion
-        case "server":                          return .server
-        case "strictTransportSecurity":         return .strictTransportSecurity
-        case "te":                              return .te
-        case "trailer":                         return .trailer
-        case "transferEncoding":                return .transferEncoding
-        case "upgrade":                         return .upgrade
-        case "userAgent":                       return .userAgent
-        case "vary":                            return .vary
-        case "via":                             return .via
-        case "wwwAuthenticate":                 return .wwwAuthenticate
-        case "xContentTypeOptions":             return .xContentTypeOptions
-            default: return nil
+        case "accept":                          self = .accept
+        case "acceptEncoding":                  self = .acceptEncoding
+        case "acceptLanguage":                  self = .acceptLanguage
+        case "acceptRanges":                    self = .acceptRanges
+        case "accessControlAllowCredentials":   self = .accessControlAllowCredentials
+        case "accessControlAllowHeaders":       self = .accessControlAllowHeaders
+        case "accessControlAllowMethods":       self = .accessControlAllowMethods
+        case "accessControlAllowOrigin":        self = .accessControlAllowOrigin
+        case "accessControlExposeHeaders":      self = .accessControlExposeHeaders
+        case "accessControlMaxAge":             self = .accessControlMaxAge
+        case "accessControlRequestHeaders":     self = .accessControlRequestHeaders
+        case "accessControlRequestMethod":      self = .accessControlRequestMethod
+        case "age":                             self = .age
+        case "allow":                           self = .allow
+        case "authenticationInfo":              self = .authenticationInfo
+        case "authorization":                   self = .authorization
+        case "cacheControl":                    self = .cacheControl
+        case "connection":                      self = .connection
+        case "contentDisposition":              self = .contentDisposition
+        case "contentEncoding":                 self = .contentEncoding
+        case "contentLanguage":                 self = .contentLanguage
+        case "contentLength":                   self = .contentLength
+        case "contentLocation":                 self = .contentLocation
+        case "contentRange":                    self = .contentRange
+        case "contentSecurityPolicy":           self = .contentSecurityPolicy
+        case "contentSecurityPolicyReportOnly": self = .contentSecurityPolicyReportOnly
+        case "contentType":                     self = .contentType
+        case "cookie":                          self = .cookie
+        case "crossOriginResourcePolicy":       self = .crossOriginResourcePolicy
+        case "date":                            self = .date
+        case "earlyData":                       self = .earlyData
+        case "eTag":                            self = .eTag
+        case "expect":                          self = .expect
+        case "expires":                         self = .expires
+        case "from":                            self = .from
+        case "ifMatch":                         self = .ifMatch
+        case "ifModifiedSince":                 self = .ifModifiedSince
+        case "ifNoneMatch":                     self = .ifNoneMatch
+        case "ifRange":                         self = .ifRange
+        case "ifUnmodifiedSince":               self = .ifUnmodifiedSince
+        case "lastModified":                    self = .lastModified
+        case "location":                        self = .location
+        case "maxForwards":                     self = .maxForwards
+        case "origin":                          self = .origin
+        case "priority":                        self = .priority
+        case "proxyAuthenticate":               self = .proxyAuthenticate
+        case "proxyAuthenticationInfo":         self = .proxyAuthenticationInfo
+        case "proxyAuthorization":              self = .proxyAuthorization
+        case "proxyStatus":                     self = .proxyStatus
+        case "range":                           self = .range
+        case "referer":                         self = .referer
+        case "retryAfter":                      self = .retryAfter
+        case "secPurpose":                      self = .secPurpose
+        case "secWebSocketAccept":              self = .secWebSocketAccept
+        case "secWebSocketExtensions":          self = .secWebSocketExtensions
+        case "secWebSocketKey":                 self = .secWebSocketKey
+        case "secWebSocketProtocol":            self = .secWebSocketProtocol
+        case "secWebSocketVersion":             self = .secWebSocketVersion
+        case "server":                          self = .server
+        case "strictTransportSecurity":         self = .strictTransportSecurity
+        case "te":                              self = .te
+        case "trailer":                         self = .trailer
+        case "transferEncoding":                self = .transferEncoding
+        case "upgrade":                         self = .upgrade
+        case "userAgent":                       self = .userAgent
+        case "vary":                            self = .vary
+        case "via":                             self = .via
+        case "wwwAuthenticate":                 self = .wwwAuthenticate
+        case "xContentTypeOptions":             self = .xContentTypeOptions
+        default: return nil
         }
+    }
+}
+
+public extension HTTPField {
+    /// - Returns: The valid headers in a dictionary.
+    static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String:String] {
+        guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
+            guard let key:String = HTTPField.Name.parse(context: context, $0.key) else { return nil }
+            let value:String = $0.value.stringLiteral?.string ?? ""
+            return (key, value)
+        }) else {
+            return [:]
+        }
+        var headers:[String:String] = [:]
+        headers.reserveCapacity(dictionary.count)
+        for (key, value) in dictionary {
+            headers[key] = value
+        }
+        return headers
+    }
+}
+public extension HTTPField.Name {
+    static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> String? {
+        guard let key:String = expr.stringLiteral?.string else { return nil }
+        guard !key.contains(" ") else {
+            context.diagnose(Diagnostic(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
+            return nil
+        }
+        return key
     }
 }

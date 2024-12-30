@@ -6,6 +6,7 @@
 //
 
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 /// The core Middleware protocol.
 public protocol MiddlewareProtocol : Sendable, CustomDebugStringConvertible {
@@ -13,5 +14,5 @@ public protocol MiddlewareProtocol : Sendable, CustomDebugStringConvertible {
     /// 
     /// - Parameters:
     ///   - function: The SwiftSyntax expression that represents this middleware at compile time.
-    static func parse(_ function: FunctionCallExprSyntax) -> Self
+    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self
 }

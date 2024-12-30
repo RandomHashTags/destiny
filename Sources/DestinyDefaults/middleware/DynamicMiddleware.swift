@@ -8,6 +8,7 @@
 import DestinyUtilities
 import HTTPTypes
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 // MARK: DynamicMiddleware
 /// The default Dynamic Middleware which handles requests to dynamic routes.
@@ -40,7 +41,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 
 // MARK: Parse
 public extension DynamicMiddleware {
-    static func parse(_ function: FunctionCallExprSyntax) -> Self {
+    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var logic:String = "\(function.trailingClosure?.debugDescription ?? "{ _, _ in }")"
         for argument in function.arguments {
             if let _:String = argument.label?.text {

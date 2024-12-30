@@ -56,9 +56,9 @@ enum Router : ExpressionMacro {
                             if let function:FunctionCallExprSyntax = element.expression.functionCall {
                                 let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text
                                 switch decl {
-                                case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(function))
-                                case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(function))
-                                case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(function))
+                                case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(context: context, function))
+                                case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(context: context, function))
+                                case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(context: context, function))
                                 default: break
                                 }
                             } else if let _:MacroExpansionExprSyntax = element.expression.macroExpansion {
