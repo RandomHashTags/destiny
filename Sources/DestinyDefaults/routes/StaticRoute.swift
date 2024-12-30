@@ -18,7 +18,7 @@ import SwiftSyntaxMacros
 public struct StaticRoute : StaticRouteProtocol {
     public let version:HTTPVersion
     public let returnType:RouteReturnType
-    public let method:HTTPRequest.Method
+    public var method:HTTPRequest.Method
     public var path:[String]
     public let status:HTTPResponse.Status
     public let contentType:HTTPMediaType
@@ -148,5 +148,125 @@ public extension StaticRoute {
         )
         route.path = path
         return route
+    }
+}
+
+// MARK: Convenience inits
+public extension StaticRoute {
+    static func get(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .get, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func head(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .head, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func post(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .post, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func put(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .put, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func delete(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .delete, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func connect(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .connect, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func options(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .options, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func trace(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .trace, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    static func patch(
+        version: HTTPVersion = .v1_0,
+        returnType: RouteReturnType = .staticString,
+        path: [StaticString],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        charset: String? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return StaticRoute(version: version, returnType: returnType, method: .patch, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 }

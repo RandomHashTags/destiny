@@ -15,7 +15,7 @@ import SwiftSyntaxMacros
 /// The default Dynamic Route where a complete HTTP Response, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public let version:HTTPVersion
-    public let method:HTTPRequest.Method
+    public var method:HTTPRequest.Method
     public var path:[PathComponent]
     public var status:HTTPResponse.Status
     public var contentType:HTTPMediaType
@@ -142,5 +142,125 @@ public extension DynamicRoute {
         route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, result: .string(""), parameters: parameters)
         route.handlerLogic = handler
         return route
+    }
+}
+
+// MARK: Convenience inits
+public extension DynamicRoute {
+    static func get(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .get, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func head(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .head, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func post(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .post, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func put(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .put, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func delete(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .delete, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func connect(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .connect, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func options(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .options, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func trace(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .trace, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+    }
+
+    static func patch(
+        version: HTTPVersion = .v1_0,
+        path: [PathComponent],
+        status: HTTPResponse.Status = .notImplemented,
+        contentType: HTTPMediaType,
+        headers: [String:String] = [:],
+        result: RouteResult = .string(""),
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return Self(version: version, method: .patch, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 }

@@ -60,68 +60,63 @@ let server:Server<Socket> = Server<Socket>(
                 )
             ),
         ],
-        StaticRoute(
-            method: .get,
+        StaticRoute.get(
             path: ["redirectto"],
             contentType: HTTPMediaType.Text.html,
-            result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>")
+            result: .string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
         ),
-        StaticRoute(
-            method: .get,
+        StaticRoute.post(
+            path: ["post"],
+            contentType: HTTPMediaType.Application.json,
+            result: .string(#"{"bing":"bonged"}"#)
+        ),
+        StaticRoute.get(
             path: ["bro?what=dude"],
             contentType: HTTPMediaType.Application.json,
-            result: .string("{\"bing\":\"bonged\"}")
+            result: .string(#"{"bing":"bonged"}"#)
         ),
-        StaticRoute(
-            method: .get,
+        StaticRoute.get(
             path: ["html"],
             contentType: HTTPMediaType.Text.html,
-            result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
+            result: .string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
-        StaticRoute(
+        StaticRoute.get(
             version: .v2_0,
-            method: .get,
             path: ["html2"],
             contentType: HTTPMediaType.Text.html,
-            result: .string("<!DOCTYPE html><html><head><meta charset=\"UTF-8\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
+            result: .string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
-        StaticRoute(
-            method: .get,
+        StaticRoute.get(
             path: ["json"],
             contentType: HTTPMediaType.Application.json,
-            result: .string("{\"this_outcome_was_inevitable_and_was_your_destiny\":true}")
+            result: .string(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
             //result: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
         ),
-        StaticRoute(
-            method: .get,
+        StaticRoute.get(
             path: ["txt"],
             contentType: HTTPMediaType.Text.plain,
             result: .string("just a regular txt page; t'was your destiny")
         ),
-        StaticRoute(
+        StaticRoute.get(
             returnType: .uint8Array,
-            method: .get,
             path: ["bytes"],
             contentType: HTTPMediaType.Text.plain,
             result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
         ),
-        StaticRoute(
-            method: .get,
+        StaticRoute.get(
             path: ["error"],
             status: .badRequest,
             contentType: HTTPMediaType.Application.json,
             result: .error(CustomError.yipyip)
         ),
-        DynamicRoute(
-            method: .get,
+        DynamicRoute.get(
             path: ["error2"],
             contentType: HTTPMediaType.Text.plain,
             handler: { request, response in
                 throw CustomError.yipyip
             }
         ),
-        DynamicRoute(
-            method: .get,
+        DynamicRoute.get(
             path: ["dynamic"],
             contentType: HTTPMediaType.Text.plain,
             handler: { request, response in
@@ -129,9 +124,8 @@ let server:Server<Socket> = Server<Socket>(
                 response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
             }
         ),
-        DynamicRoute(
+        DynamicRoute.get(
             version: .v2_0,
-            method: .get,
             path: ["dynamic2"],
             contentType: HTTPMediaType.Text.plain,
             handler: { request, response in
@@ -139,8 +133,7 @@ let server:Server<Socket> = Server<Socket>(
                 response.result = .string(UUID().uuidString)
             }
         ),
-        DynamicRoute(
-            method: .get,
+        DynamicRoute.get(
             path: ["dynamic", ":text"],
             contentType: HTTPMediaType.Text.plain,
             handler: { request, response in

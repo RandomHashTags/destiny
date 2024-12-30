@@ -14,6 +14,7 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+// MARK: Router
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var version:HTTPVersion = .v1_1
@@ -82,17 +83,31 @@ enum Router : ExpressionMacro {
                     default:
                         break
                     }
-                } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // router group or route
-                    //print("Router;expansion;route;function=\(function)")
-                    if let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
+                    //print("Router;expansion;route;function=\(function.debugDescription)")
+                    let decl:String?
+                    var targetMethod:HTTPRequest.Method? = nil
+                    if let member = function.calledExpression.memberAccess {
+                        decl = member.base?.as(DeclReferenceExprSyntax.self)?.baseName.text
+                        targetMethod = HTTPRequest.Method.parse(member.declName.baseName.text)
+                    } else {
+                        decl = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
+                    }
+                    if let decl:String = decl {
                         switch decl {
                         case "DynamicRoute":
                             if var route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
+                                if let method:HTTPRequest.Method = targetMethod {
+                                    route.method = method
+                                }
                                 route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
                                 dynamic_routes.append((route, function))
                             }
                         case "StaticRoute":
                             if var route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
+                                if let method:HTTPRequest.Method = targetMethod {
+                                    route.method = method
+                                }
                                 route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
                                 static_routes.append((route, function))
                             }
