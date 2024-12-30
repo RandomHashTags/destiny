@@ -50,7 +50,7 @@ public struct RouterGroup : RouterGroupProtocol {
         for var route in staticRoutes {
             route.path.insert(contentsOf: prefixEndpoints, at: 0)
             do {
-                if let responder:StaticRouteResponderProtocol = try route.responder(middleware: staticMiddleware) {
+                if let responder:StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) {
                     let string:String = route.startLine
                     staticResponses[DestinyRoutePathType(string)] = responder
                 }

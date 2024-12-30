@@ -29,17 +29,21 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// The HTTP Response of this route.
     /// 
     /// - Parameters:
+    ///   - context: The macro expansion context where it was called.
+    ///   - function: The SwiftSyntax expression that represents this route.
     ///   - middleware: Static middleware that this route will apply.
     /// - Returns: An `HTTPMessage`.
     /// - Warning: You should apply any statuses and headers using the middleware.
-    func response(middleware: [StaticMiddlewareProtocol]) -> HTTPMessage
+    func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) -> HTTPMessage
 
     /// The `StaticRouteResponderProtocol` responder for this route.
     /// 
     /// - Parameters:
+    ///   - context: The macro expansion context where it was called.
+    ///   - function: The SwiftSyntax expression that represents this route.
     ///   - middleware: Static middleware that this route will apply.
     /// - Throws: any error.
-    func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol?
+    func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol?
 
     /// Parsing logic for this route.
     /// 

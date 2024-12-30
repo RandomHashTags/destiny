@@ -64,7 +64,7 @@ public struct StaticRoute : StaticRouteProtocol {
         """
     }
 
-    public func response(middleware: [StaticMiddlewareProtocol]) -> HTTPMessage {
+    public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) -> HTTPMessage {
         var version:HTTPVersion = version
         var status:HTTPResponse.Status = status
         var contentType:HTTPMediaType = contentType
@@ -74,14 +74,17 @@ public struct StaticRoute : StaticRouteProtocol {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
             }
         }
+        if let context:MacroExpansionContext = context, let function:FunctionCallExprSyntax = function, status == .notImplemented {
+            Diagnostic.routeStatusNotImplemented(context: context, node: function)
+        }
         headers[HTTPField.Name.contentType.rawName] = nil
         headers[HTTPField.Name.contentLength.rawName] = nil
         return HTTPMessage(version: version, status: status, headers: headers, result: result, contentType: contentType, charset: charset)
     }
 
     @inlinable
-    public func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
-        let result:String = try returnType.encode(response(middleware: middleware).string(escapeLineBreak: true))
+    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
+        let result:String = try returnType.encode(response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true))
         return RouteResponses.String(result)
     }
 }

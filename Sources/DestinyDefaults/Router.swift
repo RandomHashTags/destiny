@@ -94,7 +94,7 @@ public struct Router : RouterProtocol {
     }
 
     public mutating func register(_ route: StaticRouteProtocol) throws {
-        guard let responder:StaticRouteResponderProtocol = try route.responder(middleware: staticMiddleware) else { return }
+        guard let responder:StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
         var string:String = route.startLine
         let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
         staticResponses[buffer] = responder

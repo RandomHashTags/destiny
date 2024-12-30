@@ -197,7 +197,7 @@ private extension Router {
                         for valueElement in values {
                             let from:[String] = PathComponent.parseArray(context: context, valueElement.key)
                             let to:[String] = PathComponent.parseArray(context: context, valueElement.value)
-                            if from.count(where: { $0.first == ":"}) == 0 {
+                            if from.count(where: { $0.first == ":" }) == 0 {
                                 var route:StaticRedirectionRoute = StaticRedirectionRoute(version: version, method: method, status: status, from: [], to: [])
                                 route.from = from
                                 route.to = to
@@ -252,7 +252,7 @@ private extension Router {
                 } else {
                     registered_paths.insert(string)
                     let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                    let httpResponse:DestinyUtilities.HTTPMessage = route.response(middleware: middleware)
+                    let httpResponse:DestinyUtilities.HTTPMessage = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
                         let value:String = try route.returnType.debugDescription(httpResponse.string(escapeLineBreak: true))
                         return "// \(string)\n\(buffer) : " + value
