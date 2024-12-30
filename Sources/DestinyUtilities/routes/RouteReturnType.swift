@@ -18,7 +18,7 @@ public struct RouteReturnType : Sendable {
     public static let staticString:RouteReturnType = RouteReturnType(
         rawValue: "staticString",
         encode: { $0 },
-        debugDescription: { response(valueType: "StaticString", "#\"" + $0 + "\"#") }
+        debugDescription: { response(valueType: "StaticString", "\"" + $0 + "\"") }
     )
 
     /// - Returns: The encoded string as a `[UInt8]`.

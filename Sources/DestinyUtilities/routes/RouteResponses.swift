@@ -21,7 +21,7 @@ extension RouteResponses {
         }
 
         public var debugDescription : Swift.String {
-            return "RouteResponses.StaticString(#\"" + value.description + "\"#)"
+            return "RouteResponses.StaticString(\"" + value.description + "\")"
         }
 
         @inlinable

@@ -47,12 +47,13 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         for (header, value) in headers {
             string += header + ": " + value + suffix
         }
-        if let result:String = try result?.string() {
-            let content_length:Int = result.utf8.count
+        if var result:String = try result?.string() {
+            let contentLength:Int = result.utf8.count
+            result.replace("\"", with: "\\\"")
             if let contentType:HTTPMediaType = contentType {
                 string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset! : "") + suffix
             }
-            string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
+            string += HTTPField.Name.contentLength.rawName + ": \(contentLength)"
             string += suffix + suffix + result
         }
         return string
