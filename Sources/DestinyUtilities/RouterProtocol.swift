@@ -52,4 +52,8 @@ public protocol RouterProtocol : Sendable, ~Copyable {
 
     /// Registers a dynamic middleware at the given index to this router.
     mutating func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws
+
+
+    /// Registers a static route with the GET HTTP method to this router.
+    //mutating func get() throws
 }

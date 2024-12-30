@@ -65,8 +65,8 @@ extension RouteResponses {
         public init(_ value: Swift.String) {
             self.value = value
         }
-        public init(_ response: CompleteHTTPResponse) {
-            value = (try? response.string()) ?? ""
+        public init(_ response: HTTPMessage) {
+            value = (try? response.string(escapeLineBreak: true)) ?? ""
         }
 
         public var debugDescription : Swift.String {

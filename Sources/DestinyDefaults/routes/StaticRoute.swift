@@ -64,24 +64,24 @@ public struct StaticRoute : StaticRouteProtocol {
         """
     }
 
-    public func response(middleware: [StaticMiddlewareProtocol]) -> CompleteHTTPResponse {
+    public func response(middleware: [StaticMiddlewareProtocol]) -> HTTPMessage {
         var version:HTTPVersion = version
         var status:HTTPResponse.Status = status
-        var content_type:HTTPMediaType = contentType
+        var contentType:HTTPMediaType = contentType
         var headers:[String:String] = [:]
         for middleware in middleware {
-            if middleware.handles(version: version, method: method, contentType: content_type, status: status) {
-                middleware.apply(version: &version, contentType: &content_type, status: &status, headers: &headers)
+            if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
+                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
             }
         }
         headers[HTTPField.Name.contentType.rawName] = nil
         headers[HTTPField.Name.contentLength.rawName] = nil
-        return CompleteHTTPResponse(version: version, status: status, headers: headers, result: result, contentType: content_type, charset: charset)
+        return HTTPMessage(version: version, status: status, headers: headers, result: result, contentType: contentType, charset: charset)
     }
 
     @inlinable
     public func responder(middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
-        let result:String = try returnType.encode(response(middleware: middleware).string())
+        let result:String = try returnType.encode(response(middleware: middleware).string(escapeLineBreak: true))
         return RouteResponses.String(result)
     }
 }

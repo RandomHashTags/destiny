@@ -19,9 +19,9 @@ public struct Router : RouterProtocol {
 
     public private(set) var routerGroups:[RouterGroupProtocol]
     
-    public let errorResponder:ErrorResponderProtocol
-    public let dynamicNotFoundResponder:DynamicRouteResponderProtocol?
-    public let staticNotFoundResponder:StaticRouteResponderProtocol
+    public var errorResponder:ErrorResponderProtocol
+    public var dynamicNotFoundResponder:DynamicRouteResponderProtocol?
+    public var staticNotFoundResponder:StaticRouteResponderProtocol
     
     public init(
         errorResponder: ErrorResponderProtocol,

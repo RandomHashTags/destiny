@@ -11,6 +11,7 @@ import HTTPTypes
 public enum DestinyDefaults {
     @inlinable
     public static func httpResponse(
+        escapeLineBreak: Bool,
         version: HTTPVersion,
         status: HTTPResponse.Status,
         headers: [String:String],
@@ -18,7 +19,7 @@ public enum DestinyDefaults {
         contentType: HTTPMediaType?,
         charset: String?
     ) -> String {
-        let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
+        let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string:String = version.string() + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix

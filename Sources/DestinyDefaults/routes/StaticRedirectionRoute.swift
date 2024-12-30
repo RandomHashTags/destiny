@@ -39,7 +39,7 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
 
     public func response() throws -> String {
         let headers:[String:String] = ["Location" : "/" + to.joined(separator: "/")]
-        return DestinyDefaults.httpResponse(version: version, status: status, headers: headers, result: nil, contentType: nil, charset: nil)
+        return DestinyDefaults.httpResponse(escapeLineBreak: true, version: version, status: status, headers: headers, result: nil, contentType: nil, charset: nil)
     }
 }
 

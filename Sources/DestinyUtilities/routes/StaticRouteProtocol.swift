@@ -30,9 +30,9 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// 
     /// - Parameters:
     ///   - middleware: Static middleware that this route will apply.
-    /// - Returns: A `CompleteHTTPResponse`.
+    /// - Returns: An `HTTPMessage`.
     /// - Warning: You should apply any statuses and headers using the middleware.
-    func response(middleware: [StaticMiddlewareProtocol]) -> CompleteHTTPResponse
+    func response(middleware: [StaticMiddlewareProtocol]) -> HTTPMessage
 
     /// The `StaticRouteResponderProtocol` responder for this route.
     /// 

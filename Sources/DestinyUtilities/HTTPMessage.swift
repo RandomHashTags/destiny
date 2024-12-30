@@ -1,15 +1,15 @@
 //
-//  CompleteHTTPResponse.swift
+//  HTTPMessage.swift
 //
 //
 //  Created by Evan Anderson on 12/24/24.
 //
 
-import Foundation
 import HTTPTypes
 
-/// The default storage for a complete HTTP response.
-public struct CompleteHTTPResponse : Sendable {
+// MARK: HTTPMessage
+/// The default storage for a HTTP Message.
+public struct HTTPMessage : Sendable {
     public var version:HTTPVersion
     public var status:HTTPResponse.Status
     public var headers:[String:String]
@@ -33,9 +33,12 @@ public struct CompleteHTTPResponse : Sendable {
         self.charset = charset
     }
 
+    /// - Parameters:
+    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the result.
+    /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
-    public func string() throws -> String {
-        let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
+    public func string(escapeLineBreak: Bool) throws -> String {
+        let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string:String = version.string() + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
@@ -51,6 +54,7 @@ public struct CompleteHTTPResponse : Sendable {
         return string
     }
 
+    /// - Returns: A byte array representing an HTTP Message with the given values.
     @inlinable
     public func bytes() throws -> [UInt8] {
         let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n

@@ -19,8 +19,8 @@ enum Router : ExpressionMacro {
         var version:HTTPVersion = .v1_1
         var errorResponder:String = """
             StaticErrorResponder { error in
-            RouteResponses.String(CompleteHTTPResponse(
-                version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string("{"error":true,"reason":"\\(error)"}"), contentType: HTTPMediaType.Application.json, charset: nil)
+            RouteResponses.String(HTTPMessage(
+                version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.Application.json, charset: nil)
             )
         }
         """
@@ -237,9 +237,9 @@ private extension Router {
                 } else {
                     registered_paths.insert(string)
                     let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                    let httpResponse:CompleteHTTPResponse = route.response(middleware: middleware)
+                    let httpResponse:DestinyUtilities.HTTPMessage = route.response(middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
-                        let value:String = try route.returnType.debugDescription(httpResponse.string())
+                        let value:String = try route.returnType.debugDescription(httpResponse.string(escapeLineBreak: true))
                         return "// \(string)\n\(buffer) : " + value
                     } else {
                         conditionalRoute(context: context, conditionalResponders: &conditionalResponders, route: route, function: function, string: string, buffer: buffer, httpResponse: httpResponse)
@@ -264,17 +264,17 @@ private extension Router {
         function: FunctionCallExprSyntax,
         string: String,
         buffer: DestinyRoutePathType,
-        httpResponse: CompleteHTTPResponse
+        httpResponse: DestinyUtilities.HTTPMessage
     ) {
         guard let result:RouteResult = httpResponse.result else { return }
         let body:[UInt8]
         do {
             body = try result.bytes()
         } catch {
-            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the CompleteHTTPResponse bytes: \(error).")))
+            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes: \(error).")))
             return
         }
-        var httpResponse:CompleteHTTPResponse = httpResponse
+        var httpResponse:DestinyUtilities.HTTPMessage = httpResponse
         var responder:ConditionalRouteResponder = ConditionalRouteResponder(conditions: [], responders: [])
         responder.conditionsDescription.removeLast() // ]
         responder.respondersDescription.removeLast() // ]
@@ -286,11 +286,11 @@ private extension Router {
                     httpResponse.headers[HTTPField.Name.contentEncoding.rawName] = algorithm.acceptEncodingName
                     httpResponse.headers[HTTPField.Name.vary.rawName] = HTTPField.Name.acceptEncoding.rawName
                     do {
-                        let bytes = try httpResponse.string()
+                        let bytes:String = try httpResponse.string(escapeLineBreak: false)
                         responder.conditionsDescription += "\n{ $0.headers[HTTPField.Name.acceptEncoding.rawName]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
                         responder.respondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
                     } catch {
-                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the CompleteHTTPResponse bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
+                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
                     }
                 } catch {
                     context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "compressionError", message: "Encountered error while compressing bytes using the " + algorithm.rawValue + " algorithm: \(error).")))

@@ -12,7 +12,7 @@ import Logging
 import ServiceLifecycle
 import SwiftCompression
 
-/// The default macro to create a `Router`.
+/// The default macro to create a default `Router`.
 ///
 /// - Parameters:
 ///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
@@ -28,11 +28,7 @@ import SwiftCompression
 @freestanding(expression)
 public macro router(
     version: HTTPVersion,
-    errorResponder: ErrorResponderProtocol = StaticErrorResponder { error in
-        RouteResponses.String(CompleteHTTPResponse(
-            version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string(#"{"error":true,"reason":"\#(error)"}"#), contentType: HTTPMediaType.Application.json, charset: "UTF-8")
-        )
-    },
+    errorResponder: ErrorResponderProtocol? = nil,
     dynamicNotFoundResponder: DynamicRouteResponderProtocol? = nil,
     staticNotFoundResponder: StaticRouteResponderProtocol? = nil,
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -41,6 +37,18 @@ public macro router(
     routerGroups: [RouterGroupProtocol] = [],
     _ routes: RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
+
+
+/// A convenience macro to create a complete HTTP Response at compile time.
+@freestanding(expression)
+public macro httpMessage<T: ExpressibleByStringLiteral>(
+    version: HTTPVersion,
+    status: HTTPResponse.Status,
+    headers: [String:String] = [:],
+    result: RouteResult? = nil,
+    contentType: HTTPMediaType? = nil,
+    charset: String? = nil
+) -> T = #externalMacro(module: "DestinyMacros", type: "HTTPMessage")
 
 // MARK: Application
 public struct Application : Service {
