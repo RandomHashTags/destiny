@@ -19,14 +19,24 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     public typealias UnicodeScalarLiteralType = String
 
     public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
-        return expr.array?.elements.compactMap({
-            guard let string:String = $0.expression.stringLiteral?.string else { return nil }
-            if string.contains(" ") {
-                Diagnostic.spacesNotAllowedInRoutePath(context: context, node: $0.expression)
-                return nil
-            }
-            return string
-        }) ?? []
+        if let literal:[Substring] = expr.stringLiteral?.string.split(separator: "/") {
+            return literal.compactMap({
+                if $0.contains(" ") {
+                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expr)
+                    return nil
+                }
+                return String($0)
+            })
+        } else {
+            return expr.array?.elements.compactMap({
+                guard let string:String = $0.expression.stringLiteral?.string else { return nil }
+                if string.contains(" ") {
+                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: $0.expression)
+                    return nil
+                }
+                return string
+            }) ?? []
+        }
     }
     public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [PathComponent] {
         return expr.array?.elements.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []

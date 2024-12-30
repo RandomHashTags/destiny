@@ -195,12 +195,12 @@ private extension Router {
                 for statusElement in statuses {
                     if let status:HTTPResponse.Status = HTTPResponse.Status(expr: statusElement.key), let values:DictionaryElementListSyntax = statusElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
                         for valueElement in values {
-                            let from:String = valueElement.key.stringLiteral!.string
-                            let to:String = valueElement.value.stringLiteral!.string
-                            if from.firstIndex(of: ":") == nil {
+                            let from:[String] = PathComponent.parseArray(context: context, valueElement.key)
+                            let to:[String] = PathComponent.parseArray(context: context, valueElement.value)
+                            if from.count(where: { $0.first == ":"}) == 0 {
                                 var route:StaticRedirectionRoute = StaticRedirectionRoute(version: version, method: method, status: status, from: [], to: [])
-                                route.from = from.split(separator: "/").map({ String($0) })
-                                route.to = to.split(separator: "/").map({ String($0) })
+                                route.from = from
+                                route.to = to
                                 static_redirects.append((route, valueElement))
                             } else {
                             }
