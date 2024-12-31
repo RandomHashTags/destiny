@@ -22,12 +22,12 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ConditionalRouteResponderProtocol.swift))</b>
 - [x] Router Groups <b>(Dec 27, 2024)</b>
 - [x] Error Middleware <b>(Dec 29, 2024 | see [ErrorResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ErrorResponderProtocol.swift))</b>
+- [x] Commands <b>(Dec 31, 2024)</b>
 
 ### WIP
 
 - [ ] CORS <b>(Dynamic CORS implemented Dec 9, 2024)</b>
 - [ ] Redirects <b>(Static Redirects implemented Dec 11, 2024)</b>
-- [ ] Commands
 - [ ] DocC Documentation and tutorials
 - [ ] Unit testing
 - [ ] SIMD processing for better performance

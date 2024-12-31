@@ -52,15 +52,23 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
 
 // MARK: Application
 public struct Application : Service {
+    public static private(set) var shared:Application! = nil
+
+    public let server:ServerProtocol
     public let services:[Service]
     public let logger:Logger
 
     public init(
-        services: [Service],
+        server: ServerProtocol,
+        services: [Service] = [],
         logger: Logger
     ) {
+        self.server = server
+        var services:[Service] = services
+        services.insert(server, at: 0)
         self.services = services
         self.logger = logger
+        Self.shared = self
     }
     public func run() async throws {
         let service_group:ServiceGroup = ServiceGroup(configuration: .init(services: services, logger: logger))

@@ -5,24 +5,27 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-import Foundation
+import ArgumentParser
 import Logging
 import ServiceLifecycle
 
 /// The core Server protocol that accepts and processes incoming network requests.
-public protocol ServerProtocol : Service {
+public protocol ServerProtocol : Service, Actor {
     typealias ClientSocket = SocketProtocol & ~Copyable
 
-    /// The main router for the server.
+    /// Main router for the server.
     var router : RouterProtocol { get }
 
-    /// The main logger for the server.
+    /// Main logger for the server.
     var logger : Logger { get }
 
-    /// Called when the server loads successfully, just before it accepts incoming network requests.
+    /// Commands that can be executed from the terminal when the server is running.
+    var commands : [ParsableCommand.Type] { get }
+
+    /// When the server loads successfully, just before it accepts incoming network requests.
     var onLoad : (@Sendable () -> Void)? { get }
 
-    /// Called when the server terminates.
+    /// When the server terminates.
     var onShutdown : (@Sendable () -> Void)? { get }
 
     /// Gracefully shuts down the server.

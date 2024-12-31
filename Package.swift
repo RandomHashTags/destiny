@@ -16,6 +16,9 @@ let package = Package(
         // Macros
         .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
 
+        // Commands
+        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
+
         // Request/Response types
         .package(url: "https://github.com/apple/swift-http-types", from: "1.3.0"),
 
@@ -42,6 +45,7 @@ let package = Package(
             name: "DestinyUtilities",
             dependencies: [
                 "DestinyUtilityMacros",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "SwiftCompression", package: "swift-compression"),
@@ -53,7 +57,8 @@ let package = Package(
         .target(
             name: "DestinyDefaults",
             dependencies: [
-                "DestinyUtilities"
+                "DestinyUtilities",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
         .target(
@@ -61,7 +66,8 @@ let package = Package(
             dependencies: [
                 "DestinyMacros",
                 "DestinyDefaults",
-                "DestinyUtilities"
+                "DestinyUtilities",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
         

@@ -139,13 +139,16 @@ let router:RouterProtocol = #router(
         }
     )
 )
-let server:Server<Socket> = Server<Socket>(
+let server:Server<Socket> = try Server<Socket>(
     port: 8080,
     router: router,
-    logger: Logger(label: "destiny.http.server")
+    logger: Logger(label: "destiny.http.server"),
+    commands: [
+        StopCommand.self
+    ]
 )
 let application:Application = Application(
-    services: [server],
+    server: server,
     logger: Logger(label: "destiny.application")
 )
 try await application.run()

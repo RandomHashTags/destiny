@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+import ArgumentParser
+import DestinyDefaults
 import DestinyUtilities
 import Foundation
 import HTTPTypes
@@ -13,16 +15,17 @@ import ServiceLifecycle
 
 // MARK: Server
 /// The default `ServerProtocol` implementation Destiny uses.
-public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
+public actor Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
     public typealias ClientSocket = C
 
     public let address:String?
-    public var port:in_port_t
+    public let port:in_port_t
     /// The maximum amount of pending connections this Server will accept at a time.
     /// This value is capped at the system's limit (`ulimit -n`).
-    public var maxPendingConnections:Int32
+    public let maxPendingConnections:Int32
     public let router:RouterProtocol
     public let logger:Logger
+    public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
     public let onLoad:(@Sendable () -> Void)?
     public let onShutdown:(@Sendable () -> Void)?
 
@@ -32,35 +35,27 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         maxPendingConnections: Int32 = SOMAXCONN,
         router: consuming RouterProtocol,
         logger: Logger,
+        commands: [ParsableCommand.Type] = [
+            StopCommand.self
+        ],
         onLoad: (@Sendable () -> Void)? = nil,
         onShutdown: (@Sendable () -> Void)? = nil
-    ) {
+    ) throws {
         var address:String? = address
         var port:in_port_t = port
         var maxPendingConnections:Int32 = maxPendingConnections
-        var option:Int = 0
-        for (index, argument) in CommandLine.arguments.enumerated() {
-            if index != 0 && index % 2 == 0 {
-                switch option {
-                case 0: address = argument
-                case 1: port = UInt16(argument) ?? port
-                case 2: maxPendingConnections = Int32(argument) ?? maxPendingConnections
-                default: break
-                }
-            } else {
-                switch argument {
-                case "--hostname", "-h": option = 0
-                case "--port", "-p": option = 1
-                case "--maxpendingconnections", "-mpc": option = 2
-                default: option = -1
-                }
-            }
-        }
+
+        let parsed:BootCommands = try BootCommands.parse()
+        address = parsed.hostname
+        port = parsed.port ?? port
+        maxPendingConnections = parsed.maxPendingConnections ?? maxPendingConnections
+
         self.address = address
         self.port = port
         self.maxPendingConnections = min(SOMAXCONN, maxPendingConnections)
         self.router = router
         self.logger = logger
+        self.commands = commands
         self.onLoad = onLoad
         self.onShutdown = onShutdown
     }
@@ -112,26 +107,26 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         }
         let on_shutdown:(@Sendable () -> Void)? = onShutdown
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
+        Task {
+            await processCommand()
+        }
         await withTaskCancellationOrGracefulShutdownHandler {
             onLoad?()
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 await withTaskGroup(of: Void.self) { group in
                     for _ in 0..<maxPendingConnections {
-                        group.addTask {
-                            do {
-                                let client:Int32 = try await Self.client(serverFD: serverFD)
-                                try await ClientProcessing.process_client(
-                                    client: client,
-                                    socket: ClientSocket(fileDescriptor: client),
-                                    logger: logger,
-                                    router: router
-                                )
-                            } catch {
-                                self.logger.warning(Logger.Message(stringLiteral: "\(error)"))
-                            }
+                        do {
+                            let client:Int32 = try await Self.client(serverFD: serverFD)
+                            try await ClientProcessing.process_client(
+                                client: client,
+                                socket: ClientSocket(fileDescriptor: client),
+                                logger: self.logger,
+                                router: self.router
+                            )
+                        } catch {
+                            self.logger.warning(Logger.Message(stringLiteral: "\(error)"))
                         }
                     }
-                    await group.waitForAll()
                 }
             }
         } onCancelOrGracefulShutdown: {
@@ -140,8 +135,43 @@ public struct Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         }
     }
 
+    // MARK: Process commands
+    private func readCommand() async -> String? {
+        return await withCheckedContinuation { continuation in
+            continuation.resume(returning: readLine())
+        }
+    }
+    func processCommand() async {
+        if let line:String = await readCommand() {
+            let arguments:[Substring] = line.split(separator: " ")
+            if let targetCMD:Substring = arguments.first {
+                let targetCommand:String = String(targetCMD)
+                for command in commands {
+                    if targetCommand == command.configuration.commandName {
+                        var value:ParsableCommand = command.init()
+                        do {
+                            if var asyncValue:AsyncParsableCommand = value as? AsyncParsableCommand {
+                                try await asyncValue.run()
+                            } else {
+                                try value.run()
+                            }
+                        } catch {
+                            self.logger.warning(Logger.Message(stringLiteral: "Encountered error while executing command \"\(targetCMD)\": \(error)"))
+                        }
+                        break
+                    }
+                }
+            }
+        }
+        guard !Task.isCancelled && !Task.isShuttingDownGracefully else { return }
+        Task {
+            await processCommand()
+        }
+    }
+
     // MARK: Shutdown
     public func shutdown() async throws {
+        // TODO: fix | doesn't shutdown properly (pending clients are blocking)
         try await gracefulShutdown()
     }
 
