@@ -10,7 +10,7 @@ import Logging
 import ServiceLifecycle
 
 /// The core Server protocol that accepts and processes incoming network requests.
-public protocol ServerProtocol : Service, Actor {
+public protocol ServerProtocol : Service {
     typealias ClientSocket = SocketProtocol & ~Copyable
 
     /// Main router for the server.

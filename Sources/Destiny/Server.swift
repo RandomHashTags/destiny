@@ -15,7 +15,7 @@ import ServiceLifecycle
 
 // MARK: Server
 /// The default `ServerProtocol` implementation Destiny uses.
-public actor Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
+public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
     public typealias ClientSocket = C
 
     public let address:String?
@@ -115,18 +115,21 @@ public actor Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 await withTaskGroup(of: Void.self) { group in
                     for _ in 0..<maxPendingConnections {
-                        do {
-                            let client:Int32 = try await Self.client(serverFD: serverFD)
-                            try await ClientProcessing.process_client(
-                                client: client,
-                                socket: ClientSocket(fileDescriptor: client),
-                                logger: self.logger,
-                                router: self.router
-                            )
-                        } catch {
-                            self.logger.warning(Logger.Message(stringLiteral: "\(error)"))
+                        group.addTask {
+                            do {
+                                let client:Int32 = try await Self.client(serverFD: serverFD)
+                                try await ClientProcessing.process_client(
+                                    client: client,
+                                    socket: ClientSocket(fileDescriptor: client),
+                                    logger: self.logger,
+                                    router: self.router
+                                )
+                            } catch {
+                                self.logger.warning(Logger.Message(stringLiteral: "\(error)"))
+                            }
                         }
                     }
+                    await group.waitForAll()
                 }
             }
         } onCancelOrGracefulShutdown: {
