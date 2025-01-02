@@ -89,7 +89,7 @@ public struct Router : RouterProtocol {
 
     @inlinable
     public func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout RequestProtocol) async throws {
-        if let responder:DynamicRouteResponderProtocol = dynamicNotFoundResponder {
+        if let responder:DynamicRouteResponderProtocol = dynamicNotFoundResponder { // TODO: support
             //try await responder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
         } else {
             try await staticNotFoundResponder.respond(to: socket)

@@ -234,9 +234,8 @@ private extension Router {
                     } else {
                         registered_paths.insert(string)
                         let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                        let response:String = try route.response()
-                        let value:String = RouteReturnType.staticString.debugDescription(response)
-                        return "// \(string)\n\(buffer) : " + value
+                        let response:String = RouteResult.staticString(try route.response()).responderDebugDescription
+                        return "// \(string)\n\(buffer) : " + response
                     }
                 } catch {
                     return nil
@@ -254,7 +253,7 @@ private extension Router {
                     let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
                     let httpResponse:DestinyUtilities.HTTPMessage = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
-                        let value:String = try route.returnType.debugDescription(httpResponse.string(escapeLineBreak: true))
+                        let value:String = try route.result.responderDebugDescription(httpResponse)
                         return "// \(string)\n\(buffer) : " + value
                     } else {
                         conditionalRoute(context: context, conditionalResponders: &conditionalResponders, route: route, function: function, string: string, buffer: buffer, httpResponse: httpResponse)

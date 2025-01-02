@@ -17,7 +17,6 @@ import SwiftSyntaxMacros
 /// The default Static Route where a complete HTTP Response is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
     public let version:HTTPVersion
-    public let returnType:RouteReturnType
     public var method:HTTPRequest.Method
     public var path:[String]
     public let status:HTTPResponse.Status
@@ -28,7 +27,6 @@ public struct StaticRoute : StaticRouteProtocol {
 
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         method: HTTPRequest.Method,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -38,7 +36,6 @@ public struct StaticRoute : StaticRouteProtocol {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) {
         self.version = version
-        self.returnType = returnType
         self.method = method
         self.path = path.map({ $0.description })
         self.status = status
@@ -52,7 +49,6 @@ public struct StaticRoute : StaticRouteProtocol {
         return """
         StaticRoute(
             version: \(version),
-            returnType: .\(returnType.rawValue),
             method: \(method.debugDescription),
             path: \(path),
             status: \(status.debugDescription),
@@ -75,7 +71,7 @@ public struct StaticRoute : StaticRouteProtocol {
             }
         }
         if let context:MacroExpansionContext = context, let function:FunctionCallExprSyntax = function, status == .notImplemented {
-            Diagnostic.routeStatusNotImplemented(context: context, node: function)
+            Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
         }
         headers[HTTPField.Name.contentType.rawName] = nil
         headers[HTTPField.Name.contentLength.rawName] = nil
@@ -84,7 +80,7 @@ public struct StaticRoute : StaticRouteProtocol {
 
     @inlinable
     public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
-        let result:String = try returnType.encode(response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true))
+        let result:String = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
         return RouteResponses.String(result)
     }
 }
@@ -93,7 +89,6 @@ public struct StaticRoute : StaticRouteProtocol {
 public extension StaticRoute {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
-        var returnType:RouteReturnType = .staticString
         var method:HTTPRequest.Method = .get
         var path:[String] = []
         var status:HTTPResponse.Status = .notImplemented
@@ -104,10 +99,6 @@ public extension StaticRoute {
             switch argument.label!.text {
             case "version":
                 version = HTTPVersion.parse(argument.expression) ?? version
-            case "returnType":
-                if let rawValue:String = argument.expression.memberAccess?.declName.baseName.text {
-                    returnType = RouteReturnType(rawValue: rawValue) ?? .staticString
-                }
             case "method":
                 method = HTTPRequest.Method(expr: argument.expression) ?? method
             case "path":
@@ -132,7 +123,6 @@ public extension StaticRoute {
         }
         var route:StaticRoute = StaticRoute(
             version: version,
-            returnType: returnType,
             method: method,
             path: [],
             status: status,
@@ -150,7 +140,6 @@ public extension StaticRoute {
 public extension StaticRoute {
     static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -158,12 +147,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .get, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .get, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -171,12 +159,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .head, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .head, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -184,12 +171,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .post, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .post, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -197,12 +183,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .put, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .put, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -210,12 +195,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .delete, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .delete, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -223,12 +207,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .connect, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .connect, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -236,12 +219,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .options, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .options, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -249,12 +231,11 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .trace, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .trace, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        returnType: RouteReturnType = .staticString,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -262,6 +243,6 @@ public extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, returnType: returnType, method: .patch, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return StaticRoute(version: version, method: .patch, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 }

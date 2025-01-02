@@ -6,18 +6,32 @@
 //
 
 import Foundation
+import SwiftCompression
 import SwiftSyntax
 
+// MARK: RouteResult
 public enum RouteResult : CustomDebugStringConvertible, Sendable {
+    case staticString(String)
     case string(String)
+
+    /// [UInt8]
     case bytes([UInt8])
+
+    /// [UInt16]
+    case bytes16([UInt16])
+
+    case data(Data)
+
     case json(Encodable & Sendable)
     case error(Error)
 
     public var debugDescription : String {
         switch self {
+            case .staticString(let s): return ".staticString(\"\(s)\")"
             case .string(let s): return ".string(\"\(s)\")"
-            case .bytes(let b): return ".bytes([\(b.map({ String(describing: $0) }).joined(separator: ","))])"
+            case .bytes(let b): return ".bytes(\(b))"
+            case .bytes16(let b): return ".bytes16(\(b))"
+            case .data(let d): return ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
             case .json(let e): return ".json()" // TODO: fix
             case .error(let e): return ".error()" // TODO: fix
         }
@@ -26,8 +40,11 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     @inlinable
     public var count : Int {
         switch self {
+        case .staticString(let string): return string.description.utf8.count
         case .string(let string): return string.utf8.count
         case .bytes(let bytes): return bytes.count
+        case .bytes16(let bytes): return bytes.count
+        case .data(let data): return data.count
         case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
         case .error(let error): return "\(error)".count
         }
@@ -36,8 +53,11 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     @inlinable
     package func string() throws -> String {
         switch self {
+        case .staticString(let string): return string.description
         case .string(let string): return string
         case .bytes(let bytes): return String.init(decoding: bytes, as: UTF8.self)
+        case .bytes16(let bytes): return String.init(decoding: bytes, as: UTF16.self)
+        case .data(let data): return String.init(decoding: data, as: UTF8.self)
         case .json(let encodable):
             do {
                 let data:Data = try JSONEncoder().encode(encodable)
@@ -52,23 +72,126 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     @inlinable
     package func bytes() throws -> [UInt8] {
         switch self {
+        case .staticString(let s): return [UInt8](s.description.utf8)
         case .string(let s): return [UInt8](s.utf8)
         case .bytes(let b): return b
+        case .bytes16(let b):
+            var bytes:[UInt8] = []
+            bytes.reserveCapacity(b.count * 2)
+            for byte in b {
+                bytes.append(contentsOf: byte.bytes)
+            }
+            return bytes
+        case .data(let d): return [UInt8](d)
         case .json(let e): return [] // TODO: finish
         case .error(let e): return [] // TODO: finish
         }
     }
 }
 
+// MARK: Init
 public extension RouteResult {
     init?(expr: ExprSyntax) {
         guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
         switch function.calledExpression.memberAccess!.declName.baseName.text {
-        case "string": self = .string(function.arguments.first!.expression.stringLiteral!.string)
-        case "json":   return nil // TODO: fix
-        case "bytes":  self = .bytes(function.arguments.first!.expression.array!.elements.map({ UInt8($0.expression.integerLiteral!.literal.text)! }))
-        case "error":  return nil // TODO: fix
-        default:       return nil
+        case "staticString":
+            self = .staticString(function.arguments.first!.expression.stringLiteral!.string)
+        case "string":
+            self = .string(function.arguments.first!.expression.stringLiteral!.string)
+        case "json":
+            return nil // TODO: fix
+        case "bytes":
+            var bytes:[UInt8] = []
+            if let expression:ExprSyntax = function.arguments.first?.expression {
+                if let initCall:FunctionCallExprSyntax = expression.functionCall {
+                    let interp:String = "\(initCall.calledExpression)"
+                    if (interp == "[UInt8]" || interp == "Array<UInt8>"),
+                        let member:MemberAccessExprSyntax = initCall.arguments.first?.expression.memberAccess,
+                        let string:String = member.base?.stringLiteral?.string {
+                            switch member.declName.baseName.text {
+                                case "utf8": bytes = [UInt8](string.utf8)
+                                //case "utf16": bytes = [UInt16](string.utf16)
+                                default: break
+                            }
+                    }
+                } else if let array:[UInt8] = expression.array?.elements.compactMap({
+                    guard let integer:String = $0.expression.integerLiteral?.literal.text else { return nil }
+                    return UInt8(integer)
+                }) {
+                    bytes = array
+                }
+            }
+            self = .bytes(bytes)
+        case "bytes16":
+            var bytes:[UInt16] = []
+            if let expression:ExprSyntax = function.arguments.first?.expression {
+                if let initCall:FunctionCallExprSyntax = expression.functionCall {
+                    let interp:String = "\(initCall.calledExpression)"
+                    if (interp == "[UInt16]" || interp == "Array<UInt16>"),
+                        let member:MemberAccessExprSyntax = initCall.arguments.first?.expression.memberAccess,
+                        let string:String = member.base?.stringLiteral?.string {
+                            switch member.declName.baseName.text {
+                                case "utf16": bytes = [UInt16](string.utf16)
+                                default: break
+                            }
+                    }
+                } else if let array:[UInt16] = expression.array?.elements.compactMap({
+                    guard let integer:String = $0.expression.integerLiteral?.literal.text else { return nil }
+                    return UInt16(integer)
+                }) {
+                    bytes = array
+                }
+            }
+            self = .bytes16(bytes)
+        case "error":
+            return nil // TODO: fix
+        default:
+            return nil
+        }
+    }
+}
+
+// MARK: Responder
+public extension RouteResult {
+    var responderDebugDescription : String {
+        switch self {
+        case .staticString(let s):
+            return "RouteResponses.StaticString(\"\(s)\")"
+        case .string(let s):
+            return "RouteResponses.String(\"\(s)\")"
+        case .bytes(let b):
+            return "RouteResponses.UInt8Array(\(b))"
+        case .bytes16(let b):
+            return "RouteResponses.UInt16Array(\(b))"
+        case .data(let d):
+            return "RouteResponses.Data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+        case .json(let e):
+            return "RouteResponses.StaticString(\"\")" // TODO: fix
+        case .error(let e):
+            return "RouteResponses.StaticString(\"\")" // TODO: fix
+        }
+    }
+
+    func responderDebugDescription(_ input: String) -> String {
+        switch self {
+        case .staticString(_): return Self.staticString(input).responderDebugDescription
+        case .string(_): return Self.string(input).responderDebugDescription
+        case .bytes(_): return Self.bytes([UInt8](input.utf8)).responderDebugDescription
+        case .bytes16(_): return Self.bytes16([UInt16](input.utf16)).responderDebugDescription
+        case .data(_): return Self.data(Data(input.utf8)).responderDebugDescription
+        case .json(let e):
+            return "RouteResponses.StaticString(\"\")" // TODO: fix
+        case .error(let e):
+            return "RouteResponses.StaticString(\"\")" // TODO: fix
+        }
+    }
+
+    func responderDebugDescription(_ input: HTTPMessage) throws -> String {
+        switch self {
+            case .bytes(_), .bytes16(_), .data(_):
+                return try responderDebugDescription(input.string(escapeLineBreak: false))
+            default:
+                return try responderDebugDescription(input.string(escapeLineBreak: true))
         }
     }
 }

@@ -7,6 +7,9 @@
 
 import DestinyUtilities
 import Foundation
+import HTTPTypes
+import Logging
+import ServiceLifecycle
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -14,27 +17,46 @@ import SwiftSyntaxMacros
 public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked Sendable {
 
     @usableFromInline
-    var _timer:Timer!
+    var _timer:Task<Void, Never>!
 
     @usableFromInline
     var _date:String
 
+    @usableFromInline
+    var _formatter:DateFormatter
+
     public init() {
         _timer = nil
-        _date = Date().formatted(.iso8601)
+         _date = ""
+        _formatter = DateFormatter()
+        _formatter.dateFormat = "E, d MMM yyyy HH:mm:ss"
+        _formatter.timeZone = .gmt
     }
 
     @inlinable
     public func load() {
+        update()
         // TODO: make it update at the beginning of the second
-        _timer = Timer(fire: .now, interval: 1, repeats: true) { _ in
-            self._date = Date().formatted(.iso8601)
+        _timer = Task.detached(priority: .userInitiated) {
+            while !Task.isCancelled && !Task.isShuttingDownGracefully {
+                do {
+                    try await Task.sleep(for: .seconds(1))
+                    self.update()
+                } catch {
+                    Application.shared.logger.warning(Logger.Message(stringLiteral: "[DynamicDateMiddleware] Encountered error trying to sleep task: \(error)"))
+                }
+            }
         }
+    }
+
+    @usableFromInline
+    func update() {
+        _date = _formatter.string(from: Date()) + " GMT"
     }
 
     @inlinable
     public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws -> Bool {
-        response.headers["Date"] = _date
+        response.headers[HTTPField.Name.date.rawName] = _date
         return true
     }
 

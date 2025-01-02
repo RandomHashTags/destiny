@@ -62,45 +62,54 @@ let router:RouterProtocol = #router(
     StaticRoute.get(
         path: ["redirectto"],
         contentType: HTTPMediaTypes.Text.html,
-        result: .string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
+        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
     ),
     StaticRoute.post(
         path: ["post"],
         contentType: HTTPMediaTypes.Application.json,
-        result: .string(#"{"bing":"bonged"}"#)
+        result: .staticString(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["bro?what=dude"],
         contentType: HTTPMediaTypes.Application.json,
-        result: .string(#"{"bing":"bonged"}"#)
+        result: .staticString(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["html"],
         contentType: HTTPMediaTypes.Text.html,
-        result: .string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
         contentType: HTTPMediaTypes.Text.html,
-        result: .string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["json"],
         contentType: HTTPMediaTypes.Application.json,
-        result: .string(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
+        result: .staticString(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
         //result: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
     ),
     StaticRoute.get(
         path: ["txt"],
         contentType: HTTPMediaTypes.Text.plain,
-        result: .string("just a regular txt page; t'was your destiny")
+        result: .staticString("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
-        returnType: .uint8Array,
         path: ["bytes"],
         contentType: HTTPMediaTypes.Text.plain,
         result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+    ),
+    StaticRoute.get(
+        path: ["bytes2"],
+        contentType: HTTPMediaTypes.Text.plain,
+        result: .bytes([UInt8]("bruh".utf8))
+    ),
+    StaticRoute.get(
+        path: ["bytes3"],
+        contentType: HTTPMediaTypes.Text.plain,
+        result: .bytes(Array<UInt8>("bruh".utf8))
     ),
     StaticRoute.get(
         path: ["error"],

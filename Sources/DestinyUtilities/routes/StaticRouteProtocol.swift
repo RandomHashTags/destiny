@@ -11,9 +11,6 @@ import SwiftSyntaxMacros
 
 /// The core Static Route protocol where a complete HTTP Response is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
-    /// The return type of this router, which the `result` gets encoded to.
-    var returnType : RouteReturnType { get }
-
     /// The default status of this route.
     var status : HTTPResponse.Status { get }
 

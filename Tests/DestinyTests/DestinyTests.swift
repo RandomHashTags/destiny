@@ -8,12 +8,15 @@
 #if compiler(>=6.0)
 
 import Destiny
+import Foundation
 import HTTPTypes
+import SwiftCompression
 import Testing
 
 struct DestinyTests {
     @Test func memoryLayouts() {
-        //print(layout(for: HTTPMediaTypes.Application.self))
+        //print(layout(for: StaticRoute.self))
+        //print(layout(for: Test1.self))
     }
     func layout<T>(for type: T.Type) -> (Int, Int, Int) {
         return (
@@ -23,14 +26,17 @@ struct DestinyTests {
         )
     }
 
-    struct Test1 {
-        var version:HTTPVersion
-        var status:HTTPResponse.Status
-        var headers:[String:String]
-        var result:RouteResult?
-        var contentType:HTTPMediaType?
-        var charset:String?
-    }
+    /*struct Test1 {
+        public let version:HTTPVersion
+        public var method:HTTPRequest.Method
+        public var path:[String]
+        public let status:HTTPResponse.Status
+        public let contentType:HTTPMediaType
+        public let charset:String?
+        public let result:RouteResult
+        public let bro:RouteReturnType
+        public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
+    }*/
 
     @Test func example() {
         let _:Router = #router(
@@ -43,7 +49,7 @@ struct DestinyTests {
                 path: ["test1"],
                 contentType: HTTPMediaTypes.Text.html,
                 charset: "UTF-8",
-                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
                 method: .get,
@@ -51,23 +57,21 @@ struct DestinyTests {
                 status: .movedPermanently,
                 contentType: HTTPMediaTypes.Text.html,
                 charset: "UTF-8",
-                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
-                returnType: .uint8Array,
                 method: .get,
                 path: ["test3"],
                 contentType: HTTPMediaTypes.Text.html,
                 charset: "UTF-8",
-                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                result: .bytes([UInt8]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf8))
             ),
             StaticRoute(
-                returnType: .uint16Array,
                 method: .get,
-                path: ["test"],
+                path: ["test4"],
                 contentType: HTTPMediaTypes.Text.html,
                 charset: "UTF-8",
-                result: .string("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                result: .bytes16([UInt16]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf16))
             )
         )
     }
