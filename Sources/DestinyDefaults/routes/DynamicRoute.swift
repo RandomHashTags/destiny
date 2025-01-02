@@ -42,7 +42,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.path = path
         self.status = status
         self.contentType = contentType.structure
-        self.defaultResponse = DynamicResponse.init(version: .v1_1, status: .notImplemented, headers: headers, result: result, parameters: [:])
+        self.defaultResponse = DynamicResponse.init(version: version, status: status, headers: headers, result: result, parameters: [])
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
     }
@@ -92,7 +92,7 @@ public extension DynamicRoute {
         var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler:String = "nil"
-        var parameters:[String:String] = [:]
+        var parameters:[String] = []
         for argument in function.arguments {
             let key:String = argument.label!.text
             switch key {
@@ -104,8 +104,8 @@ public extension DynamicRoute {
                 method = HTTPRequest.Method(expr: argument.expression) ?? method
             case "path":
                 path = PathComponent.parseArray(context: context, argument.expression)
-                for component in path.filter({ $0.isParameter }) {
-                    parameters[component.value] = ""
+                for _ in path.filter({ $0.isParameter }) {
+                    parameters.append("")
                 }
             case "status":
                 status = HTTPResponse.Status(expr: argument.expression) ?? status

@@ -135,7 +135,7 @@ let router:RouterProtocol = #router(
         path: ["dynamic", ":text"],
         contentType: HTTPMediaTypes.Text.plain,
         handler: { request, response in
-            response.result = .string(response.parameters["text"] ?? "nil")
+            response.result = .string(response.parameters[0])
         }
     )
 )

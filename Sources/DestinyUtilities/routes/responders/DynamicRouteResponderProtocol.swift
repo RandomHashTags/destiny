@@ -11,7 +11,7 @@ public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
     var path : [PathComponent] { get }
 
     /// The indexes where the parameters are location in the `path`.
-    var parameterPathIndexes : Set<Int> { get }
+    var parameterPathIndexes : [Int] { get }
 
     /// The default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
     var defaultResponse : DynamicResponseProtocol { get }

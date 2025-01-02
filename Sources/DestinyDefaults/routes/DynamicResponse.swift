@@ -13,14 +13,14 @@ public struct DynamicResponse : DynamicResponseProtocol {
     public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult
-    public var parameters:[String:String]
+    public var parameters:[String]
 
     public init(
         version: HTTPVersion,
         status: HTTPResponse.Status,
         headers: [String:String],
         result: RouteResult,
-        parameters: [String:String]
+        parameters: [String]
     ) {
         self.version = version
         self.status = status

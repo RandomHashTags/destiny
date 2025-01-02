@@ -13,7 +13,7 @@ import SwiftSyntaxMacros
 /// The default Dynamic Route Responder that responds to dynamic routes.
 public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     public let path:[PathComponent]
-    public let parameterPathIndexes:Set<Int>
+    public let parameterPathIndexes:[Int]
     public let defaultResponse:DynamicResponseProtocol
     public let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
@@ -25,7 +25,7 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
-        parameterPathIndexes = Set(path.enumerated().compactMap({ $1.isParameter ? $0 : nil }))
+        parameterPathIndexes = path.enumerated().compactMap({ $1.isParameter ? $0 : nil })
         self.defaultResponse = defaultResponse
         self.logic = logic
         self.logicDebugDescription = logicDebugDescription

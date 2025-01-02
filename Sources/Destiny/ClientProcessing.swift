@@ -84,8 +84,8 @@ public enum ClientProcessing {
         responder: DynamicRouteResponderProtocol
     ) async throws {
         var response:DynamicResponseProtocol = responder.defaultResponse
-        for index in responder.parameterPathIndexes {
-            response.parameters[responder.path[index].value] = request.path[index]
+        for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {
+            response.parameters[index] = request.path[parameterIndex]
         }
         for middleware in router.dynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {
