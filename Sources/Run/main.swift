@@ -24,6 +24,7 @@ let router:RouterProtocol = #router(
         StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
         //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
         DynamicCORSMiddleware(),
+        DynamicDateMiddleware(),
         DynamicMiddleware({ request, response in
             guard request.method == .get else { return }
             response.headers["Womp-Womp"] = UUID().uuidString
@@ -118,8 +119,8 @@ let router:RouterProtocol = #router(
         path: ["dynamic"],
         contentType: HTTPMediaTypes.Text.plain,
         handler: { request, response in
-            response.headers["Date"] = Date().formatted()
-            response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
+            response.result = .string("bro")
+            //response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
         }
     ),
     DynamicRoute.get(
@@ -127,7 +128,6 @@ let router:RouterProtocol = #router(
         path: ["dynamic2"],
         contentType: HTTPMediaTypes.Text.plain,
         handler: { request, response in
-            response.headers["Date"] = Date().formatted()
             response.result = .string(UUID().uuidString)
         }
     ),

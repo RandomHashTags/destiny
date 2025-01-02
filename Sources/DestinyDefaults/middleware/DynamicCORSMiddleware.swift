@@ -34,37 +34,36 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         exposedHeaders: Set<HTTPField.Name>? = nil,
         maxAge: Int? = 3600 // one hour
     ) {
-        var ddModifications:String = "{\n"
+        var logicDD:String = "{\n"
         switch allowedOrigin {
         case .all:
-            ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"*\""
+            logicDD += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"*\""
         case .any(let origins):
-            ddModifications += "if let origin:String = $0.headers[HTTPField.Name.origin.rawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
+            logicDD += "if let origin:String = $0.headers[HTTPField.Name.origin.rawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
         case .custom(let s):
-            ddModifications += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"" + s + "\""
+            logicDD += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"" + s + "\""
         case .none:
             break
         case .originBased:
-            ddModifications += "$1.headers[HTTPField.Name.vary.rawName, default: \"\"] = \"origin\""
-            ddModifications += "\nif let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
+            logicDD += "$1.headers[HTTPField.Name.vary.rawName, default: \"\"] = \"origin\""
+            logicDD += "\nif let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
         }
 
         let allowedHeaders:String = allowedHeaders.map({ $0.rawName  }).joined(separator: ",")
         let allowedMethods:String = allowedMethods.map({ $0.rawValue }).joined(separator: ",")
-        ddModifications += "\n$1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = \"" + allowedHeaders + "\""
-        ddModifications += "\n$1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = \"" + allowedMethods + "\""
+        logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = \"" + allowedHeaders + "\""
+        logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = \"" + allowedMethods + "\""
         if allowCredentials {
-            ddModifications += "\n$1.headers[HTTPField.Name.accessControlAllowCredentials.rawName] = \"true\""
+            logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowCredentials.rawName] = \"true\""
         }
         if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
-            ddModifications += "\n$1.headers[HTTPField.Name.accessControlExposeHeaders.rawName] = \"" + exposedHeaders + "\""
+            logicDD += "\n$1.headers[HTTPField.Name.accessControlExposeHeaders.rawName] = \"" + exposedHeaders + "\""
         }
         if let maxAge:Int = maxAge {
-            let s:String = String(maxAge)
-            ddModifications += "\n$1.headers[HTTPField.Name.accessControlMaxAge.rawName] = \"" + s + "\""
+            logicDD += "\n$1.headers[HTTPField.Name.accessControlMaxAge.rawName] = \"" + String(maxAge) + "\""
         }
         self.logic = { _, _ in }
-        self.logicDebugDescription = ddModifications + " }"
+        self.logicDebugDescription = logicDD + " }"
     }
 
     public init(_ logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void) {
@@ -73,9 +72,14 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
     }
 
     @inlinable
-    public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {
-        guard request.headers.has(HTTPField.Name.origin.rawName) else { return }
+    public mutating func load() {
+    }
+
+    @inlinable
+    public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws -> Bool {
+        guard request.headers.has(HTTPField.Name.origin.rawName) else { return true }
         try await logic(&request, &response)
+        return true
     }
 
     public var debugDescription : String { "DynamicCORSMiddleware \(logicDebugDescription)" }

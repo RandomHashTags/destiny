@@ -14,16 +14,14 @@ import Logging
 import ServiceLifecycle
 
 // MARK: Server
-/// The default `ServerProtocol` implementation Destiny uses.
-public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
-    public typealias ClientSocket = C
-
+/// A default `ServerProtocol` implementation.
+public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerProtocol {
     public let address:String?
-    public let port:in_port_t
-    /// The maximum amount of pending connections this Server will accept at a time.
-    /// This value is capped at the system's limit (`ulimit -n`).
-    public let maxPendingConnections:Int32
-    public let router:RouterProtocol
+    public let port:UInt16
+    /// The maximum amount of pending connections the Server will queue.
+    /// This value is capped at the system's limit.
+    public let backlog:Int32
+    public var router:RouterProtocol
     public let logger:Logger
     public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
     public let onLoad:(@Sendable () -> Void)?
@@ -31,8 +29,8 @@ public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
 
     public init(
         address: String? = nil,
-        port: in_port_t,
-        maxPendingConnections: Int32 = SOMAXCONN,
+        port: UInt16,
+        backlog: Int32 = SOMAXCONN,
         router: consuming RouterProtocol,
         logger: Logger,
         commands: [ParsableCommand.Type] = [
@@ -42,17 +40,17 @@ public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         onShutdown: (@Sendable () -> Void)? = nil
     ) throws {
         var address:String? = address
-        var port:in_port_t = port
-        var maxPendingConnections:Int32 = maxPendingConnections
+        var port:UInt16 = port
+        var backlog:Int32 = backlog
 
         let parsed:BootCommands = try BootCommands.parse()
-        address = parsed.hostname
+        address = parsed.hostname ?? address
         port = parsed.port ?? port
-        maxPendingConnections = parsed.maxPendingConnections ?? maxPendingConnections
+        backlog = parsed.backlog ?? backlog
 
         self.address = address
         self.port = port
-        self.maxPendingConnections = min(SOMAXCONN, maxPendingConnections)
+        self.backlog = min(SOMAXCONN, backlog)
         self.router = router
         self.logger = logger
         self.commands = commands
@@ -101,24 +99,26 @@ public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
             close(serverFD)
             throw ServerError.bindFailed()
         }
-        if listen(serverFD, maxPendingConnections) == -1 {
+        if listen(serverFD, backlog) == -1 {
             close(serverFD)
             throw ServerError.listenFailed()
         }
-        let on_shutdown:(@Sendable () -> Void)? = onShutdown
-        logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [maxPendingConnections=\(maxPendingConnections)]"))
+        logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog)]"))
         Task {
             await processCommand()
         }
         await withTaskCancellationOrGracefulShutdownHandler {
             onLoad?()
+            for index in router.dynamicMiddleware.indices {
+                router.dynamicMiddleware[index].load()
+            }
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 await withTaskGroup(of: Void.self) { group in
-                    for _ in 0..<maxPendingConnections {
+                    for _ in 0..<backlog {
                         group.addTask {
                             do {
                                 let client:Int32 = try await Self.client(serverFD: serverFD)
-                                try await ClientProcessing.process_client(
+                                try await ClientProcessing.process(
                                     client: client,
                                     socket: ClientSocket(fileDescriptor: client),
                                     logger: self.logger,
@@ -133,7 +133,7 @@ public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
                 }
             }
         } onCancelOrGracefulShutdown: {
-            on_shutdown?()
+            self.onShutdown?()
             close(serverFD)
         }
     }
@@ -175,7 +175,9 @@ public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
     // MARK: Shutdown
     public func shutdown() async throws {
         // TODO: fix | doesn't shutdown properly (pending clients are blocking)
+        logger.notice("Server shutting down...")
         try await gracefulShutdown()
+        logger.notice("Server shutdown successfully")
     }
 
     // MARK: Accept client
@@ -192,88 +194,7 @@ public final class Server<C : SocketProtocol & ~Copyable> : ServerProtocol {
         }
     }
 }
-// MARK: Client Processing
-enum ClientProcessing {
-    @inlinable
-    static func process_client<C: SocketProtocol & ~Copyable>(
-        client: Int32,
-        socket: borrowing C,
-        logger: Logger,
-        router: borrowing RouterProtocol
-    ) async throws {
-        defer {
-            shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
-            close(client)
-        }
-        var request:RequestProtocol = try socket.loadRequest()
-        #if DEBUG
-        logger.info(Logger.Message(stringLiteral: request.startLine.stringSIMD()))
-        #endif
-        do {
-            if try await !respond(socket: socket, request: &request, router: router) {
-                try await router.notFoundResponse(socket: socket, request: &request)
-            }
-        } catch {
-            await router.errorResponder(for: &request).respond(to: socket, with: error, for: &request, logger: logger)
-        }
-    }
 
-    @inlinable
-    static func respond<C: SocketProtocol & ~Copyable>(
-        socket: borrowing C,
-        request: inout RequestProtocol,
-        router: borrowing RouterProtocol
-    ) async throws -> Bool {
-        if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
-            try await staticResponse(socket: socket, responder: responder)
-        } else if let responder:DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
-            try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
-        } else if let responder:RouteResponderProtocol = router.conditionalResponder(for: &request) {
-            if let staticResponder:StaticRouteResponderProtocol = responder as? StaticRouteResponderProtocol {
-                try await staticResponse(socket: socket, responder: staticResponder)
-            } else if let responder:DynamicRouteResponderProtocol = responder as? DynamicRouteResponderProtocol {
-                try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
-            }
-        } else {
-            for group in router.routerGroups {
-                if let responder:StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
-                    try await staticResponse(socket: socket, responder: responder)
-                    return true
-                } else if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
-                    try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
-                    return true
-                }
-            }
-            return false
-        }
-        return true
-    }
-
-    @inlinable
-    static func staticResponse<C: SocketProtocol & ~Copyable>(
-        socket: borrowing C,
-        responder: StaticRouteResponderProtocol
-    ) async throws {
-        try await responder.respond(to: socket)
-    }
-
-    @inlinable
-    static func dynamicResponse<C: SocketProtocol & ~Copyable>(
-        socket: borrowing C,
-        router: borrowing RouterProtocol,
-        request: inout RequestProtocol,
-        responder: DynamicRouteResponderProtocol
-    ) async throws {
-        var response:DynamicResponseProtocol = responder.defaultResponse
-        for index in responder.parameterPathIndexes {
-            response.parameters[responder.path[index].value] = request.path[index]
-        }
-        for middleware in router.dynamicMiddleware {
-            try await middleware.handle(request: &request, response: &response)
-        }
-        try await responder.respond(to: socket, request: &request, response: &response)
-    }
-}
 // MARK: ServerError
 enum ServerError : Swift.Error {
     case socketCreationFailed(String = cerror())

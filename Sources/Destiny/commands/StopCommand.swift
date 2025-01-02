@@ -14,8 +14,6 @@ public struct StopCommand : AsyncParsableCommand {
     }
 
     public func run() async throws {
-        print("Shutting down server...")
-        try await Application.shared.server.shutdown()
-        print("Server sucessfully shutdown")
+        try await Application.shared.shutdown()
     }
 }

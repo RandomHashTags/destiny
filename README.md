@@ -86,12 +86,12 @@ Assigns the port of the server.
 
 <details>
 
-<summary>maxpendingconnections</summary>
+<summary>backlog</summary>
 
 Assigns the maximum pending connections the server can queue.
 
-- Aliases: `mpc`
-- Usage: `--maxpendingconnections <max pending connections>`
+- Aliases: `b`
+- Usage: `--backlog <max pending connections>`
 
 </details>
 

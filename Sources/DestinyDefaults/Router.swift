@@ -16,7 +16,7 @@ public struct Router : RouterProtocol {
     public private(set) var conditionalResponses:[DestinyRoutePathType:ConditionalRouteResponderProtocol]
 
     public private(set) var staticMiddleware:[StaticMiddlewareProtocol]
-    public private(set) var dynamicMiddleware:[DynamicMiddlewareProtocol]
+    public var dynamicMiddleware:[DynamicMiddlewareProtocol]
 
     public private(set) var routerGroups:[RouterGroupProtocol]
     
@@ -96,16 +96,20 @@ public struct Router : RouterProtocol {
         }
     }
 
-    public mutating func register(_ route: StaticRouteProtocol) throws {
+    public mutating func register(_ route: StaticRouteProtocol, override: Bool = false) throws {
         guard let responder:StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
         var string:String = route.startLine
         let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-        staticResponses[buffer] = responder
+        if override || staticResponses[buffer] == nil {
+            staticResponses[buffer] = responder
+        } else {
+            // TODO: throw error
+        }
     }
-    public mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) throws {
+    public mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool = false) throws {
         var copy:DynamicRouteProtocol = route
         copy.applyStaticMiddleware(staticMiddleware)
-        dynamicResponses.register(version: copy.version, route: copy, responder: responder)
+        try dynamicResponses.register(version: copy.version, route: copy, responder: responder, override: override)
     }
     public mutating func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws {
         staticMiddleware.insert(middleware, at: index)

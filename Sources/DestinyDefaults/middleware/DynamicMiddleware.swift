@@ -20,7 +20,6 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     }
 
     public let handleLogic:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
-
     private var logic:String = "{ _, _ in }"
 
     public init(
@@ -30,8 +29,13 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     }
 
     @inlinable
-    public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {
+    public mutating func load() {
+    }
+
+    @inlinable
+    public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws -> Bool {
         try await handleLogic(&request, &response)
+        return true
     }
 
     public var debugDescription : String {

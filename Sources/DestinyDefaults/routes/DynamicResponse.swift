@@ -31,12 +31,12 @@ public struct DynamicResponse : DynamicResponseProtocol {
 
     @inlinable
     public func response() throws -> String {
-        let result_string:String = try result.string()
+        let result:String = try result.string()
         var string:String = version.string() + " \(status)\r\n"
         for (header, value) in headers {
             string += header + ": " + value + "\r\n"
         }
-        return string + HTTPField.Name.contentLength.rawName + ": \(result_string.count)\r\n\r\n" + result_string
+        return string + HTTPField.Name.contentLength.rawName + ": \(result.utf8.count)\r\n\r\n" + result
     }
 
     public var debugDescription : String {

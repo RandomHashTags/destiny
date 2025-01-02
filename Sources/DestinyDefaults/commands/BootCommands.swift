@@ -29,12 +29,12 @@ public struct BootCommands : ParsableCommand {
 
     @Option(
         name: .init([
-            .customLong("maxpendingconnections"),
-            .customLong("mpc", withSingleDash: true)
+            .customLong("backlog"),
+            .customShort("b")
         ]),
         help: "Maximum amount of pending connections the server can have."
     )
-    public var maxPendingConnections:Int32?
+    public var backlog:Int32?
 
     public init() {
     }

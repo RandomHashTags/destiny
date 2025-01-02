@@ -49,29 +49,3 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
     contentType: HTTPMediaType? = nil,
     charset: String? = nil
 ) -> T = #externalMacro(module: "DestinyMacros", type: "HTTPMessage")
-
-// MARK: Application
-public struct Application : Service {
-    public static private(set) var shared:Application! = nil
-
-    public let server:ServerProtocol
-    public let services:[Service]
-    public let logger:Logger
-
-    public init(
-        server: ServerProtocol,
-        services: [Service] = [],
-        logger: Logger
-    ) {
-        self.server = server
-        var services:[Service] = services
-        services.insert(server, at: 0)
-        self.services = services
-        self.logger = logger
-        Self.shared = self
-    }
-    public func run() async throws {
-        let service_group:ServiceGroup = ServiceGroup(configuration: .init(services: services, logger: logger))
-        try await service_group.run()
-    }
-}

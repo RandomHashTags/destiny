@@ -5,10 +5,10 @@
 //  Created by Evan Anderson on 11/9/24.
 //
 
-/// The core Router protocol that handles middleware and routes.
+/// The core Router protocol that handles middleware, routes and router groups.
 public protocol RouterProtocol : Sendable, ~Copyable {
     /// All the dynamic middleware that is registered to this router. Ordered in descending order of importance.
-    var dynamicMiddleware : [DynamicMiddlewareProtocol] { get }
+    var dynamicMiddleware : [DynamicMiddlewareProtocol] { get set }
 
     /// The router groups attached to this router.
     var routerGroups : [RouterGroupProtocol] { get }
@@ -42,10 +42,19 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     @inlinable func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout RequestProtocol) async throws
 
     /// Registers a static route to this router.
-    mutating func register(_ route: StaticRouteProtocol) throws
+    /// 
+    /// - Parameters:
+    ///   - route: The static route you want to register.
+    ///   - override: Whether or not to replace the existing responder with the same endpoint.
+    mutating func register(_ route: StaticRouteProtocol, override: Bool) throws
 
     /// Registers a dynamic route with its responder to this router.
-    mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol) throws
+    /// 
+    /// - Parameters:
+    ///   - route: The dynamic route you want to register.
+    ///   - responder: The dynamic responder you want to register.
+    ///   - override: Whether or not to replace the existing responder with the same endpoint.
+    mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool) throws
 
     /// Registers a static middleware at the given index to this router.
     mutating func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws

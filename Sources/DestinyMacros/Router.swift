@@ -58,6 +58,7 @@ enum Router : ExpressionMacro {
                             switch decl {
                             case "DynamicMiddleware":     dynamic_middleware.append(DynamicMiddleware.parse(context: context, function))
                             case "DynamicCORSMiddleware": dynamic_middleware.append(DynamicCORSMiddleware.parse(context: context, function))
+                            case "DynamicDateMiddleware": dynamic_middleware.append(DynamicDateMiddleware.parse(context: context, function))
                             case "StaticMiddleware":      static_middleware.append(StaticMiddleware.parse(context: context, function))
                             default: break
                             }

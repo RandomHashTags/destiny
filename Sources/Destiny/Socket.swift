@@ -18,11 +18,12 @@ public struct Socket : SocketProtocol, ~Copyable {
         Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
 }
+
 // MARK: Socket reading
 public extension Socket {
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
-    func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 { // read just the method, path & http version
+    func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 {
         var string:T = T()
         let read:Int = try withUnsafeMutableBytes(of: &string) { p in
             return try readSIMDBuffer(into: p.baseAddress!, length: length)
@@ -64,16 +65,17 @@ public extension Socket {
         while bytes_read < length {
             if Task.isCancelled { return 0 }
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
-            if read_bytes < 0 { // error
+            let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
+            if read < 0 { // error
                 throw SocketError.readBufferFailed()
-            } else if read_bytes == 0 { // end of file
+            } else if read == 0 { // end of file
                 break
             }
-            bytes_read += read_bytes
+            bytes_read += read
         }
         return bytes_read
     }
+
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
@@ -81,13 +83,13 @@ public extension Socket {
         while bytes_read < length {
             if Task.isCancelled { return 0 }
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read_bytes:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
-            if read_bytes < 0 { // error
+            let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
+            if read < 0 { // error
                 throw SocketError.readBufferFailed()
-            } else if read_bytes == 0 { // end of file
+            } else if read == 0 { // end of file
                 break
             }
-            bytes_read += read_bytes
+            bytes_read += read
         }
         return bytes_read
     }
@@ -96,11 +98,11 @@ public extension Socket {
     @inlinable
     func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
         if Task.isCancelled { return 0 }
-        let read_bytes:Int = recv(fileDescriptor, baseAddress, length, 0)
-        if read_bytes < 0 { // error
+        let read:Int = recv(fileDescriptor, baseAddress, length, 0)
+        if read < 0 { // error
             throw SocketError.readBufferFailed()
         }
-        return read_bytes
+        return read
     }
 }
 
