@@ -5,7 +5,10 @@
 //  Created by Evan Anderson on 10/18/24.
 //
 
-import Foundation
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#endif
+
 import HTTPTypes
 
 public enum RouteResponses {
@@ -126,12 +129,14 @@ extension RouteResponses {
     }
 }
 
+
+#if canImport(FoundationEssentials)
 // MARK: Data
 extension RouteResponses {
     public struct Data : StaticRouteResponderProtocol {
-        public let value:Foundation.Data
+        public let value:FoundationEssentials.Data
 
-        public init(_ value: Foundation.Data) {
+        public init(_ value: FoundationEssentials.Data) {
             self.value = value
         }
 
@@ -147,3 +152,4 @@ extension RouteResponses {
         }
     }
 }
+#endif

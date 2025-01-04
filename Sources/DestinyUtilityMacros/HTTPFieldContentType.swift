@@ -5,7 +5,6 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-import Foundation
 import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -24,7 +23,7 @@ enum HTTPFieldContentType : DeclarationMacro {
                 }
             }
         }
-        let categoryCapitalized:String = category.capitalized
+        let categoryCapitalized:String = category[category.startIndex].uppercased() + String(category[category.index(after: category.startIndex)...])
         var cases_string:String = ""
         var debugDescriptions:String = "        // MARK: DebugDescription\n        public var debugDescription : String {\n            switch self {"
         var httpValuesString:String = "        // MARK: HTTP Value\n        public var httpValue : String {\n            switch self {"

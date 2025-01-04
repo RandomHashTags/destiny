@@ -8,6 +8,8 @@ It provides a router (which is used via a Swift Macro) that accepts router group
 
 Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 
+Many protocols only require the bare minimum to work as intended so the implementation is largely up to the developer (if you don't use the default implementations from `DestinyDefaults`).
+
 ## Roadmap
 
 ### Completed
@@ -33,6 +35,7 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [ ] SIMD processing for better performance
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
+- [ ] Optimal Memory Layout for stored objects
 
 ### TODO
 
@@ -47,7 +50,6 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [ ] TLS/SSL
 - [ ] Web Sockets
 - [ ] Better handling of clients to unlock more throughput
-- [ ] Optimal Memory Layout for stored objects
 - [ ] Support custom middleware & routes in default `#router`
 - [ ] Support third-party macro expansions in `#router`
 - [ ] CSS & JavaScript minification (separate repo?)

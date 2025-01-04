@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import Foundation
 import HTTPTypes
 import SwiftCompression
 import SwiftDiagnostics
@@ -48,7 +47,7 @@ public struct StaticRoute : StaticRouteProtocol {
     public var debugDescription : String {
         return """
         StaticRoute(
-            version: \(version),
+            version: .\(version),
             method: \(method.debugDescription),
             path: \(path),
             status: \(status.debugDescription),

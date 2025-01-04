@@ -5,8 +5,11 @@
 //  Created by Evan Anderson on 10/18/24.
 //
 
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#endif
+
 import Destiny
-import Foundation
 import HTTPTypes
 import Logging
 
@@ -27,7 +30,11 @@ let router:RouterProtocol = #router(
         DynamicDateMiddleware(),
         DynamicMiddleware({ request, response in
             guard request.method == .get else { return }
+            #if canImport(FoundationEssentials)
             response.headers["Womp-Womp"] = UUID().uuidString
+            #else
+            response.headers["Womp-Womp"] = String(UInt64.random(in: 0..<UInt64.max))
+            #endif
         })
     ],
     redirects: [
@@ -137,7 +144,11 @@ let router:RouterProtocol = #router(
         path: ["dynamic2"],
         contentType: HTTPMediaTypes.Text.plain,
         handler: { request, response in
+            #if canImport(FoundationEssentials)
             response.result = .string(UUID().uuidString)
+            #else
+            response.result = .string(String(UInt64.random(in: 0..<UInt64.max)))
+            #endif
         }
     ),
     DynamicRoute.get(

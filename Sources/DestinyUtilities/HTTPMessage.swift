@@ -34,7 +34,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
     }
 
     public var debugDescription : String {
-        return "HTTPMessage(version: \(version), status: \(status.debugDescription), headers: \(headers), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset != nil ? "\"" + charset! + "\"" : "nil"))" // TODO: fix
+        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset != nil ? "\"" + charset! + "\"" : "nil"))" // TODO: fix
     }
 
     /// - Parameters:

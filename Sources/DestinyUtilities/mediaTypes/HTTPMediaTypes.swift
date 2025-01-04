@@ -82,6 +82,7 @@ public protocol HTTPMediaTypeProtocol : CustomDebugStringConvertible, Hashable, 
     var structure : HTTPMediaType { get }
 }
 public extension HTTPMediaTypeProtocol where Self: RawRepresentable, RawValue == String {
+    @inlinable
     var structure : HTTPMediaType {
         HTTPMediaType(debugDescription: debugDescription, httpValue: httpValue)
     }
@@ -92,6 +93,7 @@ public struct HTTPMediaType : HTTPMediaTypeProtocol {
     public let debugDescription:String
     public let httpValue:String
 
+    @inlinable
     public var structure : HTTPMediaType { self }
 
     public init(debugDescription: String, httpValue: String) {

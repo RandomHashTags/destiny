@@ -7,7 +7,6 @@
 
 import DestinyDefaults
 import DestinyUtilities
-import Foundation
 import HTTPTypes
 import SwiftCompression
 import SwiftDiagnostics
@@ -144,7 +143,7 @@ enum Router : ExpressionMacro {
         }
 
         var string:String = "Router("
-        string += "\nversion: \(version),"
+        string += "\nversion: .\(version),"
         string += "\nerrorResponder: \(errorResponder),"
         string += "\ndynamicNotFoundResponder: \(dynamicNotFoundResponder),"
         string += "\nstaticNotFoundResponder: \(staticNotFoundResponder),"

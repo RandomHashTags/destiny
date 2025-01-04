@@ -59,7 +59,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public var debugDescription: String {
         return """
         DynamicRoute(
-            version: \(version),
+            version: .\(version),
             method: \(method.debugDescription),
             path: [\(path.map({ $0.debugDescription }).joined(separator: ","))],
             status: \(status.debugDescription),

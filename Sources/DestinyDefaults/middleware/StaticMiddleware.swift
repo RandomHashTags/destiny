@@ -50,7 +50,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     public var debugDescription : String {
         var values:[String] = []
         if let versions:Set<HTTPVersion> = handlesVersions {
-            values.append("handlesVersions: [" + versions.map({ "\($0)" }).joined(separator: ",") + "]")
+            values.append("handlesVersions: [" + versions.map({ ".\($0)" }).joined(separator: ",") + "]")
         }
         if let methods:Set<HTTPRequest.Method> = handlesMethods {
             values.append("handlesMethods: [" + methods.map({ $0.debugDescription }).joined(separator: ",") + "]")
@@ -62,7 +62,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
             values.append("handlesContentTypes: [" + contentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         if let appliesVersion:HTTPVersion = appliesVersion {
-            values.append("appliesVersion: \(appliesVersion)")
+            values.append("appliesVersion: .\(appliesVersion)")
         }
         if let appliesStatus:HTTPResponse.Status = appliesStatus {
             values.append("appliesStatus: \(appliesStatus.debugDescription)")

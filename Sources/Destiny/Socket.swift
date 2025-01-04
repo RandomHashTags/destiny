@@ -5,8 +5,11 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-import DestinyUtilities
+#if canImport(Foundation)
 import Foundation
+#endif
+
+import DestinyUtilities
 
 // MARK: Socket
 public struct Socket : SocketProtocol, ~Copyable {    
@@ -67,7 +70,11 @@ public extension Socket {
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
             let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
             if read < 0 { // error
+                #if canImport(Foundation)
+                throw SocketError.readBufferFailed(cerror())
+                #else
                 throw SocketError.readBufferFailed()
+                #endif
             } else if read == 0 { // end of file
                 break
             }
@@ -85,7 +92,11 @@ public extension Socket {
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
             let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
             if read < 0 { // error
+                #if canImport(Foundation)
+                throw SocketError.readBufferFailed(cerror())
+                #else
                 throw SocketError.readBufferFailed()
+                #endif
             } else if read == 0 { // end of file
                 break
             }
@@ -100,7 +111,11 @@ public extension Socket {
         if Task.isCancelled { return 0 }
         let read:Int = recv(fileDescriptor, baseAddress, length, 0)
         if read < 0 { // error
+            #if canImport(Foundation)
+            throw SocketError.readBufferFailed(cerror())
+            #else
             throw SocketError.readBufferFailed()
+            #endif
         }
         return read
     }
@@ -132,7 +147,13 @@ public extension Socket {
             #else
             let result:Int = write(fileDescriptor, pointer + sent, length - sent)
             #endif
-            if result <= 0 { throw SocketError.writeFailed() }
+            if result <= 0 {
+                #if canImport(Foundation)
+                throw SocketError.writeFailed(cerror())
+                #else
+                throw SocketError.writeFailed("")
+                #endif
+            }
             sent += result
         }
     }

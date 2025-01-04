@@ -5,10 +5,13 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+#if canImport(Foundation)
+import Foundation
+#endif
+
 import ArgumentParser
 import DestinyDefaults
 import DestinyUtilities
-import Foundation
 import HTTPTypes
 import Logging
 import ServiceLifecycle
@@ -66,7 +69,11 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         let serverFD:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
         #endif
         if serverFD == -1 {
+            #if canImport(Foundation)
+            throw ServerError.socketCreationFailed(cerror())
+            #else
             throw ServerError.socketCreationFailed()
+            #endif
         }
         Socket.noSigPipe(fileDescriptor: serverFD)
         #if os(Linux)
@@ -97,11 +104,19 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         }
         if binded == -1 {
             close(serverFD)
+            #if canImport(Foundation)
+            throw ServerError.bindFailed(cerror())
+            #else
             throw ServerError.bindFailed()
+            #endif
         }
         if listen(serverFD, backlog) == -1 {
             close(serverFD)
+            #if canImport(Foundation)
+            throw ServerError.listenFailed(cerror())
+            #else
             throw ServerError.listenFailed()
+            #endif
         }
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog)]"))
         Task {
@@ -187,7 +202,11 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
             var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
             let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
             if client == -1 {
+                #if canImport(Foundation)
+                continuation.resume(throwing: SocketError.acceptFailed(cerror()))
+                #else
                 continuation.resume(throwing: SocketError.acceptFailed())
+                #endif
                 return
             }
             continuation.resume(returning: client)
@@ -197,7 +216,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
 
 // MARK: ServerError
 enum ServerError : Swift.Error {
-    case socketCreationFailed(String = cerror())
-    case bindFailed(String = cerror())
-    case listenFailed(String = cerror())
+    case socketCreationFailed(String = "")
+    case bindFailed(String = "")
+    case listenFailed(String = "")
 }

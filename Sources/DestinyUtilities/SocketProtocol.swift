@@ -5,8 +5,6 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-import Foundation
-
 // MARK: SocketProtocol
 /// The core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol : ~Copyable {
@@ -43,11 +41,12 @@ public extension SocketProtocol where Self : ~Copyable {
 
 // MARK: SocketError
 public enum SocketError : Error {
-    case acceptFailed(String = cerror())
-    case writeFailed(String = cerror())
-    case readSingleByteFailed(String = cerror())
-    case readBufferFailed(String = cerror())
-    case invalidStatus(String = cerror())
-    case closeFailure(String = cerror())
+    case acceptFailed(String = "")
+    case writeFailed(String = "")
+    case readSingleByteFailed(String = "")
+    case readBufferFailed(String = "")
+    case invalidStatus(String = "")
+    case closeFailure(String = "")
+
     case malformedRequest
 }

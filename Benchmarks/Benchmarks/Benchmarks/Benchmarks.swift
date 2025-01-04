@@ -9,12 +9,26 @@ import Benchmark
 import Destiny
 import Utilities
 
+import HTTPTypes
+
 import TestDestiny
 import TestHummingbird
 import TestVapor
 
 let benchmarks = {
     Benchmark.defaultConfiguration = .init(metrics: .all)
+
+    /*Benchmark("HTTPFieldName") {
+        for _ in $0.scaledIterations {
+            blackHole(HTTPField.Name.contentType.rawName)
+        }
+    }*/
+
+    Benchmark("HTTPRequestHeader") {
+        for _ in $0.scaledIterations {
+            blackHole(HTTPRequestHeader.contentType.rawName)
+        }
+    }
 
     /*let libraries:[String:UInt16] = [
         "Destiny" : 8080,

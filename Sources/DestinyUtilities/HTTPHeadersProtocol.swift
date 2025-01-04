@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 12/29/24.
 //
 
-/// The storage for a request's headers.
+/// Storage for an HTTP Message's headers.
 public protocol HTTPHeadersProtocol : Sendable {
     associatedtype Key : Sendable
     associatedtype Value : Sendable

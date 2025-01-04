@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import Foundation
 import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros

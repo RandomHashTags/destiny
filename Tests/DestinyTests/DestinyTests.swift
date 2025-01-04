@@ -8,7 +8,6 @@
 #if compiler(>=6.0)
 
 import Destiny
-import Foundation
 import HTTPTypes
 import SwiftCompression
 import Testing
@@ -26,17 +25,9 @@ struct DestinyTests {
         )
     }
 
-    /*struct Test1 {
+    struct Test1 {
         public let version:HTTPVersion
-        public var method:HTTPRequest.Method
-        public var path:[String]
-        public let status:HTTPResponse.Status
-        public let contentType:HTTPMediaType
-        public let charset:String?
-        public let result:RouteResult
-        public let bro:RouteReturnType
-        public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
-    }*/
+    }
 
     @Test func example() {
         let _:Router = #router(

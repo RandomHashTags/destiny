@@ -33,7 +33,7 @@ public struct Request : RequestProtocol {
             string += tokens[i].leadingString()
         }
         let values:[Substring] = string.split(separator: "\r\n")
-        guard values.count > 1 else { return HTTPHeaders() }
+        guard values.count > 1 else { return HTTPRequestHeaders() }
         var dictionary:[String:String] = [:]
         dictionary.reserveCapacity(values.count-1)
         for i in 1..<values.count {
@@ -42,7 +42,7 @@ public struct Request : RequestProtocol {
                 dictionary[String(header[header.startIndex..<index])] = String(header[header.index(index, offsetBy: 2)...])
             }
         }
-        return HTTPHeaders(dictionary)
+        return HTTPRequestHeaders(dictionary)
     }()
 
     public lazy var query : [String:String] = {
@@ -114,6 +114,6 @@ public struct Request : RequestProtocol {
     }
 
     public var description : String {
-        return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.token.leadingString() + ")"
+        return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.simd.leadingString() + ")"
     }
 }

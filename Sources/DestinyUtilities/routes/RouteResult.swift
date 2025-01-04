@@ -5,7 +5,10 @@
 //  Created by Evan Anderson on 12/11/24.
 //
 
-import Foundation
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#endif
+
 import SwiftCompression
 import SwiftSyntax
 
@@ -20,20 +23,25 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     /// [UInt16]
     case bytes16([UInt16])
 
+    #if canImport(FoundationEssentials)
     case data(Data)
+    #endif
 
     case json(Encodable & Sendable)
     case error(Error)
 
+    @inlinable
     public var debugDescription : String {
         switch self {
-            case .staticString(let s): return ".staticString(\"\(s)\")"
-            case .string(let s): return ".string(\"\(s)\")"
-            case .bytes(let b): return ".bytes(\(b))"
-            case .bytes16(let b): return ".bytes16(\(b))"
-            case .data(let d): return ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
-            case .json(let e): return ".json()" // TODO: fix
-            case .error(let e): return ".error()" // TODO: fix
+        case .staticString(let s): return ".staticString(\"\(s)\")"
+        case .string(let s): return ".string(\"\(s)\")"
+        case .bytes(let b): return ".bytes(\(b))"
+        case .bytes16(let b): return ".bytes16(\(b))"
+        #if canImport(FoundationEssentials)
+        case .data(let d): return ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+        #endif
+        case .json(let e): return ".json()" // TODO: fix
+        case .error(let e): return ".error()" // TODO: fix
         }
     }
 
@@ -44,7 +52,9 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let string): return string.utf8.count
         case .bytes(let bytes): return bytes.count
         case .bytes16(let bytes): return bytes.count
+        #if canImport(FoundationEssentials)
         case .data(let data): return data.count
+        #endif
         case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
         case .error(let error): return "\(error)".count
         }
@@ -57,11 +67,17 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let string): return string
         case .bytes(let bytes): return String.init(decoding: bytes, as: UTF8.self)
         case .bytes16(let bytes): return String.init(decoding: bytes, as: UTF16.self)
+        #if canImport(FoundationEssentials)
         case .data(let data): return String.init(decoding: data, as: UTF8.self)
+        #endif
         case .json(let encodable):
             do {
+                #if canImport(FoundationEssentials)
                 let data:Data = try JSONEncoder().encode(encodable)
                 return String(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
+                #else
+                return "{}" // TODO: fix
+                #endif
             } catch {
                 return "{\"error\":500,\"reason\":\"\(error)\"}"
             }
@@ -82,7 +98,9 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
                 bytes.append(contentsOf: byte.bytes)
             }
             return bytes
+        #if canImport(FoundationEssentials)
         case .data(let d): return [UInt8](d)
+        #endif
         case .json(let e): return [] // TODO: finish
         case .error(let e): return [] // TODO: finish
         }
@@ -163,8 +181,10 @@ public extension RouteResult {
             return "RouteResponses.UInt8Array(\(b))"
         case .bytes16(let b):
             return "RouteResponses.UInt16Array(\(b))"
+        #if canImport(FoundationEssentials)
         case .data(let d):
             return "RouteResponses.Data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+        #endif
         case .json(let e):
             return "RouteResponses.StaticString(\"\")" // TODO: fix
         case .error(let e):
@@ -178,7 +198,9 @@ public extension RouteResult {
         case .string(_): return Self.string(input).responderDebugDescription
         case .bytes(_): return Self.bytes([UInt8](input.utf8)).responderDebugDescription
         case .bytes16(_): return Self.bytes16([UInt16](input.utf16)).responderDebugDescription
+        #if canImport(FoundationEssentials)
         case .data(_): return Self.data(Data(input.utf8)).responderDebugDescription
+        #endif
         case .json(let e):
             return "RouteResponses.StaticString(\"\")" // TODO: fix
         case .error(let e):
@@ -188,10 +210,14 @@ public extension RouteResult {
 
     func responderDebugDescription(_ input: HTTPMessage) throws -> String {
         switch self {
-            case .bytes(_), .bytes16(_), .data(_):
-                return try responderDebugDescription(input.string(escapeLineBreak: false))
-            default:
-                return try responderDebugDescription(input.string(escapeLineBreak: true))
+        case .bytes(_), .bytes16(_):
+            return try responderDebugDescription(input.string(escapeLineBreak: false))
+        #if canImport(FoundationEssentials)
+        case .data(_):
+            return try responderDebugDescription(input.string(escapeLineBreak: false))
+        #endif
+        default:
+            return try responderDebugDescription(input.string(escapeLineBreak: true))
         }
     }
 }

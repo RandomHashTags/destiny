@@ -5,8 +5,11 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
-import DestinyUtilities
+#if canImport(Foundation)
 import Foundation
+#endif
+
+import DestinyUtilities
 import HTTPTypes
 import Logging
 import ServiceLifecycle
@@ -22,15 +25,19 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
     @usableFromInline
     var _date:String
 
+    #if canImport(Foundation)
     @usableFromInline
-    var _formatter:DateFormatter
+    let _formatter:DateFormatter
+    #endif
 
     public init() {
         _timer = nil
-         _date = ""
+        _date = ""
+        #if canImport(Foundation)
         _formatter = DateFormatter()
         _formatter.dateFormat = "E, d MMM yyyy HH:mm:ss"
         _formatter.timeZone = .gmt
+        #endif
     }
 
     @inlinable
@@ -51,7 +58,11 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
 
     @usableFromInline
     func update() {
+        #if canImport(Foundation)
         _date = _formatter.string(from: Date()) + " GMT"
+        #else
+        // TODO: support
+        #endif
     }
 
     @inlinable
