@@ -11,22 +11,22 @@ import SwiftSyntaxMacros
 
 /// The core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
-    /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
+    /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status { get set }
 
-    /// The default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
+    /// Default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
     var contentType : HTTPMediaType { get set }
 
-    /// The path of this route.
+    /// Path of this route.
     var path : [PathComponent] { get set }
 
-    /// The default HTTP Message computed by default values and static middleware.
+    /// Default HTTP Message computed by default values and static middleware.
     var defaultResponse : DynamicResponseProtocol { get set }
 
     /// - Returns: The responder for this route.
     @inlinable func responder() -> DynamicRouteResponderProtocol
 
-    /// A string representing an initialized route responder conforming to `DynamicRouteResponderProtocol`.
+    /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
     var responderDebugDescription : String { get }
 
     /// Applies static middleware to this route.
@@ -48,7 +48,8 @@ public protocol DynamicRouteProtocol : RouteProtocol {
 }
 
 public extension DynamicRouteProtocol {
+    @inlinable
     var startLine : String {
-        return method.rawValue + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string()
+        return method.rawName + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string()
     }
 }

@@ -29,7 +29,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
     public init(
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
         allowedHeaders: Set<HTTPField.Name> = [.accept, .authorization, .contentType, .origin],
-        allowedMethods: Set<HTTPRequest.Method> = [.get, .post, .put, .options, .delete, .patch],
+        allowedMethods: Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch],
         allowCredentials: Bool = false,
         exposedHeaders: Set<HTTPField.Name>? = nil,
         maxAge: Int? = 3600 // one hour
@@ -49,8 +49,8 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
             logicDD += "\nif let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
         }
 
-        let allowedHeaders:String = allowedHeaders.map({ $0.rawName  }).joined(separator: ",")
-        let allowedMethods:String = allowedMethods.map({ $0.rawValue }).joined(separator: ",")
+        let allowedHeaders:String = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
+        let allowedMethods:String = allowedMethods.map({ $0.rawName }).joined(separator: ",")
         logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = \"" + allowedHeaders + "\""
         logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = \"" + allowedMethods + "\""
         if allowCredentials {
@@ -82,8 +82,9 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         return true
     }
 
-    public var debugDescription : String { "DynamicCORSMiddleware \(logicDebugDescription)" }
-
+    public var debugDescription : String {
+        "DynamicCORSMiddleware \(logicDebugDescription)"
+    }
 }
 
 // MARK: Parse
@@ -91,7 +92,7 @@ public extension DynamicCORSMiddleware {
     static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased
         var allowedHeaders:Set<HTTPField.Name> = [.accept, .authorization, .contentType, .origin]
-        var allowedMethods:Set<HTTPRequest.Method> = [.get, .post, .put, .options, .delete, .patch]
+        var allowedMethods:Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch]
         var allowCredentials:Bool = false
         var maxAge:Int? = 600
         var exposedHeaders:Set<HTTPField.Name>? = nil
@@ -117,7 +118,7 @@ public extension DynamicCORSMiddleware {
                     HTTPField.Name(caseName: $0.expression.memberAccess!.declName.baseName.text)
                 }))
             case "allowedMethods":
-                allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
+                allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequestMethod(expr: $0.expression) }))
             case "allowCredentials":
                 allowCredentials = argument.expression.booleanLiteral?.literal.text == "true"
             case "maxAge":

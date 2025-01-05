@@ -14,14 +14,14 @@ import SwiftSyntaxMacros
 /// The default Redirection Route that handles redirects for static routes.
 public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     public let version:HTTPVersion
-    public let method:HTTPRequest.Method
+    public let method:HTTPRequestMethod
     public let status:HTTPResponse.Status
     public package(set) var from:[String]
     public package(set) var to:[String]
 
     public init(
         version: HTTPVersion = .v1_0,
-        method: HTTPRequest.Method,
+        method: HTTPRequestMethod,
         status: HTTPResponse.Status,
         from: [StaticString],
         to: [StaticString]
@@ -47,14 +47,14 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
 public extension StaticRedirectionRoute {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
-        var method:HTTPRequest.Method = .get
+        var method:HTTPRequestMethod = .get
         var from:[String] = []
         var to:[String] = []
         var status:HTTPResponse.Status = .movedPermanently
         for argument in function.arguments {
             switch argument.label!.text {
             case "version": version = HTTPVersion.parse(argument.expression) ?? version
-            case "method": method = HTTPRequest.Method(expr: argument.expression) ?? method
+            case "method": method = HTTPRequestMethod(expr: argument.expression) ?? method
             case "status": status = HTTPResponse.Status(expr: argument.expression) ?? status
             case "from": from = PathComponent.parseArray(context: context, argument.expression)
             case "to": to = PathComponent.parseArray(context: context, argument.expression)

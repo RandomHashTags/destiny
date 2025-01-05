@@ -10,7 +10,7 @@ import SwiftCompression
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Redirection Route protocol that redirects certain endpoints to other endpoints.
+/// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
 public protocol RedirectionRouteProtocol : RouteProtocol {
     /// The endpoint that has been moved.
     var from : [String] { get }
@@ -18,7 +18,7 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     /// The redirection endpoint.
     var to : [String] { get }
 
-    /// The status of this redirection route.
+    /// Status of this redirection route.
     var status : HTTPResponse.Status { get }
 
     /// The HTTP Message of this route. Computed at compile time.

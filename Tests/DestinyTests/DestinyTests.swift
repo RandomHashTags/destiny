@@ -14,8 +14,9 @@ import Testing
 
 struct DestinyTests {
     @Test func memoryLayouts() {
-        //print(layout(for: StaticRoute.self))
-        //print(layout(for: Test1.self))
+        //print(layout(for: HTTPResponse.Status.self))
+        //print("from: \(layout(for: Test1.self))")
+        //print("to: \(layout(for: DynamicRoute.self))")
     }
     func layout<T>(for type: T.Type) -> (Int, Int, Int) {
         return (
@@ -27,6 +28,14 @@ struct DestinyTests {
 
     struct Test1 {
         public let version:HTTPVersion
+        public var method:HTTPRequestMethod
+        public var path:[PathComponent]
+        public var status:HTTPResponse.Status
+        public var contentType:HTTPMediaType
+        public var defaultResponse:DynamicResponseProtocol
+        public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
+        public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        var handlerLogic:String = "{ _, _ in }"
     }
 
     @Test func example() {
@@ -39,7 +48,7 @@ struct DestinyTests {
                 method: .get,
                 path: ["test1"],
                 contentType: HTTPMediaTypes.Text.html,
-                charset: .utf8,
+                charset: Charset.utf8,
                 result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(

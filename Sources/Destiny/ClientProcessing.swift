@@ -55,11 +55,11 @@ public enum ClientProcessing {
                 try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
             }
         } else {
-            for index in router.routerGroups.indices {
-                if let responder:StaticRouteResponderProtocol = router.routerGroups[index].staticResponder(for: request.startLine) {
+            for group in router.routerGroups {
+                if let responder:StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
                     try await staticResponse(socket: socket, responder: responder)
                     return true
-                } else if let responder:DynamicRouteResponderProtocol = router.routerGroups[index].dynamicResponder(for: &request) {
+                } else if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
                     try await dynamicResponse(socket: socket, router: router, request: &request, responder: responder)
                     return true
                 }
@@ -90,8 +90,8 @@ public enum ClientProcessing {
         for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {
             response.parameters[index] = request.path[parameterIndex]
         }
-        for index in router.dynamicMiddleware.indices {
-            if try await !router.dynamicMiddleware[index].handle(request: &request, response: &response) {
+        for middleware in router.dynamicMiddleware {
+            if try await !middleware.handle(request: &request, response: &response) {
                 break
             }
         }

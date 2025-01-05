@@ -51,7 +51,7 @@ package extension Diagnostic {
 }
 
 // MARK: SwiftSyntax Misc
-package extension ExprSyntax {
+package extension ExprSyntaxProtocol {
     var macroExpansion : MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
     var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
     var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }

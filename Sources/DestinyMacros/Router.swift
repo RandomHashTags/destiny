@@ -85,10 +85,10 @@ enum Router : ExpressionMacro {
             } else if let function:FunctionCallExprSyntax = child.expression.functionCall { // route
                 //print("Router;expansion;route;function=\(function.debugDescription)")
                 let decl:String?
-                var targetMethod:HTTPRequest.Method? = nil
+                var targetMethod:HTTPRequestMethod? = nil
                 if let member = function.calledExpression.memberAccess {
                     decl = member.base?.as(DeclReferenceExprSyntax.self)?.baseName.text
-                    targetMethod = HTTPRequest.Method.parse(member.declName.baseName.text)
+                    targetMethod = HTTPRequestMethod(expr: member)
                 } else {
                     decl = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
                 }
@@ -96,7 +96,7 @@ enum Router : ExpressionMacro {
                     switch decl {
                     case "DynamicRoute":
                         if var route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: static_middleware, function) {
-                            if let method:HTTPRequest.Method = targetMethod {
+                            if let method:HTTPRequestMethod = targetMethod {
                                 route.method = method
                             }
                             route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
@@ -104,7 +104,7 @@ enum Router : ExpressionMacro {
                         }
                     case "StaticRoute":
                         if var route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
-                            if let method:HTTPRequest.Method = targetMethod {
+                            if let method:HTTPRequestMethod = targetMethod {
                                 route.method = method
                             }
                             route.supportedCompressionAlgorithms.formUnion(supportedCompressionAlgorithms)
@@ -190,7 +190,7 @@ private extension Router {
     ) {
         guard let dictionary:DictionaryElementListSyntax = dictionary.content.as(DictionaryElementListSyntax.self) else { return }
         for methodElement in dictionary {
-            if let method:HTTPRequest.Method = HTTPRequest.Method(expr: methodElement.key), let statuses:DictionaryElementListSyntax = methodElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
+            if let method:HTTPRequestMethod = HTTPRequestMethod(expr: methodElement.key), let statuses:DictionaryElementListSyntax = methodElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
                 for statusElement in statuses {
                     if let status:HTTPResponse.Status = HTTPResponse.Status(expr: statusElement.key), let values:DictionaryElementListSyntax = statusElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
                         for valueElement in values {
@@ -226,7 +226,7 @@ private extension Router {
         if !redirects.isEmpty {
             string += redirects.compactMap({ (route, function) in
                 do {
-                    var string:String = route.method.rawValue + " /" + route.from.joined(separator: "/") + " " + route.version.string()
+                    var string:String = route.method.rawName + " /" + route.from.joined(separator: "/") + " " + route.version.string()
                     if registered_paths.contains(string) {
                         route_path_already_registered(context: context, node: function, string)
                         return nil
@@ -341,7 +341,7 @@ private extension Router {
             }
         }
         let parameterless_string:String = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route, function in
-            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + route.version.string()
+            var string:String = route.startLine
             if registered_paths.contains(string) {
                 route_path_already_registered(context: context, node: function, string)
                 return nil
@@ -361,7 +361,7 @@ private extension Router {
                         parameterized_by_path_count.append("")
                     }
                 }
-                var string:String = route.method.rawValue + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string()
+                var string:String = route.method.rawName + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string()
                 if !registered_paths.contains(string) {
                     registered_paths.insert(string)
                     string = route.startLine

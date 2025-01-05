@@ -14,7 +14,7 @@ import SwiftSyntaxMacros
 /// The default Static Middleware which handles static & dynamic routes at compile time.
 public struct StaticMiddleware : StaticMiddlewareProtocol {
     public let handlesVersions:Set<HTTPVersion>?
-    public let handlesMethods:Set<HTTPRequest.Method>?
+    public let handlesMethods:Set<HTTPRequestMethod>?
     public let handlesStatuses:Set<HTTPResponse.Status>?
     public let handlesContentTypes:Set<HTTPMediaType>?
 
@@ -25,7 +25,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
-        handlesMethods: Set<HTTPRequest.Method>? = nil,
+        handlesMethods: Set<HTTPRequestMethod>? = nil,
         handlesStatuses: Set<HTTPResponse.Status>? = nil,
         handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
         appliesVersion: HTTPVersion? = nil,
@@ -52,7 +52,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         if let versions:Set<HTTPVersion> = handlesVersions {
             values.append("handlesVersions: [" + versions.map({ ".\($0)" }).joined(separator: ",") + "]")
         }
-        if let methods:Set<HTTPRequest.Method> = handlesMethods {
+        if let methods:Set<HTTPRequestMethod> = handlesMethods {
             values.append("handlesMethods: [" + methods.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         if let statuses:Set<HTTPResponse.Status> = handlesStatuses {
@@ -81,7 +81,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 public extension StaticMiddleware {
     static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil
-        var handlesMethods:Set<HTTPRequest.Method>? = nil
+        var handlesMethods:Set<HTTPRequestMethod>? = nil
         var handlesStatuses:Set<HTTPResponse.Status>? = nil
         var handlesContentTypes:Set<HTTPMediaType>? = nil
         var appliesVersion:HTTPVersion? = nil
@@ -93,7 +93,7 @@ public extension StaticMiddleware {
             case "handlesVersions":
                 handlesVersions = Set(argument.expression.array!.elements.compactMap({ HTTPVersion.parse($0.expression) }))
             case "handlesMethods":
-                handlesMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequest.Method(expr: $0.expression) }))
+                handlesMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequestMethod(expr: $0.expression) }))
             case "handlesStatuses":
                 handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponse.Status(expr: $0.expression) }))
             case "handlesContentTypes":

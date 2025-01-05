@@ -10,11 +10,11 @@ import HTTPTypes
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
 public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
-    public var version:HTTPVersion
     public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
+    public var version:HTTPVersion
     public var charset:Charset?
 
     public init(

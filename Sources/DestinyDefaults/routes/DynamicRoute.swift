@@ -14,21 +14,20 @@ import SwiftSyntaxMacros
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
-    public let version:HTTPVersion
-    public var method:HTTPRequest.Method
     public var path:[PathComponent]
     public var status:HTTPResponse.Status
     public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponseProtocol
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
     public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    @usableFromInline package var handlerDebugDescription:String = "{ _, _ in }"
 
-    /// A string representation of the handler logic, required when parsing from the router macro.
-    @usableFromInline package var handlerLogic:String = "{ _, _ in }"
+    public let version:HTTPVersion
+    public var method:HTTPRequestMethod
 
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        method: HTTPRequest.Method,
+        method: HTTPRequestMethod,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -49,14 +48,14 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     @inlinable
     public func responder() -> DynamicRouteResponderProtocol {
-        return DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerLogic)
+        return DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
 
     public var responderDebugDescription : String {
-        return "DynamicRouteResponder(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerLogic)\n)"
+        return "DynamicRouteResponder(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerDebugDescription)\n)"
     }
 
-    public var debugDescription: String {
+    public var debugDescription : String {
         return """
         DynamicRoute(
             version: .\(version),
@@ -65,17 +64,17 @@ public struct DynamicRoute : DynamicRouteProtocol {
             status: \(status.debugDescription),
             contentType: \(contentType.debugDescription),
             supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))],
-            handler: \(handlerLogic)
+            handler: \(handlerDebugDescription)
         )
         """
     }
 
     @inlinable
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
-        for index in middleware.indices {
-            if middleware[index].handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
+        for middleware in middleware {
+            if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
                 var appliedVersion:HTTPVersion = defaultResponse.version
-                middleware[index].apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers)
+                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers)
                 defaultResponse.version = appliedVersion
             }
         }
@@ -86,7 +85,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
 public extension DynamicRoute {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
-        var method:HTTPRequest.Method = .get
+        var method:HTTPRequestMethod = .get
         var path:[PathComponent] = []
         var status:HTTPResponse.Status = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
@@ -101,7 +100,7 @@ public extension DynamicRoute {
                     version = parsed
                 }
             case "method":
-                method = HTTPRequest.Method(expr: argument.expression) ?? method
+                method = HTTPRequestMethod(expr: argument.expression) ?? method
             case "path":
                 path = PathComponent.parseArray(context: context, argument.expression)
                 for _ in path.filter({ $0.isParameter }) {
@@ -140,7 +139,7 @@ public extension DynamicRoute {
             handler: { _, _ in }
         )
         route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, result: .string(""), parameters: parameters)
-        route.handlerLogic = handler
+        route.handlerDebugDescription = handler
         return route
     }
 }

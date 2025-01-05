@@ -17,7 +17,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     /// The route request methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
-    var handlesMethods : Set<HTTPRequest.Method>? { get }
+    var handlesMethods : Set<HTTPRequestMethod>? { get }
 
     /// The route response statuses this middleware handles.
     /// 
@@ -45,7 +45,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     @inlinable
     func handles(
         version: HTTPVersion,
-        method: HTTPRequest.Method,
+        method: HTTPRequestMethod,
         contentType: HTTPMediaType,
         status: HTTPResponse.Status
     ) -> Bool
@@ -63,7 +63,7 @@ public extension StaticMiddlewareProtocol {
     @inlinable
     func handles(
         version: HTTPVersion,
-        method: HTTPRequest.Method,
+        method: HTTPRequestMethod,
         contentType: HTTPMediaType,
         status: HTTPResponse.Status
     ) -> Bool {

@@ -9,18 +9,18 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Static Route protocol where a complete HTTP Message is computed at compile time.
+/// Core Static Route protocol where a complete HTTP Message is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
-    /// The default status of this route.
+    /// Default status of this route.
     var status : HTTPResponse.Status { get }
 
-    /// The default content type of this route.
+    /// Default content type of this route.
     var contentType : HTTPMediaType { get }
 
-    /// The path of this route.
+    /// Path of this route.
     var path : [String] { get set }
     
-    /// The content returned from this route.
+    /// Content returned from this route.
     var result : RouteResult { get }
 
     /// The HTTP Message of this route.
@@ -52,7 +52,8 @@ public protocol StaticRouteProtocol : RouteProtocol {
 }
 
 public extension StaticRouteProtocol {
+    @inlinable
     var startLine : String {
-        return method.rawValue + " /" + path.joined(separator: "/") + " " + version.string()
+        return method.rawName + " /" + path.joined(separator: "/") + " " + version.string()
     }
 }

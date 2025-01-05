@@ -7,7 +7,7 @@
 
 import HTTPTypes
 
-/// The core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
+/// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
     /// The response `HTTPVersion`.
     var version : HTTPVersion { get set }

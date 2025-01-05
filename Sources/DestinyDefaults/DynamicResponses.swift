@@ -46,7 +46,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     @inlinable
     public mutating func register(version: HTTPVersion, route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool) throws {
         if route.path.count(where: { $0.isParameter }) == 0 {
-            var string:String = route.method.rawValue + " /" + route.path.map({ $0.slug }).joined(separator: "/") + " " + version.string()
+            var string:String = route.startLine
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
             if override || parameterless[buffer] == nil {
                 parameterless[buffer] = responder
@@ -70,17 +70,17 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
         }
         let values:[String] = request.path
         guard let responders:[DynamicRouteResponderProtocol] = parameterized.get(values.count) else { return nil }
-        for index in responders.indices {
+        for responder in responders {
             var found:Bool = true
             for i in 0..<values.count {
-                let path:PathComponent = responders[index].path[i]
+                let path:PathComponent = responder.path[i]
                 if !path.isParameter && path.value != values[i] {
                     found = false
                     break
                 }
             }
             if found {
-                return responders[index]
+                return responder
             }
         }
         return nil

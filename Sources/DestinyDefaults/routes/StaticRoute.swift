@@ -15,18 +15,19 @@ import SwiftSyntaxMacros
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
-    public let version:HTTPVersion
-    public var method:HTTPRequest.Method
     public var path:[String]
     public let status:HTTPResponse.Status
     public let contentType:HTTPMediaType
-    public let charset:Charset?
     public let result:RouteResult
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
+    public let version:HTTPVersion
+    public var method:HTTPRequestMethod
+    public let charset:Charset?
+
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        method: HTTPRequest.Method,
+        method: HTTPRequestMethod,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
@@ -88,7 +89,7 @@ public struct StaticRoute : StaticRouteProtocol {
 public extension StaticRoute {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
-        var method:HTTPRequest.Method = .get
+        var method:HTTPRequestMethod = .get
         var path:[String] = []
         var status:HTTPResponse.Status = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
@@ -100,7 +101,7 @@ public extension StaticRoute {
             case "version":
                 version = HTTPVersion.parse(argument.expression) ?? version
             case "method":
-                method = HTTPRequest.Method(expr: argument.expression) ?? method
+                method = HTTPRequestMethod(expr: argument.expression) ?? method
             case "path":
                 path = PathComponent.parseArray(context: context, argument.expression)
             case "status":

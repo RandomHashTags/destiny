@@ -52,8 +52,24 @@ public enum Charset : String, CustomDebugStringConvertible, Sendable {
 /// MARK: SwiftSyntax extensions
 public extension Charset {
     init?(expr: ExprSyntax) {
-        if let a:MemberAccessExprSyntax = expr.memberAccess {
+        guard let string:String = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
+            return nil
         }
-        return nil
+        if let value:Self = Self(rawValue: string) {
+            self = value
+        } else {
+            switch string {
+            case "bocu-1": self = .bocu1
+            case "iso-8859-5": self = .iso8859_5
+            case "ucs-2": self = .ucs2
+            case "ucs-4": self = .ucs4
+            case "utf-8": self = .utf8
+            case "utf-16": self = .utf16
+            case "utf-16be": self = .utf16be
+            case "utf-16le": self  = .utf16le
+            case "utf-32": self = .utf32
+            default: return nil
+            }
+        }
     }
 }
