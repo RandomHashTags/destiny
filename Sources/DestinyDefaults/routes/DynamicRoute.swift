@@ -12,7 +12,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: DynamicRoute
-/// The default Dynamic Route where a complete HTTP Response, computed at compile time, is modified upon requests.
+/// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public let version:HTTPVersion
     public var method:HTTPRequest.Method
@@ -72,10 +72,10 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     @inlinable
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
-        for middleware in middleware {
-            if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
+        for index in middleware.indices {
+            if middleware[index].handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
                 var appliedVersion:HTTPVersion = defaultResponse.version
-                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers)
+                middleware[index].apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers)
                 defaultResponse.version = appliedVersion
             }
         }
@@ -147,6 +147,7 @@ public extension DynamicRoute {
 
 // MARK: Convenience inits
 public extension DynamicRoute {
+    @inlinable
     static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -160,6 +161,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .get, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -173,6 +175,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .head, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -186,6 +189,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .post, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -199,6 +203,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .put, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -212,6 +217,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .delete, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -225,6 +231,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .connect, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -238,6 +245,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .options, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
@@ -251,6 +259,7 @@ public extension DynamicRoute {
         return Self(version: version, method: .trace, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
+    @inlinable
     static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],

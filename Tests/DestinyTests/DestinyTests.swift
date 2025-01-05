@@ -39,7 +39,7 @@ struct DestinyTests {
                 method: .get,
                 path: ["test1"],
                 contentType: HTTPMediaTypes.Text.html,
-                charset: "UTF-8",
+                charset: .utf8,
                 result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
@@ -47,21 +47,21 @@ struct DestinyTests {
                 path: ["test2"],
                 status: .movedPermanently,
                 contentType: HTTPMediaTypes.Text.html,
-                charset: "UTF-8",
+                charset: .utf8,
                 result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
                 method: .get,
                 path: ["test3"],
                 contentType: HTTPMediaTypes.Text.html,
-                charset: "UTF-8",
+                charset: .utf8,
                 result: .bytes([UInt8]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf8))
             ),
             StaticRoute(
                 method: .get,
                 path: ["test4"],
                 contentType: HTTPMediaTypes.Text.html,
-                charset: "UTF-8",
+                charset: .utf8,
                 result: .bytes16([UInt16]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf16))
             )
         )

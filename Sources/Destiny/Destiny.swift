@@ -33,13 +33,13 @@ public macro router(
     staticNotFoundResponder: StaticRouteResponderProtocol? = nil,
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [MiddlewareProtocol],
-    redirects: [HTTPRequest.Method : [HTTPResponse.Status : [String:String]]] = [:],
+    redirects: [HTTPRequestMethod : [HTTPResponse.Status : [String:String]]] = [:],
     routerGroups: [RouterGroupProtocol] = [],
     _ routes: RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
 
 
-/// A convenience macro to create a complete HTTP Response at compile time.
+/// A convenience macro to create a complete HTTP Message at compile time.
 @freestanding(expression)
 public macro httpMessage<T: ExpressibleByStringLiteral>(
     version: HTTPVersion,
@@ -47,5 +47,5 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
     headers: [String:String] = [:],
     result: RouteResult? = nil,
     contentType: HTTPMediaType? = nil,
-    charset: String? = nil
+    charset: Charset? = nil
 ) -> T = #externalMacro(module: "DestinyMacros", type: "HTTPMessage")

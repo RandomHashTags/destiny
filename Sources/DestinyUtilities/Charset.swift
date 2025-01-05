@@ -5,8 +5,11 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
+import SwiftSyntax
+
+// MARK: Charset
 /// HTTP charset encodings.
-public enum Charset : String, Sendable {
+public enum Charset : String, CustomDebugStringConvertible, Sendable {
     case any
     case basicMultilingualPlane
     case bocu1
@@ -20,6 +23,13 @@ public enum Charset : String, Sendable {
     case utf16le
     case utf32
 
+    // MARK: Debug description
+    @inlinable
+    public var debugDescription : String {
+        "Charset.\(rawValue)"
+    }
+
+    // MARK: Raw name
     @inlinable
     public var rawName : String {
         switch self {
@@ -33,8 +43,17 @@ public enum Charset : String, Sendable {
         case .utf8: return "UTF-8"
         case .utf16: return "UTF-16"
         case .utf16be: return "UTF-16BE"
-        case .utf16le: return "UTF16-LE"
+        case .utf16le: return "UTF-16LE"
         case .utf32: return "UTF-32"
         }
+    }
+}
+
+/// MARK: SwiftSyntax extensions
+public extension Charset {
+    init?(expr: ExprSyntax) {
+        if let a:MemberAccessExprSyntax = expr.memberAccess {
+        }
+        return nil
     }
 }

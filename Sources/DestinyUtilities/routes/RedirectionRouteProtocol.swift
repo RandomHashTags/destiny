@@ -21,10 +21,10 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     /// The status of this redirection route.
     var status : HTTPResponse.Status { get }
 
-    /// The HTTP Response of this route. Computed at compile time.
+    /// The HTTP Message of this route. Computed at compile time.
     /// 
     /// - Throws: any error; if thrown: a compile error is thrown describing the issue.
-    /// - Returns: a string representing a complete HTTP Response.
+    /// - Returns: a string representing a complete HTTP Message.
     func response() throws -> String
 
     /// Parsing logic for this route. Computed at compile time.

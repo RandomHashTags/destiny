@@ -90,5 +90,5 @@ public enum HTTPRequestMethod : String, Sendable {
         case .unlock: return "UNLOCK"
         case .unsubscribe: return "UNSUBSCRIBE"
         }
-    } 
+    }
 }

@@ -5,13 +5,6 @@
 //  Created by Evan Anderson on 10/22/24.
 //
 
-public typealias StackString2 = SIMD2<UInt8>
-public typealias StackString4 = SIMD4<UInt8>
-public typealias StackString8 = SIMD8<UInt8>
-public typealias StackString16 = SIMD16<UInt8>
-public typealias StackString32 = SIMD32<UInt8>
-public typealias StackString64 = SIMD64<UInt8>
-
 public extension SIMD where Scalar : BinaryInteger {
     /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
     init(_ string: inout String) {

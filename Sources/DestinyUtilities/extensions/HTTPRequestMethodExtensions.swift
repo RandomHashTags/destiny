@@ -32,7 +32,7 @@ public extension HTTPRequest.Method {
     }
 
     // MARK: Parse by SIMD key
-    static func parse(_ key: StackString8) -> Self? {
+    static func parse(_ key: SIMD8<UInt8>) -> Self? {
         switch key {
         case Self.getSIMD:     return .get
         case Self.headSIMD:    return .head
@@ -46,15 +46,15 @@ public extension HTTPRequest.Method {
         default:               return .init(key.stringSIMD())
         }
     }
-    static let getSIMD:StackString8 = StackString8(71, 69, 84, 0, 0, 0, 0, 0)
-    static let headSIMD:StackString8 = StackString8(72, 69, 65, 68, 0, 0, 0, 0)
-    static let postSIMD:StackString8 = StackString8(80, 79, 83, 84, 0, 0, 0, 0)
-    static let putSIMD:StackString8 = StackString8(80, 85, 84, 0, 0, 0, 0, 0)
-    static let deleteSIMD:StackString8 = StackString8(68, 69, 76, 69, 84, 69, 0, 0)
-    static let connectSIMD:StackString8 = StackString8(67, 79, 78, 78, 69, 67, 84, 0)
-    static let optionsSIMD:StackString8 = StackString8(79, 80, 84, 73, 79, 78, 83, 0)
-    static let traceSIMD:StackString8 = StackString8(84, 82, 65, 67, 69, 0, 0, 0)
-    static let patchSIMD:StackString8 = StackString8(80, 65, 84, 67, 72, 0, 0, 0)
+    static let getSIMD:SIMD8<UInt8> = SIMD8<UInt8>(71, 69, 84, 0, 0, 0, 0, 0)
+    static let headSIMD:SIMD8<UInt8> = SIMD8<UInt8>(72, 69, 65, 68, 0, 0, 0, 0)
+    static let postSIMD:SIMD8<UInt8> = SIMD8<UInt8>(80, 79, 83, 84, 0, 0, 0, 0)
+    static let putSIMD:SIMD8<UInt8> = SIMD8<UInt8>(80, 85, 84, 0, 0, 0, 0, 0)
+    static let deleteSIMD:SIMD8<UInt8> = SIMD8<UInt8>(68, 69, 76, 69, 84, 69, 0, 0)
+    static let connectSIMD:SIMD8<UInt8> = SIMD8<UInt8>(67, 79, 78, 78, 69, 67, 84, 0)
+    static let optionsSIMD:SIMD8<UInt8> = SIMD8<UInt8>(79, 80, 84, 73, 79, 78, 83, 0)
+    static let traceSIMD:SIMD8<UInt8> = SIMD8<UInt8>(84, 82, 65, 67, 69, 0, 0, 0)
+    static let patchSIMD:SIMD8<UInt8> = SIMD8<UInt8>(80, 65, 84, 67, 72, 0, 0, 0)
 }
 
 // MARK: CustomDebugStringConvertible

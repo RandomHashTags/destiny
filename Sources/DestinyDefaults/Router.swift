@@ -64,8 +64,8 @@ public struct Router : RouterProtocol {
 
     @inlinable
     public func routerGroupStaticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol? {
-        for group in routerGroups {
-            if let responder:StaticRouteResponderProtocol = group.staticResponder(for: startLine) {
+        for index in routerGroups.indices {
+            if let responder:StaticRouteResponderProtocol = routerGroups[index].staticResponder(for: startLine) {
                 return responder
             }
         }
@@ -74,8 +74,8 @@ public struct Router : RouterProtocol {
 
     @inlinable
     public func routerGroupDynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
-        for group in routerGroups {
-            if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
+        for index in routerGroups.indices {
+            if let responder:DynamicRouteResponderProtocol = routerGroups[index].dynamicResponder(for: &request) {
                 return responder
             }
         }

@@ -23,7 +23,7 @@ macro HTTPFieldContentType(
 @inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
 #endif
 
-public typealias DestinyRoutePathType = StackString64
+public typealias DestinyRoutePathType = SIMD64<UInt8>
 
 // MARK: DiagnosticMsg
 package struct DiagnosticMsg : DiagnosticMessage {

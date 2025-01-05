@@ -9,7 +9,7 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Static Route protocol where a complete HTTP Response is computed at compile time.
+/// The core Static Route protocol where a complete HTTP Message is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
     /// The default status of this route.
     var status : HTTPResponse.Status { get }
@@ -23,7 +23,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// The content returned from this route.
     var result : RouteResult { get }
 
-    /// The HTTP Response of this route.
+    /// The HTTP Message of this route.
     /// 
     /// - Parameters:
     ///   - context: The macro expansion context where it was called.

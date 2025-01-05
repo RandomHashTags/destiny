@@ -8,14 +8,14 @@
 import HTTPTypes
 
 // MARK: HTTPMessage
-/// The default storage for a HTTP Message.
+/// Default storage for an HTTP Message.
 public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
     public var version:HTTPVersion
     public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
-    public var charset:String?
+    public var charset:Charset?
 
     public init(
         version: HTTPVersion,
@@ -23,7 +23,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         headers: [String:String],
         result: RouteResult?,
         contentType: (any HTTPMediaTypeProtocol)?,
-        charset: String?
+        charset: Charset?
     ) {
         self.version = version
         self.status = status
@@ -34,7 +34,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
     }
 
     public var debugDescription : String {
-        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset != nil ? "\"" + charset! + "\"" : "nil"))" // TODO: fix
+        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
     }
 
     /// - Parameters:
@@ -51,7 +51,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
             let contentLength:Int = result.utf8.count
             result.replace("\"", with: "\\\"")
             if let contentType:HTTPMediaType = contentType {
-                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset! : "") + suffix
+                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPField.Name.contentLength.rawName + ": \(contentLength)"
             string += suffix + suffix + result
@@ -70,7 +70,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         var bytes:[UInt8]
         if let result:[UInt8] = try result?.bytes() {
             if let contentType:HTTPMediaType = contentType {
-                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset! : "") + suffix
+                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPField.Name.contentLength.rawName + ": \(result.count)"
             string += suffix + suffix

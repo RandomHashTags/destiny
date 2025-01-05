@@ -17,7 +17,7 @@ public enum HTTPVersion : String, Hashable, Sendable {
     case v3_0
 
     @inlinable
-    public init(token: StackString8) {
+    public init(token: SIMD8<UInt8>) {
         switch token {
         case SIMD8(72, 84, 84, 80, 47, 48, 46, 57): self = .v0_9 // HTTP/0.9
         case SIMD8(72, 84, 84, 80, 47, 49, 46, 48): self = .v1_0 // HTTP/1.0

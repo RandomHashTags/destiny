@@ -14,75 +14,75 @@ struct SIMDTests {
     // MARK: leadingNonzeroByteCount
     @Test func leadingNonzeroByteCount() {
         var string:String = "siuerbnieprsbgsrgnpeirfnpae"
-        var ss32:StackString32 = StackString32(&string)
+        var ss32:SIMD32<UInt8> = SIMD32<UInt8>(&string)
         #expect(ss32.leadingNonzeroByteCount == 27)
 
         string = "ouerb\0gouwrgoruegbrotugbrotgenrotgurteg"
-        ss32 = StackString32(&string)
+        ss32 = SIMD32<UInt8>(&string)
         #expect(ss32.leadingNonzeroByteCount == 5)
 
         string = ""
-        var ss2:StackString2 = StackString2(&string)
+        var ss2:SIMD2<UInt8> = SIMD2<UInt8>(&string)
         #expect(ss2.leadingNonzeroByteCount == 0)
 
         string = "a"
-        ss2 = StackString2(&string)
+        ss2 = SIMD2<UInt8>(&string)
         #expect(ss2.leadingNonzeroByteCount == 1)
     }
 
     // MARK: leadingNonByteCount
     @Test func leadingNonByteCount() {
         var string:String = "siuerbnieprsbgsrgnpeirfnpae"
-        var ss32:StackString32 = StackString32(&string)
+        var ss32:SIMD32<UInt8> = SIMD32<UInt8>(&string)
         #expect(ss32.leadingNonByteCount(byte: 92) == 32)
 
         string = "ouerb\\gouwrgoruegbrotugbrotgenrotgurteg"
-        ss32 = StackString32(&string)
+        ss32 = SIMD32<UInt8>(&string)
         #expect(ss32.leadingNonByteCount(byte: 92) == 5)
     }
 
     // MARK: trailingNonzeroByteCount
     @Test func trailingNonzeroByteCount() {
         var string:String = "siuerbnieprsbgsrgnpeirfnpae"
-        var ss32:StackString32 = StackString32(&string)
+        var ss32:SIMD32<UInt8> = SIMD32<UInt8>(&string)
         #expect(ss32.trailingNonzeroByteCount == 0)
 
         string = "ouerbgouwrgoruegbrotugbtg\0enrotg"
-        ss32 = StackString32(&string)
+        ss32 = SIMD32<UInt8>(&string)
         #expect(ss32.trailingNonzeroByteCount == 6)
 
         string = ""
-        var ss2:StackString2 = StackString2(&string)
+        var ss2:SIMD2<UInt8> = SIMD2<UInt8>(&string)
         #expect(ss2.trailingNonzeroByteCount == 0)
 
         string = "a"
-        ss2 = StackString2(&string)
+        ss2 = SIMD2<UInt8>(&string)
         #expect(ss2.trailingNonzeroByteCount == 0)
     }
 
     // MARK: trailingZeroByteCount
     @Test func trailingZeroByteCount() {
         var string:String = "siuerbnieprsbgsrgnpeirfnpae"
-        var ss32:StackString32 = StackString32(&string)
+        var ss32:SIMD32<UInt8> = SIMD32<UInt8>(&string)
         #expect(ss32.trailingZeroByteCount == 5)
 
         string = "ouerbgouwrgoruegbrotugbtg\0enrotg"
-        ss32 = StackString32(&string)
+        ss32 = SIMD32<UInt8>(&string)
         #expect(ss32.trailingZeroByteCount == 0)
 
         string = ""
-        var ss2:StackString2 = StackString2(&string)
+        var ss2:SIMD2<UInt8> = SIMD2<UInt8>(&string)
         #expect(ss2.trailingZeroByteCount == 2, Comment(rawValue: ss2.leadingString()))
 
         string = "a"
-        ss2 = StackString2(&string)
+        ss2 = SIMD2<UInt8>(&string)
         #expect(ss2.trailingZeroByteCount == 1, Comment(rawValue: ss2.leadingString()))
     }
 
     // MARK: hasPrefix
     @Test func hasPrefix() {
         var string:String = "testing brother!?!"
-        let test:StackString32 = StackString32(&string)
+        let test:SIMD32<UInt8> = SIMD32<UInt8>(&string)
         #expect(test.hasPrefix(SIMD2<UInt8>(x: Character("t").asciiValue!, y: Character("e").asciiValue!)))
         #expect(test.hasPrefix(SIMD4<UInt8>(Character("t").asciiValue!, Character("e").asciiValue!, Character("s").asciiValue!, Character("t").asciiValue!)))
         #expect(test.hasPrefix(SIMD8<UInt8>(Character("t").asciiValue!, Character("e").asciiValue!, Character("s").asciiValue!, Character("t").asciiValue!, Character("i").asciiValue!, Character("n").asciiValue!, Character("g").asciiValue!, Character(" ").asciiValue!)))
@@ -109,8 +109,8 @@ struct SIMDTests {
     // MARK: split
     @Test func split() throws {
         var string:String = "GET /dynamic/text HTTP/1.1"
-        var ss:StackString32 = StackString32(&string)
-        var values:[StackString32] = ss.splitSIMD(separator: 32) // space
+        var ss:SIMD32<UInt8> = SIMD32<UInt8>(&string)
+        var values:[SIMD32<UInt8>] = ss.splitSIMD(separator: 32) // space
         try #require(values.count == 3)
         #expect(values[0].leadingString() == "GET")
         #expect(values[1].leadingString() == "/dynamic/text")
@@ -119,8 +119,8 @@ struct SIMDTests {
 
     // MARK: split4
     @Test func split4() throws {
-        let ss:StackString4 = StackString4(31, 32, 33, 34)
-        var values:[StackString4] = ss.split(separator: 32)
+        let ss:SIMD4<UInt8> = SIMD4<UInt8>(31, 32, 33, 34)
+        var values:[SIMD4<UInt8>] = ss.split(separator: 32)
 
         try #require(values.count == 2, Comment(rawValue: "\(values)"))
         #expect(values[0] == SIMD4(31, 0, 0, 0))
@@ -147,14 +147,14 @@ struct SIMDTests {
     // MARK: string
     @Test func leadingString() {
         var string:String = "brooooooooo !"
-        let ss:StackString64 = StackString64(&string)
+        let ss:SIMD64<UInt8> = SIMD64<UInt8>(&string)
         #expect(ss.leadingString() == "brooooooooo !")
     }
 
     // MARK: dropTrailing
     @Test func dropTrailing() {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
-        var ss64:StackString64 = StackString64(&string)
+        var ss64:SIMD64<UInt8> = SIMD64<UInt8>(&string)
         ss64.dropTrailing(1)
         #expect(ss64.leadingString() == "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580t")
 
@@ -168,7 +168,7 @@ struct SIMDTests {
     // MARK: keepLeading
     @Test func keepLeading() {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
-        var ss64:StackString64 = StackString64(&string)
+        var ss64:SIMD64<UInt8> = SIMD64<UInt8>(&string)
         ss64.keepLeading(35)
         #expect(ss64.leadingString() == "iuebrgow eg347h0t34h t30834r034rgg3")
 
@@ -200,7 +200,7 @@ struct SIMDTests {
     // MARK: keepTrailing
     @Test func keepTrailing() {
         var string:String = "iuebrgow eg347h0t34h t30834r034rgg3q 632 q  0928j3 m939n3 4580tw"
-        var ss64:StackString64 = StackString64(&string)
+        var ss64:SIMD64<UInt8> = SIMD64<UInt8>(&string)
         ss64.keepTrailing(35)
         #expect(ss64.trailingString() == "34rgg3q 632 q  0928j3 m939n3 4580tw")
 

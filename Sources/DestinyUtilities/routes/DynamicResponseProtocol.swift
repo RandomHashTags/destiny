@@ -7,7 +7,7 @@
 
 import HTTPTypes
 
-/// The core Dynamic Response protocol that builds a HTTP Response to dynamic routes before sending it to the client.
+/// The core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
     /// The response `HTTPVersion`.
     var version : HTTPVersion { get set }
@@ -24,6 +24,6 @@ public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible
     /// The parameters associated with the route. Updated upon requests.
     var parameters : [String] { get set }
 
-    /// The complete HTTP Response that gets sent to the client.
+    /// The complete HTTP Message that gets sent to the client.
     @inlinable func response() throws -> String
 }

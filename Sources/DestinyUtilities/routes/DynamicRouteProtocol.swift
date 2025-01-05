@@ -9,7 +9,7 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Dynamic Route protocol where a complete HTTP Response, computed at compile time, is modified upon requests.
+/// The core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
     /// The default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponse.Status { get set }
@@ -20,7 +20,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// The path of this route.
     var path : [PathComponent] { get set }
 
-    /// The default HTTP Response computed by default values and static middleware.
+    /// The default HTTP Message computed by default values and static middleware.
     var defaultResponse : DynamicResponseProtocol { get set }
 
     /// - Returns: The responder for this route.

@@ -8,12 +8,12 @@
 import DestinyUtilities
 import HTTPTypes
 
-/// The default storage for request data.
+/// Default storage for request data.
 public struct Request : RequestProtocol {
     private let tokens:[SIMD64<UInt8>]
     private let headersBeginIndex:Int
     public let startLine:DestinyRoutePathType
-    public let methodSIMD:StackString8
+    public let methodSIMD:SIMD8<UInt8>
     public let uri:DestinyRoutePathType
     public let version:HTTPVersion
     //public let body:String

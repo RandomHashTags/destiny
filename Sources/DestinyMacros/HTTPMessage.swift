@@ -17,7 +17,7 @@ enum HTTPMessage : DeclarationMacro {
         var headers:[String:String] = [:]
         var result:RouteResult? = nil
         var contentType:HTTPMediaType? = nil
-        var charset:String? = nil
+        var charset:Charset? = nil
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
             if let key:String = child.label?.text {
                 switch key {
@@ -32,7 +32,7 @@ enum HTTPMessage : DeclarationMacro {
                     case "contentType":
                         contentType = HTTPMediaTypes.parse(child.expression.memberAccess!.declName.baseName.text)
                     case "charset":
-                        charset = child.expression.stringLiteral?.string ?? charset
+                        charset = Charset(expr: child.expression)
                     default:
                         break
                 }

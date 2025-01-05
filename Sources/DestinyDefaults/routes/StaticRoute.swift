@@ -13,14 +13,14 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRoute
-/// The default Static Route where a complete HTTP Response is computed at compile time.
+/// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
     public let version:HTTPVersion
     public var method:HTTPRequest.Method
     public var path:[String]
     public let status:HTTPResponse.Status
     public let contentType:HTTPMediaType
-    public let charset:String?
+    public let charset:Charset?
     public let result:RouteResult
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
@@ -30,7 +30,7 @@ public struct StaticRoute : StaticRouteProtocol {
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) {
@@ -52,7 +52,7 @@ public struct StaticRoute : StaticRouteProtocol {
             path: \(path),
             status: \(status.debugDescription),
             contentType: \(contentType.debugDescription),
-            charset: \(charset ?? "nil"),
+            charset: \(charset?.debugDescription ?? "nil"),
             result: \(result.debugDescription),
             supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))]
         )
@@ -91,7 +91,8 @@ public extension StaticRoute {
         var method:HTTPRequest.Method = .get
         var path:[String] = []
         var status:HTTPResponse.Status = .notImplemented
-        var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure, charset:String? = nil
+        var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
+        var charset:Charset? = nil
         var result:RouteResult = .string("")
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         for argument in function.arguments {
@@ -111,7 +112,7 @@ public extension StaticRoute {
                     contentType = HTTPMediaType(debugDescription: "", httpValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
                 }
             case "charset":
-                charset = argument.expression.stringLiteral!.string
+                charset = Charset(expr: argument.expression)
             case "result":
                 result = RouteResult(expr: argument.expression) ?? result
             case "supportedCompressionAlgorithms":
@@ -137,108 +138,117 @@ public extension StaticRoute {
 
 // MARK: Convenience inits
 public extension StaticRoute {
+    @inlinable
     static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .get, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .head, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .post, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .put, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .delete, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .connect, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .options, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
         return StaticRoute(version: version, method: .trace, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
+    @inlinable
     static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
         contentType: T,
-        charset: String? = nil,
+        charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {

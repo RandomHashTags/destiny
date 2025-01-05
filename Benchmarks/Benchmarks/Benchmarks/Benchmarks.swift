@@ -43,7 +43,7 @@ let benchmarks = {
             }
         }
     }*/
-    /*Benchmark("StackString8") {
+    /*Benchmark("SIMD8<UInt8>") {
         for _ in $0.scaledIterations {
             blackHole(stackString())
         }
@@ -58,8 +58,8 @@ let benchmarks = {
             blackHole(string())
         }
     }
-    func stackString() -> StackString8 {
-        return StackString8(buffer: (
+    func stackString() -> SIMD8<UInt8> {
+        return SIMD8<UInt8>(buffer: (
             Int8(Character("H").asciiValue!),
             Int8(Character("l").asciiValue!),
             Int8(Character("l").asciiValue!),
