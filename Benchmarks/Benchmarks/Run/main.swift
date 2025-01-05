@@ -77,10 +77,17 @@ func destiny_service(port: UInt16) -> Destiny.Application {
 // MARK: Hummingbird
 func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<BasicRequestContext>> {
     let router:Hummingbird.Router<BasicRequestContext> = Hummingbird.Router()
-    let body:Hummingbird.ResponseBody = .init(byteBuffer: ByteBuffer(string: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"))
-    let headers:HTTPFields = HTTPFields(dictionaryLiteral: (.contentType, "text/html"))
+    let body:Hummingbird.ResponseBody = .init(byteBuffer: ByteBuffer(string: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#))
+    let headers:HTTPFields = HTTPFields(dictionaryLiteral:
+        (.init("You-GET'd")!, "true"),
+        (.init("Server")!, "destiny"),
+        (.init("Version")!, "destiny1.1"),
+        (.contentType, "text/html"),
+        (.init("Connection")!, "keep-alive")
+    )
+    let response:Hummingbird.Response = Response(status: .ok, headers: headers, body: body)
     router.get(RouterPath("html")) { request, _ in
-        return Response(status: .ok, headers: headers, body: body)
+        return response
     }
     router.get(RouterPath("error")) { request, _ in
         throw CustomError.yeet
@@ -106,9 +113,15 @@ func vapor_application(port: Int) -> Vapor.Application {
     app.http.server.configuration.hostname = hostname
     app.clients.use(.http)
 
-    let body:Vapor.Response.Body = .init(staticString: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
-    let headers:HTTPHeaders = HTTPHeaders(dictionaryLiteral: (HTTPHeaders.Name.contentType.description, "text/html"))
-    app.on(.GET, ["html"]) { request in
+    let body:Vapor.Response.Body = .init(staticString: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+    let headers:HTTPHeaders = HTTPHeaders(dictionaryLiteral:
+        ("You-GET'd", "true"),
+        ("Server", "destiny"),
+        ("Version", "destiny1.1"),
+        (HTTPHeaders.Name.contentType.description, "text/html")
+    )
+    app.get(["html"]) { request in
+        // we have to do it this way because the its headers get updated every request (probably 'cause its a class)
         return Vapor.Response(status: .ok, version: request.version, headers: headers, body: body)
     }
     app.on(.GET, ["error"]) { request in

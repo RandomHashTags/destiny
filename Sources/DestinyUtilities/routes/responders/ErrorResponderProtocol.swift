@@ -7,7 +7,7 @@
 
 import Logging
 
-/// The core Error Middleware protocol that handles errors thrown from requests.
+/// Core Error Middleware protocol that handles errors thrown from requests.
 public protocol ErrorResponderProtocol : RouteResponderProtocol {
     /// Writes a response to a socket.
     @inlinable func respond<T: SocketProtocol & ~Copyable, E: Error>(

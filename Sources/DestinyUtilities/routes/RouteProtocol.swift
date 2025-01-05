@@ -8,7 +8,7 @@
 import HTTPTypes
 import SwiftCompression
 
-/// The core Route protocol.
+/// Core Route protocol.
 public protocol RouteProtocol : CustomDebugStringConvertible, Sendable {
     /// `HTTPVersion` associated with this route.
     var version : HTTPVersion { get }

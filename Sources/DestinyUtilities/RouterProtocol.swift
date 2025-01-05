@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 11/9/24.
 //
 
-/// The core Router protocol that handles middleware, routes and router groups.
+/// Core Router protocol that handles middleware, routes and router groups.
 public protocol RouterProtocol : Sendable, ~Copyable {
     /// All the dynamic middleware that is registered to this router. Ordered in descending order of importance.
     var dynamicMiddleware : [DynamicMiddlewareProtocol] { get set }

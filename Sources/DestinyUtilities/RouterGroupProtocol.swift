@@ -8,7 +8,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Router Group protocol that handles routes grouped by a single endpoint.
+/// Core Router Group protocol that handles routes grouped by a single endpoint.
 public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
 
     /// - Returns: The static route responder for the given HTTP start-line.

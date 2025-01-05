@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 10/18/24.
 //
 
-/// The core Dynamic Route Responder protocol that handles requests to dynamic routes.
+/// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
     /// The path of the route.
     var path : [PathComponent] { get }

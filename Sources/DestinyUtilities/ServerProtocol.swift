@@ -9,7 +9,7 @@ import ArgumentParser
 import Logging
 import ServiceLifecycle
 
-/// The core Server protocol that accepts and processes incoming network requests.
+/// Core Server protocol that accepts and processes incoming network requests.
 public protocol ServerProtocol : Service {
     /// Main logger for the server.
     var logger : Logger { get }

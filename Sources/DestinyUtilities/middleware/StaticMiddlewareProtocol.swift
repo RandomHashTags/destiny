@@ -7,7 +7,7 @@
 
 import HTTPTypes
 
-/// The core Static Middleware protocol which handles static & dynamic routes at compile time.
+/// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     /// The route request versions this middleware handles.
     /// 

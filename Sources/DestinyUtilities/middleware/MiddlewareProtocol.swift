@@ -8,7 +8,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The core Middleware protocol.
+/// Core Middleware protocol.
 public protocol MiddlewareProtocol : Sendable, CustomDebugStringConvertible {
     /// Parsing logic for this middleware.
     /// 

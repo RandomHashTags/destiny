@@ -6,7 +6,7 @@
 //
 
 // MARK: SocketProtocol
-/// The core Socket protocol that handles incoming network requests.
+/// Core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol : ~Copyable {
     /// The maximum amount of bytes to read at a single time.
     static var bufferLength : Int { get }

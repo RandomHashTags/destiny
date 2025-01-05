@@ -7,7 +7,7 @@
 
 import HTTPTypes
 
-/// The core Request protocol that lays out how a socket's incoming data is parsed.
+/// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
     //associatedtype Storage : RequestStorageProtocol
     //associatedtype Headers : HTTPHeadersProtocol
@@ -30,7 +30,7 @@ public protocol RequestProtocol : Sendable, ~Copyable {
 }
 
 /*
-/// The core Request Storage protocol that lays out how data for a request is stored.
+/// Core Request Storage protocol that lays out how data for a request is stored.
 /// 
 /// Some examples of data that is usually stored include:
 /// - Authentication headers

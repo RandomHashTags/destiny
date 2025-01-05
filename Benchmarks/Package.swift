@@ -20,7 +20,7 @@ let package = Package(
 
         .package(name: "destiny", path: "../"),
         .package(url: "https://github.com/vapor/vapor", exact: "4.106.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.1.0")
+        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.6.1")
     ],
     targets: [
         .target(
@@ -74,15 +74,15 @@ let package = Package(
             ],
             path: "Benchmarks/Run"
         ),
-        .executableTarget(
+        /*.executableTarget(
             name: "Latency",
             dependencies: [
                 "Utilities"
             ],
             path: "Benchmarks/Latency"
-        ),
+        ),*/
 
-        .executableTarget(
+        /*.executableTarget(
             name: "Benchmarks",
             dependencies: [
                 "Utilities",
@@ -96,6 +96,6 @@ let package = Package(
             plugins: [
                 .plugin(name: "BenchmarkPlugin", package: "package-benchmark")
             ]
-        )
+        )*/
     ]
 )
