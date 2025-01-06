@@ -6,6 +6,7 @@
 //
 
 import SwiftCompression
+import SwiftSyntax
 
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
@@ -124,10 +125,12 @@ public enum HTTPRequestHeader : String {
     case xRequestedWith
     case xUIDH
     case xWapProfile
+}
 
-    // MARK: Raw name
+// MARK: Raw name
+public extension HTTPRequestHeader {
     @inlinable
-    public var rawName : String {
+    var rawName : String {
         switch self {
         // standard
         case .aim: return "A-IM"
@@ -211,6 +214,13 @@ public enum HTTPRequestHeader : String {
     }
 }
 
+// MARK: Static raw name
+public extension HTTPRequestHeader {
+    internal static func get(_ header: Self) -> String { header.rawName }
+
+    static let originRawName:String = get(.origin)
+}
+
 // MARK: Accept-Encoding
 public extension HTTPRequestHeader {
     struct AcceptEncoding : Sendable {
@@ -235,6 +245,18 @@ public extension HTTPRequestHeader {
             switch self {
             case .xmlHttpRequest: return "XMLHttpRequest"
             }
+        }
+    }
+}
+
+// MARK: SwiftSyntax extensions
+public extension HTTPRequestHeader {
+    init?(expr: ExprSyntaxProtocol) {
+        guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
+        if let value:Self = Self(rawValue: string) {
+            self = value
+        } else {
+            return nil
         }
     }
 }

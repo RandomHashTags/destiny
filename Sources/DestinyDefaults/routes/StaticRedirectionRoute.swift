@@ -11,7 +11,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRedirectionRoute
-/// The default Redirection Route that handles redirects for static routes.
+/// Default Redirection Route that handles redirects for static routes.
 public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     public let version:HTTPVersion
     public let method:HTTPRequestMethod

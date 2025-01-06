@@ -12,7 +12,7 @@ import Logging
 import ServiceLifecycle
 import SwiftCompression
 
-/// The default macro to create a default `Router`.
+/// Default macro to create a `Router`.
 ///
 /// - Parameters:
 ///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.

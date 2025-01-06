@@ -128,10 +128,12 @@ public enum HTTPResponseHeader : String, Hashable {
     case xUACompatible
     case xWebKitCSP
     case xXSSProtection
+}
 
-    // MARK: Raw name
+// MARK: Raw name
+public extension HTTPResponseHeader {
     @inlinable
-    public var rawName : String {
+    var rawName : String {
         switch self {
         // standard
         //case .acceptCH: return "Accept-CH"
@@ -220,6 +222,21 @@ public enum HTTPResponseHeader : String, Hashable {
         case .xXSSProtection: return "X-XSS-Protection"
         }
     }
+}
+
+// MARK: Static raw name
+// Convenience properties; used so we don't pay performance overhead when we don't want to
+public extension HTTPResponseHeader {
+    internal static func get(_ header: Self) -> String { header.rawName }
+
+    static let acceptPatchRawName:String = get(.acceptPatch)
+    static let accessControlAllowOriginRawName:String = get(.accessControlAllowOrigin)
+    static let accessControlAllowCredentialsRawName:String = get(.accessControlAllowCredentials)
+    static let accessControlAllowHeadersRawName:String = get(.accessControlAllowHeaders)
+    static let accessControlAllowMethodsRawName:String = get(.accessControlAllowMethods)
+    static let accessControlExposeHeadersRawName:String = get(.accessControlExposeHeaders)
+    static let accessControlMaxAgeRawName:String = get(.accessControlMaxAge)
+    static let varyRawName:String = get(.vary)
 }
 
 // MARK: Accept-CH

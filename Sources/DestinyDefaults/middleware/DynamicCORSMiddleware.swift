@@ -6,12 +6,11 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: DynamicCORSMiddleware
-/// The default dynamic `CORSMiddlewareProtocol` that enables CORS for dynamic requests.
+/// Default dynamic `CORSMiddlewareProtocol` that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
     public let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void
@@ -28,39 +27,39 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
     ///   - maxAge: How long the response to the preflight request can be cached without sending another preflight request; measured in seconds. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-max-age).
     public init(
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
-        allowedHeaders: Set<HTTPField.Name> = [.accept, .authorization, .contentType, .origin],
+        allowedHeaders: Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin],
         allowedMethods: Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch],
         allowCredentials: Bool = false,
-        exposedHeaders: Set<HTTPField.Name>? = nil,
+        exposedHeaders: Set<HTTPRequestHeader>? = nil,
         maxAge: Int? = 3600 // one hour
     ) {
         var logicDD:String = "{\n"
         switch allowedOrigin {
         case .all:
-            logicDD += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"*\""
+            logicDD += "$1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"*\""
         case .any(let origins):
-            logicDD += "if let origin:String = $0.headers[HTTPField.Name.origin.rawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
+            logicDD += "if let origin:String = $0.headers[HTTPRequestHeader.originRawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
         case .custom(let s):
-            logicDD += "$1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = \"" + s + "\""
+            logicDD += "$1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"" + s + "\""
         case .none:
             break
         case .originBased:
-            logicDD += "$1.headers[HTTPField.Name.vary.rawName, default: \"\"] = \"origin\""
-            logicDD += "\nif let origin:String = $0.headers[HTTPField.Name.origin.rawName] { $1.headers[HTTPField.Name.accessControlAllowOrigin.rawName] = origin }"
+            logicDD += "$1.headers[HTTPResponseHeader.varyRawName, default: \"\"] = \"origin\""
+            logicDD += "\nif let origin:String = $0.headers[HTTPRequestHeader.originRawName] { $1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
         }
 
         let allowedHeaders:String = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
         let allowedMethods:String = allowedMethods.map({ $0.rawName }).joined(separator: ",")
-        logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowHeaders.rawName] = \"" + allowedHeaders + "\""
-        logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowMethods.rawName] = \"" + allowedMethods + "\""
+        logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowHeadersRawName] = \"" + allowedHeaders + "\""
+        logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowMethodsRawName] = \"" + allowedMethods + "\""
         if allowCredentials {
-            logicDD += "\n$1.headers[HTTPField.Name.accessControlAllowCredentials.rawName] = \"true\""
+            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowCredentialsRawName] = \"true\""
         }
         if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
-            logicDD += "\n$1.headers[HTTPField.Name.accessControlExposeHeaders.rawName] = \"" + exposedHeaders + "\""
+            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlExposeHeadersRawName] = \"" + exposedHeaders + "\""
         }
         if let maxAge:Int = maxAge {
-            logicDD += "\n$1.headers[HTTPField.Name.accessControlMaxAge.rawName] = \"" + String(maxAge) + "\""
+            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlMaxAgeRawName] = \"" + String(maxAge) + "\""
         }
         self.logic = { _, _ in }
         self.logicDebugDescription = logicDD + " }"
@@ -77,7 +76,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 
     @inlinable
     public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws -> Bool {
-        guard request.headers.has(HTTPField.Name.origin.rawName) else { return true }
+        guard request.headers.has(HTTPRequestHeader.originRawName) else { return true }
         try await logic(&request, &response)
         return true
     }
@@ -91,11 +90,11 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 public extension DynamicCORSMiddleware {
     static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased
-        var allowedHeaders:Set<HTTPField.Name> = [.accept, .authorization, .contentType, .origin]
+        var allowedHeaders:Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin]
         var allowedMethods:Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch]
         var allowCredentials:Bool = false
         var maxAge:Int? = 600
-        var exposedHeaders:Set<HTTPField.Name>? = nil
+        var exposedHeaders:Set<HTTPRequestHeader>? = nil
         for argument in function.arguments {
             switch argument.label!.text {
             case "allowedOrigin":
@@ -114,9 +113,7 @@ public extension DynamicCORSMiddleware {
                     }
                 }
             case "allowedHeaders":
-                allowedHeaders = Set(argument.expression.array!.elements.compactMap({
-                    HTTPField.Name(caseName: $0.expression.memberAccess!.declName.baseName.text)
-                }))
+                allowedHeaders = Set(argument.expression.array!.elements.compactMap({ HTTPRequestHeader(expr: $0.expression) }))
             case "allowedMethods":
                 allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequestMethod(expr: $0.expression) }))
             case "allowCredentials":
@@ -128,7 +125,7 @@ public extension DynamicCORSMiddleware {
                     maxAge = nil
                 }
             case "exposedHeaders":
-                guard let values:[HTTPField.Name] = argument.expression.array?.elements.compactMap({ HTTPField.Name(caseName: $0.expression.memberAccess!.declName.baseName.text) }) else { break }
+                guard let values:[HTTPRequestHeader] = argument.expression.array?.elements.compactMap({ HTTPRequestHeader(expr: $0.expression) }) else { break }
                 exposedHeaders = Set(values)
             default:
                 break

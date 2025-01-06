@@ -8,7 +8,7 @@
 import DestinyUtilities
 import HTTPTypes
 
-/// The default Router that handles middleware, routes and router groups.
+/// Default Router that handles middleware, routes and router groups.
 public struct Router : RouterProtocol {
     public let version:HTTPVersion
     public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]

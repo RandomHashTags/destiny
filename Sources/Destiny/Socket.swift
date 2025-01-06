@@ -9,8 +9,6 @@
 import Foundation
 #endif
 
-import DestinyUtilities
-
 // MARK: Socket
 public struct Socket : SocketProtocol, ~Copyable {    
     public static let bufferLength:Int = 1024

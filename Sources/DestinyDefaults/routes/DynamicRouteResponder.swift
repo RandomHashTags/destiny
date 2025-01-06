@@ -10,7 +10,7 @@ import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// The default Dynamic Route Responder that responds to dynamic routes.
+/// Default Dynamic Route Responder that responds to dynamic routes.
 public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]

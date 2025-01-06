@@ -11,7 +11,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticMiddleware
-/// The default Static Middleware which handles static & dynamic routes at compile time.
+/// Default Static Middleware which handles static & dynamic routes at compile time.
 public struct StaticMiddleware : StaticMiddlewareProtocol {
     public let handlesVersions:Set<HTTPVersion>?
     public let handlesMethods:Set<HTTPRequestMethod>?

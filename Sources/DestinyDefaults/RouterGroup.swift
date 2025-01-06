@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: RouterGroup
-/// The default Router Group that handles grouped routes.
+/// Default Router Group that handles grouped routes.
 public struct RouterGroup : RouterGroupProtocol {
     public let prefixEndpoints:[String]
     public let staticMiddleware:[StaticMiddlewareProtocol]

@@ -13,7 +13,7 @@ import Destiny
 import HTTPTypes
 import Logging
 
-let router:RouterProtocol = #router(
+let router:Router = #router(
     version: .v1_1,
     supportedCompressionAlgorithms: [],
     middleware: [

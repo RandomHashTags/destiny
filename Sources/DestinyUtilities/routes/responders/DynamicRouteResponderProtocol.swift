@@ -13,7 +13,7 @@ public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
     /// The indexes where the parameters are location in the `path`.
     var parameterPathIndexes : [Int] { get }
 
-    /// The default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
+    /// Default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
     var defaultResponse : DynamicResponseProtocol { get }
 
     /// Writes a response to the socket.
