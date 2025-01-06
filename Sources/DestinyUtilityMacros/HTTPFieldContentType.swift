@@ -5,7 +5,6 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 

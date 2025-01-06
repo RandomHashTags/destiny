@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 
 /// Default Router that handles middleware, routes and router groups.
 public struct Router : RouterProtocol {

@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 
 /// Default storage where Destiny handles dynamic routes.
 public struct DynamicResponses : CustomDebugStringConvertible, Sendable {

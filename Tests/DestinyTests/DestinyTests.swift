@@ -14,7 +14,7 @@ import Testing
 
 struct DestinyTests {
     @Test func memoryLayouts() {
-        //print(layout(for: HTTPResponse.Status.self))
+        //print(layout(for: RouteProtocol.self))
         //print("from: \(layout(for: Test1.self))")
         //print("to: \(layout(for: DynamicRoute.self))")
     }

@@ -9,8 +9,6 @@
 import FoundationEssentials
 #endif
 
-import HTTPTypes
-
 public enum RouteResponses {
 }
 

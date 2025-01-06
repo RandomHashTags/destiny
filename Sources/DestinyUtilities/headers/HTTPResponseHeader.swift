@@ -236,6 +236,7 @@ public extension HTTPResponseHeader {
     static let accessControlAllowMethodsRawName:String = get(.accessControlAllowMethods)
     static let accessControlExposeHeadersRawName:String = get(.accessControlExposeHeaders)
     static let accessControlMaxAgeRawName:String = get(.accessControlMaxAge)
+    static let contentTypeRawName:String = get(.contentType)
     static let varyRawName:String = get(.vary)
 }
 

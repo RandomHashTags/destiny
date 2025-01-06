@@ -5,7 +5,6 @@
 //  Created by Evan Anderson on 10/29/24.
 //
 
-import HTTPTypes
 import SwiftCompression
 
 /// Core Route protocol.

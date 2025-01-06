@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -15,7 +14,7 @@ import SwiftSyntaxMacros
 public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     public static let defaultOnError:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol, _ error: Error) async -> Void = { request, response, error in
         response.status = .internalServerError
-        response.headers[HTTPField.Name.contentType.rawName] = HTTPMediaTypes.Application.json.httpValue
+        response.headers[HTTPResponseHeader.contentTypeRawName] = HTTPMediaTypes.Application.json.httpValue
         response.result = .string("{\"error\":true,\"reason\":\"\(error)\"}")
     }
 

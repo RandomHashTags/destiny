@@ -5,17 +5,6 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
-#if canImport(Glibc)
-import Glibc
-#elseif canImport(Musl)
-import Musl
-#elseif canImport(Darwin)
-import Darwin
-#else
-#warning("DynamicDateMiddleware currently not supported for your platform; request support at https://github.com/RandomHashTags/destiny/discussions/new?category=request-feature")
-// TODO: support
-#endif
-
 import DestinyUtilities
 import Logging
 import ServiceLifecycle
@@ -62,56 +51,11 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
 
     @usableFromInline
     func update() {
-        #if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
-        updateGlibc()
-        #endif
-    }
-
-    @inlinable
-    func httpDate<T: BinaryInteger>(year: T, month: T, day: T, dayOfWeek: T, hour: T, minute: T, second: T) -> String {
-        return httpDayName(dayOfWeek) + ", "
-            + httpDateNumber(day) + " "
-            + httpMonthName(month) + " "
-            + String(year) + " "
-            + httpDateNumber(hour) + ":" + httpDateNumber(minute) + ":" + httpDateNumber(second)
-            + " GMT"
-    }
-    @inlinable
-    func httpDayName<T: BinaryInteger>(_ int: T) -> String {
-        switch int {
-        case 0:  return "Sun"
-        case 1:  return "Mon"
-        case 2:  return "Tue"
-        case 3:  return "Wed"
-        case 4:  return "Thu"
-        case 5:  return "Fri"
-        default: return "Sat"
+        guard let string:String = HTTPDateFormat.now() else {
+            Application.shared.logger.warning(Logger.Message(stringLiteral: "[DynamicDateMiddleware] Failed to update value"))
+            return
         }
-    }
-    @inlinable
-    func httpMonthName<T: BinaryInteger>(_ int: T) -> String {
-        switch int {
-        case 0:  return "Jan"
-        case 1:  return "Feb"
-        case 2:  return "Mar"
-        case 3:  return "Apr"
-        case 4:  return "May"
-        case 5:  return "Jun"
-        case 6:  return "Jul"
-        case 7:  return "Aug"
-        case 8:  return "Sep"
-        case 9:  return "Oct"
-        case 10: return "Nov"
-        default: return "Dec"
-        }
-    }
-    @inlinable
-    func httpDateNumber<T: BinaryInteger>(_ int: T) -> String {
-        if int < 10 {
-            return "0" + String(int)
-        } else {
-            return String(int)
-        }
+        _date = string
     }
 
     @inlinable
@@ -131,22 +75,3 @@ public extension DynamicDateMiddleware {
         return Self()
     }
 }
-
-#if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
-// MARK: Glibc
-extension DynamicDateMiddleware {
-    @inlinable
-    func updateGlibc() {
-        var now:time_t = time(nil)
-        guard let gmt:UnsafeMutablePointer<tm> = gmtime(&now) else {
-            Application.shared.logger.warning(Logger.Message(stringLiteral: "[DynamicDateMiddleware] Failed to convert epoch time to GMT"))
-            return
-        }
-        _date = httpDateGlibc(gmt.pointee)
-    }
-    @inlinable
-    func httpDateGlibc(_ gmt: tm) -> String {
-        return httpDate(year: 1900 + gmt.tm_year, month: gmt.tm_mon, day: gmt.tm_mday, dayOfWeek: gmt.tm_wday, hour: gmt.tm_hour, minute: gmt.tm_min, second: gmt.tm_sec)
-    }
-}
-#endif
