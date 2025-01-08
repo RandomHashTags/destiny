@@ -18,7 +18,7 @@ public enum ClientProcessing {
         client: Int32,
         socket: borrowing C,
         logger: Logger,
-        router: borrowing RouterProtocol
+        router: RouterProtocol
     ) async throws {
         defer {
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
@@ -42,7 +42,7 @@ public enum ClientProcessing {
     static func respond<C: SocketProtocol & ~Copyable>(
         socket: borrowing C,
         request: inout RequestProtocol,
-        router: borrowing RouterProtocol
+        router: RouterProtocol
     ) async throws -> Bool {
         if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
             try await staticResponse(socket: socket, responder: responder)
@@ -82,7 +82,7 @@ public enum ClientProcessing {
     @inlinable
     static func dynamicResponse<C: SocketProtocol & ~Copyable>(
         socket: borrowing C,
-        router: borrowing RouterProtocol,
+        router: RouterProtocol,
         request: inout RequestProtocol,
         responder: DynamicRouteResponderProtocol
     ) async throws {

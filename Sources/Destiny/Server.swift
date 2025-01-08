@@ -23,7 +23,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
     public let backlog:Int32
     public let reuseAddress:Bool
     public let noTCPDelay:Bool
-    public var router:RouterProtocol
+    public let router:RouterProtocol
     public let logger:Logger
     public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
     public let onLoad:(@Sendable () -> Void)?
@@ -33,7 +33,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         address: String? = nil,
         port: UInt16,
         backlog: Int32 = SOMAXCONN,
-        router: consuming RouterProtocol,
+        router: RouterProtocol,
         logger: Logger,
         commands: [ParsableCommand.Type] = [
             StopCommand.self
@@ -132,7 +132,14 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
             for index in router.dynamicMiddleware.indices {
                 router.dynamicMiddleware[index].load()
             }
-            await processClients(serverFD: serverFD)
+            processClients(serverFD: serverFD)
+            let duration:Duration = .seconds(5)
+            while !Task.isCancelled && !Task.isShuttingDownGracefully {
+                do {
+                    try await Task.sleep(for: duration)
+                } catch {
+                }
+            }
         } onCancelOrGracefulShutdown: {
             self.onShutdown?()
             close(serverFD)
@@ -201,11 +208,11 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
 // MARK: Process clients
 extension Server where ClientSocket : ~Copyable {
     @inlinable
-    func processClients(serverFD: Int32) async {
+    func processClients(serverFD: Int32) {
         let function:(Int32) throws -> Int32 = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
-        await processClientsOLD(serverFD: serverFD, acceptClient: function)
+        //await processClientsOLD(serverFD: serverFD, acceptClient: function)
         //await processClientsPoll(serverFD: serverFD, acceptClient: function)
-        //await processClientsEpoll(serverFD: serverFD, acceptClient: function)
+        let _:ClientSocket? = processClientsEpoll(serverFD: serverFD, acceptClient: function, router: router)
     }
 
     @inlinable

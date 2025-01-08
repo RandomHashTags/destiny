@@ -6,7 +6,7 @@
 //
 
 /// Core Router protocol that handles middleware, routes and router groups.
-public protocol RouterProtocol : Sendable, ~Copyable {
+public protocol RouterProtocol : AnyObject, Sendable {
     /// All the dynamic middleware that is registered to this router. Ordered in descending order of importance.
     var dynamicMiddleware : [DynamicMiddlewareProtocol] { get set }
 
@@ -46,7 +46,7 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     /// - Parameters:
     ///   - route: The static route you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    mutating func register(_ route: StaticRouteProtocol, override: Bool) throws
+    func register(_ route: StaticRouteProtocol, override: Bool) throws
 
     /// Registers a dynamic route with its responder to this router.
     /// 
@@ -54,15 +54,15 @@ public protocol RouterProtocol : Sendable, ~Copyable {
     ///   - route: The dynamic route you want to register.
     ///   - responder: The dynamic responder you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool) throws
+    func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool) throws
 
     /// Registers a static middleware at the given index to this router.
-    mutating func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws
+    func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws
 
     /// Registers a dynamic middleware at the given index to this router.
-    mutating func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws
+    func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws
 
 
     /// Registers a static route with the GET HTTP method to this router.
-    //mutating func get(_ path: [String], responder: RouteResponderProtocol) throws
+    //func get(_ path: [String], responder: RouteResponderProtocol) throws
 }

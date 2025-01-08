@@ -8,7 +8,7 @@
 import DestinyUtilities
 
 /// Default Router that handles middleware, routes and router groups.
-public struct Router : RouterProtocol {
+public final class Router : RouterProtocol {
     public let version:HTTPVersion
     public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]
     public private(set) var dynamicResponses:DynamicResponses
@@ -95,7 +95,7 @@ public struct Router : RouterProtocol {
         }
     }
 
-    public mutating func register(_ route: StaticRouteProtocol, override: Bool = false) throws {
+    public func register(_ route: StaticRouteProtocol, override: Bool = false) throws {
         guard let responder:StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
         var string:String = route.startLine
         let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
@@ -105,16 +105,16 @@ public struct Router : RouterProtocol {
             // TODO: throw error
         }
     }
-    public mutating func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool = false) throws {
+    public func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool = false) throws {
         var copy:DynamicRouteProtocol = route
         copy.applyStaticMiddleware(staticMiddleware)
         try dynamicResponses.register(version: copy.version, route: copy, responder: responder, override: override)
     }
-    public mutating func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws {
+    public func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws {
         staticMiddleware.insert(middleware, at: index)
         // TODO: update existing routes?
     }
-    public mutating func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws {
+    public func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws {
         dynamicMiddleware.insert(middleware, at: index)
         // TODO: update existing routes?
     }

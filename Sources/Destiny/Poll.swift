@@ -25,7 +25,7 @@ extension Server where ClientSocket : ~Copyable {
                     let client:Int32 = try acceptClient(serverFD)
                     clients.append(pollfd(fd: client, events: Int16(POLLIN), revents: 0))
                 } catch {
-                    self.logger.warning(Logger.Message(stringLiteral: "Encountered error accepting client: \(error)"))
+                    self.logger.warning(Logger.Message(stringLiteral: "[Poll] Encountered error accepting client: \(error)"))
                 }
             }
             for i in 1..<clients.count {
