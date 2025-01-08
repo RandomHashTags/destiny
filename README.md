@@ -36,6 +36,7 @@ Many protocols only require the bare minimum to work as intended so the implemen
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
 - [ ] Optimal Memory Layout for stored objects
+- [ ] Better handling of clients to unlock more throughput
 
 ### TODO
 
@@ -49,7 +50,7 @@ Many protocols only require the bare minimum to work as intended so the implemen
 - [ ] Authentication
 - [ ] TLS/SSL
 - [ ] Web Sockets
-- [ ] Better handling of clients to unlock more throughput
+- [ ] Native load balancing & clustering
 - [ ] Support custom middleware & routes in default `#router`
 - [ ] Support third-party macro expansions in `#router`
 - [ ] CSS & JavaScript minification (separate repo?)
@@ -94,6 +95,28 @@ Assigns the maximum pending connections the server can queue.
 
 - Aliases: `b`
 - Usage: `--backlog <max pending connections>`
+
+</details>
+
+<details>
+
+<summary>reuseaddress</summary>
+
+Allows the server to reuse the address if its in a TIME_WAIT state, avoiding "address already in use" errors when restarting quickly.
+
+- Aliases: `r`
+- Usage: `--reuseaddress <true | false>`
+
+</details>
+
+<details>
+
+<summary>tcpnodelay</summary>
+
+Disables Nagle's algorithm, which buffers small packets before sending them, to improve latency for real-time applications.
+
+- Aliases: `tcpnd`
+- Usage: `--tcpnodelay <true | false>`
 
 </details>
 

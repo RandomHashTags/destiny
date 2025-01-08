@@ -36,6 +36,24 @@ public struct BootCommands : ParsableCommand {
     )
     public var backlog:Int32?
 
+    @Option(
+        name: .init([
+            .customLong("reuseaddress"),
+            .customShort("r")
+        ]),
+        help: "Allows the server to reuse the address if its in a TIME_WAIT state, avoiding \"address already in use\" errors when restarting quickly."
+    )
+    public var reuseaddress:Bool = true
+
+    @Option(
+        name: .init([
+            .customLong("tcpnodelay"),
+            .customLong("tcpnd", withSingleDash: true)
+        ]),
+        help: "Disables Nagle's algorithm, which buffers small packets before sending them, to improve latency for real-time applications."
+    )
+    public var tcpnodelay:Bool = true
+
     public init() {
     }
 }

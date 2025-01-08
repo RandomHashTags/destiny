@@ -92,3 +92,7 @@ let package = Package(
         ),
     ]
 )
+
+#if os(Linux)
+package.dependencies.append(.package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"))
+#endif

@@ -20,7 +20,7 @@ public struct Socket : SocketProtocol, ~Copyable {
     }
 }
 
-// MARK: Socket reading
+// MARK: Reading
 public extension Socket {
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
@@ -119,7 +119,7 @@ public extension Socket {
     }
 }
 
-// MARK: Socket writing
+// MARK: Writing
 public extension Socket {
     @inlinable
     func writeSIMD<T: SIMD>(_ simd: inout T) throws where T.Scalar: BinaryInteger {
