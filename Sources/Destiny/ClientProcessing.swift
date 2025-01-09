@@ -20,11 +20,21 @@ public enum ClientProcessing {
         logger: Logger,
         router: RouterProtocol
     ) async throws {
+        guard var request:RequestProtocol = try socket.loadRequest() else { return }
+        try await process(client: client, socket: socket, request: &request, logger: logger, router: router)
+    }
+    @inlinable
+    static func process<C: SocketProtocol & ~Copyable>(
+        client: Int32,
+        socket: borrowing C,
+        request: inout RequestProtocol,
+        logger: Logger,
+        router: RouterProtocol
+    ) async throws {
         defer {
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
         }
-        var request:RequestProtocol = try socket.loadRequest()
         #if DEBUG
         logger.info(Logger.Message(stringLiteral: request.startLine.stringSIMD()))
         #endif

@@ -33,18 +33,21 @@ public extension Socket {
     }
 
     @inlinable
-    func loadRequest() throws -> RequestProtocol {
+    func loadRequest() throws -> (RequestProtocol)? {
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
             let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD(length: 64)
-            if read == 0 {
+            if read <= 0 {
                 break
             }
             test.append(line)
             if read < 64 {
                 break
             }
+        }
+        if test.isEmpty {
+            return nil
         }
         guard let request:Request = Request.init(tokens: test) else {
             throw SocketError.malformedRequest
@@ -68,11 +71,8 @@ public extension Socket {
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
             let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
             if read < 0 { // error
-                #if canImport(Foundation)
-                throw SocketError.readBufferFailed(cerror())
-                #else
-                throw SocketError.readBufferFailed()
-                #endif
+                try handleReadError()
+                break
             } else if read == 0 { // end of file
                 break
             }
@@ -90,11 +90,8 @@ public extension Socket {
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
             let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
             if read < 0 { // error
-                #if canImport(Foundation)
-                throw SocketError.readBufferFailed(cerror())
-                #else
-                throw SocketError.readBufferFailed()
-                #endif
+                try handleReadError()
+                break
             } else if read == 0 { // end of file
                 break
             }
@@ -109,13 +106,21 @@ public extension Socket {
         if Task.isCancelled { return 0 }
         let read:Int = recv(fileDescriptor, baseAddress, length, 0)
         if read < 0 { // error
-            #if canImport(Foundation)
-            throw SocketError.readBufferFailed(cerror())
-            #else
-            throw SocketError.readBufferFailed()
-            #endif
+            try handleReadError()
         }
         return read
+    }
+
+    @inlinable
+    func handleReadError() throws {
+        if errno == EAGAIN || errno == EWOULDBLOCK {
+            return
+        }
+        #if canImport(Foundation)
+        throw SocketError.readBufferFailed(cerror())
+        #else
+        throw SocketError.readBufferFailed()
+        #endif
     }
 }
 

@@ -39,11 +39,20 @@ public struct BootCommands : ParsableCommand {
     @Option(
         name: .init([
             .customLong("reuseaddress"),
-            .customShort("r")
+            .customLong("ra", withSingleDash: true)
         ]),
         help: "Allows the server to reuse the address if its in a TIME_WAIT state, avoiding \"address already in use\" errors when restarting quickly."
     )
     public var reuseaddress:Bool = true
+
+    @Option(
+        name: .init([
+            .customLong("reuseport"),
+            .customLong("rp", withSingleDash: true)
+        ]),
+        help: "Allows multiple processes to bind to the same port, avoiding contention on a single socket, while enabling load balancing at the kernel level."
+    )
+    public var reuseport:Bool = true
 
     @Option(
         name: .init([

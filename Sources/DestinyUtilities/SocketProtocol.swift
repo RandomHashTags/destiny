@@ -19,7 +19,7 @@ public protocol SocketProtocol : ~Copyable {
     init(fileDescriptor: Int32)
 
     /// Loads the bare minimum data required to process a request.
-    @inlinable func loadRequest() throws -> any RequestProtocol
+    @inlinable func loadRequest() throws -> (any RequestProtocol)?
 
     /// Reads a buffer from the socket.
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws -> Int

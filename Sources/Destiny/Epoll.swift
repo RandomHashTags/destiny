@@ -16,14 +16,15 @@ extension Server where ClientSocket : ~Copyable {
     @inlinable
     func processClientsEpoll<C: SocketProtocol & ~Copyable>(
         serverFD: Int32,
+        threads: Int,
         acceptClient: @escaping (Int32) throws -> Int32,
         router: RouterProtocol
     ) -> C? {
         setNonBlocking(socket: serverFD)
         let maxEvents:Int = 64
         do {
-            let processor:EpollProcessor = try EpollProcessor(threads: 4, maxEvents: maxEvents)
-            let _:C? = processor.beginAccepting(timeout: 1000, router: router, acceptClient: acceptClient)
+            let processor:EpollProcessor = try EpollProcessor(serverFD: serverFD, threads: threads, maxEvents: maxEvents)
+            let _:C? = processor.beginAccepting(timeout: -1, router: router, acceptClient: acceptClient)
         } catch {
             print("epoll;processClientsEpoll;broken")
         }
@@ -44,17 +45,20 @@ extension Server where ClientSocket : ~Copyable {
 }
 
 final class Epoll {
+    private let serverFD:Int32
     private let fileDescriptor:Int32
     private var events:[epoll_event]
     let logger:Logger
 
-    init(thread: Int, maxEvents: Int) throws {
+    init(serverFD: Int32, thread: Int, maxEvents: Int) throws {
+        self.serverFD = serverFD
         fileDescriptor = epoll_create1(0)
         if fileDescriptor == -1 {
             throw EpollError.epollCreateFailed
         }
         events = .init(repeating: epoll_event(), count: maxEvents)
-        logger = Logger(label: "destiny.epoll.thread\(thread)")
+        logger = Logger(label: "destiny.epoll.\(serverFD).thread\(thread)")
+        try add(client: serverFD, event: EPOLLIN.rawValue)
         setNonBlocking(socket: fileDescriptor)
     }
 
@@ -84,44 +88,50 @@ final class Epoll {
         }
     }
 
-    func wait(timeout: Int32 = -1, acceptClient: (Int32) throws -> Int32) throws -> [Int32] {
-        let loadClients:Int32 = epoll_wait(fileDescriptor, &events, Int32(events.count), timeout)
-        if loadClients == -1 {
+    func wait(timeout: Int32 = -1, acceptClient: (_ serverFD: Int32) throws -> Int32) throws -> [Int32] {
+        let loadedClients:Int32 = epoll_wait(fileDescriptor, &events, Int32(events.count), timeout)
+        if loadedClients == -1 {
             throw EpollError.waitFailed
+        } else if loadedClients == 0 {
+            return []
         }
-        logger.notice(Logger.Message(stringLiteral: "Epoll;wait;loadClients=\(loadClients)"))
-        var clients:[Int32] = .init(repeating: -1, count: Int(loadClients))
-        for i in 0..<loadClients {
-            logger.notice(Logger.Message(stringLiteral: "Epoll;wait;i=\(i)"))
-            let client:Int32 = try acceptClient(events[Int(i)].data.fd)
-            do {
-                try add(client: client, event: EPOLLIN.rawValue)
-                setNonBlocking(socket: client)
-                clients[Int(i)] = client
-                logger.notice(Logger.Message(stringLiteral: "accepted client"))
-            } catch {
-                logger.warning(Logger.Message(stringLiteral: "Encountered error tring to add accepted client to epoll: \(error)"))
-                close(client)
+        var clients:[Int32] = []
+        for i in 0..<loadedClients {
+            let event:epoll_event = events[Int(i)]
+            if event.data.fd == serverFD {
+                if event.events & EPOLLIN.rawValue != 0 {
+                    do {
+                        let client:Int32 = try acceptClient(serverFD)
+                        setNonBlocking(socket: client)
+                        do {
+                            try add(client: client, event: EPOLLIN.rawValue)
+                            clients.append(client)
+                        } catch {
+                            logger.warning(Logger.Message(stringLiteral: "Encountered error trying to add accepted client to epoll: \(error) (errno=\(errno))"))
+                            closeSocket(client, name: "accepted client")
+                        }
+                    } catch {
+                        logger.warning(Logger.Message(stringLiteral: "Encountered error trying to accept client (\(event.data.fd)): \(error) (errno=\(errno))"))
+                    }
+                } else if event.events & EPOLLHUP.rawValue != 0 {
+                    closeSocket(event.data.fd, name: "client disconnected")
+                } else if event.events & EPOLLERR.rawValue != 0 {
+                    closeSocket(event.data.fd, name: "client's socket errored")
+                }
             }
         }
         return clients
     }
 
-    func waitForEvents(timeout: Int32 = -1, acceptClient: @escaping (Int32) throws -> Int32) async throws -> [Int32] {
-        return try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.global().async {
-                do {
-                    let clients:[Int32] = try self.wait(timeout: timeout, acceptClient: acceptClient)
-                    continuation.resume(returning: clients)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
+    func closeSocket(_ socket: Int32, name: String) {
+        let closed:Int32 = close(socket)
+        if closed < 0 {
+            logger.warning(Logger.Message(stringLiteral: "Failed to close socket with name: \(name) (errno=\(errno))"))
         }
     }
 
     deinit {
-        close(fileDescriptor)
+        closeSocket(fileDescriptor, name: "Epoll fileDescriptor")
     }
 }
 
@@ -131,12 +141,12 @@ final class EpollProcessor {
     private var instances:[Epoll]
 
     @usableFromInline
-    init(threads: Int, maxEvents: Int = 64) throws {
+    init(serverFD: Int32, threads: Int, maxEvents: Int = 64) throws {
         self.threads = threads
         var instances:[Epoll] = []
         instances.reserveCapacity(threads)
         for i in 0..<threads {
-            instances.append(try Epoll(thread: i, maxEvents: maxEvents))
+            instances.append(try Epoll(serverFD: serverFD, thread: i, maxEvents: maxEvents))
         }
         self.instances = instances
     }
@@ -170,18 +180,16 @@ final class EpollProcessor {
             do {
                 let clients:[Int32] = try instance.wait(timeout: timeout, acceptClient: acceptClient)
                 for client in clients {
-                    print("bro")
-                    do {
-                        try instance.remove(client: client)
-                    } catch {
-                        instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
-                    }
-                    print("client=\(client)")
                     Task {
                         do {
+                            do {
+                                try instance.remove(client: client)
+                            } catch {
+                                instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
+                            }
                             try await ClientProcessing.process(
                                 client: client,
-                                socket: C(fileDescriptor: client),
+                                socket: C.init(fileDescriptor: client),
                                 logger: instance.logger,
                                 router: router
                             )

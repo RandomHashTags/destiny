@@ -18,7 +18,7 @@ let package = Package(
 
         .package(url: "https://github.com/swift-server/async-http-client", from: "1.23.1"),
 
-        .package(name: "destiny", path: "../"),
+        //.package(name: "destiny", path: "../"),
         .package(url: "https://github.com/vapor/vapor", exact: "4.106.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.6.1")
     ],
@@ -45,7 +45,7 @@ let package = Package(
         .target(
             name: "TestDestiny",
             dependencies: [
-                .product(name: "Destiny", package: "destiny")
+                //.product(name: "Destiny", package: "destiny")
             ],
             path: "Benchmarks/Destiny"
         ),

@@ -104,8 +104,19 @@ Assigns the maximum pending connections the server can queue.
 
 Allows the server to reuse the address if its in a TIME_WAIT state, avoiding "address already in use" errors when restarting quickly.
 
-- Aliases: `r`
+- Aliases: `ra`
 - Usage: `--reuseaddress <true | false>`
+
+</details>
+
+<details>
+
+<summary>reuseport</summary>
+
+Allows multiple processes to bind to the same port, avoiding contention on a single socket, while enabling load balancing at the kernel level.
+
+- Aliases: `rp`
+- Usage: `--reuseport <true | false>`
 
 </details>
 
