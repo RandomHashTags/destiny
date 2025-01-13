@@ -9,92 +9,97 @@ public extension HTTPMediaTypes {
     #HTTPFieldContentType(
         category: "application",
         values: [
-            "calendarJSON" : "calendar+json",
-            "calendarXML" : "calendar+xml",
+            "calendarJSON" : .init("calendar+json"),
+            "calendarXML" : .init("calendar+xml"),
 
-            "dns" : "",
-            "dnsJSON" : "dns+json",
-            "dnsMessage" : "dns-message",
+            "dns" : .init(""),
+            "dnsJSON" : .init("dns+json"),
+            "dnsMessage" : .init("dns-message"),
 
-            "example" : "",
-            "excel" : "vnd.ms-excel",
+            "example" : .init(""),
+            "excel" : .init("vnd.ms-excel"),
 
-            "geoJSON" : "geo+json",
-            "geoJSONSeq" : "geo+json-seq",
-            "gzip" : "",
+            "geoJSON" : .init("geo+json", fileExtensions: ["geojson"]),
+            "geoJSONSeq" : .init("geo+json-seq"),
+            "gzip" : .init("", fileExtensions: ["gz"]),
 
-            "index" : "",
+            "http" : .init(""),
 
-            "json" : "",
-            "jsonPatchJSON" : "json-patch+json",
-            "jsonSeq" : "json-seq",
-            "jsonpath" : "",
-            "jwkJSON" : "jwk+json",
-            "jwkSetJSON" : "jwk-set+json",
-            "jwkSetJWT" : "jwk-set+jwt",
-            "jwt" : "",
+            "index" : .init(""),
 
-            "ldJSON" : "ld+json",
+            "json" : .init("", fileExtensions: ["json"]),
+            "jsonPatchJSON" : .init("json-patch+json", fileExtensions: ["json-patch"]),
+            "jsonSeq" : .init("json-seq"),
+            "jsonpath" : .init(""),
+            "jwkJSON" : .init("jwk+json"),
+            "jwkSetJSON" : .init("jwk-set+json"),
+            "jwkSetJWT" : .init("jwk-set+jwt"),
+            "jwt" : .init(""),
 
-            "manifestJSON" : "manifest+json",
-            "mp4" : "",
-            "msword" : "",
-            "nasdata" : "",
-            "node" : "",
-            "nss" : "",
+            "ldJSON" : .init("ld+json", fileExtensions: ["jsonld"]),
 
-            "ogg" : "",
+            "manifestJSON" : .init("manifest+json"),
+            "mp4" : .init("", fileExtensions: ["mp4"]),
+            "msword" : .init(""),
+            "nasdata" : .init(""),
+            "node" : .init(""),
+            "nss" : .init(""),
 
-            "pdf" : "",
-            "pdx" : "PDX",
-            "pemCertificateChain" : "pem-certificate-chain",
-            "pgpEncrypted" : "php-encrypted",
-            "pgpKeys" : "pgp-keys",
-            "pgpSignature" : "pgp-signature",
-            "portableExecutable" : "vnd.microsoft.portable-executable",
-            "powerpoint" : "vnd.ms-powerpoint",
+            "ogg" : .init(""),
 
-            "rtf" : "",
-            "rtploopback" : "",
-            "rtx" : "",
+            "pdf" : .init("", fileExtensions: ["pdf"]),
+            "pdx" : .init("PDX"),
+            "pemCertificateChain" : .init("pem-certificate-chain"),
+            "pgpEncrypted" : .init("php-encrypted"),
+            "pgpKeys" : .init("pgp-keys"),
+            "pgpSignature" : .init("pgp-signature"),
+            "portableExecutable" : .init("vnd.microsoft.portable-executable"),
+            "powerpoint" : .init("vnd.ms-powerpoint"),
 
-            "sql" : "",
+            "rtf" : .init("", fileExtensions: ["rtf"]),
+            "rtploopback" : .init(""),
+            "rtx" : .init(""),
 
-            "adobeFlashMovie" : "vnd.adobe.flash.movie",
-            "appleInstallerXML" : "vnd.apple.installer+xml",
-            "appleKeynote" : "vnd.apple.keynote",
-            "appleMpegURL" : "vnd.apple.mpegurl",
-            "appleNumbers" : "vnd.apple.numbers",
-            "applePages" : "vnd.apple.pages",
+            "sql" : .init("", fileExtensions: ["sql"]),
 
-            "curl" : "vnd.curl",
+            "vc" : .init("", fileExtensions: ["vc"]),
 
-            "dart" : "vnd.dart",
-            "dna" : "vnd.dna",
+            "adobeFlashMovie" : .init("vnd.adobe.flash.movie", fileExtensions: ["swf"]),
+            "appleInstallerXML" : .init("vnd.apple.installer+xml", fileExtensions: ["dist", "distz", "pkg", "mpkg"]),
+            "appleKeynote" : .init("vnd.apple.keynote", fileExtensions: ["key"]),
+            "appleMpegURL" : .init("vnd.apple.mpegurl", fileExtensions: ["m3u8", "m3u"]),
+            "appleNumbers" : .init("vnd.apple.numbers", fileExtensions: ["numbers"]),
+            "applePages" : .init("vnd.apple.pages", fileExtensions: ["pages"]),
 
-            "herokuJSON" : "vnd.heroku+json",
+            "chessPGN" : .init("vnd.chess-pgn", fileExtensions: ["pgn"]),
+            "curl" : .init("vnd.curl"),
 
-            "kahootz" : "vnd.kahootz",
+            "dart" : .init("vnd.dart"),
+            "dna" : .init("vnd.dna", fileExtensions: ["dna"]),
 
-            "rar" : "vnd.rar",
+            "herokuJSON" : .init("vnd.heroku+json"),
 
-            "wasm" : "",
+            "kahootz" : .init("vnd.kahootz"),
 
-            "xwwwFormURLEncoded" : "x-www-form-urlencoded",
-            "xx509CACert" : "x-x509-ca-cert",
-            "xx509CARACert" : "x-x509-ca-ra-cert",
-            "xx509NextCACert" : "x-x509-next-ca-cert",
+            "rar" : .init("vnd.rar", fileExtensions: ["rar"]),
 
-            "xml" : "",
-            "xGoogleProtobuf" : "x-google-protobuf",
-            "xProtobuf" : "x-protobuf",
+            "wasm" : .init("", fileExtensions: ["wasm"]),
 
-            "yaml" : "",
-            "yang" : "",
+            "xwwwFormURLEncoded" : .init("x-www-form-urlencoded"),
+            "xx509CACert" : .init("x-x509-ca-cert"),
+            "xx509CARACert" : .init("x-x509-ca-ra-cert"),
+            "xx509NextCACert" : .init("x-x509-next-ca-cert"),
 
-            "zip" : "",
-            "zlib" : "",
-            "zstd" : ""
+            "xml" : .init("", fileExtensions: ["xml"]),
+            "xGoogleProtobuf" : .init("x-google-protobuf"),
+            "xProtobuf" : .init("x-protobuf"),
+
+            "yaml" : .init("", fileExtensions: ["yaml", "yml"]),
+            "yang" : .init("", fileExtensions: ["yang"]),
+
+            "zip" : .init("", fileExtensions: ["zip"]),
+            "zlib" : .init(""),
+            "zstd" : .init("", fileExtensions: ["zst"])
         ]
     )
 }

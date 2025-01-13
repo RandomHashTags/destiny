@@ -9,9 +9,12 @@ public extension HTTPMediaTypes {
     #HTTPFieldContentType(
         category: "audio",
         values: [
-            "mpeg" : "",
+            "aac" : .init("", fileExtensions: ["aac"]),
 
-            "ogg" : ""
+            "mp4" : .init("", fileExtensions: ["mp4"]),
+            "mpeg" : .init("", fileExtensions: ["mpeg"]),
+
+            "ogg" : .init("", fileExtensions: ["ogg"])
         ]
     )
 }

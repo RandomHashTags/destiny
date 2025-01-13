@@ -11,63 +11,65 @@
 /// Additional Media Types
 /// - xGoogleProtobuf & xProtobuf: Protocol Buffers (https://protobuf.dev/)
 public enum HTTPMediaTypes {
+    @inlinable
     public static func parse(_ string: String) -> (any HTTPMediaTypeProtocol)? {
-        if let media:Application = Application(rawValue: string) {
+        if let media:Application = Application(rawValue: string) ?? Application(fileExtension: string) {
             return media
         }
-        if let media:Font = Font(rawValue: string) {
+        if let media:Font = Font(rawValue: string) ?? Font(fileExtension: string) {
             return media
         }
-        if let media:Haptics = Haptics(rawValue: string) {
+        if let media:Haptics = Haptics(rawValue: string) ?? Haptics(fileExtension: string) {
             return media
         }
-        if let media:Image = Image(rawValue: string) {
+        if let media:Image = Image(rawValue: string) ?? Image(fileExtension: string) {
             return media
         }
-        if let media:Message = Message(rawValue: string) {
+        if let media:Message = Message(rawValue: string) ?? Message(fileExtension: string) {
             return media
         }
-        if let media:Model = Model(rawValue: string) {
+        if let media:Model = Model(rawValue: string) ?? Model(fileExtension: string) {
             return media
         }
-        if let media:Multipart = Multipart(rawValue: string) {
+        if let media:Multipart = Multipart(rawValue: string) ?? Multipart(fileExtension: string) {
             return media
         }
-        if let media:Text = Text(rawValue: string) {
+        if let media:Text = Text(rawValue: string) ?? Text(fileExtension: string) {
             return media
         }
-        if let media:Video = Video(rawValue: string) {
+        if let media:Video = Video(rawValue: string) ?? Video(fileExtension: string) {
             return media
         }
         return nil
     }
 
+    @inlinable
     public static func parse(_ string: String) -> HTTPMediaType? {
-        if let media:Application = Application(rawValue: string) {
+        if let media:Application = Application(rawValue: string) ?? Application(fileExtension: string) {
             return media.structure
         }
-        if let media:Font = Font(rawValue: string) {
+        if let media:Font = Font(rawValue: string) ?? Font(fileExtension: string) {
             return media.structure
         }
-        if let media:Haptics = Haptics(rawValue: string) {
+        if let media:Haptics = Haptics(rawValue: string) ?? Haptics(fileExtension: string) {
             return media.structure
         }
-        if let media:Image = Image(rawValue: string) {
+        if let media:Image = Image(rawValue: string) ?? Image(fileExtension: string) {
             return media.structure
         }
-        if let media:Message = Message(rawValue: string) {
+        if let media:Message = Message(rawValue: string) ?? Message(fileExtension: string) {
             return media.structure
         }
-        if let media:Model = Model(rawValue: string) {
+        if let media:Model = Model(rawValue: string) ?? Model(fileExtension: string) {
             return media.structure
         }
-        if let media:Multipart = Multipart(rawValue: string) {
+        if let media:Multipart = Multipart(rawValue: string) ?? Multipart(fileExtension: string) {
             return media.structure
         }
-        if let media:Text = Text(rawValue: string) {
+        if let media:Text = Text(rawValue: string) ?? Text(fileExtension: string) {
             return media.structure
         }
-        if let media:Video = Video(rawValue: string) {
+        if let media:Video = Video(rawValue: string) ?? Video(fileExtension: string) {
             return media.structure
         }
         return nil

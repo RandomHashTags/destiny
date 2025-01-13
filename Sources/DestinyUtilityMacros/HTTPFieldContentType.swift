@@ -12,12 +12,13 @@ enum HTTPFieldContentType : DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var cases:[String] = []
         var httpValues:[String] = []
+        var fileExtensions:[String:String] = [:]
         var category:String = ""
         for argument in node.arguments.children(viewMode: .all) {
             if let child:LabeledExprSyntax = argument.as(LabeledExprSyntax.self) {
                 switch child.label!.text {
                     case "category": category = child.expression.stringLiteral!.string
-                    case "values": parse_and_insert(category: category, expr: child.expression, cases: &cases, httpValues: &httpValues)
+                    case "values": parse_and_insert(category: category, expr: child.expression, cases: &cases, httpValues: &httpValues, fileExtensions: &fileExtensions)
                     default: break
                 }
             }
@@ -26,6 +27,7 @@ enum HTTPFieldContentType : DeclarationMacro {
         var cases_string:String = ""
         var debugDescriptions:String = "        // MARK: DebugDescription\n        public var debugDescription : String {\n            switch self {"
         var httpValuesString:String = "        // MARK: HTTP Value\n        public var httpValue : String {\n            switch self {"
+        
         var decls:[DeclSyntax] = []
         for (index, value) in cases.enumerated() {
             cases_string += "        case \(value)\n"
@@ -34,8 +36,15 @@ enum HTTPFieldContentType : DeclarationMacro {
         }
         debugDescriptions += "}\n        }"
         httpValuesString += "}\n        }"
+
+        var fileExtensionString:String = "        // MARK: Init File Extension\n        public init?(fileExtension: String) {\n            switch fileExtension {"
+        for (fileExtension, targetCase) in fileExtensions {
+            fileExtensionString += "\ncase \"\(fileExtension)\": self = .\(targetCase)"
+        }
+        fileExtensionString += "\ndefault: return nil\n}\n        }\n"
         decls.append("\(raw: "enum \(categoryCapitalized) : String, HTTPMediaTypeProtocol {\n")")
         decls.append("\(raw: cases_string)")
+        decls.append("\(raw: fileExtensionString)")
         decls.append("\(raw: debugDescriptions)")
         decls.append("\(raw: httpValuesString)")
         decls.append("\(raw: "\n    }")")
@@ -45,18 +54,34 @@ enum HTTPFieldContentType : DeclarationMacro {
         category: String,
         expr: ExprSyntax,
         cases: inout [String],
-        httpValues: inout [String]
+        httpValues: inout [String],
+        fileExtensions: inout [String:String]
     ) {
         guard let dictionary:DictionaryElementListSyntax = expr.dictionary?.content.as(DictionaryElementListSyntax.self) else { return }
         httpValues = []
         for element in dictionary {
             let key:String = element.key.stringLiteral!.string
-            var value:String = element.value.stringLiteral!.string
-            if value.isEmpty {
-                value = key
-            }
+            let value:HTTPFieldContentTypeDetails = HTTPFieldContentTypeDetails(expr: element.value.functionCall!)
             cases.append(key)
-            httpValues.append(category + "/" + value)
+            httpValues.append(category + "/" + value.httpValue)
+            for ext in value.fileExtensions {
+                fileExtensions[ext] = key
+            }
+        }
+    }
+}
+
+// MARK: HTTPFieldContentTypeDetails
+struct HTTPFieldContentTypeDetails {
+    let httpValue:String
+    let fileExtensions:Set<String>
+    
+    init(expr: FunctionCallExprSyntax) {
+        httpValue = expr.arguments.first!.expression.stringLiteral!.string
+        if let array:ArrayElementListSyntax = expr.arguments.last!.expression.array?.elements {
+            fileExtensions = Set(array.compactMap({ $0.expression.stringLiteral?.string }))
+        } else {
+            fileExtensions = []
         }
     }
 }

@@ -9,9 +9,9 @@ public extension HTTPMediaTypes {
     #HTTPFieldContentType(
         category: "haptics",
         values: [
-            "ivs" : "",
-            "hjif" : "",
-            "hmpg" : ""
+            "ivs" : .init(""),
+            "hjif" : .init(""),
+            "hmpg" : .init("")
         ]
     )
 }

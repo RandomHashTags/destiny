@@ -9,23 +9,23 @@ public extension HTTPMediaTypes {
     #HTTPFieldContentType(
         category: "multipart",
         values: [
-            "alternative" : "",
-            "appledouble" : "",
-            "byteranges" : "",
-            "digest" : "",
-            "encrypted" : "",
-            "example" : "",
-            "formData" : "form-data",
-            "headerSet" : "header-set",
-            "mixed" : "",
-            "multilingual" : "",
-            "parallel" : "",
-            "related" : "",
-            "report" : "",
-            "signed" : "",
-            "medPlus" : "vnd.bint.med-plus",
-            "voiceMessage" : "voice-message",
-            "xMixedReplace" : "x-mixed-replace"
+            "alternative" : .init(""),
+            "appledouble" : .init(""),
+            "byteranges" : .init(""),
+            "digest" : .init(""),
+            "encrypted" : .init(""),
+            "example" : .init(""),
+            "formData" : .init("form-data"),
+            "headerSet" : .init("header-set"),
+            "mixed" : .init(""),
+            "multilingual" : .init(""),
+            "parallel" : .init(""),
+            "related" : .init(""),
+            "report" : .init(""),
+            "signed" : .init(""),
+            "medPlus" : .init("vnd.bint.med-plus"),
+            "voiceMessage" : .init("voice-message"),
+            "xMixedReplace" : .init("x-mixed-replace")
         ]
     )
 }

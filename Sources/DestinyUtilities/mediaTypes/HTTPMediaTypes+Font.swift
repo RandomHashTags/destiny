@@ -9,12 +9,12 @@ public extension HTTPMediaTypes {
     #HTTPFieldContentType(
         category: "font",
         values: [
-            "collection" : "",
-            "otf" : "",
-            "sfnt" : "",
-            "ttf" : "",
-            "woff" : "",
-            "woff2" : ""
+            "collection" : .init(""),
+            "otf" : .init(""),
+            "sfnt" : .init(""),
+            "ttf" : .init(""),
+            "woff" : .init(""),
+            "woff2" : .init("")
         ]
     )
 }

@@ -16,8 +16,18 @@ import SwiftSyntaxMacros
 @freestanding(declaration, names: arbitrary)
 macro HTTPFieldContentType(
     category: String,
-    values: [String:String]
+    values: [String:HTTPFieldContentTypeDetails]
 ) = #externalMacro(module: "DestinyUtilityMacros", type: "HTTPFieldContentType")
+
+struct HTTPFieldContentTypeDetails {
+    let httpValue:String
+    let fileExtensions:Set<String>
+
+    init(_ httpValue: String, fileExtensions: Set<String> = []) {
+        self.httpValue = httpValue
+        self.fileExtensions = fileExtensions
+    }
+}
 
 #if canImport(Foundation)
 @inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
