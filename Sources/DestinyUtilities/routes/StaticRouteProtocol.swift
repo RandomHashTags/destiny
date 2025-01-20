@@ -5,14 +5,13 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 /// Core Static Route protocol where a complete HTTP Message is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
     /// Default status of this route.
-    var status : HTTPResponse.Status { get }
+    var status : HTTPResponseStatus { get }
 
     /// Default content type of this route.
     var contentType : HTTPMediaType { get }

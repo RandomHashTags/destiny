@@ -26,9 +26,6 @@ let package = Package(
         // Commands
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
 
-        // Request/Response types | // TODO: remove
-        .package(url: "https://github.com/apple/swift-http-types", from: "1.3.0"),
-
         // Logging
         .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
 
@@ -53,7 +50,6 @@ let package = Package(
             dependencies: [
                 "DestinyUtilityMacros",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "HTTPTypes", package: "swift-http-types"),
                 .product(name: "Logging", package: "swift-log"),
                 .product(name: "SwiftCompression", package: "swift-compression"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),

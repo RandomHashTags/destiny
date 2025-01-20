@@ -5,15 +5,13 @@
 //  Created by Evan Anderson on 11/5/24.
 //
 
-import HTTPTypes
-
 /// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
     /// The response `HTTPVersion`.
     var version : HTTPVersion { get set }
 
     /// The response status.
-    var status : HTTPResponse.Status { get set }
+    var status : HTTPResponseStatus { get set }
 
     /// The response headers.
     var headers : [String:String] { get set }

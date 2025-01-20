@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
@@ -16,20 +15,20 @@ import SwiftSyntaxMacros
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
     public var path:[String]
-    public let status:HTTPResponse.Status
     public let contentType:HTTPMediaType
     public let result:RouteResult
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
     public let version:HTTPVersion
     public var method:HTTPRequestMethod
+    public let status:HTTPResponseStatus
     public let charset:Charset?
 
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -62,7 +61,7 @@ public struct StaticRoute : StaticRouteProtocol {
 
     public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) -> HTTPMessage {
         var version:HTTPVersion = version
-        var status:HTTPResponse.Status = status
+        var status:HTTPResponseStatus = status
         var contentType:HTTPMediaType = contentType
         var headers:[String:String] = [:]
         for middleware in middleware {
@@ -73,8 +72,8 @@ public struct StaticRoute : StaticRouteProtocol {
         if let context:MacroExpansionContext = context, let function:FunctionCallExprSyntax = function, status == .notImplemented {
             Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
         }
-        headers[HTTPField.Name.contentType.rawName] = nil
-        headers[HTTPField.Name.contentLength.rawName] = nil
+        headers[HTTPResponseHeader.contentType.rawName] = nil
+        headers[HTTPResponseHeader.contentLength.rawName] = nil
         return HTTPMessage(version: version, status: status, headers: headers, result: result, contentType: contentType, charset: charset)
     }
 
@@ -91,7 +90,7 @@ extension StaticRoute {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var path:[String] = []
-        var status:HTTPResponse.Status = .notImplemented
+        var status:HTTPResponseStatus = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
         var charset:Charset? = nil
         var result:RouteResult = .string("")
@@ -105,7 +104,7 @@ extension StaticRoute {
             case "path":
                 path = PathComponent.parseArray(context: context, argument.expression)
             case "status":
-                status = HTTPResponse.Status(expr: argument.expression) ?? .notImplemented
+                status = HTTPResponseStatus(expr: argument.expression) ?? .notImplemented
             case "contentType":
                 if let member:String = argument.expression.memberAccess?.declName.baseName.text {
                     contentType = HTTPMediaTypes.parse(member) ?? contentType
@@ -143,7 +142,7 @@ extension StaticRoute {
     public static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -156,7 +155,7 @@ extension StaticRoute {
     public static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -169,7 +168,7 @@ extension StaticRoute {
     public static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -182,7 +181,7 @@ extension StaticRoute {
     public static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -195,7 +194,7 @@ extension StaticRoute {
     public static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -208,7 +207,7 @@ extension StaticRoute {
     public static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -221,7 +220,7 @@ extension StaticRoute {
     public static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -234,7 +233,7 @@ extension StaticRoute {
     public static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,
@@ -247,7 +246,7 @@ extension StaticRoute {
     public static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         charset: Charset? = nil,
         result: RouteResult,

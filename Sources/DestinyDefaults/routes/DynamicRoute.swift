@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 import SwiftCompression
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -15,7 +14,6 @@ import SwiftSyntaxMacros
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
 public struct DynamicRoute : DynamicRouteProtocol {
     public var path:[PathComponent]
-    public var status:HTTPResponse.Status
     public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponseProtocol
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
@@ -24,12 +22,13 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     public let version:HTTPVersion
     public var method:HTTPRequestMethod
+    public var status:HTTPResponseStatus
 
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -87,7 +86,7 @@ extension DynamicRoute {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var path:[PathComponent] = []
-        var status:HTTPResponse.Status = .notImplemented
+        var status:HTTPResponseStatus = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler:String = "nil"
@@ -107,7 +106,7 @@ extension DynamicRoute {
                     parameters.append("")
                 }
             case "status":
-                status = HTTPResponse.Status(expr: argument.expression) ?? status
+                status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "contentType":
                 if let member:String = argument.expression.memberAccess?.declName.baseName.text {
                     contentType = HTTPMediaTypes.parse(member) ?? contentType
@@ -128,7 +127,7 @@ extension DynamicRoute {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
             }
         }
-        headers[HTTPField.Name.contentType.rawName] = contentType.httpValue
+        headers[HTTPResponseHeader.contentType.rawName] = contentType.httpValue
         var route:DynamicRoute = DynamicRoute(
             version: version,
             method: method,
@@ -150,7 +149,7 @@ extension DynamicRoute {
     public static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -164,7 +163,7 @@ extension DynamicRoute {
     public static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -178,7 +177,7 @@ extension DynamicRoute {
     public static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -192,7 +191,7 @@ extension DynamicRoute {
     public static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -206,7 +205,7 @@ extension DynamicRoute {
     public static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -220,7 +219,7 @@ extension DynamicRoute {
     public static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -234,7 +233,7 @@ extension DynamicRoute {
     public static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -248,7 +247,7 @@ extension DynamicRoute {
     public static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -262,7 +261,7 @@ extension DynamicRoute {
     public static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
-        status: HTTPResponse.Status = .notImplemented,
+        status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),

@@ -7,7 +7,6 @@
 
 import DestinyDefaults
 import DestinyUtilities
-import HTTPTypes
 import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
@@ -192,7 +191,7 @@ extension Router {
         for methodElement in dictionary {
             if let method:HTTPRequestMethod = HTTPRequestMethod(expr: methodElement.key), let statuses:DictionaryElementListSyntax = methodElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
                 for statusElement in statuses {
-                    if let status:HTTPResponse.Status = HTTPResponse.Status(expr: statusElement.key), let values:DictionaryElementListSyntax = statusElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
+                    if let status:HTTPResponseStatus = HTTPResponseStatus(expr: statusElement.key), let values:DictionaryElementListSyntax = statusElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
                         for valueElement in values {
                             let from:[String] = PathComponent.parseArray(context: context, valueElement.key)
                             let to:[String] = PathComponent.parseArray(context: context, valueElement.value)
@@ -296,11 +295,11 @@ extension Router {
                 do {
                     let compressed:CompressionResult<[UInt8]> = try body.compressed(using: technique)
                     httpResponse.result = .bytes(compressed.data)
-                    httpResponse.headers[HTTPField.Name.contentEncoding.rawName] = algorithm.acceptEncodingName
-                    httpResponse.headers[HTTPField.Name.vary.rawName] = HTTPField.Name.acceptEncoding.rawName
+                    httpResponse.headers[HTTPResponseHeader.contentEncoding.rawName] = algorithm.acceptEncodingName
+                    httpResponse.headers[HTTPResponseHeader.vary.rawName] = HTTPRequestHeader.acceptEncoding.rawName
                     do {
                         let bytes:String = try httpResponse.string(escapeLineBreak: false)
-                        responder.conditionsDescription += "\n{ $0.headers[HTTPField.Name.acceptEncoding.rawName]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
+                        responder.conditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawName]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
                         responder.respondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))

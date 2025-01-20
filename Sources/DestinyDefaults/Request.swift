@@ -6,7 +6,6 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 
 /// Default storage for request data.
 public struct Request : RequestProtocol {
@@ -18,8 +17,8 @@ public struct Request : RequestProtocol {
     public let version:HTTPVersion
     //public let body:String
 
-    public lazy var method : HTTPRequest.Method? = {
-        return HTTPRequest.Method.parse(methodSIMD)
+    public lazy var method : HTTPRequestMethod? = {
+        return HTTPRequestMethod.parse(methodSIMD)
     }()
     public lazy var path : [String] = {
         return uri.splitSIMD(separator: 47).map({ $0.leadingString() }) // 47 = /

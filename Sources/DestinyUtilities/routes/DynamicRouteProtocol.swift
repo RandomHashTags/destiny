@@ -5,14 +5,13 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 /// Core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
     /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
-    var status : HTTPResponse.Status { get set }
+    var status : HTTPResponseStatus { get set }
 
     /// Default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
     var contentType : HTTPMediaType { get set }

@@ -6,14 +6,13 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 enum HTTPMessage : DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var version:HTTPVersion = .v1_1
-        var status:HTTPResponse.Status = .notImplemented
+        var status:HTTPResponseStatus = .notImplemented
         var headers:[String:String] = [:]
         var result:RouteResult? = nil
         var contentType:HTTPMediaType? = nil
@@ -24,9 +23,9 @@ enum HTTPMessage : DeclarationMacro {
                     case "version":
                         version = HTTPVersion.parse(child.expression) ?? version
                     case "status":
-                        status = HTTPResponse.Status(expr: child.expression) ?? status
+                        status = HTTPResponseStatus(expr: child.expression) ?? status
                     case "headers":
-                        headers = HTTPField.parse(context: context, child.expression)
+                        headers = HTTPRequestHeader.parse(context: context, child.expression)
                     case "result":
                         result = RouteResult(expr: child.expression)
                     case "contentType":

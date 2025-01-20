@@ -5,8 +5,6 @@
 //  Created by Evan Anderson on 10/29/24.
 //
 
-import HTTPTypes
-
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     /// The route request versions this middleware handles.
@@ -22,7 +20,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     /// The route response statuses this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all statuses.
-    var handlesStatuses : Set<HTTPResponse.Status>? { get }
+    var handlesStatuses : Set<HTTPResponseStatus>? { get }
 
     /// The route content types this middleware handles.
     /// 
@@ -33,7 +31,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesVersion : HTTPVersion? { get }
 
     /// The response status this middleware applies to routes.
-    var appliesStatus : HTTPResponse.Status? { get }
+    var appliesStatus : HTTPResponseStatus? { get }
 
     /// The response content type this middleware applies to routes.
     var appliesContentType : HTTPMediaType? { get }
@@ -47,7 +45,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
         version: HTTPVersion,
         method: HTTPRequestMethod,
         contentType: HTTPMediaType,
-        status: HTTPResponse.Status
+        status: HTTPResponseStatus
     ) -> Bool
 
     /// Updates the given variables by applying this middleware.
@@ -55,7 +53,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     func apply(
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
-        status: inout HTTPResponse.Status,
+        status: inout HTTPResponseStatus,
         headers: inout [String:String]
     )
 }
@@ -65,7 +63,7 @@ extension StaticMiddlewareProtocol {
         version: HTTPVersion,
         method: HTTPRequestMethod,
         contentType: HTTPMediaType,
-        status: HTTPResponse.Status
+        status: HTTPResponseStatus
     ) -> Bool {
         return (handlesVersions == nil || handlesVersions!.contains(version))
             && (handlesMethods == nil || handlesMethods!.contains(method))
@@ -77,13 +75,13 @@ extension StaticMiddlewareProtocol {
     public func apply(
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
-        status: inout HTTPResponse.Status,
+        status: inout HTTPResponseStatus,
         headers: inout [String:String]
     ) {
         if let appliesVersion:HTTPVersion = appliesVersion {
             version = appliesVersion
         }
-        if let appliesStatus:HTTPResponse.Status = appliesStatus {
+        if let appliesStatus:HTTPResponseStatus = appliesStatus {
             status = appliesStatus
         }
         if let appliesContentType:HTTPMediaType = appliesContentType {

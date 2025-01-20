@@ -6,7 +6,9 @@
 //
 
 import SwiftCompression
+import SwiftDiagnostics
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
@@ -258,5 +260,35 @@ extension HTTPRequestHeader {
         } else {
             return nil
         }
+    }
+}
+
+// MARK: Parse
+extension HTTPRequestHeader {
+    /// - Returns: The valid headers in a dictionary.
+    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String:String] {
+        guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
+            guard let key:String = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }
+            let value:String = $0.value.stringLiteral?.string ?? ""
+            return (key, value)
+        }) else {
+            return [:]
+        }
+        var headers:[String:String] = [:]
+        headers.reserveCapacity(dictionary.count)
+        for (key, value) in dictionary {
+            headers[key] = value
+        }
+        return headers
+    }
+}
+extension HTTPRequestHeader {
+    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> String? {
+        guard let key:String = expr.stringLiteral?.string else { return nil }
+        guard !key.contains(" ") else {
+            context.diagnose(Diagnostic(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
+            return nil
+        }
+        return key
     }
 }

@@ -7,7 +7,6 @@
 
 @_exported import DestinyDefaults
 @_exported import DestinyUtilities
-import HTTPTypes
 import Logging
 import ServiceLifecycle
 import SwiftCompression
@@ -33,7 +32,7 @@ public macro router(
     staticNotFoundResponder: StaticRouteResponderProtocol? = nil,
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [MiddlewareProtocol],
-    redirects: [HTTPRequestMethod : [HTTPResponse.Status : [String:String]]] = [:],
+    redirects: [HTTPRequestMethod : [HTTPResponseStatus : [String:String]]] = [:],
     routerGroups: [RouterGroupProtocol] = [],
     _ routes: RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
@@ -43,7 +42,7 @@ public macro router(
 @freestanding(expression)
 public macro httpMessage<T: ExpressibleByStringLiteral>(
     version: HTTPVersion,
-    status: HTTPResponse.Status,
+    status: HTTPResponseStatus,
     headers: [String:String] = [:],
     result: RouteResult? = nil,
     contentType: HTTPMediaType? = nil,

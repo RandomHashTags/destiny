@@ -8,7 +8,6 @@
 #if compiler(>=6.0)
 
 import Destiny
-import HTTPTypes
 import SwiftCompression
 import Testing
 
@@ -30,7 +29,7 @@ struct DestinyTests {
         public let version:HTTPVersion
         public var method:HTTPRequestMethod
         public var path:[PathComponent]
-        public var status:HTTPResponse.Status
+        public var status:HTTPResponseStatus
         public var contentType:HTTPMediaType
         public var defaultResponse:DynamicResponseProtocol
         public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>

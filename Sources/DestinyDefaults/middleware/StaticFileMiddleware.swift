@@ -10,7 +10,6 @@ import Foundation
 #endif
 
 import DestinyUtilities
-import HTTPTypes
 import SwiftCompression
 
 // MARK: StaticFileMiddleware

@@ -5,8 +5,6 @@
 //  Created by Evan Anderson on 11/11/24.
 //
 
-import HTTPTypes
-
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
     //associatedtype Storage : RequestStorageProtocol
@@ -20,7 +18,7 @@ public protocol RequestProtocol : Sendable, ~Copyable {
     var startLine : DestinyRoutePathType { get }
 
     /// The optional request method.
-    var method : HTTPRequest.Method? { mutating get }
+    var method : HTTPRequestMethod? { mutating get }
 
     /// The endpoint the request wants to reach, separated by the forward slash character.
     var path : [String] { mutating get }

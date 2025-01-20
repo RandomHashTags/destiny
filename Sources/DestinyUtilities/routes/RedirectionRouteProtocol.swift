@@ -5,7 +5,6 @@
 //  Created by Evan Anderson on 12/11/24.
 //
 
-import HTTPTypes
 import SwiftCompression
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -19,7 +18,7 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     var to : [String] { get }
 
     /// Status of this redirection route.
-    var status : HTTPResponse.Status { get }
+    var status : HTTPResponseStatus { get }
 
     /// The HTTP Message of this route. Computed at compile time.
     /// 

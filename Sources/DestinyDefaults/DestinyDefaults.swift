@@ -6,14 +6,13 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 
 public enum DestinyDefaults {
     @inlinable
     public static func httpResponse(
         escapeLineBreak: Bool,
         version: HTTPVersion,
-        status: HTTPResponse.Status,
+        status: HTTPResponseStatus,
         headers: [String:String],
         result: String?,
         contentType: HTTPMediaType?,
@@ -27,7 +26,7 @@ public enum DestinyDefaults {
     public static func httpResponse(
         escapeLineBreak: Bool,
         version: HTTPVersion,
-        status: HTTPResponse.Status,
+        status: HTTPResponseStatus,
         headers: [HTTPResponseHeader:String],
         result: String?,
         contentType: HTTPMediaType?,
@@ -41,7 +40,7 @@ public enum DestinyDefaults {
     public static func httpResponse(
         suffix: String,
         version: HTTPVersion,
-        status: HTTPResponse.Status,
+        status: HTTPResponseStatus,
         headers: String,
         result: String?,
         contentType: HTTPMediaType?,
@@ -51,9 +50,9 @@ public enum DestinyDefaults {
         if let result:String = result {
             let content_length:Int = result.utf8.count
             if let contentType:HTTPMediaType = contentType {
-                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
-            string += HTTPField.Name.contentLength.rawName + ": \(content_length)"
+            string += HTTPResponseHeader.contentLength.rawName + ": \(content_length)"
             string += suffix + suffix + result
         }
         return string

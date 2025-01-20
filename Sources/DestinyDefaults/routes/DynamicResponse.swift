@@ -6,18 +6,17 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 
 public struct DynamicResponse : DynamicResponseProtocol {
-    public var version:HTTPVersion
-    public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult
     public var parameters:[String]
+    public var version:HTTPVersion
+    public var status:HTTPResponseStatus
 
     public init(
         version: HTTPVersion,
-        status: HTTPResponse.Status,
+        status: HTTPResponseStatus,
         headers: [String:String],
         result: RouteResult,
         parameters: [String]
@@ -36,7 +35,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
         for (header, value) in headers {
             string += header + ": " + value + "\r\n"
         }
-        return string + HTTPField.Name.contentLength.rawName + ": \(result.utf8.count)\r\n\r\n" + result
+        return string + HTTPResponseHeader.contentLength.rawName + ": \(result.utf8.count)\r\n\r\n" + result
     }
 
     public var debugDescription : String {

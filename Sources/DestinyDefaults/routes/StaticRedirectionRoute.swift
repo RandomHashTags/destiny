@@ -6,23 +6,22 @@
 //
 
 import DestinyUtilities
-import HTTPTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRedirectionRoute
 /// Default Redirection Route that handles redirects for static routes.
 public struct StaticRedirectionRoute : RedirectionRouteProtocol {
-    public let version:HTTPVersion
-    public let method:HTTPRequestMethod
-    public let status:HTTPResponse.Status
     public package(set) var from:[String]
     public package(set) var to:[String]
+    public let version:HTTPVersion
+    public let method:HTTPRequestMethod
+    public let status:HTTPResponseStatus
 
     public init(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
-        status: HTTPResponse.Status,
+        status: HTTPResponseStatus,
         from: [StaticString],
         to: [StaticString]
     ) {
@@ -50,12 +49,12 @@ extension StaticRedirectionRoute {
         var method:HTTPRequestMethod = .get
         var from:[String] = []
         var to:[String] = []
-        var status:HTTPResponse.Status = .movedPermanently
+        var status:HTTPResponseStatus = .movedPermanently
         for argument in function.arguments {
             switch argument.label!.text {
             case "version": version = HTTPVersion.parse(argument.expression) ?? version
             case "method": method = HTTPRequestMethod(expr: argument.expression) ?? method
-            case "status": status = HTTPResponse.Status(expr: argument.expression) ?? status
+            case "status": status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "from": from = PathComponent.parseArray(context: context, argument.expression)
             case "to": to = PathComponent.parseArray(context: context, argument.expression)
             default: break

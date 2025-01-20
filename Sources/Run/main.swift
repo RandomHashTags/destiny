@@ -7,10 +7,11 @@
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
+#elseif canImport(Foundation)
+import Foundation
 #endif
 
 import Destiny
-import HTTPTypes
 import Logging
 
 let router:Router = #router(
@@ -30,7 +31,7 @@ let router:Router = #router(
         DynamicDateMiddleware(),
         DynamicMiddleware({ request, response in
             guard request.method == .get else { return }
-            #if canImport(FoundationEssentials)
+            #if canImport(FoundationEssentials) || canImport(Foundation)
             response.headers["Womp-Womp"] = UUID().uuidString
             #else
             response.headers["Womp-Womp"] = String(UInt64.random(in: 0..<UInt64.max))
@@ -144,7 +145,7 @@ let router:Router = #router(
         path: ["dynamic2"],
         contentType: HTTPMediaTypes.Text.plain,
         handler: { request, response in
-            #if canImport(FoundationEssentials)
+            #if canImport(FoundationEssentials) || canImport(Foundation)
             response.result = .string(UUID().uuidString)
             #else
             response.result = .string(String(UInt64.random(in: 0..<UInt64.max)))

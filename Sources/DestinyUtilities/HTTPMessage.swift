@@ -5,21 +5,19 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
-import HTTPTypes
-
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
 public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
-    public var status:HTTPResponse.Status
     public var headers:[String:String]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
     public var version:HTTPVersion
+    public var status:HTTPResponseStatus
     public var charset:Charset?
 
     public init(
         version: HTTPVersion,
-        status: HTTPResponse.Status,
+        status: HTTPResponseStatus,
         headers: [String:String],
         result: RouteResult?,
         contentType: (any HTTPMediaTypeProtocol)?,
@@ -51,9 +49,9 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
             let contentLength:Int = result.utf8.count
             result.replace("\"", with: "\\\"")
             if let contentType:HTTPMediaType = contentType {
-                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
-            string += HTTPField.Name.contentLength.rawName + ": \(contentLength)"
+            string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
             string += suffix + suffix + result
         }
         return string
@@ -70,9 +68,9 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         var bytes:[UInt8]
         if let result:[UInt8] = try result?.bytes() {
             if let contentType:HTTPMediaType = contentType {
-                string += HTTPField.Name.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
-            string += HTTPField.Name.contentLength.rawName + ": \(result.count)"
+            string += HTTPResponseHeader.contentLength.rawName + ": \(result.count)"
             string += suffix + suffix
             
             bytes = [UInt8](string.utf8)
