@@ -32,8 +32,8 @@ public final class DynamicRateLimitMiddleware : RateLimitMiddlewareProtocol, Dyn
 }
 
 // MARK: Parse
-public extension DynamicRateLimitMiddleware {
-    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
+extension DynamicRateLimitMiddleware {
+    public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         return Self()
     }
 }

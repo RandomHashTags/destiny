@@ -86,8 +86,8 @@ public struct StaticRoute : StaticRouteProtocol {
 }
 
 // MARK: Parse
-public extension StaticRoute {
-    static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
+extension StaticRoute {
+    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var path:[String] = []
@@ -138,9 +138,9 @@ public extension StaticRoute {
 }
 
 // MARK: Convenience inits
-public extension StaticRoute {
+extension StaticRoute {
     @inlinable
-    static func get<T: HTTPMediaTypeProtocol>(
+    public static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -153,7 +153,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func head<T: HTTPMediaTypeProtocol>(
+    public static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -166,7 +166,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func post<T: HTTPMediaTypeProtocol>(
+    public static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -179,7 +179,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func put<T: HTTPMediaTypeProtocol>(
+    public static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -192,7 +192,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func delete<T: HTTPMediaTypeProtocol>(
+    public static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -205,7 +205,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func connect<T: HTTPMediaTypeProtocol>(
+    public static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -218,7 +218,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func options<T: HTTPMediaTypeProtocol>(
+    public static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -231,7 +231,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func trace<T: HTTPMediaTypeProtocol>(
+    public static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,
@@ -244,7 +244,7 @@ public extension StaticRoute {
     }
 
     @inlinable
-    static func patch<T: HTTPMediaTypeProtocol>(
+    public static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         status: HTTPResponse.Status = .notImplemented,

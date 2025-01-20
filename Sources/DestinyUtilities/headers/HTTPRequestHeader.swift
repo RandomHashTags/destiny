@@ -128,9 +128,9 @@ public enum HTTPRequestHeader : String {
 }
 
 // MARK: Raw name
-public extension HTTPRequestHeader {
+extension HTTPRequestHeader {
     @inlinable
-    var rawName : String {
+    public var rawName : String {
         switch self {
         // standard
         case .aim: return "A-IM"
@@ -215,29 +215,29 @@ public extension HTTPRequestHeader {
 }
 
 // MARK: Static raw name
-public extension HTTPRequestHeader {
+extension HTTPRequestHeader {
     internal static func get(_ header: Self) -> String { header.rawName }
 
-    static let originRawName:String = get(.origin)
+    public static let originRawName:String = get(.origin)
 }
 
 // MARK: Accept-Encoding
-public extension HTTPRequestHeader {
-    struct AcceptEncoding : Sendable {
+extension HTTPRequestHeader {
+    public struct AcceptEncoding : Sendable {
         public let compression:CompressionAlgorithm
     }
 }
 
 // MARK: Range
-public extension HTTPRequestHeader {
-    enum Range : Sendable {
+extension HTTPRequestHeader {
+    public enum Range : Sendable {
         case bytes(from: Int, to: Int)
     }
 }
 
 // MARK: X-Requested-With
-public extension HTTPRequestHeader {
-    enum XRequestedWith : String, Sendable {
+extension HTTPRequestHeader {
+    public enum XRequestedWith : String, Sendable {
         case xmlHttpRequest
 
         @inlinable
@@ -250,8 +250,8 @@ public extension HTTPRequestHeader {
 }
 
 // MARK: SwiftSyntax extensions
-public extension HTTPRequestHeader {
-    init?(expr: ExprSyntaxProtocol) {
+extension HTTPRequestHeader {
+    public init?(expr: ExprSyntaxProtocol) {
         guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
         if let value:Self = Self(rawValue: string) {
             self = value

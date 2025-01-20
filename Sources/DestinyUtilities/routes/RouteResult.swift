@@ -108,8 +108,8 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
 }
 
 // MARK: Init
-public extension RouteResult {
-    init?(expr: ExprSyntax) {
+extension RouteResult {
+    public init?(expr: ExprSyntax) {
         guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
         switch function.calledExpression.memberAccess!.declName.baseName.text {
         case "staticString":
@@ -170,8 +170,8 @@ public extension RouteResult {
 }
 
 // MARK: Responder
-public extension RouteResult {
-    var responderDebugDescription : String {
+extension RouteResult {
+    public var responderDebugDescription : String {
         switch self {
         case .staticString(let s):
             return "RouteResponses.StaticString(\"\(s)\")"
@@ -192,7 +192,7 @@ public extension RouteResult {
         }
     }
 
-    func responderDebugDescription(_ input: String) -> String {
+    public func responderDebugDescription(_ input: String) -> String {
         switch self {
         case .staticString(_): return Self.staticString(input).responderDebugDescription
         case .string(_): return Self.string(input).responderDebugDescription
@@ -208,7 +208,7 @@ public extension RouteResult {
         }
     }
 
-    func responderDebugDescription(_ input: HTTPMessage) throws -> String {
+    public func responderDebugDescription(_ input: HTTPMessage) throws -> String {
         switch self {
         case .bytes(_), .bytes16(_):
             return try responderDebugDescription(input.string(escapeLineBreak: false))

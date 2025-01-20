@@ -82,8 +82,8 @@ public struct DynamicRoute : DynamicRouteProtocol {
 }
 
 // MARK: Parse
-public extension DynamicRoute {
-    static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
+extension DynamicRoute {
+    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var path:[PathComponent] = []
@@ -145,9 +145,9 @@ public extension DynamicRoute {
 }
 
 // MARK: Convenience inits
-public extension DynamicRoute {
+extension DynamicRoute {
     @inlinable
-    static func get<T: HTTPMediaTypeProtocol>(
+    public static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -161,7 +161,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func head<T: HTTPMediaTypeProtocol>(
+    public static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -175,7 +175,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func post<T: HTTPMediaTypeProtocol>(
+    public static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -189,7 +189,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func put<T: HTTPMediaTypeProtocol>(
+    public static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -203,7 +203,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func delete<T: HTTPMediaTypeProtocol>(
+    public static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -217,7 +217,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func connect<T: HTTPMediaTypeProtocol>(
+    public static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -231,7 +231,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func options<T: HTTPMediaTypeProtocol>(
+    public static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -245,7 +245,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func trace<T: HTTPMediaTypeProtocol>(
+    public static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,
@@ -259,7 +259,7 @@ public extension DynamicRoute {
     }
 
     @inlinable
-    static func patch<T: HTTPMediaTypeProtocol>(
+    public static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         status: HTTPResponse.Status = .notImplemented,

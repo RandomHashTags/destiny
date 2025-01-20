@@ -5,9 +5,9 @@
 //  Created by Evan Anderson on 10/22/24.
 //
 
-public extension SIMD where Scalar : BinaryInteger {
+extension SIMD where Scalar : BinaryInteger {
     /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
-    init(_ string: inout String) {
+    public init(_ string: inout String) {
         var item:Self = Self()
         string.withUTF8 { p in
             for i in 0..<Swift.min(p.count, Self.scalarCount) {
@@ -18,14 +18,14 @@ public extension SIMD where Scalar : BinaryInteger {
     }
 
     /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
-    init(_ string: String) {
+    public init(_ string: String) {
         var s:String = string
         self = .init(&s)
     }
 
     /// - Complexity: O(1)
     @inlinable
-    var leadingNonzeroByteCountSIMD : Int {
+    public var leadingNonzeroByteCountSIMD : Int {
         for i in 0..<scalarCount {
             if self[i] == 0 {
                 return i
@@ -38,7 +38,7 @@ public extension SIMD where Scalar : BinaryInteger {
     /// 
     /// - Complexity: O(1)
     @inlinable
-    func hasPrefixSIMD<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger, Scalar == T.Scalar {
+    public func hasPrefixSIMD<T: SIMD>(_ simd: T) -> Bool where T.Scalar: BinaryInteger, Scalar == T.Scalar {
         var nibble:T = T()
         for i in 0..<T.scalarCount {
             nibble[i] = self[i]
@@ -48,7 +48,7 @@ public extension SIMD where Scalar : BinaryInteger {
 
     /// - Complexity: O(1)
     @inlinable
-    func splitSIMD(separator: Scalar) -> [Self] { // TODO: make SIMD fast
+    public func splitSIMD(separator: Scalar) -> [Self] { // TODO: make SIMD fast
         var anchor:Int = 0, array:[Self] = []
         array.reserveCapacity(2)
         for i in 0..<scalarCount {
@@ -78,10 +78,10 @@ public extension SIMD where Scalar : BinaryInteger {
         return array
     }
 }
-public extension SIMD where Scalar == UInt8 {
+extension SIMD where Scalar == UInt8 {
     /// - Complexity: O(1)
     @inlinable
-    func stringSIMD() -> String {
+    public func stringSIMD() -> String {
         let amount:Int = leadingNonzeroByteCountSIMD
         var characters:[Character] = [Character](repeating: Character(Unicode.Scalar(0)), count: amount)
         for i in 0..<amount {
@@ -93,21 +93,21 @@ public extension SIMD where Scalar == UInt8 {
 
 // MARK: scalars() O(1)
 // implementation should never change
-public extension SIMD2 where Scalar == UInt8 {
-    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+extension SIMD2 where Scalar == UInt8 {
+    @inlinable public func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
 }
-public extension SIMD4 where Scalar == UInt8 {
-    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+extension SIMD4 where Scalar == UInt8 {
+    @inlinable public func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
 }
-public extension SIMD8 where Scalar == UInt8 {
-    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+extension SIMD8 where Scalar == UInt8 {
+    @inlinable public func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
 }
-public extension SIMD16 where Scalar == UInt8 {
-    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+extension SIMD16 where Scalar == UInt8 {
+    @inlinable public func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
 }
-public extension SIMD32 where Scalar == UInt8 {
-    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+extension SIMD32 where Scalar == UInt8 {
+    @inlinable public func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
 }
-public extension SIMD64 where Scalar == UInt8 {
-    @inlinable func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
+extension SIMD64 where Scalar == UInt8 {
+    @inlinable public func scalars() -> [Scalar] { withUnsafeBytes(of: self, { Array($0) }) }
 }

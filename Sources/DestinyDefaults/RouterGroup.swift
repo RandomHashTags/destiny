@@ -132,8 +132,8 @@ public struct RouterGroup : RouterGroupProtocol {
 }
 
 // MARK: Parse
-public extension RouterGroup {
-    static func parse(
+extension RouterGroup {
+    public static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion,
         staticMiddleware: [StaticMiddlewareProtocol],

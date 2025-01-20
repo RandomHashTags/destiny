@@ -87,8 +87,8 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 }
 
 // MARK: Parse
-public extension DynamicCORSMiddleware {
-    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
+extension DynamicCORSMiddleware {
+    public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased
         var allowedHeaders:Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin]
         var allowedMethods:Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch]

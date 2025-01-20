@@ -51,27 +51,27 @@ extension DiagnosticMsg : FixItMessage {
     package var fixItID : MessageID { diagnosticID }
 }
 
-package extension Diagnostic {
-    static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: SyntaxProtocol) {
+extension Diagnostic {
+    package static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: SyntaxProtocol) {
         context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "spacesNotAllowedInRoutePath", message: "Spaces aren't allowed in route paths.")))
     }
-    static func routeStatusNotImplemented(context: some MacroExpansionContext, node: SyntaxProtocol) {
+    package static func routeStatusNotImplemented(context: some MacroExpansionContext, node: SyntaxProtocol) {
         context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "routeStatusNotImplemented", message: "Route's status is \".notImplemented\".", severity: .warning)))
     }
 }
 
 // MARK: SwiftSyntax Misc
-package extension ExprSyntaxProtocol {
-    var macroExpansion : MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
-    var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
-    var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
-    var booleanLiteral : BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
-    var integerLiteral : IntegerLiteralExprSyntax? { self.as(IntegerLiteralExprSyntax.self) }
-    var memberAccess : MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
-    var array : ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
-    var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
+extension ExprSyntaxProtocol {
+    package var macroExpansion : MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
+    package var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
+    package var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
+    package var booleanLiteral : BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
+    package var integerLiteral : IntegerLiteralExprSyntax? { self.as(IntegerLiteralExprSyntax.self) }
+    package var memberAccess : MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
+    package var array : ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
+    package var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
 }
 
-package extension StringLiteralExprSyntax {
-    var string : String { "\(segments)" }
+extension StringLiteralExprSyntax {
+    package var string : String { "\(segments)" }
 }

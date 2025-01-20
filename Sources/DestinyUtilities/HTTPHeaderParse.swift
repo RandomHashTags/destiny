@@ -10,8 +10,8 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-public extension HTTPField.Name {
-    init?(caseName: String) {
+extension HTTPField.Name {
+    public init?(caseName: String) {
         switch caseName {
         case "accept":                          self = .accept
         case "acceptEncoding":                  self = .acceptEncoding
@@ -87,9 +87,9 @@ public extension HTTPField.Name {
     }
 }
 
-public extension HTTPField {
+extension HTTPField {
     /// - Returns: The valid headers in a dictionary.
-    static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String:String] {
+    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String:String] {
         guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
             guard let key:String = HTTPField.Name.parse(context: context, $0.key) else { return nil }
             let value:String = $0.value.stringLiteral?.string ?? ""
@@ -105,8 +105,8 @@ public extension HTTPField {
         return headers
     }
 }
-public extension HTTPField.Name {
-    static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> String? {
+extension HTTPField.Name {
+    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> String? {
         guard let key:String = expr.stringLiteral?.string else { return nil }
         guard !key.contains(" ") else {
             context.diagnose(Diagnostic(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))

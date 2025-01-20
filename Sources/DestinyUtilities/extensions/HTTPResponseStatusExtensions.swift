@@ -8,15 +8,15 @@
 import HTTPTypes
 import SwiftSyntax
 
-public extension HTTPResponse.Status {
+extension HTTPResponse.Status {
     // MARK: Init ExprSyntax
-    init?(expr: ExprSyntax) {
+    public init?(expr: ExprSyntax) {
         guard let string:String = expr.memberAccess?.declName.baseName.text, let status:Self = Self.parse(string) else { return nil }
         self = status
     }
     
     // MARK: Parse by case name
-    static func parse(_ key: String) -> HTTPResponse.Status? {
+    public static func parse(_ key: String) -> HTTPResponse.Status? {
         switch key {
         case "continue": return .continue
         case "switchingProtocols": return .switchingProtocols

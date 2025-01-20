@@ -47,9 +47,9 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
 }
 
-public extension DynamicRouteProtocol {
+extension DynamicRouteProtocol {
     @inlinable
-    var startLine : String {
+    public var startLine : String {
         return method.rawName + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string()
     }
 }

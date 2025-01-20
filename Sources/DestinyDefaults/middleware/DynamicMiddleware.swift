@@ -43,8 +43,8 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 }
 
 // MARK: Parse
-public extension DynamicMiddleware {
-    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
+extension DynamicMiddleware {
+    public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var logic:String = "\(function.trailingClosure?.debugDescription ?? "{ _, _ in }")"
         for argument in function.arguments {
             if let _:String = argument.label?.text {

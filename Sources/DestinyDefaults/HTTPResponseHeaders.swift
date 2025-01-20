@@ -56,27 +56,27 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
 }
 
 // MARK: Accept-Ranges
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @inlinable
-    mutating func acceptRanges(_ ranges: HTTPResponseHeader.AcceptRanges?) -> Self {
+    public mutating func acceptRanges(_ ranges: HTTPResponseHeader.AcceptRanges?) -> Self {
         acceptRanges = ranges
         return self
     }
 }
 
 // MARK: Age
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @inlinable
-    mutating func age(_ age: Int?) -> Self {
+    public mutating func age(_ age: Int?) -> Self {
         self.age = age
         return self
     }
 }
 
 // MARK: Allow
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @inlinable
-    mutating func allow<C: Collection<HTTPRequestMethod>>(_ methods: C?) -> Self {
+    public mutating func allow<C: Collection<HTTPRequestMethod>>(_ methods: C?) -> Self {
         var temp:String = ""
         if let methods:C {
             var has:Bool = false
@@ -94,47 +94,47 @@ public extension HTTPResponseHeaders {
 }
 
 // MARK: Content-Encoding
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
-    mutating func contentEncoding(_ algorithm: CompressionAlgorithm?) -> Self {
+    public mutating func contentEncoding(_ algorithm: CompressionAlgorithm?) -> Self {
         contentEncoding = algorithm
         return self
     }
 }
 
 // MARK: Content-Length
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
-    mutating func contentLength(_ length: Int?) -> Self {
+    public mutating func contentLength(_ length: Int?) -> Self {
         contentLength = length
         return self
     }
 }
 
 // MARK: Content-Type
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
-    mutating func contentType(_ contentType: HTTPMediaType?) -> Self {
+    public mutating func contentType(_ contentType: HTTPMediaType?) -> Self {
         self.contentType = contentType?.httpValue
         return self
     }
 
     @discardableResult
     @inlinable
-    mutating func contentType<T: HTTPMediaTypeProtocol>(_ contentType: T?) -> Self {
+    public mutating func contentType<T: HTTPMediaTypeProtocol>(_ contentType: T?) -> Self {
         self.contentType = contentType?.httpValue
         return self
     }
 }
 
 // MARK: Retry-After
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
-    mutating func retryAfter(_ seconds: Int?) -> Self {
+    public mutating func retryAfter(_ seconds: Int?) -> Self {
         retryAfterDuration = seconds
         return self
     }
@@ -142,7 +142,7 @@ public extension HTTPResponseHeaders {
     #if canImport(FoundationEssentials)
     @discardableResult
     @inlinable
-    mutating func retryAfter(_ date: Date?) -> Self {
+    public mutating func retryAfter(_ date: Date?) -> Self {
         retryAfterDate = date
         return self
     }
@@ -150,20 +150,20 @@ public extension HTTPResponseHeaders {
 }
 
 // MARK: TK
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
-    mutating func tk(_ tk: HTTPResponseHeader.TK?) -> Self {
+    public mutating func tk(_ tk: HTTPResponseHeader.TK?) -> Self {
         self.tk = tk
         return self
     }
 }
 
 // MARK: X-Content-Type-Options
-public extension HTTPResponseHeaders {
+extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
-    mutating func xContentTypeOptions(_ nosniff: Bool) -> Self {
+    public mutating func xContentTypeOptions(_ nosniff: Bool) -> Self {
         xContentTypeOptions = nosniff
         return self
     }

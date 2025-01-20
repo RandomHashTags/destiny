@@ -6,14 +6,14 @@
 //
 
 // MARK: SIMD2
-public extension SIMD2 where Scalar : BinaryInteger {
+extension SIMD2 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keepLeading(_ length: Int) {
+    public mutating func keepLeading(_ length: Int) {
         switch length {
         case _ where length <= 0:
             self = .init()
@@ -26,14 +26,14 @@ public extension SIMD2 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD4
-public extension SIMD4 where Scalar : BinaryInteger {
+extension SIMD4 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keepLeading(_ length: Int) {
+    public mutating func keepLeading(_ length: Int) {
         switch length {
         case _ where length <= 0:
             self = .init()
@@ -52,14 +52,14 @@ public extension SIMD4 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD8
-public extension SIMD8 where Scalar : BinaryInteger {
+extension SIMD8 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keepLeading(_ length: Int) {
+    public mutating func keepLeading(_ length: Int) {
         switch length {
         case _ where length <= 0:
             self = .init()
@@ -75,14 +75,14 @@ public extension SIMD8 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD16
-public extension SIMD16 where Scalar : BinaryInteger {
+extension SIMD16 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keepLeading(_ length: Int) {
+    public mutating func keepLeading(_ length: Int) {
         switch length {
         case _ where length <= 0:
             self = .init()
@@ -98,14 +98,14 @@ public extension SIMD16 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD32
-public extension SIMD32 where Scalar : BinaryInteger {
+extension SIMD32 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keepLeading(_ length: Int) {
+    public mutating func keepLeading(_ length: Int) {
         switch length {
         case _ where length <= 0:
             self = .init()
@@ -121,14 +121,14 @@ public extension SIMD32 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD64
-public extension SIMD64 where Scalar : BinaryInteger {
+extension SIMD64 where Scalar : BinaryInteger {
     /// Keeps the leading scalar values and sets everything else to zero.
     /// 
     /// - Parameters:
     ///   - length: The number of leading scalars to keep.
     /// - Complexity: O(1)
     @inlinable
-    mutating func keepLeading(_ length: Int) {
+    public mutating func keepLeading(_ length: Int) {
         switch length {
         case _ where length <= 0:
             self = .init()

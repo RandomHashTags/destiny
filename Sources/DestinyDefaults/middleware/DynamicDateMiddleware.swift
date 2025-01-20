@@ -70,8 +70,8 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
 }
 
 // MARK: Parse
-public extension DynamicDateMiddleware {
-    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
+extension DynamicDateMiddleware {
+    public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         return Self()
     }
 }

@@ -28,9 +28,9 @@ public protocol SocketProtocol : ~Copyable {
     @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 }
 
-public extension SocketProtocol where Self : ~Copyable {
+extension SocketProtocol where Self : ~Copyable {
     @inlinable
-    static func noSigPipe(fileDescriptor: Int32) {
+    public static func noSigPipe(fileDescriptor: Int32) {
         #if os(Linux)
         #else
         var no_sig_pipe:Int32 = 0

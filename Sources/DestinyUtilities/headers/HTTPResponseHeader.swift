@@ -131,9 +131,9 @@ public enum HTTPResponseHeader : String, Hashable {
 }
 
 // MARK: Raw name
-public extension HTTPResponseHeader {
+extension HTTPResponseHeader {
     @inlinable
-    var rawName : String {
+    public var rawName : String {
         switch self {
         // standard
         //case .acceptCH: return "Accept-CH"
@@ -226,38 +226,38 @@ public extension HTTPResponseHeader {
 
 // MARK: Static raw name
 // Convenience properties; used so we don't pay performance overhead when we don't want to
-public extension HTTPResponseHeader {
+extension HTTPResponseHeader {
     internal static func get(_ header: Self) -> String { header.rawName }
 
-    static let acceptPatchRawName:String = get(.acceptPatch)
-    static let accessControlAllowOriginRawName:String = get(.accessControlAllowOrigin)
-    static let accessControlAllowCredentialsRawName:String = get(.accessControlAllowCredentials)
-    static let accessControlAllowHeadersRawName:String = get(.accessControlAllowHeaders)
-    static let accessControlAllowMethodsRawName:String = get(.accessControlAllowMethods)
-    static let accessControlExposeHeadersRawName:String = get(.accessControlExposeHeaders)
-    static let accessControlMaxAgeRawName:String = get(.accessControlMaxAge)
-    static let contentTypeRawName:String = get(.contentType)
-    static let varyRawName:String = get(.vary)
+    public static let acceptPatchRawName:String = get(.acceptPatch)
+    public static let accessControlAllowOriginRawName:String = get(.accessControlAllowOrigin)
+    public static let accessControlAllowCredentialsRawName:String = get(.accessControlAllowCredentials)
+    public static let accessControlAllowHeadersRawName:String = get(.accessControlAllowHeaders)
+    public static let accessControlAllowMethodsRawName:String = get(.accessControlAllowMethods)
+    public static let accessControlExposeHeadersRawName:String = get(.accessControlExposeHeaders)
+    public static let accessControlMaxAgeRawName:String = get(.accessControlMaxAge)
+    public static let contentTypeRawName:String = get(.contentType)
+    public static let varyRawName:String = get(.vary)
 }
 
 // MARK: Accept-CH
 /*
-public extension HTTPResponseHeader {
-    enum AcceptCH : String, Sendable {
+extension HTTPResponseHeader {
+    public enum AcceptCH : String, Sendable {
         case experimental
     }
 }*/
 
 // MARK: Accept-Ranges
-public extension HTTPResponseHeader {
-    enum AcceptRanges : String, Sendable {
+extension HTTPResponseHeader {
+    public enum AcceptRanges : String, Sendable {
         case bytes
     }
 }
 
 // MARK: TK
-public extension HTTPResponseHeader {
-    enum TK : String, Sendable {
+extension HTTPResponseHeader {
+    public enum TK : String, Sendable {
         case disregardingDNT
         case dynamic
         case gatewayToMultipleParties

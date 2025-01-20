@@ -6,9 +6,9 @@
 //
 
 // MARK: SIMD2
-public extension SIMD2 where Scalar : BinaryInteger {
+extension SIMD2 where Scalar : BinaryInteger {
     /// - Complexity: O(1)
-    func split(separator: Scalar) -> Self {
+    public func split(separator: Scalar) -> Self {
         if x == separator {
             return y != separator ? Self(x: y, y: 0) : self
         } else if y == separator {
@@ -19,10 +19,10 @@ public extension SIMD2 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD4
-public extension SIMD4 where Scalar : BinaryInteger {
+extension SIMD4 where Scalar : BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
-    func split(separator: Scalar) -> [Self] {
+    public func split(separator: Scalar) -> [Self] {
         // return self if it doesn't require splitting
         guard (self .!= .init(repeating: separator)) != .init(repeating: true) else { return [self] }
         var array:[Self] = []
@@ -58,10 +58,10 @@ public extension SIMD4 where Scalar : BinaryInteger {
 
 /*
 // MARK: SIMD8
-public extension SIMD8 where Scalar : BinaryInteger {
+extension SIMD8 where Scalar : BinaryInteger {
     /// - Complexity: O(1)?
     @inlinable
-    func split(separator: Scalar) -> [Self] {
+    public func split(separator: Scalar) -> [Self] {
         let separator_simd:SIMD4<Scalar> = SIMD4<Scalar>(repeating: separator)
         let all_nonseparator:SIMDMask<SIMD4<Scalar>.MaskStorage> = .init(repeating: true)
         var array:[Self] = []

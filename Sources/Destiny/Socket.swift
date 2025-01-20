@@ -21,10 +21,10 @@ public struct Socket : SocketProtocol, ~Copyable {
 }
 
 // MARK: Reading
-public extension Socket {
+extension Socket {
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
-    func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 {
+    public func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 {
         var string:T = T()
         let read:Int = try withUnsafeMutableBytes(of: &string) { p in
             return try readSIMDBuffer(into: p.baseAddress!, length: length)
@@ -33,7 +33,7 @@ public extension Socket {
     }
 
     @inlinable
-    func loadRequest() throws -> (RequestProtocol)? {
+    public func loadRequest() throws -> (RequestProtocol)? {
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
@@ -57,14 +57,14 @@ public extension Socket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
         guard let baseAddress:UnsafeMutablePointer<UInt8> = buffer.baseAddress else { return 0 }
         return try readBuffer(into: baseAddress, length: length, flags: flags)
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
         var bytes_read:Int = 0
         while bytes_read < length {
             if Task.isCancelled { return 0 }
@@ -83,7 +83,7 @@ public extension Socket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
         var bytes_read:Int = 0
         while bytes_read < length {
             if Task.isCancelled { return 0 }
@@ -102,7 +102,7 @@ public extension Socket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
+    public func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
         if Task.isCancelled { return 0 }
         let read:Int = recv(fileDescriptor, baseAddress, length, 0)
         if read < 0 { // error
@@ -112,7 +112,7 @@ public extension Socket {
     }
 
     @inlinable
-    func handleReadError() throws {
+    public func handleReadError() throws {
         if errno == EAGAIN || errno == EWOULDBLOCK {
             return
         }
@@ -125,9 +125,9 @@ public extension Socket {
 }
 
 // MARK: Writing
-public extension Socket {
+extension Socket {
     @inlinable
-    func writeSIMD<T: SIMD>(_ simd: inout T) throws where T.Scalar: BinaryInteger {
+    public func writeSIMD<T: SIMD>(_ simd: inout T) throws where T.Scalar: BinaryInteger {
         var err:Error? = nil
         withUnsafeBytes(of: simd) { p in
             do {
@@ -141,7 +141,7 @@ public extension Socket {
         }
     }
     @inlinable
-    func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
+    public func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
         var sent:Int = 0
         while sent < length {
             if Task.isCancelled { return }

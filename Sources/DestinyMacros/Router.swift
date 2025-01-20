@@ -158,14 +158,14 @@ enum Router : ExpressionMacro {
     }
 }
 
-private extension Router {
+extension Router {
     static func route_path_already_registered(context: some MacroExpansionContext, node: some SyntaxProtocol, _ string: String) {
         context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "routePathAlreadyRegistered", message: "Route path (\(string)) already registered.")))
     }
 }
 
 // MARK: Router Groups
-private extension Router {
+extension Router {
     static func router_groups_string(
         context: some MacroExpansionContext,
         registered_paths: inout Set<String>,
@@ -180,7 +180,7 @@ private extension Router {
 }
 
 // MARK: Redirects
-private extension Router {
+extension Router {
     static func parse_redirects(
         context: some MacroExpansionContext,
         version: HTTPVersion,
@@ -212,7 +212,7 @@ private extension Router {
 }
 
 // MARK: Static routes string
-private extension Router {
+extension Router {
     static func static_routes_string(
         context: some MacroExpansionContext,
         registered_paths: inout Set<String>,
@@ -269,7 +269,7 @@ private extension Router {
 }
 
 // MARK: Conditional route
-private extension Router {
+extension Router {
     static func conditionalRoute(
         context: some MacroExpansionContext,
         conditionalResponders: inout [RoutePath:ConditionalRouteResponderProtocol],
@@ -325,7 +325,7 @@ struct RoutePath : Hashable {
 }
 
 // MARK: Dynamic routes string
-private extension Router {
+extension Router {
     static func dynamic_routes_string(
         context: some MacroExpansionContext,
         registered_paths: inout Set<String>,

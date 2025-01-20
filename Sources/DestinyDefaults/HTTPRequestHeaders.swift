@@ -72,61 +72,61 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
 }
 
 // MARK: Accept
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func accept<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
+    public mutating func accept<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
         accept = mediaType?.httpValue
         return self
     }
 }
 
 // MARK: Accept-Charset
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func acceptCharset(_ charset: Charset?) -> Self {
+    public mutating func acceptCharset(_ charset: Charset?) -> Self {
         acceptCharset = charset
         return self
     }
 }
 
 // MARK: Accept-Encoding
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func acceptEncoding(_ encoding: HTTPRequestHeader.AcceptEncoding?) -> Self {
+    public mutating func acceptEncoding(_ encoding: HTTPRequestHeader.AcceptEncoding?) -> Self {
         acceptEncoding = encoding
         return self
     }
 }
 
 // MARK: Content-Length
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func contentLength(_ length: Int?) -> Self {
+    public mutating func contentLength(_ length: Int?) -> Self {
         contentLength = length
         return self
     }
 }
 
 // MARK: Content-Type
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func contentType<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
+    public mutating func contentType<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
         contentType = mediaType?.httpValue
         return self
     }
 }
 
 // MARK: Date
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     #if canImport(FoundationEssentials)
     @discardableResult
     @inlinable
-    mutating func date(_ date: Date?) -> Self {
+    public mutating func date(_ date: Date?) -> Self {
         self.date = date
         return self
     }
@@ -134,70 +134,70 @@ public extension HTTPRequestHeaders {
 }
 
 // MARK: From
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func from(_ emailAddress: String?) -> Self {
+    public mutating func from(_ emailAddress: String?) -> Self {
         from = emailAddress
         return self
     }
 }
 
 // MARK: Host
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func host(_ host: String?) -> Self {
+    public mutating func host(_ host: String?) -> Self {
         self.host = host
         return self
     }
 }
 
 // MARK: Max-Forwards
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func maxForwards(_ maxForwards: Int?) -> Self {
+    public mutating func maxForwards(_ maxForwards: Int?) -> Self {
         self.maxForwards = maxForwards
         return self
     }
 }
 
 // MARK: Range
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func range(_ range: HTTPRequestHeader.Range?) -> Self {
+    public mutating func range(_ range: HTTPRequestHeader.Range?) -> Self {
         self.range = range
         return self
     }
 }
 
 // MARK: X-Requested-With
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func xRequestedWith(_ with: HTTPRequestHeader.XRequestedWith?) -> Self {
+    public mutating func xRequestedWith(_ with: HTTPRequestHeader.XRequestedWith?) -> Self {
         xRequestedWith = with
         return self
     }
 }
 
 // MARK: X-Http-Method-Override
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func xHttpMethodOverride(_ method: HTTPRequestMethod?) -> Self {
+    public mutating func xHttpMethodOverride(_ method: HTTPRequestMethod?) -> Self {
         xHttpMethodOverride = method
         return self
     }
 }
 
 // MARK: Sec-GPC
-public extension HTTPRequestHeaders {
+extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    mutating func secGPC(_ consented: Bool) -> Self {
+    public mutating func secGPC(_ consented: Bool) -> Self {
         secGPC = consented
         return self
     }

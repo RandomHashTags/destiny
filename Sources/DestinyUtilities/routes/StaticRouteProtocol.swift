@@ -51,9 +51,9 @@ public protocol StaticRouteProtocol : RouteProtocol {
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
 }
 
-public extension StaticRouteProtocol {
+extension StaticRouteProtocol {
     @inlinable
-    var startLine : String {
+    public var startLine : String {
         return method.rawName + " /" + path.joined(separator: "/") + " " + version.string()
     }
 }

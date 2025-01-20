@@ -44,8 +44,8 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
 }
 
 // MARK: Parse
-public extension StaticRedirectionRoute {
-    static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
+extension StaticRedirectionRoute {
+    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var from:[String] = []

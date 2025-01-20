@@ -50,8 +50,8 @@ public enum Charset : String, CustomDebugStringConvertible, Sendable {
 }
 
 /// MARK: SwiftSyntax extensions
-public extension Charset {
-    init?(expr: ExprSyntax) {
+extension Charset {
+    public init?(expr: ExprSyntax) {
         guard let string:String = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
             return nil
         }

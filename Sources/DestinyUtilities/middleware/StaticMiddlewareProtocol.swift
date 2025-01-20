@@ -59,9 +59,9 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
         headers: inout [String:String]
     )
 }
-public extension StaticMiddlewareProtocol {
+extension StaticMiddlewareProtocol {
     @inlinable
-    func handles(
+    public func handles(
         version: HTTPVersion,
         method: HTTPRequestMethod,
         contentType: HTTPMediaType,
@@ -74,7 +74,7 @@ public extension StaticMiddlewareProtocol {
     }
 
     @inlinable
-    func apply(
+    public func apply(
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponse.Status,

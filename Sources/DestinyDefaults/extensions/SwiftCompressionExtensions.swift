@@ -8,8 +8,8 @@
 import SwiftCompression
 import SwiftSyntax
 
-public extension CompressionAlgorithm {
-    static func parse(_ expr: ExprSyntax) -> Self? {
+extension CompressionAlgorithm {
+    public static func parse(_ expr: ExprSyntax) -> Self? {
         let key:String
         guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
         if let string:String = function.calledExpression.memberAccess?.declName.baseName.text {
@@ -96,7 +96,7 @@ public extension CompressionAlgorithm {
         }
     }
 
-    var acceptEncodingName : String {
+    public var acceptEncodingName : String {
         switch self {
             case .brotli: return "br"
             case .huffmanCoding: return "huffman"

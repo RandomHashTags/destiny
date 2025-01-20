@@ -37,8 +37,8 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
 }
 
 // Redirects do not use compression.
-public extension RedirectionRouteProtocol {
-    var supportedCompressionAlgorithms : Set<CompressionAlgorithm> {
+extension RedirectionRouteProtocol {
+    public var supportedCompressionAlgorithms : Set<CompressionAlgorithm> {
         get { [] }
         set {}
     }

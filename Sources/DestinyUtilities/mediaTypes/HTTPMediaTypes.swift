@@ -83,9 +83,9 @@ public protocol HTTPMediaTypeProtocol : CustomDebugStringConvertible, Hashable, 
 
     var structure : HTTPMediaType { get }
 }
-public extension HTTPMediaTypeProtocol where Self: RawRepresentable, RawValue == String {
+extension HTTPMediaTypeProtocol where Self: RawRepresentable, RawValue == String {
     @inlinable
-    var structure : HTTPMediaType {
+    public var structure : HTTPMediaType {
         HTTPMediaType(debugDescription: debugDescription, httpValue: httpValue)
     }
 }

@@ -78,8 +78,8 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 }
 
 // MARK: Parse
-public extension StaticMiddleware {
-    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
+extension StaticMiddleware {
+    public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil
         var handlesMethods:Set<HTTPRequestMethod>? = nil
         var handlesStatuses:Set<HTTPResponse.Status>? = nil

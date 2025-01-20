@@ -61,8 +61,8 @@ public enum HTTPVersion : String, Hashable, Sendable {
     }
 }
 
-public extension HTTPVersion {
-    static func parse(_ expr: ExprSyntax) -> HTTPVersion? {
+extension HTTPVersion {
+    public static func parse(_ expr: ExprSyntax) -> HTTPVersion? {
         guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
         switch string {
         case "v0_9": return .v0_9
