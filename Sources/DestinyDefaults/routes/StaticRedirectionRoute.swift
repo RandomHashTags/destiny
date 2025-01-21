@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRedirectionRoute
-/// Default Redirection Route that handles redirects for static routes.
+/// Default Redirection Route implementation that handles redirects for static routes.
 public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     public package(set) var from:[String]
     public package(set) var to:[String]

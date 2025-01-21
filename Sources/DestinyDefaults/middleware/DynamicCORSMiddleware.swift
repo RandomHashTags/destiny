@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: DynamicCORSMiddleware
-/// Default dynamic `CORSMiddlewareProtocol` that enables CORS for dynamic requests.
+/// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
     public let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void

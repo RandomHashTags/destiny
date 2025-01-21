@@ -18,6 +18,7 @@ import Darwin
 
 // MARK: HTTPDateFormat
 public enum HTTPDateFormat {
+    @inlinable
     public static func now() -> String? {
         #if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
         return nowGlibc()
@@ -79,7 +80,7 @@ public enum HTTPDateFormat {
 // MARK: Glibc
 extension HTTPDateFormat {
     @inlinable
-    static func nowGlibc() -> String? {
+    public static func nowGlibc() -> String? {
         var now:time_t = time(nil)
         guard let gmt:UnsafeMutablePointer<tm> = gmtime(&now) else { return nil }
         return httpDateGlibc(gmt.pointee)

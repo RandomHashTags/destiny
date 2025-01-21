@@ -7,7 +7,7 @@
 
 import DestinyUtilities
 
-/// Default Router that handles middleware, routes and router groups.
+/// Default Router implementation that handles middleware, routes and router groups.
 public final class Router : RouterProtocol {
     public let version:HTTPVersion
     public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]

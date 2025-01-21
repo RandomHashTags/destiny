@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: DynamicMiddleware
-/// Default Dynamic Middleware which handles requests to dynamic routes.
+/// Default Dynamic Middleware implementation which handles requests to dynamic routes.
 public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     public static let defaultOnError:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol, _ error: Error) async -> Void = { request, response, error in
         response.status = .internalServerError

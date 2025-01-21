@@ -9,7 +9,7 @@ import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-/// Default Dynamic Route Responder that responds to dynamic routes.
+/// Default Dynamic Route Responder implementation that responds to dynamic routes.
 public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
