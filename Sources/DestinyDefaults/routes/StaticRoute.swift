@@ -139,6 +139,20 @@ extension StaticRoute {
 // MARK: Convenience inits
 extension StaticRoute {
     @inlinable
+    public static func on<T: HTTPMediaTypeProtocol>(
+        version: HTTPVersion = .v1_0,
+        method: HTTPRequestMethod,
+        path: [StaticString],
+        status: HTTPResponseStatus = .notImplemented,
+        contentType: T,
+        charset: Charset? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) -> Self {
+        return Self(version: version, method: method, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+    }
+
+    @inlinable
     public static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
@@ -148,7 +162,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .get, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .get, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -161,7 +175,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .head, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .head, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -174,7 +188,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .post, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .post, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -187,7 +201,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .put, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .put, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -200,7 +214,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .delete, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .delete, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -213,7 +227,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .connect, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .connect, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -226,7 +240,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .options, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .options, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -239,7 +253,7 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .trace, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .trace, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -252,6 +266,6 @@ extension StaticRoute {
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return StaticRoute(version: version, method: .patch, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .patch, path: path, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 }

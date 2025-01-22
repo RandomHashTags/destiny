@@ -105,15 +105,19 @@ public final class Router : RouterProtocol {
             // TODO: throw error
         }
     }
+
     public func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool = false) throws {
         var copy:DynamicRouteProtocol = route
         copy.applyStaticMiddleware(staticMiddleware)
         try dynamicResponses.register(version: copy.version, route: copy, responder: responder, override: override)
     }
+
     public func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws {
         staticMiddleware.insert(middleware, at: index)
         // TODO: update existing routes?
     }
+
+    @inlinable
     public func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws {
         dynamicMiddleware.insert(middleware, at: index)
         // TODO: update existing routes?
