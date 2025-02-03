@@ -54,7 +54,7 @@ extension CompressionAlgorithm {
                 }
             }
             return .runLengthEncoding(minRun: minRun, alwaysIncludeRunCount: alwaysIncludeRunCount)
-        case "snappy": return CompressionAlgorithm.snappy
+        case "snappy": return CompressionAlgorithm.snappy(windowSize: 32_000)
         /*case "snappyFramed": self = .snappyFramed
         case "zstd": self = .zstd
 

@@ -61,7 +61,7 @@ enum HTTPFieldContentType : DeclarationMacro {
         httpValues = []
         for element in dictionary {
             let key:String = element.key.stringLiteral!.string
-            let value:HTTPFieldContentTypeDetails = HTTPFieldContentTypeDetails(expr: element.value.functionCall!)
+            let value:HTTPFieldContentTypeDetails = HTTPFieldContentTypeDetails(key: key, expr: element.value.functionCall!)
             cases.append(key)
             httpValues.append(category + "/" + value.httpValue)
             for ext in value.fileExtensions {
@@ -76,8 +76,9 @@ struct HTTPFieldContentTypeDetails {
     let httpValue:String
     let fileExtensions:Set<String>
     
-    init(expr: FunctionCallExprSyntax) {
-        httpValue = expr.arguments.first!.expression.stringLiteral!.string
+    init(key: String, expr: FunctionCallExprSyntax) {
+        let value:String = expr.arguments.first!.expression.stringLiteral!.string
+        httpValue = value.isEmpty ? key : value
         if let array:ArrayElementListSyntax = expr.arguments.last!.expression.array?.elements {
             fileExtensions = Set(array.compactMap({ $0.expression.stringLiteral?.string }))
         } else {
