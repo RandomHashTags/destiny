@@ -53,7 +53,6 @@ Many protocols only require the bare minimum to work as intended so the implemen
 - [ ] Native load balancing & clustering
 - [ ] Support custom middleware & routes in default `#router`
 - [ ] Support third-party macro expansions in `#router`
-- [ ] CSS & JavaScript minification (separate repo?)
 - [ ] Swift-APNS (separate repo?)
 - [ ] Embedded support
 
