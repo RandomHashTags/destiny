@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 12/31/24.
 //
 
+#if canImport(ArgumentParser)
 import ArgumentParser
+#endif
 
 /// Defines what boot options can be used for a server.
 public struct BootCommands : ParsableCommand {

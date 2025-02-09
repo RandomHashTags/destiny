@@ -7,10 +7,17 @@
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
+#elseif canImport(Foundation)
+import Foundation
 #endif
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
+
+#if canImport(SwiftCompression)
 import SwiftCompression
+#endif
 
 // MARK: HTTPResponseHeaders
 /// Default storage for HTTP response headers.
@@ -28,7 +35,7 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
     @usableFromInline var contentLength:Int?
     @usableFromInline var contentType:String?
     @usableFromInline var retryAfterDuration:Int?
-    #if canImport(FoundationEssentials)
+    #if canImport(FoundationEssentials) || canImport(Foundation)
     @usableFromInline var retryAfterDate:Date?
     #endif
     @usableFromInline var tk:HTTPResponseHeader.TK?
@@ -139,7 +146,7 @@ extension HTTPResponseHeaders {
         return self
     }
 
-    #if canImport(FoundationEssentials)
+    #if canImport(FoundationEssentials) || canImport(Foundation)
     @discardableResult
     @inlinable
     public mutating func retryAfter(_ date: Date?) -> Self {

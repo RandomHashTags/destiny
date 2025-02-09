@@ -9,8 +9,13 @@
 import Foundation
 #endif
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
+
+#if canImport(SwiftCompression)
 import SwiftCompression
+#endif
 
 // MARK: StaticFileMiddleware
 public struct StaticFileMiddleware : FileMiddlewareProtocol {

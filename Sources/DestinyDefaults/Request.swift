@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 11/11/24.
 //
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
 
 /// Default storage for request data.
 public struct Request : RequestProtocol {

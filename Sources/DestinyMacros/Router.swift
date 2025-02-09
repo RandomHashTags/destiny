@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+#if canImport(DestinyDefaults) && canImport(DestinyUtilities) && canImport(SwiftCompression) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyDefaults
 import DestinyUtilities
 import SwiftCompression
@@ -375,3 +376,4 @@ extension Router {
         return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterized_string)])"
     }
 }
+#endif

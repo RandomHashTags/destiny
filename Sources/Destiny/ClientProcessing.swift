@@ -9,7 +9,9 @@
 import Foundation
 #endif
 
+#if canImport(Logging)
 import Logging
+#endif
 
 public enum ClientProcessing {
     // MARK: Process
@@ -32,8 +34,12 @@ public enum ClientProcessing {
         router: RouterProtocol
     ) async throws {
         defer {
+            #if canImport(Foundation)
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
+            #else
+            #warning("Unable to shutdown and close client file descriptors!")
+            #endif
         }
         #if DEBUG
         logger.info(Logger.Message(stringLiteral: request.startLine.stringSIMD()))

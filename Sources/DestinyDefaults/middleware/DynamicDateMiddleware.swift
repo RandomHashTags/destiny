@@ -5,9 +5,17 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
+
+#if canImport(Logging)
 import Logging
+#endif
+
+#if canImport(ServiceLifecycle)
 import ServiceLifecycle
+#endif
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax

@@ -5,8 +5,13 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
+#if canImport(SwiftCompression)
 import SwiftCompression
+#endif
+
+#if canImport(SwiftDiagnostics)
 import SwiftDiagnostics
+#endif
 
 #if canImport(SwiftSyntax)
 import SwiftSyntax
@@ -232,7 +237,9 @@ extension HTTPRequestHeader {
 // MARK: Accept-Encoding
 extension HTTPRequestHeader {
     public struct AcceptEncoding : Sendable {
+        #if canImport(SwiftCompression)
         public let compression:CompressionAlgorithm
+        #endif
     }
 }
 

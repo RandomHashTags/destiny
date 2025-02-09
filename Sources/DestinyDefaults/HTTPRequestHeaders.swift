@@ -7,10 +7,17 @@
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
+#elseif canImport(Foundation)
+import Foundation
 #endif
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
+
+#if canImport(SwiftCompression)
 import SwiftCompression
+#endif
 
 // MARK: HTTPRequestHeaders
 /// Default storage for HTTP request headers.
@@ -23,13 +30,13 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
 
     public var accept:String?
     public var acceptCharset:Charset?
-    #if canImport(FoundationEssentials)
+    #if canImport(FoundationEssentials) || canImport(Foundation)
     public var acceptDatetime:Date?
     #endif
     public var acceptEncoding:HTTPRequestHeader.AcceptEncoding?
     public var contentLength:Int?
     public var contentType:String?
-    #if canImport(FoundationEssentials)
+    #if canImport(FoundationEssentials) || canImport(Foundation)
     public var date:Date?
     #endif
     public var from:String?

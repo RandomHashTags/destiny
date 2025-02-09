@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 11/7/24.
 //
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
 public struct DynamicRouteResponder : DynamicRouteResponderProtocol {

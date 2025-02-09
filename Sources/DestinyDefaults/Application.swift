@@ -5,9 +5,17 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
+
+#if canImport(Logging)
 import Logging
+#endif
+
+#if canImport(ServiceLifecycle)
 import ServiceLifecycle
+#endif
 
 public struct Application : ApplicationProtocol {
     public static private(set) var shared:Application! = nil

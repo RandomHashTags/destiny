@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -86,3 +87,4 @@ struct HTTPFieldContentTypeDetails {
         }
     }
 }
+#endif

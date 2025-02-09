@@ -7,6 +7,8 @@
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
+#elseif canImport(Foundation)
+import Foundation
 #endif
 
 public enum RouteResponses {
@@ -128,7 +130,12 @@ extension RouteResponses {
 }
 
 
-#if canImport(FoundationEssentials)
+#if canImport(FoundationEssentials) || canImport(Foundation)
+// MARK: Foundation
+
+
+
+
 // MARK: Data
 extension RouteResponses {
     public struct Data : StaticRouteResponderProtocol {

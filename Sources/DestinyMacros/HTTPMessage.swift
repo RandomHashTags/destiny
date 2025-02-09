@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+#if canImport(DestinyUtilities) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -46,3 +47,4 @@ enum HTTPMessage : DeclarationMacro {
         }
     }
 }
+#endif

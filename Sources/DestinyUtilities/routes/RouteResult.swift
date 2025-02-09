@@ -7,9 +7,9 @@
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
+#elseif canImport(Foundation)
+import Foundation
 #endif
-
-import SwiftCompression
 
 #if canImport(SwiftSyntax)
 import SwiftSyntax
@@ -26,7 +26,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     /// [UInt16]
     case bytes16([UInt16])
 
-    #if canImport(FoundationEssentials)
+    #if canImport(FoundationEssentials) || canImport(Foundation)
     case data(Data)
     #endif
 
@@ -40,7 +40,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let s): return ".string(\"\(s)\")"
         case .bytes(let b): return ".bytes(\(b))"
         case .bytes16(let b): return ".bytes16(\(b))"
-        #if canImport(FoundationEssentials)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d): return ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
         case .json(let e): return ".json()" // TODO: fix
@@ -55,7 +55,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let string): return string.utf8.count
         case .bytes(let bytes): return bytes.count
         case .bytes16(let bytes): return bytes.count
-        #if canImport(FoundationEssentials)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let data): return data.count
         #endif
         case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
@@ -70,12 +70,12 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let string): return string
         case .bytes(let bytes): return String.init(decoding: bytes, as: UTF8.self)
         case .bytes16(let bytes): return String.init(decoding: bytes, as: UTF16.self)
-        #if canImport(FoundationEssentials)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let data): return String.init(decoding: data, as: UTF8.self)
         #endif
         case .json(let encodable):
             do {
-                #if canImport(FoundationEssentials)
+                #if canImport(FoundationEssentials) || canImport(Foundation)
                 let data:Data = try JSONEncoder().encode(encodable)
                 return String(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
                 #else
@@ -101,7 +101,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
                 bytes.append(contentsOf: byte.bytes)
             }
             return bytes
-        #if canImport(FoundationEssentials)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d): return [UInt8](d)
         #endif
         case .json(let e): return [] // TODO: finish
@@ -186,7 +186,7 @@ extension RouteResult {
             return "RouteResponses.UInt8Array(\(b))"
         case .bytes16(let b):
             return "RouteResponses.UInt16Array(\(b))"
-        #if canImport(FoundationEssentials)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d):
             return "RouteResponses.Data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
@@ -203,7 +203,7 @@ extension RouteResult {
         case .string(_): return Self.string(input).responderDebugDescription
         case .bytes(_): return Self.bytes([UInt8](input.utf8)).responderDebugDescription
         case .bytes16(_): return Self.bytes16([UInt16](input.utf16)).responderDebugDescription
-        #if canImport(FoundationEssentials)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(_): return Self.data(Data(input.utf8)).responderDebugDescription
         #endif
         case .json(let e):
@@ -217,7 +217,7 @@ extension RouteResult {
         switch self {
         case .bytes(_), .bytes16(_):
             return try responderDebugDescription(input.string(escapeLineBreak: false))
-        #if canImport(FoundationEssentials)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(_):
             return try responderDebugDescription(input.string(escapeLineBreak: false))
         #endif

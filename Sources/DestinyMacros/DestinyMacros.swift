@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+#if canImport(SwiftCompilerPlugin) && canImport(SwiftDiagnostics) && canImport(SwiftSyntaxMacros)
 import SwiftCompilerPlugin
 import SwiftDiagnostics
 import SwiftSyntaxMacros
@@ -33,3 +34,4 @@ struct DestinyMacros : CompilerPlugin {
         HTTPMessage.self
     ]
 }
+#endif

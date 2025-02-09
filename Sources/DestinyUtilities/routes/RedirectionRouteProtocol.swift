@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 12/11/24.
 //
 
+#if canImport(SwiftCompression)
 import SwiftCompression
+#endif
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
@@ -40,6 +42,8 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     #endif
 }
 
+#if canImport(SwiftCompression)
+// MARK: SwiftCompression
 // Redirects do not use compression.
 extension RedirectionRouteProtocol {
     public var supportedCompressionAlgorithms : Set<CompressionAlgorithm> {
@@ -47,3 +51,4 @@ extension RedirectionRouteProtocol {
         set {}
     }
 }
+#endif

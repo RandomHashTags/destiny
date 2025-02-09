@@ -9,10 +9,11 @@
 import SwiftSyntax
 #endif
 
+#if canImport(SwiftCompression)
 import SwiftCompression
+#endif
 
 extension CompressionAlgorithm {
-
     public var acceptEncodingName : String {
         switch self {
             case .brotli: return "br"

@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 12/8/24.
 //
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax

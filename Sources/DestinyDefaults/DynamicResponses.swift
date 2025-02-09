@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+#if canImport(DestinyUtilities)
 import DestinyUtilities
+#endif
 
 /// Default storage where Destiny handles dynamic routes.
 public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
