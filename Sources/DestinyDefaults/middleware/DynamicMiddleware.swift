@@ -6,8 +6,11 @@
 //
 
 import DestinyUtilities
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: DynamicMiddleware
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.
@@ -42,7 +45,8 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension DynamicMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var logic:String = "\(function.trailingClosure?.debugDescription ?? "{ _, _ in }")"
@@ -57,3 +61,4 @@ extension DynamicMiddleware {
         return middleware
     }
 }
+#endif

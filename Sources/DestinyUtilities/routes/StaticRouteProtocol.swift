@@ -5,8 +5,10 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 /// Core Static Route protocol where a complete HTTP Message is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
@@ -22,6 +24,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
     /// Content returned from this route.
     var result : RouteResult { get }
 
+    #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// The HTTP Message of this route.
     /// 
     /// - Parameters:
@@ -48,6 +51,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
     ///   - version: The `HTTPVersion` of the `RouterProtocol` this middleware is assigned to.
     ///   - function: The SwiftSyntax expression that represents this route.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
+    #endif
 }
 
 extension StaticRouteProtocol {

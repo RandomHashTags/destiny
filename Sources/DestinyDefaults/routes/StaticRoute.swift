@@ -8,8 +8,11 @@
 import DestinyUtilities
 import SwiftCompression
 import SwiftDiagnostics
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
@@ -84,7 +87,8 @@ public struct StaticRoute : StaticRouteProtocol {
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension StaticRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
@@ -135,6 +139,7 @@ extension StaticRoute {
         return route
     }
 }
+#endif
 
 // MARK: Convenience inits
 extension StaticRoute {

@@ -6,8 +6,11 @@
 //
 
 import DestinyUtilities
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: StaticRedirectionRoute
 /// Default Redirection Route implementation that handles redirects for static routes.
@@ -42,7 +45,8 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension StaticRedirectionRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
@@ -66,3 +70,4 @@ extension StaticRedirectionRoute {
         return route
     }
 }
+#endif

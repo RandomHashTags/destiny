@@ -10,7 +10,10 @@ import FoundationEssentials
 #endif
 
 import SwiftCompression
+
+#if canImport(SwiftSyntax)
 import SwiftSyntax
+#endif
 
 // MARK: RouteResult
 public enum RouteResult : CustomDebugStringConvertible, Sendable {
@@ -107,7 +110,8 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     }
 }
 
-// MARK: Init
+#if canImport(SwiftSyntax)
+// MARK: SwiftSyntax
 extension RouteResult {
     public init?(expr: ExprSyntax) {
         guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
@@ -168,6 +172,7 @@ extension RouteResult {
         }
     }
 }
+#endif
 
 // MARK: Responder
 extension RouteResult {

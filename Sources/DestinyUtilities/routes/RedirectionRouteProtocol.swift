@@ -6,8 +6,11 @@
 //
 
 import SwiftCompression
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 /// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
 public protocol RedirectionRouteProtocol : RouteProtocol {
@@ -26,6 +29,7 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     /// - Returns: a string representing a complete HTTP Message.
     func response() throws -> String
 
+    #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this route. Computed at compile time.
     /// 
     /// - Parameters:
@@ -33,6 +37,7 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     ///   - version: The `HTTPVersion` of the `RouterProtocol` this middleware is assigned to.
     ///   - function: The SwiftSyntax expression that represents this route.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
+    #endif
 }
 
 // Redirects do not use compression.

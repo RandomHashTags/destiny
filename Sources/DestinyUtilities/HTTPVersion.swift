@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 11/8/24.
 //
 
+#if canImport(SwiftSyntax)
 import SwiftSyntax
+#endif
 
 /// List of Hypertext Transfer Protocol versions.
 public enum HTTPVersion : String, Hashable, Sendable {
@@ -61,6 +63,8 @@ public enum HTTPVersion : String, Hashable, Sendable {
     }
 }
 
+#if canImport(SwiftSyntax)
+// MARK: SwiftSyntax
 extension HTTPVersion {
     public static func parse(_ expr: ExprSyntax) -> HTTPVersion? {
         guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
@@ -75,3 +79,4 @@ extension HTTPVersion {
         }
     }
 }
+#endif

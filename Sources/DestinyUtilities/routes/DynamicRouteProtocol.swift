@@ -5,8 +5,10 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 /// Core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
@@ -34,6 +36,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     ///   - middleware: The static middleware to apply to this route.
     mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol])
 
+    #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this dynamic route. Computed at compile time.
     /// 
     /// - Parameters:
@@ -44,6 +47,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// - Warning: You need to assign `handlerLogic` properly.
     /// - Warning: You should apply any statuses and headers using the middleware.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
+    #endif
 }
 
 extension DynamicRouteProtocol {

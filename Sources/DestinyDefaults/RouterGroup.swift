@@ -6,8 +6,11 @@
 //
 
 import DestinyUtilities
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: RouterGroup
 /// Default Router Group implementation that handles grouped routes.
@@ -131,7 +134,8 @@ public struct RouterGroup : RouterGroupProtocol {
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension RouterGroup {
     public static func parse(
         context: some MacroExpansionContext,
@@ -186,3 +190,4 @@ extension RouterGroup {
         return Self(endpoint: endpoint, staticMiddleware: staticMiddleware, dynamicMiddleware: dynamicMiddleware, staticRoutes: staticRoutes, dynamicRoutes: dynamicRoutes)
     }
 }
+#endif

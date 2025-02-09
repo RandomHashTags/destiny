@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 1/20/25.
 //
 
+#if canImport(SwiftSyntax)
 import SwiftSyntax
+#endif
 
 // MARK: HTTPResponseStatus
 /// HTTP Status Codes. 
@@ -716,10 +718,12 @@ extension HTTPResponseStatus {
     }
 }
 
-// MARK: Init ExprSyntax
+#if canImport(SwiftSyntax)
+// MARK: SwiftSyntax
 extension HTTPResponseStatus {
     public init?(expr: ExprSyntax) {
         guard let string:String = expr.memberAccess?.declName.baseName.text, let status:Self = Self(rawValue: string) else { return nil }
         self = status
     }
 }
+#endif

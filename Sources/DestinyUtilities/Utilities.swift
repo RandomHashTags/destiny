@@ -10,8 +10,11 @@ import Foundation
 #endif
 
 import SwiftDiagnostics
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 @freestanding(declaration, names: arbitrary)
 macro HTTPFieldContentType(
@@ -34,6 +37,12 @@ struct HTTPFieldContentTypeDetails {
 #endif
 
 public typealias DestinyRoutePathType = SIMD64<UInt8>
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
+
+
+
 
 // MARK: DiagnosticMsg
 package struct DiagnosticMsg : DiagnosticMessage {
@@ -75,3 +84,4 @@ extension ExprSyntaxProtocol {
 extension StringLiteralExprSyntax {
     package var string : String { "\(segments)" }
 }
+#endif

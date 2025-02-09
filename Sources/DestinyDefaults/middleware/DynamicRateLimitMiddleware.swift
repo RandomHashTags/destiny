@@ -6,8 +6,11 @@
 //
 
 import DestinyUtilities
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: DynamicRateLimitMiddleware
 public final class DynamicRateLimitMiddleware : RateLimitMiddlewareProtocol, DynamicMiddlewareProtocol, @unchecked Sendable { // TODO: finish (need a way to identify requests, preferably by IP address or persistent UUID)
@@ -31,9 +34,11 @@ public final class DynamicRateLimitMiddleware : RateLimitMiddlewareProtocol, Dyn
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension DynamicRateLimitMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         return Self()
     }
 }
+#endif

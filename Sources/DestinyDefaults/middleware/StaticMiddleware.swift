@@ -6,8 +6,11 @@
 //
 
 import DestinyUtilities
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
@@ -76,7 +79,8 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension StaticMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil
@@ -121,3 +125,4 @@ extension StaticMiddleware {
         )
     }
 }
+#endif

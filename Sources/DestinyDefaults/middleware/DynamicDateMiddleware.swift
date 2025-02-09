@@ -8,8 +8,11 @@
 import DestinyUtilities
 import Logging
 import ServiceLifecycle
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: DynamicDateMiddleware
 /// Adds the `Date` header to responses for dynamic routes.
@@ -69,9 +72,11 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension DynamicDateMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         return Self()
     }
 }
+#endif

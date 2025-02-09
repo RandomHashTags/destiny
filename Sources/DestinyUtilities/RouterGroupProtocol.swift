@@ -5,8 +5,10 @@
 //  Created by Evan Anderson on 11/22/24.
 //
 
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 /// Core Router Group protocol that handles routes grouped by a single endpoint.
 public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
@@ -17,6 +19,7 @@ public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
     /// - Returns: The dynamic route responder for the given request.
     @inlinable func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol?
 
+    #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this router group.
     /// 
     /// - Parameters:
@@ -32,4 +35,5 @@ public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
     ) -> Self
+    #endif
 }

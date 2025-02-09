@@ -6,8 +6,11 @@
 //
 
 import SwiftDiagnostics
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Sendable {
@@ -18,40 +21,6 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     public typealias ExtendedGraphemeClusterLiteralType = String
     public typealias UnicodeScalarLiteralType = String
 
-    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
-        var array:[String] = []
-        if let literal:[Substring] = expr.stringLiteral?.string.split(separator: "/") {
-            for substring in literal {
-                if substring.contains(" ") {
-                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expr)
-                    return []
-                }
-                array.append(String(substring))
-            }
-        } else if let arrayElements:ArrayElementListSyntax = expr.array?.elements {
-            for element in arrayElements {
-                guard let string:String = element.expression.stringLiteral?.string else { return [] }
-                if string.contains(" ") {
-                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: element.expression)
-                    return []
-                }
-                array.append(string)
-            }
-        }
-        return array
-    }
-    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [PathComponent] {
-        return expr.array?.elements.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []
-    }
-
-    public init?(context: some MacroExpansionContext, expression: ExprSyntax) {
-        guard let string:String = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess?.declName.baseName.text else { return nil }
-        if string.contains(" ") {
-            Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expression)
-            return nil
-        }
-        self = .init(stringLiteral: string)
-    }
     public init(stringLiteral value: String) {
         if value.first == ":" {
             self = .parameter(value[value.index(after: value.startIndex)...].replacingOccurrences(of: ":", with: ""))
@@ -92,3 +61,43 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
         }
     }
 }
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
+extension PathComponent {
+    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
+        var array:[String] = []
+        if let literal:[Substring] = expr.stringLiteral?.string.split(separator: "/") {
+            for substring in literal {
+                if substring.contains(" ") {
+                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expr)
+                    return []
+                }
+                array.append(String(substring))
+            }
+        } else if let arrayElements:ArrayElementListSyntax = expr.array?.elements {
+            for element in arrayElements {
+                guard let string:String = element.expression.stringLiteral?.string else { return [] }
+                if string.contains(" ") {
+                    Diagnostic.spacesNotAllowedInRoutePath(context: context, node: element.expression)
+                    return []
+                }
+                array.append(string)
+            }
+        }
+        return array
+    }
+    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [PathComponent] {
+        return expr.array?.elements.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []
+    }
+
+    public init?(context: some MacroExpansionContext, expression: ExprSyntax) {
+        guard let string:String = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess?.declName.baseName.text else { return nil }
+        if string.contains(" ") {
+            Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expression)
+            return nil
+        }
+        self = .init(stringLiteral: string)
+    }
+}
+#endif

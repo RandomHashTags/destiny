@@ -89,6 +89,17 @@ let package = Package(
 
         .executableTarget(name: "Run", dependencies: ["Destiny"]),
 
+        /*.executableTarget(
+            name: "RunEmbedded",
+            dependencies: [
+                "Destiny"
+            ],
+            swiftSettings: [
+                .unsafeFlags(["-wmo"]),
+                .enableExperimentalFeature("Embedded")
+            ]
+        ),*/
+
         .testTarget(
             name: "DestinyTests",
             dependencies: ["Destiny"]

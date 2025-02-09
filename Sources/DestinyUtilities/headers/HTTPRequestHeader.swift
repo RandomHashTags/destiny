@@ -7,8 +7,14 @@
 
 import SwiftCompression
 import SwiftDiagnostics
+
+#if canImport(SwiftSyntax)
 import SwiftSyntax
+#endif
+
+#if canImport(SwiftSyntaxMacros)
 import SwiftSyntaxMacros
+#endif
 
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
@@ -251,7 +257,8 @@ extension HTTPRequestHeader {
     }
 }
 
-// MARK: SwiftSyntax extensions
+#if canImport(SwiftSyntax)
+// MARK: SwiftSyntax
 extension HTTPRequestHeader {
     public init?(expr: ExprSyntaxProtocol) {
         guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
@@ -263,7 +270,8 @@ extension HTTPRequestHeader {
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntaxMacros
 extension HTTPRequestHeader {
     /// - Returns: The valid headers in a dictionary.
     public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String:String] {
@@ -292,3 +300,6 @@ extension HTTPRequestHeader {
         return key
     }
 }
+#endif
+
+#endif

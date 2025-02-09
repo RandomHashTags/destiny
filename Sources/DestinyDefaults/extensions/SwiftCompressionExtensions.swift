@@ -5,9 +5,28 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
-import SwiftCompression
+#if canImport(SwiftSyntax)
 import SwiftSyntax
+#endif
 
+import SwiftCompression
+
+extension CompressionAlgorithm {
+
+    public var acceptEncodingName : String {
+        switch self {
+            case .brotli: return "br"
+            case .huffmanCoding: return "huffman"
+            case .lzw: return "compress"
+
+            case ._7z: return "7z"
+            default: return rawValue
+        }
+    }
+}
+
+#if canImport(SwiftSyntax)
+// MARK: SwiftSyntax
 extension CompressionAlgorithm {
     public static func parse(_ expr: ExprSyntax) -> Self? {
         let key:String
@@ -95,15 +114,5 @@ extension CompressionAlgorithm {
         default: return nil
         }
     }
-
-    public var acceptEncodingName : String {
-        switch self {
-            case .brotli: return "br"
-            case .huffmanCoding: return "huffman"
-            case .lzw: return "compress"
-
-            case ._7z: return "7z"
-            default: return rawValue
-        }
-    }
 }
+#endif

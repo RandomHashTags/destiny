@@ -6,8 +6,11 @@
 //
 
 import DestinyUtilities
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: DynamicCORSMiddleware
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
@@ -86,7 +89,8 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension DynamicCORSMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased
@@ -134,3 +138,4 @@ extension DynamicCORSMiddleware {
         return Self(allowedOrigin: allowedOrigin, allowedHeaders: allowedHeaders, allowedMethods: allowedMethods, allowCredentials: allowCredentials, exposedHeaders: exposedHeaders, maxAge: maxAge)
     }
 }
+#endif

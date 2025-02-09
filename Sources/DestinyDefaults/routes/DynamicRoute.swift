@@ -7,8 +7,11 @@
 
 import DestinyUtilities
 import SwiftCompression
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
@@ -80,7 +83,8 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 }
 
-// MARK: Parse
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+// MARK: SwiftSyntax
 extension DynamicRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
@@ -142,6 +146,7 @@ extension DynamicRoute {
         return route
     }
 }
+#endif
 
 // MARK: Convenience inits
 extension DynamicRoute {
