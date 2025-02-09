@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 12/11/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
 
 public enum DestinyDefaults {
     @inlinable

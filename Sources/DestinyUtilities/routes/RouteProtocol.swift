@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 10/29/24.
 //
 
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
 
 /// Core Route protocol.
 public protocol RouteProtocol : CustomDebugStringConvertible, Sendable {

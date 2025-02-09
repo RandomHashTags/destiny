@@ -9,17 +9,9 @@
 import Foundation
 #endif
 
-#if canImport(ArgumentParser)
 import ArgumentParser
-#endif
-
-#if canImport(Logging)
 import Logging
-#endif
-
-#if canImport(ServiceLifecycle)
 import ServiceLifecycle
-#endif
 
 // MARK: Server
 /// A default `ServerProtocol` implementation.

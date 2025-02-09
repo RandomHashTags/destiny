@@ -5,25 +5,9 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-#if canImport(DestinyDefaults)
 @_exported import DestinyDefaults
-#endif
-
-#if canImport(DestinyUtilities)
 @_exported import DestinyUtilities
-#endif
-
-#if canImport(Logging)
-import Logging
-#endif
-
-#if canImport(ServiceLifecycle)
-import ServiceLifecycle
-#endif
-
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
 
 /// Default macro to create a `Router`.
 ///

@@ -5,14 +5,9 @@
 //  Created by Evan Anderson on 10/31/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 // MARK: DynamicMiddleware
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.

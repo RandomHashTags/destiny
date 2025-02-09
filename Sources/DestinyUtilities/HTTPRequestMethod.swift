@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
-#if canImport(SwiftSyntax)
 import SwiftSyntax
-#endif
 
 // MARK: HTTPRequestMethod
 // Why use this over the apple/swift-http-types?
@@ -896,14 +894,6 @@ extension HTTPRequestMethod {
     }
 }
 
-// MARK: Init ExprSyntax
-extension HTTPRequestMethod {
-    public init?(expr: ExprSyntax) {
-        guard let caseName:String = expr.memberAccess?.declName.baseName.text, let method:Self = Self(rawValue: caseName) else { return nil }
-        self = method
-    }
-}
-
 // MARK: Debug description
 extension HTTPRequestMethod : CustomDebugStringConvertible  {
     @inlinable
@@ -960,6 +950,7 @@ extension HTTPRequestMethod { // TODO: make a `simd` computed property
     public static let patchSIMD:SIMD8<UInt8> = SIMD8<UInt8>(80, 65, 84, 67, 72, 0, 0, 0)
 }
 
+#if canImport(SwiftSyntax)
 // MARK: SwiftSyntax
 extension HTTPRequestMethod {
     public init?(expr: ExprSyntaxProtocol) {
@@ -982,3 +973,4 @@ extension HTTPRequestMethod {
         }
     }
 }
+#endif

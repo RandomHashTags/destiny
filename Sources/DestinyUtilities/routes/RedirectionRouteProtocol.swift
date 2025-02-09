@@ -5,14 +5,9 @@
 //  Created by Evan Anderson on 12/11/24.
 //
 
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 /// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
 public protocol RedirectionRouteProtocol : RouteProtocol {

@@ -5,13 +5,8 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
-#if canImport(SwiftSyntax)
-import SwiftSyntax
-#endif
-
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
+import SwiftSyntax
 
 extension CompressionAlgorithm {
     public var acceptEncodingName : String {

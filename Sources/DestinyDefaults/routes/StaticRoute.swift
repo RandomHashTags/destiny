@@ -5,22 +5,11 @@
 //  Created by Evan Anderson on 10/29/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
-
-#if canImport(SwiftDiagnostics)
 import SwiftDiagnostics
-#endif
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
@@ -81,7 +70,9 @@ public struct StaticRoute : StaticRouteProtocol {
             }
         }
         if let context:MacroExpansionContext = context, let function:FunctionCallExprSyntax = function, status == .notImplemented {
+            #if canImport(SwiftDiagnostics)
             Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
+            #endif
         }
         headers[HTTPResponseHeader.contentType.rawName] = nil
         headers[HTTPResponseHeader.contentLength.rawName] = nil

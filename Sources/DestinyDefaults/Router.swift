@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
 
 /// Default Router implementation that handles middleware, routes and router groups.
 public final class Router : RouterProtocol {

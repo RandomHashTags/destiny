@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 10/31/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
 
 public struct DynamicResponse : DynamicResponseProtocol {
     public var headers:[String:String]

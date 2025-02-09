@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
-#if canImport(SwiftSyntax)
 import SwiftSyntax
-#endif
 
 // MARK: Charset
 /// HTTP charset encodings.

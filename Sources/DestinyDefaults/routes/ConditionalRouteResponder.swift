@@ -5,13 +5,8 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
 
 /// Default Conditional Route Responder implementation where multiple responders are computed at compile time, but only one should be selected based on the request.
 public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {

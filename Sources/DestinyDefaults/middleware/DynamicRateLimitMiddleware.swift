@@ -5,14 +5,9 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 // MARK: DynamicRateLimitMiddleware
 public final class DynamicRateLimitMiddleware : RateLimitMiddlewareProtocol, DynamicMiddlewareProtocol, @unchecked Sendable { // TODO: finish (need a way to identify requests, preferably by IP address or persistent UUID)

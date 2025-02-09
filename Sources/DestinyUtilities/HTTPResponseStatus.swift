@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 1/20/25.
 //
 
-#if canImport(SwiftSyntax)
 import SwiftSyntax
-#endif
 
 // MARK: HTTPResponseStatus
 /// HTTP Status Codes. 

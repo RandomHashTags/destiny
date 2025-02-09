@@ -11,9 +11,7 @@ import FoundationEssentials
 import Foundation
 #endif
 
-#if canImport(SwiftSyntax)
 import SwiftSyntax
-#endif
 
 // MARK: RouteResult
 public enum RouteResult : CustomDebugStringConvertible, Sendable {

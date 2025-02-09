@@ -5,21 +5,10 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
-
-#if canImport(SwiftDiagnostics)
 import SwiftDiagnostics
-#endif
-
-#if canImport(SwiftSyntax)
 import SwiftSyntax
-#endif
-
-#if canImport(SwiftSyntaxMacros)
 import SwiftSyntaxMacros
-#endif
 
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
@@ -276,8 +265,9 @@ extension HTTPRequestHeader {
         }
     }
 }
+#endif
 
-#if canImport(SwiftSyntaxMacros)
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 // MARK: SwiftSyntaxMacros
 extension HTTPRequestHeader {
     /// - Returns: The valid headers in a dictionary.
@@ -307,6 +297,4 @@ extension HTTPRequestHeader {
         return key
     }
 }
-#endif
-
 #endif

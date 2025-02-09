@@ -5,13 +5,8 @@
 //  Created by Evan Anderson on 12/29/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(Logging)
 import Logging
-#endif
 
 /// Default Error Responder implementation that does the bare minimum required to log and send an error response known at compile time.
 public struct StaticErrorResponder : ErrorResponderProtocol {

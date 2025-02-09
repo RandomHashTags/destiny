@@ -5,13 +5,8 @@
 //  Created by Evan Anderson on 1/7/25.
 //
 
-#if canImport(Logging)
 import Logging
-#endif
-
-#if canImport(ServiceLifecycle)
 import ServiceLifecycle
-#endif
 
 #if canImport(Glibc)
 import Glibc

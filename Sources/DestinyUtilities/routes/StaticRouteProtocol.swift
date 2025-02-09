@@ -5,10 +5,8 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 /// Core Static Route protocol where a complete HTTP Message is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {

@@ -5,9 +5,7 @@
 //  Created by Evan Anderson on 12/31/24.
 //
 
-#if canImport(ArgumentParser)
 import ArgumentParser
-#endif
 
 public struct StopCommand : AsyncParsableCommand {
     public static let configuration:CommandConfiguration = CommandConfiguration(commandName: "stop", aliases: ["shutdown"])

@@ -5,14 +5,9 @@
 //  Created by Evan Anderson on 12/11/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 // MARK: StaticRedirectionRoute
 /// Default Redirection Route implementation that handles redirects for static routes.

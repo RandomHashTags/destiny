@@ -10,11 +10,8 @@ import Foundation
 #endif
 
 import SwiftDiagnostics
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 @freestanding(declaration, names: arbitrary)
 macro HTTPFieldContentType(
@@ -44,7 +41,7 @@ public typealias DestinyRoutePathType = SIMD64<UInt8>
 
 
 
-// MARK: DiagnosticMsg
+// MARK: SwiftDiagnostics
 package struct DiagnosticMsg : DiagnosticMessage {
     package let message:String
     package let diagnosticID:MessageID

@@ -5,14 +5,9 @@
 //  Created by Evan Anderson on 12/27/24.
 //
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 // MARK: RouterGroup
 /// Default Router Group implementation that handles grouped routes.

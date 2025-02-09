@@ -11,13 +11,8 @@ import FoundationEssentials
 import Foundation
 #endif
 
-#if canImport(Destiny)
 import Destiny
-#endif
-
-#if canImport(Logging)
 import Logging
-#endif
 
 let router:Router = #router(
     version: .v1_1,

@@ -9,9 +9,7 @@
 import Foundation
 #endif
 
-#if canImport(Logging)
 import Logging
-#endif
 
 public enum ClientProcessing {
     // MARK: Process

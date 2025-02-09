@@ -5,10 +5,8 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
-#endif
 
 /// Core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {

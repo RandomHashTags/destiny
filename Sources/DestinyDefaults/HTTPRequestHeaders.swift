@@ -11,13 +11,8 @@ import FoundationEssentials
 import Foundation
 #endif
 
-#if canImport(DestinyUtilities)
 import DestinyUtilities
-#endif
-
-#if canImport(SwiftCompression)
 import SwiftCompression
-#endif
 
 // MARK: HTTPRequestHeaders
 /// Default storage for HTTP request headers.
