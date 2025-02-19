@@ -55,6 +55,6 @@ public protocol StaticRouteProtocol : RouteProtocol {
 extension StaticRouteProtocol {
     @inlinable
     public var startLine : String {
-        return method.rawName + " /" + path.joined(separator: "/") + " " + version.string()
+        return method.rawName + " /" + path.joined(separator: "/") + " " + version.string
     }
 }

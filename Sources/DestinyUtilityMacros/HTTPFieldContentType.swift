@@ -43,7 +43,7 @@ enum HTTPFieldContentType : DeclarationMacro {
             fileExtensionString += "\ncase \"\(fileExtension)\": self = .\(targetCase)"
         }
         fileExtensionString += "\ndefault: return nil\n}\n        }\n"
-        decls.append("\(raw: "enum \(categoryCapitalized) : String, HTTPMediaTypeProtocol {\n")")
+        decls.append("\(raw: "public enum \(categoryCapitalized) : String, HTTPMediaTypeProtocol {\n")")
         decls.append("\(raw: cases_string)")
         decls.append("\(raw: fileExtensionString)")
         decls.append("\(raw: debugDescriptions)")

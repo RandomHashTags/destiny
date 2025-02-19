@@ -13,6 +13,7 @@ import Foundation
 
 import Destiny
 import Logging
+import SwiftCompression
 
 let router:Router = #router(
     version: .v1_1,

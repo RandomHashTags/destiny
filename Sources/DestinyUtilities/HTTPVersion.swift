@@ -36,7 +36,7 @@ public enum HTTPVersion : String, Hashable, Sendable {
 
     /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
     @inlinable
-    public func string() -> String {
+    public var string : String {
         switch self {
         case .v0_9: return "HTTP/0.9"
         case .v1_0: return "HTTP/1.0"

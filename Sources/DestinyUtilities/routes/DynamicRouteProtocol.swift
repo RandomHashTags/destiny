@@ -51,6 +51,6 @@ public protocol DynamicRouteProtocol : RouteProtocol {
 extension DynamicRouteProtocol {
     @inlinable
     public var startLine : String {
-        return method.rawName + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string()
+        return method.rawName + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
     }
 }

@@ -11,6 +11,7 @@ import FoundationEssentials
 import Foundation
 #endif
 
+import SwiftCompressionUtilities
 import SwiftSyntax
 
 // MARK: RouteResult
@@ -41,8 +42,8 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d): return ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
-        case .json(let e): return ".json()" // TODO: fix
-        case .error(let e): return ".error()" // TODO: fix
+        case .json: return ".json()" // TODO: fix
+        case .error: return ".error()" // TODO: fix
         }
     }
 
@@ -102,8 +103,8 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d): return [UInt8](d)
         #endif
-        case .json(let e): return [] // TODO: finish
-        case .error(let e): return [] // TODO: finish
+        case .json: return [] // TODO: finish
+        case .error: return [] // TODO: finish
         }
     }
 }
@@ -188,35 +189,35 @@ extension RouteResult {
         case .data(let d):
             return "RouteResponses.Data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
-        case .json(let e):
+        case .json:
             return "RouteResponses.StaticString(\"\")" // TODO: fix
-        case .error(let e):
+        case .error:
             return "RouteResponses.StaticString(\"\")" // TODO: fix
         }
     }
 
     public func responderDebugDescription(_ input: String) -> String {
         switch self {
-        case .staticString(_): return Self.staticString(input).responderDebugDescription
-        case .string(_): return Self.string(input).responderDebugDescription
-        case .bytes(_): return Self.bytes([UInt8](input.utf8)).responderDebugDescription
-        case .bytes16(_): return Self.bytes16([UInt16](input.utf16)).responderDebugDescription
+        case .staticString: return Self.staticString(input).responderDebugDescription
+        case .string: return Self.string(input).responderDebugDescription
+        case .bytes: return Self.bytes([UInt8](input.utf8)).responderDebugDescription
+        case .bytes16: return Self.bytes16([UInt16](input.utf16)).responderDebugDescription
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        case .data(_): return Self.data(Data(input.utf8)).responderDebugDescription
+        case .data: return Self.data(Data(input.utf8)).responderDebugDescription
         #endif
-        case .json(let e):
+        case .json:
             return "RouteResponses.StaticString(\"\")" // TODO: fix
-        case .error(let e):
+        case .error:
             return "RouteResponses.StaticString(\"\")" // TODO: fix
         }
     }
 
     public func responderDebugDescription(_ input: HTTPMessage) throws -> String {
         switch self {
-        case .bytes(_), .bytes16(_):
+        case .bytes, .bytes16:
             return try responderDebugDescription(input.string(escapeLineBreak: false))
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        case .data(_):
+        case .data:
             return try responderDebugDescription(input.string(escapeLineBreak: false))
         #endif
         default:

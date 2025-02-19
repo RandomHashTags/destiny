@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 12/30/24.
 //
 
-public extension HTTPMediaTypes {
+extension HTTPMediaTypes {
     #HTTPFieldContentType(
         category: "image",
         values: [

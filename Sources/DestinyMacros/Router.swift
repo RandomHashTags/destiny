@@ -226,7 +226,7 @@ extension Router {
         if !redirects.isEmpty {
             string += redirects.compactMap({ (route, function) in
                 do {
-                    var string:String = route.method.rawName + " /" + route.from.joined(separator: "/") + " " + route.version.string()
+                    var string:String = route.method.rawName + " /" + route.from.joined(separator: "/") + " " + route.version.string
                     if registered_paths.contains(string) {
                         route_path_already_registered(context: context, node: function, string)
                         return nil
@@ -234,12 +234,12 @@ extension Router {
                         registered_paths.insert(string)
                         let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
                         let response:String = RouteResult.staticString(try route.response()).responderDebugDescription
-                        return "// \(string)\n\(buffer) : " + response
+                        return "// \(string)\n\(buffer)\n: " + response
                     }
                 } catch {
                     return nil
                 }
-            }).joined(separator: ",\n") + ",\n"
+            }).joined(separator: ",\n\n") + ",\n"
         }
         string += routes.compactMap({ (route, function) in
             do {
@@ -253,7 +253,7 @@ extension Router {
                     let httpResponse:DestinyUtilities.HTTPMessage = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
                         let value:String = try route.result.responderDebugDescription(httpResponse)
-                        return "// \(string)\n\(buffer) : " + value
+                        return "// \(string)\n\(buffer)\n: " + value
                     } else {
                         conditionalRoute(context: context, conditionalResponders: &conditionalResponders, route: route, function: function, string: string, buffer: buffer, httpResponse: httpResponse)
                         return nil
@@ -263,7 +263,7 @@ extension Router {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
                 return nil
             }
-        }).joined(separator: ",\n")
+        }).joined(separator: ",\n\n")
         return string + "\n"
     }
 }
@@ -349,9 +349,9 @@ extension Router {
                 registered_paths.insert(string)
                 let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
                 let responder:String = route.responderDebugDescription
-                return "// \(string)\n\(buffer) : \(responder)"
+                return "// \(string)\n\(buffer)\n: \(responder)"
             }
-        }).joined(separator: ",\n") + "\n"
+        }).joined(separator: ",\n\n") + "\n"
         var parameterized_by_path_count:[String] = []
         var parameterized_string:String = ""
         if !parameterized.isEmpty {
@@ -361,7 +361,7 @@ extension Router {
                         parameterized_by_path_count.append("")
                     }
                 }
-                var string:String = route.method.rawName + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string()
+                var string:String = route.method.rawName + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
                 if !registered_paths.contains(string) {
                     registered_paths.insert(string)
                     string = route.startLine
@@ -371,7 +371,7 @@ extension Router {
                     route_path_already_registered(context: context, node: function, string)
                 }
             }
-            parameterized_string = "\n" + parameterized_by_path_count.map({ "[\($0.isEmpty ? "" : $0 + "\n")]" }).joined(separator: ",\n") + "\n"
+            parameterized_string = "\n" + parameterized_by_path_count.map({ "[\($0.isEmpty ? "" : $0 + "\n")]" }).joined(separator: ",\n\n") + "\n"
         }
         return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterized_string)])"
     }

@@ -29,6 +29,9 @@ let package = Package(
         // Logging
         .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
 
+        // Metrics
+        //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
+
         // Service runtime
         .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1"),
 
@@ -51,6 +54,7 @@ let package = Package(
                 "DestinyUtilityMacros",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
+                //.product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "SwiftCompression", package: "swift-compression"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),

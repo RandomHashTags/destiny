@@ -29,7 +29,6 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
     public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
     public let onLoad:(@Sendable () -> Void)?
     public let onShutdown:(@Sendable () -> Void)?
-    private var serverLoop:Task<Void, Never>! = nil
 
     @usableFromInline
     private(set) var serverFD:Int32? = nil
@@ -212,7 +211,6 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
             close(serverFD)
             self.serverFD = nil
         }
-        //serverLoop.cancel()
         try await gracefulShutdown()
         logger.notice("Server shutdown successfully")
     }

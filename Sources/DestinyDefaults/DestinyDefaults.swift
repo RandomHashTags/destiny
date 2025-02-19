@@ -46,7 +46,7 @@ public enum DestinyDefaults {
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
-        var string:String = version.string() + " \(status)" + suffix + headers
+        var string:String = version.string + " \(status)" + suffix + headers
         if let result:String = result {
             let content_length:Int = result.utf8.count
             if let contentType:HTTPMediaType = contentType {

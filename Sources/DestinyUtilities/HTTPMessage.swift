@@ -41,7 +41,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
     @inlinable
     public func string(escapeLineBreak: Bool) throws -> String {
         let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
-        var string:String = version.string() + " \(status)" + suffix
+        var string:String = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
         }
@@ -61,7 +61,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
     @inlinable
     public func bytes() throws -> [UInt8] {
         let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
-        var string:String = version.string() + " \(status)" + suffix
+        var string:String = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
         }

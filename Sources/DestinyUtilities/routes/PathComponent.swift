@@ -32,17 +32,23 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
             case .parameter(let s): return ".parameter(\"\(s)\")"
         }
     }
-    public var description : String { "\"" + slug + "\"" }
+
+    @inlinable
+    public var description : String {
+        "\"" + slug + "\""
+    }
 
     /// Whether or not this component is a parameter.
+    @inlinable
     public var isParameter : Bool {
         switch self {
-        case .literal(_):   return false
-        case .parameter(_): return true
+        case .literal:   return false
+        case .parameter: return true
         }
     }
 
     /// String representation of this component including the delimiter, if it is a parameter. Used to determine where parameters are located in a route's path at compile time.
+    @inlinable
     public var slug : String {
         switch self {
         case .literal(let value):   return value
