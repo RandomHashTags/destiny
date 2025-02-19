@@ -30,6 +30,7 @@ Many protocols only require the bare minimum to work as intended so the implemen
 
 - [ ] CORS <b>(Dynamic CORS implemented Dec 9, 2024)</b>
 - [ ] Redirects <b>(Static Redirects implemented Dec 11, 2024)</b>
+- [ ] Metric Middleware
 - [ ] DocC Documentation and tutorials
 - [ ] Unit testing
 - [ ] SIMD processing for better performance
@@ -40,7 +41,6 @@ Many protocols only require the bare minimum to work as intended so the implemen
 
 ### TODO
 
-- [ ] Metric Middleware
 - [ ] Cache Middleware
 - [ ] Route queries
 - [ ] Case insensitive routes

@@ -8,7 +8,7 @@
 import DestinyUtilities
 
 /// Default Router implementation that handles middleware, routes and router groups.
-public final class Router : RouterProtocol {
+public final class Router : RouterProtocol { // TODO: fix Swift 6 warnings
     public let version:HTTPVersion
     public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]
     public private(set) var dynamicResponses:DynamicResponses

@@ -8,6 +8,7 @@
 import DestinyUtilities
 
 public struct DynamicResponse : DynamicResponseProtocol {
+    public var timestamps:DynamicRequestTimestamps
     public var headers:[String:String]
     public var result:RouteResult
     public var parameters:[String]
@@ -15,12 +16,14 @@ public struct DynamicResponse : DynamicResponseProtocol {
     public var status:HTTPResponseStatus
 
     public init(
+        timestamps: DynamicRequestTimestamps = DynamicRequestTimestamps(received: .now, loaded: .now, processed: .now),
         version: HTTPVersion,
         status: HTTPResponseStatus,
         headers: [String:String],
         result: RouteResult,
         parameters: [String]
     ) {
+        self.timestamps = timestamps
         self.version = version
         self.status = status
         self.headers = headers
