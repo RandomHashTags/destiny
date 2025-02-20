@@ -28,6 +28,7 @@ Many protocols only require the bare minimum to work as intended so the implemen
 - [x] Error Middleware <b>(Dec 29, 2024 | see [ErrorResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ErrorResponderProtocol.swift))</b>
 - [x] Commands <b>(Dec 31, 2024)</b>
 - [x] Case insensitive routes <b>(Feb 19, 2025 | dynamic routes need a little more work)</b>
+- [x] Routes with wildcards <b>(Feb 19, 2025)</b>
 
 ### WIP
 
@@ -44,7 +45,6 @@ Many protocols only require the bare minimum to work as intended so the implemen
 
 - [ ] Cache Middleware
 - [ ] Route queries
-- [ ] Routes with wildcards
 - [ ] Response/data streaming
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
@@ -129,6 +129,13 @@ Disables Nagle's algorithm, which buffers small packets before sending them, to 
 - Usage: `--tcpnodelay <true | false>`
 
 </details>
+
+## Routes
+
+### Wildcards
+
+- `*` and `:<param name>` = parameter
+- `**` = catchall
 
 
 ## Benchmarks

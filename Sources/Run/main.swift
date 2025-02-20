@@ -165,6 +165,20 @@ let router:Router = #router(
         handler: { request, response in
             response.result = .string(response.parameters[0])
         }
+    ),
+    DynamicRoute.get(
+        path: ["anydynamic", "*", "value"],
+        contentType: HTTPMediaTypes.Text.plain,
+        handler: { request, response in
+            response.result = .string(response.parameters[0])
+        }
+    ),
+    DynamicRoute.get(
+        path: ["catchall", "**"],
+        contentType: HTTPMediaTypes.Text.plain,
+        handler: { request, response in
+            response.result = .string(response.parameters.description)
+        }
     )
 )
 let server:Server<Socket> = try Server<Socket>(

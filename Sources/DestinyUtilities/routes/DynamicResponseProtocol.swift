@@ -7,7 +7,7 @@
 
 /// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
-    /// Timestamps recording when request events happen.
+    /// Timestamps when request events happen.
     var timestamps : DynamicRequestTimestamps { get set }
 
     /// The response `HTTPVersion`.

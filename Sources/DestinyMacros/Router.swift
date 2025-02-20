@@ -377,9 +377,14 @@ extension Router.Storage {
     ) -> String {
         var parameterized:[(DynamicRoute, FunctionCallExprSyntax)] = []
         var parameterless:[(DynamicRoute, FunctionCallExprSyntax)] = []
+        var catchall:[(DynamicRoute, FunctionCallExprSyntax)] = []
         for route in routes {
             if route.0.path.count(where: { $0.isParameter }) != 0 {
-                parameterized.append(route)
+                if route.0.path.count(where: { $0 == .catchall }) != 0 {
+                    catchall.append(route)
+                } else {
+                    parameterized.append(route)
+                }
             } else {
                 parameterless.append(route)
             }
@@ -423,7 +428,21 @@ extension Router.Storage {
             }
             parameterized_string = "\n" + parameterized_by_path_count.map({ "[\($0.isEmpty ? "" : $0 + "\n")]" }).joined(separator: ",\n\n") + "\n"
         }
-        return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterized_string)])"
+        let catchallString:String = catchall.isEmpty ? "" : "\n" + catchall.compactMap({ route, function in
+            var string:String = route.startLine
+            if !isCaseSensitive {
+                string = string.lowercased()
+            }
+            if registeredPaths.contains(string) {
+                Router.routePathAlreadyRegistered(context: context, node: function, string)
+                return nil
+            } else {
+                registeredPaths.insert(string)
+                let responder:String = route.responderDebugDescription
+                return "// \(string)\n\(responder)"
+            }
+        }).joined(separator: ",\n\n") + "\n"
+        return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterized_string)],\ncatchall: [\(catchallString)]\n)"
     }
 }
 #endif

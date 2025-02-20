@@ -77,7 +77,7 @@ public struct RouterGroup : RouterGroupProtocol {
             }
         }
         self.staticResponses = staticResponses
-        self.dynamicResponses = .init(parameterless: parameterless, parameterized: parameterized)
+        self.dynamicResponses = .init(parameterless: parameterless, parameterized: parameterized, catchall: []) // TODO: fix catchall
     }
     public init(
         prefixEndpoints: [String],

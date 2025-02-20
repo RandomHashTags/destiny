@@ -11,16 +11,19 @@ import SwiftSyntaxMacros
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 // TODO: support case sensitivity
-public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Sendable {
+public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Hashable, Sendable {
     case literal(String)
     case parameter(String)
+    case catchall
 
     public typealias StringLiteralType = String
     public typealias ExtendedGraphemeClusterLiteralType = String
     public typealias UnicodeScalarLiteralType = String
 
     public init(stringLiteral value: String) {
-        if value.first == ":" {
+        if value == "**" {
+            self = .catchall
+        } else if value.first == ":" || value == "*" {
             self = .parameter(value[value.index(after: value.startIndex)...].replacingOccurrences(of: ":", with: ""))
         } else {
             self = .literal(value.replacingOccurrences(of: ":", with: ""))
@@ -31,6 +34,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
         switch self {
             case .literal(let s): return ".literal(\"\(s)\")"
             case .parameter(let s): return ".parameter(\"\(s)\")"
+            case .catchall: return ".catchall"
         }
     }
 
@@ -45,6 +49,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
         switch self {
         case .literal:   return false
         case .parameter: return true
+        case .catchall:  return true
         }
     }
 
@@ -54,6 +59,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
         switch self {
         case .literal(let value):   return value
         case .parameter(let value): return ":" + value
+        case .catchall: return "**"
         }
     }
 
@@ -63,6 +69,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
         switch self {
         case .literal(let value):   return value
         case .parameter(let value): return value
+        case .catchall:                       return ""
         }
     }
 }

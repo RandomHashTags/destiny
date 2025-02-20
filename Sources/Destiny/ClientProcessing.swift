@@ -112,6 +112,13 @@ public enum ClientProcessing {
         response.timestamps.loaded = loaded
         for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {
             response.parameters[index] = request.path[parameterIndex]
+            if responder.path[parameterIndex] == .catchall {
+                var i:Int = parameterIndex+1
+                while i < request.path.count {
+                    response.parameters.append(request.path[i])
+                    i += 1
+                }
+            }
         }
         for middleware in router.dynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {
