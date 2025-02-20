@@ -69,18 +69,14 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
         }
         let values:[String] = request.path
         guard let responders:[DynamicRouteResponderProtocol] = parameterized.get(values.count) else { return nil }
-        for responder in responders {
-            var found:Bool = true
+        loop: for responder in responders {
             for i in 0..<values.count {
                 let path:PathComponent = responder.path[i]
                 if !path.isParameter && path.value != values[i] {
-                    found = false
-                    break
+                    continue loop
                 }
             }
-            if found {
-                return responder
-            }
+            return responder
         }
         return nil
     }

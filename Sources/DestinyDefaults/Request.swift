@@ -71,18 +71,18 @@ public struct Request : RequestProtocol {
         values.reserveCapacity(10)
 
         for var token in tokens {
-            let cr_index:Int = token.leadingNonByteCount(byte: 13) // \r
-            if cr_index == 64 { // no carriage return in token
+            let crIndex:Int = token.leadingNonByteCount(byte: 13) // \r
+            if crIndex == 64 { // no carriage return in token
             } else { // carriage return in token
-                token.keepLeading(cr_index-1)
-                let colon_index:Int = token.leadingNonByteCount(byte: 58)
-                if colon_index != 64 { // has colon in token
+                token.keepLeading(crIndex-1)
+                let colonIndex:Int = token.leadingNonByteCount(byte: 58)
+                if colonIndex != 64 { // has colon in token
                     var header:SIMD64<UInt8> = token
-                    header.keepLeading(colon_index-1)
+                    header.keepLeading(colonIndex-1)
                     headers.append(header)
 
                     var value:SIMD64<UInt8> = token
-                    value.keepTrailing(64 - cr_index)
+                    value.keepTrailing(64 - crIndex)
                     values.append(value)
                 }
             }

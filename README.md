@@ -19,17 +19,18 @@ Many protocols only require the bare minimum to work as intended so the implemen
 - [x] Register middleware/routes after starting server <b>(Nov 8, 2024)</b>
 - [x] Support multiple data representations <b>(Nov 8, 2024)</b>
 - [x] Routes with parameters <b>(Nov 8, 2024)</b>
+- [x] CORS <b>(Dec 9, 2024 | static CORS needs a little more work)</b>
 - [x] Configure settings via Command Line Arguments <b>(Dec 11, 2024)</b>
+- [x] Redirects <b>(Dec 11, 2024 | dynamic redirects need a little more work)</b>
 - [x] Compression <b>(Dec 24, 2024 | see [Swift Compression](https://github.com/RandomHashTags/swift-compression))</b>
 - [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ConditionalRouteResponderProtocol.swift))</b>
 - [x] Router Groups <b>(Dec 27, 2024)</b>
 - [x] Error Middleware <b>(Dec 29, 2024 | see [ErrorResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ErrorResponderProtocol.swift))</b>
 - [x] Commands <b>(Dec 31, 2024)</b>
+- [x] Case insensitive routes <b>(Feb 19, 2025 | dynamic routes need a little more work)</b>
 
 ### WIP
 
-- [ ] CORS <b>(Dynamic CORS implemented Dec 9, 2024)</b>
-- [ ] Redirects <b>(Static Redirects implemented Dec 11, 2024)</b>
 - [ ] Metric Middleware
 - [ ] DocC Documentation and tutorials
 - [ ] Unit testing
@@ -43,7 +44,6 @@ Many protocols only require the bare minimum to work as intended so the implemen
 
 - [ ] Cache Middleware
 - [ ] Route queries
-- [ ] Case insensitive routes
 - [ ] Routes with wildcards
 - [ ] Response/data streaming
 - [ ] Data Validation (form, POST, etc)

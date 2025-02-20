@@ -17,23 +17,26 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     public let version:HTTPVersion
     public let method:HTTPRequestMethod
     public let status:HTTPResponseStatus
+    public let isCaseSensitive:Bool
 
     public init(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         status: HTTPResponseStatus,
         from: [StaticString],
+        isCaseSensitive: Bool = true,
         to: [StaticString]
     ) {
         self.version = version
         self.method = method
         self.status = status
         self.from = from.map({ $0.description })
+        self.isCaseSensitive = isCaseSensitive
         self.to = to.map({ $0.description })
     }
 
     public var debugDescription : String {
-        return "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status.debugDescription), from: \(from), to: \(to))"
+        return "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status.debugDescription), from: \(from), isCaseSensitive: \(isCaseSensitive), to: \(to))"
     }
 
     public func response() throws -> String {
@@ -49,6 +52,7 @@ extension StaticRedirectionRoute {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var from:[String] = []
+        var isCaseSensitive:Bool = true
         var to:[String] = []
         var status:HTTPResponseStatus = .movedPermanently
         for argument in function.arguments {
@@ -57,11 +61,12 @@ extension StaticRedirectionRoute {
             case "method": method = HTTPRequestMethod(expr: argument.expression) ?? method
             case "status": status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "from": from = PathComponent.parseArray(context: context, argument.expression)
+            case "isCaseSensitive", "caseSensitive": isCaseSensitive = argument.expression.booleanLiteral?.literal.text == "true"
             case "to": to = PathComponent.parseArray(context: context, argument.expression)
             default: break
             }
         }
-        var route:Self = Self(version: version, method: method, status: status, from: [], to: [])
+        var route:Self = Self(version: version, method: method, status: status, from: [], isCaseSensitive: isCaseSensitive, to: [])
         route.from = from
         route.to = to
         return route

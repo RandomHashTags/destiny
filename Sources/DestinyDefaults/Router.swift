@@ -8,11 +8,10 @@
 import DestinyUtilities
 
 /// Default Router implementation that handles middleware, routes and router groups.
-public final class Router : RouterProtocol { // TODO: fix Swift 6 warnings
+public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
     public let version:HTTPVersion
-    public private(set) var staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]
-    public private(set) var dynamicResponses:DynamicResponses
-    public private(set) var conditionalResponses:[DestinyRoutePathType:ConditionalRouteResponderProtocol]
+    public private(set) var caseSensitiveResponders:RouterResponderStorage
+    public private(set) var caseInsensitiveResponders:RouterResponderStorage
 
     public private(set) var staticMiddleware:[StaticMiddlewareProtocol]
     public var dynamicMiddleware:[DynamicMiddlewareProtocol]
@@ -28,9 +27,8 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 warnings
         errorResponder: ErrorResponderProtocol,
         dynamicNotFoundResponder: DynamicRouteResponderProtocol? = nil,
         staticNotFoundResponder: StaticRouteResponderProtocol,
-        staticResponses: [DestinyRoutePathType:StaticRouteResponderProtocol],
-        dynamicResponses: DynamicResponses,
-        conditionalResponses: [DestinyRoutePathType:ConditionalRouteResponderProtocol],
+        caseSensitiveResponders: RouterResponderStorage,
+        caseInsensitiveResponders: RouterResponderStorage,
         staticMiddleware: [StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         routerGroups: [RouterGroupProtocol]
@@ -39,26 +37,35 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 warnings
         self.errorResponder = errorResponder
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder
-        self.staticResponses = staticResponses
+        self.caseSensitiveResponders = caseSensitiveResponders
+        self.caseInsensitiveResponders = caseInsensitiveResponders
         self.dynamicMiddleware = dynamicMiddleware
-        self.conditionalResponses = conditionalResponses
         self.staticMiddleware = staticMiddleware
-        self.dynamicResponses = dynamicResponses
         self.routerGroups = routerGroups
     }
 
     @inlinable
     public func staticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol? {
-        return staticResponses[startLine]
+        if let responder:StaticRouteResponderProtocol = caseSensitiveResponders.static[startLine] {
+            return responder
+        }
+        return caseInsensitiveResponders.static[toLowercase(path: startLine)]
     }
     @inlinable
     public func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
-        return dynamicResponses.responder(for: &request)
+        if let responder:DynamicRouteResponderProtocol = caseSensitiveResponders.dynamic.responder(for: &request) {
+            return responder
+        }
+        //request.startLine = toLowercase(path: request.startLine) // TODO: finish
+        return caseInsensitiveResponders.dynamic.responder(for: &request)
     }
     
     @inlinable
     public func conditionalResponder(for request: inout RequestProtocol) -> RouteResponderProtocol? {
-        return conditionalResponses[request.startLine]?.responder(for: &request)
+        if let responder:RouteResponderProtocol = caseSensitiveResponders.conditional[request.startLine]?.responder(for: &request) {
+            return responder
+        }
+        return caseInsensitiveResponders.conditional[toLowercase(path: request.startLine)]?.responder(for: &request)
     }
 
     @inlinable
@@ -98,18 +105,31 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 warnings
     public func register(_ route: StaticRouteProtocol, override: Bool = false) throws {
         guard let responder:StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
         var string:String = route.startLine
-        let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-        if override || staticResponses[buffer] == nil {
-            staticResponses[buffer] = responder
+        var buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
+        if route.isCaseSensitive {
+            if override || caseSensitiveResponders.static[buffer] == nil {
+                caseSensitiveResponders.static[buffer] = responder
+            } else {
+                // TODO: throw error
+            }
         } else {
-            // TODO: throw error
+            buffer = toLowercase(path: buffer)
+            if override || caseInsensitiveResponders.static[buffer] == nil {
+                caseInsensitiveResponders.static[buffer] = responder
+            } else {
+                // TODO: throw error
+            }
         }
     }
 
     public func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool = false) throws {
         var copy:DynamicRouteProtocol = route
         copy.applyStaticMiddleware(staticMiddleware)
-        try dynamicResponses.register(version: copy.version, route: copy, responder: responder, override: override)
+        if route.isCaseSensitive {
+            try caseSensitiveResponders.dynamic.register(version: copy.version, route: copy, responder: responder, override: override)
+        } else {
+            try caseInsensitiveResponders.dynamic.register(version: copy.version, route: copy, responder: responder, override: override)
+        }
     }
 
     public func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws {
@@ -121,5 +141,17 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 warnings
     public func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws {
         dynamicMiddleware.insert(middleware, at: index)
         // TODO: update existing routes?
+    }
+}
+
+extension Router {
+    @inlinable
+    func toLowercase(path: DestinyRoutePathType) -> DestinyRoutePathType {
+        var upperCase:SIMDMask<SIMD64<UInt8>.MaskStorage> = path .>= 65
+        upperCase .&= path .<= 90
+
+        var addition:DestinyRoutePathType = .zero
+        addition.replace(with: 32, where: upperCase)
+        return path &+ addition
     }
 }

@@ -89,6 +89,12 @@ let router:Router = #router(
         result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
+        path: ["SHOOP"],
+        caseSensitive: false,
+        contentType: HTTPMediaTypes.Text.html,
+        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+    ),
+    StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
         contentType: HTTPMediaTypes.Text.html,

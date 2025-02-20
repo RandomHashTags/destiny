@@ -23,11 +23,13 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public let version:HTTPVersion
     public var method:HTTPRequestMethod
     public var status:HTTPResponseStatus
+    public let isCaseSensitive:Bool
 
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [PathComponent],
+        isCaseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -38,6 +40,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.version = version
         self.method = method
         self.path = path
+        self.isCaseSensitive = isCaseSensitive
         self.status = status
         self.contentType = contentType.structure
         self.defaultResponse = DynamicResponse.init(version: version, status: status, headers: headers, result: result, parameters: [])
@@ -60,6 +63,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
             version: .\(version),
             method: \(method.debugDescription),
             path: [\(path.map({ $0.debugDescription }).joined(separator: ","))],
+            isCaseSensitive: \(isCaseSensitive),
             status: \(status.debugDescription),
             contentType: \(contentType.debugDescription),
             supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))],
@@ -87,6 +91,7 @@ extension DynamicRoute {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var path:[PathComponent] = []
+        var isCaseSensitive:Bool = true
         var status:HTTPResponseStatus = .notImplemented
         var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
@@ -106,6 +111,8 @@ extension DynamicRoute {
                 for _ in path.filter({ $0.isParameter }) {
                     parameters.append("")
                 }
+            case "isCaseSensitive", "caseSensitive":
+                isCaseSensitive = argument.expression.booleanLiteral?.literal.text == "true"
             case "status":
                 status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "contentType":
@@ -133,11 +140,15 @@ extension DynamicRoute {
             version: version,
             method: method,
             path: path,
+            isCaseSensitive: isCaseSensitive,
             status: status,
             contentType: contentType,
             supportedCompressionAlgorithms: supportedCompressionAlgorithms,
             handler: { _, _ in }
         )
+        if !isCaseSensitive {
+            route.path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
+        }
         route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, result: .string(""), parameters: parameters)
         route.handlerDebugDescription = handler
         return route
@@ -152,6 +163,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -159,13 +171,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return Self(version: version, method: method, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func get<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -173,13 +186,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .get, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func head<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -187,13 +201,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .head, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func post<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -201,13 +216,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .post, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func put<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -215,13 +231,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .put, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func delete<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -229,13 +246,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .delete, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func connect<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -243,13 +261,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .connect, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func options<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -257,13 +276,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .options, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func trace<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -271,13 +291,14 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .trace, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
     public static func patch<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
+        caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
@@ -285,6 +306,6 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .patch, path: path, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: .patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 }

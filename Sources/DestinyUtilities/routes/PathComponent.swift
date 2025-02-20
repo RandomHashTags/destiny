@@ -10,6 +10,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
+// TODO: support case sensitivity
 public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Sendable {
     case literal(String)
     case parameter(String)
@@ -57,6 +58,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     }
 
     /// String representation of this component where the delimiter is omitted (only the name of the path is present).
+    @inlinable
     public var value : String {
         switch self {
         case .literal(let value):   return value
