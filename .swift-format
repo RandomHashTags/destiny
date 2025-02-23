@@ -1,0 +1,30 @@
+{
+    "version": 1,
+    "lineLength": 200,
+    "indentation" : {
+        "spaces": 4
+    },
+    "indentBlankLines": false,
+    "indentSwitchCaseLabels": false,
+    "lineBreakBeforeControlFlowKeywords": false,
+    "lineBreakBeforeEachArgument": false,
+    "respectsExistingLineBreaks": true,
+    "multiElementCollectionTrailingCommas": true,
+    "spacesAroundRangeFormationOperators": false,
+    "rules" : {
+        "AllPublicDeclarationsHaveDocumentation" : true,
+        "AlwaysUseLowerCamelCase" : true,
+        "DoNotUseSemicolons": true,
+        "NeverUseForceTry" : true,
+        "NoAccessLevelOnExtensionDeclaration": true,
+        "NoBlockComments": true,
+        "OneCasePerLine" : true,
+        "OneVariableDeclarationPerLine" : false,
+        "OrderedImports" : true,
+        "ReturnVoidInsteadOfEmptyTuple": true,
+        "TypeNamesShouldBeCapitalized" : true,
+        "UseEarlyExits" : true,
+        "UseShorthandTypeNames" : true,
+        "UseTripleSlashForDocumentationComments" : true
+    }
+}
