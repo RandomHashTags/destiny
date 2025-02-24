@@ -98,16 +98,18 @@ public struct Request : RequestProtocol {
         self.tokens = tokens
         guard var startLine:SIMD64<UInt8> = tokens.first else { return nil }
         let values:[SIMD64<UInt8>] = startLine.splitSIMD(separator: 32) // space
-        guard let versionSIMD:SIMD64<UInt8> = values.get(2) else { return nil }
-        let first_carriage_return_index:Int = startLine.leadingNonByteCount(byte: 13) // \r
-        headersBeginIndex = first_carriage_return_index + 2
+        guard let versionSIMD:SIMD64<UInt8> = values.get(2), let version:HTTPVersion = HTTPVersion(versionSIMD) else {
+            return nil
+        }
+        let firstCarriageReturnIndex:Int = startLine.leadingNonByteCount(byte: 13) // \r
+        headersBeginIndex = firstCarriageReturnIndex + 2
         //print("Utilities;Request;init;first_carriage_return_index=\(first_carriage_return_index);startLine=\(startLine.leadingString())")
         //print("shifted bytes=\((startLine &<< UInt8((first_carriage_return_index + 2) * 8)))")
-        startLine.keepLeading(first_carriage_return_index)
+        startLine.keepLeading(firstCarriageReturnIndex)
         self.startLine = startLine
         methodSIMD = values[0].lowHalf.lowHalf.lowHalf
         uri = values[1]
-        version = HTTPVersion(versionSIMD)
+        self.version = version
 
         //headersSIMD()
     }

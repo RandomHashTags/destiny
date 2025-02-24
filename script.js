@@ -39,6 +39,6 @@ export const options = {
 // about authoring k6 scripts.
 //
 export default function() {
-  http.get('http://192.168.1.174:8080/html');
+  http.get('http://localhost:8080/html');
   sleep(1);
 }

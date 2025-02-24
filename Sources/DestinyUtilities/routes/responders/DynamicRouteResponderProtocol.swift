@@ -7,10 +7,10 @@
 
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
-    /// The path of the route.
+    /// Path of the route.
     var path : [PathComponent] { get }
 
-    /// The indexes where the parameters are location in the `path`.
+    /// Indexes where parameters are location in the `path`.
     var parameterPathIndexes : [Int] { get }
 
     /// Default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.

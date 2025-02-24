@@ -12,8 +12,7 @@ import ServiceLifecycle
 public struct Application : ApplicationProtocol {
     public static private(set) var shared:Application! = nil
 
-    public let server:ServerProtocol
-    public let services:[Service]
+    public let serviceGroup:ServiceGroup
     public let logger:Logger
 
     public init(
@@ -21,21 +20,20 @@ public struct Application : ApplicationProtocol {
         services: [Service] = [],
         logger: Logger
     ) {
-        self.server = server
         var services:[Service] = services
         services.insert(server, at: 0)
-        self.services = services
+        serviceGroup = ServiceGroup(services: services, logger: logger)
         self.logger = logger
         Self.shared = self
     }
     public func run() async throws {
-        let group:ServiceGroup = ServiceGroup(configuration: .init(services: services, logger: logger))
-        try await group.run()
+        try await serviceGroup.run()
     }
 
     public func shutdown() async throws {
         logger.notice("Application shutting down...")
-        try await server.shutdown()
+        await serviceGroup.triggerGracefulShutdown()
+        try await gracefulShutdown()
         logger.notice("Application shutdown sucessfully")
     }
 }

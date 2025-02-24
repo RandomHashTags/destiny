@@ -22,7 +22,4 @@ public protocol ServerProtocol : Service {
 
     /// When the server terminates.
     var onShutdown : (@Sendable () -> Void)? { get }
-
-    /// Gracefully shuts down the server.
-    func shutdown() async throws
 }

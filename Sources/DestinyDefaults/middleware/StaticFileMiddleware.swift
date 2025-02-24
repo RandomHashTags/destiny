@@ -5,7 +5,9 @@
 //  Created by Evan Anderson on 1/12/25.
 //
 
-#if canImport(Foundation)
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#elseif canImport(Foundation)
 import Foundation
 #endif
 
@@ -33,14 +35,14 @@ public struct StaticFileMiddleware : FileMiddlewareProtocol {
         charset: Charset? = .utf8,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) throws -> [StaticRoute] {
-        #if canImport(Foundation)
+        #if canImport(FoundationEssentials) || canImport(Foundation)
         return try routesFoundation(version: version, method: method, charset: charset, supportedCompressionAlgorithms: supportedCompressionAlgorithms, path: filePath, endpoint: endpoint)
         #endif
         return []
     }
 }
 
-#if canImport(Foundation)
+#if canImport(FoundationEssentials) || canImport(Foundation)
 // MARK: Foundation
 extension StaticFileMiddleware {
     private func routesFoundation(
