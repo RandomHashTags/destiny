@@ -26,12 +26,9 @@ extension Server where ClientSocket : ~Copyable {
             let processor:EpollProcessor = try EpollProcessor(
                 serverFD: serverFD,
                 threads: threads,
-                maxEvents: maxEvents,
-                timeout: -1,
-                router: router,
-                acceptClient: acceptClient
+                maxEvents: maxEvents
             )
-            try await processor.run()
+            try await processor.run(timeout: -1, router: router, acceptClient: acceptClient)
         } catch {
             print("epoll;processClientsEpoll;broken")
         }
@@ -104,30 +101,28 @@ extension Server where ClientSocket : ~Copyable {
                 return []
             }
             var clients:[Int32] = []
-            for i in 0..<loadedClients {
-                let event:epoll_event = events[Int(i)]
+            for i in 0..<Int(loadedClients) {
+                let event:epoll_event = events[i]
                 if event.data.fd == serverFD {
-                    if event.events & EPOLLIN.rawValue != 0 {
-                        do {
-                            if let (client, instant):(Int32, ContinuousClock.Instant) = try acceptClient(serverFD) {
-                                setNonBlocking(socket: client)
-                                do {
-                                    try add(client: client, event: EPOLLIN.rawValue)
-                                    clients.append(client)
-                                } catch {
-                                    logger.warning(Logger.Message(stringLiteral: "Encountered error trying to add accepted client to epoll: \(error) (errno=\(errno))"))
-                                    closeSocket(client, name: "accepted client")
-                                }
+                    do {
+                        if let (client, instant):(Int32, ContinuousClock.Instant) = try acceptClient(serverFD) {
+                            setNonBlocking(socket: client)
+                            do {
+                                try add(client: client, event: EPOLLIN.rawValue)
+                            } catch {
+                                logger.warning(Logger.Message(stringLiteral: "Encountered error trying to add accepted client to epoll: \(error) (errno=\(errno))"))
+                                closeSocket(client, name: "accepted client")
                             }
-                            
-                        } catch {
-                            logger.warning(Logger.Message(stringLiteral: "Encountered error trying to accept client (\(event.data.fd)): \(error) (errno=\(errno))"))
                         }
-                    } else if event.events & EPOLLHUP.rawValue != 0 {
-                        closeSocket(event.data.fd, name: "client disconnected")
-                    } else if event.events & EPOLLERR.rawValue != 0 {
-                        closeSocket(event.data.fd, name: "client's socket errored")
+                    } catch {
+                        logger.warning(Logger.Message(stringLiteral: "Encountered error trying to accept client (\(event.data.fd)): \(error) (errno=\(errno))"))
                     }
+                } else if event.events & EPOLLIN.rawValue != 0 {
+                    clients.append(event.data.fd)
+                } else if event.events & EPOLLHUP.rawValue != 0 {
+                    closeSocket(event.data.fd, name: "client disconnected")
+                } else if event.events & EPOLLERR.rawValue != 0 {
+                    closeSocket(event.data.fd, name: "client's socket errored")
                 }
             }
             return clients
@@ -152,18 +147,12 @@ extension Server where ClientSocket : ~Copyable {
     final class EpollProcessor {
         private let threads:Int
         private let instances:[Epoll]
-        private let timeout:Int32
-        private let router:RouterProtocol
-        private let acceptClient:@Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?
 
         @usableFromInline
         init(
             serverFD: Int32,
             threads: Int,
-            maxEvents: Int = 64,
-            timeout: Int32,
-            router: RouterProtocol,
-            acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?
+            maxEvents: Int = 64
         ) throws {
             self.threads = threads
             var instances:[Epoll] = []
@@ -172,9 +161,6 @@ extension Server where ClientSocket : ~Copyable {
                 instances.append(try Epoll(serverFD: serverFD, thread: i, maxEvents: maxEvents))
             }
             self.instances = instances
-            self.timeout = timeout
-            self.router = router
-            self.acceptClient = acceptClient
         }
 
         func add(client: Int32, event: UInt32) throws {
@@ -183,10 +169,14 @@ extension Server where ClientSocket : ~Copyable {
         }
 
         @usableFromInline
-        func run() async throws {
+        func run(
+            timeout: Int32,
+            router: RouterProtocol,
+            acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?
+        ) async throws {
             for instance in instances {
                 DispatchQueue.global().async {
-                    self.process(instance, timeout: self.timeout, router: self.router, acceptClient: self.acceptClient)
+                    self.process(instance, timeout: timeout, router: router, acceptClient: acceptClient)
                 }
             }
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
@@ -204,13 +194,13 @@ extension Server where ClientSocket : ~Copyable {
                 do {
                     let clients:[Int32] = try instance.wait(timeout: timeout, acceptClient: acceptClient)
                     for client in clients {
+                        do {
+                            try instance.remove(client: client)
+                        } catch {
+                            instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
+                        }
                         Task {
                             do {
-                                do {
-                                    try instance.remove(client: client)
-                                } catch {
-                                    instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
-                                }
                                 try await ClientProcessing.process(
                                     client: client,
                                     received: .now, // TODO: fix

@@ -250,7 +250,8 @@ extension Server where ClientSocket : ~Copyable {
     static func acceptClient(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
         guard let serverFD:Int32 = server else { return nil }
         var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
-        let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
+        let client:Int32 = withUnsafeMutablePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1, { accept(serverFD, $0, &len) }) })
+        //let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
         if client == -1 {
             if server == nil {
                 return nil
