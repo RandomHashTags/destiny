@@ -187,7 +187,7 @@ extension RouteResult {
             return "RouteResponses.UInt16Array(\(b))"
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d):
-            return "RouteResponses.Data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+            return "RouteResponses.FoundationData(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
         case .json:
             return "RouteResponses.StaticString(\"\")" // TODO: fix

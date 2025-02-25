@@ -7,7 +7,7 @@
 
 #if os(Linux)
 import CEpoll
-import Foundation
+import Dispatch
 import Glibc
 import Logging
 import ServiceLifecycle
@@ -17,11 +17,11 @@ extension Server where ClientSocket : ~Copyable {
     func processClientsEpoll(
         serverFD: Int32,
         threads: Int,
+        maxEvents: Int,
         acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?,
         router: RouterProtocol
     ) async {
         setNonBlocking(socket: serverFD)
-        let maxEvents:Int = 64
         do {
             let processor:EpollProcessor = try EpollProcessor(
                 serverFD: serverFD,
@@ -49,7 +49,7 @@ extension Server where ClientSocket : ~Copyable {
 
 extension Server where ClientSocket : ~Copyable {
     // MARK: Epoll
-    final class Epoll : Sendable {
+    final class Epoll : @unchecked Sendable {
         private let serverFD:Int32
         private let fileDescriptor:Int32
         private var events:[epoll_event]

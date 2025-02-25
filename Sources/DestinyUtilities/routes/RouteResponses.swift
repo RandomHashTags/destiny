@@ -138,15 +138,15 @@ extension RouteResponses {
 
 // MARK: Data
 extension RouteResponses {
-    public struct Data : StaticRouteResponderProtocol {
-        public let value:FoundationEssentials.Data
+    public struct FoundationData : StaticRouteResponderProtocol {
+        public let value:Data
 
-        public init(_ value: FoundationEssentials.Data) {
+        public init(_ value: Data) {
             self.value = value
         }
 
         public var debugDescription: Swift.String {
-            return "RouteResponses.Data(\(value))"
+            return "RouteResponses.FoundationData(\(value))"
         }
 
         @inlinable

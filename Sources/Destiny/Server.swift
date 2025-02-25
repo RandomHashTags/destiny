@@ -214,7 +214,12 @@ extension Server where ClientSocket : ~Copyable {
 
         let function:@Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)? = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
         //await processClientsPoll(serverFD: serverFD, acceptClient: function)
-        await processClientsEpoll(serverFD: serverFD, threads: 1, acceptClient: function, router: router)
+
+        #if os(Linux)
+        await processClientsEpoll(serverFD: serverFD, threads: 1, maxEvents: 64, acceptClient: function, router: router)
+        #else
+        processClientsOLD(serverFD: serverFD)
+        #endif
     }
 
     @inlinable
