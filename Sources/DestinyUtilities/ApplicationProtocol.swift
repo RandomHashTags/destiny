@@ -10,10 +10,8 @@ import ServiceLifecycle
 
 public protocol ApplicationProtocol : Service {
     
-    #if canImport(Logging)
     /// The application's logger.
     var logger : Logger { get }
-    #endif
 
     /// Shut down the application.
     func shutdown() async throws

@@ -185,10 +185,12 @@ extension RouteResult {
             return "RouteResponses.UInt8Array(\(b))"
         case .bytes16(let b):
             return "RouteResponses.UInt16Array(\(b))"
+
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d):
             return "RouteResponses.FoundationData(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
+
         case .json:
             return "RouteResponses.StaticString(\"\")" // TODO: fix
         case .error:
@@ -202,9 +204,11 @@ extension RouteResult {
         case .string: return Self.string(input).responderDebugDescription
         case .bytes: return Self.bytes([UInt8](input.utf8)).responderDebugDescription
         case .bytes16: return Self.bytes16([UInt16](input.utf16)).responderDebugDescription
+
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data: return Self.data(Data(input.utf8)).responderDebugDescription
         #endif
+
         case .json:
             return "RouteResponses.StaticString(\"\")" // TODO: fix
         case .error:
@@ -216,9 +220,11 @@ extension RouteResult {
         switch self {
         case .bytes, .bytes16:
             return try responderDebugDescription(input.string(escapeLineBreak: false))
+
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data:
             return try responderDebugDescription(input.string(escapeLineBreak: false))
+
         #endif
         default:
             return try responderDebugDescription(input.string(escapeLineBreak: true))

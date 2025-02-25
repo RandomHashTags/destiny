@@ -59,7 +59,7 @@ extension Server where ClientSocket : ~Copyable {
             self.serverFD = serverFD
             fileDescriptor = epoll_create1(0)
             if fileDescriptor == -1 {
-                throw EpollError.epollCreateFailed
+                throw EpollError.epollCreateFailed()
             }
             events = .init(repeating: epoll_event(), count: maxEvents)
             logger = Logger(label: "destiny.epoll.\(serverFD).thread\(thread)")
@@ -83,20 +83,20 @@ extension Server where ClientSocket : ~Copyable {
             e.events = event
             e.data.fd = client
             if epoll_ctl(fileDescriptor, EPOLL_CTL_ADD, client, &e) == -1 {
-                throw EpollError.epollCtlFailed
+                throw EpollError.epollCtlFailed()
             }
         }
 
         func remove(client: Int32) throws {
             if epoll_ctl(fileDescriptor, EPOLL_CTL_DEL, client, nil) == -1 {
-                throw EpollError.epollCtlFailed
+                throw EpollError.epollCtlFailed()
             }
         }
 
         func wait(timeout: Int32 = -1, acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?) throws -> [Int32] {
             let loadedClients:Int32 = epoll_wait(fileDescriptor, &events, Int32(events.count), timeout)
             if loadedClients == -1 {
-                throw EpollError.waitFailed
+                throw EpollError.waitFailed()
             } else if loadedClients == 0 {
                 return []
             }
@@ -220,13 +220,6 @@ extension Server where ClientSocket : ~Copyable {
             print("EpollProcessor;process;finished")
             // TODO: fix (this doesn't get executed when the service is shutdown)
         }
-    }
-
-    // MARK: EpollError
-    enum EpollError : Error {
-        case epollCreateFailed
-        case epollCtlFailed
-        case waitFailed
     }
 }
 

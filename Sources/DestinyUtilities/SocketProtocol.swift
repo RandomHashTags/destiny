@@ -38,15 +38,3 @@ extension SocketProtocol where Self : ~Copyable {
         #endif
     }
 }
-
-// MARK: SocketError
-public enum SocketError : Error {
-    case acceptFailed(String = "")
-    case writeFailed(String = "")
-    case readSingleByteFailed(String = "")
-    case readBufferFailed(String = "")
-    case invalidStatus(String = "")
-    case closeFailure(String = "")
-
-    case malformedRequest
-}

@@ -50,7 +50,7 @@ extension Socket {
             return nil
         }
         guard let request:Request = Request.init(tokens: test) else {
-            throw SocketError.malformedRequest
+            throw SocketError.malformedRequest()
         }
         return request
     }
@@ -116,11 +116,7 @@ extension Socket {
         if errno == EAGAIN || errno == EWOULDBLOCK {
             return
         }
-        #if canImport(Foundation)
-        throw SocketError.readBufferFailed(cerror())
-        #else
         throw SocketError.readBufferFailed()
-        #endif
     }
 }
 
@@ -151,11 +147,7 @@ extension Socket {
             let result:Int = write(fileDescriptor, pointer + sent, length - sent)
             #endif
             if result <= 0 {
-                #if canImport(Foundation)
-                throw SocketError.writeFailed(cerror())
-                #else
-                throw SocketError.writeFailed("")
-                #endif
+                throw SocketError.writeFailed()
             }
             sent += result
         }

@@ -5,10 +5,6 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-#if canImport(Foundation)
-import Foundation
-#endif
-
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -28,10 +24,6 @@ struct HTTPFieldContentTypeDetails {
         self.fileExtensions = fileExtensions
     }
 }
-
-#if canImport(Foundation)
-@inlinable package func cerror() -> String { String(cString: strerror(errno)) + " (errno=\(errno))" }
-#endif
 
 public typealias DestinyRoutePathType = SIMD64<UInt8>
 

@@ -107,11 +107,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         let serverFD:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
         #endif
         if serverFD == -1 {
-            #if canImport(Foundation)
-            throw ServerError.socketCreationFailed(cerror())
-            #else
             throw ServerError.socketCreationFailed()
-            #endif
         }
         self.serverFD = serverFD
         Socket.noSigPipe(fileDescriptor: serverFD)
@@ -153,19 +149,11 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         }
         if binded == -1 {
             close(serverFD)
-            #if canImport(Foundation)
-            throw ServerError.bindFailed(cerror())
-            #else
             throw ServerError.bindFailed()
-            #endif
         }
         if listen(serverFD, backlog) == -1 {
             close(serverFD)
-            #if canImport(Foundation)
-            throw ServerError.listenFailed(cerror())
-            #else
             throw ServerError.listenFailed()
-            #endif
         }
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]"))
         return serverFD
@@ -210,21 +198,17 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
 extension Server where ClientSocket : ~Copyable {
     @inlinable
     func processClients(serverFD: Int32) async {
-        //await processClientsOLD(serverFD: serverFD)
-
         let function:@Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)? = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
-        //await processClientsPoll(serverFD: serverFD, acceptClient: function)
 
         #if os(Linux)
         await processClientsEpoll(serverFD: serverFD, threads: 1, maxEvents: 64, acceptClient: function, router: router)
         #else
-        processClientsOLD(serverFD: serverFD)
+        await processClientsOLD(serverFD: serverFD, acceptClient: function)
         #endif
     }
 
     @inlinable
-    func processClientsOLD(serverFD: Int32) async {
-        let acceptClient:(Int32) throws -> (Int32, ContinuousClock.Instant)? = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
+    func processClientsOLD(serverFD: Int32, acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?) async {
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0..<backlog {
@@ -256,16 +240,11 @@ extension Server where ClientSocket : ~Copyable {
         guard let serverFD:Int32 = server else { return nil }
         var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
         let client:Int32 = withUnsafeMutablePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1, { accept(serverFD, $0, &len) }) })
-        //let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
         if client == -1 {
             if server == nil {
                 return nil
             }
-            #if canImport(Foundation)
-            throw SocketError.acceptFailed(cerror())
-            #else
             throw SocketError.acceptFailed()
-            #endif
         }
         return (client, .now)
     }
@@ -278,21 +257,10 @@ extension Server where ClientSocket : ~Copyable {
             if server == nil {
                 return nil
             }
-            #if canImport(Foundation)
-            throw SocketError.acceptFailed(cerror())
-            #else
             throw SocketError.acceptFailed()
-            #endif
         }
         var d:Int32 = 1
         setsockopt(client, Int32(IPPROTO_TCP), TCP_NODELAY, &d, socklen_t(MemoryLayout<Int32>.size))
         return (client, .now)
     }
-}
-
-// MARK: ServerError
-enum ServerError : Swift.Error {
-    case socketCreationFailed(String = "")
-    case bindFailed(String = "")
-    case listenFailed(String = "")
 }
