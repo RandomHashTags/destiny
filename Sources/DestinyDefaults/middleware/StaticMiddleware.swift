@@ -12,6 +12,8 @@ import SwiftSyntaxMacros
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 public struct StaticMiddleware : StaticMiddlewareProtocol {
+    public typealias Cookie = HTTPCookie
+
     public let handlesVersions:Set<HTTPVersion>?
     public let handlesMethods:Set<HTTPRequestMethod>?
     public let handlesStatuses:Set<HTTPResponseStatus>?
@@ -21,6 +23,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     public let appliesStatus:HTTPResponseStatus?
     public let appliesContentType:HTTPMediaType?
     public let appliesHeaders:[String:String]
+    public let appliesCookies:[Cookie]
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
@@ -30,7 +33,8 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus? = nil,
         appliesContentType: HTTPMediaType? = nil,
-        appliesHeaders: [String:String] = [:]
+        appliesHeaders: [String:String] = [:],
+        appliesCookies: [Cookie] = []
     ) {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
@@ -44,6 +48,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         self.appliesStatus = appliesStatus
         self.appliesContentType = appliesContentType
         self.appliesHeaders = appliesHeaders
+        self.appliesCookies = appliesCookies
     }
 
     public var debugDescription : String {
@@ -60,17 +65,20 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         if let contentTypes:Set<HTTPMediaType> = handlesContentTypes {
             values.append("handlesContentTypes: [" + contentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
-        if let appliesVersion:HTTPVersion = appliesVersion {
+        if let appliesVersion {
             values.append("appliesVersion: .\(appliesVersion)")
         }
-        if let appliesStatus:HTTPResponseStatus = appliesStatus {
+        if let appliesStatus {
             values.append("appliesStatus: \(appliesStatus.debugDescription)")
         }
-        if let appliesContentType:HTTPMediaType = appliesContentType {
+        if let appliesContentType {
             values.append("appliesStatus: \(appliesContentType.debugDescription)")
         }
         if !appliesHeaders.isEmpty {
             values.append("appliesHeaders: \(appliesHeaders)")
+        }
+        if !appliesCookies.isEmpty {
+            values.append("appliesCookies: [" + appliesCookies.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         return "StaticMiddleware(" + values.joined(separator: ",") + ")"
     }
@@ -88,6 +96,7 @@ extension StaticMiddleware {
         var appliesStatus:HTTPResponseStatus? = nil
         var appliesContentType:HTTPMediaType? = nil
         var appliesHeaders:[String:String] = [:]
+        var appliesCookies:[Cookie] = []
         for argument in function.arguments {
             switch argument.label!.text {
             case "handlesVersions":
@@ -106,6 +115,8 @@ extension StaticMiddleware {
                 appliesContentType = HTTPMediaTypes.parse(argument.expression.memberAccess!.declName.baseName.text)
             case "appliesHeaders":
                 appliesHeaders = HTTPRequestHeader.parse(context: context, argument.expression)
+            case "appliesCookies":
+                appliesCookies = argument.expression.array!.elements.compactMap({ Cookie.parse(context: context, expr: $0.expression) })
             default:
                 break
             }
@@ -118,7 +129,8 @@ extension StaticMiddleware {
             appliesVersion: appliesVersion,
             appliesStatus: appliesStatus,
             appliesContentType: appliesContentType,
-            appliesHeaders: appliesHeaders
+            appliesHeaders: appliesHeaders,
+            appliesCookies: appliesCookies
         )
     }
 }

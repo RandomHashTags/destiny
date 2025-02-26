@@ -17,6 +17,7 @@ public protocol DestinyError : Error {
 
     init(identifier: String, reason: String)
 }
+
 extension DestinyError {
     @usableFromInline
     static func cError(_ identifier: String) -> Self {

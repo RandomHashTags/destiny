@@ -9,6 +9,7 @@
 /// Default storage for an HTTP Message.
 public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
     public var headers:[String:String]
+    public var cookies:[any HTTPCookieProtocol]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
     public var version:HTTPVersion
@@ -19,6 +20,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         version: HTTPVersion,
         status: HTTPResponseStatus,
         headers: [String:String],
+        cookies: [any HTTPCookieProtocol],
         result: RouteResult?,
         contentType: (any HTTPMediaTypeProtocol)?,
         charset: Charset?
@@ -26,13 +28,14 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         self.version = version
         self.status = status
         self.headers = headers
+        self.cookies = cookies
         self.result = result
         self.contentType = contentType?.structure
         self.charset = charset
     }
 
     public var debugDescription : String {
-        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
+        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
     }
 
     /// - Parameters:
@@ -44,6 +47,9 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         var string:String = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
+        }
+        for cookie in cookies {
+            string += "Set-Cookie: \(cookie)" + suffix
         }
         if var result:String = try result?.string() {
             let contentLength:Int = result.utf8.count
@@ -64,6 +70,9 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         var string:String = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
+        }
+        for cookie in cookies {
+            string += "Set-Cookie: \(cookie)" + suffix
         }
         var bytes:[UInt8]
         if let result:[UInt8] = try result?.bytes() {

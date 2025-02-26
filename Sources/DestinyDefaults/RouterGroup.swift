@@ -13,14 +13,14 @@ import SwiftSyntaxMacros
 /// Default Router Group implementation that handles grouped routes.
 public struct RouterGroup : RouterGroupProtocol {
     public let prefixEndpoints:[String]
-    public let staticMiddleware:[StaticMiddlewareProtocol]
+    public let staticMiddleware:[any StaticMiddlewareProtocol]
     public let dynamicMiddleware:[DynamicMiddlewareProtocol]
     public let staticResponses:[DestinyRoutePathType:StaticRouteResponderProtocol]
     public let dynamicResponses:DynamicResponses
 
     public init(
         endpoint: String,
-        staticMiddleware: [StaticMiddlewareProtocol] = [],
+        staticMiddleware: [any StaticMiddlewareProtocol] = [],
         dynamicMiddleware: [DynamicMiddlewareProtocol] = [],
         _ routes: RouteProtocol...
     ) {
@@ -37,7 +37,7 @@ public struct RouterGroup : RouterGroupProtocol {
     }
     public init(
         endpoint: String,
-        staticMiddleware: [StaticMiddlewareProtocol],
+        staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         staticRoutes: [StaticRouteProtocol],
         dynamicRoutes: [DynamicRouteProtocol]
@@ -81,7 +81,7 @@ public struct RouterGroup : RouterGroupProtocol {
     }
     public init(
         prefixEndpoints: [String],
-        staticMiddleware: [StaticMiddlewareProtocol],
+        staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         staticResponses: [DestinyRoutePathType:StaticRouteResponderProtocol],
         dynamicResponses: DynamicResponses
@@ -137,13 +137,13 @@ extension RouterGroup {
     public static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion,
-        staticMiddleware: [StaticMiddlewareProtocol],
+        staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
     ) -> Self {
         var endpoint:String = ""
         var conditionalResponders:[DestinyRoutePathType:ConditionalRouteResponderProtocol] = [:]
-        var staticMiddleware:[StaticMiddlewareProtocol] = staticMiddleware
+        var staticMiddleware:[any StaticMiddlewareProtocol] = staticMiddleware
         var dynamicMiddleware:[DynamicMiddlewareProtocol] = dynamicMiddleware
         var staticRoutes:[StaticRouteProtocol] = []
         var dynamicRoutes:[DynamicRouteProtocol] = []

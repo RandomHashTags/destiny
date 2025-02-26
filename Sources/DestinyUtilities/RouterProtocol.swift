@@ -57,7 +57,7 @@ public protocol RouterProtocol : AnyObject, Sendable {
     func register(_ route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool) throws
 
     /// Registers a static middleware at the given index to this router.
-    func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws
+    func register(_ middleware: any StaticMiddlewareProtocol, at index: Int) throws
 
     /// Registers a dynamic middleware at the given index to this router.
     func register(_ middleware: DynamicMiddlewareProtocol, at index: Int) throws

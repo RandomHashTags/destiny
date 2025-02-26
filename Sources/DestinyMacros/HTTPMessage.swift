@@ -18,6 +18,7 @@ enum HTTPMessage : DeclarationMacro {
         var result:RouteResult? = nil
         var contentType:HTTPMediaType? = nil
         var charset:Charset? = nil
+        var cookies:[any HTTPCookieProtocol] = [] // TODO: fix
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
             if let key:String = child.label?.text {
                 switch key {
@@ -39,7 +40,7 @@ enum HTTPMessage : DeclarationMacro {
             }
         }
         do {
-            var response:String = try DestinyUtilities.HTTPMessage(version: version, status: status, headers: headers, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
+            var response:String = try DestinyUtilities.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
             response = "\"" + response + "\""
             return ["\(raw: response)"]
         } catch {

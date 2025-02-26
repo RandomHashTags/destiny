@@ -63,14 +63,15 @@ public struct StaticRoute : StaticRouteProtocol {
         """
     }
 
-    public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) -> HTTPMessage {
+    public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) -> HTTPMessage {
         var version:HTTPVersion = version
         var status:HTTPResponseStatus = status
         var contentType:HTTPMediaType = contentType
         var headers:[String:String] = [:]
+        var cookies:[any HTTPCookieProtocol] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
-                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
+                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
         if let context:MacroExpansionContext = context, let function:FunctionCallExprSyntax = function, status == .notImplemented {
@@ -80,11 +81,11 @@ public struct StaticRoute : StaticRouteProtocol {
         }
         headers[HTTPResponseHeader.contentType.rawName] = nil
         headers[HTTPResponseHeader.contentLength.rawName] = nil
-        return HTTPMessage(version: version, status: status, headers: headers, result: result, contentType: contentType, charset: charset)
+        return HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset)
     }
 
     @inlinable
-    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
+    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
         let result:String = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
         return RouteResponses.String(result)
     }

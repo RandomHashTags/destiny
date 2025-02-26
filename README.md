@@ -29,6 +29,7 @@ Many protocols only require the bare minimum to work as intended so the implemen
 - [x] Commands <b>(Dec 31, 2024)</b>
 - [x] Case insensitive routes <b>(Feb 19, 2025 | dynamic routes need a little more work)</b>
 - [x] Routes with wildcards <b>(Feb 19, 2025)</b>
+- [x] Better handling of clients to unlock more throughput <b>(Feb 23, 2025)</b>
 
 ### WIP
 
@@ -39,7 +40,7 @@ Many protocols only require the bare minimum to work as intended so the implemen
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
 - [ ] Optimal Memory Layout for stored objects
-- [ ] Better handling of clients to unlock more throughput
+- [ ] Cookies
 
 ### TODO
 

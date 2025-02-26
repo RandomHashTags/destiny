@@ -25,11 +25,11 @@ public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
     ///   - version: The `HTTPVersion` of the router this router group belongs to.
     ///   - staticMiddleware: The static middleware of the router this router group belongs to.
     ///   - dynamicMiddleware: The dynamic middleware of the router this router group belongs to.
-    ///   - function: The SwiftSyntax expression that represents this router group at compile time.
+    ///   - function: SwiftSyntax expression that represents this router group at compile time.
     static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion,
-        staticMiddleware: [StaticMiddlewareProtocol],
+        staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
     ) -> Self

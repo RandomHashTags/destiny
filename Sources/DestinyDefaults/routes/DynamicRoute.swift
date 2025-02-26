@@ -33,6 +33,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
         headers: [String:String] = [:],
+        cookies: [any HTTPCookieProtocol] = [],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
@@ -43,7 +44,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.isCaseSensitive = isCaseSensitive
         self.status = status
         self.contentType = contentType.structure
-        self.defaultResponse = DynamicResponse.init(version: version, status: status, headers: headers, result: result, parameters: [])
+        self.defaultResponse = DynamicResponse.init(version: version, status: status, headers: headers, cookies: cookies, result: result, parameters: [])
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
     }
@@ -73,12 +74,14 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 
     @inlinable
-    public mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol]) {
+    public mutating func applyStaticMiddleware(_ middleware: [any StaticMiddlewareProtocol]) {
         for middleware in middleware {
             if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
                 var appliedVersion:HTTPVersion = defaultResponse.version
-                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers)
+                var cookies:[any HTTPCookieProtocol] = defaultResponse.cookies
+                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers, cookies: &cookies)
                 defaultResponse.version = appliedVersion
+                defaultResponse.cookies = cookies
             }
         }
     }
@@ -87,7 +90,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 // MARK: SwiftSyntax
 extension DynamicRoute {
-    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
+    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
         var method:HTTPRequestMethod = .get
         var path:[PathComponent] = []
@@ -130,9 +133,10 @@ extension DynamicRoute {
             }
         }
         var headers:[String:String] = [:]
+        var cookies:[any HTTPCookieProtocol] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
-                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
+                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
         headers[HTTPResponseHeader.contentType.rawName] = contentType.httpValue
@@ -149,7 +153,7 @@ extension DynamicRoute {
         if !isCaseSensitive {
             route.path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
-        route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, result: .string(""), parameters: parameters)
+        route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, cookies: cookies, result: .string(""), parameters: parameters)
         route.handlerDebugDescription = handler
         return route
     }

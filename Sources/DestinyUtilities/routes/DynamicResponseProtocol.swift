@@ -18,6 +18,9 @@ public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible
 
     /// The response headers.
     var headers : [String:String] { get set }
+
+    /// The response cookies.
+    var cookies : [any HTTPCookieProtocol] { get set }
     
     /// The response content.
     var result : RouteResult { get set }

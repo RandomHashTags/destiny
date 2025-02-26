@@ -20,7 +20,7 @@ enum Router : ExpressionMacro {
         var errorResponder:String = """
             StaticErrorResponder { error in
             RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: .ok, headers: [:], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaTypes.Application.json, charset: nil)
+                version: HTTPVersion.v1_1, status: .ok, headers: [:], cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaTypes.Application.json, charset: nil)
             )
         }
         """
@@ -169,7 +169,7 @@ extension Router {
         var dynamicRedirects:[(RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
 
-        var staticMiddleware:[StaticMiddlewareProtocol] = []
+        var staticMiddleware:[any StaticMiddlewareProtocol] = []
         var staticRedirects:[(RedirectionRouteProtocol, SyntaxProtocol)] = []
         var staticRoutes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = []
         
@@ -256,7 +256,7 @@ extension Router.Storage {
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         redirects: [(RedirectionRouteProtocol, SyntaxProtocol)],
-        middleware: [StaticMiddlewareProtocol],
+        middleware: [any StaticMiddlewareProtocol],
         _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return ":" }

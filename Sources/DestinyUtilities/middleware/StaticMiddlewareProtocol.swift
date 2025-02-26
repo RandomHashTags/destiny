@@ -7,17 +7,19 @@
 
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
-    /// The route request versions this middleware handles.
+    associatedtype Cookie:HTTPCookieProtocol
+
+    /// Route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
     var handlesVersions : Set<HTTPVersion>? { get }
 
-    /// The route request methods this middleware handles.
+    /// Route request methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
     var handlesMethods : Set<HTTPRequestMethod>? { get }
 
-    /// The route response statuses this middleware handles.
+    /// Route response statuses this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all statuses.
     var handlesStatuses : Set<HTTPResponseStatus>? { get }
@@ -27,17 +29,20 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     /// - Warning: `nil` makes it handle all content types.
     var handlesContentTypes : Set<HTTPMediaType>? { get }
 
-    /// The response version this middleware applies to routes.
+    /// Response http version this middleware applies to routes.
     var appliesVersion : HTTPVersion? { get }
 
-    /// The response status this middleware applies to routes.
+    /// Response status this middleware applies to routes.
     var appliesStatus : HTTPResponseStatus? { get }
 
-    /// The response content type this middleware applies to routes.
+    /// Response content type this middleware applies to routes.
     var appliesContentType : HTTPMediaType? { get }
     
-    /// The response headers this middleware applies to routes.
+    /// Response headers this middleware applies to routes.
     var appliesHeaders : [String:String] { get }
+
+    /// Response cookies this middleware applies to routes.
+    var appliesCookies : [Cookie] { get }
 
     /// Whether or not this middleware handles a route with the given options.
     @inlinable
@@ -54,7 +59,8 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus,
-        headers: inout [String:String]
+        headers: inout [String:String],
+        cookies: inout [any HTTPCookieProtocol]
     )
 }
 extension StaticMiddlewareProtocol {
@@ -76,7 +82,8 @@ extension StaticMiddlewareProtocol {
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus,
-        headers: inout [String:String]
+        headers: inout [String:String],
+        cookies: inout [any HTTPCookieProtocol]
     ) {
         if let appliesVersion:HTTPVersion = appliesVersion {
             version = appliesVersion
@@ -90,5 +97,6 @@ extension StaticMiddlewareProtocol {
         for (header, value) in appliesHeaders {
             headers[header] = value
         }
+        cookies.append(contentsOf: appliesCookies)
     }
 }

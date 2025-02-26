@@ -5,6 +5,12 @@
 //  Created by Evan Anderson on 1/6/25.
 //
 
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#elseif canImport(Foundation)
+import Foundation
+#endif
+
 #if canImport(Glibc)
 import Glibc
 #elseif canImport(Musl)
@@ -90,4 +96,25 @@ extension HTTPDateFormat {
         return HTTPDateFormat.get(year: 1900 + gmt.tm_year, month: gmt.tm_mon, day: gmt.tm_mday, dayOfWeek: gmt.tm_wday, hour: gmt.tm_hour, minute: gmt.tm_min, second: gmt.tm_sec)
     }
 }
+#endif
+
+#if canImport(FoundationEssentials) || canImport(Foundation)
+// MARK: Foundation
+extension HTTPDateFormat {
+    @inlinable
+    public static func get(_ date: Date) -> String {
+        let components:DateComponents = Calendar.current.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: date)
+        let values:(Int, Int, Int, Int, Int, Int, Int) = (
+            components.year ?? 0,
+            components.month ?? 0,
+            components.day ?? 0,
+            components.weekday ?? 0,
+            components.hour ?? 0,
+            components.minute ?? 0,
+            components.second ?? 0
+        )
+        return get(year: values.0, month: values.1, day: values.2, dayOfWeek: values.3, hour: values.4, minute: values.5, second: values.6)
+    }
+}
+
 #endif

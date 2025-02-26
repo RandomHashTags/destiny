@@ -20,7 +20,7 @@ let router:Router = #router(
     supportedCompressionAlgorithms: [],
     middleware: [
         StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"]),
-        StaticMiddleware(handlesVersions: [.v1_1], appliesHeaders: ["Version":"destiny1.1"]),
+        StaticMiddleware(handlesVersions: [.v1_1], appliesHeaders: ["Version":"destiny1.1"], appliesCookies: [HTTPCookie(name: "cookie1", value: "yessir"), HTTPCookie(name: "cookie2", value: "pogchamp")]),
         StaticMiddleware(handlesVersions: [.v2_0], appliesHeaders: ["Version":"destiny2.0"]),
         StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
         StaticMiddleware(appliesHeaders: ["Server":"destiny"]),

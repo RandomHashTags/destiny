@@ -32,7 +32,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// 
     /// - Parameters:
     ///   - middleware: The static middleware to apply to this route.
-    mutating func applyStaticMiddleware(_ middleware: [StaticMiddlewareProtocol])
+    mutating func applyStaticMiddleware(_ middleware: [any StaticMiddlewareProtocol])
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this dynamic route. Computed at compile time.
@@ -41,10 +41,10 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     ///   - context: The macro expansion context.
     ///   - version: The `HTTPVersion` associated with the `RouterProtocol`.
     ///   - middleware: The static middleware the associated `RouterProtocol` uses.
-    ///   - function: The SwiftSyntax expression that represents this route at compile time.
+    ///   - function: SwiftSyntax expression that represents this route at compile time.
     /// - Warning: You need to assign `handlerLogic` properly.
     /// - Warning: You should apply any statuses and headers using the middleware.
-    static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
+    static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
     #endif
 }
 

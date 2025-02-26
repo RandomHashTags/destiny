@@ -13,7 +13,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
     public private(set) var caseSensitiveResponders:RouterResponderStorage
     public private(set) var caseInsensitiveResponders:RouterResponderStorage
 
-    public private(set) var staticMiddleware:[StaticMiddlewareProtocol]
+    public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
     public var dynamicMiddleware:[DynamicMiddlewareProtocol]
 
     public private(set) var routerGroups:[RouterGroupProtocol]
@@ -29,7 +29,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         staticNotFoundResponder: StaticRouteResponderProtocol,
         caseSensitiveResponders: RouterResponderStorage,
         caseInsensitiveResponders: RouterResponderStorage,
-        staticMiddleware: [StaticMiddlewareProtocol],
+        staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [DynamicMiddlewareProtocol],
         routerGroups: [RouterGroupProtocol]
     ) {
@@ -132,7 +132,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         }
     }
 
-    public func register(_ middleware: StaticMiddlewareProtocol, at index: Int) throws {
+    public func register(_ middleware: any StaticMiddlewareProtocol, at index: Int) throws {
         staticMiddleware.insert(middleware, at: index)
         // TODO: update existing routes?
     }
