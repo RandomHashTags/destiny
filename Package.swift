@@ -59,6 +59,11 @@ let package = Package(
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+            ],
+            swiftSettings: [
+                // TODO: test when 6.1 is released (`String` and a lot of relevant protocols got supported)
+                //.unsafeFlags(["-wmo"]),
+                //.enableExperimentalFeature("Embedded")
             ]
         ),
         .target(
@@ -92,17 +97,6 @@ let package = Package(
         ),
 
         .executableTarget(name: "Run", dependencies: ["Destiny"]),
-
-        /*.executableTarget(
-            name: "RunEmbedded",
-            dependencies: [
-                "Destiny"
-            ],
-            swiftSettings: [
-                .unsafeFlags(["-wmo"]),
-                .enableExperimentalFeature("Embedded")
-            ]
-        ),*/
 
         .testTarget(
             name: "DestinyTests",
