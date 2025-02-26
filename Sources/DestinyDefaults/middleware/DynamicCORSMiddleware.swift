@@ -118,7 +118,7 @@ extension DynamicCORSMiddleware {
             case "allowedMethods":
                 allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequestMethod(expr: $0.expression) }))
             case "allowCredentials":
-                allowCredentials = argument.expression.booleanLiteral?.literal.text == "true"
+                allowCredentials = argument.expression.booleanIsTrue
             case "maxAge":
                 if let s:String = argument.expression.integerLiteral?.literal.text {
                     maxAge = Int(s)

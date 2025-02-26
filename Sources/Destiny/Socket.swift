@@ -5,13 +5,16 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-#if canImport(Foundation)
-import Foundation
+#if canImport(Glibc)
+import Glibc
 #endif
 
 // MARK: Socket
 public struct Socket : SocketProtocol, ~Copyable {    
     public static let bufferLength:Int = 1024
+
+    public typealias ConcreteRequest = Request
+
     public let fileDescriptor:Int32
 
     public init(fileDescriptor: Int32) {
@@ -33,7 +36,7 @@ extension Socket {
     }
 
     @inlinable
-    public func loadRequest() throws -> (RequestProtocol)? {
+    public func loadRequest() throws -> ConcreteRequest? {
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
@@ -49,7 +52,7 @@ extension Socket {
         if test.isEmpty {
             return nil
         }
-        guard let request:Request = Request.init(tokens: test) else {
+        guard let request:ConcreteRequest = ConcreteRequest.init(tokens: test) else {
             throw SocketError.malformedRequest()
         }
         return request
@@ -69,7 +72,7 @@ extension Socket {
         while bytes_read < length {
             if Task.isCancelled { return 0 }
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
+            let read:Int = receive(baseAddress + bytes_read, to_read, flags)
             if read < 0 { // error
                 try handleReadError()
                 break
@@ -88,7 +91,7 @@ extension Socket {
         while bytes_read < length {
             if Task.isCancelled { return 0 }
             let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read:Int = recv(fileDescriptor, baseAddress + bytes_read, to_read, flags)
+            let read:Int = receive(baseAddress + bytes_read, to_read, flags)
             if read < 0 { // error
                 try handleReadError()
                 break
@@ -104,7 +107,7 @@ extension Socket {
     @inlinable
     public func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
         if Task.isCancelled { return 0 }
-        let read:Int = recv(fileDescriptor, baseAddress, length, 0)
+        let read:Int = receive(baseAddress, length, 0)
         if read < 0 { // error
             try handleReadError()
         }
@@ -113,10 +116,32 @@ extension Socket {
 
     @inlinable
     public func handleReadError() throws {
+        #if canImport(Glibc)
         if errno == EAGAIN || errno == EWOULDBLOCK {
             return
         }
+        #endif
         throw SocketError.readBufferFailed()
+    }
+}
+
+// MARK: Receive
+extension Socket {
+    @usableFromInline
+    func receive(_ baseAddress: UnsafeMutablePointer<UInt8>, _ length: Int, _ flags: Int32 = 0) -> Int {
+        #if canImport(Glibc)
+        return recv(fileDescriptor, baseAddress, length, flags)
+        #else
+        return -1
+        #endif
+    }
+    @usableFromInline
+    func receive(_ baseAddress: UnsafeMutableRawPointer, _ length: Int, _ flags: Int32 = 0) -> Int {
+        #if canImport(Glibc)
+        return recv(fileDescriptor, baseAddress, length, flags)
+        #else
+        return -1
+        #endif
     }
 }
 
@@ -141,15 +166,23 @@ extension Socket {
         var sent:Int = 0
         while sent < length {
             if Task.isCancelled { return }
-            #if os(Linux)
-            let result:Int = send(fileDescriptor, pointer + sent, length - sent, Int32(MSG_NOSIGNAL))
-            #else
-            let result:Int = write(fileDescriptor, pointer + sent, length - sent)
-            #endif
+            let result:Int = send(pointer + sent, length - sent)
             if result <= 0 {
                 throw SocketError.writeFailed()
             }
             sent += result
         }
+    }
+}
+
+// MARK: Send
+extension Socket {
+    @usableFromInline
+    func send(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
+        #if canImport(Glibc)
+        return SwiftGlibc.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
+        #else
+        return write(fileDescriptor, pointer, length)
+        #endif
     }
 }

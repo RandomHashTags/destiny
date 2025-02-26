@@ -64,7 +64,7 @@ extension CompressionAlgorithm {
             for child in arguments {
                 switch child.label!.text {
                     case "minRun": minRun = Int(child.expression.integerLiteral!.literal.text)!
-                    case "alwaysIncludeRunCount": alwaysIncludeRunCount = child.expression.booleanLiteral!.literal.text == "true"
+                    case "alwaysIncludeRunCount": alwaysIncludeRunCount = child.expression.booleanLiteral!.isTrue
                     default: break
                 }
             }
@@ -94,7 +94,7 @@ extension CompressionAlgorithm {
                 switch child.label!.text {
                     case "baseBits":
                         child.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.forEach({
-                            baseBits[UInt8($0.key.integerLiteral!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.literal.text == "true" })
+                            baseBits[UInt8($0.key.integerLiteral!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.isTrue })
                         })
                     default: break
                 }

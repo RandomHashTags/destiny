@@ -112,7 +112,7 @@ extension StaticRoute {
             case "path":
                 path = PathComponent.parseArray(context: context, argument.expression)
             case "isCaseSensitive", "caseSensitive":
-                isCaseSensitive = argument.expression.booleanLiteral?.literal.text == "true"
+                isCaseSensitive = argument.expression.booleanIsTrue
             case "status":
                 status = HTTPResponseStatus(expr: argument.expression) ?? .notImplemented
             case "contentType":

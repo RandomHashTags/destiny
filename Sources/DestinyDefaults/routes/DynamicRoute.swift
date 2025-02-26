@@ -112,7 +112,7 @@ extension DynamicRoute {
                     parameters.append("")
                 }
             case "isCaseSensitive", "caseSensitive":
-                isCaseSensitive = argument.expression.booleanLiteral?.literal.text == "true"
+                isCaseSensitive = argument.expression.booleanIsTrue
             case "status":
                 status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "contentType":

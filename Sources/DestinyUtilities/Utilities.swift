@@ -70,6 +70,17 @@ extension ExprSyntaxProtocol {
     package var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
 }
 
+extension ExprSyntaxProtocol {
+    package var booleanIsTrue : Bool {
+        booleanLiteral?.isTrue ?? false
+    }
+}
+extension BooleanLiteralExprSyntax {
+    package var isTrue : Bool {
+        literal.text == "true"
+    }
+}
+
 extension StringLiteralExprSyntax {
     package var string : String { "\(segments)" }
 }

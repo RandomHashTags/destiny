@@ -15,8 +15,8 @@ public struct Application : ApplicationProtocol {
     public let serviceGroup:ServiceGroup
     public let logger:Logger
 
-    public init(
-        server: ServerProtocol,
+    public init<T: ServerProtocol>(
+        server: T,
         services: [Service] = [],
         logger: Logger
     ) {
@@ -34,6 +34,6 @@ public struct Application : ApplicationProtocol {
         logger.notice("Application shutting down...")
         await serviceGroup.triggerGracefulShutdown()
         try await gracefulShutdown()
-        logger.notice("Application shutdown sucessfully")
+        logger.notice("Application shutdown successfully")
     }
 }

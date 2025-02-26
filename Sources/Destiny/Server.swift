@@ -5,11 +5,8 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-#if canImport(Foundation)
-import Foundation
-#endif
-
 import ArgumentParser
+import Foundation
 import Logging
 import ServiceLifecycle
 
@@ -99,7 +96,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         }
     }
 
-    /// - Returns: The file descriptor of the server.
+    /// - Returns: The file descriptor of the created socket.
     func bind() throws -> Int32 {
         #if os(Linux)
         let serverFD:Int32 = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
@@ -158,12 +155,12 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]"))
         return serverFD
     }
+}
 
-    // MARK: Process commands
+// MARK: Process commands
+extension Server where ClientSocket : ~Copyable {
     private func readCommand() async -> String? {
-        return await withCheckedContinuation { continuation in
-            continuation.resume(returning: readLine())
-        }
+        return await withCheckedContinuation { $0.resume(returning: readLine()) }
     }
     func processCommand() async {
         if let line:String = await readCommand() {

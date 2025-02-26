@@ -10,6 +10,8 @@
 public protocol SocketProtocol : ~Copyable {
     /// The maximum amount of bytes to read at a single time.
     static var bufferLength : Int { get }
+
+    associatedtype ConcreteRequest:RequestProtocol
     
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 
@@ -19,7 +21,7 @@ public protocol SocketProtocol : ~Copyable {
     init(fileDescriptor: Int32)
 
     /// Loads the bare minimum data required to process a request.
-    @inlinable func loadRequest() throws -> (any RequestProtocol)?
+    @inlinable func loadRequest() throws -> ConcreteRequest?
 
     /// Reads a buffer from the socket.
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws -> Int

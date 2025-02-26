@@ -61,7 +61,7 @@ extension StaticRedirectionRoute {
             case "method": method = HTTPRequestMethod(expr: argument.expression) ?? method
             case "status": status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "from": from = PathComponent.parseArray(context: context, argument.expression)
-            case "isCaseSensitive", "caseSensitive": isCaseSensitive = argument.expression.booleanLiteral?.literal.text == "true"
+            case "isCaseSensitive", "caseSensitive": isCaseSensitive = argument.expression.booleanIsTrue
             case "to": to = PathComponent.parseArray(context: context, argument.expression)
             default: break
             }
