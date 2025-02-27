@@ -12,10 +12,10 @@ import SwiftSyntaxMacros
 public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
 
     /// - Returns: The static route responder for the given HTTP start-line.
-    @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> StaticRouteResponderProtocol?
+    @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)?
 
     /// - Returns: The dynamic route responder for the given request.
-    @inlinable func dynamicResponder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol?
+    @inlinable func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)?
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this router group.
@@ -30,7 +30,7 @@ public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         staticMiddleware: [any StaticMiddlewareProtocol],
-        dynamicMiddleware: [DynamicMiddlewareProtocol],
+        dynamicMiddleware: [any DynamicMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
     ) -> Self
     #endif

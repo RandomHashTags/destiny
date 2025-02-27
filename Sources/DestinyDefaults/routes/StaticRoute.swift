@@ -85,7 +85,7 @@ public struct StaticRoute : StaticRouteProtocol {
     }
 
     @inlinable
-    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol? {
+    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)? {
         let result:String = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
         return RouteResponses.String(result)
     }

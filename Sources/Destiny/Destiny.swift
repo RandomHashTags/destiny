@@ -25,14 +25,14 @@ import SwiftCompression
 @freestanding(expression)
 public macro router(
     version: HTTPVersion,
-    errorResponder: ErrorResponderProtocol? = nil,
-    dynamicNotFoundResponder: DynamicRouteResponderProtocol? = nil,
-    staticNotFoundResponder: StaticRouteResponderProtocol? = nil,
+    errorResponder: (any ErrorResponderProtocol)? = nil,
+    dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
+    staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-    middleware: [MiddlewareProtocol],
+    middleware: [any MiddlewareProtocol],
     redirects: [HTTPRequestMethod : [HTTPResponseStatus : [String:String]]] = [:],
-    routerGroups: [RouterGroupProtocol] = [],
-    _ routes: RouteProtocol...
+    routerGroups: [any RouterGroupProtocol] = [],
+    _ routes: any RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
 
 

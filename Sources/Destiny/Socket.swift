@@ -149,7 +149,7 @@ extension Socket {
 extension Socket {
     @inlinable
     public func writeSIMD<T: SIMD>(_ simd: inout T) throws where T.Scalar: BinaryInteger {
-        var err:Error? = nil
+        var err:(any Error)? = nil
         withUnsafeBytes(of: simd) { p in
             do {
                 try writeBuffer(p.baseAddress!, length: simd.leadingNonzeroByteCountSIMD)
@@ -157,7 +157,7 @@ extension Socket {
                 err = error
             }
         }
-        if let err:Error = err {
+        if let err {
             throw err
         }
     }

@@ -10,9 +10,9 @@ import Logging
 
 /// Default Error Responder implementation that does the bare minimum required to log and send an error response known at compile time.
 public struct StaticErrorResponder : ErrorResponderProtocol {
-    public let logic:@Sendable (_ error: Error) -> StaticRouteResponderProtocol
+    public let logic:@Sendable (_ error: any Error) -> any StaticRouteResponderProtocol
 
-    public init(_ logic: @escaping @Sendable (_ error: Error) -> StaticRouteResponderProtocol) {
+    public init(_ logic: @escaping @Sendable (_ error: any Error) -> any StaticRouteResponderProtocol) {
         self.logic = logic
     }
 
@@ -20,7 +20,7 @@ public struct StaticErrorResponder : ErrorResponderProtocol {
     public var debugDescription : String { "" }
 
     @inlinable
-    public func respond<S: SocketProtocol & ~Copyable, E: Error>(to socket: borrowing S, with error: E, for request: inout RequestProtocol, logger: Logger) async {
+    public func respond<S: SocketProtocol & ~Copyable, E: Error>(to socket: borrowing S, with error: E, for request: inout any RequestProtocol, logger: Logger) async {
         #if DEBUG
         logger.warning(Logger.Message(stringLiteral: "\(error)"))
         #endif

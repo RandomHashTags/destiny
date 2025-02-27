@@ -40,7 +40,7 @@ public protocol StaticRouteProtocol : RouteProtocol {
     ///   - function: SwiftSyntax expression that represents this route.
     ///   - middleware: Static middleware that this route will apply.
     /// - Throws: any error.
-    func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> StaticRouteResponderProtocol?
+    func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)?
 
     /// Parsing logic for this route.
     /// 

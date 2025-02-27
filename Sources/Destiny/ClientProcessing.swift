@@ -19,9 +19,9 @@ public enum ClientProcessing {
         received: ContinuousClock.Instant,
         socket: borrowing C,
         logger: Logger,
-        router: RouterProtocol
+        router: any RouterProtocol
     ) async throws {
-        guard var request:RequestProtocol = try socket.loadRequest() else { return }
+        guard var request:any RequestProtocol = try socket.loadRequest() else { return }
         try await process(client: client, received: received, loaded: .now, socket: socket, request: &request, logger: logger, router: router)
     }
     @inlinable
@@ -30,9 +30,9 @@ public enum ClientProcessing {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing C,
-        request: inout RequestProtocol,
+        request: inout any RequestProtocol,
         logger: Logger,
-        router: RouterProtocol
+        router: any RouterProtocol
     ) async throws {
         defer {
             #if canImport(Foundation)
@@ -60,25 +60,25 @@ public enum ClientProcessing {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing C,
-        request: inout RequestProtocol,
-        router: RouterProtocol
+        request: inout any RequestProtocol,
+        router: any RouterProtocol
     ) async throws -> Bool {
-        if let responder:StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
+        if let responder:any StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
             try await staticResponse(socket: socket, responder: responder)
-        } else if let responder:DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
+        } else if let responder:any DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
             try await dynamicResponse(received: received, loaded: loaded, socket: socket, router: router, request: &request, responder: responder)
-        } else if let responder:RouteResponderProtocol = router.conditionalResponder(for: &request) {
-            if let staticResponder:StaticRouteResponderProtocol = responder as? StaticRouteResponderProtocol {
+        } else if let responder:any RouteResponderProtocol = router.conditionalResponder(for: &request) {
+            if let staticResponder:any StaticRouteResponderProtocol = responder as? any StaticRouteResponderProtocol {
                 try await staticResponse(socket: socket, responder: staticResponder)
-            } else if let responder:DynamicRouteResponderProtocol = responder as? DynamicRouteResponderProtocol {
+            } else if let responder:any DynamicRouteResponderProtocol = responder as? any DynamicRouteResponderProtocol {
                 try await dynamicResponse(received: received, loaded: loaded, socket: socket, router: router, request: &request, responder: responder)
             }
         } else {
             for group in router.routerGroups {
-                if let responder:StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
+                if let responder:any StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
                     try await staticResponse(socket: socket, responder: responder)
                     return true
-                } else if let responder:DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
+                } else if let responder:any DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
                     try await dynamicResponse(received: received, loaded: loaded, socket: socket, router: router, request: &request, responder: responder)
                     return true
                 }
@@ -92,7 +92,7 @@ public enum ClientProcessing {
     @inlinable
     static func staticResponse<C: SocketProtocol & ~Copyable>(
         socket: borrowing C,
-        responder: StaticRouteResponderProtocol
+        responder: any StaticRouteResponderProtocol
     ) async throws {
         try await responder.respond(to: socket)
     }
@@ -103,11 +103,11 @@ public enum ClientProcessing {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing C,
-        router: RouterProtocol,
-        request: inout RequestProtocol,
-        responder: DynamicRouteResponderProtocol
+        router: any RouterProtocol,
+        request: inout any RequestProtocol,
+        responder: any DynamicRouteResponderProtocol
     ) async throws {
-        var response:DynamicResponseProtocol = responder.defaultResponse
+        var response:any DynamicResponseProtocol = responder.defaultResponse
         response.timestamps.received = received
         response.timestamps.loaded = loaded
         for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {

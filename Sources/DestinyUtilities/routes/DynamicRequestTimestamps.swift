@@ -6,8 +6,13 @@
 //
 
 public struct DynamicRequestTimestamps : Sendable {
+    /// When the request was accepted.
     public var received:ContinuousClock.Instant
+
+    /// When the request loaded its default values.
     public var loaded:ContinuousClock.Instant
+
+    /// When the request was completely processed.
     public var processed:ContinuousClock.Instant
 
     public init(

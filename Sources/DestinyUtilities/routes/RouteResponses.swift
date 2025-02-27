@@ -29,7 +29,7 @@ extension RouteResponses {
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            var err:Error? = nil
+            var err:(any Error)? = nil
             value.withUTF8Buffer {
                 do {
                     try socket.writeBuffer($0.baseAddress!, length: $0.count)
@@ -37,7 +37,7 @@ extension RouteResponses {
                     err = error
                 }
             }
-            if let err:Error = err {
+            if let err {
                 throw err
             }
         }

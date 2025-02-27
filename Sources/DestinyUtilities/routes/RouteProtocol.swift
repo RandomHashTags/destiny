@@ -15,10 +15,8 @@ public protocol RouteProtocol : CustomDebugStringConvertible, Sendable {
     /// HTTP Request Method of this route.
     var method : HTTPRequestMethod { get }
 
-    #if canImport(SwiftCompression)
-    /// Supported compression algorithms that this route can use to compress its response.
+    /// Supported compression algorithms this route can use to compress its response.
     var supportedCompressionAlgorithms : Set<CompressionAlgorithm> { get set }
-    #endif
 
     /// Whether or not the path for this route is case-sensitive.
     var isCaseSensitive : Bool { get }

@@ -165,17 +165,17 @@ extension Router {
     struct Storage {
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         
-        var dynamicMiddleware:[DynamicMiddlewareProtocol] = []
-        var dynamicRedirects:[(RedirectionRouteProtocol, SyntaxProtocol)] = []
+        var dynamicMiddleware:[any DynamicMiddlewareProtocol] = []
+        var dynamicRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
 
         var staticMiddleware:[any StaticMiddlewareProtocol] = []
-        var staticRedirects:[(RedirectionRouteProtocol, SyntaxProtocol)] = []
-        var staticRoutes:[(StaticRouteProtocol, FunctionCallExprSyntax)] = []
+        var staticRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
+        var staticRoutes:[(any StaticRouteProtocol, FunctionCallExprSyntax)] = []
         
-        var routerGroups:[RouterGroupProtocol] = []
+        var routerGroups:[any RouterGroupProtocol] = []
 
-        private var conditionalResponders:[RoutePath:ConditionalRouteResponderProtocol] = [:]
+        private var conditionalResponders:[RoutePath:any ConditionalRouteResponderProtocol] = [:]
         private var registeredPaths:Set<String> = []
 
         mutating func routerGroupsString(context: some MacroExpansionContext) -> String {
@@ -224,8 +224,8 @@ extension Router {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         dictionary: DictionaryExprSyntax,
-        static_redirects: inout [(RedirectionRouteProtocol, SyntaxProtocol)],
-        dynamic_redirects: inout [(RedirectionRouteProtocol, SyntaxProtocol)]
+        static_redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
+        dynamic_redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)]
     ) {
         guard let dictionary:DictionaryElementListSyntax = dictionary.content.as(DictionaryElementListSyntax.self) else { return }
         for methodElement in dictionary {
@@ -255,9 +255,9 @@ extension Router.Storage {
     mutating func static_routes_string(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
-        redirects: [(RedirectionRouteProtocol, SyntaxProtocol)],
+        redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [any StaticMiddlewareProtocol],
-        _ routes: [(StaticRouteProtocol, FunctionCallExprSyntax)]
+        _ routes: [(any StaticRouteProtocol, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return ":" }
         var string:String = "\n"
@@ -316,8 +316,8 @@ extension Router.Storage {
 extension Router {
     static func conditionalRoute(
         context: some MacroExpansionContext,
-        conditionalResponders: inout [RoutePath:ConditionalRouteResponderProtocol],
-        route: RouteProtocol,
+        conditionalResponders: inout [RoutePath:any ConditionalRouteResponderProtocol],
+        route: any RouteProtocol,
         function: FunctionCallExprSyntax,
         string: String,
         buffer: DestinyRoutePathType,

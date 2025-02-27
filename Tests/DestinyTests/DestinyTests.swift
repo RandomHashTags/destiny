@@ -31,9 +31,9 @@ struct DestinyTests {
         public var path:[PathComponent]
         public var status:HTTPResponseStatus
         public var contentType:HTTPMediaType
-        public var defaultResponse:DynamicResponseProtocol
+        public var defaultResponse:any DynamicResponseProtocol
         public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
-        public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        public let handler:@Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
         var handlerLogic:String = "{ _, _ in }"
     }
 

@@ -16,5 +16,5 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
     ///   - request: The incoming network request.
     ///   - response: The current response for the request.
     /// - Returns: Whether or not to continue processing the request.
-    @inlinable func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws -> Bool
+    @inlinable func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool
 }

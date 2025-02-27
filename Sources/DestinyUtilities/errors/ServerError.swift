@@ -6,7 +6,7 @@
 //
 
 // MARK: ServerError
-public struct ServerError : DestinyError {
+public struct ServerError : DestinyErrorProtocol {
     public let identifier:String
     public let reason:String
 

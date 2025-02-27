@@ -16,6 +16,9 @@ public protocol HTTPHeadersProtocol : Sendable {
     @inlinable subscript(_ header: String) -> Value? { get set }
     @inlinable subscript(_ header: String) -> String? { get set }
 
+    /// Whether or not the target header exists.
     @inlinable func has(_ header: Key) -> Bool
+
+    /// Whether or not the target header, as a `String`, exists.
     @inlinable func has(_ header: String) -> Bool
 }

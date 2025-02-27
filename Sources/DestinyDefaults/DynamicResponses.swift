@@ -10,17 +10,17 @@ import DestinyUtilities
 /// Default storage where Destiny handles dynamic routes.
 public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     /// The dynamic routes without parameters.
-    public var parameterless:[DestinyRoutePathType:DynamicRouteResponderProtocol]
+    public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]
 
     /// The dynamic routes with parameters.
-    public var parameterized:[[DynamicRouteResponderProtocol]]
+    public var parameterized:[[any DynamicRouteResponderProtocol]]
 
-    public var catchall:[DynamicRouteResponderProtocol]
+    public var catchall:[any DynamicRouteResponderProtocol]
 
     public init(
-        parameterless: [DestinyRoutePathType:DynamicRouteResponderProtocol],
-        parameterized: [[DynamicRouteResponderProtocol]],
-        catchall: [DynamicRouteResponderProtocol]
+        parameterless: [DestinyRoutePathType:any DynamicRouteResponderProtocol],
+        parameterized: [[any DynamicRouteResponderProtocol]],
+        catchall: [any DynamicRouteResponderProtocol]
     ) {
         self.parameterless = parameterless
         self.parameterized = parameterized
@@ -53,7 +53,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    public mutating func register(version: HTTPVersion, route: DynamicRouteProtocol, responder: DynamicRouteResponderProtocol, override: Bool) throws {
+    public mutating func register(version: HTTPVersion, route: any DynamicRouteProtocol, responder: any DynamicRouteResponderProtocol, override: Bool) throws {
         if route.path.count(where: { $0.isParameter }) == 0 {
             var string:String = route.startLine
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
@@ -73,12 +73,12 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    public func responder(for request: inout RequestProtocol) -> DynamicRouteResponderProtocol? {
-        if let responder:DynamicRouteResponderProtocol = parameterless[request.startLine] {
+    public func responder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
+        if let responder:any DynamicRouteResponderProtocol = parameterless[request.startLine] {
             return responder
         }
         let values:[String] = request.path
-        guard let responders:[DynamicRouteResponderProtocol] = parameterized.get(values.count) else { return catchallResponder(for: &request, values: values) }
+        guard let responders:[any DynamicRouteResponderProtocol] = parameterized.get(values.count) else { return catchallResponder(for: &request, values: values) }
         loop: for responder in responders {
             for i in 0..<values.count {
                 let path:PathComponent = responder.path[i]
@@ -92,7 +92,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    func catchallResponder(for request: inout RequestProtocol, values: [String]) -> DynamicRouteResponderProtocol? {
+    func catchallResponder(for request: inout any RequestProtocol, values: [String]) -> (any DynamicRouteResponderProtocol)? {
         loop: for responder in catchall {
             for (i, path) in responder.path.enumerated() {
                 if path == .catchall {

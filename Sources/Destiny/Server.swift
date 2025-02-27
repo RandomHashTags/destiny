@@ -18,7 +18,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
     /// The maximum amount of pending connections the Server will queue.
     /// This value is capped at the system's limit.
     public let backlog:Int32
-    public let router:RouterProtocol
+    public let router:any RouterProtocol
     public let logger:Logger
     public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
     public let onLoad:(@Sendable () -> Void)?
@@ -35,7 +35,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         address: String? = nil,
         port: UInt16,
         backlog: Int32 = SOMAXCONN,
-        router: RouterProtocol,
+        router: any RouterProtocol,
         logger: Logger,
         commands: [ParsableCommand.Type] = [
             StopCommand.self

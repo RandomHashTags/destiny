@@ -13,7 +13,7 @@ public protocol ErrorResponderProtocol : RouteResponderProtocol {
     @inlinable func respond<T: SocketProtocol & ~Copyable, E: Error>(
         to socket: borrowing T,
         with error: E,
-        for request: inout RequestProtocol,
+        for request: inout any RequestProtocol,
         logger: Logger
     ) async
 }

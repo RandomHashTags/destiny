@@ -37,7 +37,6 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     #endif
 }
 
-#if canImport(SwiftCompression)
 // MARK: SwiftCompression
 // Redirects do not use compression.
 extension RedirectionRouteProtocol {
@@ -46,4 +45,3 @@ extension RedirectionRouteProtocol {
         set {}
     }
 }
-#endif

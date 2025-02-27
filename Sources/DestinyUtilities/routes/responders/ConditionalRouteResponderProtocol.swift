@@ -10,5 +10,5 @@ public protocol ConditionalRouteResponderProtocol : CustomDebugStringConvertible
     /// - Parameters:
     ///   - request: The request.
     /// - Returns: The responder for the request.
-    @inlinable func responder(for request: inout RequestProtocol) -> RouteResponderProtocol?
+    @inlinable func responder(for request: inout any RequestProtocol) -> (any RouteResponderProtocol)?
 }

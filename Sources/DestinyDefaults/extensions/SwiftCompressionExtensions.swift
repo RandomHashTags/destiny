@@ -48,7 +48,7 @@ extension CompressionAlgorithm {
         case "lz77":
             var windowSize:Int = 0, bufferSize:Int = 0, offsetBitWidth:Int = 0
             for child in arguments {
-                switch child.label!.text {
+                switch child.label?.text {
                     case "windowSize": windowSize = Int(child.expression.integerLiteral!.literal.text)!
                     case "bufferSize": bufferSize = Int(child.expression.integerLiteral!.literal.text)!
                     case "offsetBitWidth": offsetBitWidth = Int(child.expression.integerLiteral!.literal.text)!
@@ -62,7 +62,7 @@ extension CompressionAlgorithm {
         case "runLengthEncoding":
             var minRun:Int = 0, alwaysIncludeRunCount:Bool = false
             for child in arguments {
-                switch child.label!.text {
+                switch child.label?.text {
                     case "minRun": minRun = Int(child.expression.integerLiteral!.literal.text)!
                     case "alwaysIncludeRunCount": alwaysIncludeRunCount = child.expression.booleanLiteral!.isTrue
                     default: break
@@ -91,9 +91,9 @@ extension CompressionAlgorithm {
         case "dnaBinaryEncoding":
             var baseBits:[UInt8:[Bool]] = [:]
             for child in arguments {
-                switch child.label!.text {
+                switch child.label?.text {
                     case "baseBits":
-                        child.expression.dictionary!.content.as(DictionaryElementListSyntax.self)!.forEach({
+                        child.expression.dictionary?.content.as(DictionaryElementListSyntax.self)!.forEach({
                             baseBits[UInt8($0.key.integerLiteral!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.isTrue })
                         })
                     default: break

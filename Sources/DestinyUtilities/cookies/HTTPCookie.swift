@@ -117,7 +117,7 @@ extension HTTPCookie {
         if let expires = expires {
             string += "; Expires="
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            string += HTTPDateFormat.get(expires)
+            string += HTTPDateFormat.get(date: expires)
             #else
             string += expires
             #endif

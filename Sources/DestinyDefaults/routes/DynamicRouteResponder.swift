@@ -11,14 +11,14 @@ import DestinyUtilities
 public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
-    public let defaultResponse:DynamicResponseProtocol
-    public let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void
+    public let defaultResponse:any DynamicResponseProtocol
+    public let logic:@Sendable (inout any RequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
-        defaultResponse: DynamicResponseProtocol,
-        logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void,
+        defaultResponse: any DynamicResponseProtocol,
+        logic: @escaping @Sendable (inout any RequestProtocol, inout any DynamicResponseProtocol) async throws -> Void,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
@@ -33,7 +33,7 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws {
+    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws {
         try await logic(&request, &response)
         try response.response().utf8.withContiguousStorageIfAvailable {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)

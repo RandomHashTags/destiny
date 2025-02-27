@@ -8,14 +8,14 @@
 import DestinyUtilities
 
 public struct RouterResponderStorage : Sendable {
-    public var `static`:[DestinyRoutePathType:StaticRouteResponderProtocol]
+    public var `static`:[DestinyRoutePathType:any StaticRouteResponderProtocol]
     public var dynamic:DynamicResponses
-    public var conditional:[DestinyRoutePathType:ConditionalRouteResponderProtocol]
+    public var conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
 
     public init(
-        static: [DestinyRoutePathType:StaticRouteResponderProtocol],
+        static: [DestinyRoutePathType:any StaticRouteResponderProtocol],
         dynamic: DynamicResponses,
-        conditional: [DestinyRoutePathType:ConditionalRouteResponderProtocol]
+        conditional: [DestinyRoutePathType:any ConditionalRouteResponderProtocol]
     ) {
         self.static = `static`
         self.dynamic = dynamic

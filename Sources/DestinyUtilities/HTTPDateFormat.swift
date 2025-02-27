@@ -102,7 +102,7 @@ extension HTTPDateFormat {
 // MARK: Foundation
 extension HTTPDateFormat {
     @inlinable
-    public static func get(_ date: Date) -> String {
+    public static func get(date: Date) -> String {
         let components:DateComponents = Calendar.current.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: date)
         let values:(Int, Int, Int, Int, Int, Int, Int) = (
             components.year ?? 0,

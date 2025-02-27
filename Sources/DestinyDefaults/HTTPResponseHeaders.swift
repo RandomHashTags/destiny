@@ -30,9 +30,11 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
     @usableFromInline var contentLength:Int?
     @usableFromInline var contentType:String?
     @usableFromInline var retryAfterDuration:Int?
+
     #if canImport(FoundationEssentials) || canImport(Foundation)
     @usableFromInline var retryAfterDate:Date?
     #endif
+    
     @usableFromInline var tk:HTTPResponseHeader.TK?
     @usableFromInline var xContentTypeOptions:Bool = false
     

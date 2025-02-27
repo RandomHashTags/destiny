@@ -20,10 +20,10 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     var path : [PathComponent] { get set }
 
     /// Default HTTP Message computed by default values and static middleware.
-    var defaultResponse : DynamicResponseProtocol { get set }
+    var defaultResponse : any DynamicResponseProtocol { get set }
 
     /// - Returns: The responder for this route.
-    @inlinable func responder() -> DynamicRouteResponderProtocol
+    @inlinable func responder() -> any DynamicRouteResponderProtocol
 
     /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
     var responderDebugDescription : String { get }

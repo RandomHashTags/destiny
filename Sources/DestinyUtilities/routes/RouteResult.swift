@@ -30,7 +30,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     #endif
 
     case json(Encodable & Sendable)
-    case error(Error)
+    case error(any Error)
 
     @inlinable
     public var debugDescription : String {

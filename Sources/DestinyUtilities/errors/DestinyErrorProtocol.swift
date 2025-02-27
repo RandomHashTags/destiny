@@ -1,5 +1,5 @@
 //
-//  DestinyError.swift
+//  DestinyErrorProtocol.swift
 //
 //
 //  Created by Evan Anderson on 2/25/25.
@@ -11,14 +11,14 @@ import Foundation
 import Glibc
 #endif
 
-public protocol DestinyError : Error {
+public protocol DestinyErrorProtocol : Error {
     var identifier : String { get }
     var reason : String { get }
 
     init(identifier: String, reason: String)
 }
 
-extension DestinyError {
+extension DestinyErrorProtocol {
     @usableFromInline
     static func cError(_ identifier: String) -> Self {
         #if canImport(Foundation)

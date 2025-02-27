@@ -226,9 +226,7 @@ extension HTTPRequestHeader {
 // MARK: Accept-Encoding
 extension HTTPRequestHeader {
     public struct AcceptEncoding : Sendable {
-        #if canImport(SwiftCompression)
         public let compression:CompressionAlgorithm
-        #endif
     }
 }
 

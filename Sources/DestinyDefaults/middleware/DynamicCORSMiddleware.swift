@@ -13,7 +13,7 @@ import SwiftSyntaxMacros
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
-    public let logic:@Sendable (inout RequestProtocol, inout DynamicResponseProtocol) async throws -> Void
+    public let logic:@Sendable (inout any RequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
     /// Default initializer to create a `DynamicCORSMiddleware`.
@@ -65,7 +65,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         self.logicDebugDescription = logicDD + " }"
     }
 
-    public init(_ logic: @escaping @Sendable (inout RequestProtocol, inout DynamicResponseProtocol) -> Void) {
+    public init(_ logic: @escaping @Sendable (inout any RequestProtocol, inout any DynamicResponseProtocol) -> Void) {
         self.logic = logic
         self.logicDebugDescription = "{ _, _ in }"
     }
@@ -75,7 +75,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
     }
 
     @inlinable
-    public func handle(request: inout RequestProtocol, response: inout DynamicResponseProtocol) async throws -> Bool {
+    public func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
         guard request.headers.has(HTTPRequestHeader.originRawName) else { return true }
         try await logic(&request, &response)
         return true

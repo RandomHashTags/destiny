@@ -31,9 +31,11 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
     public var acceptEncoding:HTTPRequestHeader.AcceptEncoding?
     public var contentLength:Int?
     public var contentType:String?
+
     #if canImport(FoundationEssentials) || canImport(Foundation)
     public var date:Date?
     #endif
+
     public var from:String?
     public var host:String?
     public var maxForwards:Int?

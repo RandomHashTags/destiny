@@ -15,9 +15,9 @@ import SwiftSyntaxMacros
 public struct DynamicRoute : DynamicRouteProtocol {
     public var path:[PathComponent]
     public var contentType:HTTPMediaType
-    public var defaultResponse:DynamicResponseProtocol
+    public var defaultResponse:any DynamicResponseProtocol
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
-    public let handler:@Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+    public let handler:@Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     @usableFromInline package var handlerDebugDescription:String = "{ _, _ in }"
 
     public let version:HTTPVersion
@@ -36,7 +36,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         cookies: [any HTTPCookieProtocol] = [],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) {
         self.version = version
         self.method = method
@@ -50,7 +50,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 
     @inlinable
-    public func responder() -> DynamicRouteResponderProtocol {
+    public func responder() -> any DynamicRouteResponderProtocol {
         return DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
 
@@ -173,7 +173,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -188,7 +188,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -203,7 +203,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -218,7 +218,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -233,7 +233,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -248,7 +248,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -263,7 +263,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -278,7 +278,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -293,7 +293,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
@@ -308,7 +308,7 @@ extension DynamicRoute {
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
-        handler: @escaping @Sendable (_ request: inout RequestProtocol, _ response: inout DynamicResponseProtocol) async throws -> Void
+        handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
         return on(version: version, method: .patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
