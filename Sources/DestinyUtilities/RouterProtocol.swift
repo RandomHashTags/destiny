@@ -7,11 +7,20 @@
 
 /// Core Router protocol that handles middleware, routes and router groups.
 public protocol RouterProtocol : AnyObject, Sendable {
-    /// All the dynamic middleware that is registered to this router. Ordered in descending order of importance.
-    var dynamicMiddleware : [any DynamicMiddlewareProtocol] { get set }
+    associatedtype ConcreteSocket:SocketProtocol
+    associatedtype ConcreteStaticMiddleware:StaticMiddlewareProtocol
+    associatedtype ConcreteDynamicMiddleware:DynamicMiddlewareProtocol where ConcreteSocket.ConcreteRequest == ConcreteDynamicMiddleware.ConcreteRequest
+    associatedtype ConcreteDynamicRouteResponder:DynamicRouteResponderProtocol where ConcreteSocket == ConcreteDynamicRouteResponder.ConcreteSocket
+    associatedtype ConcreteRouterGroup:RouterGroupProtocol where
+        ConcreteSocket == ConcreteRouterGroup.ConcreteDynamicRouteResponder.ConcreteSocket,
+        ConcreteDynamicRouteResponder == ConcreteRouterGroup.ConcreteDynamicRouteResponder
 
     /// The router groups attached to this router.
-    var routerGroups : [any RouterGroupProtocol] { get }
+    var routerGroups : [ConcreteRouterGroup] { get }
+    
+    @inlinable func loadDynamicMiddleware()
+
+    @inlinable func handleDynamicMiddleware(for request: inout ConcreteSocket.ConcreteRequest, with response: inout any DynamicResponseProtocol) async throws
 
     /// The static responder responsible for a static route.
     /// 
@@ -24,22 +33,22 @@ public protocol RouterProtocol : AnyObject, Sendable {
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func dynamicResponder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)?
+    @inlinable func dynamicResponder(for request: inout ConcreteSocket.ConcreteRequest) -> ConcreteDynamicRouteResponder?
 
     /// The conditional responder responsible for a route.
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func conditionalResponder(for request: inout any RequestProtocol) -> (any RouteResponderProtocol)?
+    @inlinable func conditionalResponder(for request: inout ConcreteSocket.ConcreteRequest) -> (any RouteResponderProtocol)?
 
     /// The error responder.
-    @inlinable func errorResponder<Request: RequestProtocol>(for request: inout Request) -> any ErrorResponderProtocol
+    @inlinable func errorResponder(for request: inout ConcreteSocket.ConcreteRequest) -> any ErrorResponderProtocol
 
     /// The responder for requests to unregistered endpoints.
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func notFoundResponse<C: SocketProtocol & ~Copyable, Request: RequestProtocol>(socket: borrowing C, request: inout Request) async throws
+    @inlinable func notFoundResponse(socket: borrowing ConcreteSocket, request: inout ConcreteSocket.ConcreteRequest) async throws
 
     /// Registers a static route to this router.
     /// 
@@ -54,13 +63,13 @@ public protocol RouterProtocol : AnyObject, Sendable {
     ///   - route: The dynamic route you want to register.
     ///   - responder: The dynamic responder you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    func register<DynamicRoute: DynamicRouteProtocol>(_ route: DynamicRoute, responder: any DynamicRouteResponderProtocol, override: Bool) throws
+    func register<DynamicRoute: DynamicRouteProtocol>(_ route: DynamicRoute, responder: ConcreteDynamicRouteResponder, override: Bool) throws where DynamicRoute.ConcreteResponder == ConcreteDynamicRouteResponder
 
     /// Registers a static middleware at the given index to this router.
-    func register(_ middleware: any StaticMiddlewareProtocol, at index: Int) throws
+    func register(_ middleware: ConcreteStaticMiddleware, at index: Int) throws
 
     /// Registers a dynamic middleware at the given index to this router.
-    func register(_ middleware: any DynamicMiddlewareProtocol, at index: Int) throws
+    func register(_ middleware: ConcreteDynamicMiddleware, at index: Int) throws
 
 
     /// Registers a static route with the GET HTTP method to this router.

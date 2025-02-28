@@ -9,8 +9,10 @@
 import Glibc
 #endif
 
+import DestinyUtilities
+
 // MARK: Socket
-public struct Socket : SocketProtocol, ~Copyable {    
+public struct Socket : SocketProtocol {
     public static let bufferLength:Int = 1024
 
     public typealias ConcreteRequest = Request

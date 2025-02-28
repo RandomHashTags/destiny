@@ -12,7 +12,7 @@ import Glibc
 import Logging
 import ServiceLifecycle
 
-extension Server where ClientSocket : ~Copyable {
+extension Server {
     @inlinable
     func processClientsEpoll(
         serverFD: Int32,
@@ -47,7 +47,7 @@ extension Server where ClientSocket : ~Copyable {
     }
 }
 
-extension Server where ClientSocket : ~Copyable {
+extension Server {
     // MARK: Epoll
     final class Epoll : @unchecked Sendable {
         private let serverFD:Int32
@@ -141,7 +141,7 @@ extension Server where ClientSocket : ~Copyable {
     }
 }
 
-extension Server where ClientSocket : ~Copyable {
+extension Server {
     // MARK: EpollProcessor
     @usableFromInline
     final class EpollProcessor {
@@ -201,12 +201,11 @@ extension Server where ClientSocket : ~Copyable {
                         }
                         Task {
                             do {
-                                try await ClientProcessing.process(
+                                try await router.process(
                                     client: client,
                                     received: .now, // TODO: fix
-                                    socket: ClientSocket.init(fileDescriptor: client),
-                                    logger: instance.logger,
-                                    router: router
+                                    socket: Router.ConcreteSocket.init(fileDescriptor: client),
+                                    logger: instance.logger
                                 )
                             } catch {
                                 instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))

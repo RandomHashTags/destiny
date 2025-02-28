@@ -332,7 +332,7 @@ extension Router {
             return
         }
         var httpResponse:DestinyUtilities.HTTPMessage = httpResponse
-        var responder:ConditionalRouteResponder = ConditionalRouteResponder(conditions: [], responders: [])
+        var responder:ConditionalRouteResponder = ConditionalRouteResponder<Request>(conditions: [], responders: [])
         responder.conditionsDescription.removeLast() // ]
         responder.respondersDescription.removeLast() // ]
         for algorithm in route.supportedCompressionAlgorithms {

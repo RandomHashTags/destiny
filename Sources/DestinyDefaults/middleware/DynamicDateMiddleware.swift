@@ -14,6 +14,9 @@ import SwiftSyntaxMacros
 // MARK: DynamicDateMiddleware
 /// Adds the `Date` header to responses for dynamic routes.
 public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked Sendable {
+
+    public typealias ConcreteRequest = Request
+
     @usableFromInline
     var _timer:Task<Void, Never>!
 
@@ -59,7 +62,7 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
     }
 
     @inlinable
-    public func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
+    public func handle(request: inout ConcreteRequest, response: inout any DynamicResponseProtocol) async throws -> Bool {
         response.headers["Date"] = _date
         return true
     }

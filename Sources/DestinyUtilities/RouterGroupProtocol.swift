@@ -10,12 +10,13 @@ import SwiftSyntaxMacros
 
 /// Core Router Group protocol that handles routes grouped by a single endpoint.
 public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
+    associatedtype ConcreteDynamicRouteResponder:DynamicRouteResponderProtocol
 
     /// - Returns: The static route responder for the given HTTP start-line.
     @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)?
 
     /// - Returns: The dynamic route responder for the given request.
-    @inlinable func dynamicResponder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)?
+    @inlinable func dynamicResponder(for request: inout ConcreteDynamicRouteResponder.ConcreteSocket.ConcreteRequest) -> ConcreteDynamicRouteResponder?
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this router group.

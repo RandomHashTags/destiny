@@ -9,19 +9,18 @@ import DestinyUtilities
 import SwiftCompression
 
 /// Default Conditional Route Responder implementation where multiple responders are computed at compile time, but only one should be selected based on the request.
-public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {
-    public private(set) var conditions:[@Sendable (inout any RequestProtocol) -> Bool]
-    public private(set) var responders:[any RouteResponderProtocol]
+public struct ConditionalRouteResponder<Request: RequestProtocol> : ConditionalRouteResponderProtocol {
+    @usableFromInline
+    private(set) var storage:Storage
 
     package var conditionsDescription:String = "[]"
     package var respondersDescription:String = "[]"
 
     public init(
-        conditions: [@Sendable (inout any RequestProtocol) -> Bool],
+        conditions: [@Sendable (inout Request) -> Bool],
         responders: [any RouteResponderProtocol]
     ) {
-        self.conditions = conditions
-        self.responders = responders
+        storage = Storage(conditions: conditions, responders: responders)
     }
 
     public var debugDescription : String {
@@ -29,17 +28,24 @@ public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {
     }
 
     @inlinable
-    public func responder(for request: inout any RequestProtocol) -> (any RouteResponderProtocol)? {
-        for (index, condition) in conditions.enumerated() {
+    public func responder(for request: inout Request) -> (any RouteResponderProtocol)? {
+        for (index, condition) in storage.conditions.enumerated() {
             if condition(&request) {
-                return responders[index]
+                return storage.responders[index]
             }
         }
         return nil
     }
 
-    public mutating func register(responder: any RouteResponderProtocol, condition: @escaping @Sendable (inout any RequestProtocol) -> Bool) {
-        conditions.append(condition)
-        responders.append(responder)
+    public mutating func register(responder: any RouteResponderProtocol, condition: @escaping @Sendable (inout Request) -> Bool) {
+        storage.conditions.append(condition)
+        storage.responders.append(responder)
+    }
+}
+
+extension ConditionalRouteResponder {
+    public struct Storage : Sendable {
+        public fileprivate(set) var conditions:[@Sendable (inout Request) -> Bool]
+        public fileprivate(set) var responders:[any RouteResponderProtocol]
     }
 }

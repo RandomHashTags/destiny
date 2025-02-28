@@ -181,7 +181,7 @@ let router:Router = #router(
         }
     )
 )
-let server:Server<Socket, Router> = try Server<Socket, Router>(
+let server:Server = try Server(
     port: 8080,
     router: router,
     logger: Logger(label: "destiny.http.server"),

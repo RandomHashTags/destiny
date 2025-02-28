@@ -7,8 +7,10 @@
 
 /// Core Conditional Route Responder protocol that selects a route responder based on a request.
 public protocol ConditionalRouteResponderProtocol : CustomDebugStringConvertible, RouteResponderProtocol {
+    associatedtype ConcreteRequest:RequestProtocol
+
     /// - Parameters:
     ///   - request: The request.
     /// - Returns: The responder for the request.
-    @inlinable func responder(for request: inout any RequestProtocol) -> (any RouteResponderProtocol)?
+    @inlinable func responder(for request: inout ConcreteRequest) -> (any RouteResponderProtocol)?
 }

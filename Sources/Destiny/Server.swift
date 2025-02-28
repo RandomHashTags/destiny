@@ -12,13 +12,16 @@ import ServiceLifecycle
 
 // MARK: Server
 /// A default `ServerProtocol` implementation.
-public final class Server<ClientSocket : SocketProtocol & ~Copyable, Router: RouterProtocol> : ServerProtocol {
+public final class Server : ServerProtocol {
+
+    public typealias ConcreteRouter = Router
+
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.
     /// This value is capped at the system's limit.
     public let backlog:Int32
-    public let router:Router
+    public let router:ConcreteRouter
     public let logger:Logger
     public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
     public let onLoad:(@Sendable () -> Void)?
@@ -35,7 +38,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable, Router: Rou
         address: String? = nil,
         port: UInt16,
         backlog: Int32 = SOMAXCONN,
-        router: Router,
+        router: ConcreteRouter,
         logger: Logger,
         commands: [ParsableCommand.Type] = [
             StopCommand.self
@@ -74,9 +77,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable, Router: Rou
             await processCommand()
         }
         onLoad?()
-        for index in router.dynamicMiddleware.indices {
-            router.dynamicMiddleware[index].load()
-        }
+        router.loadDynamicMiddleware()
         await withTaskCancellationOrGracefulShutdownHandler {
             await processClients(serverFD: serverFD1)
             //processClients(serverFD: serverFD2)
@@ -158,7 +159,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable, Router: Rou
 }
 
 // MARK: Process commands
-extension Server where ClientSocket : ~Copyable {
+extension Server {
     private func readCommand() async -> String? {
         return await withCheckedContinuation { $0.resume(returning: readLine()) }
     }
@@ -192,7 +193,7 @@ extension Server where ClientSocket : ~Copyable {
 }
 
 // MARK: Process clients
-extension Server where ClientSocket : ~Copyable {
+extension Server {
     @inlinable
     func processClients(serverFD: Int32) async {
         let function:@Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)? = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
@@ -206,18 +207,19 @@ extension Server where ClientSocket : ~Copyable {
 
     @inlinable
     func processClientsOLD(serverFD: Int32, acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?) async {
+        fatalError("not yet supported") // TODO: fix
+        /*
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0..<backlog {
                     group.addTask {
                         do {
                             guard let (client, instant):(Int32, ContinuousClock.Instant) = try acceptClient(serverFD) else { return }
-                            try await ClientProcessing.process(
+                            try await router.process(
                                 client: client,
                                 received: instant,
                                 socket: ClientSocket(fileDescriptor: client),
-                                logger: self.logger,
-                                router: self.router
+                                logger: self.logger
                             )
                         } catch {
                             self.logger.warning(Logger.Message(stringLiteral: "\(error)"))
@@ -226,12 +228,12 @@ extension Server where ClientSocket : ~Copyable {
                 }
                 await group.waitForAll()
             }
-        }
+        }*/
     }
 }
 
 // MARK: Accept client
-extension Server where ClientSocket : ~Copyable {
+extension Server {
     @inlinable
     static func acceptClient(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
         guard let serverFD:Int32 = server else { return nil }

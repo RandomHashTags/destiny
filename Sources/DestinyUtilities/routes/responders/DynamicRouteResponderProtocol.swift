@@ -7,6 +7,8 @@
 
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
+    associatedtype ConcreteSocket:SocketProtocol
+
     /// Path of the route.
     var path : [PathComponent] { get }
 
@@ -17,9 +19,10 @@ public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
     var defaultResponse : any DynamicResponseProtocol { get }
 
     /// Writes a response to the socket.
-    @inlinable func respond<S: SocketProtocol & ~Copyable>(
-        to socket: borrowing S,
-        request: inout any RequestProtocol,
+    @inlinable
+    func respond(
+        to socket: borrowing ConcreteSocket,
+        request: inout ConcreteSocket.ConcreteRequest,
         response: inout any DynamicResponseProtocol
     ) async throws
 }
