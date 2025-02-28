@@ -25,7 +25,7 @@ public struct Request : RequestProtocol {
     }()
 
     /// Temporary value; will be making it use SIMD in the near future
-    public lazy var headers : any HTTPHeadersProtocol = { // TODO: make SIMD
+    public lazy var headers : HTTPRequestHeaders = { // TODO: make SIMD
         var string:String = ""
         string.reserveCapacity(tokens.count * 64)
         for i in 0..<tokens.count {

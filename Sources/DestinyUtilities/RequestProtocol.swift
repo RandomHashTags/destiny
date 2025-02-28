@@ -8,7 +8,7 @@
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
     //associatedtype Storage : RequestStorageProtocol
-    //associatedtype Headers : HTTPHeadersProtocol
+    associatedtype Headers:HTTPHeadersProtocol
 
     init?(tokens: [SIMD64<UInt8>])
 
@@ -24,7 +24,7 @@ public protocol RequestProtocol : Sendable, ~Copyable {
     var path : [String] { mutating get }
     
     /// The request headers.
-    var headers : any HTTPHeadersProtocol { mutating get }
+    var headers : Headers { mutating get }
 }
 
 /*
