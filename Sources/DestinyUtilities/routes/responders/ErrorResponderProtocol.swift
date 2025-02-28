@@ -10,10 +10,10 @@ import Logging
 /// Core Error Middleware protocol that handles errors thrown from requests.
 public protocol ErrorResponderProtocol : RouteResponderProtocol {
     /// Writes a response to a socket.
-    @inlinable func respond<T: SocketProtocol & ~Copyable, E: Error>(
+    @inlinable func respond<T: SocketProtocol & ~Copyable, E: Error, Request: RequestProtocol>(
         to socket: borrowing T,
         with error: E,
-        for request: inout any RequestProtocol,
+        for request: inout Request,
         logger: Logger
     ) async
 }

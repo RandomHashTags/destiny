@@ -7,8 +7,6 @@
 
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
-    associatedtype Cookie:HTTPCookieProtocol
-
     /// Route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
@@ -42,7 +40,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesHeaders : [String:String] { get }
 
     /// Response cookies this middleware applies to routes.
-    var appliesCookies : [Cookie] { get }
+    var appliesCookies : [any HTTPCookieProtocol] { get }
 
     /// Whether or not this middleware handles a route with the given options.
     @inlinable

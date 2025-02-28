@@ -126,7 +126,7 @@ public struct RouterGroup : RouterGroupProtocol {
     }
 
     @inlinable
-    public func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
+    public func dynamicResponder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)? {
         return dynamicResponses.responder(for: &request)
     }
 }

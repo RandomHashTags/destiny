@@ -24,7 +24,7 @@ public protocol RouterProtocol : AnyObject, Sendable {
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)?
+    @inlinable func dynamicResponder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)?
 
     /// The conditional responder responsible for a route.
     /// 
@@ -33,20 +33,20 @@ public protocol RouterProtocol : AnyObject, Sendable {
     @inlinable func conditionalResponder(for request: inout any RequestProtocol) -> (any RouteResponderProtocol)?
 
     /// The error responder.
-    @inlinable func errorResponder(for request: inout any RequestProtocol) -> any ErrorResponderProtocol
+    @inlinable func errorResponder<Request: RequestProtocol>(for request: inout Request) -> any ErrorResponderProtocol
 
     /// The responder for requests to unregistered endpoints.
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout any RequestProtocol) async throws
+    @inlinable func notFoundResponse<C: SocketProtocol & ~Copyable, Request: RequestProtocol>(socket: borrowing C, request: inout Request) async throws
 
     /// Registers a static route to this router.
     /// 
     /// - Parameters:
     ///   - route: The static route you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    func register(_ route: any StaticRouteProtocol, override: Bool) throws
+    func register<StaticRoute: StaticRouteProtocol>(_ route: StaticRoute, override: Bool) throws
 
     /// Registers a dynamic route with its responder to this router.
     /// 
@@ -54,7 +54,7 @@ public protocol RouterProtocol : AnyObject, Sendable {
     ///   - route: The dynamic route you want to register.
     ///   - responder: The dynamic responder you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    func register(_ route: any DynamicRouteProtocol, responder: any DynamicRouteResponderProtocol, override: Bool) throws
+    func register<DynamicRoute: DynamicRouteProtocol>(_ route: DynamicRoute, responder: any DynamicRouteResponderProtocol, override: Bool) throws
 
     /// Registers a static middleware at the given index to this router.
     func register(_ middleware: any StaticMiddlewareProtocol, at index: Int) throws

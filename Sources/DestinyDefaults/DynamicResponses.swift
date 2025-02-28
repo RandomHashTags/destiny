@@ -73,7 +73,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    public func responder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
+    public func responder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)? {
         if let responder:any DynamicRouteResponderProtocol = parameterless[request.startLine] {
             return responder
         }
@@ -92,7 +92,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    func catchallResponder(for request: inout any RequestProtocol, values: [String]) -> (any DynamicRouteResponderProtocol)? {
+    func catchallResponder<Request: RequestProtocol>(for request: inout Request, values: [String]) -> (any DynamicRouteResponderProtocol)? {
         loop: for responder in catchall {
             for (i, path) in responder.path.enumerated() {
                 if path == .catchall {

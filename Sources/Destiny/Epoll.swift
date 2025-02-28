@@ -19,7 +19,7 @@ extension Server where ClientSocket : ~Copyable {
         threads: Int,
         maxEvents: Int,
         acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?,
-        router: any RouterProtocol
+        router: Router
     ) async {
         setNonBlocking(socket: serverFD)
         do {
@@ -171,7 +171,7 @@ extension Server where ClientSocket : ~Copyable {
         @usableFromInline
         func run(
             timeout: Int32,
-            router: any RouterProtocol,
+            router: Router,
             acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?
         ) async throws {
             for instance in instances {
@@ -187,7 +187,7 @@ extension Server where ClientSocket : ~Copyable {
         private func process(
             _ instance: Epoll,
             timeout: Int32,
-            router: any RouterProtocol,
+            router: Router,
             acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
         ) {
             while !Task.isCancelled && !Task.isShuttingDownGracefully {

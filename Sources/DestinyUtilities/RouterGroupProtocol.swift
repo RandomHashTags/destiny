@@ -15,7 +15,7 @@ public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
     @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)?
 
     /// - Returns: The dynamic route responder for the given request.
-    @inlinable func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)?
+    @inlinable func dynamicResponder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)?
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this router group.

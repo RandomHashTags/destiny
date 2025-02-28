@@ -52,7 +52,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         return caseInsensitiveResponders.static[toLowercase(path: startLine)]
     }
     @inlinable
-    public func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
+    public func dynamicResponder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)? {
         if let responder:any DynamicRouteResponderProtocol = caseSensitiveResponders.dynamic.responder(for: &request) {
             return responder
         }
@@ -79,7 +79,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
     }
 
     @inlinable
-    public func routerGroupDynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
+    public func routerGroupDynamicResponder<Request: RequestProtocol>(for request: inout Request) -> (any DynamicRouteResponderProtocol)? {
         for group in routerGroups {
             if let responder:any DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
                 return responder
@@ -89,12 +89,12 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
     }
 
     @inlinable
-    public func errorResponder(for request: inout any RequestProtocol) -> any ErrorResponderProtocol {
+    public func errorResponder<Request: RequestProtocol>(for request: inout Request) -> any ErrorResponderProtocol {
         return errorResponder
     }
 
     @inlinable
-    public func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout any RequestProtocol) async throws {
+    public func notFoundResponse<C: SocketProtocol & ~Copyable, Request: RequestProtocol>(socket: borrowing C, request: inout Request) async throws {
         if let responder:any DynamicRouteResponderProtocol = dynamicNotFoundResponder { // TODO: support
             //try await responder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
         } else {
@@ -102,7 +102,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         }
     }
 
-    public func register(_ route: any StaticRouteProtocol, override: Bool = false) throws {
+    public func register<StaticRoute: StaticRouteProtocol>(_ route: StaticRoute, override: Bool = false) throws {
         guard let responder:any StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
         var string:String = route.startLine
         var buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
@@ -122,8 +122,8 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         }
     }
 
-    public func register(_ route: any DynamicRouteProtocol, responder: any DynamicRouteResponderProtocol, override: Bool = false) throws {
-        var copy:any DynamicRouteProtocol = route
+    public func register<DynamicRoute: DynamicRouteProtocol>(_ route: DynamicRoute, responder: any DynamicRouteResponderProtocol, override: Bool = false) throws {
+        var copy:DynamicRoute = route
         copy.applyStaticMiddleware(staticMiddleware)
         if route.isCaseSensitive {
             try caseSensitiveResponders.dynamic.register(version: copy.version, route: copy, responder: responder, override: override)

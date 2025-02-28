@@ -12,8 +12,6 @@ import SwiftSyntaxMacros
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 public struct StaticMiddleware : StaticMiddlewareProtocol {
-    public typealias Cookie = HTTPCookie
-
     public let handlesVersions:Set<HTTPVersion>?
     public let handlesMethods:Set<HTTPRequestMethod>?
     public let handlesStatuses:Set<HTTPResponseStatus>?
@@ -23,7 +21,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     public let appliesStatus:HTTPResponseStatus?
     public let appliesContentType:HTTPMediaType?
     public let appliesHeaders:[String:String]
-    public let appliesCookies:[Cookie]
+    public let appliesCookies:[any HTTPCookieProtocol]
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
@@ -34,7 +32,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         appliesStatus: HTTPResponseStatus? = nil,
         appliesContentType: HTTPMediaType? = nil,
         appliesHeaders: [String:String] = [:],
-        appliesCookies: [Cookie] = []
+        appliesCookies: [any HTTPCookieProtocol] = []
     ) {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
@@ -96,7 +94,7 @@ extension StaticMiddleware {
         var appliesStatus:HTTPResponseStatus? = nil
         var appliesContentType:HTTPMediaType? = nil
         var appliesHeaders:[String:String] = [:]
-        var appliesCookies:[Cookie] = []
+        var appliesCookies:[any HTTPCookieProtocol] = []
         for argument in function.arguments {
             switch argument.label!.text {
             case "handlesVersions":
@@ -116,7 +114,7 @@ extension StaticMiddleware {
             case "appliesHeaders":
                 appliesHeaders = HTTPRequestHeader.parse(context: context, argument.expression)
             case "appliesCookies":
-                appliesCookies = argument.expression.array!.elements.compactMap({ Cookie.parse(context: context, expr: $0.expression) })
+                appliesCookies = argument.expression.array!.elements.compactMap({ HTTPCookie.parse(context: context, expr: $0.expression) })
             default:
                 break
             }

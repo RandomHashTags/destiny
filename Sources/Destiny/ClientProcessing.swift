@@ -14,25 +14,25 @@ import Logging
 public enum ClientProcessing {
     // MARK: Process
     @inlinable
-    static func process<C: SocketProtocol & ~Copyable>(
+    static func process<C: SocketProtocol & ~Copyable, Router: RouterProtocol>(
         client: Int32,
         received: ContinuousClock.Instant,
         socket: borrowing C,
         logger: Logger,
-        router: any RouterProtocol
+        router: Router
     ) async throws {
         guard var request:any RequestProtocol = try socket.loadRequest() else { return }
         try await process(client: client, received: received, loaded: .now, socket: socket, request: &request, logger: logger, router: router)
     }
     @inlinable
-    static func process<C: SocketProtocol & ~Copyable>(
+    static func process<C: SocketProtocol & ~Copyable, Router: RouterProtocol>(
         client: Int32,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing C,
         request: inout any RequestProtocol,
         logger: Logger,
-        router: any RouterProtocol
+        router: Router
     ) async throws {
         defer {
             #if canImport(Foundation)
@@ -56,12 +56,12 @@ public enum ClientProcessing {
 
     // MARK: Respond
     @inlinable
-    static func respond<C: SocketProtocol & ~Copyable>(
+    static func respond<C: SocketProtocol & ~Copyable, Router: RouterProtocol>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing C,
         request: inout any RequestProtocol,
-        router: any RouterProtocol
+        router: Router
     ) async throws -> Bool {
         if let responder:any StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
             try await staticResponse(socket: socket, responder: responder)
@@ -99,11 +99,11 @@ public enum ClientProcessing {
 
     // MARK: Dynamic Response
     @inlinable
-    static func dynamicResponse<C: SocketProtocol & ~Copyable>(
+    static func dynamicResponse<C: SocketProtocol & ~Copyable, Router: RouterProtocol>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing C,
-        router: any RouterProtocol,
+        router: Router,
         request: inout any RequestProtocol,
         responder: any DynamicRouteResponderProtocol
     ) async throws {
