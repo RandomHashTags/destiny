@@ -10,10 +10,11 @@ import Glibc
 #endif
 
 // MARK: Socket
-public struct Socket : SocketProtocol, ~Copyable {    
+public struct Socket : SocketProtocol, ~Copyable {
     public static let bufferLength:Int = 1024
 
     public typealias ConcreteRequest = Request
+    public typealias ConcreteSocketError = SocketError
 
     public let fileDescriptor:Int32
 
@@ -27,26 +28,34 @@ public struct Socket : SocketProtocol, ~Copyable {
 extension Socket {
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
-    public func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 {
+    public func readLineSIMD<T : SIMD>(length: Int) throws(ConcreteSocketError) -> (T, Int) where T.Scalar == UInt8 { // TODO: fix (need to support typed throw)
         var string:T = T()
-        let read:Int = try withUnsafeMutableBytes(of: &string) { p in
-            return try readSIMDBuffer(into: p.baseAddress!, length: length)
+        do {
+            let read:Int = try withUnsafeMutableBytes(of: &string) { p in
+                return try readSIMDBuffer(into: p.baseAddress!, length: length)
+            }
+            return (string, read)
+        } catch {
+            throw error as! ConcreteSocketError
         }
-        return (string, read)
     }
 
     @inlinable
-    public func loadRequest() throws -> ConcreteRequest? {
+    public func loadRequest() throws(ConcreteSocketError) -> ConcreteRequest? {
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
-            let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD(length: 64)
-            if read <= 0 {
-                break
-            }
-            test.append(line)
-            if read < 64 {
-                break
+            do {
+                let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD(length: 64)
+                if read <= 0 {
+                    break
+                }
+                test.append(line)
+                if read < 64 {
+                    break
+                }
+            } catch {
+                throw SocketError.malformedRequest("\(error)")
             }
         }
         if test.isEmpty {
@@ -60,14 +69,14 @@ extension Socket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws(ConcreteSocketError) -> Int {
         guard let baseAddress:UnsafeMutablePointer<UInt8> = buffer.baseAddress else { return 0 }
         return try readBuffer(into: baseAddress, length: length, flags: flags)
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws(ConcreteSocketError) -> Int {
         var bytes_read:Int = 0
         while bytes_read < length {
             if Task.isCancelled { return 0 }
@@ -86,7 +95,7 @@ extension Socket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws(ConcreteSocketError) -> Int {
         var bytes_read:Int = 0
         while bytes_read < length {
             if Task.isCancelled { return 0 }
@@ -105,7 +114,7 @@ extension Socket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
+    public func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws(ConcreteSocketError) -> Int {
         if Task.isCancelled { return 0 }
         let read:Int = receive(baseAddress, length, 0)
         if read < 0 { // error
@@ -115,7 +124,7 @@ extension Socket {
     }
 
     @inlinable
-    public func handleReadError() throws {
+    public func handleReadError() throws(ConcreteSocketError) {
         #if canImport(Glibc)
         if errno == EAGAIN || errno == EWOULDBLOCK {
             return
@@ -148,13 +157,13 @@ extension Socket {
 // MARK: Writing
 extension Socket {
     @inlinable
-    public func writeSIMD<T: SIMD>(_ simd: inout T) throws where T.Scalar: BinaryInteger {
-        var err:(any Error)? = nil
+    public func writeSIMD<T: SIMD>(_ simd: inout T) throws(ConcreteSocketError) where T.Scalar: BinaryInteger {
+        var err:ConcreteSocketError? = nil
         withUnsafeBytes(of: simd) { p in
             do {
                 try writeBuffer(p.baseAddress!, length: simd.leadingNonzeroByteCountSIMD)
             } catch {
-                err = error
+                err = error as? Socket.ConcreteSocketError // TODO: wtf?
             }
         }
         if let err {
@@ -162,7 +171,7 @@ extension Socket {
         }
     }
     @inlinable
-    public func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
+    public func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws(ConcreteSocketError) {
         var sent:Int = 0
         while sent < length {
             if Task.isCancelled { return }

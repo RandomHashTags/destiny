@@ -12,6 +12,7 @@ public protocol SocketProtocol : ~Copyable {
     static var bufferLength : Int { get }
 
     associatedtype ConcreteRequest:RequestProtocol
+    associatedtype ConcreteSocketError:Error
     
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 
@@ -21,13 +22,13 @@ public protocol SocketProtocol : ~Copyable {
     init(fileDescriptor: Int32)
 
     /// Loads the bare minimum data required to process a request.
-    @inlinable func loadRequest() throws -> ConcreteRequest?
+    @inlinable func loadRequest() throws(ConcreteSocketError) -> ConcreteRequest?
 
     /// Reads a buffer from the socket.
-    @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws -> Int
+    @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws(ConcreteSocketError) -> Int
 
     /// Writes a buffer to the socket.
-    @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
+    @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws(ConcreteSocketError)
 }
 
 extension SocketProtocol where Self : ~Copyable {
