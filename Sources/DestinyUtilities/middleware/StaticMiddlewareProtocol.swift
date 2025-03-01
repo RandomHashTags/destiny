@@ -7,6 +7,9 @@
 
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
+    associatedtype ConcreteHTTPCookie:HTTPCookieProtocol
+    associatedtype ConcreteHTTPRequestMethod:HTTPRequestMethodProtocol
+
     /// Route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
@@ -15,7 +18,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     /// Route request methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
-    var handlesMethods : Set<HTTPRequestMethod>? { get }
+    var handlesMethods : Set<ConcreteHTTPRequestMethod>? { get }
 
     /// Route response statuses this middleware handles.
     /// 
@@ -40,13 +43,13 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesHeaders : [String:String] { get }
 
     /// Response cookies this middleware applies to routes.
-    var appliesCookies : [any HTTPCookieProtocol] { get }
+    var appliesCookies : [ConcreteHTTPCookie] { get }
 
     /// Whether or not this middleware handles a route with the given options.
     @inlinable
     func handles(
         version: HTTPVersion,
-        method: HTTPRequestMethod,
+        method: ConcreteHTTPRequestMethod,
         contentType: HTTPMediaType,
         status: HTTPResponseStatus
     ) -> Bool
@@ -58,14 +61,15 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus,
         headers: inout [String:String],
-        cookies: inout [any HTTPCookieProtocol]
+        cookies: inout [ConcreteHTTPCookie]
     )
 }
+
 extension StaticMiddlewareProtocol {
     @inlinable
     public func handles(
         version: HTTPVersion,
-        method: HTTPRequestMethod,
+        method: ConcreteHTTPRequestMethod,
         contentType: HTTPMediaType,
         status: HTTPResponseStatus
     ) -> Bool {
@@ -81,7 +85,7 @@ extension StaticMiddlewareProtocol {
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus,
         headers: inout [String:String],
-        cookies: inout [any HTTPCookieProtocol]
+        cookies: inout [ConcreteHTTPCookie]
     ) {
         if let appliesVersion:HTTPVersion = appliesVersion {
             version = appliesVersion

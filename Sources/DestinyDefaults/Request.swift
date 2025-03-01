@@ -9,6 +9,10 @@ import DestinyUtilities
 
 /// Default storage for request data.
 public struct Request : RequestProtocol {
+
+    public typealias ConcreteHTTPHeaders = HTTPRequestHeaders
+    public typealias ConcreteHTTPRequestMethod = HTTPRequestMethod
+
     private let tokens:[SIMD64<UInt8>]
     private let headersBeginIndex:Int
     public let startLine:DestinyRoutePathType
@@ -17,7 +21,7 @@ public struct Request : RequestProtocol {
     public let version:HTTPVersion
     //public let body:String
 
-    public lazy var method : HTTPRequestMethod? = {
+    public lazy var method : ConcreteHTTPRequestMethod? = {
         return HTTPRequestMethod.parse(methodSIMD)
     }()
     public lazy var path : [String] = {
@@ -25,7 +29,7 @@ public struct Request : RequestProtocol {
     }()
 
     /// Temporary value; will be making it use SIMD in the near future
-    public lazy var headers : HTTPRequestHeaders = { // TODO: make SIMD
+    public lazy var headers : ConcreteHTTPHeaders = { // TODO: make SIMD
         var string:String = ""
         string.reserveCapacity(tokens.count * 64)
         for i in 0..<tokens.count {

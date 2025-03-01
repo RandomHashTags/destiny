@@ -8,9 +8,11 @@
 import DestinyUtilities
 
 public struct DynamicResponse : DynamicResponseProtocol {
+    public typealias ConcreteHTTPCookie = HTTPCookie
+
     public var timestamps:DynamicRequestTimestamps
     public var headers:[String:String]
-    public var cookies:[any HTTPCookieProtocol]
+    public var cookies:[ConcreteHTTPCookie]
     public var result:RouteResult
     public var parameters:[String]
     public var version:HTTPVersion
@@ -21,7 +23,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
         version: HTTPVersion,
         status: HTTPResponseStatus,
         headers: [String:String],
-        cookies: [any HTTPCookieProtocol],
+        cookies: [ConcreteHTTPCookie],
         result: RouteResult,
         parameters: [String]
     ) {

@@ -14,20 +14,24 @@ import SwiftSyntaxMacros
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute : StaticRouteProtocol {
+    public typealias ConcreteHTTPMessage = HTTPMessage
+    public typealias ConcreteHTTPRequestMethod = HTTPRequestMethod
+    public typealias ConcreteMiddleware = StaticMiddleware
+
     public var path:[String]
     public let contentType:HTTPMediaType
     public let result:RouteResult
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
     public let version:HTTPVersion
-    public var method:HTTPRequestMethod
+    public var method:ConcreteHTTPRequestMethod
     public let status:HTTPResponseStatus
     public let charset:Charset?
     public let isCaseSensitive:Bool
 
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion = .v1_0,
-        method: HTTPRequestMethod,
+        method: ConcreteHTTPRequestMethod,
         path: [StaticString],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
@@ -63,12 +67,12 @@ public struct StaticRoute : StaticRouteProtocol {
         """
     }
 
-    public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) -> HTTPMessage {
+    public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [ConcreteMiddleware]) -> ConcreteHTTPMessage {
         var version:HTTPVersion = version
         var status:HTTPResponseStatus = status
         var contentType:HTTPMediaType = contentType
         var headers:[String:String] = [:]
-        var cookies:[any HTTPCookieProtocol] = []
+        var cookies:[ConcreteMiddleware.ConcreteHTTPCookie] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
@@ -85,7 +89,7 @@ public struct StaticRoute : StaticRouteProtocol {
     }
 
     @inlinable
-    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)? {
+    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [ConcreteMiddleware]) throws -> (any StaticRouteResponderProtocol)? {
         let result:String = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
         return RouteResponses.String(result)
     }

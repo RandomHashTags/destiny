@@ -10,6 +10,10 @@ import SwiftSyntaxMacros
 
 /// Core Static Route protocol where a complete HTTP Message is computed at compile time.
 public protocol StaticRouteProtocol : RouteProtocol {
+    associatedtype ConcreteHTTPMessage:HTTPMessageProtocol
+    associatedtype ConcreteMiddleware:StaticMiddlewareProtocol where
+        ConcreteHTTPRequestMethod == ConcreteMiddleware.ConcreteHTTPRequestMethod
+
     /// Default status of this route.
     var status : HTTPResponseStatus { get }
 
@@ -31,7 +35,11 @@ public protocol StaticRouteProtocol : RouteProtocol {
     ///   - middleware: Static middleware that this route will apply.
     /// - Returns: An `HTTPMessage`.
     /// - Warning: You should apply any statuses and headers using the middleware.
-    func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) -> HTTPMessage
+    func response(
+        context: MacroExpansionContext?,
+        function: FunctionCallExprSyntax?,
+        middleware: [ConcreteMiddleware]
+    ) -> ConcreteHTTPMessage
 
     /// The `StaticRouteResponderProtocol` responder for this route.
     /// 
@@ -40,7 +48,11 @@ public protocol StaticRouteProtocol : RouteProtocol {
     ///   - function: SwiftSyntax expression that represents this route.
     ///   - middleware: Static middleware that this route will apply.
     /// - Throws: any error.
-    func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)?
+    func responder(
+        context: MacroExpansionContext?,
+        function: FunctionCallExprSyntax?,
+        middleware: [ConcreteMiddleware]
+    ) throws -> (any StaticRouteResponderProtocol)?
 
     /// Parsing logic for this route.
     /// 
@@ -48,7 +60,11 @@ public protocol StaticRouteProtocol : RouteProtocol {
     ///   - context: The macro expansion context where this route is being parsed from.
     ///   - version: The `HTTPVersion` of the `RouterProtocol` this middleware is assigned to.
     ///   - function: SwiftSyntax expression that represents this route.
-    static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
+    static func parse(
+        context: some MacroExpansionContext,
+        version: HTTPVersion,
+        _ function: FunctionCallExprSyntax
+    ) -> Self?
     #endif
 }
 

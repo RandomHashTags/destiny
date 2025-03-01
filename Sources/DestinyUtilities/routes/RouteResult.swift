@@ -39,9 +39,11 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let s): return ".string(\"\(s)\")"
         case .bytes(let b): return ".bytes(\(b))"
         case .bytes16(let b): return ".bytes16(\(b))"
+
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d): return ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
+
         case .json: return ".json()" // TODO: fix
         case .error: return ".error()" // TODO: fix
         }
@@ -54,9 +56,11 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let string): return string.utf8.count
         case .bytes(let bytes): return bytes.count
         case .bytes16(let bytes): return bytes.count
+
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let data): return data.count
         #endif
+
         case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
         case .error(let error): return "\(error)".count
         }
@@ -69,9 +73,11 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .string(let string): return string
         case .bytes(let bytes): return String.init(decoding: bytes, as: UTF8.self)
         case .bytes16(let bytes): return String.init(decoding: bytes, as: UTF16.self)
+
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let data): return String.init(decoding: data, as: UTF8.self)
         #endif
+
         case .json(let encodable):
             do {
                 #if canImport(FoundationEssentials) || canImport(Foundation)
@@ -100,9 +106,11 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
                 bytes.append(contentsOf: byte.bytes)
             }
             return bytes
+
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d): return [UInt8](d)
         #endif
+
         case .json: return [] // TODO: finish
         case .error: return [] // TODO: finish
         }
@@ -216,7 +224,7 @@ extension RouteResult {
         }
     }
 
-    public func responderDebugDescription(_ input: HTTPMessage) throws -> String {
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
         switch self {
         case .bytes, .bytes16:
             return try responderDebugDescription(input.string(escapeLineBreak: false))
@@ -224,8 +232,8 @@ extension RouteResult {
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data:
             return try responderDebugDescription(input.string(escapeLineBreak: false))
-
         #endif
+
         default:
             return try responderDebugDescription(input.string(escapeLineBreak: true))
         }

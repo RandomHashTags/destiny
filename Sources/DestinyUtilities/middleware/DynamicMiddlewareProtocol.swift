@@ -8,6 +8,7 @@
 /// Core Dynamic Middleware protocol which handles requests to dynamic routes.
 public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
     associatedtype ConcreteRequest:RequestProtocol
+    associatedtype ConcreteResponse:DynamicResponseProtocol
 
     /// Load logic when the middleware is ready to process requests.
     @inlinable mutating func load()
@@ -20,6 +21,6 @@ public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
     /// - Returns: Whether or not to continue processing the request.
     @inlinable func handle(
         request: inout ConcreteRequest,
-        response: inout any DynamicResponseProtocol
+        response: inout ConcreteResponse
     ) async throws -> Bool
 }

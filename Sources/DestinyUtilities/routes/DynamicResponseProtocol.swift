@@ -7,6 +7,8 @@
 
 /// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
+    associatedtype ConcreteHTTPCookie:HTTPCookieProtocol
+
     /// Timestamps when request events happen.
     var timestamps : DynamicRequestTimestamps { get set }
 
@@ -20,7 +22,7 @@ public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible
     var headers : [String:String] { get set }
 
     /// The response cookies.
-    var cookies : [any HTTPCookieProtocol] { get set }
+    var cookies : [ConcreteHTTPCookie] { get set }
     
     /// The response content.
     var result : RouteResult { get set }

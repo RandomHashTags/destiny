@@ -8,7 +8,8 @@
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
     //associatedtype Storage : RequestStorageProtocol
-    associatedtype Headers:HTTPHeadersProtocol
+    associatedtype ConcreteHTTPHeaders:HTTPHeadersProtocol
+    associatedtype ConcreteHTTPRequestMethod:HTTPRequestMethodProtocol
 
     init?(tokens: [SIMD64<UInt8>])
 
@@ -18,13 +19,13 @@ public protocol RequestProtocol : Sendable, ~Copyable {
     var startLine : DestinyRoutePathType { get }
 
     /// The optional request method.
-    var method : HTTPRequestMethod? { mutating get }
+    var method : ConcreteHTTPRequestMethod? { mutating get }
 
     /// The endpoint the request wants to reach, separated by the forward slash character.
     var path : [String] { mutating get }
     
     /// The request headers.
-    var headers : Headers { mutating get }
+    var headers : ConcreteHTTPHeaders { mutating get }
 }
 
 /*

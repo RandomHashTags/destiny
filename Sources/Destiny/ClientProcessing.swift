@@ -103,7 +103,7 @@ extension RouterProtocol {
         request: inout ConcreteSocket.ConcreteRequest,
         responder: ConcreteDynamicRouteResponder
     ) async throws {
-        var response:any DynamicResponseProtocol = responder.defaultResponse
+        var response:ConcreteDynamicRouteResponder.ConcreteResponse = responder.defaultResponse
         response.timestamps.received = received
         response.timestamps.loaded = loaded
         for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {

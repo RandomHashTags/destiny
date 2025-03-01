@@ -11,6 +11,9 @@ import SwiftSyntaxMacros
 /// Core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
     associatedtype ConcreteResponder:DynamicRouteResponderProtocol
+    associatedtype ConcreteStaticMiddleware:StaticMiddlewareProtocol where
+        ConcreteDynamicResponse.ConcreteHTTPCookie == ConcreteStaticMiddleware.ConcreteHTTPCookie
+    associatedtype ConcreteDynamicResponse:DynamicResponseProtocol
 
     /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     var status : HTTPResponseStatus { get set }
@@ -22,7 +25,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     var path : [PathComponent] { get set }
 
     /// Default HTTP Message computed by default values and static middleware.
-    var defaultResponse : any DynamicResponseProtocol { get set }
+    var defaultResponse : ConcreteDynamicResponse { get set }
 
     /// - Returns: The responder for this route.
     @inlinable func responder() -> ConcreteResponder
@@ -34,7 +37,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// 
     /// - Parameters:
     ///   - middleware: The static middleware to apply to this route.
-    mutating func applyStaticMiddleware<T: StaticMiddlewareProtocol>(_ middleware: [T])
+    mutating func applyStaticMiddleware(_ middleware: [ConcreteStaticMiddleware])
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this dynamic route. Computed at compile time.
@@ -46,7 +49,12 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     ///   - function: SwiftSyntax expression that represents this route at compile time.
     /// - Warning: You need to assign `handlerLogic` properly.
     /// - Warning: You should apply any statuses and headers using the middleware.
-    static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
+    static func parse(
+        context: some MacroExpansionContext,
+        version: HTTPVersion,
+        middleware: [ConcreteStaticMiddleware],
+        _ function: FunctionCallExprSyntax
+    ) -> Self?
     #endif
 }
 

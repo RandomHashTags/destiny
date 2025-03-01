@@ -8,9 +8,22 @@
 /// Core Router protocol that handles middleware, routes and router groups.
 public protocol RouterProtocol : AnyObject, Sendable {
     associatedtype ConcreteSocket:SocketProtocol
+
+    associatedtype ConcreteStaticRoute:StaticRouteProtocol
+    associatedtype ConcreteDynamicRoute:DynamicRouteProtocol
+
     associatedtype ConcreteStaticMiddleware:StaticMiddlewareProtocol
-    associatedtype ConcreteDynamicMiddleware:DynamicMiddlewareProtocol where ConcreteSocket.ConcreteRequest == ConcreteDynamicMiddleware.ConcreteRequest
-    associatedtype ConcreteDynamicRouteResponder:DynamicRouteResponderProtocol where ConcreteSocket == ConcreteDynamicRouteResponder.ConcreteSocket
+
+    associatedtype ConcreteDynamicMiddleware:DynamicMiddlewareProtocol where
+        ConcreteSocket.ConcreteRequest == ConcreteDynamicMiddleware.ConcreteRequest,
+        ConcreteDynamicMiddleware.ConcreteResponse == ConcreteDynamicResponse
+    associatedtype ConcreteDynamicResponse:DynamicResponseProtocol
+    associatedtype ConcreteDynamicRouteResponder:DynamicRouteResponderProtocol where
+        ConcreteSocket == ConcreteDynamicRouteResponder.ConcreteSocket,
+        ConcreteDynamicRouteResponder.ConcreteResponse == ConcreteDynamicResponse
+
+    associatedtype ConcreteErrorResponder:ErrorResponderProtocol // TODO: make `ConcreteStaticErrorResponder` and add `ConcreteDynamicErrorResponder`
+
     associatedtype ConcreteRouterGroup:RouterGroupProtocol where
         ConcreteSocket == ConcreteRouterGroup.ConcreteDynamicRouteResponder.ConcreteSocket,
         ConcreteDynamicRouteResponder == ConcreteRouterGroup.ConcreteDynamicRouteResponder
@@ -20,7 +33,10 @@ public protocol RouterProtocol : AnyObject, Sendable {
     
     @inlinable func loadDynamicMiddleware()
 
-    @inlinable func handleDynamicMiddleware(for request: inout ConcreteSocket.ConcreteRequest, with response: inout any DynamicResponseProtocol) async throws
+    @inlinable func handleDynamicMiddleware(
+        for request: inout ConcreteSocket.ConcreteRequest,
+        with response: inout ConcreteDynamicResponse
+    ) async throws
 
     /// The static responder responsible for a static route.
     /// 
@@ -42,20 +58,23 @@ public protocol RouterProtocol : AnyObject, Sendable {
     @inlinable func conditionalResponder(for request: inout ConcreteSocket.ConcreteRequest) -> (any RouteResponderProtocol)?
 
     /// The error responder.
-    @inlinable func errorResponder(for request: inout ConcreteSocket.ConcreteRequest) -> any ErrorResponderProtocol
+    @inlinable func errorResponder(for request: inout ConcreteSocket.ConcreteRequest) -> ConcreteErrorResponder
 
     /// The responder for requests to unregistered endpoints.
     /// 
     /// - Parameters:
     ///   - request: The incoming network request.
-    @inlinable func notFoundResponse(socket: borrowing ConcreteSocket, request: inout ConcreteSocket.ConcreteRequest) async throws
+    @inlinable func notFoundResponse(
+        socket: borrowing ConcreteSocket,
+        request: inout ConcreteSocket.ConcreteRequest
+    ) async throws
 
     /// Registers a static route to this router.
     /// 
     /// - Parameters:
     ///   - route: The static route you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    func register<StaticRoute: StaticRouteProtocol>(_ route: StaticRoute, override: Bool) throws
+    func register(_ route: ConcreteStaticRoute, override: Bool) throws
 
     /// Registers a dynamic route with its responder to this router.
     /// 
@@ -63,7 +82,7 @@ public protocol RouterProtocol : AnyObject, Sendable {
     ///   - route: The dynamic route you want to register.
     ///   - responder: The dynamic responder you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    func register<DynamicRoute: DynamicRouteProtocol>(_ route: DynamicRoute, responder: ConcreteDynamicRouteResponder, override: Bool) throws where DynamicRoute.ConcreteResponder == ConcreteDynamicRouteResponder
+    func register(_ route: ConcreteDynamicRoute, responder: ConcreteDynamicRouteResponder, override: Bool) throws
 
     /// Registers a static middleware at the given index to this router.
     func register(_ middleware: ConcreteStaticMiddleware, at index: Int) throws

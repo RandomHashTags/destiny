@@ -12,16 +12,19 @@ import SwiftSyntaxMacros
 // MARK: StaticRedirectionRoute
 /// Default Redirection Route implementation that handles redirects for static routes.
 public struct StaticRedirectionRoute : RedirectionRouteProtocol {
+
+    public typealias ConcreteHTTPRequestMethod = HTTPRequestMethod
+
     public package(set) var from:[String]
     public package(set) var to:[String]
     public let version:HTTPVersion
-    public let method:HTTPRequestMethod
+    public let method:ConcreteHTTPRequestMethod
     public let status:HTTPResponseStatus
     public let isCaseSensitive:Bool
 
     public init(
         version: HTTPVersion = .v1_0,
-        method: HTTPRequestMethod,
+        method: ConcreteHTTPRequestMethod,
         status: HTTPResponseStatus,
         from: [StaticString],
         isCaseSensitive: Bool = true,
@@ -41,7 +44,7 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
 
     public func response() throws -> String {
         let headers:[String:String] = ["Location" : "/" + to.joined(separator: "/")]
-        return DestinyDefaults.httpResponse(escapeLineBreak: true, version: version, status: status, headers: headers, result: nil, contentType: nil, charset: nil)
+        return HTTPMessage.create(escapeLineBreak: true, version: version, status: status, headers: headers, result: nil, contentType: nil, charset: nil)
     }
 }
 

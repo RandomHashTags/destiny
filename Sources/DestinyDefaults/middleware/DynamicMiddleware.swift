@@ -13,18 +13,19 @@ import SwiftSyntaxMacros
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.
 public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     public typealias ConcreteRequest = Request
+    public typealias ConcreteResponse = DynamicResponse
 
-    public static let defaultOnError:@Sendable (_ request: inout ConcreteRequest, _ response: inout any DynamicResponseProtocol, _ error: any Error) async -> Void = { request, response, error in
+    public static let defaultOnError:@Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteResponse, _ error: any Error) async -> Void = { request, response, error in
         response.status = .internalServerError
         response.headers[HTTPResponseHeader.contentTypeRawName] = HTTPMediaTypes.Application.json.httpValue
         response.result = .string("{\"error\":true,\"reason\":\"\(error)\"}")
     }
 
-    public let handleLogic:@Sendable (_ request: inout ConcreteRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    public let handleLogic:@Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteResponse) async throws -> Void
     private var logic:String = "{ _, _ in }"
 
     public init(
-        _ handleLogic: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void
+        _ handleLogic: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteResponse) async throws -> Void
     ) {
         self.handleLogic = handleLogic
     }
@@ -34,7 +35,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     }
 
     @inlinable
-    public func handle(request: inout ConcreteRequest, response: inout any DynamicResponseProtocol) async throws -> Bool {
+    public func handle(request: inout ConcreteRequest, response: inout ConcreteResponse) async throws -> Bool {
         try await handleLogic(&request, &response)
         return true
     }

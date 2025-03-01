@@ -14,8 +14,9 @@ import SwiftSyntaxMacros
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct DynamicCORSMiddleware : DynamicCORSMiddlewareProtocol {
     public typealias ConcreteRequest = Request
+    public typealias ConcreteResponse = DynamicResponse
 
-    public let logic:@Sendable (inout ConcreteRequest, inout any DynamicResponseProtocol) async throws -> Void
+    public let logic:@Sendable (inout ConcreteRequest, inout ConcreteResponse) async throws -> Void
     private let logicDebugDescription:String
 
     /// Default initializer to create a `DynamicCORSMiddleware`.
@@ -67,7 +68,7 @@ public struct DynamicCORSMiddleware : DynamicCORSMiddlewareProtocol {
         self.logicDebugDescription = logicDD + " }"
     }
 
-    public init(_ logic: @escaping @Sendable (inout ConcreteRequest, inout any DynamicResponseProtocol) -> Void) {
+    public init(_ logic: @escaping @Sendable (inout ConcreteRequest, inout ConcreteResponse) -> Void) {
         self.logic = logic
         self.logicDebugDescription = "{ _, _ in }"
     }
@@ -77,7 +78,7 @@ public struct DynamicCORSMiddleware : DynamicCORSMiddlewareProtocol {
     }
 
     @inlinable
-    public func handle(request: inout ConcreteRequest, response: inout any DynamicResponseProtocol) async throws -> Bool {
+    public func handle(request: inout ConcreteRequest, response: inout ConcreteResponse) async throws -> Bool {
         guard request.headers.has(HTTPRequestHeader.originRawName) else { return true }
         try await logic(&request, &response)
         return true

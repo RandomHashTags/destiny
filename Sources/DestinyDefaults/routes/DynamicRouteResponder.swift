@@ -10,17 +10,18 @@ import DestinyUtilities
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
 public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     public typealias ConcreteSocket = Socket
+    public typealias ConcreteDynamicResponse = DynamicResponse
 
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
-    public let defaultResponse:any DynamicResponseProtocol
-    public let logic:@Sendable (inout ConcreteSocket.ConcreteRequest, inout any DynamicResponseProtocol) async throws -> Void
+    public let defaultResponse:ConcreteDynamicResponse
+    public let logic:@Sendable (inout ConcreteSocket.ConcreteRequest, inout ConcreteDynamicResponse) async throws -> Void
     private let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
-        defaultResponse: any DynamicResponseProtocol,
-        logic: @escaping @Sendable (inout ConcreteSocket.ConcreteRequest, inout any DynamicResponseProtocol) async throws -> Void,
+        defaultResponse: ConcreteDynamicResponse,
+        logic: @escaping @Sendable (inout ConcreteSocket.ConcreteRequest, inout ConcreteDynamicResponse) async throws -> Void,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
@@ -38,7 +39,7 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     public func respond(
         to socket: consuming ConcreteSocket,
         request: inout ConcreteSocket.ConcreteRequest,
-        response: inout any DynamicResponseProtocol
+        response: inout ConcreteDynamicResponse
     ) async throws {
         try await logic(&request, &response)
         try response.response().utf8.withContiguousStorageIfAvailable {

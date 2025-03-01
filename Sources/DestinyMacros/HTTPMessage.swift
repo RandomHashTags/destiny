@@ -5,7 +5,8 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-#if canImport(DestinyUtilities) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+#if canImport(DestinyDefaults) && canImport(DestinyUtilities) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+import DestinyDefaults
 import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -40,7 +41,7 @@ enum HTTPMessage : DeclarationMacro {
             }
         }
         do {
-            var response:String = try DestinyUtilities.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
+            var response:String = try DestinyDefaults.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
             response = "\"" + response + "\""
             return ["\(raw: response)"]
         } catch {

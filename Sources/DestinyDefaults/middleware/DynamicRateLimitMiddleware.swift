@@ -12,6 +12,7 @@ import SwiftSyntaxMacros
 // MARK: DynamicRateLimitMiddleware
 public final class DynamicRateLimitMiddleware : RateLimitMiddlewareProtocol, DynamicMiddlewareProtocol, @unchecked Sendable { // TODO: finish (need a way to identify requests, preferably by IP address or persistent UUID)
     public typealias ConcreteRequest = Request
+    public typealias ConcreteResponse = DynamicResponse
 
     private var limits:[String:Int]
 
@@ -24,7 +25,7 @@ public final class DynamicRateLimitMiddleware : RateLimitMiddlewareProtocol, Dyn
     }
 
     @inlinable
-    public func handle(request: inout ConcreteRequest, response: inout any DynamicResponseProtocol) async throws -> Bool {
+    public func handle(request: inout ConcreteRequest, response: inout ConcreteResponse) async throws -> Bool {
         return true
     }
 

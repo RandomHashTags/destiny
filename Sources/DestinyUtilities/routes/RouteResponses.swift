@@ -23,9 +23,7 @@ extension RouteResponses {
             self.value = value
         }
 
-        public var debugDescription : Swift.String {
-            return "RouteResponses.StaticString(\"" + value.description + "\")"
-        }
+        public var debugDescription : Swift.String { "RouteResponses.StaticString(\"" + value.description + "\")" }
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
@@ -68,13 +66,11 @@ extension RouteResponses {
         public init(_ value: Swift.String) {
             self.value = value
         }
-        public init(_ response: HTTPMessage) {
+        public init<T: HTTPMessageProtocol>(_ response: T) {
             value = (try? response.string(escapeLineBreak: true)) ?? ""
         }
 
-        public var debugDescription : Swift.String {
-            return "RouteResponses.String(\"" + value + "\")"
-        }
+        public var debugDescription : Swift.String { "RouteResponses.String(\"" + value + "\")" }
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
@@ -94,9 +90,7 @@ extension RouteResponses {
             self.value = value
         }
 
-        public var debugDescription: Swift.String {
-            return "RouteResponses.UInt8Array(\(value))"
-        }
+        public var debugDescription : Swift.String { "RouteResponses.UInt8Array(\(value))" }
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
@@ -116,9 +110,7 @@ extension RouteResponses {
             self.value = value
         }
 
-        public var debugDescription: Swift.String {
-            return "RouteResponses.UInt16Array(\(value))"
-        }
+        public var debugDescription: Swift.String { "RouteResponses.UInt16Array(\(value))" }
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
@@ -145,9 +137,7 @@ extension RouteResponses {
             self.value = value
         }
 
-        public var debugDescription: Swift.String {
-            return "RouteResponses.FoundationData(\(value))"
-        }
+        public var debugDescription : Swift.String { "RouteResponses.FoundationData(\(value))" }
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {

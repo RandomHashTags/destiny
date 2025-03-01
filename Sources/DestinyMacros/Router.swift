@@ -169,9 +169,9 @@ extension Router {
         var dynamicRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
 
-        var staticMiddleware:[any StaticMiddlewareProtocol] = []
+        var staticMiddleware:[StaticMiddleware] = []
         var staticRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
-        var staticRoutes:[(any StaticRouteProtocol, FunctionCallExprSyntax)] = []
+        var staticRoutes:[(StaticRoute, FunctionCallExprSyntax)] = []
         
         var routerGroups:[any RouterGroupProtocol] = []
 
@@ -256,8 +256,8 @@ extension Router.Storage {
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
-        middleware: [any StaticMiddlewareProtocol],
-        _ routes: [(any StaticRouteProtocol, FunctionCallExprSyntax)]
+        middleware: [StaticMiddleware],
+        _ routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return ":" }
         var string:String = "\n"
@@ -294,7 +294,7 @@ extension Router.Storage {
                 } else {
                     registeredPaths.insert(string)
                     let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                    let httpResponse:DestinyUtilities.HTTPMessage = route.response(context: context, function: function, middleware: middleware)
+                    let httpResponse:DestinyDefaults.HTTPMessage = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
                         let value:String = try route.result.responderDebugDescription(httpResponse)
                         return "// \(string)\n\(buffer)\n: " + value
@@ -321,7 +321,7 @@ extension Router {
         function: FunctionCallExprSyntax,
         string: String,
         buffer: DestinyRoutePathType,
-        httpResponse: DestinyUtilities.HTTPMessage
+        httpResponse: DestinyDefaults.HTTPMessage
     ) {
         guard let result:RouteResult = httpResponse.result else { return }
         let body:[UInt8]
@@ -331,7 +331,7 @@ extension Router {
             context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes: \(error).")))
             return
         }
-        var httpResponse:DestinyUtilities.HTTPMessage = httpResponse
+        var httpResponse = httpResponse
         var responder:ConditionalRouteResponder = ConditionalRouteResponder<Request>(conditions: [], responders: [])
         responder.conditionsDescription.removeLast() // ]
         responder.respondersDescription.removeLast() // ]

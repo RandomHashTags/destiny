@@ -12,8 +12,12 @@ import SwiftSyntaxMacros
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 public struct StaticMiddleware : StaticMiddlewareProtocol {
+
+    public typealias ConcreteHTTPCookie = HTTPCookie
+    public typealias ConcreteHTTPRequestMethod = HTTPRequestMethod
+
     public let handlesVersions:Set<HTTPVersion>?
-    public let handlesMethods:Set<HTTPRequestMethod>?
+    public let handlesMethods:Set<ConcreteHTTPRequestMethod>?
     public let handlesStatuses:Set<HTTPResponseStatus>?
     public let handlesContentTypes:Set<HTTPMediaType>?
 
@@ -21,18 +25,18 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     public let appliesStatus:HTTPResponseStatus?
     public let appliesContentType:HTTPMediaType?
     public let appliesHeaders:[String:String]
-    public let appliesCookies:[any HTTPCookieProtocol]
+    public let appliesCookies:[ConcreteHTTPCookie]
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
-        handlesMethods: Set<HTTPRequestMethod>? = nil,
+        handlesMethods: Set<ConcreteHTTPRequestMethod>? = nil,
         handlesStatuses: Set<HTTPResponseStatus>? = nil,
         handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus? = nil,
         appliesContentType: HTTPMediaType? = nil,
         appliesHeaders: [String:String] = [:],
-        appliesCookies: [any HTTPCookieProtocol] = []
+        appliesCookies: [ConcreteHTTPCookie] = []
     ) {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
@@ -51,16 +55,16 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 
     public var debugDescription : String {
         var values:[String] = []
-        if let versions:Set<HTTPVersion> = handlesVersions {
+        if let versions = handlesVersions {
             values.append("handlesVersions: [" + versions.map({ ".\($0)" }).joined(separator: ",") + "]")
         }
-        if let methods:Set<HTTPRequestMethod> = handlesMethods {
+        if let methods = handlesMethods {
             values.append("handlesMethods: [" + methods.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
-        if let statuses:Set<HTTPResponseStatus> = handlesStatuses {
+        if let statuses = handlesStatuses {
             values.append("handlesStatuses: [" + statuses.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
-        if let contentTypes:Set<HTTPMediaType> = handlesContentTypes {
+        if let contentTypes = handlesContentTypes {
             values.append("handlesContentTypes: [" + contentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         if let appliesVersion {
@@ -94,7 +98,7 @@ extension StaticMiddleware {
         var appliesStatus:HTTPResponseStatus? = nil
         var appliesContentType:HTTPMediaType? = nil
         var appliesHeaders:[String:String] = [:]
-        var appliesCookies:[any HTTPCookieProtocol] = []
+        var appliesCookies:[ConcreteHTTPCookie] = []
         for argument in function.arguments {
             switch argument.label!.text {
             case "handlesVersions":
