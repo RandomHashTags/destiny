@@ -19,7 +19,7 @@ enum HTTPMessage : DeclarationMacro {
         var result:RouteResult? = nil
         var contentType:HTTPMediaType? = nil
         var charset:Charset? = nil
-        var cookies:[any HTTPCookieProtocol] = [] // TODO: fix
+        var cookies:[HTTPCookie] = [] // TODO: fix
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
             if let key:String = child.label?.text {
                 switch key {

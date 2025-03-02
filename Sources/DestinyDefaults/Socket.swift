@@ -175,6 +175,13 @@ extension Socket {
             sent += result
         }
     }
+
+    @inlinable
+    public func writeString(_ string: String) throws {
+        try string.utf8.withContiguousStorageIfAvailable {
+            try self.writeBuffer($0.baseAddress!, length: string.count)
+        }
+    }
 }
 
 // MARK: Send

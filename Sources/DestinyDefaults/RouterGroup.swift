@@ -11,14 +11,14 @@ import SwiftSyntaxMacros
 
 // MARK: RouterGroup
 /// Default Router Group implementation that handles grouped routes.
-public struct RouterGroup : RouterGroupProtocol {
+public struct RouterGroup : RouterGroupProtocol { // TODO: use `StaticResponderStorage`
     public typealias ConcreteDynamicRouteResponder = DynamicRouteResponder
 
     public let prefixEndpoints:[String]
     public let staticMiddleware:[StaticMiddleware]
     public let dynamicMiddleware:[DynamicMiddleware]
     public let staticResponses:[DestinyRoutePathType:any StaticRouteResponderProtocol]
-    public let dynamicResponses:DynamicResponses
+    public let dynamicResponses:DynamicResponderStorage
 
     public init(
         endpoint: String,
@@ -86,7 +86,7 @@ public struct RouterGroup : RouterGroupProtocol {
         staticMiddleware: [StaticMiddleware],
         dynamicMiddleware: [DynamicMiddleware],
         staticResponses: [DestinyRoutePathType:any StaticRouteResponderProtocol],
-        dynamicResponses: DynamicResponses
+        dynamicResponses: DynamicResponderStorage
     ) {
         self.prefixEndpoints = prefixEndpoints
         self.staticMiddleware = staticMiddleware

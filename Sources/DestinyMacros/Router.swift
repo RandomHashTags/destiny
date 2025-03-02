@@ -146,7 +146,7 @@ enum Router : ExpressionMacro {
     }
     private static func routeResponderStorage(staticResponses: String, dynamicResponses: String, conditionalResponses: String) -> String {
         var string:String = "RouterResponderStorage("
-        string += "\nstatic: [\(staticResponses)],"
+        string += "\nstatic: \(staticResponses),"
         string += "\ndynamic: \(dynamicResponses),"
         string += "\nconditional: [\(conditionalResponses)]"
         string += "\n)"
@@ -260,9 +260,12 @@ extension Router.Storage {
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return ":" }
-        var string:String = "\n"
+        var staticStrings:[String] = []
+        var strings:[String] = []
+        var uint8Arrays:[String] = []
+        var uint16Arrays:[String] = []
         if !redirects.isEmpty {
-            string += redirects.compactMap({ (route, function) in
+            for (route, function) in redirects {
                 do {
                     var string:String = route.method.rawName + " /" + route.from.joined(separator: "/") + " " + route.version.string
                     if !isCaseSensitive {
@@ -270,19 +273,17 @@ extension Router.Storage {
                     }
                     if registeredPaths.contains(string) {
                         Router.routePathAlreadyRegistered(context: context, node: function, string)
-                        return nil
                     } else {
                         registeredPaths.insert(string)
                         let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
-                        let response:String = RouteResult.staticString(try route.response()).responderDebugDescription
-                        return "// \(string)\n\(buffer)\n: " + response
+                        let responder:String = RouteResult.staticString(try route.response()).responderDebugDescription
+                        staticStrings.append("// \(string)\n\(buffer)\n: " + responder)
                     }
                 } catch {
-                    return nil
                 }
-            }).joined(separator: ",\n\n") + ",\n"
+            }
         }
-        string += routes.compactMap({ (route, function) in
+        for (route, function) in routes {
             do {
                 var string:String = route.startLine
                 if !isCaseSensitive {
@@ -290,25 +291,42 @@ extension Router.Storage {
                 }
                 if registeredPaths.contains(string) {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
-                    return nil
                 } else {
                     registeredPaths.insert(string)
                     let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
                     let httpResponse:DestinyDefaults.HTTPMessage = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
-                        let value:String = try route.result.responderDebugDescription(httpResponse)
-                        return "// \(string)\n\(buffer)\n: " + value
+                        let responder:String = try route.result.responderDebugDescription(httpResponse)
+                        let value:String = "// \(string)\n\(buffer)\n: " + responder
+                        switch responder.split(separator: "(").first {
+                        case "RouteResponses.StaticString": staticStrings.append(value)
+                        case "RouteResponses.String": strings.append(value)
+                        case "RouteResponses.UInt8Array": uint8Arrays.append(value)
+                        case "RouteResponses.UInt16Array": uint16Arrays.append(value)
+                        default: break
+                        }
                     } else {
                         Router.conditionalRoute(context: context, conditionalResponders: &conditionalResponders, route: route, function: function, string: string, buffer: buffer, httpResponse: httpResponse)
-                        return nil
                     }
                 }
             } catch {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
-                return nil
             }
-        }).joined(separator: ",\n\n")
-        return string + "\n"
+        }
+        var values:[String] = []
+        if !staticStrings.isEmpty {
+            values.append("staticStrings: [\n" + staticStrings.joined(separator: ",\n") + "\n]")
+        }
+        if !strings.isEmpty {
+            values.append("strings: [\n" + strings.joined(separator: ",\n") + "\n]")
+        }
+        if !uint8Arrays.isEmpty {
+            values.append("uint8Arrays: [\n" + uint8Arrays.joined(separator: ",\n") + "\n]")
+        }
+        if !uint16Arrays.isEmpty {
+            values.append("uint16Arrays: [\n" + uint16Arrays.joined(separator: ",\n") + "\n]")
+        }
+        return "StaticResponderStorage(" + (values.isEmpty ? "" : "\n" + values.joined(separator: ",\n") + "\n") + ")"
     }
 }
 
@@ -442,7 +460,7 @@ extension Router.Storage {
                 return "// \(string)\n\(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-        return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterizedString)],\ncatchall: [\(catchallString)]\n)"
+        return "DynamicResponderStorage(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterizedString)],\ncatchall: [\(catchallString)]\n)"
     }
 }
 #endif

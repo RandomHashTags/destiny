@@ -10,21 +10,23 @@ import DestinyUtilities
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
 public struct HTTPMessage : HTTPMessageProtocol {
+    public typealias ConcreteHTTPCookie = HTTPCookie
+
     public var headers:[String:String]
-    public var cookies:[any HTTPCookieProtocol]
+    public var cookies:[ConcreteHTTPCookie]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
     public var version:HTTPVersion
     public var status:HTTPResponseStatus
     public var charset:Charset?
 
-    public init(
+    public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion,
         status: HTTPResponseStatus,
         headers: [String:String],
-        cookies: [any HTTPCookieProtocol],
+        cookies: [ConcreteHTTPCookie],
         result: RouteResult?,
-        contentType: (any HTTPMediaTypeProtocol)?,
+        contentType: T?,
         charset: Charset?
     ) {
         self.version = version

@@ -1,5 +1,5 @@
 //
-//  DynamicResponses.swift
+//  DynamicResponderStorage.swift
 //
 //
 //  Created by Evan Anderson on 11/6/24.
@@ -7,8 +7,8 @@
 
 import DestinyUtilities
 
-/// Default storage where Destiny handles dynamic routes.
-public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
+/// Default storage that handles dynamic routes.
+public struct DynamicResponderStorage : CustomDebugStringConvertible, Sendable {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:DynamicRouteResponder]
 
@@ -18,9 +18,9 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     public var catchall:[DynamicRouteResponder]
 
     public init(
-        parameterless: [DestinyRoutePathType:DynamicRouteResponder],
-        parameterized: [[DynamicRouteResponder]],
-        catchall: [DynamicRouteResponder]
+        parameterless: [DestinyRoutePathType:DynamicRouteResponder] = [:],
+        parameterized: [[DynamicRouteResponder]] = [],
+        catchall: [DynamicRouteResponder] = []
     ) {
         self.parameterless = parameterless
         self.parameterized = parameterized
@@ -44,7 +44,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
             catchallString += "\n" + catchall.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
         }
         return """
-        DynamicResponses(
+        DynamicResponderStorage(
             parameterless: \(parameterlessString),
             parameterized: \(parameterizedString),
             catchall: \(catchallString)
@@ -53,7 +53,7 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    public mutating func register(version: HTTPVersion, route: any DynamicRouteProtocol, responder: DynamicRouteResponder, override: Bool) throws {
+    public mutating func register<T: DynamicRouteProtocol>(version: HTTPVersion, route: T, responder: DynamicRouteResponder, override: Bool) throws {
         if route.path.count(where: { $0.isParameter }) == 0 {
             var string:String = route.startLine
             let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)

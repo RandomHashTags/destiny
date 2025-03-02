@@ -37,13 +37,11 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
 
     @inlinable
     public func respond(
-        to socket: consuming ConcreteSocket,
+        to socket: borrowing ConcreteSocket,
         request: inout ConcreteSocket.ConcreteRequest,
         response: inout ConcreteDynamicResponse
     ) async throws {
         try await logic(&request, &response)
-        try response.response().utf8.withContiguousStorageIfAvailable {
-            try socket.writeBuffer($0.baseAddress!, length: $0.count)
-        }
+        try socket.writeString(response.response())
     }
 }

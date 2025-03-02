@@ -108,7 +108,7 @@ extension HTTPDateFormat {
             components.year ?? 0,
             components.month ?? 0,
             components.day ?? 0,
-            components.weekday ?? 0,
+            (components.weekday ?? 1) - 1,
             components.hour ?? 0,
             components.minute ?? 0,
             components.second ?? 0

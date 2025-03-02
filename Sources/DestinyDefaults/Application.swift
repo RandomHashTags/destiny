@@ -15,7 +15,7 @@ public struct Application : ApplicationProtocol {
     public let serviceGroup:ServiceGroup
     public let logger:Logger
 
-    public init<T: ServerProtocol>(
+    public init<T: HTTPServerProtocol>(
         server: T,
         services: [Service] = [],
         logger: Logger

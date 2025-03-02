@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 11/9/24.
 //
 
+import Logging
+
 /// Core Router protocol that handles middleware, routes and router groups.
 public protocol RouterProtocol : AnyObject, Sendable {
     associatedtype ConcreteSocket:SocketProtocol
@@ -33,64 +35,18 @@ public protocol RouterProtocol : AnyObject, Sendable {
     
     @inlinable func loadDynamicMiddleware()
 
-    @inlinable func handleDynamicMiddleware(
+    @inlinable
+    func handleDynamicMiddleware(
         for request: inout ConcreteSocket.ConcreteRequest,
         with response: inout ConcreteDynamicResponse
     ) async throws
 
-    /// The static responder responsible for a static route.
-    /// 
-    /// - Parameters:
-    ///   - startLine: The request's HTTP start line.
-    /// - Returns: The static responder responsible for the `startLine`.
-    @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)?
-
-    /// The dynamic responder responsible for a dynamic route.
-    /// 
-    /// - Parameters:
-    ///   - request: The incoming network request.
-    @inlinable func dynamicResponder(for request: inout ConcreteSocket.ConcreteRequest) -> ConcreteDynamicRouteResponder?
-
-    /// The conditional responder responsible for a route.
-    /// 
-    /// - Parameters:
-    ///   - request: The incoming network request.
-    @inlinable func conditionalResponder(for request: inout ConcreteSocket.ConcreteRequest) -> (any RouteResponderProtocol)?
-
-    /// The error responder.
-    @inlinable func errorResponder(for request: inout ConcreteSocket.ConcreteRequest) -> ConcreteErrorResponder
-
-    /// The responder for requests to unregistered endpoints.
-    /// 
-    /// - Parameters:
-    ///   - request: The incoming network request.
-    @inlinable func notFoundResponse(
+    /// Process an accepted file descriptor.
+    @inlinable
+    func process(
+        client: Int32,
+        received: ContinuousClock.Instant,
         socket: borrowing ConcreteSocket,
-        request: inout ConcreteSocket.ConcreteRequest
+        logger: Logger
     ) async throws
-
-    /// Registers a static route to this router.
-    /// 
-    /// - Parameters:
-    ///   - route: The static route you want to register.
-    ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    func register(_ route: ConcreteStaticRoute, override: Bool) throws
-
-    /// Registers a dynamic route with its responder to this router.
-    /// 
-    /// - Parameters:
-    ///   - route: The dynamic route you want to register.
-    ///   - responder: The dynamic responder you want to register.
-    ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    func register(_ route: ConcreteDynamicRoute, responder: ConcreteDynamicRouteResponder, override: Bool) throws
-
-    /// Registers a static middleware at the given index to this router.
-    func register(_ middleware: ConcreteStaticMiddleware, at index: Int) throws
-
-    /// Registers a dynamic middleware at the given index to this router.
-    func register(_ middleware: ConcreteDynamicMiddleware, at index: Int) throws
-
-
-    /// Registers a static route with the GET HTTP method to this router.
-    //func get(_ path: [String], responder: any RouteResponderProtocol) throws
 }

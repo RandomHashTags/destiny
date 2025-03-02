@@ -11,8 +11,8 @@ import Logging
 import ServiceLifecycle
 
 // MARK: Server
-/// A default `ServerProtocol` implementation.
-public final class Server : ServerProtocol {
+/// A default `HTTPServerProtocol` implementation.
+public final class Server : HTTPServerProtocol {
 
     public typealias ConcreteRouter = Router
 
