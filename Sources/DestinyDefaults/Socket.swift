@@ -179,7 +179,7 @@ extension Socket {
     @inlinable
     public func writeString(_ string: String) throws {
         try string.utf8.withContiguousStorageIfAvailable {
-            try self.writeBuffer($0.baseAddress!, length: string.count)
+            try self.writeBuffer($0.baseAddress!, length: $0.count)
         }
     }
 }

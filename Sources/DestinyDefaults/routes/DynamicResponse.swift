@@ -45,13 +45,13 @@ public struct DynamicResponse : DynamicResponseProtocol {
             string += header + ": " + value + "\r\n"
         }
         for cookie in cookies {
-            string += "Set-Cookie: \(cookie)" + "\r\n"
+            string += "Set-Cookie: \(cookie)\r\n"
         }
         return string + HTTPResponseHeader.contentLength.rawName + ": \(result.utf8.count)\r\n\r\n" + result
     }
 
     public var debugDescription : String {
-        return "DynamicResponse(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: ["
+        return "DynamicResponse(version: .\(version), status: \(status.debugDescription), headers: \(headers.debugDescription), cookies: ["
             + cookies.map({ $0.debugDescription }).joined(separator: ",")
             + "], result: \(result.debugDescription), parameters: \(parameters))"
     }

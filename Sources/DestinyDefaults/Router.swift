@@ -77,10 +77,10 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
 
     @inlinable
     public func handleDynamicMiddleware(for request: inout ConcreteSocket.ConcreteRequest, with response: inout ConcreteDynamicResponse) async throws {
-        if let m = dynamicCORSMiddleware, try await m.handle(request: &request, response: &response) {
+        if let m = dynamicCORSMiddleware, try await !m.handle(request: &request, response: &response) {
             return
         }
-        if let m = dynamicDateMiddleware, try await m.handle(request: &request, response: &response) {
+        if let m = dynamicDateMiddleware, try await !m.handle(request: &request, response: &response) {
         }
         for middleware in dynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {

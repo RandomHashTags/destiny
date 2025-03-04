@@ -20,27 +20,47 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
     public typealias Key = String
     public typealias Value = String
 
-    @usableFromInline var custom:[Key:Value] = [:]
+    public var custom:[Key:Value] = [:]
 
-    // TODO: arrange for optimal memory layout
-    @usableFromInline var acceptRanges:HTTPResponseHeader.AcceptRanges?
-    @usableFromInline var age:Int?
     public var allow:String?
-    @usableFromInline var contentEncoding:CompressionAlgorithm?
-    @usableFromInline var contentLength:Int?
-    @usableFromInline var contentType:String?
-    @usableFromInline var retryAfterDuration:Int?
+    public var age:Int?
+    public var contentLength:Int?
+    public var retryAfterDuration:Int?
+    public var contentType:String?
 
     #if canImport(FoundationEssentials) || canImport(Foundation)
-    @usableFromInline var retryAfterDate:Date?
+    public var retryAfterDate:Date?
     #endif
-    
-    @usableFromInline var tk:HTTPResponseHeader.TK?
-    @usableFromInline var xContentTypeOptions:Bool = false
+
+    public var xContentTypeOptions:Bool = false
+
+    public var acceptRanges:HTTPResponseHeader.AcceptRanges?
+    public var contentEncoding:CompressionAlgorithm?
+    public var tk:HTTPResponseHeader.TK?
     
     public init() {
     }
-    public init(custom: [String:String] = [:]) {
+    public init(
+        acceptRanges: HTTPResponseHeader.AcceptRanges? = nil,
+        age: Int? = nil,
+        allow: String? = nil,
+        contentEncoding: CompressionAlgorithm? = nil,
+        contentLength: Int? = nil,
+        contentType: String? = nil,
+        retryAfterDuration: Int? = nil,
+        tk: HTTPResponseHeader.TK? = nil,
+        xContentTypeOptions: Bool = false,
+        custom: [String:String] = [:]
+    ) {
+        self.acceptRanges = acceptRanges
+        self.age = age
+        self.allow = allow
+        self.contentEncoding = contentEncoding
+        self.contentLength = contentLength
+        self.contentType = contentType
+        self.retryAfterDuration = retryAfterDuration
+        self.tk = tk
+        self.xContentTypeOptions = xContentTypeOptions
         self.custom = custom
     }
 
@@ -123,7 +143,7 @@ extension HTTPResponseHeaders {
         if let retryAfterDuration { values.append("retryAfterDuration: \(retryAfterDuration)") }
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        if let retryAfterDate { values.append("retryAfterDate: \(retryAfterDate.debugDescription)") }
+        if let retryAfterDate { values.append("retryAfterDate: \(retryAfterDate.debugDescription)") } // TODO: fix
         #endif
 
         if !custom.isEmpty {

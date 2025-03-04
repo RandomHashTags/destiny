@@ -49,7 +49,38 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
 
     public init() {
     }
-    public init(custom: [String:String] = [:]) {
+    public init(
+        accept: String? = nil,
+        acceptCharset: Charset? = nil,
+        acceptEncoding: HTTPRequestHeader.AcceptEncoding? = nil,
+        contentLength: Int? = nil,
+        contentType: String? = nil,
+        from: String? = nil,
+        host: String? = nil,
+        maxForwards: Int? = nil,
+        range: HTTPRequestHeader.Range? = nil,
+
+        upgradeInsecureRequests: Bool = false,
+        xRequestedWith: HTTPRequestHeader.XRequestedWith? = nil,
+        dnt: Bool? = nil,
+        xHttpMethodOverride: HTTPRequestMethod? = nil,
+        secGPC: Bool = false,
+
+        custom: [String:String] = [:]
+    ) {
+        self.accept = accept
+        self.acceptCharset = acceptCharset
+        self.acceptEncoding = acceptEncoding
+        self.contentLength = contentLength
+        self.from = from
+        self.host = host
+        self.maxForwards = maxForwards
+        self.range = range
+        self.upgradeInsecureRequests = upgradeInsecureRequests
+        self.xRequestedWith = xRequestedWith
+        self.dnt = dnt
+        self.xHttpMethodOverride = xHttpMethodOverride
+        self.secGPC = secGPC
         self.custom = custom
     }
 
@@ -95,17 +126,23 @@ extension HTTPRequestHeaders {
 
 // MARK: DebugDescription
 extension HTTPRequestHeaders {
-    public var debugDescription : String { // TODO: finish
+    public var debugDescription : String {
         var values:[String] = []
-        if let from {
-            values.append("from: \"\(from)\"")
-        }
-        if let xHttpMethodOverride {
-            values.append("xHttpMethodOverride: .\(xHttpMethodOverride)")
-        }
-        if secGPC {
-            values.append("secGPC: true")
-        }
+        if let accept { values.append("accept: \"\(accept)\"") }
+        if let acceptCharset { values.append("acceptCharset: .\(acceptCharset)") }
+        if let acceptEncoding { values.append("acceptEncoding: .\(acceptEncoding)") }
+        if let contentLength { values.append("contentLength: \(contentLength)") }
+        if let contentType { values.append("contentType: \"\(contentType)\"") }
+        if let from { values.append("from: \"\(from)\"") }
+        if let host { values.append("host: \"\(host)\"") }
+        if let maxForwards { values.append("maxForwards: \(maxForwards)") }
+        if let range { values.append("range: .\(range)") }
+        if upgradeInsecureRequests { values.append("upgradeInsecureRequests: true") }
+        if let xRequestedWith { values.append("xRequestedWith: .\(xRequestedWith)") }
+        if let dnt { values.append("dnt: \(dnt)") }
+        if let xHttpMethodOverride { values.append("xHttpMethodOverride: .\(xHttpMethodOverride)") }
+        if secGPC { values.append("secGPC: true") }
+        if !custom.isEmpty { values.append("custom: \(custom)") }
         return "HTTPRequestHeaders(\(values.joined(separator: ",")))"
     }
 }
