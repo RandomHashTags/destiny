@@ -8,6 +8,7 @@
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     associatedtype ConcreteHTTPCookie:HTTPCookieProtocol
+    associatedtype ConcreteHTTPResponseHeaders:HTTPHeadersProtocol
     associatedtype ConcreteHTTPRequestMethod:HTTPRequestMethodProtocol
 
     /// Route request versions this middleware handles.
@@ -40,7 +41,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesContentType : HTTPMediaType? { get }
     
     /// Response headers this middleware applies to routes.
-    var appliesHeaders : [String:String] { get }
+    var appliesHeaders : ConcreteHTTPResponseHeaders { get }
 
     /// Response cookies this middleware applies to routes.
     var appliesCookies : [ConcreteHTTPCookie] { get }
@@ -60,7 +61,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus,
-        headers: inout [String:String],
+        headers: inout ConcreteHTTPResponseHeaders,
         cookies: inout [ConcreteHTTPCookie]
     )
 }
@@ -84,7 +85,7 @@ extension StaticMiddlewareProtocol {
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus,
-        headers: inout [String:String],
+        headers: inout ConcreteHTTPResponseHeaders,
         cookies: inout [ConcreteHTTPCookie]
     ) {
         if let appliesVersion:HTTPVersion = appliesVersion {
@@ -96,9 +97,7 @@ extension StaticMiddlewareProtocol {
         if let appliesContentType:HTTPMediaType = appliesContentType {
             contentType = appliesContentType
         }
-        for (header, value) in appliesHeaders {
-            headers[header] = value
-        }
+        headers.merge(appliesHeaders)
         cookies.append(contentsOf: appliesCookies)
     }
 }

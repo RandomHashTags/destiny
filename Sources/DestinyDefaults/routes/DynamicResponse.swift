@@ -8,10 +8,11 @@
 import DestinyUtilities
 
 public struct DynamicResponse : DynamicResponseProtocol {
+    public typealias ConcreteHTTPResponseHeaders = HTTPResponseHeaders
     public typealias ConcreteHTTPCookie = HTTPCookie
 
     public var timestamps:DynamicRequestTimestamps
-    public var headers:[String:String]
+    public var headers:ConcreteHTTPResponseHeaders
     public var cookies:[ConcreteHTTPCookie]
     public var result:RouteResult
     public var parameters:[String]
@@ -22,7 +23,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
         timestamps: DynamicRequestTimestamps = DynamicRequestTimestamps(received: .now, loaded: .now, processed: .now),
         version: HTTPVersion,
         status: HTTPResponseStatus,
-        headers: [String:String],
+        headers: ConcreteHTTPResponseHeaders,
         cookies: [ConcreteHTTPCookie],
         result: RouteResult,
         parameters: [String]
@@ -40,7 +41,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
     public func response() throws -> String {
         let result:String = try result.string()
         var string:String = version.string + " \(status)\r\n"
-        for (header, value) in headers {
+        headers.iterate { header, value in
             string += header + ": " + value + "\r\n"
         }
         for cookie in cookies {

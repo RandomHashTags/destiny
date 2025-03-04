@@ -20,7 +20,7 @@ enum Router : ExpressionMacro {
         var errorResponder:String = """
             StaticErrorResponder { error in
             RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: .ok, headers: [:], cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaTypes.Application.json, charset: nil)
+                version: HTTPVersion.v1_1, status: .ok, headers: .init(custom: [:]), cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaTypes.Application.json, charset: nil)
             )
         }
         """
@@ -49,8 +49,8 @@ enum Router : ExpressionMacro {
                             let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)!.baseName.text
                             switch decl {
                             case "DynamicMiddleware":     storage.dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
-                            case "DynamicCORSMiddleware": storage.dynamicMiddleware.append(DynamicCORSMiddleware.parse(context: context, function))
-                            case "DynamicDateMiddleware": storage.dynamicMiddleware.append(DynamicDateMiddleware.parse(context: context, function))
+                            case "DynamicCORSMiddleware": storage.dynamicCORSMiddleware = DynamicCORSMiddleware.parse(context: context, function)
+                            case "DynamicDateMiddleware": storage.dynamicDateMiddleware = DynamicDateMiddleware.parse(context: context, function)
                             case "StaticMiddleware":      storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
                             default: break
                             }
@@ -140,6 +140,12 @@ enum Router : ExpressionMacro {
         string += "\ncaseInsensitiveResponders: " + caseInsensitiveResponders + ","
         string += "\nstaticMiddleware: [\(storage.staticMiddlewareString())],"
         string += "\ndynamicMiddleware: [\(storage.dynamicMiddlewareString())],"
+        if let dCORS = storage.dynamicCORSMiddleware {
+            string += "\ndynamicCORSMiddleware: \(dCORS.debugDescription),"
+        }
+        if let dDate = storage.dynamicDateMiddleware {
+            string += "\ndynamicDateMiddleware: \(dDate.debugDescription),"
+        }
         string += "\nrouterGroups: [\(routerGroupsString)]"
         string += "\n)"
         return "\(raw: string)"
@@ -164,13 +170,15 @@ extension Router {
 extension Router {
     struct Storage {
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
-        
-        var dynamicMiddleware:[any DynamicMiddlewareProtocol] = []
+
+        var dynamicCORSMiddleware:DynamicCORSMiddleware?
+        var dynamicDateMiddleware:DynamicDateMiddleware?
+        var dynamicMiddleware:[DynamicMiddleware] = []
         var dynamicRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
 
         var staticMiddleware:[StaticMiddleware] = []
-        var staticRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
+        var staticRedirects:[(StaticRedirectionRoute, SyntaxProtocol)] = []
         var staticRoutes:[(StaticRoute, FunctionCallExprSyntax)] = []
         
         var routerGroups:[any RouterGroupProtocol] = []
@@ -224,7 +232,7 @@ extension Router {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         dictionary: DictionaryExprSyntax,
-        static_redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
+        static_redirects: inout [(StaticRedirectionRoute, SyntaxProtocol)],
         dynamic_redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)]
     ) {
         guard let dictionary:DictionaryElementListSyntax = dictionary.content.as(DictionaryElementListSyntax.self) else { return }
@@ -350,7 +358,7 @@ extension Router {
             return
         }
         var httpResponse = httpResponse
-        var responder:ConditionalRouteResponder = ConditionalRouteResponder<Request>(conditions: [], responders: [])
+        var responder:ConditionalRouteResponder = ConditionalRouteResponder(conditions: [], responders: [])
         responder.conditionsDescription.removeLast() // ]
         responder.respondersDescription.removeLast() // ]
         for algorithm in route.supportedCompressionAlgorithms {

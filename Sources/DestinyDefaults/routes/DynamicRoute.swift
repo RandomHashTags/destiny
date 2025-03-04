@@ -37,7 +37,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         cookies: [ConcreteDynamicResponse.ConcreteHTTPCookie] = [],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -142,7 +142,7 @@ extension DynamicRoute {
                 break
             }
         }
-        var headers:[String:String] = [:]
+        var headers:ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init()
         var cookies:[HTTPCookie] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
@@ -180,7 +180,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -195,7 +195,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -210,7 +210,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -225,7 +225,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -240,7 +240,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -255,7 +255,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -270,7 +270,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -285,7 +285,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -300,7 +300,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -315,7 +315,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: T,
-        headers: [String:String] = [:],
+        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void

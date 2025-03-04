@@ -15,6 +15,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 
     public typealias ConcreteHTTPCookie = HTTPCookie
     public typealias ConcreteHTTPRequestMethod = HTTPRequestMethod
+    public typealias ConcreteHTTPResponseHeaders = HTTPResponseHeaders
 
     public let handlesVersions:Set<HTTPVersion>?
     public let handlesMethods:Set<ConcreteHTTPRequestMethod>?
@@ -24,7 +25,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     public let appliesVersion:HTTPVersion?
     public let appliesStatus:HTTPResponseStatus?
     public let appliesContentType:HTTPMediaType?
-    public let appliesHeaders:[String:String]
+    public let appliesHeaders:ConcreteHTTPResponseHeaders
     public let appliesCookies:[ConcreteHTTPCookie]
 
     public init(
@@ -36,6 +37,29 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         appliesStatus: HTTPResponseStatus? = nil,
         appliesContentType: HTTPMediaType? = nil,
         appliesHeaders: [String:String] = [:],
+        appliesCookies: [ConcreteHTTPCookie] = []
+    ) {
+        self.init(
+            handlesVersions: handlesVersions,
+            handlesMethods: handlesMethods,
+            handlesStatuses: handlesStatuses,
+            handlesContentTypes: handlesContentTypes,
+            appliesVersion: appliesVersion,
+            appliesStatus: appliesStatus,
+            appliesContentType: appliesContentType,
+            appliesHeaders: .init(custom: appliesHeaders),
+            appliesCookies: appliesCookies
+        )
+    }
+    public init(
+        handlesVersions: Set<HTTPVersion>? = nil,
+        handlesMethods: Set<ConcreteHTTPRequestMethod>? = nil,
+        handlesStatuses: Set<HTTPResponseStatus>? = nil,
+        handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
+        appliesVersion: HTTPVersion? = nil,
+        appliesStatus: HTTPResponseStatus? = nil,
+        appliesContentType: HTTPMediaType? = nil,
+        appliesHeaders: ConcreteHTTPResponseHeaders,
         appliesCookies: [ConcreteHTTPCookie] = []
     ) {
         self.handlesVersions = handlesVersions
@@ -76,9 +100,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         if let appliesContentType {
             values.append("appliesStatus: \(appliesContentType.debugDescription)")
         }
-        if !appliesHeaders.isEmpty {
-            values.append("appliesHeaders: \(appliesHeaders)")
-        }
+        values.append("appliesHeaders: \(appliesHeaders.debugDescription)")
         if !appliesCookies.isEmpty {
             values.append("appliesCookies: [" + appliesCookies.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
@@ -97,7 +119,7 @@ extension StaticMiddleware {
         var appliesVersion:HTTPVersion? = nil
         var appliesStatus:HTTPResponseStatus? = nil
         var appliesContentType:HTTPMediaType? = nil
-        var appliesHeaders:[String:String] = [:]
+        var appliesHeaders:ConcreteHTTPResponseHeaders = .init()
         var appliesCookies:[ConcreteHTTPCookie] = []
         for argument in function.arguments {
             switch argument.label!.text {
@@ -116,7 +138,8 @@ extension StaticMiddleware {
             case "appliesContentType":
                 appliesContentType = HTTPMediaTypes.parse(argument.expression.memberAccess!.declName.baseName.text)
             case "appliesHeaders":
-                appliesHeaders = HTTPRequestHeader.parse(context: context, argument.expression)
+                let custom:[String:String] = HTTPRequestHeader.parse(context: context, argument.expression)
+                appliesHeaders = .init(custom: custom)
             case "appliesCookies":
                 appliesCookies = argument.expression.array!.elements.compactMap({ HTTPCookie.parse(context: context, expr: $0.expression) })
             default:

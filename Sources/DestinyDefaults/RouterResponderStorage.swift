@@ -7,15 +7,17 @@
 
 import DestinyUtilities
 
-public struct RouterResponderStorage<Request: RequestProtocol> : Sendable {
+public struct RouterResponderStorage : Sendable {
+    public typealias ConcreteRequest = Request
+
     public var `static`:StaticResponderStorage
     public var dynamic:DynamicResponderStorage
-    public var conditional:[DestinyRoutePathType:ConditionalRouteResponder<Request>]
+    public var conditional:[DestinyRoutePathType:ConditionalRouteResponder]
 
     public init(
         static: StaticResponderStorage = .init(),
         dynamic: DynamicResponderStorage = .init(),
-        conditional: [DestinyRoutePathType:ConditionalRouteResponder<Request>] = [:]
+        conditional: [DestinyRoutePathType:ConditionalRouteResponder] = [:]
     ) {
         self.static = `static`
         self.dynamic = dynamic

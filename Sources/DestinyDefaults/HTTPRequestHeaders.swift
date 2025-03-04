@@ -47,18 +47,22 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
     public var xHttpMethodOverride:HTTPRequestMethod?
     public var secGPC:Bool = false
 
-    public init(_ custom: [String:String] = [:]) {
+    public init() {
+    }
+    public init(custom: [String:String] = [:]) {
         self.custom = custom
     }
 
     @inlinable
     public subscript(_ header: Key) -> Value? {
-        get {
-            return custom[header]
-        }
-        set {
-            custom[header] = newValue
-        }
+        get { custom[header] }
+        set { custom[header] = newValue }
+    }
+
+    @inlinable
+    public subscript(_ header: Key, default defaultValue: @autoclosure () -> Key) -> Value {
+        get { custom[header, default: defaultValue()] }
+        set { custom[header] = newValue }
     }
 
     @inlinable public func has(_ header: Key) -> Bool {
@@ -72,6 +76,37 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
         } else {
             custom[header] = value
         }
+    }    
+}
+
+// MARK: Merge
+extension HTTPRequestHeaders {
+    @inlinable
+    public mutating func merge(_ headers: Self) { // TODO: finish
+    }
+}
+
+// MARK: Iterate
+extension HTTPRequestHeaders {
+    @inlinable
+    public func iterate(yield: (Key, Value) -> Void) {
+    }
+}
+
+// MARK: DebugDescription
+extension HTTPRequestHeaders {
+    public var debugDescription : String { // TODO: finish
+        var values:[String] = []
+        if let from {
+            values.append("from: \"\(from)\"")
+        }
+        if let xHttpMethodOverride {
+            values.append("xHttpMethodOverride: .\(xHttpMethodOverride)")
+        }
+        if secGPC {
+            values.append("secGPC: true")
+        }
+        return "HTTPRequestHeaders(\(values.joined(separator: ",")))"
     }
 }
 

@@ -45,7 +45,7 @@ public struct Request : RequestProtocol {
                 dictionary[String(header[header.startIndex..<index])] = String(header[header.index(index, offsetBy: 2)...])
             }
         }
-        return HTTPRequestHeaders(dictionary)
+        return HTTPRequestHeaders(custom: dictionary)
     }()
 
     public lazy var query : [String:String] = {

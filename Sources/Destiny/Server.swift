@@ -127,7 +127,7 @@ public final class Server : HTTPServerProtocol {
             sin6_scope_id: 0
         )
         #endif
-        if let address:String = address {
+        if let address {
             if address.withCString({ inet_pton(AF_INET6, $0, &addr.sin6_addr) }) == 1 {
             }
         }
@@ -164,15 +164,15 @@ extension Server {
         return await withCheckedContinuation { $0.resume(returning: readLine()) }
     }
     func processCommand() async {
-        if let line:String = await readCommand() {
-            let arguments:[Substring] = line.split(separator: " ")
-            if let targetCMD:Substring = arguments.first {
+        if let line = await readCommand() {
+            let arguments = line.split(separator: " ")
+            if let targetCMD = arguments.first {
                 let targetCommand:String = String(targetCMD)
                 for command in commands {
                     if targetCommand == command.configuration.commandName {
-                        var value:ParsableCommand = command.init()
+                        var value:any ParsableCommand = command.init()
                         do {
-                            if var asyncValue:AsyncParsableCommand = value as? AsyncParsableCommand {
+                            if var asyncValue:any AsyncParsableCommand = value as? AsyncParsableCommand {
                                 try await asyncValue.run()
                             } else {
                                 try value.run()
@@ -235,6 +235,7 @@ extension Server {
 // MARK: Accept client
 extension Server {
     @inlinable
+    @Sendable
     static func acceptClient(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
         guard let serverFD:Int32 = server else { return nil }
         var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
@@ -247,7 +248,9 @@ extension Server {
         }
         return (client, .now)
     }
+
     @inlinable
+    @Sendable
     static func acceptClientNoTCPDelay(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
         guard let serverFD:Int32 = server else { return nil }
         var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)

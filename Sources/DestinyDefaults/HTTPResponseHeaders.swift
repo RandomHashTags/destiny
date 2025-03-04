@@ -20,7 +20,7 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
     public typealias Key = String
     public typealias Value = String
 
-    @usableFromInline var custom:[String:String] = [:]
+    @usableFromInline var custom:[Key:Value] = [:]
 
     // TODO: arrange for optimal memory layout
     @usableFromInline var acceptRanges:HTTPResponseHeader.AcceptRanges?
@@ -38,24 +38,98 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
     @usableFromInline var tk:HTTPResponseHeader.TK?
     @usableFromInline var xContentTypeOptions:Bool = false
     
-
-    public init(_ custom: [String:String] = [:]) {
+    public init() {
+    }
+    public init(custom: [String:String] = [:]) {
         self.custom = custom
     }
 
     @inlinable
     public subscript(_ header: Key) -> Value? {
-        get {
-            return custom[header]
-        }
-        set {
-            custom[header] = newValue
-        }
+        get { custom[header] }
+        set { custom[header] = newValue }
+    }
+
+    @inlinable
+    public subscript(_ header: Key, default defaultValue: @autoclosure () -> Key) -> Value {
+        get { custom[header, default: defaultValue()] }
+        set { custom[header] = newValue }
     }
 
     @inlinable
     public func has(_ header: Key) -> Bool {
         return custom[header] != nil
+    }
+}
+
+// MARK: Merge
+extension HTTPResponseHeaders {
+    @inlinable
+    public mutating func merge(_ headers: Self) {
+        if let v = headers.acceptRanges { acceptRanges = v }
+        if let v = headers.age { age = v }
+        if let v = headers.allow { allow = v }
+        if let v = headers.contentEncoding { contentEncoding = v }
+        if let v = headers.contentLength { contentLength = v }
+        if let v = headers.contentType { contentType = v }
+        if let v = headers.retryAfterDuration { retryAfterDuration = v }
+
+        #if canImport(FoundationEssentials) || canImport(Foundation)
+        if let v = headers.retryAfterDate { retryAfterDate = v }
+        #endif
+
+        if let v = headers.tk { tk = v }
+        xContentTypeOptions = headers.xContentTypeOptions
+        for (key, value) in headers.custom {
+            custom[key] = value
+        }
+    }
+}
+
+// MARK: Iterate
+extension HTTPResponseHeaders {
+    @inlinable
+    public func iterate(yield: (Key, Value) -> Void) {
+        if let acceptRanges { yield(HTTPResponseHeader.acceptRanges.rawName, acceptRanges.rawValue) }
+        if let age { yield(HTTPResponseHeader.age.rawName, "\(age)") }
+        if let allow { yield(HTTPResponseHeader.allow.rawName, allow) }
+        if let contentEncoding { yield(HTTPResponseHeader.contentEncoding.rawName, contentEncoding.rawValue) } // TODO: fix
+        if let contentLength { yield(HTTPResponseHeader.contentLength.rawName, "\(contentLength)") }
+        if let contentType { yield(HTTPResponseHeader.contentType.rawName, contentType) }
+        if let retryAfterDuration { yield(HTTPResponseHeader.retryAfter.rawName, "\(retryAfterDuration)") }
+
+        #if canImport(FoundationEssentials) || canImport(Foundation)
+        if let retryAfterDate { yield(HTTPResponseHeader.retryAfter.rawName, retryAfterDate.debugDescription) } // TODO: fix
+        #endif
+
+        if let tk { yield(HTTPResponseHeader.tk.rawName, tk.rawValue) }
+        if xContentTypeOptions { yield(HTTPResponseHeader.xContentTypeOptions.rawName, "true") }
+        for (key, value) in custom {
+            yield(key, value)
+        }
+    }
+}
+
+// MARK: DebugDescription
+extension HTTPResponseHeaders {
+    public var debugDescription : String {
+        var values:[String] = []
+        if let acceptRanges { values.append("acceptRanges: \(acceptRanges)") }
+        if let age { values.append("age: \(age)") }
+        if let allow { values.append("allow: \"\(allow)\"") }
+        if let contentEncoding { values.append("contentEncoding: .\(contentEncoding)") }
+        if let contentLength { values.append("contentLength: \(contentLength)") }
+        if let contentType { values.append("contentType: \"\(contentType)\"") }
+        if let retryAfterDuration { values.append("retryAfterDuration: \(retryAfterDuration)") }
+
+        #if canImport(FoundationEssentials) || canImport(Foundation)
+        if let retryAfterDate { values.append("retryAfterDate: \(retryAfterDate.debugDescription)") }
+        #endif
+
+        if !custom.isEmpty {
+            values.append("custom: \(custom)")
+        }
+        return "HTTPResponseHeaders(\(values.joined(separator: ",")))"
     }
 }
 

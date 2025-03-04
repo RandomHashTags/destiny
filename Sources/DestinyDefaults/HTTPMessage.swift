@@ -12,7 +12,7 @@ import DestinyUtilities
 public struct HTTPMessage : HTTPMessageProtocol {
     public typealias ConcreteHTTPCookie = HTTPCookie
 
-    public var headers:[String:String]
+    public var headers:HTTPResponseHeaders
     public var cookies:[ConcreteHTTPCookie]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
@@ -23,7 +23,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
     public init<T: HTTPMediaTypeProtocol>(
         version: HTTPVersion,
         status: HTTPResponseStatus,
-        headers: [String:String],
+        headers: HTTPResponseHeaders,
         cookies: [ConcreteHTTPCookie],
         result: RouteResult?,
         contentType: T?,
@@ -39,7 +39,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
     }
 
     public var debugDescription : String {
-        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
+        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers.debugDescription), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
     }
 
     /// - Parameters:
@@ -49,7 +49,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
     public func string(escapeLineBreak: Bool) throws -> String {
         let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string:String = version.string + " \(status)" + suffix
-        for (header, value) in headers {
+        headers.iterate { header, value in
             string += header + ": " + value + suffix
         }
         for cookie in cookies {
@@ -72,7 +72,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
     public func bytes() throws -> [UInt8] {
         let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
         var string:String = version.string + " \(status)" + suffix
-        for (header, value) in headers {
+        headers.iterate { header, value in
             string += header + ": " + value + suffix
         }
         for cookie in cookies {

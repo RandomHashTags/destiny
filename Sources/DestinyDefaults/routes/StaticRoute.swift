@@ -71,7 +71,7 @@ public struct StaticRoute : StaticRouteProtocol {
         var version:HTTPVersion = version
         var status:HTTPResponseStatus = status
         var contentType:HTTPMediaType = contentType
-        var headers:[String:String] = [:]
+        var headers:ConcreteMiddleware.ConcreteHTTPResponseHeaders = .init()
         var cookies:[ConcreteMiddleware.ConcreteHTTPCookie] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {

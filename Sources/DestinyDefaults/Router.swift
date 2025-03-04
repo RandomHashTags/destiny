@@ -26,11 +26,13 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
     public typealias ConcreteRouterGroup = RouterGroup
 
     public let version:HTTPVersion
-    public private(set) var caseSensitiveResponders:RouterResponderStorage<ConcreteSocket.ConcreteRequest>
-    public private(set) var caseInsensitiveResponders:RouterResponderStorage<ConcreteSocket.ConcreteRequest>
+    public private(set) var caseSensitiveResponders:RouterResponderStorage
+    public private(set) var caseInsensitiveResponders:RouterResponderStorage
 
     public private(set) var staticMiddleware:[ConcreteStaticMiddleware]
     public var dynamicMiddleware:[ConcreteDynamicMiddleware]
+    public var dynamicCORSMiddleware:DynamicCORSMiddleware?
+    public var dynamicDateMiddleware:DynamicDateMiddleware?
 
     public private(set) var routerGroups:[ConcreteRouterGroup]
     
@@ -43,11 +45,13 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         errorResponder: ConcreteErrorResponder,
         dynamicNotFoundResponder: ConcreteDynamicRouteResponder? = nil,
         staticNotFoundResponder: any StaticRouteResponderProtocol,
-        caseSensitiveResponders: RouterResponderStorage<ConcreteSocket.ConcreteRequest>,
-        caseInsensitiveResponders: RouterResponderStorage<ConcreteSocket.ConcreteRequest>,
-        staticMiddleware: [ConcreteStaticMiddleware],
-        dynamicMiddleware: [ConcreteDynamicMiddleware],
-        routerGroups: [RouterGroup]
+        caseSensitiveResponders: RouterResponderStorage = .init(),
+        caseInsensitiveResponders: RouterResponderStorage = .init(),
+        staticMiddleware: [ConcreteStaticMiddleware] = [],
+        dynamicMiddleware: [ConcreteDynamicMiddleware] = [],
+        dynamicCORSMiddleware: DynamicCORSMiddleware? = nil,
+        dynamicDateMiddleware: DynamicDateMiddleware? = nil,
+        routerGroups: [RouterGroup] = []
     ) {
         self.version = version
         self.errorResponder = errorResponder
@@ -56,12 +60,16 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         self.caseSensitiveResponders = caseSensitiveResponders
         self.caseInsensitiveResponders = caseInsensitiveResponders
         self.dynamicMiddleware = dynamicMiddleware
+        self.dynamicCORSMiddleware = dynamicCORSMiddleware
+        self.dynamicDateMiddleware = dynamicDateMiddleware
         self.staticMiddleware = staticMiddleware
         self.routerGroups = routerGroups
     }
 
     @inlinable
     public func loadDynamicMiddleware() {
+        dynamicCORSMiddleware?.load()
+        dynamicDateMiddleware?.load()
         for index in dynamicMiddleware.indices {
             dynamicMiddleware[index].load()
         }
@@ -69,6 +77,11 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
 
     @inlinable
     public func handleDynamicMiddleware(for request: inout ConcreteSocket.ConcreteRequest, with response: inout ConcreteDynamicResponse) async throws {
+        if let m = dynamicCORSMiddleware, try await m.handle(request: &request, response: &response) {
+            return
+        }
+        if let m = dynamicDateMiddleware, try await m.handle(request: &request, response: &response) {
+        }
         for middleware in dynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {
                 break
@@ -79,20 +92,6 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
 
 // MARK: Responders
 extension Router {
-    /*
-    /// The static responder responsible for a static route.
-    /// 
-    /// - Parameters:
-    ///   - startLine: The request's HTTP start line.
-    /// - Returns: The static responder responsible for the `startLine`.
-    @inlinable
-    public func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)? {
-        if let responder:any StaticRouteResponderProtocol = caseSensitiveResponders.static[startLine] {
-            return responder
-        }
-        return caseInsensitiveResponders.static[toLowercase(path: startLine)]
-    }*/
-
     /// The dynamic responder responsible for a dynamic route.
     /// 
     /// - Parameters:
