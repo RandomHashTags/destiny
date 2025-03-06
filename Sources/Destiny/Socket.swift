@@ -131,19 +131,11 @@ extension Socket {
 extension Socket {
     @usableFromInline
     func receive(_ baseAddress: UnsafeMutablePointer<UInt8>, _ length: Int, _ flags: Int32 = 0) -> Int {
-        #if canImport(Glibc)
         return recv(fileDescriptor, baseAddress, length, flags)
-        #else
-        return -1
-        #endif
     }
     @usableFromInline
     func receive(_ baseAddress: UnsafeMutableRawPointer, _ length: Int, _ flags: Int32 = 0) -> Int {
-        #if canImport(Glibc)
         return recv(fileDescriptor, baseAddress, length, flags)
-        #else
-        return -1
-        #endif
     }
 }
 
