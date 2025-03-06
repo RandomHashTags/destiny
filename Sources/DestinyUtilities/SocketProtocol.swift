@@ -5,6 +5,10 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
+#if canImport(Darwin)
+import Darwin
+#endif
+
 // MARK: SocketProtocol
 /// Core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol : ~Copyable {
@@ -33,8 +37,7 @@ public protocol SocketProtocol : ~Copyable {
 extension SocketProtocol where Self : ~Copyable {
     @inlinable
     public static func noSigPipe(fileDescriptor: Int32) {
-        #if os(Linux)
-        #else
+        #if canImport(Darwin)
         var no_sig_pipe:Int32 = 0
         setsockopt(fileDescriptor, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(MemoryLayout<Int32>.size))
         #endif
