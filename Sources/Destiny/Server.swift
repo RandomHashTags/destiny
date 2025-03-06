@@ -67,9 +67,9 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
     
     // MARK: Run
     public func run() async throws {
-        let serverFD1:Int32 = try bind()
-        //let serverFD2:Int32 = try bind()
-        //let serverFD3:Int32 = try bind()
+        let serverFD1:Int32 = try bindAndListen()
+        //let serverFD2:Int32 = try bindAndListen()
+        //let serverFD3:Int32 = try bindAndListen()
         Task {
             await processCommand()
         }
@@ -97,7 +97,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
     }
 
     /// - Returns: The file descriptor of the created socket.
-    func bind() throws -> Int32 {
+    func bindAndListen() throws -> Int32 {
         #if os(Linux)
         let serverFD:Int32 = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #else
@@ -142,7 +142,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         #endif
         var binded:Int32 = -1
         binded = withUnsafePointer(to: &addr) {
-            Glibc.bind(serverFD, UnsafePointer<sockaddr>(OpaquePointer($0)), socklen_t(MemoryLayout<sockaddr_in6>.size))
+            bind(serverFD, UnsafePointer<sockaddr>(OpaquePointer($0)), socklen_t(MemoryLayout<sockaddr_in6>.size))
         }
         if binded == -1 {
             close(serverFD)

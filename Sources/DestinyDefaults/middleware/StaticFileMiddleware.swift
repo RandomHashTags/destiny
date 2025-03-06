@@ -54,7 +54,13 @@ extension StaticFileMiddleware {
         endpoint: String
     ) throws -> [StaticRoute] {
         var isDirectory:Bool = false
+        #if canImport(Darwin)
+        var dir:ObjCBool = false
+        guard FileManager.default.fileExists(atPath: path, isDirectory: &dir) else { return [] }
+        isDirectory = dir.boolValue
+        #else
         guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) else { return [] }
+        #endif
         if isDirectory {
             let paths:[String] = try FileManager.default.contentsOfDirectory(atPath: path)
             print("paths=\(paths)")
