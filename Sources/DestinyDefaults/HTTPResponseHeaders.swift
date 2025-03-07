@@ -216,14 +216,7 @@ extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
     public mutating func contentType(_ contentType: HTTPMediaType?) -> Self {
-        self.contentType = contentType?.httpValue
-        return self
-    }
-
-    @discardableResult
-    @inlinable
-    public mutating func contentType<T: HTTPMediaTypeProtocol>(_ contentType: T?) -> Self {
-        self.contentType = contentType?.httpValue
+        self.contentType = contentType?.description
         return self
     }
 }

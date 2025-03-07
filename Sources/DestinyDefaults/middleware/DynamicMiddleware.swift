@@ -17,7 +17,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 
     public static let defaultOnError:@Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteResponse, _ error: any Error) async -> Void = { request, response, error in
         response.status = .internalServerError
-        response.headers[HTTPResponseHeader.contentTypeRawName] = HTTPMediaTypes.Application.json.httpValue
+        response.headers[HTTPResponseHeader.contentTypeRawName] = "\(HTTPMediaType.applicationJson)"
         response.result = .string("{\"error\":true,\"reason\":\"\(error)\"}")
     }
 

@@ -149,8 +149,9 @@ extension Router {
     ///   - request: The incoming network request.
     @inlinable
     public func notFoundResponse(socket: borrowing ConcreteSocket, request: inout ConcreteSocket.ConcreteRequest) async throws {
-        if let responder:ConcreteDynamicRouteResponder = dynamicNotFoundResponder { // TODO: support
-            //try await responder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
+        if let responder:ConcreteDynamicRouteResponder = dynamicNotFoundResponder {
+            var response = responder.defaultResponse
+            try await responder.respond(to: socket, request: &request, response: &response)
         } else {
             try await staticNotFoundResponder.respond(to: socket)
         }
@@ -166,8 +167,8 @@ extension Router {
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
     public func register(_ route: ConcreteStaticRoute, override: Bool = false) throws {
         guard let responder:any StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
-        var string:String = route.startLine
-        var buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
+        var string = route.startLine
+        var buffer = DestinyRoutePathType(&string)
         if route.isCaseSensitive {
             if override || !caseSensitiveResponders.static.exists(for: buffer) {
                 //caseSensitiveResponders.static[buffer] = responder // TODO: fix
@@ -195,7 +196,7 @@ extension Router {
         responder: ConcreteDynamicRoute.ConcreteResponder,
         override: Bool = false
     ) throws {
-        var copy:ConcreteDynamicRoute = route
+        var copy = route
         copy.applyStaticMiddleware(staticMiddleware)
         if route.isCaseSensitive {
             try caseSensitiveResponders.dynamic.register(version: copy.version, route: copy, responder: responder, override: override)
@@ -223,7 +224,7 @@ extension Router {
 extension Router {
     @inlinable
     func toLowercase(path: DestinyRoutePathType) -> DestinyRoutePathType {
-        var upperCase:SIMDMask<SIMD64<UInt8>.MaskStorage> = path .>= 65
+        var upperCase = path .>= 65
         upperCase .&= path .<= 90
 
         var addition:DestinyRoutePathType = .zero

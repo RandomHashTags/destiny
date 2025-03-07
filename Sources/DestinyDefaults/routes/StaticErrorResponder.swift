@@ -9,7 +9,7 @@ import DestinyUtilities
 import Logging
 
 /// Default Error Responder implementation that does the bare minimum required to log and send an error response known at compile time.
-public struct StaticErrorResponder : ErrorResponderProtocol {
+public struct StaticErrorResponder : StaticErrorResponderProtocol {
     public let logic:@Sendable (_ error: any Error) -> any StaticRouteResponderProtocol
 
     public init(_ logic: @escaping @Sendable (_ error: any Error) -> any StaticRouteResponderProtocol) {

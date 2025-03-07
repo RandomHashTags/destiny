@@ -20,7 +20,7 @@ enum Router : ExpressionMacro {
         var errorResponder:String = """
             StaticErrorResponder { error in
             RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: .ok, headers: .init(custom: [:]), cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaTypes.Application.json, charset: nil)
+                version: HTTPVersion.v1_1, status: .ok, headers: .init(custom: [:]), cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.applicationJson, charset: nil)
             )
         }
         """

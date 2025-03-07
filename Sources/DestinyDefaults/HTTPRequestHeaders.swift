@@ -151,8 +151,8 @@ extension HTTPRequestHeaders {
 extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    public mutating func accept<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
-        accept = mediaType?.httpValue
+    public mutating func accept(_ mediaType: HTTPMediaType?) -> Self {
+        accept = mediaType?.description
         return self
     }
 }
@@ -191,8 +191,8 @@ extension HTTPRequestHeaders {
 extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    public mutating func contentType<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
-        contentType = mediaType?.httpValue
+    public mutating func contentType(_ mediaType: HTTPMediaType?) -> Self {
+        contentType = mediaType?.description
         return self
     }
 }

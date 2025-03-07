@@ -30,13 +30,13 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public var status:HTTPResponseStatus
     public let isCaseSensitive:Bool
 
-    public init<T: HTTPMediaTypeProtocol>(
+    public init(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         cookies: [ConcreteDynamicResponse.ConcreteHTTPCookie] = [],
         result: RouteResult = .string(""),
@@ -48,7 +48,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.path = path
         self.isCaseSensitive = isCaseSensitive
         self.status = status
-        self.contentType = contentType.structure
+        self.contentType = contentType
         self.defaultResponse = DynamicResponse.init(version: version, status: status, headers: headers, cookies: cookies, result: result, parameters: [])
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
@@ -106,7 +106,7 @@ extension DynamicRoute {
         var path:[PathComponent] = []
         var isCaseSensitive:Bool = true
         var status:HTTPResponseStatus = .notImplemented
-        var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
+        var contentType:HTTPMediaType = HTTPMediaType.textPlain
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler:String = "nil"
         var parameters:[String] = []
@@ -130,9 +130,9 @@ extension DynamicRoute {
                 status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "contentType":
                 if let member:String = argument.expression.memberAccess?.declName.baseName.text {
-                    contentType = HTTPMediaTypes.parse(member) ?? contentType
+                    contentType = HTTPMediaType.parse(member) ?? contentType
                 } else {
-                    contentType = HTTPMediaType(debugDescription: "", httpValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
+                    contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
                 }
             case "supportedCompressionAlgorithms":
                 supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
@@ -149,7 +149,7 @@ extension DynamicRoute {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        headers[HTTPResponseHeader.contentType.rawName] = contentType.httpValue
+        headers[HTTPResponseHeader.contentType.rawName] = "\(contentType)"
         var route:DynamicRoute = DynamicRoute(
             version: version,
             method: method,
@@ -173,13 +173,13 @@ extension DynamicRoute {
 // MARK: Convenience inits
 extension DynamicRoute {
     @inlinable
-    public static func on<T: HTTPMediaTypeProtocol>(
+    public static func on(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -189,12 +189,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func get<T: HTTPMediaTypeProtocol>(
+    public static func get(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -204,12 +204,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func head<T: HTTPMediaTypeProtocol>(
+    public static func head(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -219,12 +219,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func post<T: HTTPMediaTypeProtocol>(
+    public static func post(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -234,12 +234,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func put<T: HTTPMediaTypeProtocol>(
+    public static func put(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -249,12 +249,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func delete<T: HTTPMediaTypeProtocol>(
+    public static func delete(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -264,12 +264,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func connect<T: HTTPMediaTypeProtocol>(
+    public static func connect(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -279,12 +279,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func options<T: HTTPMediaTypeProtocol>(
+    public static func options(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -294,12 +294,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func trace<T: HTTPMediaTypeProtocol>(
+    public static func trace(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -309,12 +309,12 @@ extension DynamicRoute {
     }
 
     @inlinable
-    public static func patch<T: HTTPMediaTypeProtocol>(
+    public static func patch(
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],

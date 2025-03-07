@@ -20,13 +20,13 @@ public struct HTTPMessage : HTTPMessageProtocol {
     public var status:HTTPResponseStatus
     public var charset:Charset?
 
-    public init<T: HTTPMediaTypeProtocol>(
+    public init(
         version: HTTPVersion,
         status: HTTPResponseStatus,
         headers: HTTPResponseHeaders,
         cookies: [ConcreteHTTPCookie],
         result: RouteResult?,
-        contentType: T?,
+        contentType: HTTPMediaType?,
         charset: Charset?
     ) {
         self.version = version
@@ -34,7 +34,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
         self.headers = headers
         self.cookies = cookies
         self.result = result
-        self.contentType = contentType?.structure
+        self.contentType = contentType
         self.charset = charset
     }
 
@@ -58,8 +58,8 @@ public struct HTTPMessage : HTTPMessageProtocol {
         if var result:String = try result?.string() {
             let contentLength:Int = result.utf8.count
             result.replace("\"", with: "\\\"")
-            if let contentType:HTTPMediaType = contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+            if let contentType {
+                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
             string += suffix + suffix + result
@@ -80,8 +80,8 @@ public struct HTTPMessage : HTTPMessageProtocol {
         }
         var bytes:[UInt8]
         if let result:[UInt8] = try result?.bytes() {
-            if let contentType:HTTPMediaType = contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+            if let contentType {
+                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(result.count)"
             string += suffix + suffix
@@ -138,8 +138,8 @@ extension HTTPMessage {
         var string:String = version.string + " \(status)" + suffix + headers
         if let result:String = result {
             let content_length:Int = result.utf8.count
-            if let contentType:HTTPMediaType = contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+            if let contentType {
+                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(content_length)"
             string += suffix + suffix + result

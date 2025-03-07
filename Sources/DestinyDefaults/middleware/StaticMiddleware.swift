@@ -32,7 +32,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: Set<ConcreteHTTPRequestMethod>? = nil,
         handlesStatuses: Set<HTTPResponseStatus>? = nil,
-        handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
+        handlesContentTypes: Set<HTTPMediaType>? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus? = nil,
         appliesContentType: HTTPMediaType? = nil,
@@ -55,7 +55,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: Set<ConcreteHTTPRequestMethod>? = nil,
         handlesStatuses: Set<HTTPResponseStatus>? = nil,
-        handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
+        handlesContentTypes: Set<HTTPMediaType>? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus? = nil,
         appliesContentType: HTTPMediaType? = nil,
@@ -65,11 +65,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
         self.handlesStatuses = handlesStatuses
-        if let handlesContentTypes:[any HTTPMediaTypeProtocol] = handlesContentTypes {
-            self.handlesContentTypes = Set(handlesContentTypes.map({ $0.structure }))
-        } else {
-            self.handlesContentTypes = nil
-        }
+        self.handlesContentTypes = handlesContentTypes
         self.appliesVersion = appliesVersion
         self.appliesStatus = appliesStatus
         self.appliesContentType = appliesContentType
@@ -130,13 +126,13 @@ extension StaticMiddleware {
             case "handlesStatuses":
                 handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponseStatus(expr: $0.expression) }))
             case "handlesContentTypes":
-                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaTypes.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))
+                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))
             case "appliesVersion":
                 appliesVersion = HTTPVersion.parse(argument.expression)
             case "appliesStatus":
                 appliesStatus = HTTPResponseStatus(expr: argument.expression)
             case "appliesContentType":
-                appliesContentType = HTTPMediaTypes.parse(argument.expression.memberAccess!.declName.baseName.text)
+                appliesContentType = HTTPMediaType.parse(argument.expression.memberAccess!.declName.baseName.text)
             case "appliesHeaders":
                 let custom:[String:String] = HTTPRequestHeader.parse(context: context, argument.expression)
                 appliesHeaders = .init(custom: custom)
@@ -150,7 +146,7 @@ extension StaticMiddleware {
             handlesVersions: handlesVersions,
             handlesMethods: handlesMethods,
             handlesStatuses: handlesStatuses,
-            handlesContentTypes: handlesContentTypes != nil ? Array(handlesContentTypes!) : nil,
+            handlesContentTypes: handlesContentTypes,
             appliesVersion: appliesVersion,
             appliesStatus: appliesStatus,
             appliesContentType: appliesContentType,
