@@ -26,7 +26,7 @@ extension RouteResponses {
         public var debugDescription : Swift.String { "RouteResponses.StaticString(\"" + value.description + "\")" }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
             var err:(any Error)? = nil
             value.withUTF8Buffer {
                 do {
@@ -52,7 +52,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
             try socket.writeBuffer(value.baseAddress!, length: value.count)
         }
     }
@@ -73,7 +73,7 @@ extension RouteResponses {
         public var debugDescription : Swift.String { "RouteResponses.String(\"" + value + "\")" }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
             try value.utf8.withContiguousStorageIfAvailable {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
@@ -93,7 +93,7 @@ extension RouteResponses {
         public var debugDescription : Swift.String { "RouteResponses.UInt8Array(\(value))" }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
             try value.withUnsafeBufferPointer {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
@@ -113,7 +113,7 @@ extension RouteResponses {
         public var debugDescription: Swift.String { "RouteResponses.UInt16Array(\(value))" }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
             try value.withUnsafeBufferPointer {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
@@ -140,7 +140,7 @@ extension RouteResponses {
         public var debugDescription : Swift.String { "RouteResponses.FoundationData(\(value))" }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
             try value.withUnsafeBytes {
                 try socket.writeBuffer($0.baseAddress!, length: value.count)
             }

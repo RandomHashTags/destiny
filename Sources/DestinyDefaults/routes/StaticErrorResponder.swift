@@ -20,7 +20,12 @@ public struct StaticErrorResponder : StaticErrorResponderProtocol {
     public var debugDescription : String { "" }
 
     @inlinable
-    public func respond<S: SocketProtocol & ~Copyable, E: Error, Request: RequestProtocol>(to socket: borrowing S, with error: E, for request: inout Request, logger: Logger) async {
+    public func respond<S: SocketProtocol & ~Copyable, E: Error, Request: RequestProtocol>(
+        to socket: borrowing S,
+        with error: E,
+        for request: inout Request,
+        logger: Logger
+    ) async {
         #if DEBUG
         logger.warning(Logger.Message(stringLiteral: "\(error)"))
         #endif

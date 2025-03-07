@@ -36,8 +36,8 @@ public struct StaticResponderStorage : StaticResponderStorageProtocol {
     }
 
     @inlinable
-    public func respond<S: SocketProtocol>(
-        to socket: S,
+    public func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
         with startLine: DestinyRoutePathType
     ) async throws -> Bool {
         if let r = staticStrings[startLine] {

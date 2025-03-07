@@ -165,7 +165,10 @@ extension Router {
     /// - Parameters:
     ///   - route: The static route you want to register.
     ///   - override: Whether or not to replace the existing responder with the same endpoint.
-    public func register(_ route: ConcreteStaticRoute, override: Bool = false) throws {
+    public func register(
+        _ route: ConcreteStaticRoute,
+        override: Bool = false
+    ) throws {
         guard let responder:any StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
         var string = route.startLine
         var buffer = DestinyRoutePathType(&string)

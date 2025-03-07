@@ -82,7 +82,7 @@ public struct StaticRoute : StaticRouteProtocol {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        if let context:MacroExpansionContext = context, let function:FunctionCallExprSyntax = function, status == .notImplemented {
+        if let context = context, let function = function, status == .notImplemented {
             #if canImport(SwiftDiagnostics)
             Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
             #endif

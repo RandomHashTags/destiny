@@ -8,8 +8,8 @@
 public protocol StaticResponderStorageProtocol : Sendable {
     /// - Returns: Whether or not a responder was found for the `startLine`.
     @inlinable
-    func respond<Socket: SocketProtocol>(
-        to socket: Socket,
+    func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
         with startLine: DestinyRoutePathType
     ) async throws -> Bool
 

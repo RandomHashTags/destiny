@@ -38,7 +38,10 @@ public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {
         return nil
     }
 
-    public mutating func register(responder: any RouteResponderProtocol, condition: @escaping @Sendable (inout ConcreteRequest) -> Bool) {
+    public mutating func register(
+        responder: any RouteResponderProtocol,
+        condition: @escaping @Sendable (inout ConcreteRequest) -> Bool
+    ) {
         storage.conditions.append(condition)
         storage.responders.append(responder)
     }
