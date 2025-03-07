@@ -16,11 +16,8 @@ import SwiftCompression
 
 // MARK: HTTPResponseHeaders
 /// Default storage for HTTP response headers.
-public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
-    public typealias Key = String
-    public typealias Value = String
-
-    public var custom:[Key:Value] = [:]
+public struct HTTPResponseHeaders : HTTPResponseHeadersProtocol { // TODO: finish
+    public var custom:[String:String] = [:]
 
     public var allow:String?
     public var age:Int?
@@ -65,19 +62,19 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
     }
 
     @inlinable
-    public subscript(_ header: Key) -> Value? {
+    public subscript(_ header: String) -> String? {
         get { custom[header] }
         set { custom[header] = newValue }
     }
 
     @inlinable
-    public subscript(_ header: Key, default defaultValue: @autoclosure () -> Key) -> Value {
+    public subscript(_ header: String, default defaultValue: @autoclosure () -> String) -> String {
         get { custom[header, default: defaultValue()] }
         set { custom[header] = newValue }
     }
 
     @inlinable
-    public func has(_ header: Key) -> Bool {
+    public func has(_ header: String) -> Bool {
         return custom[header] != nil
     }
 }
@@ -85,7 +82,7 @@ public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
 // MARK: Merge
 extension HTTPResponseHeaders {
     @inlinable
-    public mutating func merge(_ headers: Self) {
+    public mutating func merge<T: HTTPResponseHeadersProtocol>(_ headers: T) {
         if let v = headers.acceptRanges { acceptRanges = v }
         if let v = headers.age { age = v }
         if let v = headers.allow { allow = v }
@@ -109,7 +106,7 @@ extension HTTPResponseHeaders {
 // MARK: Iterate
 extension HTTPResponseHeaders {
     @inlinable
-    public func iterate(yield: (Key, Value) -> Void) {
+    public func iterate(yield: (String, String) -> Void) {
         if let acceptRanges { yield(HTTPResponseHeader.acceptRanges.rawName, acceptRanges.rawValue) }
         if let age { yield(HTTPResponseHeader.age.rawName, "\(age)") }
         if let allow { yield(HTTPResponseHeader.allow.rawName, allow) }

@@ -10,9 +10,10 @@ import DestinyUtilities
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
 public struct HTTPMessage : HTTPMessageProtocol {
+    public typealias ConcreteHTTPResponseHeaders = HTTPResponseHeaders
     public typealias ConcreteHTTPCookie = HTTPCookie
 
-    public var headers:HTTPResponseHeaders
+    public var headers:ConcreteHTTPResponseHeaders
     public var cookies:[ConcreteHTTPCookie]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
@@ -20,10 +21,11 @@ public struct HTTPMessage : HTTPMessageProtocol {
     public var status:HTTPResponseStatus
     public var charset:Charset?
 
+    @inlinable
     public init(
         version: HTTPVersion,
         status: HTTPResponseStatus,
-        headers: HTTPResponseHeaders,
+        headers: ConcreteHTTPResponseHeaders,
         cookies: [ConcreteHTTPCookie],
         result: RouteResult?,
         contentType: HTTPMediaType?,
@@ -39,7 +41,17 @@ public struct HTTPMessage : HTTPMessageProtocol {
     }
 
     public var debugDescription : String {
-        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers.debugDescription), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
+        return """
+        HTTPMessage(
+            version: .\(version),
+            status: \(status.debugDescription),
+            headers: \(headers.debugDescription),
+            cookies: \(cookies),
+            result: \(result?.debugDescription ?? "nil"),
+            contentType: \(contentType?.debugDescription ?? ""),
+            charset: \(charset?.debugDescription ?? "nil")
+        )
+        """
     }
 
     /// - Parameters:
@@ -47,16 +59,16 @@ public struct HTTPMessage : HTTPMessageProtocol {
     /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
     public func string(escapeLineBreak: Bool) throws -> String {
-        let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
-        var string:String = version.string + " \(status)" + suffix
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        var string = version.string + " \(status)" + suffix
         headers.iterate { header, value in
             string += header + ": " + value + suffix
         }
         for cookie in cookies {
             string += "Set-Cookie: \(cookie)" + suffix
         }
-        if var result:String = try result?.string() {
-            let contentLength:Int = result.utf8.count
+        if var result = try result?.string() {
+            let contentLength = result.utf8.count
             result.replace("\"", with: "\\\"")
             if let contentType {
                 string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix

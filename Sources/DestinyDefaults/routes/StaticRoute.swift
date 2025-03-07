@@ -67,7 +67,11 @@ public struct StaticRoute : StaticRouteProtocol {
         """
     }
 
-    public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [ConcreteMiddleware]) -> ConcreteHTTPMessage {
+    public func response(
+        context: MacroExpansionContext?,
+        function: FunctionCallExprSyntax?,
+        middleware: [ConcreteMiddleware]
+    ) -> ConcreteHTTPMessage {
         var version:HTTPVersion = version
         var status:HTTPResponseStatus = status
         var contentType:HTTPMediaType = contentType
@@ -109,7 +113,7 @@ extension StaticRoute {
         var result:RouteResult = .string("")
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         for argument in function.arguments {
-            switch argument.label!.text {
+            switch argument.label?.text {
             case "version":
                 version = HTTPVersion.parse(argument.expression) ?? version
             case "method":

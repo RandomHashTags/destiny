@@ -37,8 +37,8 @@ public struct DynamicRoute : DynamicRouteProtocol {
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
-        cookies: [ConcreteDynamicResponse.ConcreteHTTPCookie] = [],
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
+        cookies: [ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPCookie] = [],
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -49,7 +49,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.isCaseSensitive = isCaseSensitive
         self.status = status
         self.contentType = contentType
-        self.defaultResponse = DynamicResponse.init(version: version, status: status, headers: headers, cookies: cookies, result: result, parameters: [])
+        self.defaultResponse = DynamicResponse.init(message: HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: nil, charset: nil), parameters: [])
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
     }
@@ -81,12 +81,12 @@ public struct DynamicRoute : DynamicRouteProtocol {
     @inlinable
     public mutating func applyStaticMiddleware(_ middleware: [ConcreteStaticMiddleware]) {
         for middleware in middleware {
-            if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
-                var appliedVersion:HTTPVersion = defaultResponse.version
-                var cookies = defaultResponse.cookies
-                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers, cookies: &cookies)
-                defaultResponse.version = appliedVersion
-                defaultResponse.cookies = cookies
+            if middleware.handles(version: defaultResponse.message.version, method: method, contentType: contentType, status: status) {
+                var appliedVersion:HTTPVersion = defaultResponse.message.version
+                var cookies = defaultResponse.message.cookies
+                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.message.headers, cookies: &cookies)
+                defaultResponse.message.version = appliedVersion
+                defaultResponse.message.cookies = cookies
             }
         }
     }
@@ -111,8 +111,7 @@ extension DynamicRoute {
         var handler:String = "nil"
         var parameters:[String] = []
         for argument in function.arguments {
-            let key:String = argument.label!.text
-            switch key {
+            switch argument.label?.text {
             case "version":
                 if let parsed:HTTPVersion = HTTPVersion.parse(argument.expression) {
                     version = parsed
@@ -138,14 +137,13 @@ extension DynamicRoute {
                 break
             }
         }
-        var headers:ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init()
+        var headers:ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init()
         var cookies:[HTTPCookie] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        headers[HTTPResponseHeader.contentType.rawName] = "\(contentType)"
         var route:DynamicRoute = DynamicRoute(
             version: version,
             method: method,
@@ -159,7 +157,7 @@ extension DynamicRoute {
         if !isCaseSensitive {
             route.path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
-        route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, cookies: cookies, result: .string(""), parameters: parameters)
+        route.defaultResponse = DynamicResponse(message: HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: .string(""), contentType: contentType, charset: nil), parameters: parameters)
         route.handlerDebugDescription = handler
         return route
     }
@@ -176,7 +174,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -191,7 +189,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -206,7 +204,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -221,7 +219,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -236,7 +234,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -251,7 +249,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -266,7 +264,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -281,7 +279,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -296,7 +294,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void
@@ -311,7 +309,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
         contentType: HTTPMediaType,
-        headers: ConcreteDynamicResponse.ConcreteHTTPResponseHeaders = .init(),
+        headers: ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPResponseHeaders = .init(),
         result: RouteResult = .string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout ConcreteRequest, _ response: inout ConcreteDynamicResponse) async throws -> Void

@@ -39,30 +39,30 @@ public struct DynamicCORSMiddleware : DynamicCORSMiddlewareProtocol {
         var logicDD:String = "{\n"
         switch allowedOrigin {
         case .all:
-            logicDD += "$1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"*\""
+            logicDD += "$1.message.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"*\""
         case .any(let origins):
-            logicDD += "if let origin:String = $0.headers[HTTPRequestHeader.originRawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
+            logicDD += "if let origin:String = $0.headers[HTTPRequestHeader.originRawName], (\(origins) as Set<String>).contains(origin) { $1.message.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
         case .custom(let s):
-            logicDD += "$1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"" + s + "\""
+            logicDD += "$1.message.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"" + s + "\""
         case .none:
             break
         case .originBased:
-            logicDD += "$1.headers[HTTPResponseHeader.varyRawName, default: \"\"] = \"origin\""
-            logicDD += "\nif let origin:String = $0.headers[HTTPRequestHeader.originRawName] { $1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
+            logicDD += "$1.message.headers[HTTPResponseHeader.varyRawName, default: \"\"] = \"origin\""
+            logicDD += "\nif let origin:String = $0.headers[HTTPRequestHeader.originRawName] { $1.message.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
         }
 
         let allowedHeaders:String = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
         let allowedMethods:String = allowedMethods.map({ $0.rawName }).joined(separator: ",")
-        logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowHeadersRawName] = \"" + allowedHeaders + "\""
-        logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowMethodsRawName] = \"" + allowedMethods + "\""
+        logicDD += "\n$1.message.headers[HTTPResponseHeader.accessControlAllowHeadersRawName] = \"" + allowedHeaders + "\""
+        logicDD += "\n$1.message.headers[HTTPResponseHeader.accessControlAllowMethodsRawName] = \"" + allowedMethods + "\""
         if allowCredentials {
-            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowCredentialsRawName] = \"true\""
+            logicDD += "\n$1.message.headers[HTTPResponseHeader.accessControlAllowCredentialsRawName] = \"true\""
         }
         if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
-            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlExposeHeadersRawName] = \"" + exposedHeaders + "\""
+            logicDD += "\n$1.message.headers[HTTPResponseHeader.accessControlExposeHeadersRawName] = \"" + exposedHeaders + "\""
         }
         if let maxAge:Int = maxAge {
-            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlMaxAgeRawName] = \"" + String(maxAge) + "\""
+            logicDD += "\n$1.message.headers[HTTPResponseHeader.accessControlMaxAgeRawName] = \"" + String(maxAge) + "\""
         }
         self.logic = { _, _ in }
         self.logicDebugDescription = logicDD + " }"
@@ -100,7 +100,7 @@ extension DynamicCORSMiddleware {
         var maxAge:Int? = 600
         var exposedHeaders:Set<HTTPRequestHeader>? = nil
         for argument in function.arguments {
-            switch argument.label!.text {
+            switch argument.label?.text {
             case "allowedOrigin":
                 if let decl:String = argument.expression.memberAccess?.declName.baseName.text {
                     switch decl {

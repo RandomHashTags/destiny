@@ -52,14 +52,14 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
 // MARK: SwiftSyntax
 extension StaticRedirectionRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
-        var version:HTTPVersion = version
+        var version = version
         var method:HTTPRequestMethod = .get
         var from:[String] = []
-        var isCaseSensitive:Bool = true
+        var isCaseSensitive = true
         var to:[String] = []
         var status:HTTPResponseStatus = .movedPermanently
         for argument in function.arguments {
-            switch argument.label!.text {
+            switch argument.label?.text {
             case "version": version = HTTPVersion.parse(argument.expression) ?? version
             case "method": method = HTTPRequestMethod(expr: argument.expression) ?? method
             case "status": status = HTTPResponseStatus(expr: argument.expression) ?? status
@@ -69,7 +69,7 @@ extension StaticRedirectionRoute {
             default: break
             }
         }
-        var route:Self = Self(version: version, method: method, status: status, from: [], isCaseSensitive: isCaseSensitive, to: [])
+        var route = Self(version: version, method: method, status: status, from: [], isCaseSensitive: isCaseSensitive, to: [])
         route.from = from
         route.to = to
         return route

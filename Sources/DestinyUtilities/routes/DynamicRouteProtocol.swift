@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 public protocol DynamicRouteProtocol : RouteProtocol {
     associatedtype ConcreteResponder:DynamicRouteResponderProtocol
     associatedtype ConcreteStaticMiddleware:StaticMiddlewareProtocol where
-        ConcreteDynamicResponse.ConcreteHTTPCookie == ConcreteStaticMiddleware.ConcreteHTTPCookie
+        ConcreteDynamicResponse.ConcreteHTTPMessage.ConcreteHTTPCookie == ConcreteStaticMiddleware.ConcreteHTTPCookie
     associatedtype ConcreteDynamicResponse:DynamicResponseProtocol
 
     /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.

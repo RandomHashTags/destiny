@@ -8,7 +8,7 @@
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
     //associatedtype Storage : RequestStorageProtocol
-    associatedtype ConcreteHTTPHeaders:HTTPHeadersProtocol
+    associatedtype ConcreteHTTPHeaders:HTTPRequestHeadersProtocol
     associatedtype ConcreteHTTPRequestMethod:HTTPRequestMethodProtocol
 
     init?(tokens: [SIMD64<UInt8>])

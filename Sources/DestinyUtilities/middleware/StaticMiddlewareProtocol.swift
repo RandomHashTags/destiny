@@ -8,7 +8,7 @@
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     associatedtype ConcreteHTTPCookie:HTTPCookieProtocol
-    associatedtype ConcreteHTTPResponseHeaders:HTTPHeadersProtocol
+    associatedtype ConcreteHTTPResponseHeaders:HTTPResponseHeadersProtocol
     associatedtype ConcreteHTTPRequestMethod:HTTPRequestMethodProtocol
 
     /// Route request versions this middleware handles.
@@ -81,20 +81,20 @@ extension StaticMiddlewareProtocol {
     }
 
     @inlinable
-    public func apply(
+    public func apply<T: HTTPResponseHeadersProtocol>(
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus,
-        headers: inout ConcreteHTTPResponseHeaders,
+        headers: inout T,
         cookies: inout [ConcreteHTTPCookie]
     ) {
-        if let appliesVersion:HTTPVersion = appliesVersion {
+        if let appliesVersion {
             version = appliesVersion
         }
-        if let appliesStatus:HTTPResponseStatus = appliesStatus {
+        if let appliesStatus {
             status = appliesStatus
         }
-        if let appliesContentType:HTTPMediaType = appliesContentType {
+        if let appliesContentType {
             contentType = appliesContentType
         }
         headers.merge(appliesHeaders)

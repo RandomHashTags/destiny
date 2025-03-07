@@ -60,7 +60,7 @@ public final class DynamicDateMiddleware : DynamicDateMiddlewareProtocol, @unche
 
     @inlinable
     public func handle(request: inout ConcreteRequest, response: inout ConcreteResponse) async throws -> Bool {
-        response.headers["Date"] = _date
+        response.message.headers["Date"] = _date
         return true
     }
 

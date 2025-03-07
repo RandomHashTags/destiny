@@ -118,7 +118,7 @@ extension StaticMiddleware {
         var appliesHeaders:ConcreteHTTPResponseHeaders = .init()
         var appliesCookies:[ConcreteHTTPCookie] = []
         for argument in function.arguments {
-            switch argument.label!.text {
+            switch argument.label?.text {
             case "handlesVersions":
                 handlesVersions = Set(argument.expression.array!.elements.compactMap({ HTTPVersion.parse($0.expression) }))
             case "handlesMethods":

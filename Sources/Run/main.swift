@@ -42,9 +42,9 @@ let router:Router = #router(
         DynamicMiddleware({ request, response in
             guard request.method == .get else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            response.headers["Womp-Womp"] = UUID().uuidString
+            response.message.headers["Womp-Womp"] = UUID().uuidString
             #else
-            response.headers["Womp-Womp"] = String(UInt64.random(in: 0..<UInt64.max))
+            response.message.headers["Womp-Womp"] = String(UInt64.random(in: 0..<UInt64.max))
             #endif
         })
     ],
@@ -72,7 +72,7 @@ let router:Router = #router(
                 path: ["HOOPLA"],
                 contentType: HTTPMediaType.textPlain,
                 handler: { _, response in
-                    response.result = .string("RLY DUD")
+                    response.message.result = .string("RLY DUD")
                 }
             )
         ),
@@ -152,7 +152,7 @@ let router:Router = #router(
         path: ["dynamic"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.result = .string("bro")
+            response.message.result = .string("bro")
             //response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
         }
     ),
@@ -162,7 +162,7 @@ let router:Router = #router(
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            response.result = .string(UUID().uuidString)
+            response.message.result = .string(UUID().uuidString)
             #else
             response.result = .string(String(UInt64.random(in: 0..<UInt64.max)))
             #endif
@@ -172,21 +172,21 @@ let router:Router = #router(
         path: ["dynamic", ":text"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.result = .string(response.parameters[0])
+            response.message.result = .string(response.parameters[0])
         }
     ),
     DynamicRoute.get(
         path: ["anydynamic", "*", "value"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.result = .string(response.parameters[0])
+            response.message.result = .string(response.parameters[0])
         }
     ),
     DynamicRoute.get(
         path: ["catchall", "**"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.result = .string(response.parameters.description)
+            response.message.result = .string(response.parameters.description)
         }
     )
 )

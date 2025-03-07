@@ -16,12 +16,9 @@ import SwiftCompression
 
 // MARK: HTTPRequestHeaders
 /// Default storage for HTTP request headers.
-public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
-    public typealias Key = String
-    public typealias Value = String
-
+public struct HTTPRequestHeaders : HTTPRequestHeadersProtocol { // TODO: make SIMD
     // TODO: arrange for optimal memory layout
-    @usableFromInline var custom:[String:String] = [:]
+    public var custom:[String:String] = [:]
 
     public var accept:String?
     public var acceptCharset:Charset?
@@ -85,18 +82,18 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
     }
 
     @inlinable
-    public subscript(_ header: Key) -> Value? {
+    public subscript(_ header: String) -> String? {
         get { custom[header] }
         set { custom[header] = newValue }
     }
 
     @inlinable
-    public subscript(_ header: Key, default defaultValue: @autoclosure () -> Key) -> Value {
+    public subscript(_ header: String, default defaultValue: @autoclosure () -> String) -> String {
         get { custom[header, default: defaultValue()] }
         set { custom[header] = newValue }
     }
 
-    @inlinable public func has(_ header: Key) -> Bool {
+    @inlinable public func has(_ header: String) -> Bool {
         return custom[header] != nil
     }
 
@@ -113,14 +110,14 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
 // MARK: Merge
 extension HTTPRequestHeaders {
     @inlinable
-    public mutating func merge(_ headers: Self) { // TODO: finish
+    public mutating func merge<T: HTTPRequestHeadersProtocol>(_ headers: T) { // TODO: finish
     }
 }
 
 // MARK: Iterate
 extension HTTPRequestHeaders {
     @inlinable
-    public func iterate(yield: (Key, Value) -> Void) {
+    public func iterate(yield: (String, String) -> Void) {
     }
 }
 
