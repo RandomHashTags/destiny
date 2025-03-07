@@ -121,11 +121,7 @@ extension StaticRoute {
             case "status":
                 status = HTTPResponseStatus(expr: argument.expression) ?? .notImplemented
             case "contentType":
-                if let member:String = argument.expression.memberAccess?.declName.baseName.text {
-                    contentType = HTTPMediaType.parse(member) ?? contentType
-                } else {
-                    contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
-                }
+                contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
             case "charset":
                 charset = Charset(expr: argument.expression)
             case "result":

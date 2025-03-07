@@ -24,21 +24,27 @@ enum HTTPFieldContentType : DeclarationMacro {
                 }
             }
         }
+        let categoryUppercase:String = category[category.startIndex].uppercased() + category[category.index(after: category.startIndex)...]
         var cases_string:String = ""
+        var parseString:String = "    @inlinable\n    public static func parse\(categoryUppercase)(memberName: String) -> Self? {\n        switch memberName {\n"
         
         var decls:[DeclSyntax] = []
         for (index, var value) in cases.enumerated() {
             value = value[value.startIndex].uppercased() + value[value.index(after: value.startIndex)...]
-            cases_string += "    public static let \(category)\(value) = get(.\(category), name: \"\(httpValues[index])\")\n"
+            parseString += "        case \"\(category)\(value)\": return .\(category)\(value)"
+            cases_string += "    public static let \(category)\(value) = get(\"\(category)\", \"\(httpValues[index])\")\n"
         }
+        parseString += "\ndefault: return nil\n}    \n}\n"
 
-        var fileExtensionString:String = "        // MARK: Init File Extension\n        public init?(fileExtension: String) {\n            switch fileExtension {"
-        for (fileExtension, targetCase) in fileExtensions {
-            fileExtensionString += "\ncase \"\(fileExtension)\": self = .\(targetCase)"
+        var fileExtensionString:String = "    @inlinable\n    public static func parse\(categoryUppercase)(fileExtension: String) -> Self? {\n        switch fileExtension {"
+        for (fileExtension, var targetCase) in fileExtensions {
+            targetCase = targetCase[targetCase.startIndex].uppercased() + targetCase[targetCase.index(after: targetCase.startIndex)...]
+            fileExtensionString += "\ncase \"\(fileExtension)\": return .\(category)\(targetCase)"
         }
         fileExtensionString += "\ndefault: return nil\n}\n        }\n"
         decls.append("\(raw: cases_string)")
-        //decls.append("\(raw: fileExtensionString)")
+        decls.append("\(raw: parseString)")
+        decls.append("\(raw: fileExtensionString)")
         return decls
     }
     static func parse_and_insert(

@@ -72,7 +72,7 @@ extension StaticFileMiddleware {
             })
         } else {
             let url:URL = URL(filePath: path)
-            let contentType:HTTPMediaType = HTTPMediaType.parse(url.pathExtension.lowercased()) ?? HTTPMediaType.textPlain
+            let contentType:HTTPMediaType = HTTPMediaType.parse(fileExtension: url.pathExtension.lowercased()) ?? HTTPMediaType.textPlain
             let result:RouteResult = try .data(Data(contentsOf: url))
             var route:StaticRoute = StaticRoute(
                 version: version,

@@ -129,11 +129,7 @@ extension DynamicRoute {
             case "status":
                 status = HTTPResponseStatus(expr: argument.expression) ?? status
             case "contentType":
-                if let member:String = argument.expression.memberAccess?.declName.baseName.text {
-                    contentType = HTTPMediaType.parse(member) ?? contentType
-                } else {
-                    contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
-                }
+                contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
             case "supportedCompressionAlgorithms":
                 supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
             case "handler":

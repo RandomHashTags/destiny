@@ -126,13 +126,13 @@ extension StaticMiddleware {
             case "handlesStatuses":
                 handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponseStatus(expr: $0.expression) }))
             case "handlesContentTypes":
-                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse("\($0.expression.memberAccess!.declName.baseName.text)") }))
+                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse(context: context, expr: $0.expression) }))
             case "appliesVersion":
                 appliesVersion = HTTPVersion.parse(argument.expression)
             case "appliesStatus":
                 appliesStatus = HTTPResponseStatus(expr: argument.expression)
             case "appliesContentType":
-                appliesContentType = HTTPMediaType.parse(argument.expression.memberAccess!.declName.baseName.text)
+                appliesContentType = HTTPMediaType.parse(context: context, expr: argument.expression)
             case "appliesHeaders":
                 let custom:[String:String] = HTTPRequestHeader.parse(context: context, argument.expression)
                 appliesHeaders = .init(custom: custom)

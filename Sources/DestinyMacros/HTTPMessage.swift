@@ -33,7 +33,7 @@ enum HTTPMessage : DeclarationMacro {
                     case "result":
                         result = RouteResult(expr: child.expression)
                     case "contentType":
-                        contentType = HTTPMediaType.parse(child.expression.memberAccess!.declName.baseName.text)
+                        contentType = HTTPMediaType.parse(context: context, expr: child.expression)
                     case "charset":
                         charset = Charset(expr: child.expression)
                     default:
