@@ -173,7 +173,7 @@ final class EpollProcessor {
     ) async throws {
         for instance in instances {
             DispatchQueue.global().async {
-                self.process(instance, timeout: timeout, router: router, acceptClient: acceptClient)
+                Self.process(instance, timeout: timeout, router: router, acceptClient: acceptClient)
             }
         }
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
@@ -181,7 +181,7 @@ final class EpollProcessor {
         }
     }
 
-    private func process<R: RouterProtocol>(
+    private static func process<R: RouterProtocol>(
         _ instance: Epoll,
         timeout: Int32,
         router: R,

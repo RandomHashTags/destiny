@@ -91,7 +91,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
             string += "Set-Cookie: \(cookie)" + suffix
         }
         var bytes:[UInt8]
-        if let result:[UInt8] = try result?.bytes() {
+        if let result = try result?.bytes() {
             if let contentType {
                 string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }

@@ -61,7 +61,7 @@ public struct DynamicCORSMiddleware : DynamicCORSMiddlewareProtocol {
         if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
             logicDD += "\n$1.message.headers[HTTPResponseHeader.accessControlExposeHeadersRawName] = \"" + exposedHeaders + "\""
         }
-        if let maxAge:Int = maxAge {
+        if let maxAge {
             logicDD += "\n$1.message.headers[HTTPResponseHeader.accessControlMaxAgeRawName] = \"" + String(maxAge) + "\""
         }
         self.logic = { _, _ in }

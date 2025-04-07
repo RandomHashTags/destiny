@@ -56,7 +56,7 @@ extension DynamicMiddleware {
                 logic = "\(argument.expression)"
             }
         }
-        var middleware:DynamicMiddleware = DynamicMiddleware { _, _ in }
+        var middleware = DynamicMiddleware { _, _ in }
         middleware.logic = "\(logic)"
         return middleware
     }
