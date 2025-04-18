@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 11/11/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 
 /// Default storage for request data.
@@ -26,7 +27,7 @@ public struct Request : RequestProtocol {
 
     /// Temporary value; will be making it use SIMD in the near future
     public lazy var headers : any HTTPHeadersProtocol = { // TODO: make SIMD
-        var string:String = ""
+        var string = ""
         string.reserveCapacity(tokens.count * 64)
         for i in 0..<tokens.count {
             string += tokens[i].leadingString()
@@ -46,14 +47,14 @@ public struct Request : RequestProtocol {
 
     public lazy var query : [String:String] = {
         guard (uri .== .init(repeating: 63)) != .init(repeating: false), // make sure a question mark is present
-                let targets:[DestinyRoutePathType] = uri.splitSIMD(separator: 63).getPositive(1)?.splitSIMD(separator: 38) // 63 -> ? | 38 -> &
+                let targets = uri.splitSIMD(separator: 63).getPositive(1)?.splitSIMD(separator: 38) // 63 -> ? | 38 -> &
         else {
             return [:]
         }
         var queries:[String:String] = [:]
         queries.reserveCapacity(targets.count)
         for var key in targets {
-            let equalsIndex:Int = key.leadingNonByteCount(byte: 61) // 61 -> =
+            let equalsIndex = key.leadingNonByteCount(byte: 61) // 61 -> =
             var value = key
             // TODO: shift SIMD right `equalsIndex+1`
             value.keepLeading(value.leadingNonzeroByteCount)

@@ -255,8 +255,8 @@ extension HTTPRequestHeader {
 // MARK: SwiftSyntax
 extension HTTPRequestHeader {
     public init?(expr: ExprSyntaxProtocol) {
-        guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
-        if let value:Self = Self(rawValue: string) {
+        guard let string = expr.memberAccess?.declName.baseName.text else { return nil }
+        if let value = Self(rawValue: string) {
             self = value
         } else {
             return nil
@@ -271,8 +271,8 @@ extension HTTPRequestHeader {
     /// - Returns: The valid headers in a dictionary.
     public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String:String] {
         guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
-            guard let key:String = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }
-            let value:String = $0.value.stringLiteral?.string ?? ""
+            guard let key = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }
+            let value = $0.value.stringLiteral?.string ?? ""
             return (key, value)
         }) else {
             return [:]
@@ -287,7 +287,7 @@ extension HTTPRequestHeader {
 }
 extension HTTPRequestHeader {
     public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> String? {
-        guard let key:String = expr.stringLiteral?.string else { return nil }
+        guard let key = expr.stringLiteral?.string else { return nil }
         guard !key.contains(" ") else {
             context.diagnose(Diagnostic(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
             return nil

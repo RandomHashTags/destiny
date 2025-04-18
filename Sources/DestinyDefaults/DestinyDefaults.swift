@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 12/11/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 
 public enum DestinyDefaults {
@@ -18,7 +19,7 @@ public enum DestinyDefaults {
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
-        let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
         return httpResponse(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), result: result, contentType: contentType, charset: charset)
     }
 
@@ -32,7 +33,7 @@ public enum DestinyDefaults {
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
-        let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
         return httpResponse(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), result: result, contentType: contentType, charset: charset)
     }
 
@@ -46,11 +47,11 @@ public enum DestinyDefaults {
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
-        var string:String = version.string + " \(status)" + suffix + headers
+        var string = version.string + " \(status)" + suffix + headers
         if let result {
             let contentLength = result.utf8.count
             if let contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
             string += suffix + suffix + result
@@ -64,7 +65,7 @@ public enum DestinyDefaults {
         suffix: String,
         headers: [String:String]
     ) -> String {
-        var string:String = ""
+        var string = ""
         for (header, value) in headers {
             string += header + ": " + value + suffix
         }
@@ -76,7 +77,7 @@ public enum DestinyDefaults {
         suffix: String,
         headers: [HTTPResponseHeader:String]
     ) -> String {
-        var string:String = ""
+        var string = ""
         for (header, value) in headers {
             string += header.rawValue + ": " + value + suffix
         }

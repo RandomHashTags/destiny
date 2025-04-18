@@ -5,11 +5,11 @@
 //  Created by Evan Anderson on 11/9/24.
 //
 
+import DestinyBlueprint
+import Logging
+
 /// Core Router protocol that handles middleware, routes and router groups.
 public protocol RouterProtocol : AnyObject, Sendable {
-    /// All the dynamic middleware that is registered to this router. Ordered in descending order of importance.
-    var dynamicMiddleware : [any DynamicMiddlewareProtocol] { get set }
-
     /// The router groups attached to this router.
     var routerGroups : [any RouterGroupProtocol] { get }
 
@@ -62,7 +62,20 @@ public protocol RouterProtocol : AnyObject, Sendable {
     /// Registers a dynamic middleware at the given index to this router.
     func register(_ middleware: any DynamicMiddlewareProtocol, at index: Int) throws
 
+    @inlinable func loadDynamicMiddleware()
 
-    /// Registers a static route with the GET HTTP method to this router.
-    //func get(_ path: [String], responder: any RouteResponderProtocol) throws
+    @inlinable
+    func handleDynamicMiddleware(
+        for request: inout any RequestProtocol,
+        with response: inout any DynamicResponseProtocol
+    ) async throws
+
+    /// Process an accepted file descriptor.
+    @inlinable
+    func process<Socket: SocketProtocol & ~Copyable>(
+        client: Int32,
+        received: ContinuousClock.Instant,
+        socket: borrowing Socket,
+        logger: Logger
+    ) async throws
 }

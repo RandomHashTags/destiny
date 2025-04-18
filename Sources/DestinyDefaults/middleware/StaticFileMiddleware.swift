@@ -11,6 +11,7 @@ import FoundationEssentials
 import Foundation
 #endif
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftCompression
 
@@ -78,7 +79,7 @@ extension StaticFileMiddleware {
             })
         } else {
             let url = URL(filePath: path)
-            let contentType = HTTPMediaTypes.parse(url.pathExtension.lowercased())?.structure ?? HTTPMediaTypes.Text.plain.structure
+            let contentType = HTTPMediaType.parse(fileExtension: url.pathExtension.lowercased()) ?? HTTPMediaType.textPlain
             let result:RouteResult = try .data(Data(contentsOf: url))
             var route = StaticRoute(
                 version: version,

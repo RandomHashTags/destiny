@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 11/5/24.
 //
 
+import DestinyBlueprint
+
 /// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible {
     /// Timestamps when request events happen.

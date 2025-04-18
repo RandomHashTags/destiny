@@ -1,6 +1,3 @@
-
-#if compiler(>=6.2)
-
 import Foundation
 
 // MARK: init
@@ -10,6 +7,15 @@ extension InlineArray {
         self = .init(repeating: array[array.startIndex])
         for i in self.indices {
             self[i] = array[array.index(array.startIndex, offsetBy: i)]
+        }
+    }
+}
+extension InlineArray where Element == UInt8 {
+    @inlinable
+    public init(_ utf8: String.UTF8View) {
+        self = .init(repeating: 0)
+        for i in self.indices {
+            self[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
         }
     }
 }
@@ -159,6 +165,10 @@ extension InlineArray where Element == UInt8 {
 // MARK: SIMD
 extension InlineArray where Element: SIMDScalar {
     @inlinable
+    public func simd8(startIndex: Index = 0) -> SIMD16<Element> {
+        return simd(startIndex: startIndex)
+    }
+    @inlinable
     public func simd16(startIndex: Index = 0) -> SIMD16<Element> {
         return simd(startIndex: startIndex)
     }
@@ -200,4 +210,10 @@ extension InlineArray where Element: Equatable {
     }
 }
 
-#endif
+// MARK: Pattern matching
+extension InlineArray where Element: Equatable {
+    @inlinable
+    public static func ~= (lhs: Self, rhs: Self) -> Bool {
+        return lhs == rhs
+    }
+}

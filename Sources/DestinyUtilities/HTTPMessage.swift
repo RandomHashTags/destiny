@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
+import DestinyBlueprint
+
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
 public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
@@ -22,7 +24,7 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
         headers: [String:String],
         cookies: [any HTTPCookieProtocol],
         result: RouteResult?,
-        contentType: (any HTTPMediaTypeProtocol)?,
+        contentType: HTTPMediaType?,
         charset: Charset?
     ) {
         self.version = version
@@ -30,7 +32,7 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
         self.headers = headers
         self.cookies = cookies
         self.result = result
-        self.contentType = contentType?.structure
+        self.contentType = contentType
         self.charset = charset
     }
 
@@ -55,7 +57,7 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
             let contentLength = result.utf8.count
             result.replace("\"", with: "\\\"")
             if let contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
             string += suffix + suffix + result
@@ -67,7 +69,7 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
     @inlinable
     public func bytes() throws -> [UInt8] {
         let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
-        var string:String = version.string + " \(status)" + suffix
+        var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
         }
@@ -75,9 +77,9 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
             string += "Set-Cookie: \(cookie)" + suffix
         }
         var bytes:[UInt8]
-        if let result:[UInt8] = try result?.bytes() {
+        if let result = try result?.bytes() {
             if let contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(result.count)"
             string += suffix + suffix

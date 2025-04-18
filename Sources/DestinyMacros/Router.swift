@@ -5,8 +5,9 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-#if canImport(DestinyDefaults) && canImport(DestinyUtilities) && canImport(SwiftCompression) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+#if canImport(DestinyDefaults) && canImport(DestinyBlueprint) && canImport(DestinyUtilities) && canImport(SwiftCompression) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyDefaults
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftCompression
 import SwiftDiagnostics
@@ -16,16 +17,16 @@ import SwiftSyntaxMacros
 // MARK: Router
 enum Router : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
-        var version:HTTPVersion = .v1_1
-        var errorResponder:String = """
+        var version = HTTPVersion.v1_1
+        var errorResponder = """
             StaticErrorResponder { error in
             RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: .ok, headers: [:], cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaTypes.Application.json, charset: nil)
+                version: HTTPVersion.v1_1, status: .ok, headers: [:], cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.applicationJson, charset: nil)
             )
         }
         """
-        var dynamicNotFoundResponder:String = "nil"
-        var staticNotFoundResponder:String = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
+        var dynamicNotFoundResponder = "nil"
+        var staticNotFoundResponder = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
         var storage = Storage()
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
             if let key = child.label?.text {
@@ -329,14 +330,14 @@ extension Router {
         responder.conditionsDescription.removeLast() // ]
         responder.respondersDescription.removeLast() // ]
         for algorithm in route.supportedCompressionAlgorithms {
-            if let technique:any Compressor = algorithm.technique {
+            if let technique = algorithm.technique {
                 do {
                     let compressed = try body.compressed(using: technique)
                     httpResponse.result = .bytes(compressed.data)
                     httpResponse.headers[HTTPResponseHeader.contentEncoding.rawName] = algorithm.acceptEncodingName
                     httpResponse.headers[HTTPResponseHeader.vary.rawName] = HTTPRequestHeader.acceptEncoding.rawName
                     do {
-                        let bytes:String = try httpResponse.string(escapeLineBreak: false)
+                        let bytes = try httpResponse.string(escapeLineBreak: false)
                         responder.conditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawName]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
                         responder.respondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
                     } catch {
@@ -397,13 +398,13 @@ extension Router.Storage {
                 return "// \(string)\n\(buffer)\n: \(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-        var parameterized_by_path_count:[String] = []
+        var parameterizedByPathCount:[String] = []
         var parameterizedString:String = ""
         if !parameterized.isEmpty {
             for (route, function) in parameterized {
-                if parameterized_by_path_count.count <= route.path.count {
-                    for _ in 0...(route.path.count - parameterized_by_path_count.count) {
-                        parameterized_by_path_count.append("")
+                if parameterizedByPathCount.count <= route.path.count {
+                    for _ in 0...(route.path.count - parameterizedByPathCount.count) {
+                        parameterizedByPathCount.append("")
                     }
                 }
                 var string = route.method.rawName + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
@@ -414,12 +415,12 @@ extension Router.Storage {
                         string = string.lowercased()
                     }
                     let responder = route.responderDebugDescription
-                    parameterized_by_path_count[route.path.count].append("\n// \(string)\n" + responder)
+                    parameterizedByPathCount[route.path.count].append("\n// \(string)\n" + responder)
                 } else {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
                 }
             }
-            parameterizedString = "\n" + parameterized_by_path_count.map({ "[\($0.isEmpty ? "" : $0 + "\n")]" }).joined(separator: ",\n") + "\n"
+            parameterizedString = "\n" + parameterizedByPathCount.map({ "[\($0.isEmpty ? "" : $0 + "\n")]" }).joined(separator: ",\n") + "\n"
         }
         let catchallString = catchall.isEmpty ? "" : "\n" + catchall.compactMap({ route, function in
             var string = route.startLine
@@ -435,7 +436,7 @@ extension Router.Storage {
                 return "// \(string)\n\(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-        return "DynamicResponses(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterizedString)],\ncatchall: [\(catchallString)]\n)"
+        return "DynamicResponderStorage(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterizedString)],\ncatchall: [\(catchallString)]\n)"
     }
 }
 #endif

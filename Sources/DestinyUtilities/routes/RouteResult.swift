@@ -75,7 +75,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
         case .json(let encodable):
             do {
                 #if canImport(FoundationEssentials) || canImport(Foundation)
-                let data:Data = try JSONEncoder().encode(encodable)
+                let data = try JSONEncoder().encode(encodable)
                 return String(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
                 #else
                 return "{}" // TODO: fix
@@ -113,8 +113,8 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
 // MARK: SwiftSyntax
 extension RouteResult {
     public init?(expr: ExprSyntax) {
-        guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
-        switch function.calledExpression.memberAccess!.declName.baseName.text {
+        guard let function = expr.functionCall else { return nil }
+        switch function.calledExpression.memberAccess?.declName.baseName.text {
         case "staticString":
             self = .staticString(function.arguments.first!.expression.stringLiteral!.string)
         case "string":
@@ -123,20 +123,20 @@ extension RouteResult {
             return nil // TODO: fix
         case "bytes":
             var bytes:[UInt8] = []
-            if let expression:ExprSyntax = function.arguments.first?.expression {
-                if let initCall:FunctionCallExprSyntax = expression.functionCall {
-                    let interp:String = "\(initCall.calledExpression)"
+            if let expression = function.arguments.first?.expression {
+                if let initCall = expression.functionCall {
+                    let interp = "\(initCall.calledExpression)"
                     if (interp == "[UInt8]" || interp == "Array<UInt8>"),
-                        let member:MemberAccessExprSyntax = initCall.arguments.first?.expression.memberAccess,
-                        let string:String = member.base?.stringLiteral?.string {
-                            switch member.declName.baseName.text {
-                                case "utf8": bytes = [UInt8](string.utf8)
-                                //case "utf16": bytes = [UInt16](string.utf16)
-                                default: break
-                            }
+                            let member = initCall.arguments.first?.expression.memberAccess,
+                            let string = member.base?.stringLiteral?.string {
+                        switch member.declName.baseName.text {
+                        case "utf8": bytes = [UInt8](string.utf8)
+                        //case "utf16": bytes = [UInt16](string.utf16)
+                        default: break
+                        }
                     }
                 } else if let array:[UInt8] = expression.array?.elements.compactMap({
-                    guard let integer:String = $0.expression.integerLiteral?.literal.text else { return nil }
+                    guard let integer = $0.expression.integerLiteral?.literal.text else { return nil }
                     return UInt8(integer)
                 }) {
                     bytes = array
@@ -145,19 +145,19 @@ extension RouteResult {
             self = .bytes(bytes)
         case "bytes16":
             var bytes:[UInt16] = []
-            if let expression:ExprSyntax = function.arguments.first?.expression {
-                if let initCall:FunctionCallExprSyntax = expression.functionCall {
-                    let interp:String = "\(initCall.calledExpression)"
+            if let expression = function.arguments.first?.expression {
+                if let initCall = expression.functionCall {
+                    let interp = "\(initCall.calledExpression)"
                     if (interp == "[UInt16]" || interp == "Array<UInt16>"),
-                        let member:MemberAccessExprSyntax = initCall.arguments.first?.expression.memberAccess,
-                        let string:String = member.base?.stringLiteral?.string {
-                            switch member.declName.baseName.text {
-                                case "utf16": bytes = [UInt16](string.utf16)
-                                default: break
-                            }
+                            let member = initCall.arguments.first?.expression.memberAccess,
+                            let string = member.base?.stringLiteral?.string {
+                        switch member.declName.baseName.text {
+                        case "utf16": bytes = [UInt16](string.utf16)
+                        default: break
+                        }
                     }
                 } else if let array:[UInt16] = expression.array?.elements.compactMap({
-                    guard let integer:String = $0.expression.integerLiteral?.literal.text else { return nil }
+                    guard let integer = $0.expression.integerLiteral?.literal.text else { return nil }
                     return UInt16(integer)
                 }) {
                     bytes = array
@@ -178,23 +178,23 @@ extension RouteResult {
     public var responderDebugDescription : String {
         switch self {
         case .staticString(let s):
-            return "RouteResponses.StaticString(\"\(s)\")"
+            "RouteResponses.StaticString(\"\(s)\")"
         case .string(let s):
-            return "RouteResponses.String(\"\(s)\")"
+            "RouteResponses.String(\"\(s)\")"
         case .bytes(let b):
-            return "RouteResponses.UInt8Array(\(b))"
+            "RouteResponses.UInt8Array(\(b))"
         case .bytes16(let b):
-            return "RouteResponses.UInt16Array(\(b))"
+            "RouteResponses.UInt16Array(\(b))"
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d):
-            return "RouteResponses.FoundationData(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+            "RouteResponses.FoundationData(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
 
         case .json:
-            return "RouteResponses.StaticString(\"\")" // TODO: fix
+            "RouteResponses.StaticString(\"\")" // TODO: fix
         case .error:
-            return "RouteResponses.StaticString(\"\")" // TODO: fix
+            "RouteResponses.StaticString(\"\")" // TODO: fix
         }
     }
 

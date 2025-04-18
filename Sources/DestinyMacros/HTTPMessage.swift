@@ -5,7 +5,8 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-#if canImport(DestinyUtilities) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+#if canImport(DestinyBlueprint) && canImport(DestinyUtilities) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -20,27 +21,27 @@ enum HTTPMessage : DeclarationMacro {
         var charset:Charset? = nil
         var cookies:[any HTTPCookieProtocol] = [] // TODO: fix
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
-            if let key:String = child.label?.text {
+            if let key = child.label?.text {
                 switch key {
-                    case "version":
-                        version = HTTPVersion.parse(child.expression) ?? version
-                    case "status":
-                        status = HTTPResponseStatus(expr: child.expression) ?? status
-                    case "headers":
-                        headers = HTTPRequestHeader.parse(context: context, child.expression)
-                    case "result":
-                        result = RouteResult(expr: child.expression)
-                    case "contentType":
-                        contentType = HTTPMediaTypes.parse(child.expression.memberAccess!.declName.baseName.text)
-                    case "charset":
-                        charset = Charset(expr: child.expression)
-                    default:
-                        break
+                case "version":
+                    version = HTTPVersion.parse(child.expression) ?? version
+                case "status":
+                    status = HTTPResponseStatus(expr: child.expression) ?? status
+                case "headers":
+                    headers = HTTPRequestHeader.parse(context: context, child.expression)
+                case "result":
+                    result = RouteResult(expr: child.expression)
+                case "contentType":
+                    contentType = HTTPMediaType.parse(context: context, expr: child.expression) ?? contentType
+                case "charset":
+                    charset = Charset(expr: child.expression)
+                default:
+                    break
                 }
             }
         }
         do {
-            var response:String = try DestinyUtilities.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
+            var response = try DestinyUtilities.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
             response = "\"" + response + "\""
             return ["\(raw: response)"]
         } catch {

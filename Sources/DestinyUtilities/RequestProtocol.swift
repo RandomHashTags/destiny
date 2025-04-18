@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 11/11/24.
 //
 
+import DestinyBlueprint
+
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
     //associatedtype Storage : RequestStorageProtocol

@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 12/29/24.
 //
 
+import DestinyBlueprint
 import Logging
 
 /// Core Error Middleware protocol that handles errors thrown from requests.

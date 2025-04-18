@@ -32,9 +32,9 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
 
     public var debugDescription : String {
         switch self {
-            case .literal(let s): return ".literal(\"\(s)\")"
-            case .parameter(let s): return ".parameter(\"\(s)\")"
-            case .catchall: return ".catchall"
+        case .literal(let s): ".literal(\"\(s)\")"
+        case .parameter(let s): ".parameter(\"\(s)\")"
+        case .catchall: ".catchall"
         }
     }
 
@@ -47,9 +47,9 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     @inlinable
     public var isParameter : Bool {
         switch self {
-        case .literal:   return false
-        case .parameter: return true
-        case .catchall:  return true
+        case .literal:   false
+        case .parameter: true
+        case .catchall:  true
         }
     }
 
@@ -57,9 +57,9 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     @inlinable
     public var slug : String {
         switch self {
-        case .literal(let value):   return value
-        case .parameter(let value): return ":" + value
-        case .catchall: return "**"
+        case .literal(let value):   value
+        case .parameter(let value): ":" + value
+        case .catchall: "**"
         }
     }
 
@@ -67,9 +67,9 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     @inlinable
     public var value : String {
         switch self {
-        case .literal(let value):   return value
-        case .parameter(let value): return value
-        case .catchall:                       return ""
+        case .literal(let value):   value
+        case .parameter(let value): value
+        case .catchall:                       ""
         }
     }
 }
@@ -79,7 +79,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
 extension PathComponent {
     public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
         var array:[String] = []
-        if let literal:[Substring] = expr.stringLiteral?.string.split(separator: "/") {
+        if let literal = expr.stringLiteral?.string.split(separator: "/") {
             for substring in literal {
                 if substring.contains(" ") {
                     Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expr)
@@ -87,9 +87,9 @@ extension PathComponent {
                 }
                 array.append(String(substring))
             }
-        } else if let arrayElements:ArrayElementListSyntax = expr.array?.elements {
+        } else if let arrayElements = expr.array?.elements {
             for element in arrayElements {
-                guard let string:String = element.expression.stringLiteral?.string else { return [] }
+                guard let string = element.expression.stringLiteral?.string else { return [] }
                 if string.contains(" ") {
                     Diagnostic.spacesNotAllowedInRoutePath(context: context, node: element.expression)
                     return []
@@ -104,7 +104,7 @@ extension PathComponent {
     }
 
     public init?(context: some MacroExpansionContext, expression: ExprSyntax) {
-        guard let string:String = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess?.declName.baseName.text else { return nil }
+        guard let string = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess?.declName.baseName.text else { return nil }
         if string.contains(" ") {
             Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expression)
             return nil

@@ -11,6 +11,7 @@ import FoundationEssentials
 import Foundation
 #endif
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftCompression
 
@@ -67,7 +68,7 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
 
     @inlinable
     public mutating func add(_ value: String, header: String) {
-        if let existingValue:String = custom[header] {
+        if let existingValue = custom[header] {
             custom[header] = existingValue + "," + value
         } else {
             custom[header] = value
@@ -79,8 +80,12 @@ public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
 extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    public mutating func accept<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
-        accept = mediaType?.httpValue
+    public mutating func accept(_ mediaType: HTTPMediaType?) -> Self {
+        if let mediaType {
+            accept = "\(mediaType)"
+        } else {
+            accept = nil
+        }
         return self
     }
 }
@@ -119,8 +124,12 @@ extension HTTPRequestHeaders {
 extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    public mutating func contentType<T: HTTPMediaTypeProtocol>(_ mediaType: T?) -> Self {
-        contentType = mediaType?.httpValue
+    public mutating func contentType(_ contentType: HTTPMediaType?) -> Self {
+        if let contentType {
+            self.contentType = "\(contentType)"
+        } else {
+            self.contentType = nil
+        }
         return self
     }
 }

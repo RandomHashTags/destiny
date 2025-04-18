@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftCompression
 

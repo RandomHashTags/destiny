@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros

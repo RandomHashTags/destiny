@@ -33,18 +33,18 @@ public enum Charset : String, CustomDebugStringConvertible, Sendable {
     @inlinable
     public var rawName : String {
         switch self {
-        case .any: return "*"
-        case .basicMultilingualPlane: return "BMP"
-        case .bocu1: return "BOCU-1"
-        case .iso8859_5: return "ISO-8859-5"
-        case .scsu: return "SCSU"
-        case .ucs2: return "UCS-2"
-        case .ucs4: return "UCS-4"
-        case .utf8: return "UTF-8"
-        case .utf16: return "UTF-16"
-        case .utf16be: return "UTF-16BE"
-        case .utf16le: return "UTF-16LE"
-        case .utf32: return "UTF-32"
+        case .any: "*"
+        case .basicMultilingualPlane: "BMP"
+        case .bocu1: "BOCU-1"
+        case .iso8859_5: "ISO-8859-5"
+        case .scsu: "SCSU"
+        case .ucs2: "UCS-2"
+        case .ucs4: "UCS-4"
+        case .utf8: "UTF-8"
+        case .utf16: "UTF-16"
+        case .utf16be: "UTF-16BE"
+        case .utf16le: "UTF-16LE"
+        case .utf32: "UTF-32"
         }
     }
 }

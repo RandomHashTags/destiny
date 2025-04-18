@@ -229,15 +229,15 @@ extension HTTPResponseHeader {
 extension HTTPResponseHeader {
     internal static func get(_ header: Self) -> String { header.rawName }
 
-    public static let acceptPatchRawName:String = get(.acceptPatch)
-    public static let accessControlAllowOriginRawName:String = get(.accessControlAllowOrigin)
-    public static let accessControlAllowCredentialsRawName:String = get(.accessControlAllowCredentials)
-    public static let accessControlAllowHeadersRawName:String = get(.accessControlAllowHeaders)
-    public static let accessControlAllowMethodsRawName:String = get(.accessControlAllowMethods)
-    public static let accessControlExposeHeadersRawName:String = get(.accessControlExposeHeaders)
-    public static let accessControlMaxAgeRawName:String = get(.accessControlMaxAge)
-    public static let contentTypeRawName:String = get(.contentType)
-    public static let varyRawName:String = get(.vary)
+    public static let acceptPatchRawName = get(.acceptPatch)
+    public static let accessControlAllowOriginRawName = get(.accessControlAllowOrigin)
+    public static let accessControlAllowCredentialsRawName = get(.accessControlAllowCredentials)
+    public static let accessControlAllowHeadersRawName = get(.accessControlAllowHeaders)
+    public static let accessControlAllowMethodsRawName = get(.accessControlAllowMethods)
+    public static let accessControlExposeHeadersRawName = get(.accessControlExposeHeaders)
+    public static let accessControlMaxAgeRawName = get(.accessControlMaxAge)
+    public static let contentTypeRawName = get(.contentType)
+    public static let varyRawName = get(.vary)
 }
 
 // MARK: Accept-CH

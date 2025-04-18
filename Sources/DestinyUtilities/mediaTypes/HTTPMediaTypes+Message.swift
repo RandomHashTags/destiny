@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 12/30/24.
 //
 
-extension HTTPMediaTypes {
+extension HTTPMediaType {
     #HTTPFieldContentType(
         category: "message",
         values: [

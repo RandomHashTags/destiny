@@ -11,6 +11,7 @@ import struct FoundationEssentials.Date
 import struct Foundation.Date
 #endif
 
+import DestinyBlueprint
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -114,10 +115,10 @@ extension HTTPCookie {
         if maxAge > 0 {
             string += "; Max-Age=\(maxAge)"
         }
-        if let expires = expires {
+        if let expires {
             string += "; Expires="
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            string += HTTPDateFormat.get(date: expires)
+            string += HTTPDateFormat.get(date: expires).string()
             #else
             string += expires
             #endif
@@ -191,7 +192,7 @@ extension HTTPCookie {
         var isSecure:Bool = false
         var isHTTPOnly:Bool = false
         var sameSite:HTTPCookieFlag.SameSite? = nil
-        if let function:FunctionCallExprSyntax = expr.functionCall {
+        if let function = expr.functionCall {
             for argument in function.arguments {
                 switch argument.label?.text {
                 case "name":
@@ -199,7 +200,7 @@ extension HTTPCookie {
                 case "value":
                     value = argument.expression.stringLiteral?.string
                 case "maxAge":
-                    if let s:String = argument.expression.integerLiteral?.literal.text, let i:UInt64 = UInt64(s) {
+                    if let s = argument.expression.integerLiteral?.literal.text, let i = UInt64(s) {
                         maxAge = i
                     }
                 case "expires":

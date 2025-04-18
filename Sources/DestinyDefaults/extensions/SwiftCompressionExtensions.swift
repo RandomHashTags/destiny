@@ -26,13 +26,13 @@ extension CompressionAlgorithm {
 extension CompressionAlgorithm {
     public static func parse(_ expr: ExprSyntax) -> Self? {
         let key:String
-        guard let function:FunctionCallExprSyntax = expr.functionCall else { return nil }
-        if let string:String = function.calledExpression.memberAccess?.declName.baseName.text {
+        guard let function = expr.functionCall else { return nil }
+        if let string = function.calledExpression.memberAccess?.declName.baseName.text {
             key = string
         } else {
             return nil
         }
-        let arguments:LabeledExprListSyntax = function.arguments
+        let arguments = function.arguments
         switch key {
         /*case "aac": self = .aac
         case "mp3": self = .mp3
@@ -49,10 +49,10 @@ extension CompressionAlgorithm {
             var windowSize:Int = 0, bufferSize:Int = 0, offsetBitWidth:Int = 0
             for child in arguments {
                 switch child.label?.text {
-                    case "windowSize": windowSize = Int(child.expression.integerLiteral!.literal.text)!
-                    case "bufferSize": bufferSize = Int(child.expression.integerLiteral!.literal.text)!
-                    case "offsetBitWidth": offsetBitWidth = Int(child.expression.integerLiteral!.literal.text)!
-                    default: break
+                case "windowSize": windowSize = Int(child.expression.integerLiteral!.literal.text)!
+                case "bufferSize": bufferSize = Int(child.expression.integerLiteral!.literal.text)!
+                case "offsetBitWidth": offsetBitWidth = Int(child.expression.integerLiteral!.literal.text)!
+                default: break
                 }
             }
             return .lz77(windowSize: windowSize, bufferSize: bufferSize, offsetBitWidth: offsetBitWidth)
@@ -63,9 +63,9 @@ extension CompressionAlgorithm {
             var minRun:Int = 0, alwaysIncludeRunCount:Bool = false
             for child in arguments {
                 switch child.label?.text {
-                    case "minRun": minRun = Int(child.expression.integerLiteral!.literal.text)!
-                    case "alwaysIncludeRunCount": alwaysIncludeRunCount = child.expression.booleanLiteral!.isTrue
-                    default: break
+                case "minRun": minRun = Int(child.expression.integerLiteral!.literal.text)!
+                case "alwaysIncludeRunCount": alwaysIncludeRunCount = child.expression.booleanLiteral!.isTrue
+                default: break
                 }
             }
             return .runLengthEncoding(minRun: minRun, alwaysIncludeRunCount: alwaysIncludeRunCount)
@@ -92,11 +92,11 @@ extension CompressionAlgorithm {
             var baseBits:[UInt8:[Bool]] = [:]
             for child in arguments {
                 switch child.label?.text {
-                    case "baseBits":
-                        child.expression.dictionary?.content.as(DictionaryElementListSyntax.self)!.forEach({
-                            baseBits[UInt8($0.key.integerLiteral!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.isTrue })
-                        })
-                    default: break
+                case "baseBits":
+                    child.expression.dictionary?.content.as(DictionaryElementListSyntax.self)!.forEach({
+                        baseBits[UInt8($0.key.integerLiteral!.literal.text)!] = $0.value.array!.elements.map({ $0.expression.booleanLiteral!.isTrue })
+                    })
+                default: break
                 }
             }
             return .dnaBinaryEncoding(baseBits: baseBits)

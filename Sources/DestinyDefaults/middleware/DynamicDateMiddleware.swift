@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 import Logging
 import ServiceLifecycle
@@ -18,11 +19,11 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
     var _timer:Task<Void, Never>!
 
     @usableFromInline
-    var _date:String
+    var _dateString:String
 
     public init() {
         _timer = nil
-        _date = ""
+        _dateString = ""
     }
 
     @inlinable
@@ -55,12 +56,12 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
             Application.shared.logger.warning(Logger.Message(stringLiteral: "[DynamicDateMiddleware] Failed to update value"))
             return
         }
-        _date = string
+        _dateString = string.string()
     }
 
     @inlinable
     public func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
-        response.headers["Date"] = _date
+        response.headers["Date"] = _dateString
         return true
     }
 

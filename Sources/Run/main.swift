@@ -24,7 +24,7 @@ let router:Router = #router(
         StaticMiddleware(handlesVersions: [.v2_0], appliesHeaders: ["Version":"destiny2.0"]),
         StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
         StaticMiddleware(appliesHeaders: ["Server":"destiny"]),
-        StaticMiddleware(handlesMethods: [.get], handlesStatuses: [.notImplemented], handlesContentTypes: [HTTPMediaTypes.Text.html, HTTPMediaTypes.Application.json, HTTPMediaTypes.Text.plain], appliesStatus: .ok),
+        StaticMiddleware(handlesMethods: [.get], handlesStatuses: [.notImplemented], handlesContentTypes: [HTTPMediaType.textHtml, HTTPMediaType.applicationJson, HTTPMediaType.textPlain], appliesStatus: .ok),
         StaticMiddleware(handlesMethods: [.get], appliesHeaders: ["You-GET'd":"true"]),
         StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
         //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
@@ -55,13 +55,13 @@ let router:Router = #router(
             StaticRoute(
                 method: .get,
                 path: ["hoopla"],
-                contentType: HTTPMediaTypes.Text.plain,
+                contentType: HTTPMediaType.textPlain,
                 result: .string("rly dud")
             ),
             DynamicRoute(
                 method: .get,
                 path: ["HOOPLA"],
-                contentType: HTTPMediaTypes.Text.plain,
+                contentType: HTTPMediaType.textPlain,
                 handler: { _, response in
                     response.result = .string("RLY DUD")
                 }
@@ -70,78 +70,78 @@ let router:Router = #router(
     ],
     StaticRoute.get(
         path: ["redirectto"],
-        contentType: HTTPMediaTypes.Text.html,
+        contentType: HTTPMediaType.textHtml,
         result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
     ),
     StaticRoute.post(
         path: ["post"],
-        contentType: HTTPMediaTypes.Application.json,
+        contentType: HTTPMediaType.applicationJson,
         result: .staticString(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["bro?what=dude"],
-        contentType: HTTPMediaTypes.Application.json,
+        contentType: HTTPMediaType.applicationJson,
         result: .staticString(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["html"],
-        contentType: HTTPMediaTypes.Text.html,
+        contentType: HTTPMediaType.textHtml,
         result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["SHOOP"],
         caseSensitive: false,
-        contentType: HTTPMediaTypes.Text.html,
+        contentType: HTTPMediaType.textHtml,
         result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
-        contentType: HTTPMediaTypes.Text.html,
+        contentType: HTTPMediaType.textHtml,
         result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["json"],
-        contentType: HTTPMediaTypes.Application.json,
+        contentType: HTTPMediaType.applicationJson,
         result: .staticString(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
         //result: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
     ),
     StaticRoute.get(
         path: ["txt"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         result: .staticString("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
         path: ["bytes"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
     ),
     StaticRoute.get(
         path: ["bytes2"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         result: .bytes([UInt8]("bruh".utf8))
     ),
     StaticRoute.get(
         path: ["bytes3"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         result: .bytes(Array<UInt8>("bruh".utf8))
     ),
     StaticRoute.get(
         path: ["error"],
         status: .badRequest,
-        contentType: HTTPMediaTypes.Application.json,
+        contentType: HTTPMediaType.applicationJson,
         result: .error(CustomError.yipyip)
     ),
     DynamicRoute.get(
         path: ["error2"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             throw CustomError.yipyip
         }
     ),
     DynamicRoute.get(
         path: ["dynamic"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             response.result = .string("bro")
             //response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
@@ -150,7 +150,7 @@ let router:Router = #router(
     DynamicRoute.get(
         version: .v2_0,
         path: ["dynamic2"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.result = .string(UUID().uuidString)
@@ -161,21 +161,21 @@ let router:Router = #router(
     ),
     DynamicRoute.get(
         path: ["dynamic", ":text"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             response.result = .string(response.parameters[0])
         }
     ),
     DynamicRoute.get(
         path: ["anydynamic", "*", "value"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             response.result = .string(response.parameters[0])
         }
     ),
     DynamicRoute.get(
         path: ["catchall", "**"],
-        contentType: HTTPMediaTypes.Text.plain,
+        contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             response.result = .string(response.parameters.description)
         }

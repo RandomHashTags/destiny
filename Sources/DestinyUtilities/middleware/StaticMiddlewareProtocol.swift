@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 10/29/24.
 //
 
+import DestinyBlueprint
+
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     associatedtype Cookie:HTTPCookieProtocol
@@ -85,13 +87,13 @@ extension StaticMiddlewareProtocol {
         headers: inout [String:String],
         cookies: inout [any HTTPCookieProtocol]
     ) {
-        if let appliesVersion:HTTPVersion = appliesVersion {
+        if let appliesVersion {
             version = appliesVersion
         }
-        if let appliesStatus:HTTPResponseStatus = appliesStatus {
+        if let appliesStatus {
             status = appliesStatus
         }
-        if let appliesContentType:HTTPMediaType = appliesContentType {
+        if let appliesContentType {
             contentType = appliesContentType
         }
         for (header, value) in appliesHeaders {

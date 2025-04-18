@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 10/31/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 
 public struct DynamicResponse : DynamicResponseProtocol {
@@ -36,8 +37,8 @@ public struct DynamicResponse : DynamicResponseProtocol {
 
     @inlinable
     public func response() throws -> String {
-        let result:String = try result.string()
-        var string:String = version.string + " \(status)\r\n"
+        let result = try result.string()
+        var string = version.string + " \(status)\r\n"
         for (header, value) in headers {
             string += header + ": " + value + "\r\n"
         }

@@ -30,7 +30,20 @@ public enum HTTPVersion : String, Hashable, Sendable {
     }
 
     @inlinable
-    public init?(_ path: DestinyRoutePathType) {
+    public init?(token: InlineArray<8, UInt8>) {
+        switch token {
+        case #inlineArray("HTTP/0.9"): self = .v0_9
+        case #inlineArray("HTTP/1.0"): self = .v1_0
+        case #inlineArray("HTTP/1.1"): self = .v1_1
+        case #inlineArray("HTTP/1.2"): self = .v1_2
+        case #inlineArray("HTTP/2.0"): self = .v2_0
+        case #inlineArray("HTTP/3.0"): self = .v3_0
+        default: return nil
+        }
+    }
+
+    @inlinable
+    public init?(_ path: SIMD64<UInt8>) {
         self.init(token: path.lowHalf.lowHalf.lowHalf)
     }
 
@@ -65,7 +78,7 @@ public enum HTTPVersion : String, Hashable, Sendable {
 // MARK: SwiftSyntax
 extension HTTPVersion {
     public static func parse(_ expr: ExprSyntax) -> HTTPVersion? {
-        guard let string:String = expr.memberAccess?.declName.baseName.text else { return nil }
+        guard let string = expr.as(MemberAccessExprSyntax.self)?.declName.baseName.text else { return nil }
         switch string {
         case "v0_9": return .v0_9
         case "v1_0": return .v1_0
@@ -73,7 +86,7 @@ extension HTTPVersion {
         case "v1_2": return .v1_2
         case "v2_0": return .v2_0
         case "v3_0": return .v3_0
-        default: return nil
+        default:     return nil
         }
     }
 }

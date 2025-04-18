@@ -11,6 +11,7 @@ import FoundationEssentials
 import Foundation
 #endif
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftCompression
 
@@ -81,9 +82,9 @@ extension HTTPResponseHeaders {
 extension HTTPResponseHeaders {
     @inlinable
     public mutating func allow<C: Collection<HTTPRequestMethod>>(_ methods: C?) -> Self {
-        var temp:String = ""
-        if let methods:C {
-            var has:Bool = false
+        var temp = ""
+        if let methods {
+            var has = false
             for method in methods {
                 if has {
                     temp += ", "
@@ -122,14 +123,11 @@ extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
     public mutating func contentType(_ contentType: HTTPMediaType?) -> Self {
-        self.contentType = contentType?.httpValue
-        return self
-    }
-
-    @discardableResult
-    @inlinable
-    public mutating func contentType<T: HTTPMediaTypeProtocol>(_ contentType: T?) -> Self {
-        self.contentType = contentType?.httpValue
+        if let contentType {
+            self.contentType = "\(contentType)"
+        } else {
+            self.contentType = nil
+        }
         return self
     }
 }

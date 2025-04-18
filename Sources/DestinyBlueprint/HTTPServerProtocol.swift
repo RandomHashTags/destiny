@@ -1,5 +1,5 @@
 //
-//  ServerProtocol.swift
+//  HTTPServerProtocol.swift
 //
 //
 //  Created by Evan Anderson on 10/17/24.
@@ -10,7 +10,7 @@ import Logging
 import ServiceLifecycle
 
 /// Core Server protocol that accepts and processes incoming network requests.
-public protocol ServerProtocol : Service {
+public protocol HTTPServerProtocol : Service {
     /// Main logger for the server.
     var logger : Logger { get }
 

@@ -1,5 +1,4 @@
-// swift-tools-version:5.9
-// The swift-tools-version declares the minimum version of Swift required to build this package.
+// swift-tools-version:6.2
 
 import PackageDescription
 import CompilerPluginSupport
@@ -14,10 +13,8 @@ let package = Package(
         .watchOS(.v10)
     ],
     products: [
-        .library(
-            name: "Destiny",
-            targets: ["Destiny"]
-        ),
+        .library(name: "Destiny", targets: ["Destiny"]),
+        .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"])
     ],
     dependencies: [
         // Macros
@@ -48,9 +45,24 @@ let package = Package(
                 .product(name: "SwiftDiagnostics", package: "swift-syntax")
             ]
         ),
+
+        .target(
+            name: "DestinyBlueprint",
+            dependencies: [
+                "DestinyUtilityMacros",
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Logging", package: "swift-log"),
+                //.product(name: "Metrics", package: "swift-metrics"),
+                .product(name: "SwiftCompression", package: "swift-compression"),
+                .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+            ]
+        ),
         .target(
             name: "DestinyUtilities",
             dependencies: [
+                "DestinyBlueprint",
                 "DestinyUtilityMacros",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
@@ -102,21 +114,10 @@ let package = Package(
             name: "DestinyTests",
             dependencies: ["Destiny"]
         ),
-    ]
+    ],
+    swiftLanguageVersions: [.v5]
 )
 
 #if os(Linux)
 package.dependencies.append(.package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"))
-#endif
-
-#if compiler(>=6.2)
-// TODO: fix | doesn't work
-let valueGenerics:SwiftSetting = .enableExperimentalFeature("ValueGenerics")
-for target in package.targets {
-    if target.swiftSettings != nil {
-        target.swiftSettings!.append(valueGenerics)
-    } else {
-        target.swiftSettings = [valueGenerics]
-    }
-}
 #endif

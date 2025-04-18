@@ -1,14 +1,15 @@
 //
-//  DynamicResponses.swift
+//  DynamicResponderStorage.swift
 //
 //
 //  Created by Evan Anderson on 11/6/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 
 /// Default storage where Destiny handles dynamic routes.
-public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
+public struct DynamicResponderStorage : DynamicResponderStorageProtocol {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]
 
@@ -28,23 +29,23 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     }
 
     public var debugDescription : String {
-        var parameterlessString:String = "[:]"
+        var parameterlessString = "[:]"
         if !parameterless.isEmpty {
             parameterlessString.removeLast(2)
             parameterlessString += "\n" + parameterless.map({ "// \($0.key.stringSIMD())\n\($0.key)" + ":" + $0.value.debugDescription }).joined(separator: ",\n") + "\n]"
         }
-        var parameterizedString:String = "[]"
+        var parameterizedString = "[]"
         if !parameterized.isEmpty {
             parameterizedString.removeLast()
             parameterizedString += "\n" + parameterized.map({ "[" + $0.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]" }).joined(separator: ",\n") + "\n]"
         }
-        var catchallString:String = "[]"
+        var catchallString = "[]"
         if !catchall.isEmpty {
             catchallString.removeLast()
             catchallString += "\n" + catchall.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
         }
         return """
-        DynamicResponses(
+        DynamicResponderStorage(
             parameterless: \(parameterlessString),
             parameterized: \(parameterizedString),
             catchall: \(catchallString)
@@ -55,8 +56,8 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
     @inlinable
     public mutating func register(version: HTTPVersion, route: any DynamicRouteProtocol, responder: any DynamicRouteResponderProtocol, override: Bool) throws {
         if route.path.count(where: { $0.isParameter }) == 0 {
-            var string:String = route.startLine
-            let buffer:DestinyRoutePathType = DestinyRoutePathType(&string)
+            var string = route.startLine
+            let buffer = DestinyRoutePathType(&string)
             if override || parameterless[buffer] == nil {
                 parameterless[buffer] = responder
             } else {
@@ -74,14 +75,14 @@ public struct DynamicResponses : CustomDebugStringConvertible, Sendable {
 
     @inlinable
     public func responder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
-        if let responder:any DynamicRouteResponderProtocol = parameterless[request.startLine] {
+        if let responder = parameterless[request.startLine] {
             return responder
         }
-        let values:[String] = request.path
-        guard let responders:[any DynamicRouteResponderProtocol] = parameterized.getPositive(values.count) else { return catchallResponder(for: &request, values: values) }
+        let values = request.path
+        guard let responders = parameterized.getPositive(values.count) else { return catchallResponder(for: &request, values: values) }
         loop: for responder in responders {
             for i in 0..<values.count {
-                let path:PathComponent = responder.path[i]
+                let path = responder.path[i]
                 if !path.isParameter && path.value != values[i] {
                     continue loop
                 }

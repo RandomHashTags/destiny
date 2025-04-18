@@ -14,7 +14,6 @@ import Foundation
 public enum RouteResponses {
 }
 
-#if compiler(>=6.2)
 // MARK: InlineArray
 extension RouteResponses {
     public struct InlineArray<let count: Int> : StaticRouteResponderProtocol {
@@ -25,7 +24,7 @@ extension RouteResponses {
         }
 
         public var debugDescription : Swift.String {
-            var inlineArrayValue:Swift.String = "["
+            var inlineArrayValue = "["
             for i in value.indices {
                 inlineArrayValue.append(Character(Unicode.Scalar(value[i])))
             }
@@ -49,7 +48,6 @@ extension RouteResponses {
         }
     }
 }
-#endif
 
 // MARK: StaticString
 extension RouteResponses {
@@ -61,7 +59,7 @@ extension RouteResponses {
         }
 
         public var debugDescription : Swift.String {
-            return "RouteResponses.StaticString(\"" + value.description + "\")"
+            "RouteResponses.StaticString(\"" + value.description + "\")"
         }
 
         @inlinable
@@ -110,7 +108,7 @@ extension RouteResponses {
         }
 
         public var debugDescription : Swift.String {
-            return "RouteResponses.String(\"" + value + "\")"
+            "RouteResponses.String(\"" + value + "\")"
         }
 
         @inlinable
@@ -132,7 +130,7 @@ extension RouteResponses {
         }
 
         public var debugDescription: Swift.String {
-            return "RouteResponses.UInt8Array(\(value))"
+            "RouteResponses.UInt8Array(\(value))"
         }
 
         @inlinable
@@ -154,7 +152,7 @@ extension RouteResponses {
         }
 
         public var debugDescription: Swift.String {
-            return "RouteResponses.UInt16Array(\(value))"
+            "RouteResponses.UInt16Array(\(value))"
         }
 
         @inlinable
@@ -183,7 +181,7 @@ extension RouteResponses {
         }
 
         public var debugDescription: Swift.String {
-            return "RouteResponses.FoundationData(\(value))"
+            "RouteResponses.FoundationData(\(value))"
         }
 
         @inlinable

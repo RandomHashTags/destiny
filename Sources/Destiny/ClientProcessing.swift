@@ -9,6 +9,7 @@
 import Foundation
 #endif
 
+import DestinyBlueprint
 import Logging
 
 public enum ClientProcessing {
@@ -63,22 +64,22 @@ public enum ClientProcessing {
         request: inout any RequestProtocol,
         router: any RouterProtocol
     ) async throws -> Bool {
-        if let responder:any StaticRouteResponderProtocol = router.staticResponder(for: request.startLine) {
+        if let responder = router.staticResponder(for: request.startLine) {
             try await staticResponse(socket: socket, responder: responder)
-        } else if let responder:any DynamicRouteResponderProtocol = router.dynamicResponder(for: &request) {
+        } else if let responder = router.dynamicResponder(for: &request) {
             try await dynamicResponse(received: received, loaded: loaded, socket: socket, router: router, request: &request, responder: responder)
-        } else if let responder:any RouteResponderProtocol = router.conditionalResponder(for: &request) {
-            if let staticResponder:any StaticRouteResponderProtocol = responder as? any StaticRouteResponderProtocol {
+        } else if let responder = router.conditionalResponder(for: &request) {
+            if let staticResponder = responder as? any StaticRouteResponderProtocol {
                 try await staticResponse(socket: socket, responder: staticResponder)
-            } else if let responder:any DynamicRouteResponderProtocol = responder as? any DynamicRouteResponderProtocol {
+            } else if let responder = responder as? any DynamicRouteResponderProtocol {
                 try await dynamicResponse(received: received, loaded: loaded, socket: socket, router: router, request: &request, responder: responder)
             }
         } else {
             for group in router.routerGroups {
-                if let responder:any StaticRouteResponderProtocol = group.staticResponder(for: request.startLine) {
+                if let responder = group.staticResponder(for: request.startLine) {
                     try await staticResponse(socket: socket, responder: responder)
                     return true
-                } else if let responder:any DynamicRouteResponderProtocol = group.dynamicResponder(for: &request) {
+                } else if let responder = group.dynamicResponder(for: &request) {
                     try await dynamicResponse(received: received, loaded: loaded, socket: socket, router: router, request: &request, responder: responder)
                     return true
                 }
@@ -107,7 +108,7 @@ public enum ClientProcessing {
         request: inout any RequestProtocol,
         responder: any DynamicRouteResponderProtocol
     ) async throws {
-        var response:any DynamicResponseProtocol = responder.defaultResponse
+        var response = responder.defaultResponse
         response.timestamps.received = received
         response.timestamps.loaded = loaded
         for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {
@@ -120,11 +121,7 @@ public enum ClientProcessing {
                 }
             }
         }
-        for middleware in router.dynamicMiddleware {
-            if try await !middleware.handle(request: &request, response: &response) {
-                break
-            }
-        }
+        try await router.handleDynamicMiddleware(for: &request, with: &response)
         response.timestamps.processed = .now
         try await responder.respond(to: socket, request: &request, response: &response)
     }

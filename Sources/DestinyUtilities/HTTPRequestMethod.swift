@@ -908,16 +908,16 @@ extension HTTPRequestMethod {
     @inlinable
     public static func parse(_ literal: String) -> Self? {
         switch literal {
-        case "get", "GET":         return .get
-        case "head", "HEAD":       return .head
-        case "post", "POST":       return .post
-        case "put", "PUT":         return .put
-        case "delete", "DELETE":   return .delete
-        case "connect", "CONNECT": return .connect
-        case "options", "OPTIONS": return .options
-        case "trace", "TRACE":     return .trace
-        case "patch", "PATCH":     return .patch
-        default:                   return nil
+        case "get", "GET":         .get
+        case "head", "HEAD":       .head
+        case "post", "POST":       .post
+        case "put", "PUT":         .put
+        case "delete", "DELETE":   .delete
+        case "connect", "CONNECT": .connect
+        case "options", "OPTIONS": .options
+        case "trace", "TRACE":     .trace
+        case "patch", "PATCH":     .patch
+        default:                   nil
         }
     }
 }
@@ -927,16 +927,16 @@ extension HTTPRequestMethod { // TODO: make a `simd` computed property
     @inlinable
     public static func parse(_ key: SIMD8<UInt8>) -> Self? {
         switch key {
-        case Self.getSIMD:     return .get
-        case Self.headSIMD:    return .head
-        case Self.postSIMD:    return .post
-        case Self.putSIMD:     return .put
-        case Self.deleteSIMD:  return .delete
-        case Self.connectSIMD: return .connect
-        case Self.optionsSIMD: return .options
-        case Self.traceSIMD:   return .trace
-        case Self.patchSIMD:   return .patch
-        default:               return nil
+        case Self.getSIMD:     .get
+        case Self.headSIMD:    .head
+        case Self.postSIMD:    .post
+        case Self.putSIMD:     .put
+        case Self.deleteSIMD:  .delete
+        case Self.connectSIMD: .connect
+        case Self.optionsSIMD: .options
+        case Self.traceSIMD:   .trace
+        case Self.patchSIMD:   .patch
+        default:               nil
         }
     }
     public static let getSIMD:SIMD8<UInt8> = SIMD8<UInt8>(71, 69, 84, 0, 0, 0, 0, 0)
@@ -954,10 +954,10 @@ extension HTTPRequestMethod { // TODO: make a `simd` computed property
 // MARK: SwiftSyntax
 extension HTTPRequestMethod {
     public init?(expr: ExprSyntaxProtocol) {
-        guard let string:String = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
+        guard let string = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
             return nil
         }
-        if let value:Self = Self(rawValue: string) {
+        if let value = Self(rawValue: string) {
             self = value
         } else {
             switch string {

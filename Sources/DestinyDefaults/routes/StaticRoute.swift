@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 10/29/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftCompression
 import SwiftDiagnostics
@@ -25,13 +26,13 @@ public struct StaticRoute : StaticRouteProtocol {
     public let charset:Charset?
     public let isCaseSensitive:Bool
 
-    public init<T: HTTPMediaTypeProtocol>(
+    public init(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [StaticString],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -41,7 +42,7 @@ public struct StaticRoute : StaticRouteProtocol {
         self.path = path.map({ $0.description })
         self.isCaseSensitive = isCaseSensitive
         self.status = status
-        self.contentType = contentType.structure
+        self.contentType = contentType
         self.charset = charset
         self.result = result
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
@@ -96,11 +97,11 @@ public struct StaticRoute : StaticRouteProtocol {
 extension StaticRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version:HTTPVersion = version
-        var method:HTTPRequestMethod = .get
+        var method = HTTPRequestMethod.get
         var path:[String] = []
-        var isCaseSensitive:Bool = true
+        var isCaseSensitive = true
         var status:HTTPResponseStatus = .notImplemented
-        var contentType:HTTPMediaType = HTTPMediaTypes.Text.plain.structure
+        var contentType = HTTPMediaType.textPlain
         var charset:Charset? = nil
         var result:RouteResult = .string("")
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
@@ -117,11 +118,7 @@ extension StaticRoute {
             case "status":
                 status = HTTPResponseStatus(expr: argument.expression) ?? .notImplemented
             case "contentType":
-                if let member:String = argument.expression.memberAccess?.declName.baseName.text {
-                    contentType = HTTPMediaTypes.parse(member) ?? contentType
-                } else {
-                    contentType = HTTPMediaType(debugDescription: "", httpValue: argument.expression.functionCall!.arguments.first!.expression.stringLiteral!.string)
-                }
+                contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
             case "charset":
                 charset = Charset(expr: argument.expression)
             case "result":
@@ -156,13 +153,13 @@ extension StaticRoute {
 // MARK: Convenience inits
 extension StaticRoute {
     @inlinable
-    public static func on<T: HTTPMediaTypeProtocol>(
+    public static func on(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -171,12 +168,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func get<T: HTTPMediaTypeProtocol>(
+    public static func get(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -185,12 +182,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func head<T: HTTPMediaTypeProtocol>(
+    public static func head(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -199,12 +196,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func post<T: HTTPMediaTypeProtocol>(
+    public static func post(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -213,12 +210,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func put<T: HTTPMediaTypeProtocol>(
+    public static func put(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -227,12 +224,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func delete<T: HTTPMediaTypeProtocol>(
+    public static func delete(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -241,12 +238,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func connect<T: HTTPMediaTypeProtocol>(
+    public static func connect(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -255,12 +252,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func options<T: HTTPMediaTypeProtocol>(
+    public static func options(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -269,12 +266,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func trace<T: HTTPMediaTypeProtocol>(
+    public static func trace(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -283,12 +280,12 @@ extension StaticRoute {
     }
 
     @inlinable
-    public static func patch<T: HTTPMediaTypeProtocol>(
+    public static func patch(
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus = .notImplemented,
-        contentType: T,
+        contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []

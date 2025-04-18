@@ -5,8 +5,6 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-#if compiler(>=6.0)
-
 import Destiny
 import SwiftCompression
 import Testing
@@ -41,12 +39,12 @@ struct DestinyTests {
         let _:Router = #router(
             version: .v2_0,
             middleware: [
-                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaTypes.Text.html], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaType.textHtml], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             StaticRoute(
                 method: .get,
                 path: ["test1"],
-                contentType: HTTPMediaTypes.Text.html,
+                contentType: HTTPMediaType.textHtml,
                 charset: Charset.utf8,
                 result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
@@ -54,26 +52,24 @@ struct DestinyTests {
                 method: .get,
                 path: ["test2"],
                 status: .movedPermanently,
-                contentType: HTTPMediaTypes.Text.html,
+                contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
                 result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
                 method: .get,
                 path: ["test3"],
-                contentType: HTTPMediaTypes.Text.html,
+                contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
                 result: .bytes([UInt8]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf8))
             ),
             StaticRoute(
                 method: .get,
                 path: ["test4"],
-                contentType: HTTPMediaTypes.Text.html,
+                contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
                 result: .bytes16([UInt16]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf16))
             )
         )
     }
 }
-
-#endif

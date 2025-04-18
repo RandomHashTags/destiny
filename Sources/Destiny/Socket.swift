@@ -37,7 +37,6 @@ extension Socket {
         return (string, read)
     }
 
-    #if compiler(>=6.2)
     @inlinable
     public func readBuffer<let count: Int>() throws -> (InlineArray<count, UInt8>, Int) {
         var buffer = InlineArray<count, UInt8>.init(repeating: 0)
@@ -59,17 +58,15 @@ extension Socket {
             // 13 = \r
             // 10 = \n
 
-            let (methodArray, methodSpaceIndex):(InlineArray<20, UInt8>, Int) = buffer.firstSlice(separator: 32, defaultValue: 0)
-            let (pathArray, pathSpaceIndex):(InlineArray<64, UInt8>, Int) = buffer.firstSlice(separator: 32, defaultValue: 0, offset: methodSpaceIndex+1)
-            let (httpVersionArray, httpVersionEndIndex):(InlineArray<8, UInt8>, Int) = buffer.firstSlice(separator: 10, defaultValue: 0, offset: pathSpaceIndex+1)
-            print("method=\(methodArray.string());path=\(pathArray.string());httpVersion=\(httpVersionArray.string())")
+            let startLine = try HTTPStartLine(buffer: buffer)
+            print("startLine=\(startLine)")
 
             var skip:UInt8 = 0
             let nextLine:InlineArray<256, UInt8> = .init(repeating: 0)
             let _:InlineArray<256, UInt8>? = buffer.split(
                 separators: 13, 10,
                 defaultValue: 0,
-                offset: httpVersionEndIndex+1,
+                offset: startLine.endIndex + 1,
                 yield: { slice in
                     if skip == 2 { // content
                     } else if slice == nextLine {
@@ -101,13 +98,10 @@ extension Socket {
         }
         return request*/
     }
-    #endif
 
     @inlinable
     public func loadRequest() throws -> ConcreteRequest? {
-        #if compiler(>=6.2)
-        return try loadRequestInline()
-        #endif
+        //return try loadRequestInline()
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
@@ -132,14 +126,14 @@ extension Socket {
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     public func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
-        guard let baseAddress:UnsafeMutablePointer<UInt8> = buffer.baseAddress else { return 0 }
+        guard let baseAddress = buffer.baseAddress else { return 0 }
         return try readBuffer(into: baseAddress, length: length, flags: flags)
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     public func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
-        var bytesRead:Int = 0
+        var bytesRead = 0
         while bytesRead < length {
             if Task.isCancelled { return 0 }
             let toRead = min(Self.bufferLength, length - bytesRead)
@@ -158,7 +152,7 @@ extension Socket {
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
-        var bytesRead:Int = 0
+        var bytesRead = 0
         while bytesRead < length {
             if Task.isCancelled { return 0 }
             let toRead = min(Self.bufferLength, length - bytesRead)
@@ -226,7 +220,7 @@ extension Socket {
     }
     @inlinable
     public func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
-        var sent:Int = 0
+        var sent = 0
         while sent < length {
             if Task.isCancelled { return }
             let result = send(pointer + sent, length - sent)

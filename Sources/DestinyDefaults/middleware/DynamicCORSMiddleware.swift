@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 12/8/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -48,8 +49,8 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
             logicDD += "\nif let origin:String = $0.headers[HTTPRequestHeader.originRawName] { $1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
         }
 
-        let allowedHeaders:String = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
-        let allowedMethods:String = allowedMethods.map({ $0.rawName }).joined(separator: ",")
+        let allowedHeaders = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
+        let allowedMethods = allowedMethods.map({ $0.rawName }).joined(separator: ",")
         logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowHeadersRawName] = \"" + allowedHeaders + "\""
         logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowMethodsRawName] = \"" + allowedMethods + "\""
         if allowCredentials {

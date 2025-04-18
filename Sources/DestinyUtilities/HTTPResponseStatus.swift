@@ -706,12 +706,12 @@ extension HTTPResponseStatus {
     @inlinable
     public var category : Category {
         switch code {
-        case 100...199: return .informational
-        case 200...299: return .successful
-        case 300...399: return .redirection
-        case 400...499: return .clientError
-        case 500...599: return .serverError
-        default: return .nonStandard
+        case 100...199: .informational
+        case 200...299: .successful
+        case 300...399: .redirection
+        case 400...499: .clientError
+        case 500...599: .serverError
+        default:        .nonStandard
         }
     }
 }
@@ -720,7 +720,7 @@ extension HTTPResponseStatus {
 // MARK: SwiftSyntax
 extension HTTPResponseStatus {
     public init?(expr: ExprSyntax) {
-        guard let string:String = expr.memberAccess?.declName.baseName.text, let status:Self = Self(rawValue: string) else { return nil }
+        guard let string = expr.memberAccess?.declName.baseName.text, let status = Self(rawValue: string) else { return nil }
         self = status
     }
 }

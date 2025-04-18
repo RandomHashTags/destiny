@@ -6,13 +6,14 @@
 //
 
 import ArgumentParser
+import DestinyBlueprint
 import Foundation
 import Logging
 import ServiceLifecycle
 
 // MARK: Server
-/// A default `ServerProtocol` implementation.
-public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerProtocol {
+/// A default `HTTPServerProtocol` implementation.
+public final class Server<ClientSocket : SocketProtocol & ~Copyable> : HTTPServerProtocol {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.
@@ -43,11 +44,11 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         onLoad: (@Sendable () -> Void)? = nil,
         onShutdown: (@Sendable () -> Void)? = nil
     ) throws {
-        var address:String? = address
-        var port:UInt16 = port
-        var backlog:Int32 = backlog
+        var address = address
+        var port = port
+        var backlog = backlog
 
-        let parsed:BootCommands = try BootCommands.parse()
+        let parsed = try BootCommands.parse()
         address = parsed.hostname ?? address
         port = parsed.port ?? port
         backlog = parsed.backlog ?? backlog
@@ -67,16 +68,14 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
     
     // MARK: Run
     public func run() async throws {
-        let serverFD1:Int32 = try bindAndListen()
-        //let serverFD2:Int32 = try bindAndListen()
-        //let serverFD3:Int32 = try bindAndListen()
+        let serverFD1 = try bindAndListen()
+        //let serverFD2 = try bindAndListen()
+        //let serverFD3 = try bindAndListen()
         Task {
             await processCommand()
         }
         onLoad?()
-        for index in router.dynamicMiddleware.indices {
-            router.dynamicMiddleware[index].load()
-        }
+        router.loadDynamicMiddleware()
         await withTaskCancellationOrGracefulShutdownHandler {
             await processClients(serverFD: serverFD1)
             //processClients(serverFD: serverFD2)
@@ -99,9 +98,9 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
     /// - Returns: The file descriptor of the created socket.
     func bindAndListen() throws -> Int32 {
         #if os(Linux)
-        let serverFD:Int32 = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
+        let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #else
-        let serverFD:Int32 = socket(AF_INET6, SOCK_STREAM, 0)
+        let serverFD = socket(AF_INET6, SOCK_STREAM, 0)
         #endif
         if serverFD == -1 {
             throw ServerError.socketCreationFailed()
@@ -109,7 +108,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
         self.serverFD = serverFD
         Socket.noSigPipe(fileDescriptor: serverFD)
         #if os(Linux)
-        var addr:sockaddr_in6 = sockaddr_in6(
+        var addr = sockaddr_in6(
             sin6_family: sa_family_t(AF_INET6),
             sin6_port: port.bigEndian,
             sin6_flowinfo: 0,
@@ -117,7 +116,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
             sin6_scope_id: 0
         )
         #else
-        var addr:sockaddr_in6 = sockaddr_in6(
+        var addr = sockaddr_in6(
             sin6_len: UInt8(MemoryLayout<sockaddr_in>.stride),
             sin6_family: UInt8(AF_INET6),
             sin6_port: port.bigEndian,
@@ -126,7 +125,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : ServerPro
             sin6_scope_id: 0
         )
         #endif
-        if let address:String = address {
+        if let address {
             if address.withCString({ inet_pton(AF_INET6, $0, &addr.sin6_addr) }) == 1 {
             }
         }
@@ -163,15 +162,15 @@ extension Server where ClientSocket : ~Copyable {
         return await withCheckedContinuation { $0.resume(returning: readLine()) }
     }
     func processCommand() async {
-        if let line:String = await readCommand() {
-            let arguments:[Substring] = line.split(separator: " ")
-            if let targetCMD:Substring = arguments.first {
-                let targetCommand:String = String(targetCMD)
+        if let line = await readCommand() {
+            let arguments = line.split(separator: " ")
+            if let targetCMD = arguments.first {
+                let targetCommand = String(targetCMD)
                 for command in commands {
                     if targetCommand == command.configuration.commandName {
-                        var value:ParsableCommand = command.init()
+                        var value = command.init()
                         do {
-                            if var asyncValue:AsyncParsableCommand = value as? AsyncParsableCommand {
+                            if var asyncValue = value as? AsyncParsableCommand {
                                 try await asyncValue.run()
                             } else {
                                 try value.run()
@@ -195,7 +194,7 @@ extension Server where ClientSocket : ~Copyable {
 extension Server where ClientSocket : ~Copyable {
     @inlinable
     func processClients(serverFD: Int32) async {
-        let function:@Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)? = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
+        let function = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
 
         #if os(Linux)
         await processClientsEpoll(serverFD: serverFD, threads: 1, maxEvents: 64, acceptClient: function, router: router)
@@ -211,7 +210,7 @@ extension Server where ClientSocket : ~Copyable {
                 for _ in 0..<backlog {
                     group.addTask {
                         do {
-                            guard let (client, instant):(Int32, ContinuousClock.Instant) = try acceptClient(serverFD) else { return }
+                            guard let (client, instant) = try acceptClient(serverFD) else { return }
                             try await ClientProcessing.process(
                                 client: client,
                                 received: instant,
@@ -233,10 +232,11 @@ extension Server where ClientSocket : ~Copyable {
 // MARK: Accept client
 extension Server where ClientSocket : ~Copyable {
     @inlinable
+    @Sendable
     static func acceptClient(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
-        guard let serverFD:Int32 = server else { return nil }
-        var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
-        let client:Int32 = withUnsafeMutablePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1, { accept(serverFD, $0, &len) }) })
+        guard let serverFD = server else { return nil }
+        var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
+        let client = withUnsafeMutablePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1, { accept(serverFD, $0, &len) }) })
         if client == -1 {
             if server == nil {
                 return nil
@@ -246,10 +246,11 @@ extension Server where ClientSocket : ~Copyable {
         return (client, .now)
     }
     @inlinable
+    @Sendable
     static func acceptClientNoTCPDelay(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
-        guard let serverFD:Int32 = server else { return nil }
-        var addr:sockaddr_in = sockaddr_in(), len:socklen_t = socklen_t(MemoryLayout<sockaddr_in>.size)
-        let client:Int32 = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
+        guard let serverFD = server else { return nil }
+        var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
+        let client = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
         if client == -1 {
             if server == nil {
                 return nil

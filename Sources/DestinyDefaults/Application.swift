@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 1/2/25.
 //
 
-import DestinyUtilities
+import DestinyBlueprint
 import Logging
 import ServiceLifecycle
 
@@ -15,12 +15,12 @@ public struct Application : ApplicationProtocol {
     public let serviceGroup:ServiceGroup
     public let logger:Logger
 
-    public init<T: ServerProtocol>(
+    public init<T: HTTPServerProtocol>(
         server: T,
         services: [Service] = [],
         logger: Logger
     ) {
-        var services:[Service] = services
+        var services = services
         services.insert(server, at: 0)
         serviceGroup = ServiceGroup(services: services, logger: logger)
         self.logger = logger

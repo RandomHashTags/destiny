@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 12/27/24.
 //
 
+import DestinyBlueprint
 import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -16,7 +17,7 @@ public struct RouterGroup : RouterGroupProtocol {
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]
     public let staticResponses:[DestinyRoutePathType:any StaticRouteResponderProtocol]
-    public let dynamicResponses:DynamicResponses
+    public let dynamicResponses:DynamicResponderStorage
 
     public init(
         endpoint: String,
@@ -27,9 +28,9 @@ public struct RouterGroup : RouterGroupProtocol {
         var staticRoutes:[any StaticRouteProtocol] = []
         var dynamicRoutes:[any DynamicRouteProtocol] = []
         for route in routes {
-            if let route:any StaticRouteProtocol = route as? any StaticRouteProtocol {
+            if let route = route as? any StaticRouteProtocol {
                 staticRoutes.append(route)
-            } else if let route:any DynamicRouteProtocol = route as? any DynamicRouteProtocol {
+            } else if let route = route as? any DynamicRouteProtocol {
                 dynamicRoutes.append(route)
             }
         }
@@ -42,7 +43,7 @@ public struct RouterGroup : RouterGroupProtocol {
         staticRoutes: [any StaticRouteProtocol],
         dynamicRoutes: [any DynamicRouteProtocol]
     ) {
-        let prefixEndpoints:[String] = endpoint.split(separator: "/").map({ String($0) })
+        let prefixEndpoints = endpoint.split(separator: "/").map({ String($0) })
         self.prefixEndpoints = prefixEndpoints
         self.staticMiddleware = staticMiddleware
         self.dynamicMiddleware = dynamicMiddleware
@@ -50,8 +51,8 @@ public struct RouterGroup : RouterGroupProtocol {
         for var route in staticRoutes {
             route.path.insert(contentsOf: prefixEndpoints, at: 0)
             do {
-                if let responder:any StaticRouteResponderProtocol = try route.responder(context: nil, function: nil, middleware: staticMiddleware) {
-                    let string:String = route.startLine
+                if let responder = try route.responder(context: nil, function: nil, middleware: staticMiddleware) {
+                    let string = route.startLine
                     staticResponses[DestinyRoutePathType(string)] = responder
                 }
             } catch {
@@ -64,7 +65,7 @@ public struct RouterGroup : RouterGroupProtocol {
         var parameterized:[[any DynamicRouteResponderProtocol]] = []
         for var route in dynamicRoutes {
             route.path.insert(contentsOf: pathComponents, at: 0)
-            let responder:any DynamicRouteResponderProtocol = route.responder()
+            let responder = route.responder()
             if route.path.count(where: { $0.isParameter }) != 0 {
                 if parameterized.count <= route.path.count {
                     for _ in 0...(route.path.count - parameterized.count) {
@@ -84,7 +85,7 @@ public struct RouterGroup : RouterGroupProtocol {
         staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [any DynamicMiddlewareProtocol],
         staticResponses: [DestinyRoutePathType:any StaticRouteResponderProtocol],
-        dynamicResponses: DynamicResponses
+        dynamicResponses: DynamicResponderStorage
     ) {
         self.prefixEndpoints = prefixEndpoints
         self.staticMiddleware = staticMiddleware
@@ -94,17 +95,17 @@ public struct RouterGroup : RouterGroupProtocol {
     }
 
     public var debugDescription : String {
-        var staticMiddlewareString:String = "[]"
+        var staticMiddlewareString = "[]"
         if !staticMiddleware.isEmpty {
             staticMiddlewareString.removeLast()
             staticMiddlewareString += "\n" + staticMiddleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
         }
-        var dynamicMiddlewareString:String = "[]"
+        var dynamicMiddlewareString = "[]"
         if !dynamicMiddleware.isEmpty {
             dynamicMiddlewareString.removeLast()
             dynamicMiddlewareString += "\n" + dynamicMiddleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
         }
-        var staticResponsesString:String = "[]"
+        var staticResponsesString = "[]"
         if !staticResponses.isEmpty {
             staticResponsesString.removeLast()
             staticResponsesString += "\n" + staticResponses.map({ "// \($0.key.stringSIMD())\n\($0.key) : " + $0.value.debugDescription }).joined(separator: ",\n") + "\n]"
@@ -148,39 +149,37 @@ extension RouterGroup {
         var staticRoutes:[any StaticRouteProtocol] = []
         var dynamicRoutes:[any DynamicRouteProtocol] = []
         for argument in function.arguments {
-            if let label:String = argument.label?.text {
+            if let label = argument.label?.text {
                 switch label {
                 case "endpoint":
                     endpoint = argument.expression.stringLiteral!.string
                 case "staticMiddleware":
                     for argument in argument.expression.array!.elements {
-                        if let function:FunctionCallExprSyntax = argument.expression.functionCall {
+                        if let function = argument.expression.functionCall {
                             staticMiddleware.append(StaticMiddleware.parse(context: context, function))
                         }
                     }
                 case "dynamicMiddleware":
                     for argument in argument.expression.array!.elements {
-                        if let function:FunctionCallExprSyntax = argument.expression.functionCall {
+                        if let function = argument.expression.functionCall {
                             dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
                         }
                     }
                 default:
                     break
                 }
-            } else if let function:FunctionCallExprSyntax = argument.expression.functionCall {
-                if let decl:String = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                    switch decl {
-                    case "StaticRoute":
-                        if let route:StaticRoute = StaticRoute.parse(context: context, version: version, function) {
-                            staticRoutes.append(route)
-                        }
-                    case "DynamicRoute":
-                        if let route:DynamicRoute = DynamicRoute.parse(context: context, version: version, middleware: staticMiddleware, function) {
-                            dynamicRoutes.append(route)
-                        }
-                    default:
-                        break
+            } else if let function = argument.expression.functionCall {
+                switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                case "StaticRoute":
+                    if let route = StaticRoute.parse(context: context, version: version, function) {
+                        staticRoutes.append(route)
                     }
+                case "DynamicRoute":
+                    if let route = DynamicRoute.parse(context: context, version: version, middleware: staticMiddleware, function) {
+                        dynamicRoutes.append(route)
+                    }
+                default:
+                    break
                 }
             }
         }
