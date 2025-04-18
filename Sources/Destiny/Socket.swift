@@ -30,15 +30,75 @@ extension Socket {
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
     public func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 {
-        var string:T = T()
-        let read:Int = try withUnsafeMutableBytes(of: &string) { p in
-            return try readSIMDBuffer(into: p.baseAddress!, length: length)
+        var string = T()
+        let read = try withUnsafeMutableBytes(of: &string) { p in
+            return try readBuffer(into: p.baseAddress!, length: length)
         }
         return (string, read)
     }
 
+    #if compiler(>=6.2)
+    @inlinable
+    public func readBuffer<let count: Int>() throws -> (InlineArray<count, UInt8>, Int) {
+        var buffer = InlineArray<count, UInt8>.init(repeating: 0)
+        let read = try withUnsafeMutableBytes(of: &buffer) { p in
+            return try readBuffer(into: p.baseAddress!, length: count)
+        }
+        return (buffer, read)
+    }
+
+    @inlinable
+    public func loadRequestInline() throws -> ConcreteRequest? {
+        var sliceIndex:Int = 0
+        while true {
+            let (buffer, read):(InlineArray<1024, UInt8>, Int) = try readBuffer()
+            if read <= 0 {
+                break
+            }
+            print("loadRequestLine;read=\(read)")
+            // 32 = SPACE
+            // 13 = \r
+            // 10 = \n
+            let _:InlineArray<256, UInt8>? = buffer.split(separators: 13, 10, defaultValue: 0, yield: { slice in
+                if sliceIndex == 0 { // start line
+                    let (method, methodSpaceIndex):(InlineArray<20, UInt8>, Int) = slice.firstSlice(separator: 32, defaultValue: 0)
+                    let (path, pathSpaceIndex):(InlineArray<64, UInt8>, Int) = slice.firstSlice(separator: 32, defaultValue: 0, offset: methodSpaceIndex+1)
+                    let (httpVersion, _):(InlineArray<8, UInt8>, Int) = slice.firstSlice(separator: 32, defaultValue: 0, offset: pathSpaceIndex+1)
+                    print("method=\(method.string());path=\(path.string());httpVersion=\(httpVersion.string())")
+                } else {
+                    print("slice=\(slice.string())")
+                }
+                sliceIndex += 1
+            })
+            if read < 1024 {
+                break
+            }
+        }
+        //loadRequestLine;read=512
+        //slice=Host: 192.168.1.174:8080
+        //slice=Connection: keep-alive
+        //slice=Pragma: no-cache
+        //slice=Cache-Control: no-cache
+        //slice=Upgrade-Insecure-Requests: 1
+        //slice=User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+        //slice=Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        //slice=Accept-Encoding: gzip, deflate
+        //slice=Accept-Language: en-US,en;q=0.9
+        //slice=Cookie: cookie1=yessir; cookie2=pogchamp
+
+        return nil // TODO: finish
+        /*guard let request = ConcreteRequest.init(tokens: test) else {
+            throw SocketError.malformedRequest()
+        }
+        return request*/
+    }
+    #endif
+
     @inlinable
     public func loadRequest() throws -> ConcreteRequest? {
+        #if compiler(>=6.2)
+        return try loadRequestInline()
+        #endif
         var test:[SIMD64<UInt8>] = []
         test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
         while true {
@@ -54,7 +114,7 @@ extension Socket {
         if test.isEmpty {
             return nil
         }
-        guard let request:ConcreteRequest = ConcreteRequest.init(tokens: test) else {
+        guard let request = ConcreteRequest.init(tokens: test) else {
             throw SocketError.malformedRequest()
         }
         return request
@@ -70,46 +130,46 @@ extension Socket {
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     public func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
-        var bytes_read:Int = 0
-        while bytes_read < length {
+        var bytesRead:Int = 0
+        while bytesRead < length {
             if Task.isCancelled { return 0 }
-            let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read:Int = receive(baseAddress + bytes_read, to_read, flags)
+            let toRead = min(Self.bufferLength, length - bytesRead)
+            let read = receive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
                 try handleReadError()
                 break
             } else if read == 0 { // end of file
                 break
             }
-            bytes_read += read
+            bytesRead += read
         }
-        return bytes_read
+        return bytesRead
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
-        var bytes_read:Int = 0
-        while bytes_read < length {
+        var bytesRead:Int = 0
+        while bytesRead < length {
             if Task.isCancelled { return 0 }
-            let to_read:Int = min(Self.bufferLength, length - bytes_read)
-            let read:Int = receive(baseAddress + bytes_read, to_read, flags)
+            let toRead = min(Self.bufferLength, length - bytesRead)
+            let read = receive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
                 try handleReadError()
                 break
             } else if read == 0 { // end of file
                 break
             }
-            bytes_read += read
+            bytesRead += read
         }
-        return bytes_read
+        return bytesRead
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readSIMDBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
+    public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
         if Task.isCancelled { return 0 }
-        let read:Int = receive(baseAddress, length, 0)
+        let read = receive(baseAddress, length, 0)
         if read < 0 { // error
             try handleReadError()
         }
@@ -160,7 +220,7 @@ extension Socket {
         var sent:Int = 0
         while sent < length {
             if Task.isCancelled { return }
-            let result:Int = send(pointer + sent, length - sent)
+            let result = send(pointer + sent, length - sent)
             if result <= 0 {
                 throw SocketError.writeFailed()
             }

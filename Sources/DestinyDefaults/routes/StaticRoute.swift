@@ -74,7 +74,7 @@ public struct StaticRoute : StaticRouteProtocol {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        if let context:MacroExpansionContext = context, let function:FunctionCallExprSyntax = function, status == .notImplemented {
+        if let context, let function, status == .notImplemented {
             #if canImport(SwiftDiagnostics)
             Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
             #endif
@@ -86,7 +86,7 @@ public struct StaticRoute : StaticRouteProtocol {
 
     @inlinable
     public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)? {
-        let result:String = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
+        let result = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
         return RouteResponses.String(result)
     }
 }
@@ -132,7 +132,7 @@ extension StaticRoute {
                 break
             }
         }
-        var route:StaticRoute = StaticRoute(
+        var route = StaticRoute(
             version: version,
             method: method,
             path: [],

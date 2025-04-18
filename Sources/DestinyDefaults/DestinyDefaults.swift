@@ -47,12 +47,12 @@ public enum DestinyDefaults {
         charset: Charset?
     ) -> String {
         var string:String = version.string + " \(status)" + suffix + headers
-        if let result:String = result {
-            let content_length:Int = result.utf8.count
-            if let contentType:HTTPMediaType = contentType {
+        if let result {
+            let contentLength = result.utf8.count
+            if let contentType {
                 string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
-            string += HTTPResponseHeader.contentLength.rawName + ": \(content_length)"
+            string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
             string += suffix + suffix + result
         }
         return string

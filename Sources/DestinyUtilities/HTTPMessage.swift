@@ -7,7 +7,7 @@
 
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
-public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
+public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
     public var headers:[String:String]
     public var cookies:[any HTTPCookieProtocol]
     public var result:RouteResult?
@@ -51,10 +51,10 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         for cookie in cookies {
             string += "Set-Cookie: \(cookie)" + suffix
         }
-        if var result:String = try result?.string() {
-            let contentLength:Int = result.utf8.count
+        if var result = try result?.string() {
+            let contentLength = result.utf8.count
             result.replace("\"", with: "\\\"")
-            if let contentType:HTTPMediaType = contentType {
+            if let contentType {
                 string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
@@ -76,7 +76,7 @@ public struct HTTPMessage : Sendable, CustomDebugStringConvertible {
         }
         var bytes:[UInt8]
         if let result:[UInt8] = try result?.bytes() {
-            if let contentType:HTTPMediaType = contentType {
+            if let contentType {
                 string += HTTPResponseHeader.contentType.rawName + ": " + contentType.httpValue + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string += HTTPResponseHeader.contentLength.rawName + ": \(result.count)"

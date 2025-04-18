@@ -31,13 +31,13 @@ public struct Request : RequestProtocol {
         for i in 0..<tokens.count {
             string += tokens[i].leadingString()
         }
-        let values:[Substring] = string.split(separator: "\r\n")
+        let values = string.split(separator: "\r\n")
         guard values.count > 1 else { return HTTPRequestHeaders() }
         var dictionary:[String:String] = [:]
         dictionary.reserveCapacity(values.count-1)
         for i in 1..<values.count {
-            let header:Substring = values[i]
-            if let index:Substring.Index = header.firstIndex(of: ":") {
+            let header = values[i]
+            if let index = header.firstIndex(of: ":") {
                 dictionary[String(header[header.startIndex..<index])] = String(header[header.index(index, offsetBy: 2)...])
             }
         }
@@ -46,7 +46,7 @@ public struct Request : RequestProtocol {
 
     public lazy var query : [String:String] = {
         guard (uri .== .init(repeating: 63)) != .init(repeating: false), // make sure a question mark is present
-                let targets:[DestinyRoutePathType] = uri.splitSIMD(separator: 63).get(1)?.splitSIMD(separator: 38) // 63 -> ? | 38 -> &
+                let targets:[DestinyRoutePathType] = uri.splitSIMD(separator: 63).getPositive(1)?.splitSIMD(separator: 38) // 63 -> ? | 38 -> &
         else {
             return [:]
         }
@@ -54,7 +54,7 @@ public struct Request : RequestProtocol {
         queries.reserveCapacity(targets.count)
         for var key in targets {
             let equalsIndex:Int = key.leadingNonByteCount(byte: 61) // 61 -> =
-            var value:DestinyRoutePathType = copy key
+            var value = key
             // TODO: shift SIMD right `equalsIndex+1`
             value.keepLeading(value.leadingNonzeroByteCount)
 
@@ -71,17 +71,17 @@ public struct Request : RequestProtocol {
         values.reserveCapacity(10)
 
         for var token in tokens {
-            let crIndex:Int = token.leadingNonByteCount(byte: 13) // \r
+            let crIndex = token.leadingNonByteCount(byte: 13) // \r
             if crIndex == 64 { // no carriage return in token
             } else { // carriage return in token
                 token.keepLeading(crIndex-1)
-                let colonIndex:Int = token.leadingNonByteCount(byte: 58)
+                let colonIndex = token.leadingNonByteCount(byte: 58)
                 if colonIndex != 64 { // has colon in token
-                    var header:SIMD64<UInt8> = token
+                    var header = token
                     header.keepLeading(colonIndex-1)
                     headers.append(header)
 
-                    var value:SIMD64<UInt8> = token
+                    var value = token
                     value.keepTrailing(64 - crIndex)
                     values.append(value)
                 }
@@ -95,13 +95,14 @@ public struct Request : RequestProtocol {
     public init?(
         tokens: [SIMD64<UInt8>]
     ) {
+        print("Request.init;tokens=\n\(tokens.map { $0.stringSIMD() }.joined(separator: "\n"))")
         self.tokens = tokens
-        guard var startLine:SIMD64<UInt8> = tokens.first else { return nil }
-        let values:[SIMD64<UInt8>] = startLine.splitSIMD(separator: 32) // space
-        guard let versionSIMD:SIMD64<UInt8> = values.get(2), let version:HTTPVersion = HTTPVersion(versionSIMD) else {
+        guard var startLine = tokens.first else { return nil }
+        let values = startLine.splitSIMD(separator: 32) // space
+        guard let versionSIMD = values.getPositive(2), let version = HTTPVersion(versionSIMD) else {
             return nil
         }
-        let firstCarriageReturnIndex:Int = startLine.leadingNonByteCount(byte: 13) // \r
+        let firstCarriageReturnIndex = startLine.leadingNonByteCount(byte: 13) // \r
         headersBeginIndex = firstCarriageReturnIndex + 2
         //print("Utilities;Request;init;first_carriage_return_index=\(first_carriage_return_index);startLine=\(startLine.leadingString())")
         //print("shifted bytes=\((startLine &<< UInt8((first_carriage_return_index + 2) * 8)))")

@@ -46,14 +46,14 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
 // MARK: SwiftSyntax
 extension DynamicMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
-        var logic:String = "\(function.trailingClosure?.debugDescription ?? "{ _, _ in }")"
+        var logic = "\(function.trailingClosure?.debugDescription ?? "{ _, _ in }")"
         for argument in function.arguments {
-            if let _:String = argument.label?.text {
+            if let _ = argument.label?.text {
             } else {
                 logic = "\(argument.expression)"
             }
         }
-        var middleware:DynamicMiddleware = DynamicMiddleware { _, _ in }
+        var middleware = DynamicMiddleware { _, _ in }
         middleware.logic = "\(logic)"
         return middleware
     }

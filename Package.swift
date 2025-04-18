@@ -108,3 +108,14 @@ let package = Package(
 #if os(Linux)
 package.dependencies.append(.package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"))
 #endif
+
+#if compiler(>=6.2)
+let valueGenerics:SwiftSetting = .enableExperimentalFeature("ValueGenerics")
+for target in package.targets {
+    if target.swiftSettings != nil {
+        target.swiftSettings!.append(valueGenerics)
+    } else {
+        target.swiftSettings = [valueGenerics]
+    }
+}
+#endif

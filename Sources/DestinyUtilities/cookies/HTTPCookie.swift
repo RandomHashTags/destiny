@@ -89,7 +89,7 @@ extension HTTPCookie {
             #if canImport(FoundationEssentials) || canImport(Foundation)
             string += expires.debugDescription
             #else
-            string += \"\(expires)\""
+            string += "\"\(expires)\""
             #endif
         }
         if let domain {

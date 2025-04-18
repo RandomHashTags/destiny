@@ -51,7 +51,7 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
 
     @usableFromInline
     func update() {
-        guard let string:String = HTTPDateFormat.now() else {
+        guard let string = HTTPDateFormat.now() else {
             Application.shared.logger.warning(Logger.Message(stringLiteral: "[DynamicDateMiddleware] Failed to update value"))
             return
         }

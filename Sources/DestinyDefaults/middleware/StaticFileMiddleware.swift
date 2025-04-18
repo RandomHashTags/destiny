@@ -53,7 +53,7 @@ extension StaticFileMiddleware {
         path: String,
         endpoint: String
     ) throws -> [StaticRoute] {
-        var isDirectory:Bool = false
+        var isDirectory = false
         #if canImport(Darwin)
         var dir:ObjCBool = false
         guard FileManager.default.fileExists(atPath: path, isDirectory: &dir) else { return [] }
@@ -62,11 +62,11 @@ extension StaticFileMiddleware {
         guard FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory) else { return [] }
         #endif
         if isDirectory {
-            let paths:[String] = try FileManager.default.contentsOfDirectory(atPath: path)
+            let paths = try FileManager.default.contentsOfDirectory(atPath: path)
             print("paths=\(paths)")
             return []
             return try paths.flatMap({
-                let slug:String = String($0.split(separator: "/").last ?? "")
+                let slug = String($0.split(separator: "/").last ?? "")
                 return try routesFoundation(
                     version: version,
                     method: method,
@@ -77,10 +77,10 @@ extension StaticFileMiddleware {
                 )
             })
         } else {
-            let url:URL = URL(filePath: path)
-            let contentType:HTTPMediaType = HTTPMediaTypes.parse(url.pathExtension.lowercased())?.structure ?? HTTPMediaTypes.Text.plain.structure
+            let url = URL(filePath: path)
+            let contentType = HTTPMediaTypes.parse(url.pathExtension.lowercased())?.structure ?? HTTPMediaTypes.Text.plain.structure
             let result:RouteResult = try .data(Data(contentsOf: url))
-            var route:StaticRoute = StaticRoute(
+            var route = StaticRoute(
                 version: version,
                 method: method,
                 path: [],

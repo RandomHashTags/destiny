@@ -58,7 +58,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
             logicDD += "\n$1.headers[HTTPResponseHeader.accessControlExposeHeadersRawName] = \"" + exposedHeaders + "\""
         }
-        if let maxAge:Int = maxAge {
+        if let maxAge {
             logicDD += "\n$1.headers[HTTPResponseHeader.accessControlMaxAgeRawName] = \"" + String(maxAge) + "\""
         }
         self.logic = { _, _ in }
@@ -97,17 +97,17 @@ extension DynamicCORSMiddleware {
         var maxAge:Int? = 600
         var exposedHeaders:Set<HTTPRequestHeader>? = nil
         for argument in function.arguments {
-            switch argument.label!.text {
+            switch argument.label?.text {
             case "allowedOrigin":
-                if let decl:String = argument.expression.memberAccess?.declName.baseName.text {
+                if let decl = argument.expression.memberAccess?.declName.baseName.text {
                     switch decl {
                     case "all": allowedOrigin = .all
                     case "none": allowedOrigin = .none
                     case "originBased": allowedOrigin = .originBased
                     default: break
                     }
-                } else if let function:FunctionCallExprSyntax = argument.expression.functionCall {
-                    switch function.calledExpression.memberAccess!.declName.baseName.text {
+                } else if let function = argument.expression.functionCall {
+                    switch function.calledExpression.memberAccess?.declName.baseName.text {
                     case "any": allowedOrigin = .any(Set(function.arguments.first!.expression.array!.elements.map({ $0.expression.stringLiteral!.string })))
                     case "custom": allowedOrigin = .custom(function.arguments.first!.expression.stringLiteral!.string)
                     default: break
@@ -120,13 +120,13 @@ extension DynamicCORSMiddleware {
             case "allowCredentials":
                 allowCredentials = argument.expression.booleanIsTrue
             case "maxAge":
-                if let s:String = argument.expression.integerLiteral?.literal.text {
+                if let s = argument.expression.integerLiteral?.literal.text {
                     maxAge = Int(s)
                 } else if argument.expression.is(NilLiteralExprSyntax.self) {
                     maxAge = nil
                 }
             case "exposedHeaders":
-                guard let values:[HTTPRequestHeader] = argument.expression.array?.elements.compactMap({ HTTPRequestHeader(expr: $0.expression) }) else { break }
+                guard let values = argument.expression.array?.elements.compactMap({ HTTPRequestHeader(expr: $0.expression) }) else { break }
                 exposedHeaders = Set(values)
             default:
                 break

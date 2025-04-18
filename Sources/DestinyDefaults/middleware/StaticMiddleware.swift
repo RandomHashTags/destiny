@@ -53,17 +53,17 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 
     public var debugDescription : String {
         var values:[String] = []
-        if let versions:Set<HTTPVersion> = handlesVersions {
-            values.append("handlesVersions: [" + versions.map({ ".\($0)" }).joined(separator: ",") + "]")
+        if let handlesVersions {
+            values.append("handlesVersions: [" + handlesVersions.map({ ".\($0)" }).joined(separator: ",") + "]")
         }
-        if let methods:Set<HTTPRequestMethod> = handlesMethods {
-            values.append("handlesMethods: [" + methods.map({ $0.debugDescription }).joined(separator: ",") + "]")
+        if let handlesMethods {
+            values.append("handlesMethods: [" + handlesMethods.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
-        if let statuses:Set<HTTPResponseStatus> = handlesStatuses {
-            values.append("handlesStatuses: [" + statuses.map({ $0.debugDescription }).joined(separator: ",") + "]")
+        if let handlesStatuses {
+            values.append("handlesStatuses: [" + handlesStatuses.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
-        if let contentTypes:Set<HTTPMediaType> = handlesContentTypes {
-            values.append("handlesContentTypes: [" + contentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
+        if let handlesContentTypes {
+            values.append("handlesContentTypes: [" + handlesContentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         if let appliesVersion {
             values.append("appliesVersion: .\(appliesVersion)")

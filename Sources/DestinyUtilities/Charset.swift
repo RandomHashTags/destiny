@@ -56,7 +56,7 @@ extension Charset {
         guard let string:String = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
             return nil
         }
-        if let value:Self = Self(rawValue: string) {
+        if let value = Self(rawValue: string) {
             self = value
         } else {
             switch string {

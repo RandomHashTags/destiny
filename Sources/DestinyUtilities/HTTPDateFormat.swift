@@ -87,8 +87,8 @@ public enum HTTPDateFormat {
 extension HTTPDateFormat {
     @inlinable
     public static func nowGlibc() -> String? {
-        var now:time_t = time(nil)
-        guard let gmt:UnsafeMutablePointer<tm> = gmtime(&now) else { return nil }
+        var now = time(nil)
+        guard let gmt = gmtime(&now) else { return nil }
         return httpDateGlibc(gmt.pointee)
     }
     @inlinable
@@ -103,8 +103,8 @@ extension HTTPDateFormat {
 extension HTTPDateFormat {
     @inlinable
     public static func get(date: Date) -> String {
-        let components:DateComponents = Calendar.current.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: date)
-        let values:(Int, Int, Int, Int, Int, Int, Int) = (
+        let components = Calendar.current.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: date)
+        let values = (
             components.year ?? 0,
             components.month ?? 0,
             components.day ?? 0,

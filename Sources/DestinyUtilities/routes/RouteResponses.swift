@@ -14,6 +14,43 @@ import Foundation
 public enum RouteResponses {
 }
 
+#if compiler(>=6.2)
+// MARK: InlineArray
+extension RouteResponses {
+    public struct InlineArray<let count: Int> : StaticRouteResponderProtocol {
+        public let value:Swift.InlineArray<count, UInt8>
+
+        public init(_ value: Swift.InlineArray<count, UInt8>) {
+            self.value = value
+        }
+
+        public var debugDescription : Swift.String {
+            var inlineArrayValue:Swift.String = "["
+            for i in value.indices {
+                inlineArrayValue.append(Character(Unicode.Scalar(value[i])))
+            }
+            inlineArrayValue += "]"
+            return "RouteResponses.InlineArray<\(count), UInt8>(" + inlineArrayValue + ")"
+        }
+
+        @inlinable
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            var err:(any Error)? = nil
+            value.span.withUnsafeBufferPointer {
+                do {
+                    try socket.writeBuffer($0.baseAddress!, length: $0.count)
+                } catch {
+                    err = error
+                }
+            }
+            if let err {
+                throw err
+            }
+        }
+    }
+}
+#endif
+
 // MARK: StaticString
 extension RouteResponses {
     public struct StaticString : StaticRouteResponderProtocol {

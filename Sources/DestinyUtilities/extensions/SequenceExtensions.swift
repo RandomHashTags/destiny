@@ -12,6 +12,11 @@ extension Collection {
     package func get(_ index: Index) -> Element? {
         return index < endIndex && index >= startIndex ? self[index] : nil
     }
+
+    @usableFromInline
+    package func getPositive(_ index: Index) -> Element? {
+        return index < endIndex ? self[index] : nil
+    }
 }
 
 // MARK: Array
