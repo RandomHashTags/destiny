@@ -40,7 +40,7 @@ public enum HTTPDateFormat {
         let dayName = httpDayName(dayOfWeek)
         let dayNumbers = httpDateNumber(day)
         let monthName = httpMonthName(month)
-        // year
+        let yearNumbers:InlineArray<4, UInt8> = httpNumber(year)
         let hourNumbers = httpDateNumber(hour)
         let minuteNumbers = httpDateNumber(minute)
         let secondNumbers = httpDateNumber(second)
@@ -58,23 +58,46 @@ public enum HTTPDateFormat {
         value[9] = monthName[1]
         value[10] = monthName[2]
         value[11] = space
-        value[12] = 48 // first year number
-        value[13] = 48 // second year number
-        value[14] = 48 // third year number
-        value[15] = 48 // fourth year number
-        value[16] = space
-        value[17] = hourNumbers[0]
-        value[18] = hourNumbers[1]
-        value[19] = 58 // :
-        value[20] = minuteNumbers[0]
-        value[21] = minuteNumbers[1]
-        value[22] = 58 // :
-        value[23] = secondNumbers[0]
-        value[24] = secondNumbers[1]
-        value[25] = space
-        value[26] = 71 // G
-        value[27] = 77 // M
-        value[28] = 84 // T
+        value[12] = yearNumbers[0]
+        var index = 13
+        if yearNumbers[1] != 0 {
+            value[index] = yearNumbers[1]
+            index += 1
+        }
+        if yearNumbers[2] != 0 {
+            value[index] = yearNumbers[2]
+            index += 1
+        }
+        if yearNumbers[3] != 0 {
+            value[index] = yearNumbers[3]
+            index += 1
+        }
+        value[index] = space
+        index += 1
+        value[index] = hourNumbers[0]
+        index += 1
+        value[index] = hourNumbers[1]
+        index += 1
+        value[index] = 58 // :
+        index += 1
+        value[index] = minuteNumbers[0]
+        index += 1
+        value[index] = minuteNumbers[1]
+        index += 1
+        value[index] = 58 // :
+        index += 1
+        value[index] = secondNumbers[0]
+        index += 1
+        value[index] = secondNumbers[1]
+        index += 1
+        value[index] = space
+        index += 1
+        value[index] = 71 // G
+        index += 1
+        value[index] = 77 // M
+        index += 1
+        value[index] = 84 // T
+        index += 1
         return value
     }
     @inlinable
@@ -86,7 +109,8 @@ public enum HTTPDateFormat {
         case 3:  return #inlineArray("Wed")
         case 4:  return #inlineArray("Thu")
         case 5:  return #inlineArray("Fri")
-        default: return #inlineArray("Sat")
+        case 6:  return #inlineArray("Sat")
+        default: return #inlineArray("???")
         }
     }
     @inlinable
@@ -103,7 +127,8 @@ public enum HTTPDateFormat {
         case 8:  return #inlineArray("Sep")
         case 9:  return #inlineArray("Oct")
         case 10: return #inlineArray("Nov")
-        default: return #inlineArray("Dec")
+        case 11: return #inlineArray("Dec")
+        default: return #inlineArray("???")
         }
     }
     @inlinable
@@ -123,9 +148,33 @@ public enum HTTPDateFormat {
             case 18: return #inlineArray("18")
             case 19: return #inlineArray("19")
             case 20: return #inlineArray("20")
-            default: return [0, 0]
+            case 21: return #inlineArray("21")
+            case 22: return #inlineArray("22")
+            case 23: return #inlineArray("23")
+            case 24: return #inlineArray("24")
+            case 25: return #inlineArray("25")
+            case 26: return #inlineArray("26")
+            case 27: return #inlineArray("27")
+            case 28: return #inlineArray("28")
+            case 29: return #inlineArray("29")
+            case 30: return #inlineArray("30")
+            case 31: return #inlineArray("31")
+            default: return httpNumber(int) // future proofing
             }
         }
+    }
+
+    @inlinable
+    static func httpNumber<let count: Int, T: BinaryInteger>(_ int: T) -> InlineArray<count, UInt8> {
+        var value:InlineArray<count, UInt8> = .init(repeating: 0)
+        var i = 0
+        for char in String(int) {
+            if let v = char.asciiValue {
+                value[i] = v
+                i += 1
+            }
+        }
+        return value
     }
 }
 

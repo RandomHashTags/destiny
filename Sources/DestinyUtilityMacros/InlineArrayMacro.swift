@@ -12,7 +12,8 @@ import SwiftSyntaxMacros
 enum InlineArrayMacro : ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var string:String = "["
-        if let s = node.arguments.first?.expression.stringLiteral?.string {
+        let expr = node.arguments.first?.expression
+        if let s = expr?.stringLiteral?.string ?? expr?.as(IntegerLiteralExprSyntax.self)?.literal.text {
             string.append(s.compactMap {
                 guard let v = $0.asciiValue else { return nil }
                 return "\(v)"
