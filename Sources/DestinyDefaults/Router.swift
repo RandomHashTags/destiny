@@ -49,7 +49,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         if let responder:any StaticRouteResponderProtocol = caseSensitiveResponders.static[startLine] {
             return responder
         }
-        return caseInsensitiveResponders.static[toLowercase(path: startLine)]
+        return caseInsensitiveResponders.static[startLine.lowercase()]
     }
     @inlinable
     public func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
@@ -65,7 +65,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
         if let responder:any RouteResponderProtocol = caseSensitiveResponders.conditional[request.startLine]?.responder(for: &request) {
             return responder
         }
-        return caseInsensitiveResponders.conditional[toLowercase(path: request.startLine)]?.responder(for: &request)
+        return caseInsensitiveResponders.conditional[request.startLine.lowercase()]?.responder(for: &request)
     }
 
     @inlinable
@@ -113,7 +113,7 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
                 // TODO: throw error
             }
         } else {
-            buffer = toLowercase(path: buffer)
+            buffer = buffer.lowercase()
             if override || caseInsensitiveResponders.static[buffer] == nil {
                 caseInsensitiveResponders.static[buffer] = responder
             } else {
@@ -141,17 +141,5 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
     public func register(_ middleware: any DynamicMiddlewareProtocol, at index: Int) throws {
         dynamicMiddleware.insert(middleware, at: index)
         // TODO: update existing routes?
-    }
-}
-
-extension Router {
-    @inlinable
-    func toLowercase(path: DestinyRoutePathType) -> DestinyRoutePathType {
-        var upperCase:SIMDMask<SIMD64<UInt8>.MaskStorage> = path .>= 65
-        upperCase .&= path .<= 90
-
-        var addition:DestinyRoutePathType = .zero
-        addition.replace(with: 32, where: upperCase)
-        return path &+ addition
     }
 }

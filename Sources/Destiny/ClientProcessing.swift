@@ -113,7 +113,7 @@ public enum ClientProcessing {
         for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {
             response.parameters[index] = request.path[parameterIndex]
             if responder.path[parameterIndex] == .catchall {
-                var i:Int = parameterIndex+1
+                var i = parameterIndex+1
                 while i < request.path.count {
                     response.parameters.append(request.path[i])
                     i += 1

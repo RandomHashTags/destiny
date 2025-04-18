@@ -95,7 +95,7 @@ public struct Request : RequestProtocol {
     public init?(
         tokens: [SIMD64<UInt8>]
     ) {
-        print("Request.init;tokens=\n\(tokens.map { $0.stringSIMD() }.joined(separator: "\n"))")
+        //print("Request.init;tokens=\n\(tokens.map { $0.stringSIMD() }.joined(separator: "\n"))")
         self.tokens = tokens
         guard var startLine = tokens.first else { return nil }
         let values = startLine.splitSIMD(separator: 32) // space

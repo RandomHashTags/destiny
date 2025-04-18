@@ -49,7 +49,6 @@ extension Socket {
 
     @inlinable
     public func loadRequestInline() throws -> ConcreteRequest? {
-        var sliceIndex:Int = 0
         while true {
             let (buffer, read):(InlineArray<1024, UInt8>, Int) = try readBuffer()
             if read <= 0 {
@@ -59,17 +58,27 @@ extension Socket {
             // 32 = SPACE
             // 13 = \r
             // 10 = \n
-            let _:InlineArray<256, UInt8>? = buffer.split(separators: 13, 10, defaultValue: 0, yield: { slice in
-                if sliceIndex == 0 { // start line
-                    let (method, methodSpaceIndex):(InlineArray<20, UInt8>, Int) = slice.firstSlice(separator: 32, defaultValue: 0)
-                    let (path, pathSpaceIndex):(InlineArray<64, UInt8>, Int) = slice.firstSlice(separator: 32, defaultValue: 0, offset: methodSpaceIndex+1)
-                    let (httpVersion, _):(InlineArray<8, UInt8>, Int) = slice.firstSlice(separator: 32, defaultValue: 0, offset: pathSpaceIndex+1)
-                    print("method=\(method.string());path=\(path.string());httpVersion=\(httpVersion.string())")
-                } else {
+
+            let (methodArray, methodSpaceIndex):(InlineArray<20, UInt8>, Int) = buffer.firstSlice(separator: 32, defaultValue: 0)
+            let (pathArray, pathSpaceIndex):(InlineArray<64, UInt8>, Int) = buffer.firstSlice(separator: 32, defaultValue: 0, offset: methodSpaceIndex+1)
+            let (httpVersionArray, httpVersionEndIndex):(InlineArray<8, UInt8>, Int) = buffer.firstSlice(separator: 10, defaultValue: 0, offset: pathSpaceIndex+1)
+            print("method=\(methodArray.string());path=\(pathArray.string());httpVersion=\(httpVersionArray.string())")
+
+            var skip:UInt8 = 0
+            let nextLine:InlineArray<256, UInt8> = .init(repeating: 0)
+            let _:InlineArray<256, UInt8>? = buffer.split(
+                separators: 13, 10,
+                defaultValue: 0,
+                offset: httpVersionEndIndex+1,
+                yield: { slice in
+                    if skip == 2 { // content
+                    } else if slice == nextLine {
+                        skip += 1
+                    } else { // header
+                    }
                     print("slice=\(slice.string())")
                 }
-                sliceIndex += 1
-            })
+            )
             if read < 1024 {
                 break
             }

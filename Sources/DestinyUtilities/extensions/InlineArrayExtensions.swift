@@ -1,9 +1,12 @@
 
 #if compiler(>=6.2)
 
+import Foundation
+
 // MARK: init
 extension InlineArray {
-    package init<T: Collection<Element>>(_ array: T) {
+    @inlinable
+    public init<T: Collection<Element>>(_ array: T) {
         self = .init(repeating: array[array.startIndex])
         for i in self.indices {
             self[i] = array[array.index(array.startIndex, offsetBy: i)]
@@ -42,10 +45,11 @@ extension InlineArray where Element: Equatable {
     public func split<let sliceLength: Int>(
         separators: Element...,
         defaultValue: Element,
+        offset: Index = 0,
         yield: (InlineArray<sliceLength, Element>) throws -> Void
     ) rethrows -> InlineArray<sliceLength, Element>? {
-        var beginning = startIndex
-        var i = 0
+        var beginning = offset
+        var i = offset
         loop: while i < count {
             let startIndex = i
             var element = self[i]
@@ -131,6 +135,68 @@ extension InlineArray where Element == UInt8 {
             s.append(Character(Unicode.Scalar(char)))
         }
         return s
+    }
+}
+
+// MARK: lowercase
+extension InlineArray where Element == UInt8 {
+    @inlinable
+    public func lowercase() -> Self {
+        var value = self
+        let simds = Int(ceil(Double(count) / 64))
+        var startIndex = startIndex
+        for _ in 0..<simds {
+            let simd = simd64(startIndex: startIndex).lowercase()
+            for i in 0..<64 {
+                value[startIndex + i] = simd[i]
+            }
+            startIndex += 64
+        }
+        return value
+    }
+}
+
+// MARK: SIMD
+extension InlineArray where Element: SIMDScalar {
+    @inlinable
+    public func simd16(startIndex: Index = 0) -> SIMD16<Element> {
+        return simd(startIndex: startIndex)
+    }
+    @inlinable
+    public func simd32(startIndex: Index = 0) -> SIMD32<Element> {
+        return simd(startIndex: startIndex)
+    }
+    @inlinable
+    public func simd64(startIndex: Index = 0) -> SIMD64<Element> {
+        return simd(startIndex: startIndex)
+    }
+
+    @inlinable
+    public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
+        var simd = T()
+        var i = 0
+        var index = startIndex
+        let endIndex = min(endIndex, startIndex + T.scalarCount)
+        while index < endIndex {
+            simd[i] = self[index]
+            index += 1
+            i += 1
+        }
+        return simd
+    }
+}
+
+// MARK: Equatable
+extension InlineArray where Element: Equatable {
+    @inlinable
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        guard lhs.count == rhs.count else { return false }
+        for i in 0..<lhs.count {
+            if lhs[i] != rhs[i] {
+                return false
+            }
+        }
+        return true
     }
 }
 

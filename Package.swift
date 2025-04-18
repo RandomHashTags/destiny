@@ -110,6 +110,7 @@ package.dependencies.append(.package(url: "https://github.com/Kitura/CEpoll", fr
 #endif
 
 #if compiler(>=6.2)
+// TODO: fix | doesn't work
 let valueGenerics:SwiftSetting = .enableExperimentalFeature("ValueGenerics")
 for target in package.targets {
     if target.swiftSettings != nil {
