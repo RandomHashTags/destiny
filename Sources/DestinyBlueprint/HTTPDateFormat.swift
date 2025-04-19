@@ -103,31 +103,31 @@ public enum HTTPDateFormat {
     @inlinable
     static func httpDayName<T: BinaryInteger>(_ int: T) -> InlineArray<3, UInt8> {
         switch int {
-        case 0:  return #inlineArray("Sun")
-        case 1:  return #inlineArray("Mon")
-        case 2:  return #inlineArray("Tue")
-        case 3:  return #inlineArray("Wed")
-        case 4:  return #inlineArray("Thu")
-        case 5:  return #inlineArray("Fri")
-        case 6:  return #inlineArray("Sat")
+        case 1:  return #inlineArray("Sun")
+        case 2:  return #inlineArray("Mon")
+        case 3:  return #inlineArray("Tue")
+        case 4:  return #inlineArray("Wed")
+        case 5:  return #inlineArray("Thu")
+        case 6:  return #inlineArray("Fri")
+        case 7:  return #inlineArray("Sat")
         default: return #inlineArray("???")
         }
     }
     @inlinable
     static func httpMonthName<T: BinaryInteger>(_ int: T) -> InlineArray<3, UInt8> {
         switch int {
-        case 0:  return #inlineArray("Jan")
-        case 1:  return #inlineArray("Feb")
-        case 2:  return #inlineArray("Mar")
-        case 3:  return #inlineArray("Apr")
-        case 4:  return #inlineArray("May")
-        case 5:  return #inlineArray("Jun")
-        case 6:  return #inlineArray("Jul")
-        case 7:  return #inlineArray("Aug")
-        case 8:  return #inlineArray("Sep")
-        case 9:  return #inlineArray("Oct")
-        case 10: return #inlineArray("Nov")
-        case 11: return #inlineArray("Dec")
+        case 1:  return #inlineArray("Jan")
+        case 2:  return #inlineArray("Feb")
+        case 3:  return #inlineArray("Mar")
+        case 4:  return #inlineArray("Apr")
+        case 5:  return #inlineArray("May")
+        case 6:  return #inlineArray("Jun")
+        case 7:  return #inlineArray("Jul")
+        case 8:  return #inlineArray("Aug")
+        case 9:  return #inlineArray("Sep")
+        case 10: return #inlineArray("Oct")
+        case 11: return #inlineArray("Nov")
+        case 12: return #inlineArray("Dec")
         default: return #inlineArray("???")
         }
     }
