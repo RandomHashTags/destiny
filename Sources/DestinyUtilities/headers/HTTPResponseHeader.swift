@@ -5,6 +5,8 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
+import DestinyBlueprint
+
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
 //  - this one performs about the same and doesn't waste memory when stored in other values.
@@ -130,104 +132,112 @@ public enum HTTPResponseHeader : String, Hashable {
     case xXSSProtection
 }
 
-// MARK: Raw name
+// MARK: Raw Name
 extension HTTPResponseHeader {
     @inlinable
-    public var rawName : String {
+    public var rawName : InlineArray<32, UInt8> {
         switch self {
         // standard
-        //case .acceptCH: return "Accept-CH"
-        case .acceptPatch: return "Accept-Patch"
-        case .acceptRanges: return "Accept-Ranges"
-        case .accessControlAllowOrigin: return "Access-Control-Allow-Origin"
-        case .accessControlAllowCredentials: return "Access-Control-Allow-Credentials"
-        case .accessControlAllowHeaders: return "Access-Control-Allow-Headers"
-        case .accessControlAllowMethods: return "Access-Control-Allow-Methods"
-        case .accessControlExposeHeaders: return "Access-Control-Expose-Headers"
-        case .accessControlMaxAge: return "Access-Control-Max-Age"
-        case .age: return "Age"
-        case .allow: return "Allow"
-        case .altSvc: return "Alt-Svc"
+        //case .acceptCH: #inlineArray(count: 32, "Accept-CH")
+        case .acceptPatch: #inlineArray(count: 32, "Accept-Patch")
+        case .acceptRanges: #inlineArray(count: 32, "Accept-Ranges")
+        case .accessControlAllowOrigin: #inlineArray(count: 32, "Access-Control-Allow-Origin")
+        case .accessControlAllowCredentials: #inlineArray(count: 32, "Access-Control-Allow-Credentials")
+        case .accessControlAllowHeaders: #inlineArray(count: 32, "Access-Control-Allow-Headers")
+        case .accessControlAllowMethods: #inlineArray(count: 32, "Access-Control-Allow-Methods")
+        case .accessControlExposeHeaders: #inlineArray(count: 32, "Access-Control-Expose-Headers")
+        case .accessControlMaxAge: #inlineArray(count: 32, "Access-Control-Max-Age")
+        case .age: #inlineArray(count: 32, "Age")
+        case .allow: #inlineArray(count: 32, "Allow")
+        case .altSvc: #inlineArray(count: 32, "Alt-Svc")
 
-        case .cacheControl: return "Cache-Control"
-        case .connection: return "Connection"
-        case .contentDisposition: return "Content-Disposition"
-        case .contentEncoding: return "Content-Encoding"
-        case .contentLanguage: return "Content-Language"
-        case .contentLength: return "Content-Length"
-        case .contentLocation: return "Content-Location"
-        case .contentRange: return "Content-Range"
-        case .contentType: return "Content-Type"
+        case .cacheControl: #inlineArray(count: 32, "Cache-Control")
+        case .connection: #inlineArray(count: 32, "Connection")
+        case .contentDisposition: #inlineArray(count: 32, "Content-Disposition")
+        case .contentEncoding: #inlineArray(count: 32, "Content-Encoding")
+        case .contentLanguage: #inlineArray(count: 32, "Content-Language")
+        case .contentLength: #inlineArray(count: 32, "Content-Length")
+        case .contentLocation: #inlineArray(count: 32, "Content-Location")
+        case .contentRange: #inlineArray(count: 32, "Content-Range")
+        case .contentType: #inlineArray(count: 32, "Content-Type")
 
-        case .date: return "Date"
-        case .deltaBase: return "Delta-Base"
+        case .date: #inlineArray(count: 32, "Date")
+        case .deltaBase: #inlineArray(count: 32, "Delta-Base")
 
-        case .eTag: return "ETag"
-        case .expires: return "Expires"
+        case .eTag: #inlineArray(count: 32, "ETag")
+        case .expires: #inlineArray(count: 32, "Expires")
 
-        case .im: return "IM"
+        case .im: #inlineArray(count: 32, "IM")
 
-        case .lastModified: return "Last-Modified"
-        case .link: return "Link"
-        case .location: return "Location"
+        case .lastModified: #inlineArray(count: 32, "Last-Modified")
+        case .link: #inlineArray(count: 32, "Link")
+        case .location: #inlineArray(count: 32, "Location")
 
-        case .p3p: return "P3P"
-        case .pragma: return "Pragma"
-        case .preferenceApplied: return "Preference-Applied"
-        case .proxyAuthenticate: return "Proxy-Authenticate"
-        case .publicKeyPins: return "Public-Key-Pins"
+        case .p3p: #inlineArray(count: 32, "P3P")
+        case .pragma: #inlineArray(count: 32, "Pragma")
+        case .preferenceApplied: #inlineArray(count: 32, "Preference-Applied")
+        case .proxyAuthenticate: #inlineArray(count: 32, "Proxy-Authenticate")
+        case .publicKeyPins: #inlineArray(count: 32, "Public-Key-Pins")
 
-        case .retryAfter: return "Retry-After"
+        case .retryAfter: #inlineArray(count: 32, "Retry-After")
 
 
-        case .server: return "Server"
-        case .setCookie: return "Set-Cookie"
-        case .strictTransportSecurity: return "Strict-Transport-Security"
+        case .server: #inlineArray(count: 32, "Server")
+        case .setCookie: #inlineArray(count: 32, "Set-Cookie")
+        case .strictTransportSecurity: #inlineArray(count: 32, "Strict-Transport-Security")
 
-        case .tk: return "TK"
-        case .trailer: return "Trailer"
-        case .transferEncoding: return "Transfer-Encoding"
+        case .tk: #inlineArray(count: 32, "TK")
+        case .trailer: #inlineArray(count: 32, "Trailer")
+        case .transferEncoding: #inlineArray(count: 32, "Transfer-Encoding")
 
-        case .upgrade: return "Upgrade"
+        case .upgrade: #inlineArray(count: 32, "Upgrade")
 
-        case .vary: return "Vary"
-        case .via: return "Via"
+        case .vary: #inlineArray(count: 32, "Vary")
+        case .via: #inlineArray(count: 32, "Via")
 
-        case .wwwAuthenticate: return "WWW-Authenticate"
+        case .wwwAuthenticate: #inlineArray(count: 32, "WWW-Authenticate")
 
         // non-standard
-        case .contentSecurityPolicy: return "Content-Security-Policy"
+        case .contentSecurityPolicy: #inlineArray(count: 32, "Content-Security-Policy")
 
-        case .expectCT: return "Expect-CT"
+        case .expectCT: #inlineArray(count: 32, "Expect-CT")
 
-        case .nel: return "NEL"
+        case .nel: #inlineArray(count: 32, "NEL")
         
-        case .permissionsPolicy: return "Permissions-Policy"
+        case .permissionsPolicy: #inlineArray(count: 32, "Permissions-Policy")
 
-        case .refresh: return "Refresh"
-        case .reportTo: return "Report-To"
+        case .refresh: #inlineArray(count: 32, "Refresh")
+        case .reportTo: #inlineArray(count: 32, "Report-To")
 
-        case .status: return "Status"
+        case .status: #inlineArray(count: 32, "Status")
 
-        case .timingAllowOrigin: return "Timing-Allow-Origin"
+        case .timingAllowOrigin: #inlineArray(count: 32, "Timing-Allow-Origin")
 
-        case .xContentSecurityPolicy: return "X-Content-Security-Policy"
-        case .xContentTypeOptions: return "X-Content-Type-Options"
-        case .xCorrelationID: return "X-Correlation-ID"
-        case .xPoweredBy: return "X-Powered-By"
-        case .xRedirectBy: return "X-Redirect-By"
-        case .xRequestID: return "X-Request-ID"
-        case .xUACompatible: return "X-UA-Compatible"
-        case .xWebKitCSP: return "X-WebKit-CSP"
-        case .xXSSProtection: return "X-XSS-Protection"
+        case .xContentSecurityPolicy: #inlineArray(count: 32, "X-Content-Security-Policy")
+        case .xContentTypeOptions: #inlineArray(count: 32, "X-Content-Type-Options")
+        case .xCorrelationID: #inlineArray(count: 32, "X-Correlation-ID")
+        case .xPoweredBy: #inlineArray(count: 32, "X-Powered-By")
+        case .xRedirectBy: #inlineArray(count: 32, "X-Redirect-By")
+        case .xRequestID: #inlineArray(count: 32, "X-Request-ID")
+        case .xUACompatible: #inlineArray(count: 32, "X-UA-Compatible")
+        case .xWebKitCSP: #inlineArray(count: 32, "X-WebKit-CSP")
+        case .xXSSProtection: #inlineArray(count: 32, "X-XSS-Protection")
         }
+    }
+}
+
+// MARK: Raw Name String
+extension HTTPResponseHeader {
+    @inlinable
+    public var rawNameString : String {
+        return rawName.string()
     }
 }
 
 // MARK: Static raw name
 // Convenience properties; used so we don't pay performance overhead when we don't want to
 extension HTTPResponseHeader {
-    internal static func get(_ header: Self) -> String { header.rawName }
+    internal static func get(_ header: Self) -> String { header.rawNameString }
 
     public static let acceptPatchRawName = get(.acceptPatch)
     public static let accessControlAllowOriginRawName = get(.accessControlAllowOrigin)

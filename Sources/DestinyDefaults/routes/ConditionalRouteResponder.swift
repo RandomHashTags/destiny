@@ -26,7 +26,7 @@ public struct ConditionalRouteResponder : ConditionalRouteResponderProtocol {
     }
 
     public var debugDescription : String {
-        return "ConditionalRouteResponder(\nconditions: \(conditionsDescription),\nresponders: \(respondersDescription)\n)"
+        "ConditionalRouteResponder(\nconditions: \(conditionsDescription),\nresponders: \(respondersDescription)\n)"
     }
 
     @inlinable

@@ -34,33 +34,33 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         exposedHeaders: Set<HTTPRequestHeader>? = nil,
         maxAge: Int? = 3600 // one hour
     ) {
-        var logicDD:String = "{\n"
+        var logicDD = "{\n"
         switch allowedOrigin {
         case .all:
-            logicDD += "$1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"*\""
+            logicDD += "$1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"*\")"
         case .any(let origins):
-            logicDD += "if let origin:String = $0.headers[HTTPRequestHeader.originRawName], (\(origins) as Set<String>).contains(origin) { $1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
+            logicDD += "if let origin:String = $0.headers[HTTPRequestHeader.originRawName], (\(origins) as Set<String>).contains(origin) { $1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
         case .custom(let s):
-            logicDD += "$1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = \"" + s + "\""
+            logicDD += "$1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"" + s + "\")"
         case .none:
             break
         case .originBased:
-            logicDD += "$1.headers[HTTPResponseHeader.varyRawName, default: \"\"] = \"origin\""
-            logicDD += "\nif let origin:String = $0.headers[HTTPRequestHeader.originRawName] { $1.headers[HTTPResponseHeader.accessControlAllowOriginRawName] = origin }"
+            logicDD += "$1.setHeader(key: HTTPResponseHeader.varyRawName, value: \"origin\")"
+            logicDD += "\nif let origin:String = $0.headers[HTTPRequestHeader.originRawName] { $1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
         }
 
-        let allowedHeaders = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
-        let allowedMethods = allowedMethods.map({ $0.rawName }).joined(separator: ",")
-        logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowHeadersRawName] = \"" + allowedHeaders + "\""
-        logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowMethodsRawName] = \"" + allowedMethods + "\""
+        let allowedHeaders = allowedHeaders.map({ $0.rawNameString }).joined(separator: ",")
+        let allowedMethods = allowedMethods.map({ $0.rawNameString }).joined(separator: ",")
+        logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowHeadersRawName, value: \"" + allowedHeaders + "\")"
+        logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowMethodsRawName, value: \"" + allowedMethods + "\")"
         if allowCredentials {
-            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlAllowCredentialsRawName] = \"true\""
+            logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: \"true\")"
         }
-        if let exposedHeaders:String = exposedHeaders?.map({ $0.rawName }).joined(separator: ",") {
-            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlExposeHeadersRawName] = \"" + exposedHeaders + "\""
+        if let exposedHeaders = exposedHeaders?.map({ $0.rawNameString }).joined(separator: ",") {
+            logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: \"" + exposedHeaders + "\")"
         }
         if let maxAge {
-            logicDD += "\n$1.headers[HTTPResponseHeader.accessControlMaxAgeRawName] = \"" + String(maxAge) + "\""
+            logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlMaxAgeRawName, value: \"" + String(maxAge) + "\")"
         }
         self.logic = { _, _ in }
         self.logicDebugDescription = logicDD + " }"
@@ -91,10 +91,10 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 // MARK: SwiftSyntax
 extension DynamicCORSMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
-        var allowedOrigin:CORSMiddlewareAllowedOrigin = .originBased
+        var allowedOrigin = CORSMiddlewareAllowedOrigin.originBased
         var allowedHeaders:Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin]
         var allowedMethods:Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch]
-        var allowCredentials:Bool = false
+        var allowCredentials = false
         var maxAge:Int? = 600
         var exposedHeaders:Set<HTTPRequestHeader>? = nil
         for argument in function.arguments {

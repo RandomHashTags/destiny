@@ -20,13 +20,13 @@ let benchmarks = {
 
     /*Benchmark("HTTPFieldName") {
         for _ in $0.scaledIterations {
-            blackHole(HTTPField.Name.contentType.rawName)
+            blackHole(HTTPField.Name.contentType.rawNameString)
         }
     }*/
 
     Benchmark("HTTPRequestHeader") {
         for _ in $0.scaledIterations {
-            blackHole(HTTPRequestHeader.contentType.rawName)
+            blackHole(HTTPRequestHeader.contentType.rawNameString)
         }
     }
 

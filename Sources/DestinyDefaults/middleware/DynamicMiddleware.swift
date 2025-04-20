@@ -38,7 +38,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     }
 
     public var debugDescription : String {
-        return "DynamicMiddleware \(logic)"
+        "DynamicMiddleware \(logic)"
     }
 }
 

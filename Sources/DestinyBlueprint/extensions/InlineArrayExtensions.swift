@@ -132,7 +132,6 @@ extension InlineArray where Element == UInt8 {
     @inlinable
     public func string() -> String {
         var s = ""
-        s.reserveCapacity(self.count)
         for i in self.indices {
             let char = self[i]
             if char == 0 {

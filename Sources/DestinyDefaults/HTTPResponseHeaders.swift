@@ -89,7 +89,7 @@ extension HTTPResponseHeaders {
                 if has {
                     temp += ", "
                 }
-                temp += method.rawName
+                temp.append(method.rawName)
                 has = true
             }
         }

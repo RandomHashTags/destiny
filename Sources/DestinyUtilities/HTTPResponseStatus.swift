@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 1/20/25.
 //
 
+import DestinyBlueprint
 import SwiftSyntax
 
 // MARK: HTTPResponseStatus
@@ -563,119 +564,127 @@ extension HTTPResponseStatus {
 // MARK: Phrase
 extension HTTPResponseStatus {
     @inlinable
-    public var phrase : String {
+    public var phrase : InlineArray<40, UInt8> {
         switch self {
-        case .continue: return "Continue"
-        case .switchingProtocols: return "Switching Protocols"
-        case .processing: return "Processing"
-        case .earlyHints: return "Early Hints"
+        case .continue: #inlineArray(count: 40, "Continue")
+        case .switchingProtocols: #inlineArray(count: 40, "Switching Protocols")
+        case .processing: #inlineArray(count: 40, "Processing")
+        case .earlyHints: #inlineArray(count: 40, "Early Hints")
 
-        case .ok: return "OK"
-        case .created: return "Created"
-        case .accepted: return "Accepted"
-        case .nonAuthoritativeInformation: return "Non-Authoritative Information"
-        case .noContent: return "No Content"
-        case .resetContent: return "Reset Content"
-        case .partialContent: return "Partial Content"
-        case .multiStatus: return "Multi-Status"
-        case .alreadyReported: return "Already Reported"
-        case .imUsed: return "IM Used"
+        case .ok: #inlineArray(count: 40, "OK")
+        case .created: #inlineArray(count: 40, "Created")
+        case .accepted: #inlineArray(count: 40, "Accepted")
+        case .nonAuthoritativeInformation: #inlineArray(count: 40, "Non-Authoritative Information")
+        case .noContent: #inlineArray(count: 40, "No Content")
+        case .resetContent: #inlineArray(count: 40, "Reset Content")
+        case .partialContent: #inlineArray(count: 40, "Partial Content")
+        case .multiStatus: #inlineArray(count: 40, "Multi-Status")
+        case .alreadyReported: #inlineArray(count: 40, "Already Reported")
+        case .imUsed: #inlineArray(count: 40, "IM Used")
 
-        case .multipleChoices: return "Multiple Choices"
-        case .movedPermanently: return "Moved Permanently"
-        case .found: return "Found"
-        case .seeOther: return "See Other"
-        case .notModified: return "Not Modified"
-        case .useProxy: return "Use Proxy"
-        case .temporaryRedirect: return "Temporary Redirect"
-        case .permanentRedirect: return "Permanent Redirect"
+        case .multipleChoices: #inlineArray(count: 40, "Multiple Choices")
+        case .movedPermanently: #inlineArray(count: 40, "Moved Permanently")
+        case .found: #inlineArray(count: 40, "Found")
+        case .seeOther: #inlineArray(count: 40, "See Other")
+        case .notModified: #inlineArray(count: 40, "Not Modified")
+        case .useProxy: #inlineArray(count: 40, "Use Proxy")
+        case .temporaryRedirect: #inlineArray(count: 40, "Temporary Redirect")
+        case .permanentRedirect: #inlineArray(count: 40, "Permanent Redirect")
 
-        case .badRequest: return "Bad Request"
-        case .unauthorized: return "Unauthorized"
-        case .paymentRequired: return "Payment Required"
-        case .forbidden: return "Forbidden"
-        case .notFound: return "Not Found"
-        case .methodNotAllowed: return "Method Not Allowed"
-        case .notAcceptable: return "Not Acceptable"
-        case .proxyAuthenticationRequired: return "Proxy Authentication Required"
-        case .requestTimeout: return "Request Timeout"
-        case .conflict: return "Conflict"
-        case .gone: return "Gone"
-        case .lengthRequired: return "Length Required"
-        case .preconditionFailed: return "Precondition Failed"
-        case .payloadTooLarge: return "Payload Too Large"
-        case .uriTooLong: return "URI Too Long"
-        case .unsupportedMediaType: return "Unsupported Media Type"
-        case .rangeNotSatisfiable: return "Range Not Satisfiable"
-        case .expectationFailed: return "Expectation Failed"
-        case .imATeapot: return "I'm a teapot"
-        case .misdirectedRequest: return "Misdirected Request"
-        case .unprocessableContent: return "Unprocessable Content"
-        case .locked: return "Locked"
-        case .failedDependency: return "Failed Dependency"
-        case .tooEarly: return "Too Early"
-        case .upgradeRequired: return "Upgrade Required"
-        case .preconditionRequired: return "Precondition Required"
-        case .tooManyRequests: return "Too Many Requests"
-        case .requestHeaderFieldsTooLarge: return "Request Header Fields Too Large"
-        case .unavailableForLegalReasons: return "Unavailable For Legal Reasons"
+        case .badRequest: #inlineArray(count: 40, "Bad Request")
+        case .unauthorized: #inlineArray(count: 40, "Unauthorized")
+        case .paymentRequired: #inlineArray(count: 40, "Payment Required")
+        case .forbidden: #inlineArray(count: 40, "Forbidden")
+        case .notFound: #inlineArray(count: 40, "Not Found")
+        case .methodNotAllowed: #inlineArray(count: 40, "Method Not Allowed")
+        case .notAcceptable: #inlineArray(count: 40, "Not Acceptable")
+        case .proxyAuthenticationRequired: #inlineArray(count: 40, "Proxy Authentication Required")
+        case .requestTimeout: #inlineArray(count: 40, "Request Timeout")
+        case .conflict: #inlineArray(count: 40, "Conflict")
+        case .gone: #inlineArray(count: 40, "Gone")
+        case .lengthRequired: #inlineArray(count: 40, "Length Required")
+        case .preconditionFailed: #inlineArray(count: 40, "Precondition Failed")
+        case .payloadTooLarge: #inlineArray(count: 40, "Payload Too Large")
+        case .uriTooLong: #inlineArray(count: 40, "URI Too Long")
+        case .unsupportedMediaType: #inlineArray(count: 40, "Unsupported Media Type")
+        case .rangeNotSatisfiable: #inlineArray(count: 40, "Range Not Satisfiable")
+        case .expectationFailed: #inlineArray(count: 40, "Expectation Failed")
+        case .imATeapot: #inlineArray(count: 40, "I'm a teapot")
+        case .misdirectedRequest: #inlineArray(count: 40, "Misdirected Request")
+        case .unprocessableContent: #inlineArray(count: 40, "Unprocessable Content")
+        case .locked: #inlineArray(count: 40, "Locked")
+        case .failedDependency: #inlineArray(count: 40, "Failed Dependency")
+        case .tooEarly: #inlineArray(count: 40, "Too Early")
+        case .upgradeRequired: #inlineArray(count: 40, "Upgrade Required")
+        case .preconditionRequired: #inlineArray(count: 40, "Precondition Required")
+        case .tooManyRequests: #inlineArray(count: 40, "Too Many Requests")
+        case .requestHeaderFieldsTooLarge: #inlineArray(count: 40, "Request Header Fields Too Large")
+        case .unavailableForLegalReasons: #inlineArray(count: 40, "Unavailable For Legal Reasons")
 
-        case .internalServerError: return "Internal Server Error"
-        case .notImplemented: return "Not Implemented"
-        case .badGateway: return "Bad Gateway"
-        case .serviceUnavailable: return "Service Unavailable"
-        case .gatewayTimeout: return "Gateway Timeout"
-        case .httpVersionNotSupported: return "HTTP Version Not Supported"
-        case .variantAlsoNegotiates: return "Variant Also Negotiates"
-        case .insufficientStorage: return "Insufficient Storage"
-        case .loopDetected: return "Loop Detected"
-        case .notExtended: return "Not Extended"
-        case .networkAuthenticationRequired: return "Network Authentication Required"
+        case .internalServerError: #inlineArray(count: 40, "Internal Server Error")
+        case .notImplemented: #inlineArray(count: 40, "Not Implemented")
+        case .badGateway: #inlineArray(count: 40, "Bad Gateway")
+        case .serviceUnavailable: #inlineArray(count: 40, "Service Unavailable")
+        case .gatewayTimeout: #inlineArray(count: 40, "Gateway Timeout")
+        case .httpVersionNotSupported: #inlineArray(count: 40, "HTTP Version Not Supported")
+        case .variantAlsoNegotiates: #inlineArray(count: 40, "Variant Also Negotiates")
+        case .insufficientStorage: #inlineArray(count: 40, "Insufficient Storage")
+        case .loopDetected: #inlineArray(count: 40, "Loop Detected")
+        case .notExtended: #inlineArray(count: 40, "Not Extended")
+        case .networkAuthenticationRequired: #inlineArray(count: 40, "Network Authentication Required")
 
-        case .thisIsFine: return "This is fine"
-        case .pageExpired: return "Page Expired"
-        case .methodFailure: return "Method Failure"
-        case .enhanceYourCalm: return "Enhance Your Calm"
-        case .shopifySecurityRejection: return "Shopify Security Rejection"
-        case .blockedByWindowsParentalControls: return "Blocked by Windows Parental Controls"
-        case .invalidToken: return "Invalid Token"
-        case .tokenRequired: return "Token Required"
-        case .bandwidthLimitExceeded: return "Bandwidth Limit Exceeded"
-        case .siteIsOverloaded: return "Site is overloaded"
-        case .siteIsFrozen: return "Site is frozen"
-        case .originDNSError: return "Origin DNS Error"
-        case .temporarityDisabled: return "Temporarily Disabled"
-        case .networkReadTimeoutError: return "Network read timeout error"
-        case .networkConnectTimeoutError: return "Network Connect Timeout Error"
-        case .unexpectedToken: return "Unexpected Token"
-        case .nonStandard: return "Non-standard"
+        case .thisIsFine: #inlineArray(count: 40, "This is fine")
+        case .pageExpired: #inlineArray(count: 40, "Page Expired")
+        case .methodFailure: #inlineArray(count: 40, "Method Failure")
+        case .enhanceYourCalm: #inlineArray(count: 40, "Enhance Your Calm")
+        case .shopifySecurityRejection: #inlineArray(count: 40, "Shopify Security Rejection")
+        case .blockedByWindowsParentalControls: #inlineArray(count: 40, "Blocked by Windows Parental Controls")
+        case .invalidToken: #inlineArray(count: 40, "Invalid Token")
+        case .tokenRequired: #inlineArray(count: 40, "Token Required")
+        case .bandwidthLimitExceeded: #inlineArray(count: 40, "Bandwidth Limit Exceeded")
+        case .siteIsOverloaded: #inlineArray(count: 40, "Site is overloaded")
+        case .siteIsFrozen: #inlineArray(count: 40, "Site is frozen")
+        case .originDNSError: #inlineArray(count: 40, "Origin DNS Error")
+        case .temporarityDisabled: #inlineArray(count: 40, "Temporarily Disabled")
+        case .networkReadTimeoutError: #inlineArray(count: 40, "Network read timeout error")
+        case .networkConnectTimeoutError: #inlineArray(count: 40, "Network Connect Timeout Error")
+        case .unexpectedToken: #inlineArray(count: 40, "Unexpected Token")
+        case .nonStandard: #inlineArray(count: 40, "Non-standard")
 
-        case .loginTimeout: return "Login Time-out"
-        case .retryWith: return "Retry With"
-        case .redirect: return "Redirect"
+        case .loginTimeout: #inlineArray(count: 40, "Login Time-out")
+        case .retryWith: #inlineArray(count: 40, "Retry With")
+        case .redirect: #inlineArray(count: 40, "Redirect")
 
-        case .noResponse: return "No Response"
-        case .requestHeaderTooLarge: return "Request header too large"
-        case .sslCertificateError: return "SSL Certificate Error"
-        case .sslCertificateRequired: return "SSL Certificate Required"
-        case .httpRequestSendToHTTPSPort: return "HTTP Request Sent to HTTPS Port"
-        case .clientClosedRequest: return "Client Closed Request"
+        case .noResponse: #inlineArray(count: 40, "No Response")
+        case .requestHeaderTooLarge: #inlineArray(count: 40, "Request header too large")
+        case .sslCertificateError: #inlineArray(count: 40, "SSL Certificate Error")
+        case .sslCertificateRequired: #inlineArray(count: 40, "SSL Certificate Required")
+        case .httpRequestSendToHTTPSPort: #inlineArray(count: 40, "HTTP Request Sent to HTTPS Port")
+        case .clientClosedRequest: #inlineArray(count: 40, "Client Closed Request")
 
-        case .webServerReturnedAnUnknownError: return "Web Server Returned an Unknown Error"
-        case .webServerIsDown: return "Web Server Is Down"
-        case .connectionTimedOut: return "Connection Timed Out"
-        case .originIsUnreachable: return "Origin Is Unreachable"
-        case .aTimeoutOccurred: return "A Timeout Occurred"
-        case .sslHandshakeFailed: return "SSL Handshake Failed"
-        case .invalidSSLCertificate: return "Invalid SSL Certificate"
-        case .issueResolvingOriginHostname: return "Issue Resolving Origin Hostname"
+        case .webServerReturnedAnUnknownError: #inlineArray(count: 40, "Web Server Returned an Unknown Error")
+        case .webServerIsDown: #inlineArray(count: 40, "Web Server Is Down")
+        case .connectionTimedOut: #inlineArray(count: 40, "Connection Timed Out")
+        case .originIsUnreachable: #inlineArray(count: 40, "Origin Is Unreachable")
+        case .aTimeoutOccurred: #inlineArray(count: 40, "A Timeout Occurred")
+        case .sslHandshakeFailed: #inlineArray(count: 40, "SSL Handshake Failed")
+        case .invalidSSLCertificate: #inlineArray(count: 40, "Invalid SSL Certificate")
+        case .issueResolvingOriginHostname: #inlineArray(count: 40, "Issue Resolving Origin Hostname")
 
-        case ._000: return ""
-        case ._460: return ""
-        case ._463: return ""
-        case ._464: return ""
-        case ._561: return ""
+        case ._000: #inlineArray(count: 40, "")
+        case ._460: #inlineArray(count: 40, "")
+        case ._463: #inlineArray(count: 40, "")
+        case ._464: #inlineArray(count: 40, "")
+        case ._561: #inlineArray(count: 40, "")
         }
+    }
+}
+
+// MARK: Phrase string
+extension HTTPResponseStatus {
+    @inlinable
+    public var phraseString : String {
+        return phrase.string()
     }
 }
 

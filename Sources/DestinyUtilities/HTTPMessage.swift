@@ -37,7 +37,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
     }
 
     public var debugDescription : String {
-        return "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
+        "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
     }
 
     /// - Parameters:
@@ -57,9 +57,11 @@ public struct HTTPMessage : HTTPMessageProtocol {
             let contentLength = result.utf8.count
             result.replace("\"", with: "\\\"")
             if let contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string.append(HTTPResponseHeader.contentType.rawName)
+                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
-            string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
+            string.append(HTTPResponseHeader.contentLength.rawName)
+            string += ": \(contentLength)"
             string += suffix + suffix + result
         }
         return string
@@ -79,9 +81,11 @@ public struct HTTPMessage : HTTPMessageProtocol {
         var bytes:[UInt8]
         if let result = try result?.bytes() {
             if let contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string.append(HTTPResponseHeader.contentType.rawName)
+                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
-            string += HTTPResponseHeader.contentLength.rawName + ": \(result.count)"
+            string.append(HTTPResponseHeader.contentLength.rawName)
+            string += ": \(result.count)"
             string += suffix + suffix
             
             bytes = [UInt8](string.utf8)
@@ -137,9 +141,11 @@ extension HTTPMessage {
         if let result {
             let contentLength = result.utf8.count
             if let contentType {
-                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string.append(HTTPResponseHeader.contentType.rawName)
+                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
-            string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
+            string.append(HTTPResponseHeader.contentLength.rawName)
+            string += ": \(contentLength)"
             string += suffix + suffix + result
         }
         return string

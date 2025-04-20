@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
+import DestinyBlueprint
 import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
@@ -129,96 +130,104 @@ public enum HTTPRequestHeader : String {
     case xWapProfile
 }
 
-// MARK: Raw name
+// MARK: Raw Name
 extension HTTPRequestHeader {
     @inlinable
-    public var rawName : String {
+    public var rawName : InlineArray<32, UInt8> {
         switch self {
         // standard
-        case .aim: return "A-IM"
-        case .accept: return "Accept"
-        case .acceptCharset: return "Accept-Charset"
-        case .acceptDatetime: return "Accept-Datetime"
-        case .acceptEncoding: return "Accept-Encoding"
-        case .acceptLanguage: return "Accept-Language"
-        case .accessControlRequestHeaders: return "Access-Control-Request-Headers"
-        case .accessControlRequestMethod: return "Access-Control-Request-Method"
-        case .authorization: return "Authorization"
+        case .aim: #inlineArray(count: 32, "A-IM")
+        case .accept: #inlineArray(count: 32, "Accept")
+        case .acceptCharset: #inlineArray(count: 32, "Accept-Charset")
+        case .acceptDatetime: #inlineArray(count: 32, "Accept-Datetime")
+        case .acceptEncoding: #inlineArray(count: 32, "Accept-Encoding")
+        case .acceptLanguage: #inlineArray(count: 32, "Accept-Language")
+        case .accessControlRequestHeaders: #inlineArray(count: 32, "Access-Control-Request-Headers")
+        case .accessControlRequestMethod: #inlineArray(count: 32, "Access-Control-Request-Method")
+        case .authorization: #inlineArray(count: 32, "Authorization")
 
-        case .cacheControl: return "Cache-Control"
-        case .connection: return "Connection"
-        case .contentEncoding: return "Content-Encoding"
-        case .contentLength: return "Content-Length"
-        case .contentType: return "Content-Type"
-        case .cookie: return "Cookie"
+        case .cacheControl: #inlineArray(count: 32, "Cache-Control")
+        case .connection: #inlineArray(count: 32, "Connection")
+        case .contentEncoding: #inlineArray(count: 32, "Content-Encoding")
+        case .contentLength: #inlineArray(count: 32, "Content-Length")
+        case .contentType: #inlineArray(count: 32, "Content-Type")
+        case .cookie: #inlineArray(count: 32, "Cookie")
 
-        case .date: return "Date"
+        case .date: #inlineArray(count: 32, "Date")
 
-        case .expect: return "Expect"
+        case .expect: #inlineArray(count: 32, "Expect")
 
-        case .forwarded: return "Forwarded"
-        case .from: return "From"
+        case .forwarded: #inlineArray(count: 32, "Forwarded")
+        case .from: #inlineArray(count: 32, "From")
 
-        case .host: return "Host"
+        case .host: #inlineArray(count: 32, "Host")
 
-        case .ifMatch: return "If-Match"
-        case .ifModifiedSince: return "If-Modified-Since"
-        case .ifNoneMatch: return "If-None-Match"
-        case .ifRange: return "If-Range"
-        case .ifUnmodifiedSince: return "If-Unmodified-Since"
+        case .ifMatch: #inlineArray(count: 32, "If-Match")
+        case .ifModifiedSince: #inlineArray(count: 32, "If-Modified-Since")
+        case .ifNoneMatch: #inlineArray(count: 32, "If-None-Match")
+        case .ifRange: #inlineArray(count: 32, "If-Range")
+        case .ifUnmodifiedSince: #inlineArray(count: 32, "If-Unmodified-Since")
 
-        case .maxForwards: return "Max-Forwards"
+        case .maxForwards: #inlineArray(count: 32, "Max-Forwards")
 
-        case .origin: return "Origin"
+        case .origin: #inlineArray(count: 32, "Origin")
 
-        case .pragma: return "Pragma"
-        case .prefer: return "Prefer"
-        case .proxyAuthorization: return "Proxy-Authorization"
+        case .pragma: #inlineArray(count: 32, "Pragma")
+        case .prefer: #inlineArray(count: 32, "Prefer")
+        case .proxyAuthorization: #inlineArray(count: 32, "Proxy-Authorization")
 
-        case .range: return "Range"
-        case .referer: return "Referer"
+        case .range: #inlineArray(count: 32, "Range")
+        case .referer: #inlineArray(count: 32, "Referer")
 
-        case .te: return "TE"
-        case .trailer: return "Trailer"
-        case .transferEncoding: return "Transfer-Encoding"
+        case .te: #inlineArray(count: 32, "TE")
+        case .trailer: #inlineArray(count: 32, "Trailer")
+        case .transferEncoding: #inlineArray(count: 32, "Transfer-Encoding")
 
-        case .upgrade: return "Upgrade"
-        case .userAgent: return "User-Agent"
+        case .upgrade: #inlineArray(count: 32, "Upgrade")
+        case .userAgent: #inlineArray(count: 32, "User-Agent")
 
-        case .via: return "Via"
+        case .via: #inlineArray(count: 32, "Via")
         
         // non-standard
-        case .correlationID: return "Correlation-ID"
+        case .correlationID: #inlineArray(count: 32, "Correlation-ID")
 
-        case .dnt: return "DNT"
+        case .dnt: #inlineArray(count: 32, "DNT")
 
-        case .frontEndHttps: return "Front-End-Https"
+        case .frontEndHttps: #inlineArray(count: 32, "Front-End-Https")
 
-        case .proxyConnection: return "Proxy-Connection"
+        case .proxyConnection: #inlineArray(count: 32, "Proxy-Connection")
 
-        case .saveData: return "Save-Data"
-        case .secGPC: return "Sec-GPC"
+        case .saveData: #inlineArray(count: 32, "Save-Data")
+        case .secGPC: #inlineArray(count: 32, "Sec-GPC")
 
-        case .upgradeInsecureRequests: return "Upgrade-Insecure-Requests"
+        case .upgradeInsecureRequests: #inlineArray(count: 32, "Upgrade-Insecure-Requests")
 
-        case .xATTDeviceID: return "X-ATT-Device-Id"
-        case .xCorrelationID: return "X-Correlation-ID"
-        case .xCsrfToken: return "X-Csrf-Token"
-        case .xForwardedFor: return "X-Forwarded-For"
-        case .xForwardedHost: return "X-Forwarded-Host"
-        case .xForwardedProto: return "X-Forwarded-Proto"
-        case .xHttpMethodOverride: return "X-Http-Method-Override"
-        case .xRequestID: return "X-Request-ID"
-        case .xRequestedWith: return "X-Requested-With"
-        case .xUIDH: return "X-UIDH"
-        case .xWapProfile: return "X-Wap-Profile"
+        case .xATTDeviceID: #inlineArray(count: 32, "X-ATT-Device-Id")
+        case .xCorrelationID: #inlineArray(count: 32, "X-Correlation-ID")
+        case .xCsrfToken: #inlineArray(count: 32, "X-Csrf-Token")
+        case .xForwardedFor: #inlineArray(count: 32, "X-Forwarded-For")
+        case .xForwardedHost: #inlineArray(count: 32, "X-Forwarded-Host")
+        case .xForwardedProto: #inlineArray(count: 32, "X-Forwarded-Proto")
+        case .xHttpMethodOverride: #inlineArray(count: 32, "X-Http-Method-Override")
+        case .xRequestID: #inlineArray(count: 32, "X-Request-ID")
+        case .xRequestedWith: #inlineArray(count: 32, "X-Requested-With")
+        case .xUIDH: #inlineArray(count: 32, "X-UIDH")
+        case .xWapProfile: #inlineArray(count: 32, "X-Wap-Profile")
         }
+    }
+}
+
+// MARK: Raw Name String
+extension HTTPRequestHeader {
+    @inlinable
+    public var rawNameString : String {
+        return rawName.string()
     }
 }
 
 // MARK: Static raw name
 extension HTTPRequestHeader {
-    internal static func get(_ header: Self) -> String { header.rawName }
+    internal static func get(_ header: Self) -> String { header.rawNameString }
 
     public static let originRawName:String = get(.origin)
 }
@@ -245,7 +254,7 @@ extension HTTPRequestHeader {
         @inlinable
         public var rawName : String {
             switch self {
-            case .xmlHttpRequest: return "XMLHttpRequest"
+            case .xmlHttpRequest: "XMLHttpRequest"
             }
         }
     }

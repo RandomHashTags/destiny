@@ -33,9 +33,9 @@ let router:Router = #router(
         DynamicMiddleware({ request, response in
             guard request.method == .get else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            response.headers["Womp-Womp"] = UUID().uuidString
+            response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
             #else
-            response.headers["Womp-Womp"] = String(UInt64.random(in: 0..<UInt64.max))
+            response.setHeader(key: "Womp-Womp", value: String(UInt64.random(in: 0..<UInt64.max)))
             #endif
         })
     ],

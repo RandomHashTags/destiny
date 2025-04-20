@@ -258,7 +258,7 @@ extension Router.Storage {
         if !redirects.isEmpty {
             string += redirects.compactMap({ (route, function) in
                 do {
-                    var string = route.method.rawName + " /" + route.from.joined(separator: "/") + " " + route.version.string
+                    var string = route.method.rawNameString + " /" + route.from.joined(separator: "/") + " " + route.version.string
                     if !isCaseSensitive {
                         string = string.lowercased()
                     }
@@ -334,11 +334,11 @@ extension Router {
                 do {
                     let compressed = try body.compressed(using: technique)
                     httpResponse.result = .bytes(compressed.data)
-                    httpResponse.headers[HTTPResponseHeader.contentEncoding.rawName] = algorithm.acceptEncodingName
-                    httpResponse.headers[HTTPResponseHeader.vary.rawName] = HTTPRequestHeader.acceptEncoding.rawName
+                    httpResponse.headers[HTTPResponseHeader.contentEncoding.rawNameString] = algorithm.acceptEncodingName
+                    httpResponse.headers[HTTPResponseHeader.vary.rawNameString] = HTTPRequestHeader.acceptEncoding.rawNameString
                     do {
                         let bytes = try httpResponse.string(escapeLineBreak: false)
-                        responder.conditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawName]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
+                        responder.conditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
                         responder.respondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
@@ -407,7 +407,7 @@ extension Router.Storage {
                         parameterizedByPathCount.append("")
                     }
                 }
-                var string = route.method.rawName + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
+                var string = route.method.rawNameString + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
                 if !registeredPaths.contains(string) {
                     registeredPaths.insert(string)
                     string = route.startLine

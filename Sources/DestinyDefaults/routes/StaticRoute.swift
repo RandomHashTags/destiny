@@ -84,8 +84,8 @@ public struct StaticRoute : StaticRouteProtocol {
             Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
             #endif
         }
-        headers[HTTPResponseHeader.contentType.rawName] = nil
-        headers[HTTPResponseHeader.contentLength.rawName] = nil
+        headers[HTTPResponseHeader.contentType.rawNameString] = nil
+        headers[HTTPResponseHeader.contentLength.rawNameString] = nil
         return HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset)
     }
 

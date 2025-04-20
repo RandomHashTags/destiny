@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 1/4/25.
 //
 
+import DestinyBlueprint
 import SwiftSyntax
 
 // MARK: HTTPRequestMethod
@@ -745,152 +746,160 @@ public enum HTTPRequestMethod : String, Sendable {
     case verify
 }
 
-// MARK: Raw name
+// MARK: Raw Name
 extension HTTPRequestMethod {
     @inlinable
-    public var rawName : String {
+    public var rawName : InlineArray<20, UInt8> {
         switch self {
-        case .acl: return "ACL"
-        case .announce: return "ANNOUNCE"
-        case .append: return "APPEND"
-        case .authenticate: return "AUTHENTICATE"
-        case .authorization: return "AUTHORIZATION"
-        case .baselineControl: return "BASELINE-CONTROL"
-        case .backup: return "BACKUP"
-        case .batch: return "BATCH"
-        case .bind: return "BIND"
-        case .cancel: return "CANCEL"
-        case .check: return "CHECK"
-        case .checkin: return "CHECKIN"
-        case .checkout: return "CHECKOUT"
-        case .clear: return "CLEAR"
-        case .clone: return "CLONE"
-        case .close: return "CLOSE"
-        case .complete: return "COMPLETE"
-        case .connect: return "CONNECT"
-        case .convert: return "CONVERT"
-        case .copy: return "COPY"
-        case .curate: return "CURATE"
-        case .deactivate: return "DEACTIVATE"
-        case .delete: return "DELETE"
-        case .deliver: return "DELIVER"
-        case .deplete: return "DEPLETE"
-        case .deploy: return "DEPLOY"
-        case .deregister: return "DEREGISTER"
-        case .describe: return "DESCRIBE"
-        case .disable: return "DISABLE"
-        case .dispatch: return "DISPATCH"
-        case .draft: return "DRAFT"
-        case .dump: return "DUMP"
-        case .enable: return "ENABLE"
-        case .establish: return "ESTABLISH"
-        case .execute: return "EXECUTE"
-        case .expand: return "EXPAND"
-        case .fetch: return "FETCH"
-        case .finalize: return "FINALIZE"
-        case .force: return "FORCE"
-        case .freeze: return "FREEZE"
-        case .get: return "GET"
-        case .handshake: return "HANDSHAKE"
-        case .head: return "HEAD"
-        case .hold: return "HOLD"
-        case .info: return "INFO"
-        case .initialize: return "INITIALIZE"
-        case .install: return "INSTALL"
-        case .invite: return "INVITE"
-        case .join: return "JOIN"
-        case .label: return "LABEL"
-        case .link: return "LINK"
-        case .lock: return "LOCK"
-        case .merge: return "MERGE"
-        case .message: return "MESSAGE"
-        case .migrate: return "MIGRATE"
-        case .mkactivity: return "MKACTIVITY"
-        case .mkcalendar: return "MKCALENDAR"
-        case .mkcol: return "MKCOL"
-        case .mkredirectref: return "MKREDIRECTREF"
-        case .mkworkspace: return "MKWORKSPACE"
-        case .move: return "MOVE"
-        case .msearch: return "MSEARCH"
-        case .notify: return "NOTIFY"
-        case .notifyall: return "NOTIFYALL"
-        case .notifyFile: return "NOTIFY-FILE"
-        case .open: return "OPEN"
-        case .options: return "OPTIONS"
-        case .orderpatch: return "ORDERPATCH"
-        case .outbox: return "OUTBOX"
-        case .partial: return "PARTIAL"
-        case .partialUpdate: return "PARTIAL-UPDATE"
-        case .patch: return "PATCH"
-        case .patchForm: return "PATCH-FORM"
-        case .patchMultipart: return "PATCH-MULTIPART"
-        case .pause: return "PAUSE"
-        case .ping: return "PING"
-        case .pingAck: return "PING-ACK"
-        case .play: return "PLAY"
-        case .poll: return "POLL"
-        case .post: return "POST"
-        case .prepare: return "PREPARE"
-        case .propfind: return "PROPFIND"
-        case .proppatch: return "PROPPATCH"
-        case .provision: return "PROVISION"
-        case .put: return "PUT"
-        case .purge: return "PURGE"
-        case .query: return "QUERY"
-        case .rebind: return "REBIND"
-        case .record: return "RECORD"
-        case .recover: return "RECOVER"
-        case .redirect: return "REDIRECT"
-        case .refer: return "REFER"
-        case .register: return "REGISTER"
-        case .reject: return "REJECT"
-        case .reload: return "RELOAD"
-        case .replicate: return "REPLICATE"
-        case .report: return "REPORT"
-        case .reserve: return "RESERVE"
-        case .reset: return "RESET"
-        case .restart: return "RESTART"
-        case .restore: return "RESTORE"
-        case .resume: return "RESUME"
-        case .retry: return "RETRY"
-        case .retryCount: return "RETRY-COUNT"
-        case .rewind: return "REWIND"
-        case .rollback: return "ROLLBACK"
-        case .rotate: return "ROTATE"
-        case .search: return "SEARCH"
-        case .searchall: return "SEARCHALL"
-        case .setup: return "SETUP"
-        case .shutdown: return "SHUTDOWN"
-        case .skip: return "SKIP"
-        case .split: return "SPLIT"
-        case .source: return "SOURCE"
-        case .stash: return "STASH"
-        case .stop: return "STOP"
-        case .submit: return "SUBMIT"
-        case .subscribe: return "SUBSCRIBE"
-        case .suspend: return "SUSPEND"
-        case .sync: return "SYNC"
-        case .syncstate: return "SYNCSTATE"
-        case .teardown: return "TEARDOWN"
-        case .thaw: return "THAW"
-        case .ticket: return "TICKET"
-        case .trace: return "TRACE"
-        case .unbind: return "UNBIND"
-        case .unblock: return "UNBLOCK"
-        case .uncheckout: return "UNCHECKOUT"
-        case .undeploy: return "UNDEPLOY"
-        case .uninstall: return "UNINSTALL"
-        case .unlink: return "UNLINK"
-        case .unlock: return "UNLOCK"
-        case .unset: return "UNSET"
-        case .unsubscribe: return "UNSUBSCRIBE"
-        case .update: return "UPDATE"
-        case .updateredirectref: return "UPDATEREDIRECTREF"
-        case .upgrade: return "UPGRADE"
-        case .validate: return "VALIDATE"
-        case .verify: return "VERIFY"
-        case .versionControl: return "VERSION-CONTROL"
+        case .acl: #inlineArray(count: 20, "ACL")
+        case .announce: #inlineArray(count: 20, "ANNOUNCE")
+        case .append: #inlineArray(count: 20, "APPEND")
+        case .authenticate: #inlineArray(count: 20, "AUTHENTICATE")
+        case .authorization: #inlineArray(count: 20, "AUTHORIZATION")
+        case .baselineControl: #inlineArray(count: 20, "BASELINE-CONTROL")
+        case .backup: #inlineArray(count: 20, "BACKUP")
+        case .batch: #inlineArray(count: 20, "BATCH")
+        case .bind: #inlineArray(count: 20, "BIND")
+        case .cancel: #inlineArray(count: 20, "CANCEL")
+        case .check: #inlineArray(count: 20, "CHECK")
+        case .checkin: #inlineArray(count: 20, "CHECKIN")
+        case .checkout: #inlineArray(count: 20, "CHECKOUT")
+        case .clear: #inlineArray(count: 20, "CLEAR")
+        case .clone: #inlineArray(count: 20, "CLONE")
+        case .close: #inlineArray(count: 20, "CLOSE")
+        case .complete: #inlineArray(count: 20, "COMPLETE")
+        case .connect: #inlineArray(count: 20, "CONNECT")
+        case .convert: #inlineArray(count: 20, "CONVERT")
+        case .copy: #inlineArray(count: 20, "COPY")
+        case .curate: #inlineArray(count: 20, "CURATE")
+        case .deactivate: #inlineArray(count: 20, "DEACTIVATE")
+        case .delete: #inlineArray(count: 20, "DELETE")
+        case .deliver: #inlineArray(count: 20, "DELIVER")
+        case .deplete: #inlineArray(count: 20, "DEPLETE")
+        case .deploy: #inlineArray(count: 20, "DEPLOY")
+        case .deregister: #inlineArray(count: 20, "DEREGISTER")
+        case .describe: #inlineArray(count: 20, "DESCRIBE")
+        case .disable: #inlineArray(count: 20, "DISABLE")
+        case .dispatch: #inlineArray(count: 20, "DISPATCH")
+        case .draft: #inlineArray(count: 20, "DRAFT")
+        case .dump: #inlineArray(count: 20, "DUMP")
+        case .enable: #inlineArray(count: 20, "ENABLE")
+        case .establish: #inlineArray(count: 20, "ESTABLISH")
+        case .execute: #inlineArray(count: 20, "EXECUTE")
+        case .expand: #inlineArray(count: 20, "EXPAND")
+        case .fetch: #inlineArray(count: 20, "FETCH")
+        case .finalize: #inlineArray(count: 20, "FINALIZE")
+        case .force: #inlineArray(count: 20, "FORCE")
+        case .freeze: #inlineArray(count: 20, "FREEZE")
+        case .get: #inlineArray(count: 20, "GET")
+        case .handshake: #inlineArray(count: 20, "HANDSHAKE")
+        case .head: #inlineArray(count: 20, "HEAD")
+        case .hold: #inlineArray(count: 20, "HOLD")
+        case .info: #inlineArray(count: 20, "INFO")
+        case .initialize: #inlineArray(count: 20, "INITIALIZE")
+        case .install: #inlineArray(count: 20, "INSTALL")
+        case .invite: #inlineArray(count: 20, "INVITE")
+        case .join: #inlineArray(count: 20, "JOIN")
+        case .label: #inlineArray(count: 20, "LABEL")
+        case .link: #inlineArray(count: 20, "LINK")
+        case .lock: #inlineArray(count: 20, "LOCK")
+        case .merge: #inlineArray(count: 20, "MERGE")
+        case .message: #inlineArray(count: 20, "MESSAGE")
+        case .migrate: #inlineArray(count: 20, "MIGRATE")
+        case .mkactivity: #inlineArray(count: 20, "MKACTIVITY")
+        case .mkcalendar: #inlineArray(count: 20, "MKCALENDAR")
+        case .mkcol: #inlineArray(count: 20, "MKCOL")
+        case .mkredirectref: #inlineArray(count: 20, "MKREDIRECTREF")
+        case .mkworkspace: #inlineArray(count: 20, "MKWORKSPACE")
+        case .move: #inlineArray(count: 20, "MOVE")
+        case .msearch: #inlineArray(count: 20, "MSEARCH")
+        case .notify: #inlineArray(count: 20, "NOTIFY")
+        case .notifyall: #inlineArray(count: 20, "NOTIFYALL")
+        case .notifyFile: #inlineArray(count: 20, "NOTIFY-FILE")
+        case .open: #inlineArray(count: 20, "OPEN")
+        case .options: #inlineArray(count: 20, "OPTIONS")
+        case .orderpatch: #inlineArray(count: 20, "ORDERPATCH")
+        case .outbox: #inlineArray(count: 20, "OUTBOX")
+        case .partial: #inlineArray(count: 20, "PARTIAL")
+        case .partialUpdate: #inlineArray(count: 20, "PARTIAL-UPDATE")
+        case .patch: #inlineArray(count: 20, "PATCH")
+        case .patchForm: #inlineArray(count: 20, "PATCH-FORM")
+        case .patchMultipart: #inlineArray(count: 20, "PATCH-MULTIPART")
+        case .pause: #inlineArray(count: 20, "PAUSE")
+        case .ping: #inlineArray(count: 20, "PING")
+        case .pingAck: #inlineArray(count: 20, "PING-ACK")
+        case .play: #inlineArray(count: 20, "PLAY")
+        case .poll: #inlineArray(count: 20, "POLL")
+        case .post: #inlineArray(count: 20, "POST")
+        case .prepare: #inlineArray(count: 20, "PREPARE")
+        case .propfind: #inlineArray(count: 20, "PROPFIND")
+        case .proppatch: #inlineArray(count: 20, "PROPPATCH")
+        case .provision: #inlineArray(count: 20, "PROVISION")
+        case .put: #inlineArray(count: 20, "PUT")
+        case .purge: #inlineArray(count: 20, "PURGE")
+        case .query: #inlineArray(count: 20, "QUERY")
+        case .rebind: #inlineArray(count: 20, "REBIND")
+        case .record: #inlineArray(count: 20, "RECORD")
+        case .recover: #inlineArray(count: 20, "RECOVER")
+        case .redirect: #inlineArray(count: 20, "REDIRECT")
+        case .refer: #inlineArray(count: 20, "REFER")
+        case .register: #inlineArray(count: 20, "REGISTER")
+        case .reject: #inlineArray(count: 20, "REJECT")
+        case .reload: #inlineArray(count: 20, "RELOAD")
+        case .replicate: #inlineArray(count: 20, "REPLICATE")
+        case .report: #inlineArray(count: 20, "REPORT")
+        case .reserve: #inlineArray(count: 20, "RESERVE")
+        case .reset: #inlineArray(count: 20, "RESET")
+        case .restart: #inlineArray(count: 20, "RESTART")
+        case .restore: #inlineArray(count: 20, "RESTORE")
+        case .resume: #inlineArray(count: 20, "RESUME")
+        case .retry: #inlineArray(count: 20, "RETRY")
+        case .retryCount: #inlineArray(count: 20, "RETRY-COUNT")
+        case .rewind: #inlineArray(count: 20, "REWIND")
+        case .rollback: #inlineArray(count: 20, "ROLLBACK")
+        case .rotate: #inlineArray(count: 20, "ROTATE")
+        case .search: #inlineArray(count: 20, "SEARCH")
+        case .searchall: #inlineArray(count: 20, "SEARCHALL")
+        case .setup: #inlineArray(count: 20, "SETUP")
+        case .shutdown: #inlineArray(count: 20, "SHUTDOWN")
+        case .skip: #inlineArray(count: 20, "SKIP")
+        case .split: #inlineArray(count: 20, "SPLIT")
+        case .source: #inlineArray(count: 20, "SOURCE")
+        case .stash: #inlineArray(count: 20, "STASH")
+        case .stop: #inlineArray(count: 20, "STOP")
+        case .submit: #inlineArray(count: 20, "SUBMIT")
+        case .subscribe: #inlineArray(count: 20, "SUBSCRIBE")
+        case .suspend: #inlineArray(count: 20, "SUSPEND")
+        case .sync: #inlineArray(count: 20, "SYNC")
+        case .syncstate: #inlineArray(count: 20, "SYNCSTATE")
+        case .teardown: #inlineArray(count: 20, "TEARDOWN")
+        case .thaw: #inlineArray(count: 20, "THAW")
+        case .ticket: #inlineArray(count: 20, "TICKET")
+        case .trace: #inlineArray(count: 20, "TRACE")
+        case .unbind: #inlineArray(count: 20, "UNBIND")
+        case .unblock: #inlineArray(count: 20, "UNBLOCK")
+        case .uncheckout: #inlineArray(count: 20, "UNCHECKOUT")
+        case .undeploy: #inlineArray(count: 20, "UNDEPLOY")
+        case .uninstall: #inlineArray(count: 20, "UNINSTALL")
+        case .unlink: #inlineArray(count: 20, "UNLINK")
+        case .unlock: #inlineArray(count: 20, "UNLOCK")
+        case .unset: #inlineArray(count: 20, "UNSET")
+        case .unsubscribe: #inlineArray(count: 20, "UNSUBSCRIBE")
+        case .update: #inlineArray(count: 20, "UPDATE")
+        case .updateredirectref: #inlineArray(count: 20, "UPDATEREDIRECTREF")
+        case .upgrade: #inlineArray(count: 20, "UPGRADE")
+        case .validate: #inlineArray(count: 20, "VALIDATE")
+        case .verify: #inlineArray(count: 20, "VERIFY")
+        case .versionControl: #inlineArray(count: 20, "VERSION-CONTROL")
         }
+    }
+}
+
+// MARK: Raw Name String
+extension HTTPRequestMethod {
+    @inlinable
+    public var rawNameString : String {
+        return rawName.string()
     }
 }
 

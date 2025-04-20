@@ -52,11 +52,11 @@ public struct DynamicRoute : DynamicRouteProtocol {
 
     @inlinable
     public func responder() -> any DynamicRouteResponderProtocol {
-        return DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
+        DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
 
     public var responderDebugDescription : String {
-        return "DynamicRouteResponder(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerDebugDescription)\n)"
+        "DynamicRouteResponder(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerDebugDescription)\n)"
     }
 
     public var debugDescription : String {
@@ -131,7 +131,7 @@ extension DynamicRoute {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        headers[HTTPResponseHeader.contentType.rawName] = "\(contentType)"
+        headers[HTTPResponseHeader.contentType.rawNameString] = "\(contentType)"
         var route:DynamicRoute = DynamicRoute(
             version: version,
             method: method,

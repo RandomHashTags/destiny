@@ -11,12 +11,12 @@ import SwiftSyntax
 extension CompressionAlgorithm {
     public var acceptEncodingName : String {
         switch self {
-            case .brotli: return "br"
-            case .huffmanCoding: return "huffman"
-            case .lzw: return "compress"
+        case .brotli: "br"
+        case .huffmanCoding: "huffman"
+        case .lzw: "compress"
 
-            case ._7z: return "7z"
-            default: return rawValue
+        case ._7z: "7z"
+        default: rawValue
         }
     }
 }

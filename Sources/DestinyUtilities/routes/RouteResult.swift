@@ -11,6 +11,7 @@ import FoundationEssentials
 import Foundation
 #endif
 
+import DestinyBlueprint
 import SwiftCompressionUtilities
 import SwiftSyntax
 
@@ -35,30 +36,30 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     @inlinable
     public var debugDescription : String {
         switch self {
-        case .staticString(let s): return ".staticString(\"\(s)\")"
-        case .string(let s): return ".string(\"\(s)\")"
-        case .bytes(let b): return ".bytes(\(b))"
-        case .bytes16(let b): return ".bytes16(\(b))"
+        case .staticString(let s): ".staticString(\"\(s)\")"
+        case .string(let s): ".string(\"\(s)\")"
+        case .bytes(let b): ".bytes(\(b))"
+        case .bytes16(let b): ".bytes16(\(b))"
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        case .data(let d): return ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+        case .data(let d): ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
         #endif
-        case .json: return ".json()" // TODO: fix
-        case .error: return ".error()" // TODO: fix
+        case .json: ".json()" // TODO: fix
+        case .error: ".error()" // TODO: fix
         }
     }
 
     @inlinable
     public var count : Int {
         switch self {
-        case .staticString(let string): return string.description.utf8.count
-        case .string(let string): return string.utf8.count
-        case .bytes(let bytes): return bytes.count
-        case .bytes16(let bytes): return bytes.count
+        case .staticString(let string): string.description.utf8.count
+        case .string(let string): string.utf8.count
+        case .bytes(let bytes): bytes.count
+        case .bytes16(let bytes): bytes.count
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        case .data(let data): return data.count
+        case .data(let data): data.count
         #endif
-        case .json(let encodable): return (try? JSONEncoder().encode(encodable).count) ?? 0
-        case .error(let error): return "\(error)".count
+        case .json(let encodable): (try? JSONEncoder().encode(encodable).count) ?? 0
+        case .error(let error): "\(error)".count
         }
     }
 
@@ -200,34 +201,34 @@ extension RouteResult {
 
     public func responderDebugDescription(_ input: String) -> String {
         switch self {
-        case .staticString: return Self.staticString(input).responderDebugDescription
-        case .string: return Self.string(input).responderDebugDescription
-        case .bytes: return Self.bytes([UInt8](input.utf8)).responderDebugDescription
-        case .bytes16: return Self.bytes16([UInt16](input.utf16)).responderDebugDescription
+        case .staticString: Self.staticString(input).responderDebugDescription
+        case .string: Self.string(input).responderDebugDescription
+        case .bytes: Self.bytes([UInt8](input.utf8)).responderDebugDescription
+        case .bytes16: Self.bytes16([UInt16](input.utf16)).responderDebugDescription
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        case .data: return Self.data(Data(input.utf8)).responderDebugDescription
+        case .data: Self.data(Data(input.utf8)).responderDebugDescription
         #endif
 
         case .json:
-            return "RouteResponses.StaticString(\"\")" // TODO: fix
+            "RouteResponses.StaticString(\"\")" // TODO: fix
         case .error:
-            return "RouteResponses.StaticString(\"\")" // TODO: fix
+            "RouteResponses.StaticString(\"\")" // TODO: fix
         }
     }
 
-    public func responderDebugDescription(_ input: HTTPMessage) throws -> String {
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
         switch self {
         case .bytes, .bytes16:
-            return try responderDebugDescription(input.string(escapeLineBreak: false))
+            try responderDebugDescription(input.string(escapeLineBreak: false))
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data:
-            return try responderDebugDescription(input.string(escapeLineBreak: false))
+            try responderDebugDescription(input.string(escapeLineBreak: false))
 
         #endif
         default:
-            return try responderDebugDescription(input.string(escapeLineBreak: true))
+            try responderDebugDescription(input.string(escapeLineBreak: true))
         }
     }
 }

@@ -37,7 +37,7 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     }
 
     public var debugDescription : String {
-        return "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status.debugDescription), from: \(from), isCaseSensitive: \(isCaseSensitive), to: \(to))"
+        "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status.debugDescription), from: \(from), isCaseSensitive: \(isCaseSensitive), to: \(to))"
     }
 
     public func response() throws -> String {

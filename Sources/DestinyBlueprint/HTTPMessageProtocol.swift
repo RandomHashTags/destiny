@@ -6,4 +6,9 @@
 //
 
 public protocol HTTPMessageProtocol : CustomDebugStringConvertible, Sendable {
+    /// - Parameters:
+    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the result.
+    /// - Returns: A string representing an HTTP Message with the given values.
+    @inlinable
+    func string(escapeLineBreak: Bool) throws -> String
 }

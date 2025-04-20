@@ -29,7 +29,7 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     }
 
     public var debugDescription : String {
-        return "DynamicRouteResponder(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logicDebugDescription))"
+        "DynamicRouteResponder(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logicDebugDescription))"
     }
 
     @inlinable

@@ -45,7 +45,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
         for cookie in cookies {
             string += "Set-Cookie: \(cookie)" + "\r\n"
         }
-        return string + HTTPResponseHeader.contentLength.rawName + ": \(result.utf8.count)\r\n\r\n" + result
+        return string + HTTPResponseHeader.contentLength.rawNameString + ": \(result.utf8.count)\r\n\r\n" + result
     }
 
     @inlinable
@@ -59,7 +59,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
     }
 
     public var debugDescription : String {
-        return "DynamicResponse(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: ["
+        "DynamicResponse(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: ["
             + cookies.map({ $0.debugDescription }).joined(separator: ",")
             + "], result: \(result.debugDescription), parameters: \(parameters))"
     }
