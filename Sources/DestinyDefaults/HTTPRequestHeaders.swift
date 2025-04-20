@@ -17,7 +17,7 @@ import SwiftCompression
 
 // MARK: HTTPRequestHeaders
 /// Default storage for HTTP request headers.
-public struct HTTPRequestHeaders : HTTPHeadersProtocol { // TODO: make SIMD
+public struct HTTPRequestHeaders : HTTPRequestHeadersProtocol { // TODO: make SIMD
     public typealias Key = String
     public typealias Value = String
 

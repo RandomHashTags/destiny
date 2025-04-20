@@ -17,7 +17,7 @@ import SwiftCompression
 
 // MARK: HTTPResponseHeaders
 /// Default storage for HTTP response headers.
-public struct HTTPResponseHeaders : HTTPHeadersProtocol { // TODO: finish
+public struct HTTPResponseHeaders : HTTPResponseHeadersProtocol { // TODO: finish
     public typealias Key = String
     public typealias Value = String
 

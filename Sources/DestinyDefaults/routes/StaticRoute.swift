@@ -64,10 +64,14 @@ public struct StaticRoute : StaticRouteProtocol {
         """
     }
 
-    public func response(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) -> HTTPMessage {
-        var version:HTTPVersion = version
-        var status:HTTPResponseStatus = status
-        var contentType:HTTPMediaType = contentType
+    public func response(
+        context: MacroExpansionContext?,
+        function: FunctionCallExprSyntax?,
+        middleware: [any StaticMiddlewareProtocol]
+    ) -> HTTPMessage {
+        var version = version
+        var status = status
+        var contentType = contentType
         var headers:[String:String] = [:]
         var cookies:[any HTTPCookieProtocol] = []
         for middleware in middleware {
@@ -96,17 +100,17 @@ public struct StaticRoute : StaticRouteProtocol {
 // MARK: SwiftSyntax
 extension StaticRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
-        var version:HTTPVersion = version
+        var version = version
         var method = HTTPRequestMethod.get
         var path:[String] = []
         var isCaseSensitive = true
-        var status:HTTPResponseStatus = .notImplemented
+        var status = HTTPResponseStatus.notImplemented
         var contentType = HTTPMediaType.textPlain
         var charset:Charset? = nil
-        var result:RouteResult = .string("")
+        var result = RouteResult.string("")
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         for argument in function.arguments {
-            switch argument.label!.text {
+            switch argument.label?.text {
             case "version":
                 version = HTTPVersion.parse(argument.expression) ?? version
             case "method":

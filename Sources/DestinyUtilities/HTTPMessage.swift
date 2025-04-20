@@ -9,7 +9,7 @@ import DestinyBlueprint
 
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
-public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
+public struct HTTPMessage : HTTPMessageProtocol {
     public var headers:[String:String]
     public var cookies:[any HTTPCookieProtocol]
     public var result:RouteResult?
@@ -45,8 +45,8 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
     /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
     public func string(escapeLineBreak: Bool) throws -> String {
-        let suffix:String = escapeLineBreak ? "\\r\\n" : "\r\n"
-        var string:String = version.string + " \(status)" + suffix
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
         }
@@ -68,7 +68,7 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
     /// - Returns: A byte array representing an HTTP Message with the given values.
     @inlinable
     public func bytes() throws -> [UInt8] {
-        let suffix:String = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
+        let suffix = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
         var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
@@ -90,5 +90,83 @@ public struct HTTPMessage : CustomDebugStringConvertible, Sendable {
             bytes = [UInt8](string.utf8)
         }
         return bytes
+    }
+}
+
+// MARK: Convenience
+extension HTTPMessage {
+    @inlinable
+    public static func create(
+        escapeLineBreak: Bool,
+        version: HTTPVersion,
+        status: HTTPResponseStatus,
+        headers: [String:String],
+        result: String?,
+        contentType: HTTPMediaType?,
+        charset: Charset?
+    ) -> String {
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), result: result, contentType: contentType, charset: charset)
+    }
+
+    @inlinable
+    public static func create(
+        escapeLineBreak: Bool,
+        version: HTTPVersion,
+        status: HTTPResponseStatus,
+        headers: [HTTPResponseHeader:String],
+        result: String?,
+        contentType: HTTPMediaType?,
+        charset: Charset?
+    ) -> String {
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), result: result, contentType: contentType, charset: charset)
+    }
+
+    @inlinable
+    public static func create(
+        suffix: String,
+        version: HTTPVersion,
+        status: HTTPResponseStatus,
+        headers: String,
+        result: String?,
+        contentType: HTTPMediaType?,
+        charset: Charset?
+    ) -> String {
+        var string = version.string + " \(status)" + suffix + headers
+        if let result {
+            let contentLength = result.utf8.count
+            if let contentType {
+                string += HTTPResponseHeader.contentType.rawName + ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+            }
+            string += HTTPResponseHeader.contentLength.rawName + ": \(contentLength)"
+            string += suffix + suffix + result
+        }
+        return string
+    }
+
+
+    @inlinable
+    public static func headers(
+        suffix: String,
+        headers: [String:String]
+    ) -> String {
+        var string = ""
+        for (header, value) in headers {
+            string += header + ": " + value + suffix
+        }
+        return string
+    }
+
+    @inlinable
+    public static func headers(
+        suffix: String,
+        headers: [HTTPResponseHeader:String]
+    ) -> String {
+        var string = ""
+        for (header, value) in headers {
+            string += header.rawValue + ": " + value + suffix
+        }
+        return string
     }
 }

@@ -14,7 +14,7 @@ import SwiftSyntaxMacros
 public struct DynamicMiddleware : DynamicMiddlewareProtocol {
     public static let defaultOnError:@Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol, _ error: any Error) async -> Void = { request, response, error in
         response.status = .internalServerError
-        response.headers[HTTPResponseHeader.contentTypeRawName] = "\(HTTPMediaType.applicationJson)"
+        response.setHeader(key: HTTPResponseHeader.contentTypeRawName, value: "\(HTTPMediaType.applicationJson)")
         response.result = .string("{\"error\":true,\"reason\":\"\(error)\"}")
     }
 

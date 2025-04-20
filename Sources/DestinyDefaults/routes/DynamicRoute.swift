@@ -78,11 +78,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
     public mutating func applyStaticMiddleware(_ middleware: [any StaticMiddlewareProtocol]) {
         for middleware in middleware {
             if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
-                var appliedVersion = defaultResponse.version
-                var cookies = defaultResponse.cookies
-                middleware.apply(version: &appliedVersion, contentType: &contentType, status: &status, headers: &defaultResponse.headers, cookies: &cookies)
-                defaultResponse.version = appliedVersion
-                defaultResponse.cookies = cookies
+                middleware.apply(contentType: &contentType, to: &defaultResponse)
             }
         }
     }
@@ -92,20 +88,19 @@ public struct DynamicRoute : DynamicRouteProtocol {
 // MARK: SwiftSyntax
 extension DynamicRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
-        var version:HTTPVersion = version
-        var method:HTTPRequestMethod = .get
+        var version = version
+        var method = HTTPRequestMethod.get
         var path:[PathComponent] = []
-        var isCaseSensitive:Bool = true
-        var status:HTTPResponseStatus = .notImplemented
-        var contentType:HTTPMediaType = HTTPMediaType.textPlain
+        var isCaseSensitive = true
+        var status = HTTPResponseStatus.notImplemented
+        var contentType = HTTPMediaType.textPlain
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
-        var handler:String = "nil"
+        var handler = "nil"
         var parameters:[String] = []
         for argument in function.arguments {
-            let key:String = argument.label!.text
-            switch key {
+            switch argument.label?.text {
             case "version":
-                if let parsed:HTTPVersion = HTTPVersion.parse(argument.expression) {
+                if let parsed = HTTPVersion.parse(argument.expression) {
                     version = parsed
                 }
             case "method":

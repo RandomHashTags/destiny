@@ -101,4 +101,26 @@ extension StaticMiddlewareProtocol {
         }
         cookies.append(contentsOf: appliesCookies)
     }
+
+    @inlinable
+    public func apply<T: DynamicResponseProtocol>(
+        contentType: inout HTTPMediaType,
+        to response: inout T
+    ) {
+        if let appliesVersion {
+            response.version = appliesVersion
+        }
+        if let appliesStatus {
+            response.status = appliesStatus
+        }
+        if let appliesContentType {
+            contentType = appliesContentType
+        }
+        for (header, value) in appliesHeaders {
+            response.setHeader(key: header, value: value)
+        }
+        for cookie in appliesCookies {
+            response.appendCookie(cookie)
+        }
+    }
 }

@@ -53,7 +53,7 @@ public enum Charset : String, CustomDebugStringConvertible, Sendable {
 /// MARK: SwiftSyntax
 extension Charset {
     public init?(expr: ExprSyntax) {
-        guard let string:String = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
+        guard let string = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
             return nil
         }
         if let value = Self(rawValue: string) {

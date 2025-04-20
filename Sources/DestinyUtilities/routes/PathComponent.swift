@@ -16,10 +16,6 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     case parameter(String)
     case catchall
 
-    public typealias StringLiteralType = String
-    public typealias ExtendedGraphemeClusterLiteralType = String
-    public typealias UnicodeScalarLiteralType = String
-
     public init(stringLiteral value: String) {
         if value == "**" {
             self = .catchall

@@ -61,7 +61,7 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
 
     @inlinable
     public func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
-        response.headers["Date"] = _dateString
+        response.setHeader(key: "Date", value: _dateString)
         return true
     }
 

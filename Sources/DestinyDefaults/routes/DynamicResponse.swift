@@ -48,6 +48,16 @@ public struct DynamicResponse : DynamicResponseProtocol {
         return string + HTTPResponseHeader.contentLength.rawName + ": \(result.utf8.count)\r\n\r\n" + result
     }
 
+    @inlinable
+    public mutating func setHeader(key: String, value: String) {
+        headers[key] = value
+    }
+
+    @inlinable
+    public mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T) {
+        cookies.append(cookie)
+    }
+
     public var debugDescription : String {
         return "DynamicResponse(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: ["
             + cookies.map({ $0.debugDescription }).joined(separator: ",")

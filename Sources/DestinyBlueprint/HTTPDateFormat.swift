@@ -169,7 +169,7 @@ public enum HTTPDateFormat {
         var value:InlineArray<count, UInt8> = .init(repeating: 0)
         var i = 0
         for char in String(int) {
-            if let v = char.asciiValue {
+            if i < count, let v = char.asciiValue {
                 value[i] = v
                 i += 1
             }

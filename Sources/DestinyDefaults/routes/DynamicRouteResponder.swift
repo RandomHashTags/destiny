@@ -33,7 +33,11 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T, request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws {
+    public func respond<T: SocketProtocol & ~Copyable>(
+        to socket: borrowing T,
+        request: inout any RequestProtocol,
+        response: inout any DynamicResponseProtocol
+    ) async throws {
         try await logic(&request, &response)
         try response.response().utf8.withContiguousStorageIfAvailable {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)

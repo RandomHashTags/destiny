@@ -8,7 +8,7 @@
 import DestinyBlueprint
 import DestinyUtilities
 
-/// Default storage where Destiny handles dynamic routes.
+/// Default storage that handles dynamic routes.
 public struct DynamicResponderStorage : DynamicResponderStorageProtocol {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]
@@ -74,7 +74,20 @@ public struct DynamicResponderStorage : DynamicResponderStorageProtocol {
     }
 
     @inlinable
-    public func responder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
+    public func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
+        request: inout any RequestProtocol,
+        response: inout any DynamicResponseProtocol
+    ) async throws -> Bool {
+        guard let responder = responder(for: &request) else { return false }
+        try await responder.respond(to: socket, request: &request, response: &response)
+        return true
+    }
+}
+
+extension DynamicResponderStorage {
+    @inlinable
+    func responder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
         if let responder = parameterless[request.startLine] {
             return responder
         }

@@ -17,12 +17,6 @@ public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible
 
     /// The response status.
     var status : HTTPResponseStatus { get set }
-
-    /// The response headers.
-    var headers : [String:String] { get set }
-
-    /// The response cookies.
-    var cookies : [any HTTPCookieProtocol] { get set }
     
     /// The response content.
     var result : RouteResult { get set }
@@ -32,4 +26,8 @@ public protocol DynamicResponseProtocol : Sendable, CustomDebugStringConvertible
 
     /// The complete HTTP Message that gets sent to the client.
     @inlinable func response() throws -> String
+    
+    @inlinable mutating func setHeader(key: String, value: String)
+
+    @inlinable mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T)
 }
