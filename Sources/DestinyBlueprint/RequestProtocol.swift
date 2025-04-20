@@ -5,28 +5,25 @@
 //  Created by Evan Anderson on 11/11/24.
 //
 
-import DestinyBlueprint
-
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
-    //associatedtype Storage : RequestStorageProtocol
-    //associatedtype Headers : HTTPHeadersProtocol
+    associatedtype ConcreteHTTPRequestMethod:HTTPRequestMethodProtocol
+    associatedtype ConcreteHTTPRequestHeaders:HTTPRequestHeadersProtocol
 
-    init?(tokens: [SIMD64<UInt8>])
-
-    //var storage : Storage { get set }
+    /// Initializes the bare minimum data required to process a socket's data.
+    init?<T: SocketProtocol & ~Copyable>(socket: borrowing T) throws
 
     /// The HTTP start-line.
-    var startLine : DestinyRoutePathType { get }
+    var startLine : SIMD64<UInt8> { get }
 
     /// The optional request method.
-    var method : HTTPRequestMethod? { mutating get }
+    var method : ConcreteHTTPRequestMethod? { mutating get }
 
     /// The endpoint the request wants to reach, separated by the forward slash character.
     var path : [String] { mutating get }
     
     /// The request headers.
-    var headers : any HTTPHeadersProtocol { mutating get }
+    var headers : ConcreteHTTPRequestHeaders { mutating get }
 }
 
 /*

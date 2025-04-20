@@ -51,13 +51,6 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
     }
 
     @inlinable
-    public func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)? {
-        if let responder = caseSensitiveResponders.static[startLine] {
-            return responder
-        }
-        return caseInsensitiveResponders.static[startLine.lowercase()]
-    }
-    @inlinable
     public func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
         if let responder = caseSensitiveResponders.dynamic.responder(for: &request) {
             return responder
@@ -107,47 +100,6 @@ public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
             try await staticNotFoundResponder.respond(to: socket)
         }
     }
-
-    public func register(_ route: any StaticRouteProtocol, override: Bool = false) throws {
-        guard let responder = try route.responder(context: nil, function: nil, middleware: staticMiddleware) else { return }
-        var string = route.startLine
-        var buffer = DestinyRoutePathType(&string)
-        if route.isCaseSensitive {
-            if override || caseSensitiveResponders.static[buffer] == nil {
-                caseSensitiveResponders.static[buffer] = responder
-            } else {
-                // TODO: throw error
-            }
-        } else {
-            buffer = buffer.lowercase()
-            if override || caseInsensitiveResponders.static[buffer] == nil {
-                caseInsensitiveResponders.static[buffer] = responder
-            } else {
-                // TODO: throw error
-            }
-        }
-    }
-
-    public func register(_ route: any DynamicRouteProtocol, responder: any DynamicRouteResponderProtocol, override: Bool = false) throws {
-        var copy = route
-        copy.applyStaticMiddleware(staticMiddleware)
-        if route.isCaseSensitive {
-            try caseSensitiveResponders.dynamic.register(version: copy.version, route: copy, responder: responder, override: override)
-        } else {
-            try caseInsensitiveResponders.dynamic.register(version: copy.version, route: copy, responder: responder, override: override)
-        }
-    }
-
-    public func register(_ middleware: any StaticMiddlewareProtocol, at index: Int) throws {
-        staticMiddleware.insert(middleware, at: index)
-        // TODO: update existing routes?
-    }
-
-    @inlinable
-    public func register(_ middleware: any DynamicMiddlewareProtocol, at index: Int) throws {
-        dynamicMiddleware.insert(middleware, at: index)
-        // TODO: update existing routes?
-    }
 }
 
 // MARK: Dynamic middleware
@@ -178,19 +130,17 @@ extension Router {
         socket: borrowing Socket,
         logger: Logger
     ) async throws {
-        guard var request = try socket.loadRequest() else { return }
-        //try await process(client: client, received: received, loaded: .now, socket: socket, request: &request, logger: logger)
-        // TODO: finish
+        guard var request:any RequestProtocol = try Socket.ConcreteRequest(socket: socket) else { return }
+        try await process(client: client, received: received, loaded: .now, socket: socket, request: &request, logger: logger)
     }
 
-    /*
     @inlinable
     func process<Socket: SocketProtocol & ~Copyable>(
         client: Int32,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest,
+        request: inout any RequestProtocol,
         logger: Logger
     ) async throws {
         defer {
@@ -211,10 +161,9 @@ extension Router {
         } catch {
             await errorResponder(for: &request).respond(to: socket, with: error, for: &request, logger: logger)
         }
-    }*/
+    }
 }
 
-/*
 // MARK: Respond
 extension Router {
     @inlinable
@@ -231,7 +180,7 @@ extension Router {
         } else if let responder = conditionalResponder(for: &request) {
             if let staticResponder = responder as? any StaticRouteResponderProtocol {
                 try await staticResponse(socket: socket, responder: staticResponder)
-            } else if let responder = responder as? ConcreteDynamicRouteResponder {
+            } else if let responder = responder as? any DynamicRouteResponderProtocol {
                 try await dynamicResponse(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
             }
         } else {
@@ -282,4 +231,4 @@ extension Router {
         response.timestamps.processed = .now
         try await responder.respond(to: socket, request: &request, response: &response)
     }
-}*/
+}

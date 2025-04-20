@@ -198,6 +198,11 @@ extension InlineArray where Element: SIMDScalar {
 // MARK: Equatable
 extension InlineArray where Element: Equatable {
     @inlinable
+    public static func == (lhs: Self?, rhs: Self) -> Bool {
+        guard let lhs else { return false }
+        return lhs == rhs
+    }
+    @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         guard lhs.count == rhs.count else { return false }
         for i in 0..<lhs.count {

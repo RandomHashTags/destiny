@@ -29,7 +29,7 @@ public struct Socket : SocketProtocol, ~Copyable {
 extension Socket {
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
-    public func readLineSIMD<T : SIMD>(length: Int) throws -> (T, Int) where T.Scalar == UInt8 {
+    public func readLineSIMD<T : SIMD>(length: Int) throws -> (simd: T, read: Int) where T.Scalar == UInt8 {
         var string = T()
         let read = try withUnsafeMutableBytes(of: &string) { p in
             return try readBuffer(into: p.baseAddress!, length: length)
@@ -44,83 +44,6 @@ extension Socket {
             return try readBuffer(into: p.baseAddress!, length: count)
         }
         return (buffer, read)
-    }
-
-    @inlinable
-    public func loadRequestInline() throws -> ConcreteRequest? {
-        while true {
-            let (buffer, read):(InlineArray<1024, UInt8>, Int) = try readBuffer()
-            if read <= 0 {
-                break
-            }
-            print("loadRequestLine;read=\(read)")
-            // 32 = SPACE
-            // 13 = \r
-            // 10 = \n
-
-            let startLine = try HTTPStartLine(buffer: buffer)
-            print("startLine=\(startLine)")
-
-            var skip:UInt8 = 0
-            let nextLine:InlineArray<256, UInt8> = .init(repeating: 0)
-            let _:InlineArray<256, UInt8>? = buffer.split(
-                separators: 13, 10,
-                defaultValue: 0,
-                offset: startLine.endIndex + 1,
-                yield: { slice in
-                    if skip == 2 { // content
-                    } else if slice == nextLine {
-                        skip += 1
-                    } else { // header
-                    }
-                    print("slice=\(slice.string())")
-                }
-            )
-            if read < 1024 {
-                break
-            }
-        }
-        //loadRequestLine;read=512
-        //slice=Host: 192.168.1.174:8080
-        //slice=Connection: keep-alive
-        //slice=Pragma: no-cache
-        //slice=Cache-Control: no-cache
-        //slice=Upgrade-Insecure-Requests: 1
-        //slice=User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
-        //slice=Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
-        //slice=Accept-Encoding: gzip, deflate
-        //slice=Accept-Language: en-US,en;q=0.9
-        //slice=Cookie: cookie1=yessir; cookie2=pogchamp
-
-        return nil // TODO: finish
-        /*guard let request = ConcreteRequest.init(tokens: test) else {
-            throw SocketError.malformedRequest()
-        }
-        return request*/
-    }
-
-    @inlinable
-    public func loadRequest() throws -> ConcreteRequest? {
-        //return try loadRequestInline()
-        var test:[SIMD64<UInt8>] = []
-        test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
-        while true {
-            let (line, read):(SIMD64<UInt8>, Int) = try readLineSIMD(length: 64)
-            if read <= 0 {
-                break
-            }
-            test.append(line)
-            if read < 64 {
-                break
-            }
-        }
-        if test.isEmpty {
-            return nil
-        }
-        guard let request = ConcreteRequest.init(tokens: test) else {
-            throw SocketError.malformedRequest()
-        }
-        return request
     }
 
     /// Reads multiple bytes and writes them into a buffer

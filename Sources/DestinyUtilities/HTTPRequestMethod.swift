@@ -18,7 +18,7 @@ import SwiftSyntax
 /// HTTP request methods.
 /// 
 /// Missing a method? Request it [here](https://github.com/RandomHashTags/destiny/discussions/new?category=request-feature).
-public enum HTTPRequestMethod : String, Sendable {
+public enum HTTPRequestMethod : String, HTTPRequestMethodProtocol {
     //
     //
     // MARK: Standard

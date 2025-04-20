@@ -68,18 +68,18 @@ extension Server where ClientSocket : ~Copyable {
         }
 
         func setNonBlocking(socket: Int32) {
-            let flags:Int32 = fcntl(socket, F_GETFL, 0)
+            let flags = fcntl(socket, F_GETFL, 0)
             guard flags != -1 else {
                 fatalError("epoll;setNonBlocking;broken1")
             }
-            let result:Int32 = fcntl(socket, F_SETFL, flags | O_NONBLOCK)
+            let result = fcntl(socket, F_SETFL, flags | O_NONBLOCK)
             guard result != -1 else {
                 fatalError("epoll;setNonBlocking;broken2")
             }
         }
 
         func add(client: Int32, event: UInt32) throws {
-            var e:epoll_event = .init()
+            var e = epoll_event()
             e.events = event
             e.data.fd = client
             if epoll_ctl(fileDescriptor, EPOLL_CTL_ADD, client, &e) == -1 {
@@ -94,7 +94,7 @@ extension Server where ClientSocket : ~Copyable {
         }
 
         func wait(timeout: Int32 = -1, acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?) throws -> [Int32] {
-            let loadedClients:Int32 = epoll_wait(fileDescriptor, &events, Int32(events.count), timeout)
+            let loadedClients = epoll_wait(fileDescriptor, &events, Int32(events.count), timeout)
             if loadedClients == -1 {
                 throw EpollError.waitFailed()
             } else if loadedClients == 0 {
@@ -102,10 +102,10 @@ extension Server where ClientSocket : ~Copyable {
             }
             var clients:[Int32] = []
             for i in 0..<Int(loadedClients) {
-                let event:epoll_event = events[i]
+                let event = events[i]
                 if event.data.fd == serverFD {
                     do {
-                        if let (client, instant):(Int32, ContinuousClock.Instant) = try acceptClient(serverFD) {
+                        if let (client, instant) = try acceptClient(serverFD) {
                             setNonBlocking(socket: client)
                             do {
                                 try add(client: client, event: EPOLLIN.rawValue)
@@ -129,7 +129,7 @@ extension Server where ClientSocket : ~Copyable {
         }
 
         func closeSocket(_ socket: Int32, name: String) {
-            let closed:Int32 = close(socket)
+            let closed = close(socket)
             if closed < 0 {
                 logger.warning(Logger.Message(stringLiteral: "Failed to close socket with name: \(name) (errno=\(errno))"))
             }
@@ -164,19 +164,19 @@ extension Server where ClientSocket : ~Copyable {
         }
 
         func add(client: Int32, event: UInt32) throws {
-            let instance:Epoll = instances[Int(client) % threads]
+            let instance = instances[Int(client) % threads]
             try instance.add(client: client, event: event)
         }
 
         @usableFromInline
-        func run(
+        func run<Router: RouterProtocol>(
             timeout: Int32,
-            router: any RouterProtocol,
+            router: Router,
             acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?
         ) async throws {
             for instance in instances {
                 DispatchQueue.global().async {
-                    self.process(instance, timeout: timeout, router: router, acceptClient: acceptClient)
+                    Self.process(instance, timeout: timeout, router: router, acceptClient: acceptClient)
                 }
             }
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
@@ -184,15 +184,15 @@ extension Server where ClientSocket : ~Copyable {
             }
         }
 
-        private func process(
+        private static func process<Router: RouterProtocol>(
             _ instance: Epoll,
             timeout: Int32,
-            router: any RouterProtocol,
+            router: Router,
             acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
         ) {
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 do {
-                    let clients:[Int32] = try instance.wait(timeout: timeout, acceptClient: acceptClient)
+                    let clients = try instance.wait(timeout: timeout, acceptClient: acceptClient)
                     for client in clients {
                         do {
                             try instance.remove(client: client)
@@ -201,12 +201,11 @@ extension Server where ClientSocket : ~Copyable {
                         }
                         Task {
                             do {
-                                try await ClientProcessing.process(
+                                try await router.process(
                                     client: client,
                                     received: .now, // TODO: fix
                                     socket: ClientSocket.init(fileDescriptor: client),
-                                    logger: instance.logger,
-                                    router: router
+                                    logger: instance.logger
                                 )
                             } catch {
                                 instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))

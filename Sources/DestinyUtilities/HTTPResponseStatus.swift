@@ -429,7 +429,7 @@ public enum HTTPResponseStatus : String, Hashable, Sendable {
 extension HTTPResponseStatus : CustomStringConvertible {
     @inlinable
     public var description : String {
-        "\(code) \(phrase)"
+        "\(code) " + phraseString
     }
 }
 

@@ -11,6 +11,8 @@ import FoundationEssentials
 import Foundation
 #endif
 
+import DestinyBlueprint
+
 public enum RouteResponses {
 }
 

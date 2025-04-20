@@ -9,12 +9,12 @@ import DestinyBlueprint
 import DestinyUtilities
 
 public struct RouterResponderStorage : RouterResponderStorageProtocol {
-    public var `static`:[DestinyRoutePathType:any StaticRouteResponderProtocol]
+    public var `static`:StaticResponderStorage
     public var dynamic:DynamicResponderStorage
     public var conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
 
     public init(
-        static: [DestinyRoutePathType:any StaticRouteResponderProtocol],
+        static: StaticResponderStorage,
         dynamic: DynamicResponderStorage,
         conditional: [DestinyRoutePathType:any ConditionalRouteResponderProtocol]
     ) {

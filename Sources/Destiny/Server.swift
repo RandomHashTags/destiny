@@ -211,12 +211,11 @@ extension Server where ClientSocket : ~Copyable {
                     group.addTask {
                         do {
                             guard let (client, instant) = try acceptClient(serverFD) else { return }
-                            try await ClientProcessing.process(
+                            try await self.router.process(
                                 client: client,
                                 received: instant,
                                 socket: ClientSocket(fileDescriptor: client),
-                                logger: self.logger,
-                                router: self.router
+                                logger: self.logger
                             )
                         } catch {
                             self.logger.warning(Logger.Message(stringLiteral: "\(error)"))

@@ -9,7 +9,6 @@
 import Darwin
 #endif
 
-// MARK: SocketProtocol
 /// Core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol : ~Copyable {
     /// The maximum amount of bytes to read at a single time.
@@ -24,17 +23,19 @@ public protocol SocketProtocol : ~Copyable {
 
     init(fileDescriptor: Int32)
 
-    /// Loads the bare minimum data required to process a request.
-    @inlinable func loadRequest() throws -> ConcreteRequest?
-
     /// Reads a buffer from the socket.
     @inlinable func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) throws -> Int
 
+    @inlinable func readBuffer<let count: Int>() throws -> (InlineArray<count, UInt8>, Int)
+
     /// Writes a buffer to the socket.
     @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
+
+    /// Reads `scalarCount` characters and loads them into the target SIMD.
+    @inlinable func readLineSIMD<T : SIMD>(length: Int) throws -> (simd: T, read: Int) where T.Scalar == UInt8 // TODO: remove
 }
 
-extension SocketProtocol where Self : ~Copyable {
+extension SocketProtocol where Self: ~Copyable {
     @inlinable
     public static func noSigPipe(fileDescriptor: Int32) {
         #if canImport(Darwin)

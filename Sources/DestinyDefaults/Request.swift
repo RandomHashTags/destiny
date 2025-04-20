@@ -26,7 +26,7 @@ public struct Request : RequestProtocol {
     }()
 
     /// Temporary value; will be making it use SIMD in the near future
-    public lazy var headers : any HTTPHeadersProtocol = { // TODO: make SIMD
+    public lazy var headers : HTTPRequestHeaders = { // TODO: make SIMD
         var string = ""
         string.reserveCapacity(tokens.count * 64)
         for i in 0..<tokens.count {
@@ -65,35 +65,8 @@ public struct Request : RequestProtocol {
         return queries
     }()
 
-    public func headersSIMD() {
-        var headers:[SIMD64<UInt8>] = []
-        headers.reserveCapacity(10)
-        var values:[SIMD64<UInt8>] = []
-        values.reserveCapacity(10)
-
-        for var token in tokens {
-            let crIndex = token.leadingNonByteCount(byte: 13) // \r
-            if crIndex == 64 { // no carriage return in token
-            } else { // carriage return in token
-                token.keepLeading(crIndex-1)
-                let colonIndex = token.leadingNonByteCount(byte: 58)
-                if colonIndex != 64 { // has colon in token
-                    var header = token
-                    header.keepLeading(colonIndex-1)
-                    headers.append(header)
-
-                    var value = token
-                    value.keepTrailing(64 - crIndex)
-                    values.append(value)
-                }
-            }
-        }
-        for i in 0..<headers.count {
-            print("headersSIMD;i=\(i);header=" + headers[i].leadingString() + ";value=" + values[i].trailingString())
-        }
-    }
-
-    public init?(
+    @usableFromInline
+    init?(
         tokens: [SIMD64<UInt8>]
     ) {
         //print("Request.init;tokens=\n\(tokens.map { $0.stringSIMD() }.joined(separator: "\n"))")
@@ -112,11 +85,87 @@ public struct Request : RequestProtocol {
         methodSIMD = values[0].lowHalf.lowHalf.lowHalf
         uri = values[1]
         self.version = version
-
-        //headersSIMD()
     }
 
     public var description : String {
         return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.simd.leadingString() + ")"
+    }
+}
+
+// MARK: Init
+extension Request {
+    @inlinable
+    public init?<T: SocketProtocol & ~Copyable>(socket: borrowing T) throws {
+        var test:[SIMD64<UInt8>] = []
+        test.reserveCapacity(16) // maximum of 1024 bytes; decent starting point
+        while true {
+            let (line, read):(SIMD64<UInt8>, Int) = try socket.readLineSIMD(length: 64)
+            if read <= 0 {
+                break
+            }
+            test.append(line)
+            if read < 64 {
+                break
+            }
+        }
+        if test.isEmpty {
+            return nil
+        }
+        guard let request = Self.init(tokens: test) else {
+            throw SocketError.malformedRequest()
+        }
+        self = request
+    }
+    @inlinable
+    public init?<T: SocketProtocol & ~Copyable>(socket: borrowing T, inline: Bool) throws {
+        while true {
+            let (buffer, read):(InlineArray<1024, UInt8>, Int) = try socket.readBuffer()
+            if read <= 0 {
+                break
+            }
+            print("loadRequestLine;read=\(read)")
+            // 32 = SPACE
+            // 13 = \r
+            // 10 = \n
+
+            let startLine = try HTTPStartLine(buffer: buffer)
+            print("startLine=\(startLine)")
+
+            var skip:UInt8 = 0
+            let nextLine:InlineArray<256, UInt8> = .init(repeating: 0)
+            let _:InlineArray<256, UInt8>? = buffer.split(
+                separators: 13, 10,
+                defaultValue: 0,
+                offset: startLine.endIndex + 1,
+                yield: { slice in
+                    if skip == 2 { // content
+                    } else if slice == nextLine {
+                        skip += 1
+                    } else { // header
+                    }
+                    print("slice=\(slice.string())")
+                }
+            )
+            if read < 1024 {
+                break
+            }
+        }
+        //loadRequestLine;read=512
+        //slice=Host: 192.168.1.174:8080
+        //slice=Connection: keep-alive
+        //slice=Pragma: no-cache
+        //slice=Cache-Control: no-cache
+        //slice=Upgrade-Insecure-Requests: 1
+        //slice=User-Agent: Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36
+        //slice=Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7
+        //slice=Accept-Encoding: gzip, deflate
+        //slice=Accept-Language: en-US,en;q=0.9
+        //slice=Cookie: cookie1=yessir; cookie2=pogchamp
+
+        return nil // TODO: finish
+        /*guard let request = ConcreteRequest.init(tokens: test) else {
+            throw SocketError.malformedRequest()
+        }
+        return request*/
     }
 }
