@@ -21,7 +21,7 @@ enum Router : ExpressionMacro {
         var errorResponder = """
             StaticErrorResponder { error in
             RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: .ok, headers: [:], cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.applicationJson, charset: nil)
+                version: HTTPVersion.v1_1, status: HTTPResponseStatus.ok.code, headers: [:], cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.applicationJson, charset: nil)
             )
         }
         """
@@ -229,9 +229,9 @@ extension Router {
     ) {
         guard let dictionary = dictionary.content.as(DictionaryElementListSyntax.self) else { return }
         for methodElement in dictionary {
-            if let method = HTTPRequestMethod(expr: methodElement.key), let statuses:DictionaryElementListSyntax = methodElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
+            if let method = HTTPRequestMethod(expr: methodElement.key), let statuses = methodElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
                 for statusElement in statuses {
-                    if let status = HTTPResponseStatus(expr: statusElement.key), let values:DictionaryElementListSyntax = statusElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
+                    if let status = HTTPResponseStatus.parse(expr: statusElement.key)?.code, let values = statusElement.value.dictionary?.content.as(DictionaryElementListSyntax.self) {
                         for valueElement in values {
                             let from:[String] = PathComponent.parseArray(context: context, valueElement.key)
                             let to:[String] = PathComponent.parseArray(context: context, valueElement.value)
@@ -267,7 +267,7 @@ extension Router.Storage {
         if !redirects.isEmpty {
             for (route, function) in redirects {
                 do {
-                    var string = route.method.rawNameString + " /" + route.from.joined(separator: "/") + " " + route.version.string
+                    var string = route.method.rawName.string() + " /" + route.from.joined(separator: "/") + " " + route.version.string
                     if !isCaseSensitive {
                         string = string.lowercased()
                     }
@@ -423,7 +423,7 @@ extension Router.Storage {
             }
         }).joined(separator: ",\n\n") + "\n"
         var parameterizedByPathCount:[String] = []
-        var parameterizedString:String = ""
+        var parameterizedString = ""
         if !parameterized.isEmpty {
             for (route, function) in parameterized {
                 if parameterizedByPathCount.count <= route.path.count {

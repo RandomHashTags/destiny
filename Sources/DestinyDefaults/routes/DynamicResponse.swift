@@ -10,57 +10,20 @@ import DestinyUtilities
 
 public struct DynamicResponse : DynamicResponseProtocol {
     public var timestamps:DynamicRequestTimestamps
-    public var headers:[String:String]
-    public var cookies:[any HTTPCookieProtocol]
-    public var result:RouteResult
+    public var message:any HTTPMessageProtocol
     public var parameters:[String]
-    public var version:HTTPVersion
-    public var status:HTTPResponseStatus
 
     public init(
         timestamps: DynamicRequestTimestamps = DynamicRequestTimestamps(received: .now, loaded: .now, processed: .now),
-        version: HTTPVersion,
-        status: HTTPResponseStatus,
-        headers: [String:String],
-        cookies: [any HTTPCookieProtocol],
-        result: RouteResult,
+        message: any HTTPMessageProtocol,
         parameters: [String]
     ) {
         self.timestamps = timestamps
-        self.version = version
-        self.status = status
-        self.headers = headers
-        self.cookies = cookies
-        self.result = result
+        self.message = message
         self.parameters = parameters
     }
 
-    @inlinable
-    public func response() throws -> String {
-        let result = try result.string()
-        var string = version.string + " \(status)\r\n"
-        for (header, value) in headers {
-            string += header + ": " + value + "\r\n"
-        }
-        for cookie in cookies {
-            string += "Set-Cookie: \(cookie)" + "\r\n"
-        }
-        return string + HTTPResponseHeader.contentLength.rawNameString + ": \(result.utf8.count)\r\n\r\n" + result
-    }
-
-    @inlinable
-    public mutating func setHeader(key: String, value: String) {
-        headers[key] = value
-    }
-
-    @inlinable
-    public mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T) {
-        cookies.append(cookie)
-    }
-
     public var debugDescription : String {
-        "DynamicResponse(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: ["
-            + cookies.map({ $0.debugDescription }).joined(separator: ",")
-            + "], result: \(result.debugDescription), parameters: \(parameters))"
+        "DynamicResponse(message: \(message.debugDescription), parameters: \(parameters))"
     }
 }

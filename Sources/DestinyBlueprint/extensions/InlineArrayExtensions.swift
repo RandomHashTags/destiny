@@ -205,7 +205,7 @@ extension InlineArray where Element: Equatable {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         guard lhs.count == rhs.count else { return false }
-        for i in 0..<lhs.count {
+        for i in lhs.indices {
             if lhs[i] != rhs[i] {
                 return false
             }

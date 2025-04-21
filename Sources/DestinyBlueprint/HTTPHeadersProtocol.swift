@@ -7,8 +7,8 @@
 
 /// Storage for an HTTP Message's headers.
 public protocol HTTPHeadersProtocol : Sendable {
-    associatedtype Key : Sendable
-    associatedtype Value : Sendable
+    associatedtype Key:Sendable
+    associatedtype Value:Sendable
 
     @inlinable subscript(_ header: Key) -> Value? { get set }
     @inlinable subscript(_ header: Key) -> String? { get set }

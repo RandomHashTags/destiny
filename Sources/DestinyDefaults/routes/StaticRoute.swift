@@ -22,16 +22,39 @@ public struct StaticRoute : StaticRouteProtocol {
 
     public let version:HTTPVersion
     public var method:HTTPRequestMethod
-    public let status:HTTPResponseStatus
+    public let status:HTTPResponseStatus.Code
     public let charset:Charset?
     public let isCaseSensitive:Bool
 
+    public init<T: HTTPResponseStatus.StorageProtocol>(
+        version: HTTPVersion = .v1_0,
+        method: HTTPRequestMethod,
+        path: [StaticString],
+        isCaseSensitive: Bool = true,
+        status: T,
+        contentType: HTTPMediaType,
+        charset: Charset? = nil,
+        result: RouteResult,
+        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+    ) {
+        self.init(
+            version: version,
+            method: method,
+            path: path,
+            isCaseSensitive: isCaseSensitive,
+            status: status.code,
+            contentType: contentType,
+            charset: charset,
+            result: result,
+            supportedCompressionAlgorithms: supportedCompressionAlgorithms
+        )
+    }
     public init(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
         path: [StaticString],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -49,13 +72,13 @@ public struct StaticRoute : StaticRouteProtocol {
     }
 
     public var debugDescription : String {
-        return """
+        """
         StaticRoute(
             version: .\(version),
             method: \(method.debugDescription),
             path: \(path),
             isCaseSensitive: \(isCaseSensitive),
-            status: \(status.debugDescription),
+            status: \(status),
             contentType: \(contentType.debugDescription),
             charset: \(charset?.debugDescription ?? "nil"),
             result: \(result.debugDescription),
@@ -79,7 +102,7 @@ public struct StaticRoute : StaticRouteProtocol {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        if let context, let function, status == .notImplemented {
+        if let context, let function, status == HTTPResponseStatus.notImplemented.code {
             #if canImport(SwiftDiagnostics)
             Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
             #endif
@@ -104,7 +127,7 @@ extension StaticRoute {
         var method = HTTPRequestMethod.get
         var path:[String] = []
         var isCaseSensitive = true
-        var status = HTTPResponseStatus.notImplemented
+        var status = HTTPResponseStatus.notImplemented.code
         var contentType = HTTPMediaType.textPlain
         var charset:Charset? = nil
         var result = RouteResult.string("")
@@ -120,7 +143,7 @@ extension StaticRoute {
             case "isCaseSensitive", "caseSensitive":
                 isCaseSensitive = argument.expression.booleanIsTrue
             case "status":
-                status = HTTPResponseStatus(expr: argument.expression) ?? .notImplemented
+                status = HTTPResponseStatus.parse(expr: argument.expression)?.code ?? status
             case "contentType":
                 contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
             case "charset":
@@ -162,7 +185,7 @@ extension StaticRoute {
         method: HTTPRequestMethod,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -176,7 +199,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -190,7 +213,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -204,7 +227,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -218,7 +241,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -232,7 +255,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -246,7 +269,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -260,7 +283,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -274,7 +297,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,
@@ -288,7 +311,7 @@ extension StaticRoute {
         version: HTTPVersion = .v1_0,
         path: [StaticString],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         charset: Charset? = nil,
         result: RouteResult,

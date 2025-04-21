@@ -17,13 +17,13 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     public package(set) var to:[String]
     public let version:HTTPVersion
     public let method:HTTPRequestMethod
-    public let status:HTTPResponseStatus
+    public let status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
 
     public init(
         version: HTTPVersion = .v1_0,
         method: HTTPRequestMethod,
-        status: HTTPResponseStatus,
+        status: HTTPResponseStatus.Code,
         from: [StaticString],
         isCaseSensitive: Bool = true,
         to: [StaticString]
@@ -37,7 +37,7 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
     }
 
     public var debugDescription : String {
-        "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status.debugDescription), from: \(from), isCaseSensitive: \(isCaseSensitive), to: \(to))"
+        "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status), from: \(from), isCaseSensitive: \(isCaseSensitive), to: \(to))"
     }
 
     public func response() throws -> String {
@@ -55,12 +55,12 @@ extension StaticRedirectionRoute {
         var from:[String] = []
         var isCaseSensitive = true
         var to:[String] = []
-        var status = HTTPResponseStatus.movedPermanently
+        var status = HTTPResponseStatus.movedPermanently.code
         for argument in function.arguments {
             switch argument.label?.text {
             case "version": version = HTTPVersion.parse(argument.expression) ?? version
             case "method": method = HTTPRequestMethod(expr: argument.expression) ?? method
-            case "status": status = HTTPResponseStatus(expr: argument.expression) ?? status
+            case "status": status = HTTPResponseStatus.parse(expr: argument.expression)?.code ?? status
             case "from": from = PathComponent.parseArray(context: context, argument.expression)
             case "isCaseSensitive", "caseSensitive": isCaseSensitive = argument.expression.booleanIsTrue
             case "to": to = PathComponent.parseArray(context: context, argument.expression)

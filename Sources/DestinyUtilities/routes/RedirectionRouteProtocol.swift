@@ -19,7 +19,7 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
     var to : [String] { get }
 
     /// Status of this redirection route.
-    var status : HTTPResponseStatus { get }
+    var status : HTTPResponseStatus.Code { get }
 
     /// The HTTP Message of this route. Computed at compile time.
     /// 

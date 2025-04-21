@@ -85,7 +85,7 @@ extension StaticFileMiddleware {
                 version: version,
                 method: method,
                 path: [],
-                status: .ok,
+                status: HTTPResponseStatus.ok,
                 contentType: contentType,
                 charset: charset,
                 result: result,

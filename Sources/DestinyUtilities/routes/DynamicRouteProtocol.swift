@@ -11,8 +11,10 @@ import SwiftSyntaxMacros
 
 /// Core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol : RouteProtocol {
+    associatedtype ConcreteDynamicResponse:DynamicResponseProtocol
+
     /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
-    var status : HTTPResponseStatus { get set }
+    var status : HTTPResponseStatus.Code { get set }
 
     /// Default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
     var contentType : HTTPMediaType { get set }
@@ -21,7 +23,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     var path : [PathComponent] { get set }
 
     /// Default HTTP Message computed by default values and static middleware.
-    var defaultResponse : any DynamicResponseProtocol { get set }
+    var defaultResponse : ConcreteDynamicResponse { get set }
 
     /// - Returns: The responder for this route.
     @inlinable func responder() -> any DynamicRouteResponderProtocol
@@ -33,7 +35,7 @@ public protocol DynamicRouteProtocol : RouteProtocol {
     /// 
     /// - Parameters:
     ///   - middleware: The static middleware to apply to this route.
-    mutating func applyStaticMiddleware(_ middleware: [any StaticMiddlewareProtocol])
+    mutating func applyStaticMiddleware<T: StaticMiddlewareProtocol>(_ middleware: [T])
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this dynamic route. Computed at compile time.
@@ -52,6 +54,6 @@ public protocol DynamicRouteProtocol : RouteProtocol {
 extension DynamicRouteProtocol {
     @inlinable
     public var startLine : String {
-        return method.rawNameString + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
+        return method.rawName.string() + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
     }
 }

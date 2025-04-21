@@ -31,7 +31,7 @@ public macro router(
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [any MiddlewareProtocol],
-    redirects: [HTTPRequestMethod : [HTTPResponseStatus : [String:String]]] = [:],
+    redirects: [HTTPRequestMethod : [HTTPResponseStatus.Code : [String:String]]] = [:],
     routerGroups: [any RouterGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")

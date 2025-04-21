@@ -14,7 +14,7 @@ import SwiftSyntaxMacros
 enum HTTPMessage : DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var version:HTTPVersion = .v1_1
-        var status:HTTPResponseStatus = .notImplemented
+        var status = HTTPResponseStatus.notImplemented.code
         var headers:[String:String] = [:]
         var result:RouteResult? = nil
         var contentType:HTTPMediaType? = nil
@@ -26,7 +26,7 @@ enum HTTPMessage : DeclarationMacro {
                 case "version":
                     version = HTTPVersion.parse(child.expression) ?? version
                 case "status":
-                    status = HTTPResponseStatus(expr: child.expression) ?? status
+                    status = HTTPResponseStatus.parse(expr: child.expression)?.code ?? status
                 case "headers":
                     headers = HTTPRequestHeader.parse(context: context, child.expression)
                 case "result":

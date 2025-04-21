@@ -92,7 +92,7 @@ extension DynamicResponderStorage {
             return responder
         }
         let values = request.path
-        guard let responders = parameterized.getPositive(values.count) else { return catchallResponder(for: &request, values: values) }
+        guard let responders = parameterized.getPositive(values.count) else { return catchallResponder(values: values) }
         loop: for responder in responders {
             for i in 0..<values.count {
                 let path = responder.path[i]
@@ -102,11 +102,11 @@ extension DynamicResponderStorage {
             }
             return responder
         }
-        return catchallResponder(for: &request, values: values)
+        return catchallResponder(values: values)
     }
 
     @inlinable
-    func catchallResponder(for request: inout any RequestProtocol, values: [String]) -> (any DynamicRouteResponderProtocol)? {
+    func catchallResponder(values: [String]) -> (any DynamicRouteResponderProtocol)? {
         loop: for responder in catchall {
             for (i, path) in responder.path.enumerated() {
                 if path == .catchall {

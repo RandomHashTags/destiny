@@ -40,8 +40,6 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
         response: inout any DynamicResponseProtocol
     ) async throws {
         try await logic(&request, &response)
-        try response.response().utf8.withContiguousStorageIfAvailable {
-            try socket.writeBuffer($0.baseAddress!, length: $0.count)
-        }
+        try socket.writeString(response.message.string(escapeLineBreak: false))
     }
 }

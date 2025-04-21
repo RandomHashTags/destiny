@@ -14,15 +14,11 @@ import SwiftSyntaxMacros
 
 // MARK: DynamicDateMiddleware
 /// Adds the `Date` header to responses for dynamic routes.
-public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked Sendable {
-    @usableFromInline
-    var _timer:Task<Void, Never>!
-
+public final class DynamicDateMiddleware : DynamicMiddlewareProtocol {
     @usableFromInline
     var _dateString:String
 
     public init() {
-        _timer = nil
         _dateString = ""
     }
 
@@ -33,7 +29,7 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
         #endif
         update()
         // TODO: make it update at the beginning of the second
-        _timer = Task.detached(priority: .userInitiated) {
+        Task.detached(priority: .userInitiated) {
             //let clock:SuspendingClock = SuspendingClock()
             while !Task.isCancelled && !Task.isShuttingDownGracefully {
                 //var now:SuspendingClock.Instant = clock.now
@@ -61,7 +57,7 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol, @unchecked
 
     @inlinable
     public func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
-        response.setHeader(key: "Date", value: _dateString)
+        response.message.setHeader(key: "Date", value: _dateString)
         return true
     }
 

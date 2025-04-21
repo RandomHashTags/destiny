@@ -24,7 +24,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     /// Route response statuses this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all statuses.
-    var handlesStatuses : Set<HTTPResponseStatus>? { get }
+    var handlesStatuses : Set<HTTPResponseStatus.Code>? { get }
 
     /// The route content types this middleware handles.
     /// 
@@ -35,7 +35,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     var appliesVersion : HTTPVersion? { get }
 
     /// Response status this middleware applies to routes.
-    var appliesStatus : HTTPResponseStatus? { get }
+    var appliesStatus : HTTPResponseStatus.Code? { get }
 
     /// Response content type this middleware applies to routes.
     var appliesContentType : HTTPMediaType? { get }
@@ -52,7 +52,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
         version: HTTPVersion,
         method: HTTPRequestMethod,
         contentType: HTTPMediaType,
-        status: HTTPResponseStatus
+        status: HTTPResponseStatus.Code
     ) -> Bool
 
     /// Updates the given variables by applying this middleware.
@@ -60,7 +60,7 @@ public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
     func apply(
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
-        status: inout HTTPResponseStatus,
+        status: inout HTTPResponseStatus.Code,
         headers: inout [String:String],
         cookies: inout [any HTTPCookieProtocol]
     )
@@ -71,7 +71,7 @@ extension StaticMiddlewareProtocol {
         version: HTTPVersion,
         method: HTTPRequestMethod,
         contentType: HTTPMediaType,
-        status: HTTPResponseStatus
+        status: HTTPResponseStatus.Code
     ) -> Bool {
         return (handlesVersions == nil || handlesVersions!.contains(version))
             && (handlesMethods == nil || handlesMethods!.contains(method))
@@ -83,7 +83,7 @@ extension StaticMiddlewareProtocol {
     public func apply(
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
-        status: inout HTTPResponseStatus,
+        status: inout HTTPResponseStatus.Code,
         headers: inout [String:String],
         cookies: inout [any HTTPCookieProtocol]
     ) {
@@ -108,19 +108,20 @@ extension StaticMiddlewareProtocol {
         to response: inout T
     ) {
         if let appliesVersion {
-            response.version = appliesVersion
+            response.message.version = appliesVersion
         }
         if let appliesStatus {
-            response.status = appliesStatus
+            response.message.status = appliesStatus
         }
         if let appliesContentType {
             contentType = appliesContentType
         }
         for (header, value) in appliesHeaders {
-            response.setHeader(key: header, value: value)
+            response.message.setHeader(key: header, value: value)
         }
         for cookie in appliesCookies {
-            response.appendCookie(cookie)
+            response.message.appendCookie(cookie)
         }
+        // TODO: fix
     }
 }

@@ -32,7 +32,8 @@ extension DiagnosticMsg : FixItMessage {
 struct DestinyUtilityMacros : CompilerPlugin {
     let providingMacros:[any Macro.Type] = [
         HTTPFieldContentType.self,
-        InlineArrayMacro.self
+        InlineArrayMacro.self,
+        HTTPResponseStatusMacro.self
     ]
 }
 

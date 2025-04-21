@@ -31,6 +31,8 @@ public protocol SocketProtocol : ~Copyable {
     /// Writes a buffer to the socket.
     @inlinable func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 
+    @inlinable func writeString(_ string: String) throws
+
     /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable func readLineSIMD<T : SIMD>(length: Int) throws -> (simd: T, read: Int) where T.Scalar == UInt8 // TODO: remove
 }
@@ -42,5 +44,12 @@ extension SocketProtocol where Self: ~Copyable {
         var no_sig_pipe:Int32 = 0
         setsockopt(fileDescriptor, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(MemoryLayout<Int32>.size))
         #endif
+    }
+
+    @inlinable
+    public func writeString(_ string: String) throws {
+        try string.utf8.withContiguousStorageIfAvailable {
+            try self.writeBuffer($0.baseAddress!, length: $0.count)
+        }
     }
 }

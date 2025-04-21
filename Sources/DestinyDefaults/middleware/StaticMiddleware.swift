@@ -17,11 +17,11 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
 
     public let handlesVersions:Set<HTTPVersion>?
     public let handlesMethods:Set<HTTPRequestMethod>?
-    public let handlesStatuses:Set<HTTPResponseStatus>?
+    public let handlesStatuses:Set<HTTPResponseStatus.Code>?
     public let handlesContentTypes:Set<HTTPMediaType>?
 
     public let appliesVersion:HTTPVersion?
-    public let appliesStatus:HTTPResponseStatus?
+    public let appliesStatus:HTTPResponseStatus.Code?
     public let appliesContentType:HTTPMediaType?
     public let appliesHeaders:[String:String]
     public let appliesCookies:[Cookie]
@@ -29,10 +29,10 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: Set<HTTPRequestMethod>? = nil,
-        handlesStatuses: Set<HTTPResponseStatus>? = nil,
+        handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
         handlesContentTypes: Set<HTTPMediaType>? = nil,
         appliesVersion: HTTPVersion? = nil,
-        appliesStatus: HTTPResponseStatus? = nil,
+        appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: HTTPMediaType? = nil,
         appliesHeaders: [String:String] = [:],
         appliesCookies: [Cookie] = []
@@ -57,7 +57,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
             values.append("handlesMethods: [" + handlesMethods.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         if let handlesStatuses {
-            values.append("handlesStatuses: [" + handlesStatuses.map({ $0.debugDescription }).joined(separator: ",") + "]")
+            values.append("handlesStatuses: \(handlesStatuses)")
         }
         if let handlesContentTypes {
             values.append("handlesContentTypes: [" + handlesContentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
@@ -66,7 +66,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
             values.append("appliesVersion: .\(appliesVersion)")
         }
         if let appliesStatus {
-            values.append("appliesStatus: \(appliesStatus.debugDescription)")
+            values.append("appliesStatus: \(appliesStatus)")
         }
         if let appliesContentType {
             values.append("appliesStatus: \(appliesContentType.debugDescription)")
@@ -87,10 +87,10 @@ extension StaticMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil
         var handlesMethods:Set<HTTPRequestMethod>? = nil
-        var handlesStatuses:Set<HTTPResponseStatus>? = nil
+        var handlesStatuses:Set<HTTPResponseStatus.Code>? = nil
         var handlesContentTypes:Set<HTTPMediaType>? = nil
         var appliesVersion:HTTPVersion? = nil
-        var appliesStatus:HTTPResponseStatus? = nil
+        var appliesStatus:HTTPResponseStatus.Code? = nil
         var appliesContentType:HTTPMediaType? = nil
         var appliesHeaders:[String:String] = [:]
         var appliesCookies:[Cookie] = []
@@ -101,13 +101,13 @@ extension StaticMiddleware {
             case "handlesMethods":
                 handlesMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequestMethod(expr: $0.expression) }))
             case "handlesStatuses":
-                handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponseStatus(expr: $0.expression) }))
+                handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponseStatus.parse(expr: $0.expression)?.code }))
             case "handlesContentTypes":
                 handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse(memberName: "\($0.expression.memberAccess!.declName.baseName.text)") }))
             case "appliesVersion":
                 appliesVersion = HTTPVersion.parse(argument.expression)
             case "appliesStatus":
-                appliesStatus = HTTPResponseStatus(expr: argument.expression)
+                appliesStatus = HTTPResponseStatus.parse(expr: argument.expression)?.code
             case "appliesContentType":
                 appliesContentType = HTTPMediaType.parse(memberName: argument.expression.memberAccess!.declName.baseName.text)
             case "appliesHeaders":

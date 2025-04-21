@@ -16,14 +16,14 @@ import SwiftSyntaxMacros
 public struct DynamicRoute : DynamicRouteProtocol {
     public var path:[PathComponent]
     public var contentType:HTTPMediaType
-    public var defaultResponse:any DynamicResponseProtocol
+    public var defaultResponse:DynamicResponse
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
     public let handler:@Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     @usableFromInline package var handlerDebugDescription:String = "{ _, _ in }"
 
     public let version:HTTPVersion
     public var method:HTTPRequestMethod
-    public var status:HTTPResponseStatus
+    public var status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
 
     public init(
@@ -31,7 +31,7 @@ public struct DynamicRoute : DynamicRouteProtocol {
         method: HTTPRequestMethod,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         cookies: [any HTTPCookieProtocol] = [],
@@ -45,7 +45,10 @@ public struct DynamicRoute : DynamicRouteProtocol {
         self.isCaseSensitive = isCaseSensitive
         self.status = status
         self.contentType = contentType
-        self.defaultResponse = DynamicResponse.init(version: version, status: status, headers: headers, cookies: cookies, result: result, parameters: [])
+        self.defaultResponse = DynamicResponse.init(
+            message: HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: nil, charset: nil),
+            parameters: []
+        )
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
     }
@@ -60,13 +63,13 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 
     public var debugDescription : String {
-        return """
+        """
         DynamicRoute(
             version: .\(version),
             method: \(method.debugDescription),
             path: [\(path.map({ $0.debugDescription }).joined(separator: ","))],
             isCaseSensitive: \(isCaseSensitive),
-            status: \(status.debugDescription),
+            status: \(status),
             contentType: \(contentType.debugDescription),
             supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))],
             handler: \(handlerDebugDescription)
@@ -75,9 +78,9 @@ public struct DynamicRoute : DynamicRouteProtocol {
     }
 
     @inlinable
-    public mutating func applyStaticMiddleware(_ middleware: [any StaticMiddlewareProtocol]) {
+    public mutating func applyStaticMiddleware<T: StaticMiddlewareProtocol>(_ middleware: [T]) {
         for middleware in middleware {
-            if middleware.handles(version: defaultResponse.version, method: method, contentType: contentType, status: status) {
+            if middleware.handles(version: defaultResponse.message.version, method: method, contentType: contentType, status: status) {
                 middleware.apply(contentType: &contentType, to: &defaultResponse)
             }
         }
@@ -92,7 +95,7 @@ extension DynamicRoute {
         var method = HTTPRequestMethod.get
         var path:[PathComponent] = []
         var isCaseSensitive = true
-        var status = HTTPResponseStatus.notImplemented
+        var status = HTTPResponseStatus.notImplemented.code
         var contentType = HTTPMediaType.textPlain
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler = "nil"
@@ -113,7 +116,7 @@ extension DynamicRoute {
             case "isCaseSensitive", "caseSensitive":
                 isCaseSensitive = argument.expression.booleanIsTrue
             case "status":
-                status = HTTPResponseStatus(expr: argument.expression) ?? status
+                status = HTTPResponseStatus.parse(expr: argument.expression)?.code ?? status
             case "contentType":
                 contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
             case "supportedCompressionAlgorithms":
@@ -145,7 +148,10 @@ extension DynamicRoute {
         if !isCaseSensitive {
             route.path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
-        route.defaultResponse = DynamicResponse(version: version, status: status, headers: headers, cookies: cookies, result: .string(""), parameters: parameters)
+        route.defaultResponse = DynamicResponse(
+            message: HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: .string(""), contentType: nil, charset: nil),
+            parameters: parameters
+        )
         route.handlerDebugDescription = handler
         return route
     }
@@ -160,7 +166,7 @@ extension DynamicRoute {
         method: HTTPRequestMethod,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -175,7 +181,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -190,7 +196,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -205,7 +211,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -220,7 +226,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -235,7 +241,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -250,7 +256,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -265,7 +271,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -280,7 +286,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),
@@ -295,7 +301,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_0,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus = .notImplemented,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         result: RouteResult = .string(""),

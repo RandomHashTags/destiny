@@ -15,12 +15,12 @@ public struct HTTPMessage : HTTPMessageProtocol {
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
     public var version:HTTPVersion
-    public var status:HTTPResponseStatus
+    public var status:HTTPResponseStatus.Code
     public var charset:Charset?
 
     public init(
         version: HTTPVersion,
-        status: HTTPResponseStatus,
+        status: HTTPResponseStatus.Code,
         headers: [String:String],
         cookies: [any HTTPCookieProtocol],
         result: RouteResult?,
@@ -37,7 +37,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
     }
 
     public var debugDescription : String {
-        "HTTPMessage(version: .\(version), status: \(status.debugDescription), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? ""), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
+        "HTTPMessage(version: .\(version), status: \(status), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? "nil"), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
     }
 
     /// - Parameters:
@@ -95,6 +95,21 @@ public struct HTTPMessage : HTTPMessageProtocol {
         }
         return bytes
     }
+
+    @inlinable
+    public mutating func setHeader(key: String, value: String) {
+        headers[key] = value
+    }
+
+    @inlinable
+    public mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T) {
+        cookies.append(cookie)
+    }
+
+    @inlinable
+    public mutating func assignResult(_ string: String) {
+        result = .string(string)
+    }
 }
 
 // MARK: Convenience
@@ -103,7 +118,7 @@ extension HTTPMessage {
     public static func create(
         escapeLineBreak: Bool,
         version: HTTPVersion,
-        status: HTTPResponseStatus,
+        status: HTTPResponseStatus.Code,
         headers: [String:String],
         result: String?,
         contentType: HTTPMediaType?,
@@ -117,7 +132,7 @@ extension HTTPMessage {
     public static func create(
         escapeLineBreak: Bool,
         version: HTTPVersion,
-        status: HTTPResponseStatus,
+        status: HTTPResponseStatus.Code,
         headers: [HTTPResponseHeader:String],
         result: String?,
         contentType: HTTPMediaType?,
@@ -131,7 +146,7 @@ extension HTTPMessage {
     public static func create(
         suffix: String,
         version: HTTPVersion,
-        status: HTTPResponseStatus,
+        status: HTTPResponseStatus.Code,
         headers: String,
         result: String?,
         contentType: HTTPMediaType?,
