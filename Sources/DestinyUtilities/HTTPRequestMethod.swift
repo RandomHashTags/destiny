@@ -934,18 +934,18 @@ extension HTTPRequestMethod {
 // MARK: Parse by SIMD
 extension HTTPRequestMethod { // TODO: make a `simd` computed property
     @inlinable
-    public static func parse(_ key: SIMD8<UInt8>) -> Self? {
+    public init?(_ key: SIMD8<UInt8>) {
         switch key {
-        case Self.getSIMD:     .get
-        case Self.headSIMD:    .head
-        case Self.postSIMD:    .post
-        case Self.putSIMD:     .put
-        case Self.deleteSIMD:  .delete
-        case Self.connectSIMD: .connect
-        case Self.optionsSIMD: .options
-        case Self.traceSIMD:   .trace
-        case Self.patchSIMD:   .patch
-        default:               nil
+        case Self.getSIMD:     self = .get
+        case Self.headSIMD:    self = .head
+        case Self.postSIMD:    self = .post
+        case Self.putSIMD:     self = .put
+        case Self.deleteSIMD:  self = .delete
+        case Self.connectSIMD: self = .connect
+        case Self.optionsSIMD: self = .options
+        case Self.traceSIMD:   self = .trace
+        case Self.patchSIMD:   self = .patch
+        default:               return nil
         }
     }
     public static let getSIMD = SIMD8<UInt8>(71, 69, 84, 0, 0, 0, 0, 0)
@@ -957,6 +957,25 @@ extension HTTPRequestMethod { // TODO: make a `simd` computed property
     public static let optionsSIMD = SIMD8<UInt8>(79, 80, 84, 73, 79, 78, 83, 0)
     public static let traceSIMD = SIMD8<UInt8>(84, 82, 65, 67, 69, 0, 0, 0)
     public static let patchSIMD = SIMD8<UInt8>(80, 65, 84, 67, 72, 0, 0, 0)
+}
+
+// MARK: Init by InlineArray
+extension HTTPRequestMethod {
+    @inlinable
+    public init?(_ key: InlineArray<20, UInt8>) {
+        switch key {
+        case #inlineArray(count: 20, "GET"):     self = .get
+        case #inlineArray(count: 20, "HEAD"):    self = .head
+        case #inlineArray(count: 20, "POST"):    self = .post
+        case #inlineArray(count: 20, "PUT"):     self = .put
+        case #inlineArray(count: 20, "DELETE"):  self = .delete
+        case #inlineArray(count: 20, "CONNECT"): self = .connect
+        case #inlineArray(count: 20, "OPTIONS"): self = .options
+        case #inlineArray(count: 20, "TRACE"):   self = .trace
+        case #inlineArray(count: 20, "PATCH"):   self = .patch
+        default:                                 return nil
+        }
+    }
 }
 
 #if canImport(SwiftSyntax)

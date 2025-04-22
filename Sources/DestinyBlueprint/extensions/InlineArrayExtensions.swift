@@ -18,6 +18,14 @@ extension InlineArray where Element == UInt8 {
             self[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
         }
     }
+
+    @inlinable
+    public init<T: SIMD>(_ simd: T) where T.Scalar == Element {
+        self = .init(repeating: 0)
+        for i in simd.indices {
+            self[i] = simd[i]
+        }
+    }
 }
 
 // MARK: split
@@ -103,11 +111,14 @@ extension InlineArray where Element: Equatable {
     @inlinable
     public func firstSlice<let sliceLength: Int>(separator: Element, defaultValue: Element, offset: Index = 0) -> (slice: InlineArray<sliceLength, Element>, index: Index) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
+        let numberOfItems = min(sliceLength, offset.distance(to: index))
         var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
         var targetIndex = offset
-        for i in 0..<min(sliceLength, offset.distance(to: index)) {
+        var i = 0
+        while i < numberOfItems, targetIndex < sliceLength {
             slice[i] = self[targetIndex]
             targetIndex += 1
+            i += 1
         }
         return (slice, index)
     }
@@ -119,9 +130,12 @@ extension InlineArray {
     public func slice<let sliceLength: Int>(startIndex: Index, endIndex: Index, defaultValue: Element) -> InlineArray<sliceLength, Element> {
         var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
         var index = 0
-        for i in startIndex..<endIndex {
+        var i = startIndex
+        let targetEndIndex = min(endIndex, self.endIndex)
+        while i < targetEndIndex, index < sliceLength {
             slice[index] = self[i]
             index += 1
+            i += 1
         }
         return slice
     }
