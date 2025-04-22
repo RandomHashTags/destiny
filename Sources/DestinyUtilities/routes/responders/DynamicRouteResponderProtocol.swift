@@ -20,8 +20,8 @@ public protocol DynamicRouteResponderProtocol : RouteResponderProtocol {
 
     /// Writes a response to the socket.
     @inlinable
-    func respond<S: SocketProtocol & ~Copyable>(
-        to socket: borrowing S,
+    func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
         request: inout any RequestProtocol,
         response: inout any DynamicResponseProtocol
     ) async throws

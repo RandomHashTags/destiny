@@ -11,6 +11,7 @@ import DestinyUtilities
 /// Default storage that handles static routes.
 public struct StaticResponderStorage : StaticResponderStorageProtocol {
 
+    @usableFromInline var inlineArrays:[DestinyRoutePathType:RouteResponses.InlineArrayProtocol]
     @usableFromInline var staticStrings:[DestinyRoutePathType:RouteResponses.StaticString]
     @usableFromInline var strings:[DestinyRoutePathType:RouteResponses.String]
     @usableFromInline var uint8Arrays:[DestinyRoutePathType:RouteResponses.UInt8Array]
@@ -21,11 +22,13 @@ public struct StaticResponderStorage : StaticResponderStorageProtocol {
     #endif
 
     public init(
+        inlineArrays: [DestinyRoutePathType:RouteResponses.InlineArrayProtocol] = [:],
         staticStrings: [DestinyRoutePathType:RouteResponses.StaticString] = [:],
         strings: [DestinyRoutePathType:RouteResponses.String] = [:],
         uint8Arrays: [DestinyRoutePathType:RouteResponses.UInt8Array] = [:],
         uint16Arrays: [DestinyRoutePathType:RouteResponses.UInt16Array] = [:]
     ) {
+        self.inlineArrays = inlineArrays
         self.staticStrings = staticStrings
         self.strings = strings
         self.uint8Arrays = uint8Arrays
@@ -41,7 +44,9 @@ public struct StaticResponderStorage : StaticResponderStorageProtocol {
         to socket: borrowing Socket,
         with startLine: DestinyRoutePathType
     ) async throws -> Bool {
-        if let r = staticStrings[startLine] {
+        if let r = inlineArrays[startLine] {
+            try await r.respond(to: socket)
+        } else if let r = staticStrings[startLine] {
             try await r.respond(to: socket)
         } else if let r = strings[startLine] {
             try await r.respond(to: socket)
@@ -65,7 +70,7 @@ public struct StaticResponderStorage : StaticResponderStorageProtocol {
 
     @inlinable
     public func exists(for path: DestinyRoutePathType) -> Bool {
-        guard staticStrings[path] == nil || strings[path] == nil || uint8Arrays[path] == nil || uint16Arrays[path] == nil else {
+        guard inlineArrays[path] == nil || staticStrings[path] == nil || strings[path] == nil || uint8Arrays[path] == nil || uint16Arrays[path] == nil else {
             return true
         }
         #if canImport(FoundationEssentials) || canImport(Foundation)

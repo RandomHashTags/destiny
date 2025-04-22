@@ -33,7 +33,8 @@ struct DestinyUtilityMacros : CompilerPlugin {
     let providingMacros:[any Macro.Type] = [
         HTTPFieldContentType.self,
         InlineArrayMacro.self,
-        HTTPResponseStatusMacro.self
+        HTTPResponseStatusesMacro.self,
+        HTTPMediaTypeMacro.self
     ]
 }
 

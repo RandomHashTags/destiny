@@ -39,7 +39,7 @@ struct DestinyTests {
         let _:Router = #router(
             version: .v2_0,
             middleware: [
-                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaType.textHtml], appliesStatus: .ok, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaType.textHtml], appliesStatus: HTTPResponseStatus.ok.code, appliesHeaders: ["Are-You-My-Brother":"yes"])
             ],
             StaticRoute(
                 method: .get,
@@ -51,7 +51,7 @@ struct DestinyTests {
             StaticRoute(
                 method: .get,
                 path: ["test2"],
-                status: .movedPermanently,
+                status: HTTPResponseStatus.movedPermanently,
                 contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
                 result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")

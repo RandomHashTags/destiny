@@ -2,7 +2,7 @@
 //  HTTPResponseStatusMacro.swift
 //
 //
-//  Created by Evan Anderson on 11/6/24.
+//  Created by Evan Anderson on 4/21/25.
 //
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
@@ -26,11 +26,15 @@ enum HTTPResponseStatusMacro : ExpressionMacro {
                 break
             }
         }
+        let string = get(code: code, phrase: phrase)
+        return "\(raw: string)"
+    }
+
+    static func get(code: Int, phrase: String) -> String {
         let phraseCount = phrase.count
         let codePhraseValues = "\(code) \(phrase)".compactMap { $0.asciiValue }
-        phrase = phrase.compactMap { $0.asciiValue }.description
-        let string = "HTTPResponseStatus.Storage<\(phraseCount), \(codePhraseValues.count)>(code: \(code), phrase: \(phrase), codePhrase: \(codePhraseValues))"
-        return "\(raw: string)"
+        let phrase = phrase.compactMap { $0.asciiValue }.description
+        return "HTTPResponseStatus.Storage<\(phraseCount), \(codePhraseValues.count)>(code: \(code), phrase: \(phrase), codePhrase: \(codePhraseValues))"
     }
 }
 

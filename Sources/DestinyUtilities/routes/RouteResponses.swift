@@ -18,7 +18,9 @@ public enum RouteResponses {
 
 // MARK: InlineArray
 extension RouteResponses {
-    public struct InlineArray<let count: Int> : StaticRouteResponderProtocol {
+    public protocol InlineArrayProtocol : StaticRouteResponderProtocol {
+    }
+    public struct InlineArray<let count: Int> : InlineArrayProtocol {
         public let value:Swift.InlineArray<count, UInt8>
 
         public init(_ value: Swift.InlineArray<count, UInt8>) {

@@ -112,7 +112,7 @@ extension Router {
     }
 
     @inlinable
-    public func handleDynamicMiddleware(for request: inout any RequestProtocol, with response: inout any DynamicResponseProtocol) async throws {
+    func handleDynamicMiddleware(for request: inout any RequestProtocol, with response: inout any DynamicResponseProtocol) async throws {
         for middleware in dynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {
                 break
@@ -220,7 +220,7 @@ extension Router {
         for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {
             response.parameters[index] = request.path[parameterIndex]
             if responder.path[parameterIndex] == .catchall {
-                var i:Int = parameterIndex+1
+                var i = parameterIndex+1
                 while i < request.path.count {
                     response.parameters.append(request.path[i])
                     i += 1

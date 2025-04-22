@@ -948,15 +948,15 @@ extension HTTPRequestMethod { // TODO: make a `simd` computed property
         default:               nil
         }
     }
-    public static let getSIMD:SIMD8<UInt8> = SIMD8<UInt8>(71, 69, 84, 0, 0, 0, 0, 0)
-    public static let headSIMD:SIMD8<UInt8> = SIMD8<UInt8>(72, 69, 65, 68, 0, 0, 0, 0)
-    public static let postSIMD:SIMD8<UInt8> = SIMD8<UInt8>(80, 79, 83, 84, 0, 0, 0, 0)
-    public static let putSIMD:SIMD8<UInt8> = SIMD8<UInt8>(80, 85, 84, 0, 0, 0, 0, 0)
-    public static let deleteSIMD:SIMD8<UInt8> = SIMD8<UInt8>(68, 69, 76, 69, 84, 69, 0, 0)
-    public static let connectSIMD:SIMD8<UInt8> = SIMD8<UInt8>(67, 79, 78, 78, 69, 67, 84, 0)
-    public static let optionsSIMD:SIMD8<UInt8> = SIMD8<UInt8>(79, 80, 84, 73, 79, 78, 83, 0)
-    public static let traceSIMD:SIMD8<UInt8> = SIMD8<UInt8>(84, 82, 65, 67, 69, 0, 0, 0)
-    public static let patchSIMD:SIMD8<UInt8> = SIMD8<UInt8>(80, 65, 84, 67, 72, 0, 0, 0)
+    public static let getSIMD = SIMD8<UInt8>(71, 69, 84, 0, 0, 0, 0, 0)
+    public static let headSIMD = SIMD8<UInt8>(72, 69, 65, 68, 0, 0, 0, 0)
+    public static let postSIMD = SIMD8<UInt8>(80, 79, 83, 84, 0, 0, 0, 0)
+    public static let putSIMD = SIMD8<UInt8>(80, 85, 84, 0, 0, 0, 0, 0)
+    public static let deleteSIMD = SIMD8<UInt8>(68, 69, 76, 69, 84, 69, 0, 0)
+    public static let connectSIMD = SIMD8<UInt8>(67, 79, 78, 78, 69, 67, 84, 0)
+    public static let optionsSIMD = SIMD8<UInt8>(79, 80, 84, 73, 79, 78, 83, 0)
+    public static let traceSIMD = SIMD8<UInt8>(84, 82, 65, 67, 69, 0, 0, 0)
+    public static let patchSIMD = SIMD8<UInt8>(80, 65, 84, 67, 72, 0, 0, 0)
 }
 
 #if canImport(SwiftSyntax)

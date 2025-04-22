@@ -214,6 +214,32 @@ extension InlineArray where Element: Equatable {
     }
 }
 
+extension InlineArray where Element == UInt8 {
+    @inlinable
+    public static func == <S: StringProtocol>(lhs: Self, rhs: S) -> Bool {
+        let stringCount = rhs.count
+        if lhs.count == rhs.count {
+            for i in 0..<lhs.count {
+                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                    return false
+                }
+            }
+            return true
+        } else if lhs.count > stringCount {
+            var i = 0
+            while i < stringCount {
+                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                    return false
+                }
+                i += 1
+            }
+            return lhs[i] == 0
+        } else {
+            return false
+        }
+    }
+}
+
 // MARK: Pattern matching
 extension InlineArray where Element: Equatable {
     @inlinable
