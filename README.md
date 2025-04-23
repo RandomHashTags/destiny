@@ -147,7 +147,7 @@ Disables Nagle's algorithm, which buffers small packets before sending them, to 
 
 ### Static
 
-Initial testing of a basic HTML response shows that this library has the lowest server latency and most consistent timings **when serving the same content**.
+Initial testing of a basic HTML response shows that this library has the lowest server latency, highest throughput and most consistent timings **when serving the same content**.
 
 ### Dynamic
 
