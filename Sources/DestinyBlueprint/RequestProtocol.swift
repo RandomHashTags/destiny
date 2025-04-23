@@ -7,23 +7,29 @@
 
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol : Sendable, ~Copyable {
-    associatedtype ConcreteHTTPRequestMethod:HTTPRequestMethodProtocol
-    associatedtype ConcreteHTTPRequestHeaders:HTTPRequestHeadersProtocol
-
     /// Initializes the bare minimum data required to process a socket's data.
     init?<T: SocketProtocol & ~Copyable>(socket: borrowing T) throws
 
     /// The HTTP start-line.
     var startLine : SIMD64<UInt8> { get }
 
-    /// The optional request method.
-    var method : ConcreteHTTPRequestMethod? { mutating get }
-
     /// The endpoint the request wants to reach, separated by the forward slash character.
     var path : [String] { mutating get }
-    
-    /// The request headers.
-    var headers : ConcreteHTTPRequestHeaders { mutating get }
+
+    @inlinable
+    func isMethod<let count: Int>(_ method: InlineArray<count, UInt8>) -> Bool
+
+    //@inlinable func header<let keyCount: Int, valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
+
+    @inlinable
+    func header(forKey key: String) -> String?
+}
+
+extension RequestProtocol where Self: ~Copyable {
+    @inlinable
+    public func isMethod<T: HTTPRequestMethodProtocol>(_ method: T) -> Bool {
+        isMethod(method.rawName)
+    }
 }
 
 /*

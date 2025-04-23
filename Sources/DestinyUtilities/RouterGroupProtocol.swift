@@ -18,6 +18,13 @@ public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
     /// - Returns: The dynamic route responder for the given request.
     @inlinable func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)?
 
+    /*/// - Returns: Whether or not this router group responded to the request.
+    @inlinable
+    func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
+        request: inout any RequestProtocol
+    ) -> Bool*/
+
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this router group.
     /// 

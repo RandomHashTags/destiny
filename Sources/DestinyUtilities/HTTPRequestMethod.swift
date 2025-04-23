@@ -749,7 +749,7 @@ public enum HTTPRequestMethod : String, HTTPRequestMethodProtocol {
 // MARK: Raw Name
 extension HTTPRequestMethod {
     @inlinable
-    public var rawName : InlineArray<20, UInt8> {
+    public var rawName : HTTPStartLine.Method {
         switch self {
         case .acl: #inlineArray(count: 20, "ACL")
         case .announce: #inlineArray(count: 20, "ANNOUNCE")
@@ -962,7 +962,7 @@ extension HTTPRequestMethod { // TODO: make a `simd` computed property
 // MARK: Init by InlineArray
 extension HTTPRequestMethod {
     @inlinable
-    public init?(_ key: InlineArray<20, UInt8>) {
+    public init?(_ key: HTTPStartLine.Method) {
         switch key {
         case #inlineArray(count: 20, "GET"):     self = .get
         case #inlineArray(count: 20, "HEAD"):    self = .head

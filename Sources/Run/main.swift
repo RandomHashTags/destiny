@@ -31,7 +31,7 @@ let router:Router = #router(
         DynamicCORSMiddleware(),
         DynamicDateMiddleware(),
         DynamicMiddleware({ request, response in
-            guard request.method?.rawName == HTTPRequestMethod.get.rawName else { return }
+            guard request.isMethod(HTTPRequestMethod.get) else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.message.setHeader(key: "Womp-Womp", value: UUID().uuidString)
             #else

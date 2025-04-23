@@ -36,7 +36,6 @@ public enum HTTPDateFormat {
     /// - Returns: A string that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
     @inlinable
     public static func get<T: BinaryInteger>(year: T, month: T, day: T, dayOfWeek: T, hour: T, minute: T, second: T) -> InlineArray<29, UInt8> {
-        let space:UInt8 = 32
         let dayName = httpDayName(dayOfWeek)
         let dayNumbers = httpDateNumber(day)
         let monthName = httpMonthName(month)
@@ -49,15 +48,15 @@ public enum HTTPDateFormat {
         value[0] = dayName[0]
         value[1] = dayName[1]
         value[2] = dayName[2]
-        value[3] = 44 // ,
-        value[4] = space
+        value[3] = .comma
+        value[4] = .space
         value[5] = dayNumbers[0]
         value[6] = dayNumbers[1]
-        value[7] = space
+        value[7] = .space
         value[8] = monthName[0]
         value[9] = monthName[1]
         value[10] = monthName[2]
-        value[11] = space
+        value[11] = .space
         value[12] = yearNumbers[0]
         var index = 13
         if yearNumbers[1] != 0 {
@@ -72,25 +71,25 @@ public enum HTTPDateFormat {
             value[index] = yearNumbers[3]
             index += 1
         }
-        value[index] = space
+        value[index] = .space
         index += 1
         value[index] = hourNumbers[0]
         index += 1
         value[index] = hourNumbers[1]
         index += 1
-        value[index] = 58 // :
+        value[index] = .colon
         index += 1
         value[index] = minuteNumbers[0]
         index += 1
         value[index] = minuteNumbers[1]
         index += 1
-        value[index] = 58 // :
+        value[index] = .colon
         index += 1
         value[index] = secondNumbers[0]
         index += 1
         value[index] = secondNumbers[1]
         index += 1
-        value[index] = space
+        value[index] = .space
         index += 1
         value[index] = 71 // G
         index += 1

@@ -130,6 +130,22 @@ public struct RouterGroup : RouterGroupProtocol {
     public func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
         return dynamicResponses.responder(for: &request)
     }
+
+    /*@inlinable
+    public func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
+        request: inout any RequestProtocol
+    ) async throws -> Bool {
+        if let responder = staticResponses[request.startLine] {
+            try await responder.respond(to: socket)
+            return true
+        } else if let responder = dynamicResponses.responder(for: &request) {
+            try await responder.respond(to: socket, request: &request, response: &response)
+            return true
+        } else {
+            return false
+        }
+    }*/
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)

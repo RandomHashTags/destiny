@@ -70,7 +70,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
     /// - Returns: A byte array representing an HTTP Message with the given values.
     @inlinable
     public func bytes() throws -> [UInt8] {
-        let suffix = String([Character(Unicode.Scalar(13)), Character(Unicode.Scalar(10))]) // \r\n
+        let suffix = String([Character(Unicode.Scalar(.carriageReturn)), Character(Unicode.Scalar(.lineFeed))])
         var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix

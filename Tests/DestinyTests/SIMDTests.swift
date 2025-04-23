@@ -108,7 +108,7 @@ struct SIMDTests {
     @Test func split() throws {
         var string = "GET /dynamic/text HTTP/1.1"
         var ss = SIMD32<UInt8>(&string)
-        var values = ss.splitSIMD(separator: 32) // space
+        var values = ss.splitSIMD(separator: .space)
         try #require(values.count == 3)
         #expect(values[0].leadingString() == "GET")
         #expect(values[1].leadingString() == "/dynamic/text")

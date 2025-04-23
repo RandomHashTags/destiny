@@ -1,4 +1,7 @@
+
+#if canImport(Foundation)
 import Foundation
+#endif
 
 // MARK: init
 extension InlineArray {
@@ -141,6 +144,35 @@ extension InlineArray {
     }
 }
 
+// MARK: has prefix
+extension InlineArray where Element == UInt8 {
+    @inlinable
+    public func hasPrefix<let secondCount: Int>(_ array: InlineArray<secondCount, Element>) -> Bool {
+        let minCount = min(count, secondCount)
+        // TODO: support SIMD
+        /*switch minCount {
+        case let x where x <= 8:
+            break
+        case let x where x <= 16:
+            break
+        case let x where x <= 32:
+            break
+        case let x where x <= 64:
+            break
+        default:
+            break
+        }*/
+        var i = startIndex
+        while i < minCount {
+            if self[i] != array[i] {
+                return false
+            }
+            i += 1
+        }
+        return true
+    }
+}
+
 // MARK: string
 extension InlineArray where Element == UInt8 {
     @inlinable
@@ -157,6 +189,7 @@ extension InlineArray where Element == UInt8 {
     }
 }
 
+#if canImport(Foundation)
 // MARK: lowercase
 extension InlineArray where Element == UInt8 {
     @inlinable
@@ -174,6 +207,7 @@ extension InlineArray where Element == UInt8 {
         return value
     }
 }
+#endif
 
 // MARK: SIMD
 extension InlineArray where Element: SIMDScalar {
@@ -217,8 +251,13 @@ extension InlineArray where Element: Equatable {
         return lhs == rhs
     }
     @inlinable
+    public static func == (lhs: Self, rhs: Self?) -> Bool {
+        guard let rhs else { return false }
+        return lhs == rhs
+    }
+
+    @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        guard lhs.count == rhs.count else { return false }
         for i in lhs.indices {
             if lhs[i] != rhs[i] {
                 return false
@@ -251,6 +290,22 @@ extension InlineArray where Element == UInt8 {
         } else {
             return false
         }
+    }
+
+    @inlinable
+    public func stringRepresentationsAreEqual<let secondCount: Int>(_ array: InlineArray<secondCount, Element>) -> Bool {
+        let minCount = min(count, secondCount)
+        var i = startIndex
+        while i < minCount {
+            if self[i] != array[i] {
+                return false
+            }
+            i += 1
+        }
+        if count == secondCount {
+            return true
+        }
+        return count > secondCount ? self[i] == 0 : array[i] == 0
     }
 }
 

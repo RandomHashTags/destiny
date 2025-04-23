@@ -39,14 +39,14 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         case .all:
             logicDD += "$1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"*\")"
         case .any(let origins):
-            logicDD += "if let origin:String = $0.headers[HTTPRequestHeader.originRawName], (\(origins) as Set<String>).contains(origin) { $1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
+            logicDD += "if let origin:String = $0.header(forKey: HTTPRequestHeader.originRawName), (\(origins) as Set<String>).contains(origin) { $1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
         case .custom(let s):
             logicDD += "$1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"" + s + "\")"
         case .none:
             break
         case .originBased:
             logicDD += "$1.message.setHeader(key: HTTPResponseHeader.varyRawName, value: \"origin\")"
-            logicDD += "\nif let origin:String = $0.headers[HTTPRequestHeader.originRawName] { $1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
+            logicDD += "\nif let origin:String = $0.header(forKey: HTTPRequestHeader.originRawName) { $1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
         }
 
         let allowedHeaders = allowedHeaders.map({ $0.rawNameString }).joined(separator: ",")
@@ -77,7 +77,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
 
     @inlinable
     public func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
-        guard request.headers.has(HTTPRequestHeader.originRawName) else { return true }
+        guard request.header(forKey: HTTPRequestHeader.originRawName) != nil else { return true }
         try await logic(&request, &response)
         return true
     }
