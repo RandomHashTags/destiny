@@ -1,6 +1,6 @@
 # Destiny
 
-<a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-5.9+-F05138?style=&logo=swift" alt="Requires at least Swift 5.9"></a> <img src="https://img.shields.io/badge/Platforms-Any-gold"> <a href="https://discord.com/invite/VyuFQUpcUz"><img src="https://img.shields.io/badge/Chat-Discord-7289DA?style=&logo=discord"></a> <a href="https://github.com/RandomHashTags/destiny/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="Apache 2.0 License"></a>
+<a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.2+-F05138?style=&logo=swift" alt="Requires at least Swift 6.2"></a> <img src="https://img.shields.io/badge/Platforms-Any-gold"> <a href="https://discord.com/invite/VyuFQUpcUz"><img src="https://img.shields.io/badge/Chat-Discord-7289DA?style=&logo=discord"></a> <a href="https://github.com/RandomHashTags/destiny/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="Apache 2.0 License"></a>
 
 Destiny is a standalone lightweight web server that makes use of the latest Swift features to push performance to the absolute limits of the Swift Language, and designed to be easy to use while using the minimum amount of dependencies.
 
@@ -8,7 +8,7 @@ It provides a router (which is used via a Swift Macro) that accepts router group
 
 Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 
-Many protocols only require the bare minimum to work as intended so the implementation is largely up to the developer (if you don't use the default implementations from `DestinyDefaults`).
+We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Destiny's inner workings to perform optimally, empowering the developer to determine the data structures and types used (if you don't use the default implementations from `DestinyDefaults`).
 
 ## Roadmap
 
@@ -141,9 +141,9 @@ Disables Nagle's algorithm, which buffers small packets before sending them, to 
 ## Benchmarks
 
 - Libraries tested
-  - [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.1.0 (this library)
-  - [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.1.0
-  - [vapor/vapor](https://github.com/vapor/vapor) v4.106.0
+  - [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.2.0 (this library)
+  - [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.11.1
+  - [vapor/vapor](https://github.com/vapor/vapor) v4.114.1
 
 ### Static
 
