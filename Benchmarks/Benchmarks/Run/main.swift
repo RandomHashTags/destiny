@@ -121,7 +121,7 @@ func vapor_application(port: Int) -> Vapor.Application {
         (HTTPHeaders.Name.contentType.description, "text/html")
     )
     app.get(["html"]) { request in
-        // we have to do it this way because the its headers get updated every request (probably 'cause its a class)
+        // we have to do it this way because its headers get updated every request (probably 'cause its a class)
         return Vapor.Response(status: .ok, version: request.version, headers: headers, body: body)
     }
     app.on(.GET, ["error"]) { request in

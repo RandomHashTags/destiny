@@ -47,9 +47,6 @@ extension Request {
             //print("loadRequestLine;read=\(read)")
 
             newStartLine = try HTTPStartLine(buffer: buffer)
-            guard let targetMethod = HTTPRequestMethod.init(newStartLine.method) else {
-                throw SocketError.malformedRequest()
-            }
             path = newStartLine.path.string().split(separator: "/").map { String($0) }
             var pathIndex = 0
             for i in 0..<newStartLine.methodCount {

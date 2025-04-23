@@ -9,18 +9,18 @@ let package = Package(
         .macOS(.v14)
     ],
     dependencies: [
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.27.0"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.2"),
 
         // networking
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1"),
-        .package(url: "https://github.com/apple/swift-nio", from: "2.75.0"),
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.7.0"),
+        .package(url: "https://github.com/apple/swift-nio", from: "2.82.0"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
 
         .package(url: "https://github.com/swift-server/async-http-client", from: "1.23.1"),
 
         //.package(name: "destiny", path: "../"),
-        .package(url: "https://github.com/vapor/vapor", exact: "4.106.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.6.1")
+        .package(url: "https://github.com/vapor/vapor", exact: "4.114.1"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.11.1")
     ],
     targets: [
         .target(
