@@ -15,7 +15,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: Router
-enum Router : ExpressionMacro {
+enum Router: ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var version = HTTPVersion.v1_1
         var errorResponder = """
@@ -381,7 +381,7 @@ extension Router {
 }
 
 // MARK: RoutePath
-struct RoutePath : Hashable {
+struct RoutePath: Hashable {
     let comment:String
     let path:DestinyRoutePathType
 }

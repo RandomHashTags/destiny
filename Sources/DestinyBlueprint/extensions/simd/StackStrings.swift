@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 10/22/24.
 //
 
-extension SIMD where Scalar : BinaryInteger {
+extension SIMD where Scalar: BinaryInteger {
     /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
     public init(_ string: inout String) {
         var item = Self()
@@ -25,7 +25,7 @@ extension SIMD where Scalar : BinaryInteger {
 
     /// - Complexity: O(1)
     @inlinable
-    public var leadingNonzeroByteCountSIMD : Int {
+    public var leadingNonzeroByteCountSIMD: Int {
         for i in 0..<scalarCount {
             if self[i] == 0 {
                 return i

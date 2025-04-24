@@ -4,21 +4,21 @@ import Foundation
 #endif
 
 // MARK: init
-extension InlineArray {
+extension InlineArrayProtocol {
     @inlinable
     public init<T: Collection<Element>>(_ array: T) {
         self = .init(repeating: array[array.startIndex])
         for i in self.indices {
-            self[i] = array[array.index(array.startIndex, offsetBy: i)]
+            self.setItemAt(index: i, element: array[array.index(array.startIndex, offsetBy: i)])
         }
     }
 }
-extension InlineArray where Element == UInt8 {
+extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
     public init(_ utf8: String.UTF8View) {
         self = .init(repeating: 0)
         for i in self.indices {
-            self[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
+            self.setItemAt(index: i, element: utf8[utf8.index(utf8.startIndex, offsetBy: i)])
         }
     }
 
@@ -26,13 +26,13 @@ extension InlineArray where Element == UInt8 {
     public init<T: SIMD>(_ simd: T) where T.Scalar == Element {
         self = .init(repeating: 0)
         for i in simd.indices {
-            self[i] = simd[i]
+            self.setItemAt(index: i, element: simd[i])
         }
     }
 }
 
 // MARK: split
-extension InlineArray where Element: Equatable {
+extension InlineArrayProtocol where Element: Equatable {
     @discardableResult
     @inlinable
     public func split<let sliceLength: Int>(
@@ -42,12 +42,12 @@ extension InlineArray where Element: Equatable {
     ) -> InlineArray<sliceLength, Element>? {
         var beginning = startIndex
         for i in self.indices {
-            let element = self[i]
+            let element = self.itemAt(index: i)
             if element == separator {
                 var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
                 var sliceIndex = 0
                 while beginning < i, sliceIndex < sliceLength {
-                    slice[sliceIndex] = self[beginning]
+                    slice[sliceIndex] = self.itemAt(index: beginning)
                     beginning += 1
                     sliceIndex += 1
                 }
@@ -69,20 +69,20 @@ extension InlineArray where Element: Equatable {
         var i = offset
         loop: while i < count {
             let startIndex = i
-            var element = self[i]
+            var element = self.itemAt(index: i)
             for separator in separators {
                 if element != separator {
                     i += 1
                     continue loop
                 } else {
                     i += 1
-                    element = self[i]
+                    element = self.itemAt(index: i)
                 }
             }
             var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
             var sliceIndex = 0
             while beginning < startIndex, sliceIndex < sliceLength {
-                slice[sliceIndex] = self[beginning]
+                slice[sliceIndex] = self.itemAt(index: beginning)
                 beginning += 1
                 sliceIndex += 1
             }
@@ -95,12 +95,12 @@ extension InlineArray where Element: Equatable {
 }
 
 // MARK: first index
-extension InlineArray where Element: Equatable {
+extension InlineArrayProtocol where Element: Equatable {
     @inlinable
     public func firstIndex(of element: Element, offset: Index = 0) -> Index? {
         var i = startIndex + offset
         while i < endIndex {
-            if self[i] == element {
+            if self.itemAt(index: i) == element {
                 return i
             }
             i += 1
@@ -110,7 +110,7 @@ extension InlineArray where Element: Equatable {
 }
 
 // MARK: first slice
-extension InlineArray where Element: Equatable {
+extension InlineArrayProtocol where Element: Equatable {
     @inlinable
     public func firstSlice<let sliceLength: Int>(separator: Element, defaultValue: Element, offset: Index = 0) -> (slice: InlineArray<sliceLength, Element>, index: Index) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
@@ -119,7 +119,7 @@ extension InlineArray where Element: Equatable {
         var targetIndex = offset
         var i = 0
         while i < numberOfItems, targetIndex < sliceLength {
-            slice[i] = self[targetIndex]
+            slice[i] = self.itemAt(index: targetIndex)
             targetIndex += 1
             i += 1
         }
@@ -128,7 +128,7 @@ extension InlineArray where Element: Equatable {
 }
 
 // MARK: slice
-extension InlineArray {
+extension InlineArrayProtocol {
     @inlinable
     public func slice<let sliceLength: Int>(startIndex: Index, endIndex: Index, defaultValue: Element) -> InlineArray<sliceLength, Element> {
         var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
@@ -136,7 +136,7 @@ extension InlineArray {
         var i = startIndex
         let targetEndIndex = min(endIndex, self.endIndex)
         while i < targetEndIndex, index < sliceLength {
-            slice[index] = self[i]
+            slice[index] = self.itemAt(index: i)
             index += 1
             i += 1
         }
@@ -145,10 +145,10 @@ extension InlineArray {
 }
 
 // MARK: has prefix
-extension InlineArray where Element == UInt8 {
+extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
-    public func hasPrefix<let secondCount: Int>(_ array: InlineArray<secondCount, Element>) -> Bool {
-        let minCount = min(count, secondCount)
+    public func hasPrefix<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
+        let minCount = min(count, T.count)
         // TODO: support SIMD
         /*switch minCount {
         case let x where x <= 8:
@@ -164,7 +164,7 @@ extension InlineArray where Element == UInt8 {
         }*/
         var i = startIndex
         while i < minCount {
-            if self[i] != array[i] {
+            if self.itemAt(index: i) != array.itemAt(index: i) {
                 return false
             }
             i += 1
@@ -174,12 +174,12 @@ extension InlineArray where Element == UInt8 {
 }
 
 // MARK: string
-extension InlineArray where Element == UInt8 {
+extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
     public func string() -> String {
         var s = ""
         for i in self.indices {
-            let char = self[i]
+            let char = self.itemAt(index: i)
             if char == 0 {
                 break
             }
@@ -191,7 +191,7 @@ extension InlineArray where Element == UInt8 {
 
 #if canImport(Foundation)
 // MARK: lowercase
-extension InlineArray where Element == UInt8 {
+extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
     public func lowercase() -> Self {
         var value = self
@@ -200,7 +200,7 @@ extension InlineArray where Element == UInt8 {
         for _ in 0..<simds {
             let simd = simd64(startIndex: startIndex).lowercase()
             for i in 0..<64 {
-                value[startIndex + i] = simd[i]
+                value.setItemAt(index: startIndex + i, element: simd[i])
             }
             startIndex += 64
         }
@@ -210,7 +210,7 @@ extension InlineArray where Element == UInt8 {
 #endif
 
 // MARK: SIMD
-extension InlineArray where Element: SIMDScalar {
+extension InlineArrayProtocol where Element: SIMDScalar {
     @inlinable
     public func simd8(startIndex: Index = 0) -> SIMD16<Element> {
         return simd(startIndex: startIndex)
@@ -235,7 +235,7 @@ extension InlineArray where Element: SIMDScalar {
         var index = startIndex
         let endIndex = min(endIndex, startIndex + T.scalarCount)
         while index < endIndex {
-            simd[i] = self[index]
+            simd[i] = self.itemAt(index: index)
             index += 1
             i += 1
         }
@@ -244,7 +244,7 @@ extension InlineArray where Element: SIMDScalar {
 }
 
 // MARK: Equatable
-extension InlineArray where Element: Equatable {
+extension InlineArrayProtocol where Element: Equatable {
     @inlinable
     public static func == (lhs: Self?, rhs: Self) -> Bool {
         guard let lhs else { return false }
@@ -259,7 +259,7 @@ extension InlineArray where Element: Equatable {
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in lhs.indices {
-            if lhs[i] != rhs[i] {
+            if lhs.itemAt(index: i) != rhs.itemAt(index: i) {
                 return false
             }
         }
@@ -267,13 +267,13 @@ extension InlineArray where Element: Equatable {
     }
 }
 
-extension InlineArray where Element == UInt8 {
+extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
     public static func == <S: StringProtocol>(lhs: Self, rhs: S) -> Bool {
         let stringCount = rhs.count
         if lhs.count == rhs.count {
             for i in 0..<lhs.count {
-                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                if lhs.itemAt(index: i) != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
                     return false
                 }
             }
@@ -281,36 +281,36 @@ extension InlineArray where Element == UInt8 {
         } else if lhs.count > stringCount {
             var i = 0
             while i < stringCount {
-                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                if lhs.itemAt(index: i) != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
                     return false
                 }
                 i += 1
             }
-            return lhs[i] == 0
+            return lhs.itemAt(index: i) == 0
         } else {
             return false
         }
     }
 
     @inlinable
-    public func stringRepresentationsAreEqual<let secondCount: Int>(_ array: InlineArray<secondCount, Element>) -> Bool {
-        let minCount = min(count, secondCount)
+    public func stringRepresentationsAreEqual<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
+        let minCount = min(count, T.count)
         var i = startIndex
         while i < minCount {
-            if self[i] != array[i] {
+            if self.itemAt(index: i) != array.itemAt(index: i) {
                 return false
             }
             i += 1
         }
-        if count == secondCount {
+        if count == T.count {
             return true
         }
-        return count > secondCount ? self[i] == 0 : array[i] == 0
+        return count > T.count ? self.itemAt(index: i) == 0: array.itemAt(index: i) == 0
     }
 }
 
 // MARK: Pattern matching
-extension InlineArray where Element: Equatable {
+extension InlineArrayProtocol where Element: Equatable {
     @inlinable
     public static func ~= (lhs: Self, rhs: Self) -> Bool {
         return lhs == rhs

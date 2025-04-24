@@ -40,9 +40,9 @@ let router:Router = #router(
         })
     ],
     redirects: [
-        .get : [
-            HTTPResponseStatus.temporaryRedirect.code : [
-                "redirectfrom" : "redirectto"
+        .get: [
+            HTTPResponseStatus.temporaryRedirect.code: [
+                "redirectfrom": "redirectto"
             ]
         ]
     ],
@@ -181,7 +181,7 @@ let router:Router = #router(
         }
     )
 )
-let server:Server<Socket> = try Server<Socket>(
+let server = try Server<Socket>(
     port: 8080,
     router: router,
     logger: Logger(label: "destiny.http.server"),
@@ -189,15 +189,15 @@ let server:Server<Socket> = try Server<Socket>(
         StopCommand.self
     ]
 )
-let application:Application = Application(
+let application = Application(
     server: server,
     logger: Logger(label: "destiny.application")
 )
 try await application.run()
 
-struct StaticJSONResponse : Encodable {
+struct StaticJSONResponse: Encodable {
     let this_outcome_was_inevitable_and_was_your_destiny:Bool
 }
-enum CustomError : Error {
+enum CustomError: Error {
     case yipyip
 }

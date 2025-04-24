@@ -14,7 +14,7 @@ import SwiftSyntaxMacros
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
-public struct StaticRoute : StaticRouteProtocol {
+public struct StaticRoute: StaticRouteProtocol {
     public var path:[String]
     public let contentType:HTTPMediaType
     public let result:RouteResult
@@ -71,7 +71,7 @@ public struct StaticRoute : StaticRouteProtocol {
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         """
         StaticRoute(
             version: .\(version),

@@ -6,7 +6,7 @@
 //
 
 // MARK: SIMD2
-extension SIMD2 where Scalar : BinaryInteger {
+extension SIMD2 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     public func split(separator: Scalar) -> Self {
         if x == separator {
@@ -19,7 +19,7 @@ extension SIMD2 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD4
-extension SIMD4 where Scalar : BinaryInteger {
+extension SIMD4 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
     public func split(separator: Scalar) -> [Self] {
@@ -58,7 +58,7 @@ extension SIMD4 where Scalar : BinaryInteger {
 
 /*
 // MARK: SIMD8
-extension SIMD8 where Scalar : BinaryInteger {
+extension SIMD8 where Scalar: BinaryInteger {
     /// - Complexity: O(1)?
     @inlinable
     public func split(separator: Scalar) -> [Self] {

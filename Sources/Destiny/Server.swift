@@ -13,7 +13,7 @@ import ServiceLifecycle
 
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.
-public final class Server<ClientSocket : SocketProtocol & ~Copyable> : HTTPServerProtocol {
+public final class Server<ClientSocket: SocketProtocol & ~Copyable>: HTTPServerProtocol {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.
@@ -157,7 +157,7 @@ public final class Server<ClientSocket : SocketProtocol & ~Copyable> : HTTPServe
 }
 
 // MARK: Process commands
-extension Server where ClientSocket : ~Copyable {
+extension Server where ClientSocket: ~Copyable {
     private func readCommand() async -> String? {
         return await withCheckedContinuation { $0.resume(returning: readLine()) }
     }
@@ -191,7 +191,7 @@ extension Server where ClientSocket : ~Copyable {
 }
 
 // MARK: Process clients
-extension Server where ClientSocket : ~Copyable {
+extension Server where ClientSocket: ~Copyable {
     @inlinable
     func processClients(serverFD: Int32) async {
         let function = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
@@ -229,7 +229,7 @@ extension Server where ClientSocket : ~Copyable {
 }
 
 // MARK: Accept client
-extension Server where ClientSocket : ~Copyable {
+extension Server where ClientSocket: ~Copyable {
     @inlinable
     @Sendable
     static func acceptClient(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {

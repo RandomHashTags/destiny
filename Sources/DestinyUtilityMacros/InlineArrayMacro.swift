@@ -9,7 +9,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-enum InlineArrayMacro : ExpressionMacro {
+enum InlineArrayMacro: ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         var expectedCount:Int? = nil
         var values:[UInt8] = []

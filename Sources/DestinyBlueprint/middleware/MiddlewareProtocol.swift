@@ -9,7 +9,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 /// Core Middleware protocol.
-public protocol MiddlewareProtocol : Sendable, CustomDebugStringConvertible {
+public protocol MiddlewareProtocol: Sendable, CustomDebugStringConvertible {
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// Parsing logic for this middleware.

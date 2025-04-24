@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 
 // MARK: RouterGroup
 /// Default Router Group implementation that handles grouped routes.
-public struct RouterGroup : RouterGroupProtocol {
+public struct RouterGroup: RouterGroupProtocol {
     public let prefixEndpoints:[String]
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]
@@ -94,7 +94,7 @@ public struct RouterGroup : RouterGroupProtocol {
         self.dynamicResponses = dynamicResponses
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         var staticMiddlewareString = "[]"
         if !staticMiddleware.isEmpty {
             staticMiddlewareString.removeLast()

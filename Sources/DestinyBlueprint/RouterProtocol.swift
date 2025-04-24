@@ -8,7 +8,7 @@
 import Logging
 
 /// Core Router protocol that handles middleware, routes and router groups.
-public protocol RouterProtocol : AnyObject, Sendable {
+public protocol RouterProtocol: AnyObject, Sendable {
     @inlinable func loadDynamicMiddleware()
 
     /// Process an accepted file descriptor.

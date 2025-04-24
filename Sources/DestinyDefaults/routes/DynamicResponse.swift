@@ -8,7 +8,7 @@
 import DestinyBlueprint
 import DestinyUtilities
 
-public struct DynamicResponse : DynamicResponseProtocol {
+public struct DynamicResponse: DynamicResponseProtocol {
     public var timestamps:DynamicRequestTimestamps
     public var message:any HTTPMessageProtocol
     public var parameters:[String]
@@ -23,7 +23,7 @@ public struct DynamicResponse : DynamicResponseProtocol {
         self.parameters = parameters
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         "DynamicResponse(message: \(message.debugDescription), parameters: \(parameters))"
     }
 }

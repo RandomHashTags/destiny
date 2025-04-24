@@ -5,11 +5,11 @@
 //  Created by Evan Anderson on 4/19/25.
 //
 
-public protocol HTTPMessageProtocol : CustomDebugStringConvertible, Sendable {
+public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
 
-    @inlinable var version : HTTPVersion { get set }
+    @inlinable var version: HTTPVersion { get set }
 
-    @inlinable var status : HTTPResponseStatus.Code { get set }
+    @inlinable var status: HTTPResponseStatus.Code { get set }
 
     //@inlinable func response() -> InlineArrayProtocol // TODO: need to wait to use ValueGenerics
 

@@ -5,5 +5,5 @@
 //  Created by Evan Anderson on 4/18/25.
 //
 
-public protocol RouterResponderStorageProtocol : Sendable {
+public protocol RouterResponderStorageProtocol: Sendable {
 }

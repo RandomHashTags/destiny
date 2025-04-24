@@ -6,7 +6,7 @@
 //
 
 /// Core Conditional Route Responder protocol that selects a route responder based on a request.
-public protocol ConditionalRouteResponderProtocol : CustomDebugStringConvertible, RouteResponderProtocol {
+public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible, RouteResponderProtocol {
     /// - Parameters:
     ///   - request: The request.
     /// - Returns: The responder for the request.

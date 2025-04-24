@@ -18,7 +18,7 @@ import SwiftSyntax
 /// HTTP request methods.
 /// 
 /// Missing a method? Request it [here](https://github.com/RandomHashTags/destiny/discussions/new?category=request-feature).
-public enum HTTPRequestMethod : String, HTTPRequestMethodProtocol {
+public enum HTTPRequestMethod: String, HTTPRequestMethodProtocol {
     //
     //
     // MARK: Standard
@@ -749,7 +749,7 @@ public enum HTTPRequestMethod : String, HTTPRequestMethodProtocol {
 // MARK: Raw Name
 extension HTTPRequestMethod {
     @inlinable
-    public var rawName : HTTPStartLine.Method {
+    public var rawName: HTTPStartLine.Method {
         switch self {
         case .acl: #inlineArray(count: 20, "ACL")
         case .announce: #inlineArray(count: 20, "ANNOUNCE")
@@ -898,15 +898,15 @@ extension HTTPRequestMethod {
 // MARK: Raw Name String
 extension HTTPRequestMethod {
     @inlinable
-    public var rawNameString : String {
+    public var rawNameString: String {
         return rawName.string()
     }
 }
 
 // MARK: Debug description
-extension HTTPRequestMethod : CustomDebugStringConvertible  {
+extension HTTPRequestMethod: CustomDebugStringConvertible  {
     @inlinable
-    public var debugDescription : String {
+    public var debugDescription: String {
         "HTTPRequestMethod." + rawValue
     }
 }

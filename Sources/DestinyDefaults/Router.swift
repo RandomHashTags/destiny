@@ -14,7 +14,7 @@ import DestinyUtilities
 import Logging
 
 /// Default Router implementation that handles middleware, routes and router groups.
-public final class Router : RouterProtocol { // TODO: fix Swift 6 errors
+public final class Router: RouterProtocol { // TODO: fix Swift 6 errors
     public let version:HTTPVersion
     public private(set) var caseSensitiveResponders:RouterResponderStorage
     public private(set) var caseInsensitiveResponders:RouterResponderStorage

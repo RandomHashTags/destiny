@@ -5,17 +5,29 @@
 //  Created by Evan Anderson on 4/20/25.
 //
 
-public protocol InlineArrayProtocol : Sendable, ~Copyable {
-    associatedtype Index:Strideable
+public protocol InlineArrayProtocol: Sendable, ~Copyable {
+    typealias Index = Int
     associatedtype Element
 
-    var startIndex : Index { get }
-    var endIndex : Index { get }
+    static var count: Int { get }
 
-    var count : Int { get }
-    var indices : Range<Index> { get }
+    init(repeating value: Element)
 
-    func itemAt(index: Index) -> Element // TODO: remove | temporary workaround for borrowing self in a subscript (_read and _modify accessors aren't final)
+    var startIndex: Index { get }
+    var endIndex: Index { get }
+
+    var count: Int { get }
+    var isEmpty: Bool { get }
+    var indices: Range<Index> { get }
+
+    borrowing func index(after i: Index) -> Index
+    borrowing func index(before i: Index) -> Index
+
+    // TODO: remove the following two functions | temporary workaround for borrowing self in a subscript (_read and _modify accessors aren't final)
+    func itemAt(index: Index) -> Element 
+    mutating func setItemAt(index: Index, element: Element)
+
+    mutating func swapAt(_ i: Index, _ j: Index)
 }
 
 // MARK: Extensions
@@ -30,9 +42,14 @@ extension Array where Element == UInt8 {
 }
 
 // MARK Conformances
-extension InlineArray : InlineArrayProtocol {
+extension InlineArray: InlineArrayProtocol {
     @inlinable
     public func itemAt(index: Index) -> Element {
         self[index]
+    }
+
+    @inlinable
+    public mutating func setItemAt(index: Int, element: Element) {
+        self[index] = element
     }
 }

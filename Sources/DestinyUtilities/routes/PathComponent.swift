@@ -11,7 +11,7 @@ import SwiftSyntaxMacros
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 // TODO: support case sensitivity
-public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Hashable, Sendable {
+public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Hashable, Sendable {
     case literal(String)
     case parameter(String)
     case catchall
@@ -26,7 +26,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
         }
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         switch self {
         case .literal(let s): ".literal(\"\(s)\")"
         case .parameter(let s): ".parameter(\"\(s)\")"
@@ -35,13 +35,13 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
     }
 
     @inlinable
-    public var description : String {
+    public var description: String {
         "\"" + slug + "\""
     }
 
     /// Whether or not this component is a parameter.
     @inlinable
-    public var isParameter : Bool {
+    public var isParameter: Bool {
         switch self {
         case .literal:   false
         case .parameter: true
@@ -51,7 +51,7 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
 
     /// String representation of this component including the delimiter, if it is a parameter. Used to determine where parameters are located in a route's path at compile time.
     @inlinable
-    public var slug : String {
+    public var slug: String {
         switch self {
         case .literal(let value):   value
         case .parameter(let value): ":" + value
@@ -61,11 +61,11 @@ public enum PathComponent : CustomDebugStringConvertible, CustomStringConvertibl
 
     /// String representation of this component where the delimiter is omitted (only the name of the path is present).
     @inlinable
-    public var value : String {
+    public var value: String {
         switch self {
         case .literal(let value):   value
         case .parameter(let value): value
-        case .catchall:                       ""
+        case .catchall:             ""
         }
     }
 }

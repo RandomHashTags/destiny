@@ -13,7 +13,7 @@ import SwiftSyntaxMacros
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
-public struct DynamicRoute : DynamicRouteProtocol {
+public struct DynamicRoute: DynamicRouteProtocol {
     public var path:[PathComponent]
     public var contentType:HTTPMediaType
     public var defaultResponse:DynamicResponse
@@ -58,11 +58,11 @@ public struct DynamicRoute : DynamicRouteProtocol {
         DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
 
-    public var responderDebugDescription : String {
+    public var responderDebugDescription: String {
         "DynamicRouteResponder(\npath: \(path),\ndefaultResponse: \(defaultResponse.debugDescription),\nlogic: \(handlerDebugDescription)\n)"
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         """
         DynamicRoute(
             version: .\(version),
@@ -135,7 +135,7 @@ extension DynamicRoute {
             }
         }
         headers[HTTPResponseHeader.contentType.rawNameString] = "\(contentType)"
-        var route:DynamicRoute = DynamicRoute(
+        var route = DynamicRoute(
             version: version,
             method: method,
             path: path,

@@ -9,7 +9,7 @@ import SwiftCompression
 import SwiftSyntax
 
 extension CompressionAlgorithm {
-    public var acceptEncodingName : String {
+    public var acceptEncodingName: String {
         switch self {
         case .brotli: "br"
         case .huffmanCoding: "huffman"

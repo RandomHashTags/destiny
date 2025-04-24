@@ -7,7 +7,7 @@
 
 import DestinyBlueprint
 
-public struct HTTPStartLine : HTTPStartLineProtocol {
+public struct HTTPStartLine: HTTPStartLineProtocol {
     public typealias Method = InlineArray<20, UInt8>
 
     public let method:Method
@@ -18,7 +18,7 @@ public struct HTTPStartLine : HTTPStartLineProtocol {
 
     public let endIndex:Int
 
-    public init<let count: Int>(buffer: InlineArray<count, UInt8>) throws {
+    public init<T: InlineArrayProtocol>(buffer: T) throws where T.Element == UInt8 {
         let (methodArray, methodSpaceIndex):(Method, Int) = buffer.firstSlice(separator: .space, defaultValue: 0)
         let (pathArray, pathSpaceIndex):(InlineArray<64, UInt8>, Int) = buffer.firstSlice(separator: .space, defaultValue: 0, offset: methodSpaceIndex+1)
         let versionArray:InlineArray<8, UInt8> = buffer.slice(startIndex: pathSpaceIndex+1, endIndex: pathSpaceIndex+9, defaultValue: 0)

@@ -8,7 +8,7 @@
 import ArgumentParser
 
 /// Defines what boot options can be used for a server.
-public struct BootCommands : ParsableCommand {
+public struct BootCommands: ParsableCommand {
     @Option(
         name: .init([
             .customLong("hostname"),

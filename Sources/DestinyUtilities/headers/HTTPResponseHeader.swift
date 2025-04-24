@@ -13,7 +13,7 @@ import DestinyBlueprint
 //  - this memory layout is 1,1,1 vs `HTTPField.Name`'s 8,32,32 (alignment, size, stride)
 
 /// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Response_fields
-public enum HTTPResponseHeader : String, Hashable {
+public enum HTTPResponseHeader: String, Hashable {
     // MARK: Standard
     
 
@@ -135,7 +135,7 @@ public enum HTTPResponseHeader : String, Hashable {
 // MARK: Raw Name
 extension HTTPResponseHeader {
     @inlinable
-    public var rawName : InlineArray<32, UInt8> {
+    public var rawName: InlineArray<32, UInt8> {
         switch self {
         // standard
         //case .acceptCH: #inlineArray(count: 32, "Accept-CH")
@@ -229,7 +229,7 @@ extension HTTPResponseHeader {
 // MARK: Raw Name String
 extension HTTPResponseHeader {
     @inlinable
-    public var rawNameString : String {
+    public var rawNameString: String {
         return rawName.string()
     }
 }
@@ -253,21 +253,21 @@ extension HTTPResponseHeader {
 // MARK: Accept-CH
 /*
 extension HTTPResponseHeader {
-    public enum AcceptCH : String, Sendable {
+    public enum AcceptCH: String, Sendable {
         case experimental
     }
 }*/
 
 // MARK: Accept-Ranges
 extension HTTPResponseHeader {
-    public enum AcceptRanges : String, Sendable {
+    public enum AcceptRanges: String, Sendable {
         case bytes
     }
 }
 
 // MARK: TK
 extension HTTPResponseHeader {
-    public enum TK : String, Sendable {
+    public enum TK: String, Sendable {
         case disregardingDNT
         case dynamic
         case gatewayToMultipleParties
@@ -278,7 +278,7 @@ extension HTTPResponseHeader {
         case underConstruction
         case updated
 
-        public var rawName : String {
+        public var rawName: String {
             switch self {
             case .disregardingDNT: return "D"
             case .dynamic: return "?"

@@ -9,7 +9,7 @@ import DestinyBlueprint
 
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
-public struct HTTPMessage : HTTPMessageProtocol {
+public struct HTTPMessage: HTTPMessageProtocol {
     public var headers:[String:String]
     public var cookies:[any HTTPCookieProtocol]
     public var result:RouteResult?
@@ -36,7 +36,7 @@ public struct HTTPMessage : HTTPMessageProtocol {
         self.charset = charset
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         "HTTPMessage(version: .\(version), status: \(status), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? "nil"), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
     }
 

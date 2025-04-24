@@ -6,7 +6,7 @@
 //
 
 /// Storage for an HTTP Message's headers.
-public protocol HTTPHeadersProtocol : Sendable {
+public protocol HTTPHeadersProtocol: Sendable {
     associatedtype Key:Sendable
     associatedtype Value:Sendable
 

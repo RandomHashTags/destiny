@@ -8,7 +8,7 @@
 import DestinyBlueprint
 import DestinyUtilities
 
-public struct RouterResponderStorage : RouterResponderStorageProtocol {
+public struct RouterResponderStorage: RouterResponderStorageProtocol {
     public var `static`:StaticResponderStorage
     public var dynamic:DynamicResponderStorage
     public var conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]

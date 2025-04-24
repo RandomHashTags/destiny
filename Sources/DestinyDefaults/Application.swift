@@ -9,7 +9,7 @@ import DestinyBlueprint
 import Logging
 import ServiceLifecycle
 
-public struct Application : ApplicationProtocol {
+public struct Application: ApplicationProtocol {
     public static private(set) var shared:Application! = nil
 
     public let serviceGroup:ServiceGroup

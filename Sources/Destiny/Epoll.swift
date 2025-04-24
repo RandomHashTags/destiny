@@ -12,7 +12,7 @@ import Glibc
 import Logging
 import ServiceLifecycle
 
-extension Server where ClientSocket : ~Copyable {
+extension Server where ClientSocket: ~Copyable {
     @inlinable
     func processClientsEpoll(
         serverFD: Int32,
@@ -23,7 +23,7 @@ extension Server where ClientSocket : ~Copyable {
     ) async {
         setNonBlocking(socket: serverFD)
         do {
-            let processor:EpollProcessor = try EpollProcessor(
+            let processor = try EpollProcessor(
                 serverFD: serverFD,
                 threads: threads,
                 maxEvents: maxEvents
@@ -36,20 +36,20 @@ extension Server where ClientSocket : ~Copyable {
 
     @inlinable
     func setNonBlocking(socket: Int32) {
-        let flags:Int32 = fcntl(socket, F_GETFL, 0)
+        let flags = fcntl(socket, F_GETFL, 0)
         guard flags != -1 else {
             fatalError("epoll;setNonBlocking;broken1")
         }
-        let result:Int32 = fcntl(socket, F_SETFL, flags | O_NONBLOCK)
+        let result = fcntl(socket, F_SETFL, flags | O_NONBLOCK)
         guard result != -1 else {
             fatalError("epoll;setNonBlocking;broken2")
         }
     }
 }
 
-extension Server where ClientSocket : ~Copyable {
+extension Server where ClientSocket: ~Copyable {
     // MARK: Epoll
-    final class Epoll : @unchecked Sendable {
+    final class Epoll: @unchecked Sendable {
         private let serverFD:Int32
         private let fileDescriptor:Int32
         private var events:[epoll_event]
@@ -141,7 +141,7 @@ extension Server where ClientSocket : ~Copyable {
     }
 }
 
-extension Server where ClientSocket : ~Copyable {
+extension Server where ClientSocket: ~Copyable {
     // MARK: EpollProcessor
     @usableFromInline
     final class EpollProcessor {

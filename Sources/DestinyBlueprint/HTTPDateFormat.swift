@@ -24,8 +24,10 @@ import Darwin
 
 // MARK: HTTPDateFormat
 public enum HTTPDateFormat {
+    public typealias InlineArrayResult = InlineArray<29, UInt8>
+
     @inlinable
-    public static func now() -> InlineArray<29, UInt8>? {
+    public static func now() -> InlineArrayResult? {
         #if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
         return nowGlibc()
         #else
@@ -35,7 +37,7 @@ public enum HTTPDateFormat {
 
     /// - Returns: A string that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
     @inlinable
-    public static func get<T: BinaryInteger>(year: T, month: T, day: T, dayOfWeek: T, hour: T, minute: T, second: T) -> InlineArray<29, UInt8> {
+    public static func get<T: BinaryInteger>(year: T, month: T, day: T, dayOfWeek: T, hour: T, minute: T, second: T) -> InlineArrayResult {
         let dayName = httpDayName(dayOfWeek)
         let dayNumbers = httpDateNumber(day)
         let monthName = httpMonthName(month)
@@ -44,7 +46,7 @@ public enum HTTPDateFormat {
         let minuteNumbers = httpDateNumber(minute)
         let secondNumbers = httpDateNumber(second)
 
-        var value:InlineArray<29, UInt8> = .init(repeating: 0)
+        var value:InlineArrayResult = .init(repeating: 0)
         value[0] = dayName[0]
         value[1] = dayName[1]
         value[2] = dayName[2]
@@ -181,13 +183,13 @@ public enum HTTPDateFormat {
 // MARK: Glibc
 extension HTTPDateFormat {
     @inlinable
-    public static func nowGlibc() -> InlineArray<29, UInt8>? {
+    public static func nowGlibc() -> InlineArrayResult? {
         var now = time(nil)
         guard let gmt = gmtime(&now) else { return nil }
         return httpDateGlibc(gmt.pointee)
     }
     @inlinable
-    static func httpDateGlibc(_ gmt: tm) -> InlineArray<29, UInt8> {
+    static func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
         return HTTPDateFormat.get(year: 1900 + gmt.tm_year, month: gmt.tm_mon, day: gmt.tm_mday, dayOfWeek: gmt.tm_wday, hour: gmt.tm_hour, minute: gmt.tm_min, second: gmt.tm_sec)
     }
 }
@@ -197,7 +199,7 @@ extension HTTPDateFormat {
 // MARK: Foundation
 extension HTTPDateFormat {
     @inlinable
-    public static func get(date: Date) -> InlineArray<29, UInt8> {
+    public static func get(date: Date) -> InlineArrayResult {
         let components = Calendar.current.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: date)
         let values = (
             components.year ?? 0,

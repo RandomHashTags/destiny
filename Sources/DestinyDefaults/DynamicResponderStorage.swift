@@ -9,7 +9,7 @@ import DestinyBlueprint
 import DestinyUtilities
 
 /// Default storage that handles dynamic routes.
-public struct DynamicResponderStorage : DynamicResponderStorageProtocol {
+public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]
 
@@ -28,7 +28,7 @@ public struct DynamicResponderStorage : DynamicResponderStorageProtocol {
         self.catchall = catchall
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         var parameterlessString = "[:]"
         if !parameterless.isEmpty {
             parameterlessString.removeLast(2)

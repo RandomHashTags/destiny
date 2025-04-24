@@ -18,16 +18,16 @@ public enum RouteResponses {
 
 // MARK: InlineArray
 extension RouteResponses {
-    public protocol InlineArrayProtocol : StaticRouteResponderProtocol {
+    public protocol InlineArrayProtocol: StaticRouteResponderProtocol {
     }
-    public struct InlineArray<let count: Int> : InlineArrayProtocol {
+    public struct InlineArray<let count: Int>: InlineArrayProtocol {
         public let value:Swift.InlineArray<count, UInt8>
 
         public init(_ value: Swift.InlineArray<count, UInt8>) {
             self.value = value
         }
 
-        public var debugDescription : Swift.String {
+        public var debugDescription: Swift.String {
             var inlineArrayValue = "["
             for i in value.indices {
                 inlineArrayValue.append(Character(Unicode.Scalar(value[i])))
@@ -55,14 +55,14 @@ extension RouteResponses {
 
 // MARK: StaticString
 extension RouteResponses {
-    public struct StaticString : StaticRouteResponderProtocol {
+    public struct StaticString: StaticRouteResponderProtocol {
         public let value:Swift.StaticString
 
         public init(_ value: Swift.StaticString) {
             self.value = value
         }
 
-        public var debugDescription : Swift.String {
+        public var debugDescription: Swift.String {
             "RouteResponses.StaticString(\"" + value.description + "\")"
         }
 
@@ -86,7 +86,7 @@ extension RouteResponses {
 /*
 // MARK: UnsafeBufferPointer
 extension RouteResponses {
-    public struct UnsafeBufferPointer : @unchecked Sendable, StaticRouteResponderProtocol {
+    public struct UnsafeBufferPointer: @unchecked Sendable, StaticRouteResponderProtocol {
         public let value:Swift.UnsafeBufferPointer<UInt8>
         public init(_ value: Swift.UnsafeBufferPointer<UInt8>) {
             self.value = value
@@ -101,7 +101,7 @@ extension RouteResponses {
 
 // MARK: String
 extension RouteResponses {
-    public struct String : StaticRouteResponderProtocol {
+    public struct String: StaticRouteResponderProtocol {
         public let value:Swift.String
 
         public init(_ value: Swift.String) {
@@ -111,7 +111,7 @@ extension RouteResponses {
             value = (try? response.string(escapeLineBreak: true)) ?? ""
         }
 
-        public var debugDescription : Swift.String {
+        public var debugDescription: Swift.String {
             "RouteResponses.String(\"" + value + "\")"
         }
 
@@ -126,7 +126,7 @@ extension RouteResponses {
 
 // MARK: UInt8Array
 extension RouteResponses {
-    public struct UInt8Array : StaticRouteResponderProtocol {
+    public struct UInt8Array: StaticRouteResponderProtocol {
         public let value:[UInt8]
 
         public init(_ value: [UInt8]) {
@@ -148,7 +148,7 @@ extension RouteResponses {
 
 // MARK: UInt16Array
 extension RouteResponses {
-    public struct UInt16Array : StaticRouteResponderProtocol {
+    public struct UInt16Array: StaticRouteResponderProtocol {
         public let value:[UInt16]
 
         public init(_ value: [UInt16]) {
@@ -177,7 +177,7 @@ extension RouteResponses {
 
 // MARK: Data
 extension RouteResponses {
-    public struct FoundationData : StaticRouteResponderProtocol {
+    public struct FoundationData: StaticRouteResponderProtocol {
         public let value:Data
 
         public init(_ value: Data) {

@@ -8,43 +8,43 @@
 import DestinyBlueprint
 
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
-public protocol StaticMiddlewareProtocol : MiddlewareProtocol {
+public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     associatedtype Cookie:HTTPCookieProtocol
 
     /// Route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
-    var handlesVersions : Set<HTTPVersion>? { get }
+    var handlesVersions: Set<HTTPVersion>? { get }
 
     /// Route request methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
-    var handlesMethods : Set<HTTPRequestMethod>? { get }
+    var handlesMethods: Set<HTTPRequestMethod>? { get }
 
     /// Route response statuses this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all statuses.
-    var handlesStatuses : Set<HTTPResponseStatus.Code>? { get }
+    var handlesStatuses: Set<HTTPResponseStatus.Code>? { get }
 
     /// The route content types this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all content types.
-    var handlesContentTypes : Set<HTTPMediaType>? { get }
+    var handlesContentTypes: Set<HTTPMediaType>? { get }
 
     /// Response http version this middleware applies to routes.
-    var appliesVersion : HTTPVersion? { get }
+    var appliesVersion: HTTPVersion? { get }
 
     /// Response status this middleware applies to routes.
-    var appliesStatus : HTTPResponseStatus.Code? { get }
+    var appliesStatus: HTTPResponseStatus.Code? { get }
 
     /// Response content type this middleware applies to routes.
-    var appliesContentType : HTTPMediaType? { get }
+    var appliesContentType: HTTPMediaType? { get }
     
     /// Response headers this middleware applies to routes.
-    var appliesHeaders : [String:String] { get }
+    var appliesHeaders: [String:String] { get }
 
     /// Response cookies this middleware applies to routes.
-    var appliesCookies : [Cookie] { get }
+    var appliesCookies: [Cookie] { get }
 
     /// Whether or not this middleware handles a route with the given options.
     @inlinable

@@ -16,7 +16,7 @@ import SwiftCompressionUtilities
 import SwiftSyntax
 
 // MARK: RouteResult
-public enum RouteResult : CustomDebugStringConvertible, Sendable {
+public enum RouteResult: CustomDebugStringConvertible, Sendable {
     case staticString(String)
     case string(String)
 
@@ -34,7 +34,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     case error(any Error)
 
     @inlinable
-    public var debugDescription : String {
+    public var debugDescription: String {
         switch self {
         case .staticString(let s): ".staticString(\"\(s)\")"
         case .string(let s): ".string(\"\(s)\")"
@@ -49,7 +49,7 @@ public enum RouteResult : CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    public var count : Int {
+    public var count: Int {
         switch self {
         case .staticString(let string): string.description.utf8.count
         case .string(let string): string.utf8.count
@@ -176,7 +176,7 @@ extension RouteResult {
 
 // MARK: Responder
 extension RouteResult {
-    public var responderDebugDescription : String {
+    public var responderDebugDescription: String {
         switch self {
         case .staticString(let s):
             "RouteResponses.StaticString(\"\(s)\")"

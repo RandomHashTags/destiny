@@ -5,5 +5,5 @@
 //  Created by Evan Anderson on 3/7/25.
 //
 
-public protocol HTTPResponseHeadersProtocol : HTTPHeadersProtocol {
+public protocol HTTPResponseHeadersProtocol: HTTPHeadersProtocol {
 }

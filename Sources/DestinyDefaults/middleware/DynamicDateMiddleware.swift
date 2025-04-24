@@ -14,7 +14,7 @@ import SwiftSyntaxMacros
 
 // MARK: DynamicDateMiddleware
 /// Adds the `Date` header to responses for dynamic routes.
-public final class DynamicDateMiddleware : DynamicMiddlewareProtocol {
+public final class DynamicDateMiddleware: DynamicMiddlewareProtocol {
     @usableFromInline
     var _dateString:String
 
@@ -61,7 +61,7 @@ public final class DynamicDateMiddleware : DynamicMiddlewareProtocol {
         return true
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         "DynamicDateMiddleware()"
     }
 }

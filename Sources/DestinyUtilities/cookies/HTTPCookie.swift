@@ -15,7 +15,7 @@ import DestinyBlueprint
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-public struct HTTPCookie : HTTPCookieProtocol {
+public struct HTTPCookie: HTTPCookieProtocol {
     public var name:CookieName
     public var value:CookieValue
 
@@ -79,7 +79,7 @@ public struct HTTPCookie : HTTPCookieProtocol {
 
 // MARK: CustomDebugStringConvertible
 extension HTTPCookie {
-    public var debugDescription : String {
+    public var debugDescription: String {
         var string:String = "HTTPCookie("
         string += "name: \"\(name)\", value: \"\(value)\""
         if maxAge > 0 {
@@ -110,7 +110,7 @@ extension HTTPCookie {
 // MARK: CustomStringConvertible
 extension HTTPCookie {
     @inlinable
-    public var description : String {
+    public var description: String {
         var string:String = "\(name)=\(value)"
         if maxAge > 0 {
             string += "; Max-Age=\(maxAge)"
@@ -145,7 +145,7 @@ extension HTTPCookie {
 // MARK: Flags
 extension HTTPCookie {
     @usableFromInline
-    enum Flag : UInt8 {
+    enum Flag: UInt8 {
         case secure   = 1
         case httpOnly = 2
     }
@@ -162,13 +162,13 @@ extension HTTPCookie {
     }
 
     @inlinable
-    public var isSecure : Bool {
+    public var isSecure: Bool {
         get { isFlag(.secure) }
         set { setFlag(.secure, newValue) }
     }
 
     @inlinable
-    public var isHTTPOnly : Bool {
+    public var isHTTPOnly: Bool {
         get { isFlag(.httpOnly) }
         set { setFlag(.httpOnly, newValue) }
     }

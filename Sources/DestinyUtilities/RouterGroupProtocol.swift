@@ -10,7 +10,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 /// Core Router Group protocol that handles routes grouped by a single endpoint.
-public protocol RouterGroupProtocol : CustomDebugStringConvertible, Sendable {
+public protocol RouterGroupProtocol: CustomDebugStringConvertible, Sendable {
 
     /// - Returns: The static route responder for the given HTTP start-line.
     @inlinable func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)?

@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 2/19/25.
 //
 
-public struct DynamicRequestTimestamps : Sendable {
+public struct DynamicRequestTimestamps: Sendable {
     /// When the request was accepted.
     public var received:ContinuousClock.Instant
 

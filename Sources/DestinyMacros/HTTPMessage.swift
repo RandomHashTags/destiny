@@ -11,7 +11,7 @@ import DestinyUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-enum HTTPMessage : DeclarationMacro {
+enum HTTPMessage: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var version:HTTPVersion = .v1_1
         var status = HTTPResponseStatus.notImplemented.code

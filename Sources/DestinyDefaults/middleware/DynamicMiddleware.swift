@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 
 // MARK: DynamicMiddleware
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.
-public struct DynamicMiddleware : DynamicMiddlewareProtocol {
+public struct DynamicMiddleware: DynamicMiddlewareProtocol {
     public let handleLogic:@Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     private var logic:String = "{ _, _ in }"
 
@@ -32,7 +32,7 @@ public struct DynamicMiddleware : DynamicMiddlewareProtocol {
         return true
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         "DynamicMiddleware \(logic)"
     }
 }

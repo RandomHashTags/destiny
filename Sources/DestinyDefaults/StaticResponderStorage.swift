@@ -9,7 +9,7 @@ import DestinyBlueprint
 import DestinyUtilities
 
 /// Default storage that handles static routes.
-public struct StaticResponderStorage : StaticResponderStorageProtocol {
+public struct StaticResponderStorage: StaticResponderStorageProtocol {
 
     @usableFromInline var inlineArrays:[DestinyRoutePathType:RouteResponses.InlineArrayProtocol]
     @usableFromInline var staticStrings:[DestinyRoutePathType:RouteResponses.StaticString]

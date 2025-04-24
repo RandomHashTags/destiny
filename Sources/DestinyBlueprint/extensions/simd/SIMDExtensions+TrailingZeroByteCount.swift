@@ -6,10 +6,10 @@
 //
 
 // MARK: SIMD2
-extension SIMD2 where Scalar : BinaryInteger {
+extension SIMD2 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
-    public var trailingZeroByteCount : Int {
+    public var trailingZeroByteCount: Int {
         if y != 0 { return 0 }
         if x != 0 { return 1 }
         return scalarCount
@@ -17,10 +17,10 @@ extension SIMD2 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD4
-extension SIMD4 where Scalar : BinaryInteger {
+extension SIMD4 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
-    public var trailingZeroByteCount : Int {
+    public var trailingZeroByteCount: Int {
         let all_zero:SIMDMask<SIMD2<Scalar.SIMDMaskScalar>> = .init(repeating: true)
         if (highHalf .== .zero) != all_zero { return highHalf.trailingZeroByteCount }
         if (lowHalf  .== .zero) != all_zero { return 2 + lowHalf.trailingZeroByteCount }
@@ -29,10 +29,10 @@ extension SIMD4 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD8
-extension SIMD8 where Scalar : BinaryInteger {
+extension SIMD8 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
-    public var trailingZeroByteCount : Int {
+    public var trailingZeroByteCount: Int {
         let all_zero:SIMDMask<SIMD4<Scalar.SIMDMaskScalar>> = .init(repeating: true)
         if (highHalf .== .zero) != all_zero { return highHalf.trailingZeroByteCount }
         if (lowHalf  .== .zero) != all_zero { return 4 + lowHalf.trailingZeroByteCount }
@@ -41,10 +41,10 @@ extension SIMD8 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD16
-extension SIMD16 where Scalar : BinaryInteger {
+extension SIMD16 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
-    public var trailingZeroByteCount : Int {
+    public var trailingZeroByteCount: Int {
         let all_zero:SIMDMask<SIMD8<Scalar.SIMDMaskScalar>> = .init(repeating: true)
         if (highHalf .== .zero) != all_zero { return highHalf.trailingZeroByteCount }
         if (lowHalf  .== .zero) != all_zero { return 8 + lowHalf.trailingZeroByteCount }
@@ -53,10 +53,10 @@ extension SIMD16 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD32
-extension SIMD32 where Scalar : BinaryInteger {
+extension SIMD32 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
-    public var trailingZeroByteCount : Int {
+    public var trailingZeroByteCount: Int {
         let all_zero:SIMDMask<SIMD16<Scalar.SIMDMaskScalar>> = .init(repeating: true)
         if (highHalf .== .zero) != all_zero { return highHalf.trailingZeroByteCount }
         if (lowHalf  .== .zero) != all_zero { return 16 + lowHalf.trailingZeroByteCount }
@@ -65,10 +65,10 @@ extension SIMD32 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD64
-extension SIMD64 where Scalar : BinaryInteger {
+extension SIMD64 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
-    public var trailingZeroByteCount : Int {
+    public var trailingZeroByteCount: Int {
         let all_zero:SIMDMask<SIMD32<Scalar.SIMDMaskScalar>> = .init(repeating: true)
         if (highHalf .== .zero) != all_zero { return highHalf.trailingZeroByteCount }
         if (lowHalf  .== .zero) != all_zero { return 32 + lowHalf.trailingZeroByteCount }

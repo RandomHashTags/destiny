@@ -6,7 +6,7 @@
 //
 
 // MARK: SIMD2
-extension SIMD2 where Scalar : BinaryInteger {
+extension SIMD2 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
     public func leadingNonByteCount(byte: Scalar) -> Int {
@@ -17,7 +17,7 @@ extension SIMD2 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD4
-extension SIMD4 where Scalar : BinaryInteger {
+extension SIMD4 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
     public func leadingNonByteCount(byte: Scalar) -> Int {
@@ -30,7 +30,7 @@ extension SIMD4 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD8
-extension SIMD8 where Scalar : BinaryInteger {
+extension SIMD8 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
     public func leadingNonByteCount(byte: Scalar) -> Int {
@@ -43,7 +43,7 @@ extension SIMD8 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD16
-extension SIMD16 where Scalar : BinaryInteger {
+extension SIMD16 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
     public func leadingNonByteCount(byte: Scalar) -> Int {
@@ -56,7 +56,7 @@ extension SIMD16 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD32
-extension SIMD32 where Scalar : BinaryInteger {
+extension SIMD32 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
     public func leadingNonByteCount(byte: Scalar) -> Int {
@@ -69,7 +69,7 @@ extension SIMD32 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD64
-extension SIMD64 where Scalar : BinaryInteger {
+extension SIMD64 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
     @inlinable
     public func leadingNonByteCount(byte: Scalar) -> Int {

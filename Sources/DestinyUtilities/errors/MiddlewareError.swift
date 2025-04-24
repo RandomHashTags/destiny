@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 12/27/24.
 //
 
-public struct MiddlewareError : DestinyErrorProtocol {
+public struct MiddlewareError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String
 

@@ -9,7 +9,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-enum HTTPFieldContentType : DeclarationMacro {
+enum HTTPFieldContentType: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var cases:[String] = []
         var httpValues:[String] = []

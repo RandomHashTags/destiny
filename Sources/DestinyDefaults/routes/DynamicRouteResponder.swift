@@ -9,7 +9,7 @@ import DestinyBlueprint
 import DestinyUtilities
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
-public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
+public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let defaultResponse:any DynamicResponseProtocol
@@ -29,7 +29,7 @@ public struct DynamicRouteResponder : DynamicRouteResponderProtocol {
         self.logicDebugDescription = logicDebugDescription
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         "DynamicRouteResponder(path: \(path), defaultResponse: \(defaultResponse.debugDescription), logic: \(logicDebugDescription))"
     }
 

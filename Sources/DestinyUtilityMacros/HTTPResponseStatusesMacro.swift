@@ -9,7 +9,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-enum HTTPResponseStatusesMacro : DeclarationMacro {
+enum HTTPResponseStatusesMacro: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var entries:[Entry] = []
         for argument in node.arguments {

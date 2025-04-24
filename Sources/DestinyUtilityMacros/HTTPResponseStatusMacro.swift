@@ -9,7 +9,7 @@
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-enum HTTPResponseStatusMacro : ExpressionMacro {
+enum HTTPResponseStatusMacro: ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
         //var name = "??????"
         var code = 0

@@ -8,7 +8,7 @@
 import SwiftSyntax
 
 /// List of Hypertext Transfer Protocol versions.
-public enum HTTPVersion : String, Hashable, Sendable {
+public enum HTTPVersion: String, Hashable, Sendable {
     case v0_9
     case v1_0
     case v1_1
@@ -49,7 +49,7 @@ public enum HTTPVersion : String, Hashable, Sendable {
 
     /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
     @inlinable
-    public var string : String {
+    public var string: String {
         switch self {
         case .v0_9: "HTTP/0.9"
         case .v1_0: "HTTP/1.0"
@@ -62,7 +62,7 @@ public enum HTTPVersion : String, Hashable, Sendable {
 
     /// `SIMD8<UInt8>` representation of this HTTP Version.
     @inlinable
-    public var simd : SIMD8<UInt8> {
+    public var simd: SIMD8<UInt8> {
         switch self {
         case .v0_9: SIMD8(72, 84, 84, 80, 47, 48, 46, 57) // HTTP/0.9
         case .v1_0: SIMD8(72, 84, 84, 80, 47, 49, 46, 48) // HTTP/1.0

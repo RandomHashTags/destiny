@@ -12,8 +12,8 @@ import Darwin
 #endif
 
 // MARK: Socket
-public struct Socket : SocketProtocol, ~Copyable {    
-    public static let bufferLength:Int = 1024
+public struct Socket: SocketProtocol, ~Copyable {
+    public typealias Buffer = InlineArray<1024, UInt8>
 
     public typealias ConcreteRequest = Request
 
@@ -27,21 +27,11 @@ public struct Socket : SocketProtocol, ~Copyable {
 
 // MARK: Reading
 extension Socket {
-    /// Reads `scalarCount` characters and loads them into the target SIMD.
     @inlinable
-    public func readLineSIMD<T : SIMD>(length: Int) throws -> (simd: T, read: Int) where T.Scalar == UInt8 {
-        var string = T()
-        let read = try withUnsafeMutableBytes(of: &string) { p in
-            return try readBuffer(into: p.baseAddress!, length: length)
-        }
-        return (string, read)
-    }
-
-    @inlinable
-    public func readBuffer<let count: Int>() throws -> (InlineArray<count, UInt8>, Int) {
-        var buffer = InlineArray<count, UInt8>.init(repeating: 0)
+    public func readBuffer() throws -> (Buffer, Int) {
+        var buffer = Buffer.init(repeating: 0)
         let read = try withUnsafeMutableBytes(of: &buffer) { p in
-            return try readBuffer(into: p.baseAddress!, length: count)
+            return try readBuffer(into: p.baseAddress!, length: Buffer.count)
         }
         return (buffer, read)
     }
@@ -59,7 +49,7 @@ extension Socket {
         var bytesRead = 0
         while bytesRead < length {
             if Task.isCancelled { return 0 }
-            let toRead = min(Self.bufferLength, length - bytesRead)
+            let toRead = min(Buffer.count, length - bytesRead)
             let read = receive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
                 try handleReadError()
@@ -78,7 +68,7 @@ extension Socket {
         var bytesRead = 0
         while bytesRead < length {
             if Task.isCancelled { return 0 }
-            let toRead = min(Self.bufferLength, length - bytesRead)
+            let toRead = min(Buffer.count, length - bytesRead)
             let read = receive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
                 try handleReadError()
@@ -127,20 +117,6 @@ extension Socket {
 
 // MARK: Writing
 extension Socket {
-    @inlinable
-    public func writeSIMD<T: SIMD>(_ simd: inout T) throws where T.Scalar: BinaryInteger {
-        var err:(any Error)? = nil
-        withUnsafeBytes(of: simd) { p in
-            do {
-                try writeBuffer(p.baseAddress!, length: simd.leadingNonzeroByteCountSIMD)
-            } catch {
-                err = error
-            }
-        }
-        if let err {
-            throw err
-        }
-    }
     @inlinable
     public func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
         var sent = 0

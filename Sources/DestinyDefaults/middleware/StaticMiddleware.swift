@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
-public struct StaticMiddleware : StaticMiddlewareProtocol {
+public struct StaticMiddleware: StaticMiddlewareProtocol {
     public typealias Cookie = HTTPCookie
 
     public let handlesVersions:Set<HTTPVersion>?
@@ -48,7 +48,7 @@ public struct StaticMiddleware : StaticMiddlewareProtocol {
         self.appliesCookies = appliesCookies
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         var values:[String] = []
         if let handlesVersions {
             values.append("handlesVersions: [" + handlesVersions.map({ ".\($0)" }).joined(separator: ",") + "]")

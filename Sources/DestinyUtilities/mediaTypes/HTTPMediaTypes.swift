@@ -15,7 +15,7 @@ import SwiftSyntaxMacros
 /// Additional Media Types
 /// - xGoogleProtobuf & xProtobuf: Protocol Buffers (https://protobuf.dev/)
 // MARK: HTTPMediaType
-public struct HTTPMediaType : CustomDebugStringConvertible, CustomStringConvertible, Hashable, Sendable {
+public struct HTTPMediaType: CustomDebugStringConvertible, CustomStringConvertible, Hashable, Sendable {
     public let type:String
     public let subType:String
 
@@ -25,11 +25,11 @@ public struct HTTPMediaType : CustomDebugStringConvertible, CustomStringConverti
     }
 
     @inlinable
-    public var description : String {
+    public var description: String {
         return "\(type)/\(subType)"
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         return "HTTPMediaType(type: \"\(type)\", subType: \"\(subType)\")"
     }
 
@@ -41,7 +41,7 @@ public struct HTTPMediaType : CustomDebugStringConvertible, CustomStringConverti
 
 // MARK: Category
 extension HTTPMediaType {
-    public enum Category : String, Sendable {
+    public enum Category: String, Sendable {
         case application
         case audio
         case font
@@ -56,16 +56,16 @@ extension HTTPMediaType {
 
     @inlinable public func isType(_ category: Category) -> Bool { self.type == category.rawValue }
 
-    @inlinable public var isApplication : Bool { isType(.application) }
-    @inlinable public var isAudio : Bool { isType(.audio) }
-    @inlinable public var isFont : Bool { isType(.font) }
-    @inlinable public var isHaptics : Bool { isType(.haptics) }
-    @inlinable public var isImage : Bool { isType(.image) }
-    @inlinable public var isMessage : Bool { isType(.message) }
-    @inlinable public var isModel : Bool { isType(.model) }
-    @inlinable public var isMultipart : Bool { isType(.multipart) }
-    @inlinable public var isText : Bool { isType(.text) }
-    @inlinable public var isVideo : Bool { isType(.video) }
+    @inlinable public var isApplication: Bool { isType(.application) }
+    @inlinable public var isAudio: Bool { isType(.audio) }
+    @inlinable public var isFont: Bool { isType(.font) }
+    @inlinable public var isHaptics: Bool { isType(.haptics) }
+    @inlinable public var isImage: Bool { isType(.image) }
+    @inlinable public var isMessage: Bool { isType(.message) }
+    @inlinable public var isModel: Bool { isType(.model) }
+    @inlinable public var isMultipart: Bool { isType(.multipart) }
+    @inlinable public var isText: Bool { isType(.text) }
+    @inlinable public var isVideo: Bool { isType(.video) }
 }
 
 // MARK: Parse

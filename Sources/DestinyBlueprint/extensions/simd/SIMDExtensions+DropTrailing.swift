@@ -6,7 +6,7 @@
 //
 
 // MARK: SIMD2
-extension SIMD2 where Scalar : BinaryInteger {
+extension SIMD2 where Scalar: BinaryInteger {
     /// Sets the trailing scalars to zero. 
     /// 
     /// - Parameters:
@@ -26,7 +26,7 @@ extension SIMD2 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD4
-extension SIMD4 where Scalar : BinaryInteger {
+extension SIMD4 where Scalar: BinaryInteger {
     /// Sets the trailing scalars to zero. 
     /// 
     /// - Parameters:
@@ -51,7 +51,7 @@ extension SIMD4 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD8
-extension SIMD8 where Scalar : BinaryInteger {
+extension SIMD8 where Scalar: BinaryInteger {
     /// Sets the trailing scalars to zero. 
     /// 
     /// - Parameters:
@@ -74,7 +74,7 @@ extension SIMD8 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD16
-extension SIMD16 where Scalar : BinaryInteger {
+extension SIMD16 where Scalar: BinaryInteger {
     /// Sets the trailing scalars to zero. 
     /// 
     /// - Parameters:
@@ -96,7 +96,7 @@ extension SIMD16 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD32
-extension SIMD32 where Scalar : BinaryInteger {
+extension SIMD32 where Scalar: BinaryInteger {
     /// Sets the trailing scalars to zero. 
     /// 
     /// - Parameters:
@@ -118,7 +118,7 @@ extension SIMD32 where Scalar : BinaryInteger {
 }
 
 // MARK: SIMD64
-extension SIMD64 where Scalar : BinaryInteger {
+extension SIMD64 where Scalar: BinaryInteger {
     /// Sets the trailing scalars to zero. 
     /// 
     /// - Parameters:

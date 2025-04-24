@@ -11,9 +11,9 @@ import Foundation
 import Glibc
 #endif
 
-public protocol DestinyErrorProtocol : Error {
-    var identifier : String { get }
-    var reason : String { get }
+public protocol DestinyErrorProtocol: Error {
+    var identifier: String { get }
+    var reason: String { get }
 
     init(identifier: String, reason: String)
 }

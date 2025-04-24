@@ -10,15 +10,15 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 /// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
-public protocol RedirectionRouteProtocol : RouteProtocol {
+public protocol RedirectionRouteProtocol: RouteProtocol {
     /// The endpoint that has been moved.
-    var from : [String] { get }
+    var from: [String] { get }
 
     /// The redirection endpoint.
-    var to : [String] { get }
+    var to: [String] { get }
 
     /// Status of this redirection route.
-    var status : HTTPResponseStatus.Code { get }
+    var status: HTTPResponseStatus.Code { get }
 
     /// The HTTP Message of this route. Computed at compile time.
     /// 
@@ -40,7 +40,7 @@ public protocol RedirectionRouteProtocol : RouteProtocol {
 // MARK: SwiftCompression
 // Redirects do not use compression.
 extension RedirectionRouteProtocol {
-    public var supportedCompressionAlgorithms : Set<CompressionAlgorithm> {
+    public var supportedCompressionAlgorithms: Set<CompressionAlgorithm> {
         get { [] }
         set {}
     }

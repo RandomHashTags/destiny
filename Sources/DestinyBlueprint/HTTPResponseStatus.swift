@@ -19,14 +19,14 @@ public enum HTTPResponseStatus {
 
 // MARK: Storage
 extension HTTPResponseStatus {
-    public protocol StorageProtocol : Hashable, Sendable {
+    public protocol StorageProtocol: Hashable, Sendable {
         associatedtype ConcreteCodePhrase:InlineArrayProtocol
 
-        var code : HTTPResponseStatus.Code { get }
-        var codePhrase : ConcreteCodePhrase { get }
-        var category : HTTPResponseStatus.Category { get }
+        var code: HTTPResponseStatus.Code { get }
+        var codePhrase: ConcreteCodePhrase { get }
+        var category: HTTPResponseStatus.Category { get }
     }
-    public struct Storage<let phraseCount: Int, let codePhraseCount: Int> : StorageProtocol {
+    public struct Storage<let phraseCount: Int, let codePhraseCount: Int>: StorageProtocol {
         public let code:HTTPResponseStatus.Code
         public let phrase:InlineArray<phraseCount, UInt8>
         public let codePhrase:InlineArray<codePhraseCount, UInt8>
@@ -43,7 +43,7 @@ extension HTTPResponseStatus {
 
         /// Category that the status code falls under.
         @inlinable
-        public var category : HTTPResponseStatus.Category {
+        public var category: HTTPResponseStatus.Category {
             switch code {
             case 100...199: .informational
             case 200...299: .successful
@@ -230,9 +230,9 @@ extension HTTPResponseStatus {
 
 /*
 // MARK: CustomDebugStringConvertible
-extension HTTPResponseStatus : CustomDebugStringConvertible {
+extension HTTPResponseStatus: CustomDebugStringConvertible {
     @inlinable
-    public var debugDescription : String {
+    public var debugDescription: String {
         "HTTPResponseStatus.\(rawValue)"
     }
 }*/

@@ -9,7 +9,7 @@ import SwiftSyntax
 
 // MARK: Charset
 /// HTTP charset encodings.
-public enum Charset : String, CustomDebugStringConvertible, Sendable {
+public enum Charset: String, CustomDebugStringConvertible, Sendable {
     case any
     case basicMultilingualPlane
     case bocu1
@@ -25,13 +25,13 @@ public enum Charset : String, CustomDebugStringConvertible, Sendable {
 
     // MARK: Debug description
     @inlinable
-    public var debugDescription : String {
+    public var debugDescription: String {
         "Charset.\(rawValue)"
     }
 
     // MARK: Raw name
     @inlinable
-    public var rawName : String {
+    public var rawName: String {
         switch self {
         case .any: "*"
         case .basicMultilingualPlane: "BMP"

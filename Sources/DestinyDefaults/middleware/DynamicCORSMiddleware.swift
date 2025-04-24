@@ -13,7 +13,7 @@ import SwiftSyntaxMacros
 // MARK: DynamicCORSMiddleware
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
-public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
+public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
     public let logic:@Sendable (inout any RequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
@@ -82,7 +82,7 @@ public struct DynamicCORSMiddleware : CORSMiddlewareProtocol, DynamicMiddlewareP
         return true
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         "DynamicCORSMiddleware \(logicDebugDescription)"
     }
 }

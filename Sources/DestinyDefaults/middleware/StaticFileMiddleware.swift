@@ -16,7 +16,7 @@ import DestinyUtilities
 import SwiftCompression
 
 // MARK: StaticFileMiddleware
-public struct StaticFileMiddleware : FileMiddlewareProtocol {
+public struct StaticFileMiddleware: FileMiddlewareProtocol {
 
     let filePath:String
     let endpoint:String

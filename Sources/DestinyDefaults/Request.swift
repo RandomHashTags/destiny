@@ -9,13 +9,13 @@ import DestinyBlueprint
 import DestinyUtilities
 
 /// Default storage for request data.
-public struct Request : RequestProtocol {
+public struct Request: RequestProtocol {
     public let path:[String]
     public let startLine:DestinyRoutePathType
     public let headers:HTTPRequestHeaders
     public let newStartLine:HTTPStartLine
 
-    public var description : String {
+    public var description: String {
         return ""
         //return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.simd.leadingString() + ")"
     }
@@ -34,13 +34,13 @@ public struct Request : RequestProtocol {
 // MARK: Init
 extension Request {
     @inlinable
-    public init?<T: SocketProtocol & ~Copyable>(socket: borrowing T) throws {
+    public init?<Socket: SocketProtocol & ~Copyable>(socket: borrowing Socket) throws {
         var path:[String] = []
         var headers:[String:String] = [:]
         var startLine:DestinyRoutePathType = .init()
         var newStartLine:HTTPStartLine! = nil
         while true {
-            let (buffer, read):(InlineArray<1024, UInt8>, Int) = try socket.readBuffer()
+            let (buffer, read):(Socket.Buffer, Int) = try socket.readBuffer()
             if read <= 0 {
                 break
             }
@@ -88,7 +88,7 @@ extension Request {
                     //print("slice=\(slice.string())")
                 }
             )*/
-            if read < 1024 {
+            if read < Socket.Buffer.count {
                 break
             }
         }

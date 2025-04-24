@@ -12,7 +12,7 @@ import SwiftSyntaxMacros
 
 // MARK: StaticRedirectionRoute
 /// Default Redirection Route implementation that handles redirects for static routes.
-public struct StaticRedirectionRoute : RedirectionRouteProtocol {
+public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     public package(set) var from:[String]
     public package(set) var to:[String]
     public let version:HTTPVersion
@@ -36,12 +36,12 @@ public struct StaticRedirectionRoute : RedirectionRouteProtocol {
         self.to = to.map({ $0.description })
     }
 
-    public var debugDescription : String {
+    public var debugDescription: String {
         "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status), from: \(from), isCaseSensitive: \(isCaseSensitive), to: \(to))"
     }
 
     public func response() throws -> String {
-        let headers:[String:String] = ["Location" : "/" + to.joined(separator: "/")]
+        let headers:[String:String] = ["Location": "/" + to.joined(separator: "/")]
         return HTTPMessage.create(escapeLineBreak: true, version: version, status: status, headers: headers, result: nil, contentType: nil, charset: nil)
     }
 }

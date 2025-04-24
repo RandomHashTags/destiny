@@ -17,7 +17,7 @@ import SwiftSyntaxMacros
 //  - this memory layout is 1,1,1 vs `HTTPField.Name`'s 8,32,32 (alignment, size, stride)
 
 /// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields
-public enum HTTPRequestHeader : String {
+public enum HTTPRequestHeader: String {
     // MARK: Standard
 
 
@@ -133,7 +133,7 @@ public enum HTTPRequestHeader : String {
 // MARK: Raw Name
 extension HTTPRequestHeader {
     @inlinable
-    public var rawName : InlineArray<32, UInt8> {
+    public var rawName: InlineArray<32, UInt8> {
         switch self {
         // standard
         case .aim: #inlineArray(count: 32, "A-IM")
@@ -220,7 +220,7 @@ extension HTTPRequestHeader {
 // MARK: Raw Name String
 extension HTTPRequestHeader {
     @inlinable
-    public var rawNameString : String {
+    public var rawNameString: String {
         return rawName.string()
     }
 }
@@ -234,25 +234,25 @@ extension HTTPRequestHeader {
 
 // MARK: Accept-Encoding
 extension HTTPRequestHeader {
-    public struct AcceptEncoding : Sendable {
+    public struct AcceptEncoding: Sendable {
         public let compression:CompressionAlgorithm
     }
 }
 
 // MARK: Range
 extension HTTPRequestHeader {
-    public enum Range : Sendable {
+    public enum Range: Sendable {
         case bytes(from: Int, to: Int)
     }
 }
 
 // MARK: X-Requested-With
 extension HTTPRequestHeader {
-    public enum XRequestedWith : String, Sendable {
+    public enum XRequestedWith: String, Sendable {
         case xmlHttpRequest
 
         @inlinable
-        public var rawName : String {
+        public var rawName: String {
             switch self {
             case .xmlHttpRequest: "XMLHttpRequest"
             }

@@ -12,7 +12,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: DiagnosticMsg
-struct DiagnosticMsg : DiagnosticMessage {
+struct DiagnosticMsg: DiagnosticMessage {
     let message:String
     let diagnosticID:MessageID
     let severity:DiagnosticSeverity
@@ -23,13 +23,13 @@ struct DiagnosticMsg : DiagnosticMessage {
         self.severity = severity
     }
 }
-extension DiagnosticMsg : FixItMessage {
-    var fixItID : MessageID { diagnosticID }
+extension DiagnosticMsg: FixItMessage {
+    var fixItID: MessageID { diagnosticID }
 }
 
 
 @main
-struct DestinyUtilityMacros : CompilerPlugin {
+struct DestinyUtilityMacros: CompilerPlugin {
     let providingMacros:[any Macro.Type] = [
         HTTPFieldContentType.self,
         InlineArrayMacro.self,
@@ -40,15 +40,15 @@ struct DestinyUtilityMacros : CompilerPlugin {
 
 // MARK: SwiftSyntax Misc
 extension SyntaxProtocol {
-    var functionCall : FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
-    var stringLiteral : StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
-    var booleanLiteral : BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
-    var memberAccess : MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
-    var array : ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
-    var dictionary : DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
+    var functionCall: FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
+    var stringLiteral: StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
+    var booleanLiteral: BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
+    var memberAccess: MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
+    var array: ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
+    var dictionary: DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
 }
 
 extension StringLiteralExprSyntax {
-    var string : String { "\(segments)" }
+    var string: String { "\(segments)" }
 }
 #endif

@@ -7,7 +7,7 @@
 
 import ArgumentParser
 
-public struct StopCommand : AsyncParsableCommand {
+public struct StopCommand: AsyncParsableCommand {
     public static let configuration:CommandConfiguration = CommandConfiguration(commandName: "stop", aliases: ["shutdown"])
 
     public init() {

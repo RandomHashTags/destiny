@@ -6,7 +6,7 @@
 //
 
 /// Core Dynamic Middleware protocol which handles requests to dynamic routes.
-public protocol DynamicMiddlewareProtocol : MiddlewareProtocol {
+public protocol DynamicMiddlewareProtocol: MiddlewareProtocol {
     /// Load logic when the middleware is ready to process requests.
     @inlinable mutating func load()
 
