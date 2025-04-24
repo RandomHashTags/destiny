@@ -79,11 +79,14 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
     let router:Hummingbird.Router<BasicRequestContext> = Hummingbird.Router()
     let body:Hummingbird.ResponseBody = .init(byteBuffer: ByteBuffer(string: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#))
     let headers:HTTPFields = HTTPFields(dictionaryLiteral:
-        (.init("You-GET'd")!, "true"),
-        (.init("Server")!, "destiny"),
         (.init("Version")!, "destiny1.1"),
+        (.init("Server")!, "destiny"),
+        (.init("Connection")!, "close"),
+        (.init("You-GET'd")!, "true"),
+        (.init("Set-Cookie")!, "cookie1=yessir"),
+        (.init("Set-Cookie")!, "cookie2=pogchamp"),
         (.contentType, "text/html"),
-        (.init("Connection")!, "keep-alive")
+        (.init("Content-Length")!, "132")
     )
     let response:Hummingbird.Response = Response(status: .ok, headers: headers, body: body)
     router.get(RouterPath("html")) { request, _ in
@@ -115,10 +118,14 @@ func vapor_application(port: Int) -> Vapor.Application {
 
     let body:Vapor.Response.Body = .init(staticString: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     let headers:HTTPHeaders = HTTPHeaders(dictionaryLiteral:
-        ("You-GET'd", "true"),
-        ("Server", "destiny"),
         ("Version", "destiny1.1"),
-        (HTTPHeaders.Name.contentType.description, "text/html")
+        ("Server", "destiny"),
+        ("Connection", "close"),
+        ("You-GET'd", "true"),
+        ("Set-Cookie", "cookie1=yessir"),
+        ("Set-Cookie", "cookie2=pogchamp"),
+        (HTTPHeaders.Name.contentType.description, "text/html"),
+        ("Content-Length", "132")
     )
     app.get(["html"]) { request in
         // we have to do it this way because its headers get updated every request (probably 'cause its a class)
