@@ -13,13 +13,13 @@ import ServiceLifecycle
 
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.
-public final class Server<ClientSocket: SocketProtocol & ~Copyable>: HTTPServerProtocol {
+public final class Server<ConcreteRouter: RouterProtocol, ClientSocket: SocketProtocol & ~Copyable>: HTTPServerProtocol {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.
     /// This value is capped at the system's limit.
     public let backlog:Int32
-    public let router:any RouterProtocol
+    public let router:ConcreteRouter
     public let logger:Logger
     public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
     public let onLoad:(@Sendable () -> Void)?
@@ -36,7 +36,7 @@ public final class Server<ClientSocket: SocketProtocol & ~Copyable>: HTTPServerP
         address: String? = nil,
         port: UInt16,
         backlog: Int32 = SOMAXCONN,
-        router: any RouterProtocol,
+        router: ConcreteRouter,
         logger: Logger,
         commands: [ParsableCommand.Type] = [
             StopCommand.self
@@ -193,18 +193,24 @@ extension Server where ClientSocket: ~Copyable {
 // MARK: Process clients
 extension Server where ClientSocket: ~Copyable {
     @inlinable
+    func acceptFunction() -> @Sendable (Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
+        noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
+    }
+
+    @inlinable
     func processClients(serverFD: Int32) async {
         let function = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
 
         #if os(Linux)
-        await processClientsEpoll(serverFD: serverFD, threads: 1, maxEvents: 64, acceptClient: function, router: router)
+        let _:InlineArray<1, InlineArray<64, Bool>>? = await processClientsEpoll(serverFD: serverFD, router: router)
         #else
-        await processClientsOLD(serverFD: serverFD, acceptClient: function)
+        await processClientsOLD(serverFD: serverFD)
         #endif
     }
 
     @inlinable
-    func processClientsOLD(serverFD: Int32, acceptClient: @escaping @Sendable (Int32) throws -> (Int32, ContinuousClock.Instant)?) async {
+    func processClientsOLD(serverFD: Int32) async {
+        let acceptClient = acceptFunction()
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0..<backlog {

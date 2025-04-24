@@ -123,3 +123,13 @@ package.dependencies.append(.package(url: "https://github.com/Kitura/CEpoll", fr
 #endif
 
 // TODO: enable the following features: LifetimeDependence, ValueGenerics
+/*
+for target in package.targets {
+    let lifetimeDependence:SwiftSetting = .enableExperimentalFeature("LifetimeDependence")
+    let valueGenerics:SwiftSetting = .enableExperimentalFeature("ValueGenerics")
+    if target.swiftSettings == nil {
+        target.swiftSettings = [lifetimeDependence, valueGenerics]
+    } else {
+        target.swiftSettings!.append(contentsOf: [lifetimeDependence, valueGenerics])
+    }
+}*/
