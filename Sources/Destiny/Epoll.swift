@@ -22,10 +22,13 @@ extension Server where ClientSocket: ~Copyable {
     ) async -> InlineArray<threads, InlineArray<maxEvents, Bool>>? {
         setNonBlocking(socket: serverFD)
         do {
-            let processor = try EpollProcessor<threads, 0, ClientSocket>(
+            let processor = try EpollProcessor<threads, maxEvents, ClientSocket>(
                 serverFD: serverFD
             )
             try await processor.run(timeout: -1, router: router, acceptClient: acceptFunction())
+            for i in processor.instances.indices {
+                processor.instances[i].closeFileDescriptor()
+            }
         } catch {
             print("epoll;processClientsEpoll;broken")
         }
@@ -46,29 +49,22 @@ extension Server where ClientSocket: ~Copyable {
 }
 
 // MARK: Epoll
-public final class Epoll<let maxEvents: Int>: Sendable {
+public struct Epoll<let maxEvents: Int>: Sendable {
     public let serverFD:Int32
     public let fileDescriptor:Int32
     public var events:InlineArray<maxEvents, epoll_event>
     public let logger:Logger
 
-    public init(serverFD: Int32, thread: Int, isPlaceholder: Bool) throws {
+    public init(serverFD: Int32, thread: Int) throws {
         self.serverFD = serverFD
-        let loggerLabel = "destiny.epoll.\(serverFD).thread\(thread)"
-        if isPlaceholder {
-            fileDescriptor = -1
-            events = .init(repeating: epoll_event())
-            logger = Logger(label: loggerLabel)
-        } else {
-            fileDescriptor = epoll_create1(0)
-            if fileDescriptor == -1 {
-                throw EpollError.epollCreateFailed()
-            }
-            events = .init(repeating: epoll_event())
-            logger = Logger(label: loggerLabel)
-            try add(client: serverFD, event: EPOLLIN.rawValue)
-            setNonBlocking(socket: self.fileDescriptor)
+        fileDescriptor = epoll_create1(0)
+        if fileDescriptor == -1 {
+            throw EpollError.epollCreateFailed()
         }
+        events = .init(repeating: epoll_event())
+        logger = Logger(label: "destiny.epoll.\(serverFD).thread\(thread)")
+        try add(client: serverFD, event: EPOLLIN.rawValue)
+        setNonBlocking(socket: self.fileDescriptor)
     }
 
     @inlinable
@@ -101,15 +97,23 @@ public final class Epoll<let maxEvents: Int>: Sendable {
     }
 
     @inlinable
-    public func wait(timeout: Int32 = -1, acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?) throws -> [Int32] {
-        var brother:[epoll_event] = [] // TODO: remove | need to wait for a fix to https://github.com/swiftlang/swift/issues/81072
-        let loadedClients = epoll_wait(fileDescriptor, &brother, Int32(maxEvents), timeout)
-        if loadedClients == -1 {
-            throw EpollError.waitFailed()
-        } else if loadedClients == 0 {
-            return []
+    public mutating func wait(
+        timeout: Int32 = -1,
+        acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
+    ) throws -> (loaded: Int, clients: InlineArray<maxEvents, Int32>) {
+        var loadedClients:Int32 = -1
+        try events.span.withUnsafeBufferPointer { p in
+            guard let base = p.baseAddress else { throw EpollError.waitFailed() }
+            loadedClients = epoll_wait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout)
+            if loadedClients == -1 {
+                throw EpollError.waitFailed()
+            } else if loadedClients == 0 {
+                return
+            }
         }
-        var clients:[Int32] = []
+        var clients:InlineArray<maxEvents, Int32> = .init(repeating: -1)
+        if loadedClients == 0 { return (0, clients) }
+        var clientIndex = 0
         for i in 0..<Int(loadedClients) {
             let event = events[i]
             if event.data.fd == serverFD {
@@ -127,14 +131,15 @@ public final class Epoll<let maxEvents: Int>: Sendable {
                     logger.warning(Logger.Message(stringLiteral: "Encountered error trying to accept client (\(event.data.fd)): \(error) (errno=\(errno))"))
                 }
             } else if event.events & EPOLLIN.rawValue != 0 {
-                clients.append(event.data.fd)
+                clients[clientIndex] = event.data.fd
+                clientIndex += 1
             } else if event.events & EPOLLHUP.rawValue != 0 {
                 closeSocket(event.data.fd, name: "client disconnected")
             } else if event.events & EPOLLERR.rawValue != 0 {
                 closeSocket(event.data.fd, name: "client's socket errored")
             }
         }
-        return clients
+        return (clientIndex, clients)
     }
 
     @inlinable
@@ -145,30 +150,34 @@ public final class Epoll<let maxEvents: Int>: Sendable {
         }
     }
 
-    deinit {
+    @inlinable
+    public func closeFileDescriptor() {
         closeSocket(fileDescriptor, name: "Epoll fileDescriptor")
     }
 }
 
 // MARK: EpollProcessor
-public final class EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocket: SocketProtocol & ~Copyable> {
+public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocket: SocketProtocol & ~Copyable>: Sendable, ~Copyable {
     public let instances:InlineArray<threads, Epoll<maxEvents>>
 
     @inlinable
     public init(
         serverFD: Int32
     ) throws {
-        var instances:InlineArray<threads, Epoll<maxEvents>> = try .init(repeating: Epoll<maxEvents>.init(serverFD: serverFD, thread: 0, isPlaceholder: true))
-        for i in 0..<threads {
-            instances[i] = try Epoll<maxEvents>.init(serverFD: serverFD, thread: i, isPlaceholder: false)
-        }
-        self.instances = instances
+        var i = 0
+        instances = try .init(
+            first: .init(serverFD: serverFD, thread: i),
+            next: { _ in
+                let e = try Epoll<maxEvents>.init(serverFD: serverFD, thread: i)
+                i += 1
+                return e
+            }
+        )
     }
 
     @inlinable
     public func add(client: Int32, event: UInt32) throws {
-        let instance = instances[Int(client) % threads]
-        try instance.add(client: client, event: event)
+        try instances[Int(client) % threads].add(client: client, event: event)
     }
 
     @inlinable
@@ -180,9 +189,9 @@ public final class EpollProcessor<let threads: Int, let maxEvents: Int, Concrete
         await withTaskCancellationOrGracefulShutdownHandler {
             await withTaskGroup { group in
                 for i in instances.indices {
-                    let instance = instances[i]
+                    var instance = instances[i]
                     group.addTask {
-                        await Self.process(instance, timeout: timeout, router: router, acceptClient: acceptClient)
+                        await Self.process(&instance, timeout: timeout, router: router, acceptClient: acceptClient)
                     }
                 }
                 await group.waitForAll()
@@ -194,15 +203,17 @@ public final class EpollProcessor<let threads: Int, let maxEvents: Int, Concrete
 
     @inlinable
     public static func process<Router: RouterProtocol>(
-        _ instance: Epoll<maxEvents>,
+        _ instance: inout Epoll<maxEvents>,
         timeout: Int32,
         router: Router,
         acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
     ) async {
+        let logger = instance.logger
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             do {
-                let clients = try instance.wait(timeout: timeout, acceptClient: acceptClient)
-                for client in clients {
+                let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
+                for i in 0..<loaded {
+                    let client = clients[i]
                     do {
                         try instance.remove(client: client)
                     } catch {
@@ -214,10 +225,10 @@ public final class EpollProcessor<let threads: Int, let maxEvents: Int, Concrete
                                 client: client,
                                 received: .now, // TODO: fix
                                 socket: ConcreteSocket.init(fileDescriptor: client),
-                                logger: instance.logger
+                                logger: logger
                             )
                         } catch {
-                            instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
+                            logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
                         }
                     }
                 }
