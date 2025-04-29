@@ -24,13 +24,13 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
 
         // Logging
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.1"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
 
         // Metrics
         //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
         // Service runtime
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.6.1"),
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.7.0"),
 
         // Compression
         .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")

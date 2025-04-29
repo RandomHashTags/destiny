@@ -13,7 +13,7 @@ import ServiceLifecycle
 
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.
-public final class Server<ConcreteRouter: RouterProtocol, ClientSocket: SocketProtocol & ~Copyable>: HTTPServerProtocol {
+public final class Server<ConcreteRouter: RouterProtocol, ClientSocket: SocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.
@@ -193,14 +193,7 @@ extension Server where ClientSocket: ~Copyable {
 // MARK: Process clients
 extension Server where ClientSocket: ~Copyable {
     @inlinable
-    func acceptFunction() -> @Sendable (Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
-        noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
-    }
-
-    @inlinable
     func processClients(serverFD: Int32) async {
-        let function = noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
-
         #if os(Linux)
         let _:InlineArray<1, InlineArray<64, Bool>>? = await processClientsEpoll(serverFD: serverFD, router: router)
         #else
@@ -210,7 +203,7 @@ extension Server where ClientSocket: ~Copyable {
 
     @inlinable
     func processClientsOLD(serverFD: Int32) async {
-        let acceptClient = acceptFunction()
+        let acceptClient = acceptFunction(noTCPDelay: noTCPDelay)
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0..<backlog {
@@ -231,39 +224,5 @@ extension Server where ClientSocket: ~Copyable {
                 await group.waitForAll()
             }
         }
-    }
-}
-
-// MARK: Accept client
-extension Server where ClientSocket: ~Copyable {
-    @inlinable
-    @Sendable
-    static func acceptClient(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
-        guard let serverFD = server else { return nil }
-        var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
-        let client = withUnsafeMutablePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1, { accept(serverFD, $0, &len) }) })
-        if client == -1 {
-            if server == nil {
-                return nil
-            }
-            throw SocketError.acceptFailed()
-        }
-        return (client, .now)
-    }
-    @inlinable
-    @Sendable
-    static func acceptClientNoTCPDelay(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
-        guard let serverFD = server else { return nil }
-        var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
-        let client = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
-        if client == -1 {
-            if server == nil {
-                return nil
-            }
-            throw SocketError.acceptFailed()
-        }
-        var d:Int32 = 1
-        setsockopt(client, Int32(IPPROTO_TCP), TCP_NODELAY, &d, socklen_t(MemoryLayout<Int32>.size))
-        return (client, .now)
     }
 }

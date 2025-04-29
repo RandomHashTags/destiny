@@ -7,8 +7,6 @@
 
 #if os(Linux)
 import CEpoll
-import DestinyBlueprint
-import Dispatch
 import Glibc
 import Logging
 import ServiceLifecycle
@@ -25,7 +23,7 @@ extension Server where ClientSocket: ~Copyable {
             let processor = try EpollProcessor<threads, maxEvents, ClientSocket>(
                 serverFD: serverFD
             )
-            try await processor.run(timeout: -1, router: router, acceptClient: acceptFunction())
+            try await processor.run(timeout: -1, router: router, noTCPDelay: noTCPDelay)
             for i in processor.instances.indices {
                 processor.instances[i].closeFileDescriptor()
             }
@@ -49,7 +47,7 @@ extension Server where ClientSocket: ~Copyable {
 }
 
 // MARK: Epoll
-public struct Epoll<let maxEvents: Int>: Sendable {
+public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     public let serverFD:Int32
     public let fileDescriptor:Int32
     public var events:InlineArray<maxEvents, epoll_event>
@@ -184,20 +182,17 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     public func run<Router: RouterProtocol>(
         timeout: Int32,
         router: Router,
-        acceptClient: @escaping (Int32) throws -> (Int32, ContinuousClock.Instant)?
+        noTCPDelay: Bool
     ) async throws {
-        await withTaskCancellationOrGracefulShutdownHandler {
-            await withTaskGroup { group in
-                for i in instances.indices {
-                    var instance = instances[i]
-                    group.addTask {
-                        await Self.process(&instance, timeout: timeout, router: router, acceptClient: acceptClient)
-                    }
+        await withTaskGroup { group in
+            for i in instances.indices {
+                var instance = instances[i]
+                group.addTask {
+                    await Self.process(&instance, timeout: timeout, router: router, noTCPDelay: noTCPDelay)
                 }
-                await group.waitForAll()
-                // TODO: fix | doesn't cancel when graceful shutdown is triggered
             }
-        } onCancelOrGracefulShutdown: {
+            await group.waitForAll()
+            // TODO: fix | doesn't cancel when graceful shutdown is triggered
         }
     }
 
@@ -206,9 +201,10 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
         _ instance: inout Epoll<maxEvents>,
         timeout: Int32,
         router: Router,
-        acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
+        noTCPDelay: Bool
     ) async {
         let logger = instance.logger
+        let acceptClient = instance.acceptFunction(noTCPDelay: noTCPDelay)
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             do {
                 let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
