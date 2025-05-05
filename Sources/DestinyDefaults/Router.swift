@@ -13,6 +13,12 @@ import DestinyBlueprint
 import DestinyUtilities
 import Logging
 
+public typealias DefaultRouter = Router<
+    StaticErrorResponder,       // ConcreteErrorResponder
+    DynamicRouteResponder,      // ConcreteDynamicNotFoundResponder
+    RouteResponses.StaticString // ConcreteStaticNotFoundResponder
+>
+
 /// Default Router implementation that handles middleware, routes and router groups.
 public struct Router<
         ConcreteErrorResponder: ErrorResponderProtocol,
@@ -218,11 +224,11 @@ extension Router {
         response.timestamps.loaded = loaded
         var index = 0
         responder.forEachPathComponentParameterIndex { parameterIndex in
-            response.parameters[index] = request.path[parameterIndex]
+            response.parameters[index] = request.path(at: parameterIndex)
             if responder.pathComponent(at: parameterIndex) == .catchall {
                 var i = parameterIndex+1
-                while i < request.path.count {
-                    response.parameters.append(request.path[i])
+                while i < request.pathCount {
+                    response.parameters.append(request.path(at: i))
                     i += 1
                 }
             }

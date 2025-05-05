@@ -10,7 +10,7 @@ import Darwin
 #endif
 
 /// Core Socket protocol that handles incoming network requests.
-public protocol SocketProtocol: ~Copyable {
+public protocol SocketProtocol: ~Copyable, Sendable {
     associatedtype Buffer:InlineArrayProtocol where Buffer.Element == UInt8
 
     associatedtype ConcreteRequest:RequestProtocol

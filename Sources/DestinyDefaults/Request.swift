@@ -20,6 +20,23 @@ public struct Request: RequestProtocol {
         //return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.simd.leadingString() + ")"
     }
 
+    //@inlinable
+    //public func forEachPath(_ yield: (String) -> Void) {
+    //    for path in path {
+    //        yield(path)
+    //    }
+    //}
+
+    @inlinable
+    public func path(at index: Int) -> String {
+        path[index]
+    }
+
+    @inlinable
+    public var pathCount: Int {
+        path.count
+    }
+
     @inlinable
     public func isMethod<let count: Int>(_ method: InlineArray<count, UInt8>) -> Bool {
         method.stringRepresentationsAreEqual(newStartLine.method)
@@ -40,7 +57,7 @@ extension Request {
         var startLine:DestinyRoutePathType = .init()
         var newStartLine:HTTPStartLine! = nil
         while true {
-            let (buffer, read):(Socket.Buffer, Int) = try socket.readBuffer()
+            let (buffer, read) = try socket.readBuffer()
             if read <= 0 {
                 break
             }

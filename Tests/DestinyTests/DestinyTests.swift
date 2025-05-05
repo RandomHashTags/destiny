@@ -36,7 +36,7 @@ struct DestinyTests {
     }
 
     @Test func example() {
-        let _:Router = #router(
+        let _:DefaultRouter = #router(
             version: .v2_0,
             middleware: [
                 StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaType.textHtml], appliesStatus: HTTPResponseStatus.ok.code, appliesHeaders: ["Are-You-My-Brother":"yes"])

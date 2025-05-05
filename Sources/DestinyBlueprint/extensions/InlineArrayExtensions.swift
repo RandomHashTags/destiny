@@ -5,6 +5,7 @@ import Foundation
 
 // MARK: init
 extension InlineArrayProtocol {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public init<T: Collection<Element>>(_ array: T) {
         self = .init(repeating: array[array.startIndex])
@@ -14,6 +15,7 @@ extension InlineArrayProtocol {
     }
 }
 extension InlineArrayProtocol where Element == UInt8 {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public init(_ utf8: String.UTF8View) {
         self = .init(repeating: 0)
@@ -22,6 +24,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         }
     }
 
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public init<T: SIMD>(_ simd: T) where T.Scalar == Element {
         self = .init(repeating: 0)
@@ -33,6 +36,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: split
 extension InlineArrayProtocol where Element: Equatable {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @discardableResult
     @inlinable
     public func split<let sliceLength: Int>(
@@ -96,6 +100,7 @@ extension InlineArrayProtocol where Element: Equatable {
 
 // MARK: first index
 extension InlineArrayProtocol where Element: Equatable {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func firstIndex(of element: Element, offset: Index = 0) -> Index? {
         var i = startIndex + offset
@@ -192,6 +197,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 #if canImport(Foundation)
 // MARK: lowercase
 extension InlineArrayProtocol where Element == UInt8 {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func lowercase() -> Self {
         var value = self
@@ -199,7 +205,8 @@ extension InlineArrayProtocol where Element == UInt8 {
         var startIndex = startIndex
         for _ in 0..<simds {
             let simd = simd64(startIndex: startIndex).lowercase()
-            for i in 0..<64 {
+            let filled = min(64, endIndex - startIndex)
+            for i in 0..<filled {
                 value.setItemAt(index: startIndex + i, element: simd[i])
             }
             startIndex += 64
@@ -211,23 +218,31 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: SIMD
 extension InlineArrayProtocol where Element: SIMDScalar {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func simd8(startIndex: Index = 0) -> SIMD16<Element> {
         return simd(startIndex: startIndex)
     }
+
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func simd16(startIndex: Index = 0) -> SIMD16<Element> {
         return simd(startIndex: startIndex)
     }
+
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func simd32(startIndex: Index = 0) -> SIMD32<Element> {
         return simd(startIndex: startIndex)
     }
+
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func simd64(startIndex: Index = 0) -> SIMD64<Element> {
         return simd(startIndex: startIndex)
     }
 
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
         var simd = T()
@@ -245,17 +260,21 @@ extension InlineArrayProtocol where Element: SIMDScalar {
 
 // MARK: Equatable
 extension InlineArrayProtocol where Element: Equatable {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public static func == (lhs: Self?, rhs: Self) -> Bool {
         guard let lhs else { return false }
         return lhs == rhs
     }
+
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public static func == (lhs: Self, rhs: Self?) -> Bool {
         guard let rhs else { return false }
         return lhs == rhs
     }
 
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in lhs.indices {
@@ -311,6 +330,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: Pattern matching
 extension InlineArrayProtocol where Element: Equatable {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public static func ~= (lhs: Self, rhs: Self) -> Bool {
         return lhs == rhs

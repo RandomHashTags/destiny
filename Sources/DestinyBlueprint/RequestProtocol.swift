@@ -13,8 +13,12 @@ public protocol RequestProtocol: Sendable, ~Copyable {
     /// The HTTP start-line.
     var startLine: SIMD64<UInt8> { get }
 
-    /// The endpoint the request wants to reach, separated by the forward slash character.
-    var path: [String] { mutating get }
+    /// Yields the endpoint the request wants to reach, separated by the forward slash character.
+    //@inlinable
+    //func forEachPath(_ yield: (String) -> Void)
+
+    func path(at index: Int) -> String
+    var pathCount: Int { get }
 
     @inlinable
     func isMethod<let count: Int>(_ method: InlineArray<count, UInt8>) -> Bool
