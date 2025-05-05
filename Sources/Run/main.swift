@@ -15,7 +15,11 @@ import Destiny
 import Logging
 import SwiftCompression
 
-let router:Router = #router(
+let router:Router<
+    StaticErrorResponder,       // ConcreteErrorResponder
+    DynamicRouteResponder,      // ConcreteDynamicNotFoundResponder
+    RouteResponses.StaticString // ConcreteStaticNotFoundResponder
+> = #router(
     version: .v1_1,
     supportedCompressionAlgorithms: [],
     middleware: [

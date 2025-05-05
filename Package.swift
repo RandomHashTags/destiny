@@ -5,13 +5,6 @@ import CompilerPluginSupport
 
 let package = Package(
     name: "destiny",
-    platforms: [
-        .macOS(.v14),
-        .iOS(.v17),
-        .tvOS(.v17),
-        .visionOS(.v1),
-        .watchOS(.v10)
-    ],
     products: [
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"])
@@ -115,21 +108,20 @@ let package = Package(
             dependencies: ["Destiny"]
         ),
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageModes: [.v5]
 )
 
 #if os(Linux)
 package.dependencies.append(.package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"))
 #endif
 
-// TODO: enable the following features: LifetimeDependence, ValueGenerics
+// TODO: enable the following features: LifetimeDependence
 /*
 for target in package.targets {
     let lifetimeDependence:SwiftSetting = .enableExperimentalFeature("LifetimeDependence")
-    let valueGenerics:SwiftSetting = .enableExperimentalFeature("ValueGenerics")
     if target.swiftSettings == nil {
-        target.swiftSettings = [lifetimeDependence, valueGenerics]
+        target.swiftSettings = [lifetimeDependence]
     } else {
-        target.swiftSettings!.append(contentsOf: [lifetimeDependence, valueGenerics])
+        target.swiftSettings!.append(contentsOf: [lifetimeDependence])
     }
 }*/

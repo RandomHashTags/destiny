@@ -24,7 +24,7 @@ import SwiftCompression
 ///   - routerGroups: The router groups this router contains.
 ///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(expression)
-public macro router(
+public macro router<T: RouterProtocol>(
     version: HTTPVersion,
     errorResponder: (any ErrorResponderProtocol)? = nil,
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
@@ -34,7 +34,7 @@ public macro router(
     redirects: [HTTPRequestMethod: [HTTPResponseStatus.Code: [String:String]]] = [:],
     routerGroups: [any RouterGroupProtocol] = [],
     _ routes: any RouteProtocol...
-) -> Router = #externalMacro(module: "DestinyMacros", type: "Router")
+) -> T = #externalMacro(module: "DestinyMacros", type: "Router")
 
 
 /// A convenience macro to create a complete HTTP Message at compile time.

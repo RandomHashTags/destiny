@@ -14,7 +14,11 @@ import DestinyUtilities
 import Logging
 
 /// Default Router implementation that handles middleware, routes and router groups.
-public struct Router: RouterProtocol {
+public struct Router<
+        ConcreteErrorResponder: ErrorResponderProtocol,
+        ConcreteDynamicNotFoundResponder: DynamicRouteResponderProtocol,
+        ConcreteStaticNotFoundResponder: StaticRouteResponderProtocol
+    >: RouterProtocol {
     public let version:HTTPVersion
     public private(set) var caseSensitiveResponders:RouterResponderStorage
     public private(set) var caseInsensitiveResponders:RouterResponderStorage
@@ -24,15 +28,15 @@ public struct Router: RouterProtocol {
 
     public private(set) var routerGroups:[any RouterGroupProtocol]
     
-    public var errorResponder:any ErrorResponderProtocol
-    public var dynamicNotFoundResponder:(any DynamicRouteResponderProtocol)?
-    public var staticNotFoundResponder:any StaticRouteResponderProtocol
+    public var errorResponder:ConcreteErrorResponder
+    public var dynamicNotFoundResponder:ConcreteDynamicNotFoundResponder?
+    public var staticNotFoundResponder:ConcreteStaticNotFoundResponder
     
     public init(
         version: HTTPVersion,
-        errorResponder: any ErrorResponderProtocol,
-        dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
-        staticNotFoundResponder: any StaticRouteResponderProtocol,
+        errorResponder: ConcreteErrorResponder,
+        dynamicNotFoundResponder: ConcreteDynamicNotFoundResponder? = nil,
+        staticNotFoundResponder: ConcreteStaticNotFoundResponder,
         caseSensitiveResponders: RouterResponderStorage,
         caseInsensitiveResponders: RouterResponderStorage,
         staticMiddleware: [any StaticMiddlewareProtocol],
@@ -88,14 +92,9 @@ public struct Router: RouterProtocol {
     }
 
     @inlinable
-    public func errorResponder(for request: inout any RequestProtocol) -> any ErrorResponderProtocol {
-        return errorResponder
-    }
-
-    @inlinable
-    public func notFoundResponse<C: SocketProtocol & ~Copyable>(socket: borrowing C, request: inout any RequestProtocol) async throws {
-        if let responder = dynamicNotFoundResponder { // TODO: support
-            //try await responder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
+    public func notFoundResponse<Socket: SocketProtocol & ~Copyable>(socket: borrowing Socket, request: inout any RequestProtocol) async throws {
+        if let dynamicNotFoundResponder { // TODO: support
+            //try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
         } else {
             try await staticNotFoundResponder.respond(to: socket)
         }
@@ -159,7 +158,7 @@ extension Router {
                 try await notFoundResponse(socket: socket, request: &request)
             }
         } catch {
-            await errorResponder(for: &request).respond(to: socket, with: error, for: &request, logger: logger)
+            await errorResponder.respond(to: socket, with: error, for: &request, logger: logger)
         }
     }
 }
@@ -217,15 +216,17 @@ extension Router {
         var response = responder.defaultResponse
         response.timestamps.received = received
         response.timestamps.loaded = loaded
-        for (index, parameterIndex) in responder.parameterPathIndexes.enumerated() {
+        var index = 0
+        responder.forEachPathComponentParameterIndex { parameterIndex in
             response.parameters[index] = request.path[parameterIndex]
-            if responder.path[parameterIndex] == .catchall {
+            if responder.pathComponent(at: parameterIndex) == .catchall {
                 var i = parameterIndex+1
                 while i < request.path.count {
                     response.parameters.append(request.path[i])
                     i += 1
                 }
             }
+            index += 1
         }
         try await handleDynamicMiddleware(for: &request, with: &response)
         response.timestamps.processed = .now

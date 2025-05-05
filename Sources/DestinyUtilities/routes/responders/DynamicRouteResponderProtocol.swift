@@ -9,11 +9,17 @@ import DestinyBlueprint
 
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol: RouteResponderProtocol {
-    /// Path of the route.
-    var path: [PathComponent] { get }
 
-    /// Indexes where parameters are location in the `path`.
-    var parameterPathIndexes: [Int] { get }
+    /// Yields the path of the route.
+    @inlinable
+    func forEachPathComponent(_ yield: (PathComponent) -> Void)
+
+    func pathComponent(at index: Int) -> PathComponent
+    var pathComponentsCount: Int { get }
+
+    /// Yields the index where parameters are location in the `path`.
+    @inlinable
+    func forEachPathComponentParameterIndex(_ yield: (Int) -> Void)
 
     /// Default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
     var defaultResponse: any DynamicResponseProtocol { get }

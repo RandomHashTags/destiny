@@ -12,6 +12,4 @@ public protocol StaticResponderStorageProtocol: Sendable {
         to socket: borrowing Socket,
         with startLine: SIMD64<UInt8>
     ) async throws -> Bool
-
-    func exists(for path: SIMD64<UInt8>) -> Bool
 }

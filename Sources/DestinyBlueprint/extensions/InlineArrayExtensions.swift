@@ -148,7 +148,7 @@ extension InlineArrayProtocol {
 extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
     public func hasPrefix<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
-        let minCount = min(count, T.count)
+        let minCount = min(count, array.count)
         // TODO: support SIMD
         /*switch minCount {
         case let x where x <= 8:
@@ -294,7 +294,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 
     @inlinable
     public func stringRepresentationsAreEqual<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
-        let minCount = min(count, T.count)
+        let minCount = min(count, array.count)
         var i = startIndex
         while i < minCount {
             if self.itemAt(index: i) != array.itemAt(index: i) {
@@ -302,10 +302,10 @@ extension InlineArrayProtocol where Element == UInt8 {
             }
             i += 1
         }
-        if count == T.count {
+        if count == array.count {
             return true
         }
-        return count > T.count ? self.itemAt(index: i) == 0: array.itemAt(index: i) == 0
+        return count > array.count ? self.itemAt(index: i) == 0: array.itemAt(index: i) == 0
     }
 }
 

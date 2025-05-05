@@ -34,6 +34,30 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     }
 
     @inlinable
+    public func forEachPathComponent(_ yield: (PathComponent) -> Void) {
+        for component in path {
+            yield(component)
+        }
+    }
+
+    @inlinable
+    public var pathComponentsCount: Int {
+        path.count
+    }
+
+    @inlinable
+    public func pathComponent(at index: Int) -> PathComponent {
+        path[index]
+    }
+
+    @inlinable
+    public func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {
+        for index in parameterPathIndexes {
+            yield(index)
+        }
+    }
+
+    @inlinable
     public func respond<T: SocketProtocol & ~Copyable>(
         to socket: borrowing T,
         request: inout any RequestProtocol,

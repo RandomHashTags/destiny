@@ -88,7 +88,7 @@ extension Request {
                     //print("slice=\(slice.string())")
                 }
             )*/
-            if read < Socket.Buffer.count {
+            if read < buffer.count {
                 break
             }
         }

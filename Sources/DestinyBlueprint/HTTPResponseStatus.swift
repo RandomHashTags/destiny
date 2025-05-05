@@ -14,7 +14,7 @@ import SwiftSyntax
 /// - Standard Registry: https://www.iana.org/assignments/http-status-codes/http-status-codes.xhtml
 /// - Wikipedia: https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
 public enum HTTPResponseStatus {
-    public typealias Code = Int
+    public typealias Code = UInt16
 }
 
 // MARK: Storage

@@ -23,7 +23,7 @@ extension Server where ClientSocket: ~Copyable {
             let processor = try EpollProcessor<threads, maxEvents, ClientSocket>(
                 serverFD: serverFD
             )
-            try await processor.run(timeout: -1, router: router, noTCPDelay: noTCPDelay)
+            await processor.run(timeout: -1, router: router, noTCPDelay: noTCPDelay)
             for i in processor.instances.indices {
                 processor.instances[i].closeFileDescriptor()
             }
@@ -50,7 +50,6 @@ extension Server where ClientSocket: ~Copyable {
 public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     public let serverFD:Int32
     public let fileDescriptor:Int32
-    public var events:InlineArray<maxEvents, epoll_event>
     public let logger:Logger
 
     public init(serverFD: Int32, thread: Int) throws {
@@ -59,7 +58,6 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
         if fileDescriptor == -1 {
             throw EpollError.epollCreateFailed()
         }
-        events = .init(repeating: epoll_event())
         logger = Logger(label: "destiny.epoll.\(serverFD).thread\(thread)")
         try add(client: serverFD, event: EPOLLIN.rawValue)
         setNonBlocking(socket: self.fileDescriptor)
@@ -100,19 +98,18 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
         acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
     ) throws -> (loaded: Int, clients: InlineArray<maxEvents, Int32>) {
         var loadedClients:Int32 = -1
-        try events.span.withUnsafeBufferPointer { p in
+        var events:InlineArray<maxEvents, epoll_event> = .init(repeating: .init())
+        try events.mutableSpan.withUnsafeBufferPointer { p in
             guard let base = p.baseAddress else { throw EpollError.waitFailed() }
             loadedClients = epoll_wait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout)
             if loadedClients == -1 {
                 throw EpollError.waitFailed()
-            } else if loadedClients == 0 {
-                return
             }
         }
         var clients:InlineArray<maxEvents, Int32> = .init(repeating: -1)
-        if loadedClients == 0 { return (0, clients) }
         var clientIndex = 0
-        for i in 0..<Int(loadedClients) {
+        var i = 0
+        while i < loadedClients {
             let event = events[i]
             if event.data.fd == serverFD {
                 do {
@@ -136,6 +133,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
             } else if event.events & EPOLLERR.rawValue != 0 {
                 closeSocket(event.data.fd, name: "client's socket errored")
             }
+            i += 1
         }
         return (clientIndex, clients)
     }
@@ -179,11 +177,11 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public func run<Router: RouterProtocol>(
+    public func run<ConcreteRouter: RouterProtocol>(
         timeout: Int32,
-        router: Router,
+        router: ConcreteRouter,
         noTCPDelay: Bool
-    ) async throws {
+    ) async {
         await withTaskGroup { group in
             for i in instances.indices {
                 var instance = instances[i]
@@ -197,10 +195,10 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public static func process<Router: RouterProtocol>(
+    public static func process<ConcreteRouter: RouterProtocol>(
         _ instance: inout Epoll<maxEvents>,
         timeout: Int32,
-        router: Router,
+        router: ConcreteRouter,
         noTCPDelay: Bool
     ) async {
         let logger = instance.logger
@@ -208,7 +206,8 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             do {
                 let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
-                for i in 0..<loaded {
+                var i = 0
+                while i < loaded {
                     let client = clients[i]
                     do {
                         try instance.remove(client: client)
@@ -227,6 +226,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
                             logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
                         }
                     }
+                    i += 1
                 }
             } catch {
                 instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while waiting for client: \(error)"))

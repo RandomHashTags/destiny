@@ -9,8 +9,6 @@ public protocol InlineArrayProtocol: Sendable, ~Copyable {
     typealias Index = Int
     associatedtype Element
 
-    static var count: Int { get }
-
     init(repeating value: Element)
 
     var startIndex: Index { get }
@@ -24,7 +22,7 @@ public protocol InlineArrayProtocol: Sendable, ~Copyable {
     borrowing func index(before i: Index) -> Index
 
     // TODO: remove the following two functions | temporary workaround for borrowing self in a subscript (_read and _modify accessors aren't final)
-    func itemAt(index: Index) -> Element 
+    func itemAt(index: Index) -> Element
     mutating func setItemAt(index: Index, element: Element)
 
     mutating func swapAt(_ i: Index, _ j: Index)
