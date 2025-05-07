@@ -14,8 +14,8 @@ public struct HTTPMessage: HTTPMessageProtocol {
     public var cookies:[any HTTPCookieProtocol]
     public var result:RouteResult?
     public var contentType:HTTPMediaType?
-    public var version:HTTPVersion
     public var status:HTTPResponseStatus.Code
+    public var version:HTTPVersion
     public var charset:Charset?
 
     public init(
@@ -94,6 +94,41 @@ public struct HTTPMessage: HTTPMessageProtocol {
             bytes = [UInt8](string.utf8)
         }
         return bytes
+    }
+
+    @inlinable
+    public func bytes(_ closure: (InlineArrayVL<UInt8>) throws -> Void) rethrows {
+        let suffix = String([Character(Unicode.Scalar(.carriageReturn)), Character(Unicode.Scalar(.lineFeed))])
+        var string = version.string + " \(status)" + suffix
+        for (header, value) in headers {
+            string += header + ": " + value + suffix
+        }
+        for cookie in cookies {
+            string += "Set-Cookie: \(cookie)" + suffix
+        }
+        var byteCount:Int = 0
+        if let result {
+            try result.bytes { array in
+            }
+        } else {
+        }
+        // TODO: finish
+        /*var bytes:[UInt8]
+        if let result = try result?.bytes() {
+            if let contentType {
+                string.append(HTTPResponseHeader.contentType.rawName)
+                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+            }
+            string.append(HTTPResponseHeader.contentLength.rawName)
+            string += ": \(result.count)"
+            string += suffix + suffix
+            
+            bytes = [UInt8](string.utf8)
+            bytes.append(contentsOf: result)
+        } else {
+            bytes = [UInt8](string.utf8)
+        }
+        return bytes*/
     }
 
     @inlinable

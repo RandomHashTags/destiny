@@ -72,4 +72,51 @@ struct DestinyTests {
             )
         )
     }
+
+    @Test func inlineArrayVL() {
+        InlineArrayVL<UInt8>.create(amount: 5, default: 0, { array in
+            #expect(array.count == 5)
+            for i in array.indices {
+                #expect(array.itemAt(index: i) == 0)
+            }
+        })
+        InlineArrayVL<UInt8>.create(amount: 3, default: 1, { array in
+            #expect(array.count == 3)
+            for i in array.indices {
+                #expect(array.itemAt(index: i) == 1)
+            }
+        })
+        var amount = 25
+        InlineArrayVL<UInt8>.create(amount: amount, default: 65, { array in
+            #expect(array.count == amount)
+            for i in array.indices {
+                #expect(array.itemAt(index: i) == 65)
+            }
+        })
+        amount /= 2
+        InlineArrayVL<UInt8>.create(amount: amount, default: 128, { array in
+            #expect(array.count == amount)
+            for i in array.indices {
+                #expect(array.itemAt(index: i) == 128)
+            }
+        })
+    }
+
+    @Test func joinedInlineArrayVL() throws {
+        InlineArrayVL<UInt8>.create(amount: 5, default: 0, { array in
+            var test:JoinedInlineArrayVL<5, InlineArrayVL<UInt8>> = .init(storage: .init(repeating: array))
+            test.setElementAt(index: 4, element: 1)
+            #expect(test.elementAt(index: 3) == 0)
+            #expect(test.elementAt(index: 4) == 1)
+            #expect(test.elementAt(index: 5) == 0)
+
+            test.setElementAt(index: 9, element: 2)
+            #expect(test.elementAt(index: 9) == 2)
+
+            test.setElementAt(index: 14, element: 3)
+            #expect(test.elementAt(index: 14) == 3)
+        })
+    }
 }
+
+import Foundation

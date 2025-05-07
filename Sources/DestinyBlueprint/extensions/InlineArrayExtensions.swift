@@ -116,6 +116,7 @@ extension InlineArrayProtocol where Element: Equatable {
 
 // MARK: first slice
 extension InlineArrayProtocol where Element: Equatable {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func firstSlice<let sliceLength: Int>(separator: Element, defaultValue: Element, offset: Index = 0) -> (slice: InlineArray<sliceLength, Element>, index: Index) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
@@ -134,6 +135,7 @@ extension InlineArrayProtocol where Element: Equatable {
 
 // MARK: slice
 extension InlineArrayProtocol {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func slice<let sliceLength: Int>(startIndex: Index, endIndex: Index, defaultValue: Element) -> InlineArray<sliceLength, Element> {
         var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
@@ -151,6 +153,7 @@ extension InlineArrayProtocol {
 
 // MARK: has prefix
 extension InlineArrayProtocol where Element == UInt8 {
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func hasPrefix<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
         let minCount = min(count, array.count)
@@ -197,11 +200,11 @@ extension InlineArrayProtocol where Element == UInt8 {
 #if canImport(Foundation)
 // MARK: lowercase
 extension InlineArrayProtocol where Element == UInt8 {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(_n_ * 2) where _n_ is the length of the collection.
     @inlinable
     public func lowercase() -> Self {
         var value = self
-        let simds = Int(ceil(Double(count) / 64))
+        let simds = Int(ceil(Double(count) / 64)) // need Foundation for `ceil` call
         var startIndex = startIndex
         for _ in 0..<simds {
             let simd = simd64(startIndex: startIndex).lowercase()

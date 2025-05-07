@@ -25,7 +25,6 @@ public struct Router<
         ConcreteDynamicNotFoundResponder: DynamicRouteResponderProtocol,
         ConcreteStaticNotFoundResponder: StaticRouteResponderProtocol
     >: RouterProtocol {
-    public let version:HTTPVersion
     public private(set) var caseSensitiveResponders:RouterResponderStorage
     public private(set) var caseInsensitiveResponders:RouterResponderStorage
 
@@ -37,6 +36,8 @@ public struct Router<
     public var errorResponder:ConcreteErrorResponder
     public var dynamicNotFoundResponder:ConcreteDynamicNotFoundResponder?
     public var staticNotFoundResponder:ConcreteStaticNotFoundResponder
+
+    public let version:HTTPVersion
     
     public init(
         version: HTTPVersion,
