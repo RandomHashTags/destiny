@@ -105,7 +105,7 @@ struct DestinyTests {
     @Test func joinedInlineArrayVL() throws {
         InlineArrayVL<UInt8>.create(amount: 5, default: 0) { first in
             InlineArrayVL<UInt8>.create(amount: 6, default: 1) { second in
-                first.join(second) { joined in
+                first.join([second]) { joined in
                     for i in first.indices {
                         #expect(joined.elementAt(index: i) == 0)
                     }

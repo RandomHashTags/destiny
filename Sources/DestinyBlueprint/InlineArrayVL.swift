@@ -101,8 +101,15 @@ extension InlineArrayVL where Element == UInt8 {
 // MARK: Join
 extension InlineArrayVL {
     @inlinable
-    public func join(_ array: InlineArrayVL, _ closure: (inout Joined) throws -> Void) rethrows {
-        try Joined.create(self, array, closure: closure)
+    public func join<let count: Int>(_ arrays: InlineArray<count, InlineArrayVL>, _ closure: (inout Joined) throws -> Void) rethrows {
+        try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: 1 + count, { pointer in
+            var joined = Joined.init(storage: pointer)
+            joined.setItemAt(index: 0, element: self.storage)
+            for i in arrays.indices {
+                joined.setItemAt(index: i+1, element: arrays[i].storage)
+            }
+            try closure(&joined)
+        })
     }
 }
 
@@ -117,11 +124,11 @@ extension InlineArrayVL {
             fatalError("not implemented")
         }
         @inlinable
-        public static func create(_ elements: InlineArrayVL<Element>..., closure: (inout Self) throws -> Void) rethrows {
+        public static func create<let count: Int>(_ elements: InlineArray<count, InlineArrayVL<Element>>, closure: (inout Self) throws -> Void) rethrows {
             try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: elements.count, { pointer in
                 var joined = Self.init(storage: pointer)
                 for i in elements.indices {
-                    joined.setItemAt(index: i, element: elements[i].storage)
+                    joined.setItemAt(index: i, element: elements.itemAt(index: i).storage)
                 }
                 try closure(&joined)
             })
