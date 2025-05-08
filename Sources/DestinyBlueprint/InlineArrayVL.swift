@@ -98,90 +98,106 @@ extension InlineArrayVL where Element == UInt8 {
     }
 }
 
-// MARK: Joined
+// MARK: Join
 extension InlineArrayVL {
-    public func join(_ array: InlineArrayVL) {
+    @inlinable
+    public func join(_ array: InlineArrayVL, _ closure: (inout Joined) throws -> Void) rethrows {
+        try Joined.create(self, array, closure: closure)
     }
 }
 
-// MARK: JoinedInlineArrayVL
-public struct JoinedInlineArrayVL<let elementsCount: Int, Element: InlineArrayProtocol>: InlineArrayProtocol {
-    public typealias Index = Int
+// MARK: Joined
+extension InlineArrayVL {
+    public struct Joined: ~Copyable {
+        public typealias Index = Int
 
-    @usableFromInline var storage:InlineArray<elementsCount, Element>
+        @usableFromInline let storage:UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Element>>
 
-    public init(storage: InlineArray<elementsCount, Element>) {
-        self.storage = storage
-    }
-
-    public init(repeating value: Element) {
-        storage = .init(repeating: value)
-    }
-    @inlinable public var startIndex:Index { 0 }
-    @inlinable public var endIndex:Index { count }
-
-    @inlinable public var count : Int { elementsCount }
-
-    @inlinable
-    public var capacity: Int {
-        var c = 0
-        for i in storage.indices {
-            c += storage[i].count
+        public init(repeating value: Element) {
+            fatalError("not implemented")
         }
-        return c
-    }
+        @inlinable
+        public static func create(_ elements: InlineArrayVL<Element>..., closure: (inout Self) throws -> Void) rethrows {
+            try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: elements.count, { pointer in
+                var joined = Self.init(storage: pointer)
+                for i in elements.indices {
+                    joined.setItemAt(index: i, element: elements[i].storage)
+                }
+                try closure(&joined)
+            })
+        }
 
-    @inlinable public var isEmpty:Bool { count == 0 }
-    @inlinable public var indices:Range<Index> { .init(uncheckedBounds: (0, endIndex)) }
+        @inlinable
+        public init(storage: UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Element>>) {
+            self.storage = storage
+        }
+        
+        @inlinable public var startIndex:Index { 0 }
+        @inlinable public var endIndex:Index { count }
 
-    @inlinable 
-    public func index(after i: Index) -> Index {
-        i &+ 1
-    }
+        @inlinable public var count : Int { storage.count }
 
-    @inlinable 
-    public func index(before i: Index) -> Index {
-        i &- 1
-    }
-
-    @inlinable 
-    public func itemAt(index: Index) -> Element {
-        storage[index]
-    }
-
-    @inlinable
-    public mutating func setItemAt(index: Index, element: Element) {
-        storage[index] = element
-    }
-
-    @inlinable 
-    public func elementAt(index: Index) -> Element.Element {
-        var previousElements = 0
-        for indice in storage.indices {
-            let e = storage[indice]
-            let currentElements = e.count
-            if index < previousElements + currentElements {
-                return e.itemAt(index: index - previousElements)
+        @inlinable
+        public var capacity: Int {
+            var c = 0
+            for i in storage.indices {
+                c += storage[i].count
             }
-            previousElements += currentElements
+            return c
         }
-        fatalError("out-of-bounds")
-    }
-    @inlinable
-    public mutating func setElementAt(index: Index, element: Element.Element) {
-        var previousElements = 0
-        for indice in storage.indices {
-            let e = storage[indice]
-            let currentElements = e.count
-            if index < previousElements + currentElements {
-                storage[indice].setItemAt(index: index - previousElements, element: element)
-                break
-            }
-            previousElements += currentElements
-        }
-    }
 
-    @inlinable
-    public mutating func swapAt(_ i: Index, _ j: Index) {
+        @inlinable public var isEmpty:Bool { count == 0 }
+        @inlinable public var indices:Range<Index> { .init(uncheckedBounds: (0, endIndex)) }
+
+        @inlinable 
+        public func index(after i: Index) -> Index {
+            i &+ 1
+        }
+
+        @inlinable 
+        public func index(before i: Index) -> Index {
+            i &- 1
+        }
+
+        @inlinable 
+        public func itemAt(index: Index) -> UnsafeMutableBufferPointer<Element> {
+            storage[index]
+        }
+
+        @inlinable
+        public mutating func setItemAt(index: Index, element: UnsafeMutableBufferPointer<Element>) {
+            storage[index] = element
+        }
+
+        @inlinable 
+        public func elementAt(index: Index) -> Element {
+            var previousElements = 0
+            for indice in storage.indices {
+                let e = storage[indice]
+                let currentElements = e.count
+                if index < previousElements + currentElements {
+                    return e[index - previousElements]
+                }
+                previousElements += currentElements
+            }
+            fatalError("out-of-bounds")
+        }
+        @inlinable
+        public mutating func setElementAt(index: Index, element: Element) {
+            var previousElements = 0
+            for indice in storage.indices {
+                let e = storage[indice]
+                let currentElements = e.count
+                if index < previousElements + currentElements {
+                    storage[indice][index - previousElements] = element
+                    break
+                }
+                previousElements += currentElements
+            }
+        }
+
+        @inlinable
+        public mutating func swapAt(_ i: Index, _ j: Index) {
+        }
     }
 }

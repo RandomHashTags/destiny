@@ -103,19 +103,19 @@ struct DestinyTests {
     }
 
     @Test func joinedInlineArrayVL() throws {
-        InlineArrayVL<UInt8>.create(amount: 5, default: 0, { array in
-            var test:JoinedInlineArrayVL<5, InlineArrayVL<UInt8>> = .init(storage: .init(repeating: array))
-            test.setElementAt(index: 4, element: 1)
-            #expect(test.elementAt(index: 3) == 0)
-            #expect(test.elementAt(index: 4) == 1)
-            #expect(test.elementAt(index: 5) == 0)
-
-            test.setElementAt(index: 9, element: 2)
-            #expect(test.elementAt(index: 9) == 2)
-
-            test.setElementAt(index: 14, element: 3)
-            #expect(test.elementAt(index: 14) == 3)
-        })
+        InlineArrayVL<UInt8>.create(amount: 5, default: 0) { first in
+            InlineArrayVL<UInt8>.create(amount: 6, default: 1) { second in
+                first.join(second) { joined in
+                    for i in first.indices {
+                        #expect(joined.elementAt(index: i) == 0)
+                    }
+                    let offset = first.count
+                    for i in second.indices {
+                        #expect(joined.elementAt(index: offset + i) == 1)
+                    }
+                }
+            }
+        }
     }
 }
 
