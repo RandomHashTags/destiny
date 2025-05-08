@@ -16,4 +16,9 @@ extension String {
             self.append(Character(Unicode.Scalar(char)))
         }
     }
+
+    @inlinable
+    public func inlineVLArray(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
+        try InlineVLArray<UInt8>.create(string: self, closure)
+    }
 }

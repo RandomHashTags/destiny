@@ -67,23 +67,4 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         }
         return true
     }
-
-    @inlinable
-    public func exists(for path: DestinyRoutePathType) -> Bool {
-        guard inlineArrays[path] == nil || staticStrings[path] == nil || strings[path] == nil || uint8Arrays[path] == nil || uint16Arrays[path] == nil else {
-            return true
-        }
-        #if canImport(FoundationEssentials) || canImport(Foundation)
-        return foundationData[path] != nil
-        #else
-        return false
-        #endif
-    }
-}
-
-// MARK: Register
-extension StaticResponderStorage {
-    mutating func register(path: DestinyRoutePathType, responder: RouteResponses.StaticString) {
-        staticStrings[path] = responder
-    }
 }

@@ -66,7 +66,7 @@ public struct Router<
         if let responder = caseSensitiveResponders.dynamic.responder(for: &request) {
             return responder
         }
-        //request.startLine = toLowercase(path: request.startLine) // TODO: finish
+        //request.startLine = request.startLine.lowercase() // TODO: finish
         return caseInsensitiveResponders.dynamic.responder(for: &request)
     }
     
@@ -180,7 +180,7 @@ extension Router {
         request: inout any RequestProtocol
     ) async throws -> Bool {
         if try await caseSensitiveResponders.static.respond(to: socket, with: request.startLine) {
-        } else if try await caseInsensitiveResponders.static.respond(to: socket, with: request.startLine) {
+        } else if try await caseInsensitiveResponders.static.respond(to: socket, with: request.startLine.lowercase()) {
         } else if let responder = dynamicResponder(for: &request) {
             try await dynamicResponse(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
         } else if let responder = conditionalResponder(for: &request) {
@@ -225,11 +225,15 @@ extension Router {
         response.timestamps.loaded = loaded
         var index = 0
         responder.forEachPathComponentParameterIndex { parameterIndex in
-            response.parameters[index] = request.path(at: parameterIndex)
+            request.path(at: parameterIndex).inlineVLArray {
+                response.setParameter(at: index, value: $0)
+            }
             if responder.pathComponent(at: parameterIndex) == .catchall {
                 var i = parameterIndex+1
-                while i < request.pathCount {
-                    response.parameters.append(request.path(at: i))
+                request.forEachPath(offset: i) { path in
+                    path.inlineVLArray {
+                        response.setParameter(at: i, value: $0)
+                    }
                     i += 1
                 }
             }

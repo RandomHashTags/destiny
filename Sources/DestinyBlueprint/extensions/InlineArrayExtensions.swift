@@ -131,6 +131,22 @@ extension InlineArrayProtocol where Element: Equatable {
         }
         return (slice, index)
     }
+
+    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    @inlinable
+    public func firstSlice(separator: Element, defaultValue: Element, offset: Index = 0, _ closure: (_ slice: InlineVLArray<Element>, _ index: Index) -> Void) {
+        let index = firstIndex(of: separator, offset: offset) ?? endIndex
+        InlineVLArray<Element>.create(amount: offset.distance(to: index), default: defaultValue) { array in
+            var targetIndex = offset
+            var i = 0
+            while targetIndex < index {
+                array.setItemAt(index: i, element: self.itemAt(index: targetIndex))
+                targetIndex += 1
+                i += 1
+            }
+            closure(array, index)
+        }
+    }
 }
 
 // MARK: slice

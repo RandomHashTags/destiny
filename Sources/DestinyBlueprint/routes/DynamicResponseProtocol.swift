@@ -13,5 +13,11 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     var message: any HTTPMessageProtocol { get set }
 
     /// The parameters associated with the route. Updated upon requests.
-    var parameters: [String] { get set }
+    //var parameters: [String] { get set }
+
+    @inlinable
+    func parameter(at index: Int) -> String
+
+    @inlinable
+    mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>)
 }

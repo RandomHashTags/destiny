@@ -163,21 +163,21 @@ let router:DefaultRouter = #router(
         path: ["dynamic", ":text"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.message.assignResult(response.parameters[0])
+            response.message.assignResult(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
         path: ["anydynamic", "*", "value"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.message.assignResult(response.parameters[0])
+            response.message.assignResult(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
         path: ["catchall", "**"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.message.assignResult(response.parameters.description)
+            response.message.assignResult("catchall/**")
         }
     )
 )

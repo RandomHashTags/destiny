@@ -98,37 +98,25 @@ public struct HTTPMessage: HTTPMessageProtocol {
 
     @inlinable
     public func bytes(_ closure: (InlineVLArray<UInt8>) throws -> Void) rethrows {
+        var byteCount = 14
         let suffix = String([Character(Unicode.Scalar(.carriageReturn)), Character(Unicode.Scalar(.lineFeed))])
         var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
             string += header + ": " + value + suffix
+            byteCount += header.count + value.count + 4
         }
         for cookie in cookies {
-            string += "Set-Cookie: \(cookie)" + suffix
+            let cookieDesc = "\(cookie)"
+            string += "Set-Cookie: " + cookieDesc + suffix
+            byteCount += cookieDesc.count + 14
         }
-        var byteCount = 0
         if let result {
             try result.bytes { array in
+                byteCount += array.count
             }
         } else {
         }
         // TODO: finish
-        /*var bytes:[UInt8]
-        if let result = try result?.bytes() {
-            if let contentType {
-                string.append(HTTPResponseHeader.contentType.rawName)
-                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
-            }
-            string.append(HTTPResponseHeader.contentLength.rawName)
-            string += ": \(result.count)"
-            string += suffix + suffix
-            
-            bytes = [UInt8](string.utf8)
-            bytes.append(contentsOf: result)
-        } else {
-            bytes = [UInt8](string.utf8)
-        }
-        return bytes*/
     }
 
     @inlinable

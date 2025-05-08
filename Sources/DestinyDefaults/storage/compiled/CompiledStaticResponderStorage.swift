@@ -9,29 +9,24 @@ import DestinyBlueprint
 import DestinyUtilities
 
 /// Default storage that handles static routes.
-public struct CompiledStaticResponderStorage<
-        let staticStringsCount: Int,
-        let stringsCount: Int,
-        let uint8ArraysCount: Int,
-        let uint16ArraysCount: Int
-    >: StaticResponderStorageProtocol {
+public struct CompiledStaticResponderStorage: StaticResponderStorageProtocol {
 
-    //let inlineArrays:InlineArray<inlineArraysCount, Route<RouteResponses.InlineArrayProtocol>>
-    public let staticStrings:InlineArray<staticStringsCount, Route<RouteResponses.StaticString>>
-    public let strings:InlineArray<stringsCount, Route<RouteResponses.String>>
-    public let uint8Arrays:InlineArray<uint8ArraysCount, Route<RouteResponses.UInt8Array>>
-    public let uint16Arrays:InlineArray<uint16ArraysCount, Route<RouteResponses.UInt16Array>>
+    //let inlineArrays:InlineVLArray<Route<RouteResponses.InlineArrayProtocol>>
+    public let staticStrings:InlineVLArray<Route<RouteResponses.StaticString>>
+    public let strings:InlineVLArray<Route<RouteResponses.String>>
+    public let uint8Arrays:InlineVLArray<Route<RouteResponses.UInt8Array>>
+    public let uint16Arrays:InlineVLArray<Route<RouteResponses.UInt16Array>>
 
     #if canImport(FoundationEssentials) || canImport(Foundation)
-    //public let foundationData:InlineArray<foundationDataCount, Route<RouteResponses.FoundationData>>
+    //public let foundationData:InlineVLArray<Route<RouteResponses.FoundationData>>
     #endif
 
     public init(
         //inlineArrays: [DestinyRoutePathType:RouteResponses.InlineArrayProtocol] = [:],
-        staticStrings: InlineArray<staticStringsCount, Route<RouteResponses.StaticString>>,
-        strings: InlineArray<stringsCount, Route<RouteResponses.String>>,
-        uint8Arrays: InlineArray<uint8ArraysCount, Route<RouteResponses.UInt8Array>>,
-        uint16Arrays: InlineArray<uint16ArraysCount, Route<RouteResponses.UInt16Array>>
+        staticStrings: InlineVLArray<Route<RouteResponses.StaticString>>,
+        strings: InlineVLArray<Route<RouteResponses.String>>,
+        uint8Arrays: InlineVLArray<Route<RouteResponses.UInt8Array>>,
+        uint16Arrays: InlineVLArray<Route<RouteResponses.UInt16Array>>
     ) {
         //self.inlineArrays = inlineArrays
         self.staticStrings = staticStrings
@@ -50,33 +45,33 @@ public struct CompiledStaticResponderStorage<
         with startLine: DestinyRoutePathType
     ) async throws -> Bool {
         var i = 0
-        while i < staticStringsCount {
-            if staticStrings[i].path == startLine {
-                try await staticStrings[i].responder.respond(to: socket)
+        while i < staticStrings.count {
+            if staticStrings.itemAt(index: i).path == startLine {
+                try await staticStrings.itemAt(index: i).responder.respond(to: socket)
                 return true
             }
             i += 1
         }
         i = 0
-        while i < stringsCount {
-            if strings[i].path == startLine {
-                try await strings[i].responder.respond(to: socket)
+        while i < strings.count {
+            if strings.itemAt(index: i).path == startLine {
+                try await strings.itemAt(index: i).responder.respond(to: socket)
                 return true
             }
             i += 1
         }
         i = 0
-        while i < uint8ArraysCount {
-            if uint8Arrays[i].path == startLine {
-                try await uint8Arrays[i].responder.respond(to: socket)
+        while i < uint8Arrays.count {
+            if uint8Arrays.itemAt(index: i).path == startLine {
+                try await uint8Arrays.itemAt(index: i).responder.respond(to: socket)
                 return true
             }
             i += 1
         }
         i = 0
-        while i < uint16ArraysCount {
-            if uint16Arrays[i].path == startLine {
-                try await uint16Arrays[i].responder.respond(to: socket)
+        while i < uint16Arrays.count {
+            if uint16Arrays.itemAt(index: i).path == startLine {
+                try await uint16Arrays.itemAt(index: i).responder.respond(to: socket)
                 return true
             }
             i += 1

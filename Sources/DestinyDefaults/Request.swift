@@ -20,12 +20,14 @@ public struct Request: RequestProtocol {
         //return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.simd.leadingString() + ")"
     }
 
-    //@inlinable
-    //public func forEachPath(_ yield: (String) -> Void) {
-    //    for path in path {
-    //        yield(path)
-    //    }
-    //}
+    @inlinable
+    public func forEachPath(offset: Int = 0, _ yield: (String) -> Void) {
+        var i = offset
+        while i < path.count {
+            yield(path[i])
+            i += 1
+        }
+    }
 
     @inlinable
     public func path(at index: Int) -> String {

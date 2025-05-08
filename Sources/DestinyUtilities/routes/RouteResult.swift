@@ -247,8 +247,8 @@ extension RouteResult {
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data:
             try responderDebugDescription(input.string(escapeLineBreak: false))
-
         #endif
+
         default:
             try responderDebugDescription(input.string(escapeLineBreak: true))
         }

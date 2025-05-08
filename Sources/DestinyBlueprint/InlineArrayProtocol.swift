@@ -5,27 +5,8 @@
 //  Created by Evan Anderson on 4/20/25.
 //
 
-public protocol InlineArrayProtocol: Sendable, ~Copyable {
-    typealias Index = Int
-    associatedtype Element
-
+public protocol InlineArrayProtocol: InlineCollectionProtocol, ~Copyable where Index == Int {
     init(repeating value: Element)
-
-    var startIndex: Index { get }
-    var endIndex: Index { get }
-
-    var count: Int { get }
-    var isEmpty: Bool { get }
-    var indices: Range<Index> { get }
-
-    borrowing func index(after i: Index) -> Index
-    borrowing func index(before i: Index) -> Index
-
-    // TODO: remove the following two functions | temporary workaround for borrowing self in a subscript (_read and _modify accessors aren't final)
-    func itemAt(index: Index) -> Element
-    mutating func setItemAt(index: Index, element: Element)
-
-    mutating func swapAt(_ i: Index, _ j: Index)
 }
 
 // MARK: Extensions

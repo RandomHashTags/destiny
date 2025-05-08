@@ -15,10 +15,8 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
     @inlinable
     public static func create(amount: Int, default: Element, _ closure: (inout Self) throws -> Void) rethrows {
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: amount, { p in
+            let _ = p.initialize(repeating: `default`)
             var array = Self(storage: p)
-            for i in array.indices {
-                array.setItemAt(index: i, element: `default`)
-            }
             try closure(&array)
         })
     }
@@ -66,9 +64,9 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
 extension InlineVLArray where Element == UInt8 {
     @inlinable
     public static func create<T: StringProtocol>(string: T, _ closure: (inout Self) throws -> Void) rethrows {
-        let count = string.utf8.count
-        try withUnsafeTemporaryAllocation(of: Element.self, capacity: count, { p in
-            let _ = p.initialize(fromContentsOf: string.utf8)
+        let utf8 = string.utf8
+        try withUnsafeTemporaryAllocation(of: Element.self, capacity: utf8.count, { p in
+            let _ = p.initialize(fromContentsOf: utf8)
             var array = Self(storage: p)
             try closure(&array)
         })
@@ -89,11 +87,11 @@ extension InlineVLArray {
     @inlinable
     public func join<let count: Int>(_ arrays: InlineArray<count, InlineVLArray>, _ closure: (inout Joined) throws -> Void) rethrows {
         try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: 1 + count, { pointer in
-            var joined = Joined.init(storage: pointer)
-            joined.setItemAt(index: 0, element: self.storage)
+            pointer.initializeElement(at: 0, to: self.storage)
             for i in arrays.indices {
-                joined.setItemAt(index: i+1, element: arrays[i].storage)
+                pointer.initializeElement(at: 1 + i, to: arrays[i].storage)
             }
+            var joined = Joined.init(storage: pointer)
             try closure(&joined)
         })
     }
@@ -101,7 +99,7 @@ extension InlineVLArray {
 
 // MARK: Joined
 extension InlineVLArray {
-    public struct Joined: ~Copyable {
+    public struct Joined: ~Copyable, @unchecked Sendable {
         public typealias Index = Int
 
         @usableFromInline let storage:UnsafeMutableBufferPointer<UnsafeMutableBufferPointer<Element>>
@@ -112,10 +110,10 @@ extension InlineVLArray {
         @inlinable
         public static func create<let count: Int>(_ elements: InlineArray<count, InlineVLArray<Element>>, closure: (inout Self) throws -> Void) rethrows {
             try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: elements.count, { pointer in
-                var joined = Self.init(storage: pointer)
                 for i in elements.indices {
-                    joined.setItemAt(index: i, element: elements.itemAt(index: i).storage)
+                    pointer.initializeElement(at: i, to: elements.itemAt(index: i).storage)
                 }
+                var joined = Self.init(storage: pointer)
                 try closure(&joined)
             })
         }
@@ -128,7 +126,7 @@ extension InlineVLArray {
         @inlinable public var startIndex:Index { 0 }
         @inlinable public var endIndex:Index { count }
 
-        @inlinable public var count : Int { storage.count }
+        @inlinable public var count: Int { storage.count }
 
         @inlinable
         public var capacity: Int {

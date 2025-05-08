@@ -7,6 +7,8 @@
 
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol: Sendable, ~Copyable {
+    typealias ConcretePathType = String // TODO: allow custom
+
     /// Initializes the bare minimum data required to process a socket's data.
     init?<T: SocketProtocol & ~Copyable>(socket: borrowing T) throws
 
@@ -14,10 +16,10 @@ public protocol RequestProtocol: Sendable, ~Copyable {
     var startLine: SIMD64<UInt8> { get }
 
     /// Yields the endpoint the request wants to reach, separated by the forward slash character.
-    //@inlinable
-    //func forEachPath(_ yield: (String) -> Void)
+    @inlinable
+    func forEachPath(offset: Int, _ yield: (ConcretePathType) -> Void)
 
-    func path(at index: Int) -> String
+    func path(at index: Int) -> ConcretePathType
     var pathCount: Int { get }
 
     @inlinable

@@ -55,7 +55,7 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
 
     @inlinable
     public mutating func register(version: HTTPVersion, route: any DynamicRouteProtocol, responder: any DynamicRouteResponderProtocol, override: Bool) throws {
-        if route.path.count(where: { $0.isParameter }) == 0 {
+        if route.path.firstIndex(where: { $0.isParameter }) == nil {
             var string = route.startLine
             let buffer = DestinyRoutePathType(&string)
             if override || parameterless[buffer] == nil {

@@ -26,4 +26,14 @@ public struct DynamicResponse: DynamicResponseProtocol {
     public var debugDescription: String {
         "DynamicResponse(message: \(message.debugDescription), parameters: \(parameters))"
     }
+
+    @inlinable
+    public func parameter(at index: Int) -> String {
+        parameters[index]
+    }
+
+    @inlinable
+    public mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>) {
+        parameters[index] = value.string()
+    }
 }
