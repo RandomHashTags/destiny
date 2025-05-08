@@ -1,13 +1,13 @@
 //
-//  InlineArrayVL.swift
+//  InlineVLArray.swift
 //
 //
 //  Created by Evan Anderson on 5/7/25.
 //
 
-// MARK: InlineArrayVL
-/// Variable-length inline array
-public struct InlineArrayVL<Element>: InlineArrayProtocol, @unchecked Sendable {
+// MARK: InlineVLArray
+/// Inline variable-length array
+public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
     public init(repeating value: Element) {
         fatalError("not implemented")
     }
@@ -63,21 +63,13 @@ public struct InlineArrayVL<Element>: InlineArrayProtocol, @unchecked Sendable {
     }
 }
 
-extension InlineArrayVL where Element == UInt8 {
+extension InlineVLArray where Element == UInt8 {
     @inlinable
     public static func create<T: StringProtocol>(string: T, _ closure: (inout Self) throws -> Void) rethrows {
-        let count = string.count
+        let count = string.utf8.count
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: count, { p in
+            let _ = p.initialize(fromContentsOf: string.utf8)
             var array = Self(storage: p)
-            var index = 0
-            var i = string.startIndex
-            while i < string.endIndex {
-                if let char = string[i].asciiValue {
-                    array.setItemAt(index: index, element: char)
-                    index += 1
-                }
-                string.formIndex(after: &i)
-            }
             try closure(&array)
         })
     }
@@ -85,23 +77,17 @@ extension InlineArrayVL where Element == UInt8 {
     public static func create<T: Collection<UInt8>>(collection: T, _ closure: (inout Self) throws -> Void) rethrows {
         let count = collection.count
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: count, { p in
+            let _ = p.initialize(fromContentsOf: collection)
             var array = Self(storage: p)
-            var index = 0
-            var i = collection.startIndex
-            while i < collection.endIndex {
-                array.setItemAt(index: index, element: collection[i])
-                index += 1
-                collection.formIndex(after: &i)
-            }
             try closure(&array)
         })
     }
 }
 
 // MARK: Join
-extension InlineArrayVL {
+extension InlineVLArray {
     @inlinable
-    public func join<let count: Int>(_ arrays: InlineArray<count, InlineArrayVL>, _ closure: (inout Joined) throws -> Void) rethrows {
+    public func join<let count: Int>(_ arrays: InlineArray<count, InlineVLArray>, _ closure: (inout Joined) throws -> Void) rethrows {
         try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: 1 + count, { pointer in
             var joined = Joined.init(storage: pointer)
             joined.setItemAt(index: 0, element: self.storage)
@@ -114,7 +100,7 @@ extension InlineArrayVL {
 }
 
 // MARK: Joined
-extension InlineArrayVL {
+extension InlineVLArray {
     public struct Joined: ~Copyable {
         public typealias Index = Int
 
@@ -124,7 +110,7 @@ extension InlineArrayVL {
             fatalError("not implemented")
         }
         @inlinable
-        public static func create<let count: Int>(_ elements: InlineArray<count, InlineArrayVL<Element>>, closure: (inout Self) throws -> Void) rethrows {
+        public static func create<let count: Int>(_ elements: InlineArray<count, InlineVLArray<Element>>, closure: (inout Self) throws -> Void) rethrows {
             try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: elements.count, { pointer in
                 var joined = Self.init(storage: pointer)
                 for i in elements.indices {
@@ -200,6 +186,16 @@ extension InlineArrayVL {
                     break
                 }
                 previousElements += currentElements
+            }
+        }
+
+        @inlinable
+        public func forEachElement(_ yielding: (Element) throws -> Void) rethrows {
+            for i in storage.indices {
+                let buffer = storage[i]
+                for j in buffer.indices {
+                    try yielding(buffer[j])
+                }
             }
         }
 

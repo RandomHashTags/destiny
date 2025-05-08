@@ -110,19 +110,19 @@ public enum RouteResult: CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    package func bytes(_ closure: (inout InlineArrayVL<UInt8>) throws -> Void) rethrows {
+    package func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
         switch self {
         case .staticString(let s):
-            try InlineArrayVL<UInt8>.create(string: s, closure)
+            try InlineVLArray<UInt8>.create(string: s, closure)
         case .string(let s):
-            try InlineArrayVL<UInt8>.create(string: s, closure)
+            try InlineVLArray<UInt8>.create(string: s, closure)
         case .bytes(let b):
-            try InlineArrayVL<UInt8>.create(collection: b, closure)
+            try InlineVLArray<UInt8>.create(collection: b, closure)
         case .bytes16(let b): // TODO: finish
             break
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d):
-            try InlineArrayVL<UInt8>.create(collection: d, closure)
+            try InlineVLArray<UInt8>.create(collection: d, closure)
         #endif
         case .json: // TODO: finish
             break

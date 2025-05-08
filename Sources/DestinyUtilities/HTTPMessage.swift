@@ -97,7 +97,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
     }
 
     @inlinable
-    public func bytes(_ closure: (InlineArrayVL<UInt8>) throws -> Void) rethrows {
+    public func bytes(_ closure: (InlineVLArray<UInt8>) throws -> Void) rethrows {
         let suffix = String([Character(Unicode.Scalar(.carriageReturn)), Character(Unicode.Scalar(.lineFeed))])
         var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
@@ -106,7 +106,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
         for cookie in cookies {
             string += "Set-Cookie: \(cookie)" + suffix
         }
-        var byteCount:Int = 0
+        var byteCount = 0
         if let result {
             try result.bytes { array in
             }

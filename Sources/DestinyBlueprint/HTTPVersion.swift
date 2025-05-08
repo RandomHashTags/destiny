@@ -72,6 +72,18 @@ public enum HTTPVersion: String, Hashable, Sendable {
         case .v3_0: SIMD8(72, 84, 84, 80, 47, 51, 46, 48) // HTTP/3.0
         }
     }
+
+    @inlinable
+    public var inlineArray: InlineArray<8, UInt8> {
+        switch self {
+        case .v0_9: #inlineArray("HTTP/0.9")
+        case .v1_0: #inlineArray("HTTP/1.0")
+        case .v1_1: #inlineArray("HTTP/1.1")
+        case .v1_2: #inlineArray("HTTP/1.2")
+        case .v2_0: #inlineArray("HTTP/2.0")
+        case .v3_0: #inlineArray("HTTP/3.0")
+        }
+    }
 }
 
 #if canImport(SwiftSyntax)
