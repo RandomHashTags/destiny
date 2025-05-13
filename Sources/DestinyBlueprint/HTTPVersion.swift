@@ -73,6 +73,7 @@ public enum HTTPVersion: String, Hashable, Sendable {
         }
     }
 
+    /// `InlineArray<8, UInt8>` representation of this HTTP Version.
     @inlinable
     public var inlineArray: InlineArray<8, UInt8> {
         switch self {

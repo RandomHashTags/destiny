@@ -7,6 +7,7 @@
 
 // MARK: InlineVLArray
 /// Inline variable-length array
+/// - Warning: This object should not be stored as a property
 public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
     public init(repeating value: Element) {
         fatalError("not implemented")
@@ -21,6 +22,7 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
         })
     }
 
+    @inlinable
     public init(storage: UnsafeMutableBufferPointer<Element>) {
         self.storage = storage
     }

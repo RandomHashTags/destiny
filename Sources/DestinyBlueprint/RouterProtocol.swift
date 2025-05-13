@@ -19,4 +19,19 @@ public protocol RouterProtocol: Sendable, ~Copyable {
         socket: borrowing Socket,
         logger: Logger
     ) async throws
+
+    @inlinable
+    func respondStatically<Socket: SocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
+        socket: borrowing Socket,
+        responder: Responder
+    ) async throws
+
+    @inlinable
+    func respondDynamically<Socket: SocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
+        received: ContinuousClock.Instant,
+        loaded: ContinuousClock.Instant,
+        socket: borrowing Socket,
+        request: inout any RequestProtocol,
+        responder: Responder
+    ) async throws
 }

@@ -5,8 +5,6 @@
 //  Created by Evan Anderson on 10/18/24.
 //
 
-import DestinyBlueprint
-
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol: RouteResponderProtocol {
 

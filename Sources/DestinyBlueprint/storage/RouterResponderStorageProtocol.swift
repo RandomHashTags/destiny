@@ -6,4 +6,12 @@
 //
 
 public protocol RouterResponderStorageProtocol: Sendable {
+    @inlinable
+    func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        received: ContinuousClock.Instant,
+        loaded: ContinuousClock.Instant,
+        socket: borrowing Socket,
+        request: inout any RequestProtocol
+    ) async throws -> Bool
 }

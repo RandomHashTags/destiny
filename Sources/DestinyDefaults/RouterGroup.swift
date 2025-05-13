@@ -199,7 +199,13 @@ extension RouterGroup {
                 }
             }
         }
-        return Self(endpoint: endpoint, staticMiddleware: staticMiddleware, dynamicMiddleware: dynamicMiddleware, staticRoutes: staticRoutes, dynamicRoutes: dynamicRoutes)
+        return Self(
+            endpoint: endpoint,
+            staticMiddleware: staticMiddleware,
+            dynamicMiddleware: dynamicMiddleware,
+            staticRoutes: staticRoutes,
+            dynamicRoutes: dynamicRoutes
+        )
     }
 }
 #endif

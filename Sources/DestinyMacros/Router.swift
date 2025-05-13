@@ -350,9 +350,11 @@ extension Router {
             return
         }
         var httpResponse = httpResponse
-        var responder = ConditionalRouteResponder(conditions: [], responders: [])
-        responder.conditionsDescription.removeLast() // ]
-        responder.respondersDescription.removeLast() // ]
+        var responder = ConditionalRouteResponder(staticConditions: [], staticResponders: [], dynamicConditions: [], dynamicResponders: [])
+        responder.staticConditionsDescription.removeLast() // ]
+        responder.staticRespondersDescription.removeLast() // ]
+        //responder.dynamicConditionsDescription.removeLast() // ] // TODO: support
+        //responder.dynamicRespondersDescription.removeLast() // ]
         for algorithm in route.supportedCompressionAlgorithms {
             if let technique = algorithm.technique {
                 do {
@@ -362,8 +364,8 @@ extension Router {
                     httpResponse.headers[HTTPResponseHeader.vary.rawNameString] = HTTPRequestHeader.acceptEncoding.rawNameString
                     do {
                         let bytes = try httpResponse.string(escapeLineBreak: false)
-                        responder.conditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
-                        responder.respondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
+                        responder.staticConditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
+                        responder.staticRespondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
                     }
@@ -374,8 +376,8 @@ extension Router {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "noTechniqueForCompressionAlgorithm", message: "Failed to compress route data using the " + algorithm.rawValue + " algorithm.", severity: .warning)))
             }
         }
-        responder.conditionsDescription += "\n]"
-        responder.respondersDescription += "\n]"
+        responder.staticConditionsDescription += "\n]"
+        responder.staticRespondersDescription += "\n]"
         conditionalResponders[RoutePath(comment: "// \(string)", path: buffer)] = responder
     }
 }

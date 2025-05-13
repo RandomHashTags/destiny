@@ -40,24 +40,25 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
     }
 
     @inlinable
-    public func respond<Socket: SocketProtocol & ~Copyable>(
-        to socket: borrowing Socket,
-        with startLine: DestinyRoutePathType
+    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        socket: borrowing Socket,
+        startLine: DestinyRoutePathType
     ) async throws -> Bool {
         if let r = inlineArrays[startLine] {
-            try await r.respond(to: socket)
+            try await router.respondStatically(socket: socket, responder: r)
         } else if let r = staticStrings[startLine] {
-            try await r.respond(to: socket)
+            try await router.respondStatically(socket: socket, responder: r)
         } else if let r = strings[startLine] {
-            try await r.respond(to: socket)
+            try await router.respondStatically(socket: socket, responder: r)
         } else if let r = uint8Arrays[startLine] {
-            try await r.respond(to: socket)
+            try await router.respondStatically(socket: socket, responder: r)
         } else if let r = uint16Arrays[startLine] {
-            try await r.respond(to: socket)
+            try await router.respondStatically(socket: socket, responder: r)
         } else {
             #if canImport(FoundationEssentials) || canImport(Foundation)
             if let r = foundationData[startLine] {
-                try await r.respond(to: socket)
+                try await router.respondStatically(socket: socket, responder: r)
             } else {
                 return false
             }

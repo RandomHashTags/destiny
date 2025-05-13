@@ -8,7 +8,12 @@
 /// Core Conditional Route Responder protocol that selects a route responder based on a request.
 public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible, RouteResponderProtocol {
     /// - Parameters:
+    ///   - socket: The socket.
     ///   - request: The request.
-    /// - Returns: The responder for the request.
-    @inlinable func responder(for request: inout any RequestProtocol) -> (any RouteResponderProtocol)?
+    /// - Returns: Whether or not a route responder responded to the request.
+    @inlinable
+    func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
+        with request: inout any RequestProtocol
+    ) async throws -> Bool
 }
