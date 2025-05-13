@@ -37,15 +37,19 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
         """
         ConditionalRouteResponder(
             staticConditions: \(staticConditionsDescription),
-            staticRespondersDescription: \(staticRespondersDescription),
-            dynamicConditionsDescription: \(dynamicConditionsDescription),
-            dynamicRespondersDescription: \(dynamicRespondersDescription)
+            staticResponders: \(staticRespondersDescription),
+            dynamicConditions: \(dynamicConditionsDescription),
+            dynamicResponders: \(dynamicRespondersDescription)
         )
         """
     }
 
     @inlinable
-    public func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket, with request: inout any RequestProtocol) async throws -> Bool {
+    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        socket: borrowing Socket,
+        request: inout any RequestProtocol
+    ) async throws -> Bool {
         for (index, condition) in staticConditions.enumerated() {
             if condition(&request) {
                 try await staticResponders[index].respond(to: socket)

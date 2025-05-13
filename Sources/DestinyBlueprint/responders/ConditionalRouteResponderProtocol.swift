@@ -12,8 +12,9 @@ public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible,
     ///   - request: The request.
     /// - Returns: Whether or not a route responder responded to the request.
     @inlinable
-    func respond<Socket: SocketProtocol & ~Copyable>(
-        to socket: borrowing Socket,
-        with request: inout any RequestProtocol
+    func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        socket: borrowing Socket,
+        request: inout any RequestProtocol
     ) async throws -> Bool
 }

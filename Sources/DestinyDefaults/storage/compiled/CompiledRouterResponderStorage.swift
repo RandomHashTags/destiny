@@ -45,7 +45,7 @@ public struct CompiledRouterResponderStorage<
             return true
         }
         if let responder = conditional[request.startLine] {
-            return try await responder.respond(to: socket, with: &request)
+            return try await responder.respond(router: router, socket: socket, request: &request)
         }
         return false
     }
