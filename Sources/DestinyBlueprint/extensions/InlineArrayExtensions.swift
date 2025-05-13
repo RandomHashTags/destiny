@@ -214,16 +214,16 @@ extension InlineArrayProtocol where Element == UInt8 {
 }
 
 #if canImport(Foundation)
-// MARK: lowercase
+// MARK: lowercased
 extension InlineArrayProtocol where Element == UInt8 {
     /// - Complexity: O(_n_ * 2) where _n_ is the length of the collection.
     @inlinable
-    public func lowercase() -> Self {
+    public func lowercased() -> Self {
         var value = self
         let simds = Int(ceil(Double(count) / 64)) // need Foundation for `ceil` call
         var startIndex = startIndex
         for _ in 0..<simds {
-            let simd = simd64(startIndex: startIndex).lowercase()
+            let simd = simd64(startIndex: startIndex).lowercased()
             let filled = min(64, endIndex - startIndex)
             for i in 0..<filled {
                 value.setItemAt(index: startIndex + i, element: simd[i])

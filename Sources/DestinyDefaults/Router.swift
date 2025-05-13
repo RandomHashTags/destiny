@@ -75,7 +75,7 @@ public struct Router<
         if let responder = caseSensitiveResponders.conditional[request.startLine]?.responder(for: &request) {
             return responder
         }
-        return caseInsensitiveResponders.conditional[request.startLine.lowercase()]?.responder(for: &request)
+        return caseInsensitiveResponders.conditional[request.startLine.lowercased()]?.responder(for: &request)
     }
 
     @inlinable
@@ -180,7 +180,7 @@ extension Router {
         request: inout any RequestProtocol
     ) async throws -> Bool {
         if try await caseSensitiveResponders.static.respond(to: socket, with: request.startLine) {
-        } else if try await caseInsensitiveResponders.static.respond(to: socket, with: request.startLine.lowercase()) {
+        } else if try await caseInsensitiveResponders.static.respond(to: socket, with: request.startLine.lowercased()) {
         } else if let responder = dynamicResponder(for: &request) {
             try await dynamicResponse(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
         } else if let responder = conditionalResponder(for: &request) {

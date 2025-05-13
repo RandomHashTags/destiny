@@ -104,7 +104,7 @@ public struct StaticRoute: StaticRouteProtocol {
         }
         if let context, let function, status == HTTPResponseStatus.notImplemented.code {
             #if canImport(SwiftDiagnostics)
-            Diagnostic.routeStatusNotImplemented(context: context, node: function.calledExpression)
+            Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
             #endif
         }
         headers[HTTPResponseHeader.contentType.rawNameString] = nil

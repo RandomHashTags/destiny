@@ -45,9 +45,13 @@ public protocol DynamicRouteProtocol: RouteProtocol {
     ///   - version: The `HTTPVersion` associated with the `RouterProtocol`.
     ///   - middleware: The static middleware the associated `RouterProtocol` uses.
     ///   - function: SwiftSyntax expression that represents this route at compile time.
-    /// - Warning: You need to assign `handlerLogic` properly.
     /// - Warning: You should apply any statuses and headers using the middleware.
-    static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self?
+    static func parse(
+        context: some MacroExpansionContext,
+        version: HTTPVersion,
+        middleware: [any StaticMiddlewareProtocol],
+        _ function: FunctionCallExprSyntax
+    ) -> Self?
     #endif
 }
 
