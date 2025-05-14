@@ -10,14 +10,27 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     /// Timestamps when request events happen.
     var timestamps: DynamicRequestTimestamps { get set }
 
-    var message: any HTTPMessageProtocol { get set }
-
-    /// The parameters associated with the route. Updated upon requests.
-    //var parameters: [String] { get set }
-
     @inlinable
     func parameter(at index: Int) -> String
 
     @inlinable
     mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>)
+
+    @inlinable
+    mutating func setHTTPVersion(_ version: HTTPVersion)
+
+    @inlinable
+    mutating func setStatus(_ code: HTTPResponseStatus.Code)
+
+    @inlinable
+    mutating func setHeader(key: String, value: String)
+
+    @inlinable
+    mutating func appendCookie<Cookie: HTTPCookieProtocol>(_ cookie: Cookie)
+
+    @inlinable
+    mutating func setResult(_ result: String)
+
+    @inlinable
+    func messageString() throws -> String
 }

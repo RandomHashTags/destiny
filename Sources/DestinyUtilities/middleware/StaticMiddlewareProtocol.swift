@@ -11,25 +11,17 @@ import DestinyBlueprint
 public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     associatedtype Cookie:HTTPCookieProtocol
 
-    /// Route request versions this middleware handles.
-    /// 
-    /// - Warning: `nil` makes it handle all versions.
-    var handlesVersions: Set<HTTPVersion>? { get }
+    @inlinable
+    func handlesVersion(_ version: HTTPVersion) -> Bool
 
-    /// Route request methods this middleware handles.
-    /// 
-    /// - Warning: `nil` makes it handle all methods.
-    var handlesMethods: Set<HTTPRequestMethod>? { get }
+    @inlinable
+    func handlesMethod(_ method: HTTPRequestMethod) -> Bool
 
-    /// Route response statuses this middleware handles.
-    /// 
-    /// - Warning: `nil` makes it handle all statuses.
-    var handlesStatuses: Set<HTTPResponseStatus.Code>? { get }
+    @inlinable
+    func handlesStatus(_ code: HTTPResponseStatus.Code) -> Bool
 
-    /// The route content types this middleware handles.
-    /// 
-    /// - Warning: `nil` makes it handle all content types.
-    var handlesContentTypes: Set<HTTPMediaType>? { get }
+    @inlinable
+    func handlesContentType(_ mediaType: HTTPMediaType) -> Bool
 
     /// Response http version this middleware applies to routes.
     var appliesVersion: HTTPVersion? { get }
@@ -73,10 +65,10 @@ extension StaticMiddlewareProtocol {
         contentType: HTTPMediaType,
         status: HTTPResponseStatus.Code
     ) -> Bool {
-        return (handlesVersions == nil || handlesVersions!.contains(version))
-            && (handlesMethods == nil || handlesMethods!.contains(method))
-            && (handlesContentTypes == nil || handlesContentTypes!.contains(contentType))
-            && (handlesStatuses == nil || handlesStatuses!.contains(status))
+        return handlesVersion(version)
+            && handlesMethod(method)
+            && handlesContentType(contentType)
+            && handlesStatus(status)
     }
 
     @inlinable
@@ -103,24 +95,24 @@ extension StaticMiddlewareProtocol {
     }
 
     @inlinable
-    public func apply<T: DynamicResponseProtocol>(
+    public func apply<Response: DynamicResponseProtocol>(
         contentType: inout HTTPMediaType,
-        to response: inout T
+        to response: inout Response
     ) {
         if let appliesVersion {
-            response.message.version = appliesVersion
+            response.setHTTPVersion(appliesVersion)
         }
         if let appliesStatus {
-            response.message.status = appliesStatus
+            response.setStatus(appliesStatus)
         }
         if let appliesContentType {
             contentType = appliesContentType
         }
         for (header, value) in appliesHeaders {
-            response.message.setHeader(key: header, value: value)
+            response.setHeader(key: header, value: value)
         }
         for cookie in appliesCookies {
-            response.message.appendCookie(cookie)
+            response.appendCookie(cookie)
         }
         // TODO: fix
     }

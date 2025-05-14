@@ -11,8 +11,8 @@ import Logging
 public protocol ErrorResponderProtocol: RouteResponderProtocol {
     /// Writes a response to a socket.
     @inlinable
-    func respond<T: SocketProtocol & ~Copyable, E: Error>(
-        to socket: borrowing T,
+    func respond<Socket: SocketProtocol & ~Copyable, E: Error>(
+        to socket: borrowing Socket,
         with error: E,
         for request: inout any RequestProtocol,
         logger: Logger

@@ -7,6 +7,7 @@
 
 extension SIMD where Scalar: BinaryInteger {
     /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
+    @inlinable
     public init(_ string: inout String) {
         var item = Self()
         string.withUTF8 { p in
@@ -18,6 +19,7 @@ extension SIMD where Scalar: BinaryInteger {
     }
 
     /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
+    @inlinable
     public init(_ string: String) {
         var s = string
         self = .init(&s)

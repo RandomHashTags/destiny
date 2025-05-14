@@ -37,30 +37,30 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
         var logicDD = "{\n"
         switch allowedOrigin {
         case .all:
-            logicDD += "$1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"*\")"
+            logicDD += "$1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"*\")"
         case .any(let origins):
-            logicDD += "if let origin:String = $0.header(forKey: HTTPRequestHeader.originRawName), (\(origins) as Set<String>).contains(origin) { $1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
+            logicDD += "if let origin:String = $0.header(forKey: HTTPRequestHeader.originRawName), (\(origins) as Set<String>).contains(origin) { $1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
         case .custom(let s):
-            logicDD += "$1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"" + s + "\")"
+            logicDD += "$1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: \"" + s + "\")"
         case .none:
             break
         case .originBased:
-            logicDD += "$1.message.setHeader(key: HTTPResponseHeader.varyRawName, value: \"origin\")"
-            logicDD += "\nif let origin:String = $0.header(forKey: HTTPRequestHeader.originRawName) { $1.message.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
+            logicDD += "$1.setHeader(key: HTTPResponseHeader.varyRawName, value: \"origin\")"
+            logicDD += "\nif let origin:String = $0.header(forKey: HTTPRequestHeader.originRawName) { $1.setHeader(key: HTTPResponseHeader.accessControlAllowOriginRawName, value: origin) }"
         }
 
         let allowedHeaders = allowedHeaders.map({ $0.rawNameString }).joined(separator: ",")
         let allowedMethods = allowedMethods.map({ $0.rawNameString }).joined(separator: ",")
-        logicDD += "\n$1.message.setHeader(key: HTTPResponseHeader.accessControlAllowHeadersRawName, value: \"" + allowedHeaders + "\")"
-        logicDD += "\n$1.message.setHeader(key: HTTPResponseHeader.accessControlAllowMethodsRawName, value: \"" + allowedMethods + "\")"
+        logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowHeadersRawName, value: \"" + allowedHeaders + "\")"
+        logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowMethodsRawName, value: \"" + allowedMethods + "\")"
         if allowCredentials {
-            logicDD += "\n$1.message.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: \"true\")"
+            logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: \"true\")"
         }
         if let exposedHeaders = exposedHeaders?.map({ $0.rawNameString }).joined(separator: ",") {
-            logicDD += "\n$1.message.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: \"" + exposedHeaders + "\")"
+            logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: \"" + exposedHeaders + "\")"
         }
         if let maxAge {
-            logicDD += "\n$1.message.setHeader(key: HTTPResponseHeader.accessControlMaxAgeRawName, value: \"" + String(maxAge) + "\")"
+            logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlMaxAgeRawName, value: \"" + String(maxAge) + "\")"
         }
         self.logic = { _, _ in }
         self.logicDebugDescription = logicDD + " }"

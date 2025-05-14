@@ -37,3 +37,35 @@ public struct DynamicResponse: DynamicResponseProtocol {
         parameters[index] = value.string()
     }
 }
+
+extension DynamicResponse {
+    @inlinable
+    public mutating func setHTTPVersion(_ version: HTTPVersion) {
+        message.version = version
+    }
+
+    @inlinable
+    public mutating func setStatus(_ code: HTTPResponseStatus.Code) {
+        message.status = code
+    }
+
+    @inlinable
+    public mutating func setHeader(key: String, value: String) {
+        message.setHeader(key: key, value: value)
+    }
+
+    @inlinable
+    public mutating func appendCookie<Cookie: HTTPCookieProtocol>(_ cookie: Cookie) {
+        message.appendCookie(cookie)
+    }
+
+    @inlinable
+    public mutating func setResult(_ result: String) {
+        message.assignResult(result)
+    }
+
+    @inlinable
+    public func messageString() throws -> String {
+        try message.string(escapeLineBreak: false)
+    }
+}

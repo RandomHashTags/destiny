@@ -15,7 +15,7 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol {
     func pathComponent(at index: Int) -> PathComponent
     var pathComponentsCount: Int { get }
 
-    /// Yields the index where parameters are location in the `path`.
+    /// Yields the index where parameters are location in the path.
     @inlinable
     func forEachPathComponentParameterIndex(_ yield: (Int) -> Void)
 

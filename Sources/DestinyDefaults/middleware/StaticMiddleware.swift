@@ -15,9 +15,24 @@ import SwiftSyntaxMacros
 public struct StaticMiddleware: StaticMiddlewareProtocol {
     public typealias Cookie = HTTPCookie
 
+    /// Route request versions this middleware handles.
+    /// 
+    /// - Warning: `nil` makes it handle all versions.
     public let handlesVersions:Set<HTTPVersion>?
+
+    /// Route request methods this middleware handles.
+    /// 
+    /// - Warning: `nil` makes it handle all methods.
     public let handlesMethods:Set<HTTPRequestMethod>?
+
+    /// Route response statuses this middleware handles.
+    /// 
+    /// - Warning: `nil` makes it handle all statuses.
     public let handlesStatuses:Set<HTTPResponseStatus.Code>?
+
+    /// The route content types this middleware handles.
+    /// 
+    /// - Warning: `nil` makes it handle all content types.
     public let handlesContentTypes:Set<HTTPMediaType>?
 
     public let appliesVersion:HTTPVersion?
@@ -78,6 +93,28 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
             values.append("appliesCookies: [" + appliesCookies.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
         return "StaticMiddleware(" + values.joined(separator: ",") + ")"
+    }
+}
+
+extension StaticMiddleware {
+    @inlinable
+    public func handlesVersion(_ version: HTTPVersion) -> Bool {
+        handlesVersions?.contains(version) ?? true
+    }
+
+    @inlinable
+    public func handlesMethod(_ method: HTTPRequestMethod) -> Bool {
+        handlesMethods?.contains(method) ?? true
+    }
+
+    @inlinable
+    public func handlesStatus(_ code: HTTPResponseStatus.Code) -> Bool {
+        handlesStatuses?.contains(code) ?? true
+    }
+
+    @inlinable
+    public func handlesContentType(_ mediaType: HTTPMediaType) -> Bool {
+        handlesContentTypes?.contains(mediaType) ?? true
     }
 }
 

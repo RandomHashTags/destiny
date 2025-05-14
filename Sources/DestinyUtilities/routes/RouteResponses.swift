@@ -38,16 +38,8 @@ extension RouteResponses {
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-            var err:(any Error)? = nil
-            value.span.withUnsafeBufferPointer {
-                do {
-                    try socket.writeBuffer($0.baseAddress!, length: $0.count)
-                } catch {
-                    err = error
-                }
-            }
-            if let err {
-                throw err
+            try value.span.withUnsafeBufferPointer {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
         }
     }

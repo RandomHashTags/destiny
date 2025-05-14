@@ -58,12 +58,12 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<T: SocketProtocol & ~Copyable>(
-        to socket: borrowing T,
+    public func respond<Socket: SocketProtocol & ~Copyable>(
+        to socket: borrowing Socket,
         request: inout any RequestProtocol,
         response: inout any DynamicResponseProtocol
     ) async throws {
         try await logic(&request, &response)
-        try socket.writeString(response.message.string(escapeLineBreak: false))
+        try socket.writeString(response.messageString())
     }
 }
