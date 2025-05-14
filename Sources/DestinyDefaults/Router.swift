@@ -60,35 +60,6 @@ public struct Router<
         self.staticMiddleware = staticMiddleware
         self.routerGroups = routerGroups
     }
-
-    @inlinable
-    public func routerGroupStaticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)? {
-        for group in routerGroups {
-            if let responder = group.staticResponder(for: startLine) {
-                return responder
-            }
-        }
-        return nil
-    }
-
-    @inlinable
-    public func routerGroupDynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
-        for group in routerGroups {
-            if let responder = group.dynamicResponder(for: &request) {
-                return responder
-            }
-        }
-        return nil
-    }
-
-    @inlinable
-    public func notFoundResponse<Socket: SocketProtocol & ~Copyable>(socket: borrowing Socket, request: inout any RequestProtocol) async throws {
-        if let dynamicNotFoundResponder { // TODO: support
-            //try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &any DynamicResponseProtocol)
-        } else {
-            try await staticNotFoundResponder.respond(to: socket)
-        }
-    }
 }
 
 // MARK: Dynamic middleware
@@ -144,8 +115,23 @@ extension Router {
         logger.info(Logger.Message(stringLiteral: request.startLine.stringSIMD()))
         #endif
         do {
-            if try await !respond(received: received, loaded: loaded, socket: socket, request: &request) {
-                try await notFoundResponse(socket: socket, request: &request)
+            if try await caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
+            } else if try await caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine.lowercased()) {
+            } else if try await caseSensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) {
+            } else if try await caseInsensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) { // TODO: support
+            } else {
+                for group in routerGroups {
+                    if try await group.respond(router: self, received: received, loaded: loaded, socket: socket, request: &request) {
+                        return
+                    }
+                }
+                // not found
+                if let dynamicNotFoundResponder {
+                    var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: dynamicNotFoundResponder)
+                    try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
+                } else {
+                    try await staticNotFoundResponder.respond(to: socket)
+                }
             }
         } catch {
             await errorResponder.respond(to: socket, with: error, for: &request, logger: logger)
@@ -156,32 +142,6 @@ extension Router {
 // MARK: Respond
 extension Router {
     @inlinable
-    func respond<Socket: SocketProtocol & ~Copyable>(
-        received: ContinuousClock.Instant,
-        loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout any RequestProtocol
-    ) async throws -> Bool {
-        if try await caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
-        } else if try await caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine.lowercased()) {
-        } else if try await caseSensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) {
-        } else if try await caseInsensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) { // TODO: support
-        } else {
-            for group in routerGroups {
-                if let responder = group.staticResponder(for: request.startLine) {
-                    try await respondStatically(socket: socket, responder: responder)
-                    return true
-                } else if let responder = group.dynamicResponder(for: &request) {
-                    try await respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
-                    return true
-                }
-            }
-            return false
-        }
-        return true
-    }
-
-    @inlinable
     public func respondStatically<Socket: SocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
         socket: borrowing Socket,
         responder: Responder
@@ -190,13 +150,12 @@ extension Router {
     }
 
     @inlinable
-    public func respondDynamically<Socket: SocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
+    func defaultDynamicResponse<Responder: DynamicRouteResponderProtocol>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
         request: inout any RequestProtocol,
         responder: Responder
-    ) async throws {
+    ) async throws -> any DynamicResponseProtocol {
         var response = responder.defaultResponse
         response.timestamps.received = received
         response.timestamps.loaded = loaded
@@ -218,6 +177,18 @@ extension Router {
         }
         try await handleDynamicMiddleware(for: &request, with: &response)
         response.timestamps.processed = .now
+        return response
+    }
+
+    @inlinable
+    public func respondDynamically<Socket: SocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
+        received: ContinuousClock.Instant,
+        loaded: ContinuousClock.Instant,
+        socket: borrowing Socket,
+        request: inout any RequestProtocol,
+        responder: Responder
+    ) async throws {
+        var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: responder)
         try await responder.respond(to: socket, request: &request, response: &response)
     }
 }

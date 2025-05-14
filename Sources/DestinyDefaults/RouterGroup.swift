@@ -120,32 +120,28 @@ public struct RouterGroup: RouterGroupProtocol {
         )
         """
     }
+}
 
+// MARK: Respond
+extension RouterGroup {
     @inlinable
-    public func staticResponder(for startLine: DestinyRoutePathType) -> (any StaticRouteResponderProtocol)? {
-        return staticResponses[startLine]
-    }
-
-    @inlinable
-    public func dynamicResponder(for request: inout any RequestProtocol) -> (any DynamicRouteResponderProtocol)? {
-        return dynamicResponses.responder(for: &request)
-    }
-
-    /*@inlinable
-    public func respond<Socket: SocketProtocol & ~Copyable>(
-        to socket: borrowing Socket,
+    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        received: ContinuousClock.Instant,
+        loaded: ContinuousClock.Instant,
+        socket: borrowing Socket,
         request: inout any RequestProtocol
     ) async throws -> Bool {
         if let responder = staticResponses[request.startLine] {
-            try await responder.respond(to: socket)
+            try await router.respondStatically(socket: socket, responder: responder)
             return true
         } else if let responder = dynamicResponses.responder(for: &request) {
-            try await responder.respond(to: socket, request: &request, response: &response)
+            try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
             return true
         } else {
             return false
         }
-    }*/
+    }
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
@@ -158,10 +154,10 @@ extension RouterGroup {
         dynamicMiddleware: [any DynamicMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
     ) -> Self {
-        var endpoint:String = ""
+        var endpoint = ""
         var conditionalResponders:[DestinyRoutePathType:any ConditionalRouteResponderProtocol] = [:]
-        var staticMiddleware:[any StaticMiddlewareProtocol] = staticMiddleware
-        var dynamicMiddleware:[any DynamicMiddlewareProtocol] = dynamicMiddleware
+        var staticMiddleware = staticMiddleware
+        var dynamicMiddleware = dynamicMiddleware
         var staticRoutes:[any StaticRouteProtocol] = []
         var dynamicRoutes:[any DynamicRouteProtocol] = []
         for argument in function.arguments {
