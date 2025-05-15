@@ -35,7 +35,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
         cookies: [any HTTPCookieProtocol] = [],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) {
@@ -149,7 +149,7 @@ extension DynamicRoute {
             route.path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
         route.defaultResponse = DynamicResponse(
-            message: HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: .string(""), contentType: nil, charset: nil),
+            message: HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: RouteResult.string(""), contentType: nil, charset: nil),
             parameters: parameters
         )
         route.handlerDebugDescription = handler
@@ -169,7 +169,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -184,7 +184,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -199,7 +199,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -214,7 +214,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -229,7 +229,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -244,7 +244,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -259,7 +259,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -274,7 +274,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -289,7 +289,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -304,7 +304,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
         headers: [String:String] = [:],
-        result: RouteResult = .string(""),
+        result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {

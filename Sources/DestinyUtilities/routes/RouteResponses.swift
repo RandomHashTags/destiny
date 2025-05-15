@@ -27,19 +27,71 @@ extension RouteResponses {
             self.value = value
         }
 
-        public var debugDescription: Swift.String {
-            var inlineArrayValue = "["
+        @inlinable
+        public var inlineArrayValueDescription: Swift.String {
+            var s = "["
             for i in value.indices {
-                inlineArrayValue.append(Character(Unicode.Scalar(value[i])))
+                s.append(Character(Unicode.Scalar(value[i])))
             }
-            inlineArrayValue += "]"
-            return "RouteResponses.InlineArray<\(count), UInt8>(" + inlineArrayValue + ")"
+            s += "]"
+            return s
         }
+
+        public var debugDescription: Swift.String {
+            return "RouteResponses.InlineArray<\(count), UInt8>(" + inlineArrayValueDescription + ")"
+        }
+
+        /*@inlinable
+        public mutating func write<T: DestinyBlueprint.InlineArrayProtocol>(value: T, at offset: Int = 0) where T.Element == UInt8 {
+            var index = offset
+            for i in value.indices {
+                let targetIndex = offset + i
+                if targetIndex >= count {
+                    break
+                }
+                self.value.setItemAt(index: targetIndex, element: value.itemAt(index: i))
+                index += 1
+            }
+        }*/
 
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.span.withUnsafeBufferPointer {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            }
+        }
+    }
+}
+
+// MARK: InlineArrayWithDateHeader
+extension RouteResponses {
+    public struct InlineArrayWithDateHeader<let count: Int>: InlineArrayProtocol {
+        public let value:InlineArray<count>
+
+        public init(_ value: InlineArray<count>) {
+            self.value = value
+        }
+
+        public var debugDescription: Swift.String {
+            return "RouteResponses.InlineArrayWithDateHeader<\(count), UInt8>(" + value.inlineArrayValueDescription + ")"
+        }
+
+        @inlinable
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            try value.value.span.withUnsafeBufferPointer {
+                guard let base = $0.baseAddress else { return }
+                var baseAddress = base
+                // 22 = "HTTP/<v> <c>\r\n".count + "Date: ".count (16 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
+                // write contents before the Date header value
+                try socket.writeBuffer(baseAddress, length: 22)
+                // advance the base address skipping the previous data + the count of the Date header value
+                baseAddress += 22 + HTTPDateFormat.InlineArrayResult.count
+                // write the Date header value
+                try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer {
+                    try socket.writeBuffer($0.baseAddress!, length: $0.count)
+                }
+                // write the contents after the Date header value
+                try socket.writeBuffer(baseAddress, length: $0.count - base.distance(to: baseAddress))
             }
         }
     }

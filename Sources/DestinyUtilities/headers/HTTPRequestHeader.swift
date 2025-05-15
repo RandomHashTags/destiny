@@ -227,7 +227,8 @@ extension HTTPRequestHeader {
 
 // MARK: Static raw name
 extension HTTPRequestHeader {
-    internal static func get(_ header: Self) -> String { header.rawNameString }
+    @inlinable
+    static func get(_ header: Self) -> String { header.rawNameString }
 
     public static let originRawName:String = get(.origin)
 }

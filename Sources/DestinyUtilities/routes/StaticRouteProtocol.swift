@@ -21,7 +21,7 @@ public protocol StaticRouteProtocol: RouteProtocol {
     var path: [String] { get set }
     
     /// Content returned from this route.
-    var result: RouteResult { get }
+    var result: any RouteResultProtocol { get }
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// The HTTP Message of this route.

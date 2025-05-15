@@ -31,17 +31,17 @@ enum HTTPFieldContentType: DeclarationMacro {
         var decls:[DeclSyntax] = []
         for (index, var value) in cases.enumerated() {
             value = value[value.startIndex].uppercased() + value[value.index(after: value.startIndex)...]
-            parseString += "        case \"\(category)\(value)\": return .\(category)\(value)"
+            parseString += "        case \"\(category)\(value)\": .\(category)\(value)"
             cases_string += "    public static let \(category)\(value) = get(\"\(category)\", \"\(httpValues[index])\")\n"
         }
-        parseString += "\ndefault: return nil\n}    \n}\n"
+        parseString += "\ndefault: nil\n}    \n}\n"
 
         var fileExtensionString = "    @inlinable\n    public static func parse\(categoryUppercase)(fileExtension: String) -> Self? {\n        switch fileExtension {"
         for (fileExtension, var targetCase) in fileExtensions {
             targetCase = targetCase[targetCase.startIndex].uppercased() + targetCase[targetCase.index(after: targetCase.startIndex)...]
-            fileExtensionString += "\ncase \"\(fileExtension)\": return .\(category)\(targetCase)"
+            fileExtensionString += "\ncase \"\(fileExtension)\": .\(category)\(targetCase)"
         }
-        fileExtensionString += "\ndefault: return nil\n}\n        }\n"
+        fileExtensionString += "\ndefault: nil\n}\n        }\n"
         decls.append("\(raw: cases_string)")
         decls.append("\(raw: parseString)")
         decls.append("\(raw: fileExtensionString)")

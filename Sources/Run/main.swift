@@ -15,11 +15,12 @@ import Destiny
 import Logging
 import SwiftCompression
 
+// Date: **RESERVED FOR DATE HEADER!**
 let router:DefaultRouter = #router(
     version: .v1_1,
     supportedCompressionAlgorithms: [],
     middleware: [
-        StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"]),
+        StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Date":"Thu, 01 Jan 1970 00:00:00 GMT", "Version":"destiny1.0"]),
         StaticMiddleware(handlesVersions: [.v1_1], appliesHeaders: ["Version":"destiny1.1", "Connection":"close"], appliesCookies: [HTTPCookie(name: "cookie1", value: "yessir"), HTTPCookie(name: "cookie2", value: "pogchamp")]),
         StaticMiddleware(handlesVersions: [.v2_0], appliesHeaders: ["Version":"destiny2.0"]),
         StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
@@ -56,7 +57,7 @@ let router:DefaultRouter = #router(
                 method: .get,
                 path: ["hoopla"],
                 contentType: HTTPMediaType.textPlain,
-                result: .string("rly dud")
+                result: RouteResult.string("rly dud")
             ),
             DynamicRoute(
                 method: .get,
@@ -71,67 +72,67 @@ let router:DefaultRouter = #router(
     StaticRoute.get(
         path: ["redirectto"],
         contentType: HTTPMediaType.textHtml,
-        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
+        result: RouteResult.string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
     ),
     StaticRoute.post(
         path: ["post"],
         contentType: HTTPMediaType.applicationJson,
-        result: .staticString(#"{"bing":"bonged"}"#)
+        result: RouteResult.string(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["bro?what=dude"],
         contentType: HTTPMediaType.applicationJson,
-        result: .staticString(#"{"bing":"bonged"}"#)
+        result: RouteResult.string(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["html"],
         contentType: HTTPMediaType.textHtml,
-        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        result: RouteResult.string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["SHOOP"],
         caseSensitive: false,
         contentType: HTTPMediaType.textHtml,
-        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        result: RouteResult.string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
         contentType: HTTPMediaType.textHtml,
-        result: .staticString(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        result: RouteResult.string(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["json"],
         contentType: HTTPMediaType.applicationJson,
-        result: .staticString(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
+        result: RouteResult.string(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
         //result: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
     ),
     StaticRoute.get(
         path: ["txt"],
         contentType: HTTPMediaType.textPlain,
-        result: .staticString("just a regular txt page; t'was your destiny")
+        result: RouteResult.string("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
         path: ["bytes"],
         contentType: HTTPMediaType.textPlain,
-        result: .bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+        result: RouteResult.bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
     ),
     StaticRoute.get(
         path: ["bytes2"],
         contentType: HTTPMediaType.textPlain,
-        result: .bytes([UInt8]("bruh".utf8))
+        result: RouteResult.bytes([UInt8]("bruh".utf8))
     ),
     StaticRoute.get(
         path: ["bytes3"],
         contentType: HTTPMediaType.textPlain,
-        result: .bytes(Array<UInt8>("bruh".utf8))
+        result: RouteResult.bytes(Array<UInt8>("bruh".utf8))
     ),
-    StaticRoute.get(
+    /*StaticRoute.get(
         path: ["error"],
         status: HTTPResponseStatus.badRequest.code,
         contentType: HTTPMediaType.applicationJson,
         result: .error(CustomError.yipyip)
-    ),
+    ),*/
     DynamicRoute.get(
         path: ["error2"],
         contentType: HTTPMediaType.textPlain,
@@ -193,6 +194,9 @@ let application = Application(
     server: server,
     logger: Logger(label: "destiny.application")
 )
+Task.detached(priority: .userInitiated) {
+    try await HTTPDateFormat.shared.load(logger: application.logger)
+}
 try await application.run()
 
 struct StaticJSONResponse: Encodable {

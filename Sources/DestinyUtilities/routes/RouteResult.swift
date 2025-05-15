@@ -15,13 +15,27 @@ import DestinyBlueprint
 import SwiftCompressionUtilities
 import SwiftSyntax
 
+// MARK: RouteResultProtocol
+public protocol RouteResultProtocol: CustomDebugStringConvertible, Sendable {
+    @inlinable
+    var count: Int { get }
+
+    var responderDebugDescription: Swift.String { get }
+    func responderDebugDescription(_ input: Swift.String) -> Swift.String
+    func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String
+
+    @inlinable
+    func string() -> Swift.String
+
+    @inlinable
+    func bytes() -> [UInt8]
+
+    @inlinable
+    func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows
+}
+
 // MARK: RouteResult
 public enum RouteResult: CustomDebugStringConvertible, Sendable {
-    case staticString(String)
-    case string(String)
-
-    /// [UInt8]
-    case bytes([UInt8])
 
     /// [UInt16]
     case bytes16([UInt16])
@@ -34,14 +48,11 @@ public enum RouteResult: CustomDebugStringConvertible, Sendable {
     case error(any Error)
 
     @inlinable
-    public var debugDescription: String {
+    public var debugDescription: Swift.String {
         switch self {
-        case .staticString(let s): ".staticString(\"\(s)\")"
-        case .string(let s): ".string(\"\(s)\")"
-        case .bytes(let b): ".bytes(\(b))"
         case .bytes16(let b): ".bytes16(\(b))"
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        case .data(let d): ".data(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+        case .data(let d): ".data(Data([\(d.map({ .init(describing: $0) }).joined(separator: ","))]))"
         #endif
         case .json: ".json()" // TODO: fix
         case .error: ".error()" // TODO: fix
@@ -51,9 +62,6 @@ public enum RouteResult: CustomDebugStringConvertible, Sendable {
     @inlinable
     public var count: Int {
         switch self {
-        case .staticString(let string): string.description.utf8.count
-        case .string(let string): string.utf8.count
-        case .bytes(let bytes): bytes.count
         case .bytes16(let bytes): bytes.count
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let data): data.count
@@ -64,20 +72,17 @@ public enum RouteResult: CustomDebugStringConvertible, Sendable {
     }
 
     @inlinable
-    package func string() throws -> String {
+    package func string() throws -> Swift.String {
         switch self {
-        case .staticString(let string): return string.description
-        case .string(let string): return string
-        case .bytes(let bytes): return String.init(decoding: bytes, as: UTF8.self)
-        case .bytes16(let bytes): return String.init(decoding: bytes, as: UTF16.self)
+        case .bytes16(let bytes): return .init(decoding: bytes, as: UTF16.self)
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        case .data(let data): return String.init(decoding: data, as: UTF8.self)
+        case .data(let data): return .init(decoding: data, as: UTF8.self)
         #endif
         case .json(let encodable):
             do {
                 #if canImport(FoundationEssentials) || canImport(Foundation)
                 let data = try JSONEncoder().encode(encodable)
-                return String(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
+                return .init(data: data, encoding: .utf8) ?? "{\"error\":500\",\"reason\":\"couldn't convert JSON encoded Data to UTF-8 String\"}"
                 #else
                 return "{}" // TODO: fix
                 #endif
@@ -88,12 +93,9 @@ public enum RouteResult: CustomDebugStringConvertible, Sendable {
         }
     }
 
-    @inlinable
+    /*@inlinable
     package func bytes() throws -> [UInt8] {
         switch self {
-        case .staticString(let s): return [UInt8](s.description.utf8)
-        case .string(let s): return [UInt8](s.utf8)
-        case .bytes(let b): return b
         case .bytes16(let b):
             var bytes:[UInt8] = []
             bytes.reserveCapacity(b.count * 2)
@@ -112,12 +114,6 @@ public enum RouteResult: CustomDebugStringConvertible, Sendable {
     @inlinable
     package func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
         switch self {
-        case .staticString(let s):
-            try InlineVLArray<UInt8>.create(string: s, closure)
-        case .string(let s):
-            try InlineVLArray<UInt8>.create(string: s, closure)
-        case .bytes(let b):
-            try InlineVLArray<UInt8>.create(collection: b, closure)
         case .bytes16(let b): // TODO: finish
             break
         #if canImport(FoundationEssentials) || canImport(Foundation)
@@ -129,19 +125,17 @@ public enum RouteResult: CustomDebugStringConvertible, Sendable {
         case .error: // TODO: finish
             break
         }
-    }
+    }*/
 }
 
 #if canImport(SwiftSyntax)
 // MARK: SwiftSyntax
 extension RouteResult {
-    public init?(expr: ExprSyntax) {
+    public static func parse(expr: ExprSyntax) -> (any RouteResultProtocol)? {
         guard let function = expr.functionCall else { return nil }
         switch function.calledExpression.memberAccess?.declName.baseName.text {
-        case "staticString":
-            self = .staticString(function.arguments.first!.expression.stringLiteral!.string)
         case "string":
-            self = .string(function.arguments.first!.expression.stringLiteral!.string)
+            return RouteResult.string(function.arguments.first!.expression.stringLiteral!.string)
         case "json":
             return nil // TODO: fix
         case "bytes":
@@ -165,7 +159,7 @@ extension RouteResult {
                     bytes = array
                 }
             }
-            self = .bytes(bytes)
+            return RouteResult.bytes(bytes)
         case "bytes16":
             var bytes:[UInt16] = []
             if let expression = function.arguments.first?.expression {
@@ -186,7 +180,8 @@ extension RouteResult {
                     bytes = array
                 }
             }
-            self = .bytes16(bytes)
+            //self = .bytes16(bytes)
+            return nil
         case "error":
             return nil // TODO: fix
         default:
@@ -198,20 +193,14 @@ extension RouteResult {
 
 // MARK: Responder
 extension RouteResult {
-    public var responderDebugDescription: String {
+    public var responderDebugDescription: Swift.String {
         switch self {
-        case .staticString(let s):
-            "RouteResponses.StaticString(\"\(s)\")"
-        case .string(let s):
-            "RouteResponses.String(\"\(s)\")"
-        case .bytes(let b):
-            "RouteResponses.UInt8Array(\(b))"
         case .bytes16(let b):
             "RouteResponses.UInt16Array(\(b))"
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
         case .data(let d):
-            "RouteResponses.FoundationData(Data([\(d.map({ String(describing: $0) }).joined(separator: ","))]))"
+            "RouteResponses.FoundationData(Data([\(d.map({ .init(describing: $0) }).joined(separator: ","))]))"
         #endif
 
         case .json:
@@ -221,11 +210,8 @@ extension RouteResult {
         }
     }
 
-    public func responderDebugDescription(_ input: String) -> String {
+    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
         switch self {
-        case .staticString: Self.staticString(input).responderDebugDescription
-        case .string: Self.string(input).responderDebugDescription
-        case .bytes: Self.bytes([UInt8](input.utf8)).responderDebugDescription
         case .bytes16: Self.bytes16([UInt16](input.utf16)).responderDebugDescription
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
@@ -239,9 +225,9 @@ extension RouteResult {
         }
     }
 
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
         switch self {
-        case .bytes, .bytes16:
+        case .bytes16:
             try responderDebugDescription(input.string(escapeLineBreak: false))
 
         #if canImport(FoundationEssentials) || canImport(Foundation)

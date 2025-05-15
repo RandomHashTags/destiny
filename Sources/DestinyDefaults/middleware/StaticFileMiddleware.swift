@@ -81,7 +81,7 @@ extension StaticFileMiddleware {
             let url = URL(filePath: path)
             let contentType = HTTPMediaType.parse(fileExtension: url.pathExtension.lowercased()) ?? HTTPMediaType.textPlain
             let result:RouteResult = try .data(Data(contentsOf: url))
-            var route = StaticRoute(
+            /*var route = StaticRoute(
                 version: version,
                 method: method,
                 path: [],
@@ -92,7 +92,8 @@ extension StaticFileMiddleware {
                 supportedCompressionAlgorithms: supportedCompressionAlgorithms
             )
             route.path = endpoint.split(separator: "/").map({ String($0) })
-            return [route]
+            return [route]*/
+            return []
         }
     }
 }

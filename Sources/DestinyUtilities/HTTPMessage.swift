@@ -12,7 +12,7 @@ import DestinyBlueprint
 public struct HTTPMessage: HTTPMessageProtocol {
     public var headers:[String:String]
     public var cookies:[any HTTPCookieProtocol]
-    public var result:RouteResult?
+    public var result:(any RouteResultProtocol)?
     public var contentType:HTTPMediaType?
     public var status:HTTPResponseStatus.Code
     public var version:HTTPVersion
@@ -23,7 +23,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
         status: HTTPResponseStatus.Code,
         headers: [String:String],
         cookies: [any HTTPCookieProtocol],
-        result: RouteResult?,
+        result: (any RouteResultProtocol)?,
         contentType: HTTPMediaType?,
         charset: Charset?
     ) {
@@ -98,7 +98,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
 
     @inlinable
     public func bytes(_ closure: (InlineVLArray<UInt8>) throws -> Void) rethrows {
-        var byteCount = 14
+        /*var byteCount = 14
         let suffix = String([Character(Unicode.Scalar(.carriageReturn)), Character(Unicode.Scalar(.lineFeed))])
         var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
@@ -115,7 +115,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
                 byteCount += array.count
             }
         } else {
-        }
+        }*/
         // TODO: finish
     }
 
@@ -131,7 +131,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
 
     @inlinable
     public mutating func assignResult(_ string: String) {
-        result = .string(string)
+        result = RouteResult.string(string)
     }
 }
 

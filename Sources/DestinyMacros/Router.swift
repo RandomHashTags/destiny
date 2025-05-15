@@ -21,7 +21,7 @@ enum Router: ExpressionMacro {
         var errorResponder = """
             StaticErrorResponder { error in
             RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: HTTPResponseStatus.ok.code, headers: [:], cookies: [], result: .string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.applicationJson, charset: nil)
+                version: HTTPVersion.v1_1, status: HTTPResponseStatus.ok.code, headers: [:], cookies: [], result: RouteResult.string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.applicationJson, charset: nil)
             )
         }
         """
@@ -276,8 +276,8 @@ extension Router.Storage {
                     } else {
                         registeredPaths.insert(string)
                         let buffer = DestinyRoutePathType(&string)
-                        let responder = RouteResult.staticString(try route.response()).responderDebugDescription
-                        staticStrings.append("// \(string)\n\(buffer)\n: " + responder)
+                        let responder = RouteResult.string(try route.response()).responderDebugDescription
+                        strings.append("// \(string)\n\(buffer)\n: " + responder)
                     }
                 } catch {
                 }
@@ -359,7 +359,7 @@ extension Router {
             if let technique = algorithm.technique {
                 do {
                     let compressed = try body.compressed(using: technique)
-                    httpResponse.result = .bytes(compressed.data)
+                    httpResponse.result = RouteResult.bytes(compressed.data)
                     httpResponse.headers[HTTPResponseHeader.contentEncoding.rawNameString] = algorithm.acceptEncodingName
                     httpResponse.headers[HTTPResponseHeader.vary.rawNameString] = HTTPRequestHeader.acceptEncoding.rawNameString
                     do {

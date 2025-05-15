@@ -22,19 +22,55 @@ import Darwin
 // TODO: support
 #endif
 
+import Logging
+import ServiceLifecycle
+
 // MARK: HTTPDateFormat
-public enum HTTPDateFormat {
+public struct HTTPDateFormat: Sendable {
+    public static var shared = HTTPDateFormat()
+
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 
+    public var nowInlineArray:InlineArrayResult = #inlineArray("Thu, 01 Jan 1970 00:00:00 GMT")
+
     @inlinable
-    public static func now() -> InlineArrayResult? {
-        #if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
-        return nowGlibc()
-        #else
-        return nil
-        #endif
+    public mutating func load(logger: Logger) async throws {
+        // TODO: make it update at the beginning of the second
+        while !Task.isCancelled && !Task.isShuttingDownGracefully {
+            //let clock:SuspendingClock = SuspendingClock()
+            //var now:SuspendingClock.Instant = clock.now
+            do {
+                //var updateAt:SuspendingClock.Instant = now
+                //updateAt.duration(to: Duration.init(secondsComponent: 1, attosecondsComponent: 0))
+                //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
+                try await Task.sleep(for: .seconds(1))
+                self.now()
+            } catch {
+                logger.warning(Logger.Message(stringLiteral: "[HTTPDateFormat] Encountered error trying to sleep task: \(error)"))
+            }
+        }
     }
 
+    /// Mutates `self` assigning `nowInlineArray` to the HTTP formatted result representing the time it was executed.
+    /// - Returns: The HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
+    @discardableResult
+    @inlinable
+    public mutating func now() -> InlineArrayResult? {
+        let result:InlineArrayResult?
+        #if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
+        result = nowGlibc()
+        #else
+        result = nil
+        #endif
+        if let result {
+            nowInlineArray = result
+        }
+        return result
+    }
+}
+
+// MARK: Get
+extension HTTPDateFormat {
     /// - Returns: A string that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
     @inlinable
     public static func get<T: BinaryInteger>(year: T, month: T, day: T, dayOfWeek: T, hour: T, minute: T, second: T) -> InlineArrayResult {
@@ -98,7 +134,6 @@ public enum HTTPDateFormat {
         value[index] = 77 // M
         index += 1
         value[index] = 84 // T
-        index += 1
         return value
     }
     @inlinable
@@ -183,13 +218,13 @@ public enum HTTPDateFormat {
 // MARK: Glibc
 extension HTTPDateFormat {
     @inlinable
-    public static func nowGlibc() -> InlineArrayResult? {
+    public func nowGlibc() -> InlineArrayResult? {
         var now = time(nil)
         guard let gmt = gmtime(&now) else { return nil }
         return httpDateGlibc(gmt.pointee)
     }
     @inlinable
-    static func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
+    func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
         return HTTPDateFormat.get(year: 1900 + gmt.tm_year, month: gmt.tm_mon, day: gmt.tm_mday, dayOfWeek: gmt.tm_wday, hour: gmt.tm_hour, minute: gmt.tm_min, second: gmt.tm_sec)
     }
 }
