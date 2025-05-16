@@ -262,6 +262,7 @@ extension Router.Storage {
         guard !routes.isEmpty else { return ".init()" }
         var staticStrings:[String] = []
         var strings:[String] = []
+        var stringsWithDateHeader:[String] = []
         var uint8Arrays:[String] = []
         var uint16Arrays:[String] = []
         if !redirects.isEmpty {
@@ -276,7 +277,7 @@ extension Router.Storage {
                     } else {
                         registeredPaths.insert(string)
                         let buffer = DestinyRoutePathType(&string)
-                        let responder = RouteResult.string(try route.response()).responderDebugDescription
+                        let responder = try RouteResult.string(route.response()).responderDebugDescription
                         strings.append("// \(string)\n\(buffer)\n: " + responder)
                     }
                 } catch {
@@ -301,6 +302,7 @@ extension Router.Storage {
                         switch responder.split(separator: "(").first {
                         case "RouteResponses.StaticString": staticStrings.append(value)
                         case "RouteResponses.String": strings.append(value)
+                        case "RouteResponses.StringWithDateHeader": stringsWithDateHeader.append(value)
                         case "RouteResponses.UInt8Array": uint8Arrays.append(value)
                         case "RouteResponses.UInt16Array": uint16Arrays.append(value)
                         default: break
@@ -319,6 +321,9 @@ extension Router.Storage {
         }
         if !strings.isEmpty {
             values.append("strings: [\n" + strings.joined(separator: ",\n") + "\n]")
+        }
+        if !stringsWithDateHeader.isEmpty {
+            values.append("stringsWithDateHeader: [\n" + stringsWithDateHeader.joined(separator: ",\n") + "\n]")
         }
         if !uint8Arrays.isEmpty {
             values.append("uint8Arrays: [\n" + uint8Arrays.joined(separator: ",\n") + "\n]")

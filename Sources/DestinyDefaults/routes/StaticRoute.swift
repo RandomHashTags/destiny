@@ -7,6 +7,7 @@
 
 import DestinyBlueprint
 import DestinyUtilities
+import OrderedCollections
 import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
@@ -17,7 +18,7 @@ import SwiftSyntaxMacros
 public struct StaticRoute: StaticRouteProtocol {
     public var path:[String]
     public let contentType:HTTPMediaType
-    public let result:(any RouteResultProtocol)
+    public let result:any RouteResultProtocol
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
     public let version:HTTPVersion
@@ -95,7 +96,10 @@ public struct StaticRoute: StaticRouteProtocol {
         var version = version
         var status = status
         var contentType = contentType
-        var headers:[String:String] = [:]
+        var headers:OrderedDictionary<String, String> = [:]
+        if result.id == "stringWithDateHeader" {
+            headers["Date"] = "Thu, 01 Jan 1970 00:00:00 GMT"
+        }
         var cookies:[any HTTPCookieProtocol] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {

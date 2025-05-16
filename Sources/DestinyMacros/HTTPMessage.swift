@@ -8,6 +8,7 @@
 #if canImport(DestinyBlueprint) && canImport(DestinyUtilities) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyBlueprint
 import DestinyUtilities
+import OrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -15,7 +16,7 @@ enum HTTPMessage: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var version:HTTPVersion = .v1_1
         var status = HTTPResponseStatus.notImplemented.code
-        var headers:[String:String] = [:]
+        var headers:OrderedDictionary<String, String> = [:]
         var result:(any RouteResultProtocol)? = nil
         var contentType:HTTPMediaType? = nil
         var charset:Charset? = nil

@@ -7,6 +7,7 @@
 
 import DestinyBlueprint
 import DestinyUtilities
+import OrderedCollections
 import SwiftCompression
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -33,7 +34,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         cookies: [any HTTPCookieProtocol] = [],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
@@ -127,7 +128,7 @@ extension DynamicRoute {
                 break
             }
         }
-        var headers:[String:String] = [:]
+        var headers:OrderedDictionary<String, String> = [:]
         var cookies:[any HTTPCookieProtocol] = []
         for middleware in middleware {
             if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
@@ -168,7 +169,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -183,7 +184,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -198,7 +199,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -213,7 +214,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -228,7 +229,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -243,7 +244,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -258,7 +259,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -273,7 +274,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -288,7 +289,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -303,7 +304,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType,
-        headers: [String:String] = [:],
+        headers: OrderedDictionary<String, String> = [:],
         result: any RouteResultProtocol = RouteResult.string(""),
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void

@@ -5,12 +5,13 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
+import OrderedCollections
 import DestinyBlueprint
 
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
 public struct HTTPMessage: HTTPMessageProtocol {
-    public var headers:[String:String]
+    public var headers:OrderedDictionary<String, String>
     public var cookies:[any HTTPCookieProtocol]
     public var result:(any RouteResultProtocol)?
     public var contentType:HTTPMediaType?
@@ -21,7 +22,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
     public init(
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: [String:String],
+        headers: OrderedDictionary<String, String>,
         cookies: [any HTTPCookieProtocol],
         result: (any RouteResultProtocol)?,
         contentType: HTTPMediaType?,

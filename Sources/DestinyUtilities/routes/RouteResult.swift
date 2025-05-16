@@ -17,6 +17,8 @@ import SwiftSyntax
 
 // MARK: RouteResultProtocol
 public protocol RouteResultProtocol: CustomDebugStringConvertible, Sendable {
+    var id: Swift.String { get }
+
     @inlinable
     var count: Int { get }
 
@@ -136,6 +138,8 @@ extension RouteResult {
         switch function.calledExpression.memberAccess?.declName.baseName.text {
         case "string":
             return RouteResult.string(function.arguments.first!.expression.stringLiteral!.string)
+        case "stringWithDateHeader":
+            return RouteResult.stringWithDateHeader(function.arguments.first!.expression.stringLiteral!.string)
         case "json":
             return nil // TODO: fix
         case "bytes":

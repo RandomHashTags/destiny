@@ -5,6 +5,7 @@
 //  Created by Evan Anderson on 10/29/24.
 //
 
+import OrderedCollections
 import DestinyBlueprint
 
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
@@ -33,7 +34,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     var appliesContentType: HTTPMediaType? { get }
     
     /// Response headers this middleware applies to routes.
-    var appliesHeaders: [String:String] { get }
+    var appliesHeaders: OrderedDictionary<String, String> { get }
 
     /// Response cookies this middleware applies to routes.
     var appliesCookies: [Cookie] { get }
@@ -53,7 +54,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus.Code,
-        headers: inout [String:String],
+        headers: inout OrderedDictionary<String, String>,
         cookies: inout [any HTTPCookieProtocol]
     )
 }
@@ -76,7 +77,7 @@ extension StaticMiddlewareProtocol {
         version: inout HTTPVersion,
         contentType: inout HTTPMediaType,
         status: inout HTTPResponseStatus.Code,
-        headers: inout [String:String],
+        headers: inout OrderedDictionary<String, String>,
         cookies: inout [any HTTPCookieProtocol]
     ) {
         if let appliesVersion {

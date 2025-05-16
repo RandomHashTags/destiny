@@ -6,6 +6,7 @@
 //
 
 import DestinyBlueprint
+import OrderedCollections
 import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
@@ -279,7 +280,7 @@ extension HTTPRequestHeader {
 // MARK: SwiftSyntaxMacros
 extension HTTPRequestHeader {
     /// - Returns: The valid headers in a dictionary.
-    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String:String] {
+    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> OrderedDictionary<String, String> {
         guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
             guard let key = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }
             let value = $0.value.stringLiteral?.string ?? ""
@@ -287,7 +288,7 @@ extension HTTPRequestHeader {
         }) else {
             return [:]
         }
-        var headers:[String:String] = [:]
+        var headers:OrderedDictionary<String, String> = [:]
         headers.reserveCapacity(dictionary.count)
         for (key, value) in dictionary {
             headers[key] = value

@@ -25,6 +25,9 @@ let package = Package(
         // Service runtime
         .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.7.0"),
 
+        // Ordered Dictionary
+        .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
+
         // Compression
         .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")
     ],
@@ -58,6 +61,7 @@ let package = Package(
                 "DestinyBlueprint",
                 "DestinyUtilityMacros",
                 .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Collections", package: "swift-collections"),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "SwiftCompression", package: "swift-compression"),
@@ -75,7 +79,8 @@ let package = Package(
             name: "DestinyDefaults",
             dependencies: [
                 "DestinyUtilities",
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
+                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "Collections", package: "swift-collections")
             ]
         ),
         .target(

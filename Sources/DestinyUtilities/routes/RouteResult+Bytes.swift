@@ -20,6 +20,10 @@ extension RouteResult {
             self.value = value
         }
 
+        public var id: Swift.String {
+            "bytes"
+        }
+
         public var debugDescription: Swift.String {
             "RouteResult.bytes(\(value))"
         }

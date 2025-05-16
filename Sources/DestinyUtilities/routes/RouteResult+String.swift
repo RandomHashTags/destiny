@@ -21,6 +21,10 @@ extension RouteResult {
             self.value = value
         }
 
+        public var id: Swift.String {
+            "string"
+        }
+
         public var debugDescription: Swift.String {
             "RouteResult.string(\"\(value)\")"
         }

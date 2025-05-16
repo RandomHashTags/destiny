@@ -7,6 +7,7 @@
 
 import DestinyBlueprint
 import DestinyUtilities
+import OrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -38,7 +39,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     public let appliesVersion:HTTPVersion?
     public let appliesStatus:HTTPResponseStatus.Code?
     public let appliesContentType:HTTPMediaType?
-    public let appliesHeaders:[String:String]
+    public let appliesHeaders:OrderedDictionary<String, String>
     public let appliesCookies:[Cookie]
 
     public init(
@@ -49,7 +50,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: HTTPMediaType? = nil,
-        appliesHeaders: [String:String] = [:],
+        appliesHeaders: OrderedDictionary<String, String> = [:],
         appliesCookies: [Cookie] = []
     ) {
         self.handlesVersions = handlesVersions
@@ -129,7 +130,7 @@ extension StaticMiddleware {
         var appliesVersion:HTTPVersion? = nil
         var appliesStatus:HTTPResponseStatus.Code? = nil
         var appliesContentType:HTTPMediaType? = nil
-        var appliesHeaders:[String:String] = [:]
+        var appliesHeaders:OrderedDictionary<String, String> = [:]
         var appliesCookies:[Cookie] = []
         for argument in function.arguments {
             switch argument.label?.text {
