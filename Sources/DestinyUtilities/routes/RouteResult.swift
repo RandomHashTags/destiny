@@ -17,7 +17,8 @@ import SwiftSyntax
 
 // MARK: RouteResultProtocol
 public protocol RouteResultProtocol: CustomDebugStringConvertible, Sendable {
-    var id: Swift.String { get }
+    static var id: UInt8 { get }
+    var id: UInt8 { get }
 
     @inlinable
     var count: Int { get }
@@ -34,6 +35,10 @@ public protocol RouteResultProtocol: CustomDebugStringConvertible, Sendable {
 
     @inlinable
     func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows
+}
+
+extension RouteResultProtocol {
+    @inlinable public var id: UInt8 { Self.id }
 }
 
 // MARK: RouteResult

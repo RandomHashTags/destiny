@@ -13,15 +13,13 @@ extension RouteResult {
         Self.Bytes(value)
     }
     public struct Bytes: RouteResultProtocol {
+        @inlinable public static var id:UInt8 { 0 }
+
         public let value:[UInt8]
 
         @inlinable
         public init(_ value: [UInt8]) {
             self.value = value
-        }
-
-        public var id: Swift.String {
-            "bytes"
         }
 
         public var debugDescription: Swift.String {

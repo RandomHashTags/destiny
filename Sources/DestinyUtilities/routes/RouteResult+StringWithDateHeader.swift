@@ -14,15 +14,13 @@ extension RouteResult {
     }
 
     public struct StringWithDateHeader: RouteResultProtocol {
+        @inlinable public static var id: UInt8 { 3 }
+
         public var value:Swift.String
 
         @inlinable
         public init(_ value: Swift.String) {
             self.value = value
-        }
-
-        public var id: Swift.String {
-            "stringWithDateHeader"
         }
 
         public var debugDescription: Swift.String {

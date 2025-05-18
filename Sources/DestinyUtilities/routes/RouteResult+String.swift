@@ -14,15 +14,13 @@ extension RouteResult {
     }
 
     public struct String: RouteResultProtocol {
+        @inlinable public static var id:UInt8 { 2 }
+
         public let value:Swift.String
 
         @inlinable
         public init(_ value: Swift.String) {
             self.value = value
-        }
-
-        public var id: Swift.String {
-            "string"
         }
 
         public var debugDescription: Swift.String {

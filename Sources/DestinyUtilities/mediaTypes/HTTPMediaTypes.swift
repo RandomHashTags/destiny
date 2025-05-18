@@ -5,17 +5,19 @@
 //  Created by Evan Anderson on 12/30/24.
 //
 
+import DestinyBlueprint
+
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 #endif
 
+// MARK: HTTPMediaType
 /// All recognized media types by the IANA (https://www.iana.org/assignments/media-types/media-types.xhtml), with additional media types.
 /// 
 /// Additional Media Types
 /// - xGoogleProtobuf & xProtobuf: Protocol Buffers (https://protobuf.dev/)
-// MARK: HTTPMediaType
-public struct HTTPMediaType: CustomDebugStringConvertible, CustomStringConvertible, Hashable, Sendable {
+public struct HTTPMediaType: CustomDebugStringConvertible, Hashable, HTTPMediaTypeProtocol {
     public let type:String
     public let subType:String
 
