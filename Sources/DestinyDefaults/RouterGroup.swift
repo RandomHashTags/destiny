@@ -16,7 +16,7 @@ public struct RouterGroup: RouterGroupProtocol {
     public let prefixEndpoints:[String]
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]
-    public let staticResponses:[DestinyRoutePathType:any StaticRouteResponderProtocol]
+    public let staticResponses:StaticResponderStorage
     public let dynamicResponses:DynamicResponderStorage
 
     public init(
@@ -47,13 +47,12 @@ public struct RouterGroup: RouterGroupProtocol {
         self.prefixEndpoints = prefixEndpoints
         self.staticMiddleware = staticMiddleware
         self.dynamicMiddleware = dynamicMiddleware
-        var staticResponses:[DestinyRoutePathType:any StaticRouteResponderProtocol] = [:]
+        var staticResponses = StaticResponderStorage()
         for var route in staticRoutes {
-            route.path.insert(contentsOf: prefixEndpoints, at: 0)
+            route.insertPath(contentsOf: prefixEndpoints, at: 0)
             do {
                 if let responder = try route.responder(context: nil, function: nil, middleware: staticMiddleware) {
-                    let string = route.startLine
-                    staticResponses[DestinyRoutePathType(string)] = responder
+                    staticResponses.register(path: DestinyRoutePathType(route.startLine), responder)
                 }
             } catch {
                 // TODO: do something
@@ -84,7 +83,7 @@ public struct RouterGroup: RouterGroupProtocol {
         prefixEndpoints: [String],
         staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [any DynamicMiddlewareProtocol],
-        staticResponses: [DestinyRoutePathType:any StaticRouteResponderProtocol],
+        staticResponses: StaticResponderStorage,
         dynamicResponses: DynamicResponderStorage
     ) {
         self.prefixEndpoints = prefixEndpoints
@@ -105,17 +104,12 @@ public struct RouterGroup: RouterGroupProtocol {
             dynamicMiddlewareString.removeLast()
             dynamicMiddlewareString += "\n" + dynamicMiddleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
         }
-        var staticResponsesString = "[]"
-        if !staticResponses.isEmpty {
-            staticResponsesString.removeLast()
-            staticResponsesString += "\n" + staticResponses.map({ "// \($0.key.stringSIMD())\n\($0.key) : " + $0.value.debugDescription }).joined(separator: ",\n") + "\n]"
-        }
         return """
         RouterGroup(
             prefixEndpoints: \(prefixEndpoints),
             staticMiddleware: \(staticMiddlewareString),
             dynamicMiddleware: \(dynamicMiddlewareString),
-            staticResponses: \(staticResponsesString),
+            staticResponses: \(staticResponses.debugDescription),
             dynamicResponses: \(dynamicResponses.debugDescription)
         )
         """
@@ -132,8 +126,7 @@ extension RouterGroup {
         socket: borrowing Socket,
         request: inout any RequestProtocol
     ) async throws -> Bool {
-        if let responder = staticResponses[request.startLine] {
-            try await router.respondStatically(socket: socket, responder: responder)
+        if try await staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
         } else if let responder = dynamicResponses.responder(for: &request) {
             try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)

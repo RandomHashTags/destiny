@@ -39,6 +39,18 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         #endif
     }
 
+    public var debugDescription: String { // TODO: support foundationData
+        """
+        StaticResponderStorage(
+            staticStrings: \(staticStrings.debugDescription),
+            strings: \(strings.debugDescription),
+            stringsWithDateHeader: \(stringsWithDateHeader.debugDescription),
+            uint8Arrays: \(uint8Arrays.debugDescription),
+            uint16Arrays: \(uint16Arrays.debugDescription)
+        )
+        """
+    }
+
     @inlinable
     public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
         router: borrowing Router,
@@ -67,5 +79,48 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
             #endif
         }
         return true
+    }
+}
+
+// MARK: Register
+extension StaticResponderStorage {
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: any RouteResponderProtocol) {
+        if let responder = responder as? RouteResponses.StaticString {
+            register(path: path, responder)
+        }
+        if let responder = responder as? RouteResponses.String {
+            register(path: path, responder)
+        }
+        if let responder = responder as? RouteResponses.StringWithDateHeader {
+            register(path: path, responder)
+        }
+        if let responder = responder as? RouteResponses.UInt8Array {
+            register(path: path, responder)
+        }
+        if let responder = responder as? RouteResponses.UInt16Array {
+            register(path: path, responder)
+        }
+    }
+
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.StaticString) {
+        staticStrings[path] = responder
+    }
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.String) {
+        strings[path] = responder
+    }
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.StringWithDateHeader) {
+        stringsWithDateHeader[path] = responder
+    }
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.UInt8Array) {
+        uint8Arrays[path] = responder
+    }
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.UInt16Array) {
+        uint16Arrays[path] = responder
     }
 }

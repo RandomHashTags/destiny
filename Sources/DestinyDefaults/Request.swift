@@ -56,7 +56,7 @@ extension Request {
     public init?<Socket: SocketProtocol & ~Copyable>(socket: borrowing Socket) throws {
         var path:[String] = []
         var headers:[String:String] = [:]
-        var startLine:DestinyRoutePathType = .init()
+        var startLine = DestinyRoutePathType()
         var newStartLine:HTTPStartLine! = nil
         while true {
             let (buffer, read) = try socket.readBuffer()

@@ -72,6 +72,16 @@ public struct StaticRoute: StaticRouteProtocol {
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
     }
 
+    @inlinable
+    public var startLine: String {
+        return method.rawName.string() + " /" + path.joined(separator: "/") + " " + version.string
+    }
+
+    @inlinable
+    public mutating func insertPath<C: Collection<String>>(contentsOf newElements: C, at i: Int) {
+        path.insert(contentsOf: newElements, at: i)
+    }
+
     public var debugDescription: String {
         """
         StaticRoute(

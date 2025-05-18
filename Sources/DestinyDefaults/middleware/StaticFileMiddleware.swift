@@ -38,8 +38,9 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol {
     ) throws -> [StaticRoute] {
         #if canImport(FoundationEssentials) || canImport(Foundation)
         return try routesFoundation(version: version, method: method, charset: charset, supportedCompressionAlgorithms: supportedCompressionAlgorithms, path: filePath, endpoint: endpoint)
-        #endif
+        #else
         return []
+        #endif
     }
 }
 
@@ -66,7 +67,7 @@ extension StaticFileMiddleware {
             let paths = try FileManager.default.contentsOfDirectory(atPath: path)
             print("paths=\(paths)")
             return []
-            return try paths.flatMap({
+            /*return try paths.flatMap({
                 let slug = String($0.split(separator: "/").last ?? "")
                 return try routesFoundation(
                     version: version,
@@ -76,12 +77,12 @@ extension StaticFileMiddleware {
                     path: $0,
                     endpoint: endpoint + "/" + slug
                 )
-            })
+            })*/
         } else {
-            let url = URL(filePath: path)
+            /*let url = URL(filePath: path)
             let contentType = HTTPMediaType.parse(fileExtension: url.pathExtension.lowercased()) ?? HTTPMediaType.textPlain
             let result:RouteResult = try .data(Data(contentsOf: url))
-            /*var route = StaticRoute(
+            var route = StaticRoute(
                 version: version,
                 method: method,
                 path: [],

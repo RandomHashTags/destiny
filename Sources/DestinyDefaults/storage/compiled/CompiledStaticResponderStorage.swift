@@ -44,6 +44,10 @@ public struct CompiledStaticResponderStorage<
         #endif
     }
 
+    public var debugDescription: String {
+        "" // TODO: finish
+    }
+
     @inlinable
     public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
         router: borrowing Router,

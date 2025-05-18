@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 3/2/25.
 //
 
-public protocol StaticResponderStorageProtocol: Sendable {
+public protocol StaticResponderStorageProtocol: CustomDebugStringConvertible, Sendable {
     /// - Returns: Whether or not a responder was found for the `startLine`.
     @inlinable
     func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(

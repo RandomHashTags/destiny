@@ -11,8 +11,9 @@ import SwiftSyntaxMacros
 
 /// Core Static Route protocol where a complete HTTP Message is computed at compile time.
 public protocol StaticRouteProtocol: RouteProtocol {
-    /// Path of this route.
-    var path: [String] { get set }
+    var startLine: String { get }
+
+    mutating func insertPath<C: Collection<String>>(contentsOf newElements: C, at i: Int)
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
     /// The HTTP Message of this route.
@@ -54,11 +55,4 @@ public protocol StaticRouteProtocol: RouteProtocol {
         _ function: FunctionCallExprSyntax
     ) -> Self?
     #endif
-}
-
-extension StaticRouteProtocol {
-    @inlinable
-    public var startLine: String {
-        return method.rawName.string() + " /" + path.joined(separator: "/") + " " + version.string
-    }
 }
