@@ -5,7 +5,7 @@
 //  Created by Evan Anderson on 11/8/24.
 //
 
-import DestinyUtilities
+import DestinyDefaults
 import Testing
 
 struct SIMDTests {

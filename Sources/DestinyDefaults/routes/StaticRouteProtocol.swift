@@ -28,7 +28,7 @@ public protocol StaticRouteProtocol: RouteProtocol {
         context: MacroExpansionContext?,
         function: FunctionCallExprSyntax?,
         middleware: [any StaticMiddlewareProtocol]
-    ) -> HTTPMessage
+    ) -> any HTTPMessageProtocol
 
     /// The `StaticRouteResponderProtocol` responder for this route.
     /// 

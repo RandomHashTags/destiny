@@ -12,7 +12,6 @@ import Foundation
 #endif
 
 import DestinyBlueprint
-import DestinyUtilities
 import SwiftCompression
 
 // MARK: StaticFileMiddleware

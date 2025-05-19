@@ -5,8 +5,8 @@
 //  Created by Evan Anderson on 12/24/24.
 //
 
-import OrderedCollections
 import DestinyBlueprint
+import OrderedCollections
 
 // MARK: HTTPMessage
 /// Default storage for an HTTP Message.
@@ -38,7 +38,17 @@ public struct HTTPMessage: HTTPMessageProtocol {
     }
 
     public var debugDescription: String {
-        "HTTPMessage(version: .\(version), status: \(status), headers: \(headers), cookies: \(cookies), result: \(result?.debugDescription ?? "nil"), contentType: \(contentType?.debugDescription ?? "nil"), charset: \(charset?.debugDescription ?? "nil"))" // TODO: fix
+        """
+        HTTPMessage(
+            version: .\(version),
+            status: \(status),
+            headers: \(headers),
+            cookies: \(cookies),
+            result: \(result?.debugDescription ?? "nil"),
+            contentType: \(contentType?.debugDescription ?? "nil"),
+            charset: \(charset?.debugDescription ?? "nil")
+        )
+        """
     }
 
     /// - Parameters:

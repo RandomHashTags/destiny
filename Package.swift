@@ -7,7 +7,20 @@ let package = Package(
     name: "destiny",
     products: [
         .library(name: "Destiny", targets: ["Destiny"]),
-        .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"])
+        .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
+        .library(name: "DestinyDefaults", targets: ["DestinyDefaults"])
+    ],
+    traits: [
+        .default(enabledTraits: ["Destiny"]),
+        .trait(
+            name: "DestinyDefaults",
+            description: "Default Destiny features, excluding a functional HTTP Server."
+        ),
+        .trait(
+            name: "Destiny",
+            description: "Default Destiny experience with the default features and a functional HTTP Server.",
+            enabledTraits: ["DestinyDefaults"]
+        )
     ],
     dependencies: [
         // Macros
@@ -42,6 +55,7 @@ let package = Package(
             ]
         ),
 
+        // MARK: DestinyBlueprint
         .target(
             name: "DestinyBlueprint",
             dependencies: [
@@ -55,8 +69,9 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
             ]
         ),
+        // MARK: DestinyDefaults
         .target(
-            name: "DestinyUtilities",
+            name: "DestinyDefaults",
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyUtilityMacros",
@@ -68,27 +83,14 @@ let package = Package(
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
-            ],
-            swiftSettings: [
-                // TODO: test when 6.1 is released (`String` and a lot of relevant protocols got supported)
-                //.unsafeFlags(["-wmo"]),
-                //.enableExperimentalFeature("Embedded")
             ]
         ),
-        .target(
-            name: "DestinyDefaults",
-            dependencies: [
-                "DestinyUtilities",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
-                .product(name: "Collections", package: "swift-collections")
-            ]
-        ),
+        // MARK: Destiny
         .target(
             name: "Destiny",
             dependencies: [
                 "DestinyMacros",
                 "DestinyDefaults",
-                "DestinyUtilities",
                 .product(name: "ArgumentParser", package: "swift-argument-parser")
             ]
         ),
@@ -98,7 +100,6 @@ let package = Package(
             dependencies: [
                 "DestinyUtilityMacros",
                 "DestinyDefaults",
-                "DestinyUtilities",
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),

@@ -1,13 +1,8 @@
-//
-//  Utilities.swift
-//
-//
-//  Created by Evan Anderson on 10/17/24.
-//
-
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+public typealias DestinyRoutePathType = SIMD64<UInt8>
 
 @freestanding(declaration, names: arbitrary)
 macro HTTPFieldContentType(
@@ -24,5 +19,3 @@ struct HTTPFieldContentTypeDetails {
         self.fileExtensions = fileExtensions
     }
 }
-
-public typealias DestinyRoutePathType = SIMD64<UInt8>

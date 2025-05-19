@@ -6,7 +6,6 @@
 //
 
 import DestinyBlueprint
-import DestinyUtilities
 import OrderedCollections
 import SwiftCompression
 import SwiftDiagnostics
@@ -102,11 +101,11 @@ public struct StaticRoute: StaticRouteProtocol {
         context: MacroExpansionContext?,
         function: FunctionCallExprSyntax?,
         middleware: [any StaticMiddlewareProtocol]
-    ) -> HTTPMessage {
+    ) -> any HTTPMessageProtocol {
         var version = version
         var status = status
         var contentType = contentType
-        var headers:OrderedDictionary<String, String> = [:]
+        var headers = OrderedDictionary<String, String>()
         if result.id == RouteResult.StringWithDateHeader.id {
             headers["Date"] = "Thu, 01 Jan 1970 00:00:00 GMT"
         }

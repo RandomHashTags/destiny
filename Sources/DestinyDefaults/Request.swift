@@ -6,7 +6,6 @@
 //
 
 import DestinyBlueprint
-import DestinyUtilities
 
 /// Default storage for request data.
 public struct Request: RequestProtocol {

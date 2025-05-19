@@ -9,7 +9,6 @@ import HTTPTypes
 import ServiceLifecycle
 import Logging
 //import Destiny
-//import DestinyUtilities
 import Hummingbird
 import Vapor
 

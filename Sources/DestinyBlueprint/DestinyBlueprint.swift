@@ -34,7 +34,7 @@ package struct DiagnosticMsg: DiagnosticMessage {
 
     package init(id: String, message: String, severity: DiagnosticSeverity = .error) {
         self.message = message
-        self.diagnosticID = MessageID(domain: "DestinyUtilities", id: id)
+        self.diagnosticID = MessageID(domain: "DestinyBlueprint", id: id)
         self.severity = severity
     }
 }

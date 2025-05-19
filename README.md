@@ -23,9 +23,9 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [x] Configure settings via Command Line Arguments <b>(Dec 11, 2024)</b>
 - [x] Redirects <b>(Dec 11, 2024 | dynamic redirects need a little more work)</b>
 - [x] Compression <b>(Dec 24, 2024 | see [Swift Compression](https://github.com/RandomHashTags/swift-compression))</b>
-- [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ConditionalRouteResponderProtocol.swift))</b>
+- [x] Hybrid Routes <b>(Dec 24, 2024 | see [ConditionalRouteResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyBlueprint/responders/ConditionalRouteResponderProtocol.swift))</b>
 - [x] Router Groups <b>(Dec 27, 2024)</b>
-- [x] Error Middleware <b>(Dec 29, 2024 | see [ErrorResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyUtilities/routes/responders/ErrorResponderProtocol.swift))</b>
+- [x] Error Middleware <b>(Dec 29, 2024 | see [ErrorResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyBlueprint/responders/ErrorResponderProtocol.swift))</b>
 - [x] Commands <b>(Dec 31, 2024)</b>
 - [x] Case insensitive routes <b>(Feb 19, 2025 | dynamic routes need a little more work)</b>
 - [x] Routes with wildcards <b>(Feb 19, 2025)</b>

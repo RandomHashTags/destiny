@@ -6,7 +6,6 @@
 //
 
 import DestinyBlueprint
-import DestinyUtilities
 
 public struct CompiledRouterResponderStorage<
         let staticStringsCount: Int,
@@ -45,7 +44,7 @@ public struct CompiledRouterResponderStorage<
             return true
         }
         if let responder = conditional[request.startLine] {
-            return try await responder.respond(router: router, socket: socket, request: &request)
+            return try await responder.respond(router: router, received: received, loaded: loaded, socket: socket, request: &request)
         }
         return false
     }

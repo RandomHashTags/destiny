@@ -6,7 +6,6 @@
 //
 
 import DestinyBlueprint
-import DestinyUtilities
 import SwiftCompression
 
 /// Default Conditional Route Responder implementation where multiple responders are computed at compile time, but only one should be selected based on the request.
@@ -47,6 +46,8 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     @inlinable
     public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
         router: borrowing Router,
+        received: ContinuousClock.Instant,
+        loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
         request: inout any RequestProtocol
     ) async throws -> Bool {
@@ -61,6 +62,7 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
                 let responder = dynamicResponders[index]
                 var response = responder.defaultResponse
                 try await responder.respond(to: socket, request: &request, response: &response)
+                //try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: dynamicResponders[index])
                 return true
             }
         }

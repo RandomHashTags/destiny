@@ -5,9 +5,9 @@
 //  Created by Evan Anderson on 11/6/24.
 //
 
-#if canImport(DestinyBlueprint) && canImport(DestinyUtilities) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+#if canImport(DestinyBlueprint) && canImport(DestinyDefaults) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyBlueprint
-import DestinyUtilities
+import DestinyDefaults
 import OrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -42,7 +42,7 @@ enum HTTPMessage: DeclarationMacro {
             }
         }
         do {
-            var response = try DestinyUtilities.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
+            var response = try DestinyDefaults.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
             response = "\"" + response + "\""
             return ["\(raw: response)"]
         } catch {

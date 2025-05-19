@@ -5,10 +5,9 @@
 //  Created by Evan Anderson on 10/17/24.
 //
 
-#if canImport(DestinyDefaults) && canImport(DestinyBlueprint) && canImport(DestinyUtilities) && canImport(SwiftCompression) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+#if canImport(DestinyDefaults) && canImport(DestinyBlueprint) && canImport(SwiftCompression) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyDefaults
 import DestinyBlueprint
-import DestinyUtilities
 import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
@@ -308,7 +307,15 @@ extension Router.Storage {
                         default: break
                         }
                     } else {
-                        Router.conditionalRoute(context: context, conditionalResponders: &conditionalResponders, route: route, function: function, string: string, buffer: buffer, httpResponse: httpResponse)
+                        Router.conditionalRoute(
+                            context: context,
+                            conditionalResponders: &conditionalResponders,
+                            route: route,
+                            function: function,
+                            string: string,
+                            buffer: buffer,
+                            httpResponse: httpResponse as! DestinyDefaults.HTTPMessage // TODO: fix
+                        )
                     }
                 }
             } catch {
@@ -344,7 +351,7 @@ extension Router {
         function: FunctionCallExprSyntax,
         string: String,
         buffer: DestinyRoutePathType,
-        httpResponse: DestinyUtilities.HTTPMessage
+        httpResponse: DestinyDefaults.HTTPMessage
     ) {
         guard let result = httpResponse.result else { return }
         let body:[UInt8]
@@ -365,8 +372,8 @@ extension Router {
                 do {
                     let compressed = try body.compressed(using: technique)
                     httpResponse.result = RouteResult.bytes(compressed.data)
-                    httpResponse.headers[HTTPResponseHeader.contentEncoding.rawNameString] = algorithm.acceptEncodingName
-                    httpResponse.headers[HTTPResponseHeader.vary.rawNameString] = HTTPRequestHeader.acceptEncoding.rawNameString
+                    httpResponse.setHeader(key: HTTPResponseHeader.contentEncoding.rawNameString, value: algorithm.acceptEncodingName)
+                    httpResponse.setHeader(key: HTTPResponseHeader.vary.rawNameString, value: HTTPRequestHeader.acceptEncoding.rawNameString)
                     do {
                         let bytes = try httpResponse.string(escapeLineBreak: false)
                         responder.staticConditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"

@@ -6,7 +6,6 @@
 //
 
 import DestinyBlueprint
-import DestinyUtilities
 
 /// Default storage that handles static routes.
 public struct StaticResponderStorage: StaticResponderStorageProtocol {

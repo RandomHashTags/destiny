@@ -7,7 +7,6 @@
 
 @_exported import DestinyBlueprint
 @_exported import DestinyDefaults
-@_exported import DestinyUtilities
 import SwiftCompression
 
 /// Default macro to create a `Router`.

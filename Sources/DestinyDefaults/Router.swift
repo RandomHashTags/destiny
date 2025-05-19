@@ -10,7 +10,6 @@ import Foundation
 #endif
 
 import DestinyBlueprint
-import DestinyUtilities
 import Logging
 
 public typealias DefaultRouter = Router<

@@ -6,7 +6,6 @@
 //
 
 import DestinyBlueprint
-import DestinyUtilities
 import OrderedCollections
 import SwiftCompression
 import SwiftSyntax

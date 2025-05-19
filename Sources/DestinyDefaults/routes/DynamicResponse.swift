@@ -6,7 +6,6 @@
 //
 
 import DestinyBlueprint
-import DestinyUtilities
 
 public struct DynamicResponse: DynamicResponseProtocol {
     public var timestamps:DynamicRequestTimestamps
