@@ -71,15 +71,20 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
             parameterized[route.path.count].append(responder)
         }
     }
+}
 
+// MARK: Respond
+extension DynamicResponderStorage {
     @inlinable
-    public func respond<Socket: SocketProtocol & ~Copyable>(
-        to socket: borrowing Socket,
-        request: inout any RequestProtocol,
-        response: inout any DynamicResponseProtocol
+    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        received: ContinuousClock.Instant,
+        loaded: ContinuousClock.Instant,
+        socket: borrowing Socket,
+        request: inout any RequestProtocol
     ) async throws -> Bool {
         guard let responder = responder(for: &request) else { return false }
-        try await responder.respond(to: socket, request: &request, response: &response)
+        try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
         return true
     }
 }

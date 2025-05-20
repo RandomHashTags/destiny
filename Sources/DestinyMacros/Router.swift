@@ -13,9 +13,53 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-// MARK: Router
+// MARK: ExpressionMacro
 enum Router: ExpressionMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
+        return "\(raw: compute(arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context))"
+    }
+    private static func routeResponderStorage(staticResponses: String, dynamicResponses: String, conditionalResponses: String) -> String {
+        var string = "RouterResponderStorage("
+        string += "\nstatic: \(staticResponses),"
+        string += "\ndynamic: \(dynamicResponses),"
+        string += "\nconditional: [\(conditionalResponses)]"
+        string += "\n)"
+        return string
+    }
+}
+
+// MARK: DeclarationMacro
+extension Router: DeclarationMacro {
+    static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
+        var mutable = false
+        var typeAnnotation:String? = nil
+        let arguments = node.as(ExprSyntax.self)!.macroExpansion!.arguments
+        for argument in arguments {
+            switch argument.label?.text {
+            case "mutable":
+                mutable = argument.expression.booleanIsTrue
+            case "typeAnnotation":
+                typeAnnotation = argument.expression.stringLiteral?.string
+            default:
+                break
+            }
+        }
+        let computed = compute(arguments: arguments, context: context)
+        var string = (mutable ? "var" : "let") + " router"
+        if let typeAnnotation {
+            string += ":" + typeAnnotation
+        }
+        string += " = " + computed
+        return [.init(stringLiteral: string)]
+    }
+}
+
+// MARK: Compute
+extension Router {
+    static func compute(
+        arguments: LabeledExprListSyntax,
+        context: some MacroExpansionContext
+    ) -> String {
         var version = HTTPVersion.v1_1
         var errorResponder = """
             StaticErrorResponder { error in
@@ -27,7 +71,7 @@ enum Router: ExpressionMacro {
         var dynamicNotFoundResponder = "nil"
         var staticNotFoundResponder = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
         var storage = Storage()
-        for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
+        for child in arguments {
             if let key = child.label?.text {
                 switch key {
                 case "version":
@@ -135,18 +179,11 @@ enum Router: ExpressionMacro {
         string += "\ndynamicMiddleware: [\(storage.dynamicMiddlewareString())],"
         string += "\nrouterGroups: [\(routerGroupsString)]"
         string += "\n)"
-        return "\(raw: string)"
-    }
-    private static func routeResponderStorage(staticResponses: String, dynamicResponses: String, conditionalResponses: String) -> String {
-        var string = "RouterResponderStorage("
-        string += "\nstatic: \(staticResponses),"
-        string += "\ndynamic: \(dynamicResponses),"
-        string += "\nconditional: [\(conditionalResponses)]"
-        string += "\n)"
         return string
     }
 }
 
+// MARK: Diagnostics
 extension Router {
     static func routePathAlreadyRegistered(context: some MacroExpansionContext, node: some SyntaxProtocol, _ string: String) {
         context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "routePathAlreadyRegistered", message: "Route path (\(string)) already registered.")))
@@ -251,9 +288,15 @@ extension Router {
 
 // MARK: Static routes string
 extension Router.Storage {
+    struct Route {
+        let path:String
+        let buffer:DestinyRoutePathType
+        let responder:String
+    }
     mutating func static_routes_string(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
+        isCompiled: Bool = true,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [StaticMiddleware],
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
@@ -264,6 +307,11 @@ extension Router.Storage {
         var stringsWithDateHeader:[String] = []
         var uint8Arrays:[String] = []
         var uint16Arrays:[String] = []
+        let getResponderValue:(Router.Storage.Route) -> String = isCompiled ? {
+            return "// \($0.path)\n.init(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
+        } : {
+            return "// \($0.path)\n\($0.buffer)\n: " + $0.responder
+        }
         if !redirects.isEmpty {
             for (route, function) in redirects {
                 do {
@@ -277,7 +325,7 @@ extension Router.Storage {
                         registeredPaths.insert(string)
                         let buffer = DestinyRoutePathType(&string)
                         let responder = try RouteResult.string(route.response()).responderDebugDescription
-                        strings.append("// \(string)\n\(buffer)\n: " + responder)
+                        strings.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
                     }
                 } catch {
                 }
@@ -297,7 +345,7 @@ extension Router.Storage {
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
                         let responder = try route.result.responderDebugDescription(httpResponse)
-                        let value = "// \(string)\n\(buffer)\n: " + responder
+                        let value:String = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
                         switch responder.split(separator: "(").first {
                         case "RouteResponses.StaticString": staticStrings.append(value)
                         case "RouteResponses.String": strings.append(value)
@@ -323,22 +371,18 @@ extension Router.Storage {
             }
         }
         var values:[String] = []
-        if !staticStrings.isEmpty {
-            values.append("staticStrings: [\n" + staticStrings.joined(separator: ",\n") + "\n]")
-        }
-        if !strings.isEmpty {
-            values.append("strings: [\n" + strings.joined(separator: ",\n") + "\n]")
-        }
-        if !stringsWithDateHeader.isEmpty {
-            values.append("stringsWithDateHeader: [\n" + stringsWithDateHeader.joined(separator: ",\n") + "\n]")
-        }
-        if !uint8Arrays.isEmpty {
-            values.append("uint8Arrays: [\n" + uint8Arrays.joined(separator: ",\n") + "\n]")
-        }
-        if !uint16Arrays.isEmpty {
-            values.append("uint16Arrays: [\n" + uint16Arrays.joined(separator: ",\n") + "\n]")
-        }
-        return "StaticResponderStorage(" + (values.isEmpty ? "" : "\n" + values.joined(separator: ",\n") + "\n") + ")"
+        let separator:String = isCompiled ? "" : ":"
+        let staticStringsValue = staticStrings.isEmpty ? separator : "\n" + staticStrings.joined(separator: ",\n") + "\n"
+        let stringsValue = strings.isEmpty ? separator : "\n" + strings.joined(separator: ",\n") + "\n"
+        let stringsWithDateHeaderValue = stringsWithDateHeader.isEmpty ? separator : "\n" + stringsWithDateHeader.joined(separator: ",\n") + "\n"
+        let uint8ArraysValue = uint8Arrays.isEmpty ? separator : "\n" + uint8Arrays.joined(separator: ",\n") + "\n"
+        let uint16ArraysValue = uint16Arrays.isEmpty ? separator : "\n" + uint16Arrays.joined(separator: ",\n") + "\n"
+        values.append("staticStrings: [" + staticStringsValue + "]")
+        values.append("strings: [" + stringsValue + "]")
+        values.append("stringsWithDateHeader: [" + stringsWithDateHeaderValue + "]")
+        values.append("uint8Arrays: [" + uint8ArraysValue + "]")
+        values.append("uint16Arrays: [" + uint16ArraysValue + "]")
+        return (isCompiled ? "Compiled" : "") + "StaticResponderStorage(" + (values.isEmpty ? "" : "\n" + values.joined(separator: ",\n") + "\n") + ")"
     }
 }
 

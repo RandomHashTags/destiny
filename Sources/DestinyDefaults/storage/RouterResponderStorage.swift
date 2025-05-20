@@ -7,7 +7,10 @@
 
 import DestinyBlueprint
 
-public struct RouterResponderStorage: RouterResponderStorageProtocol {
+public struct RouterResponderStorage<
+        StaticResponderStorage: StaticResponderStorageProtocol,
+        DynamicResponderStorage: DynamicResponderStorageProtocol
+    >: RouterResponderStorageProtocol {
     public var `static`:StaticResponderStorage
     public var dynamic:DynamicResponderStorage
     public var conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
@@ -34,8 +37,7 @@ public struct RouterResponderStorage: RouterResponderStorageProtocol {
         if try await respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
         }
-        if let responder = dynamic.responder(for: &request) {
-            try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
+        if try await respondDynamically(router: router, received: received, loaded: loaded, socket: socket, request: &request) {
             return true
         }
         if let responder = conditional[request.startLine] {
@@ -63,8 +65,6 @@ extension RouterResponderStorage {
         socket: borrowing Socket,
         request: inout any RequestProtocol,
     ) async throws -> Bool {
-        guard let responder = dynamic.responder(for: &request) else { return false }
-        try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
-        return true
+        return try await dynamic.respond(router: router, received: received, loaded: loaded, socket: socket, request: &request)
     }
 }

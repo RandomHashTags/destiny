@@ -10,16 +10,17 @@ import DestinyBlueprint
 public struct CompiledRouterResponderStorage<
         let staticStringsCount: Int,
         let stringsCount: Int,
+        let stringsWithDateHeaderCount: Int,
         let uint8ArraysCount: Int,
         let uint16ArraysCount: Int
     >: RouterResponderStorageProtocol {
-    public let `static`:CompiledStaticResponderStorage<staticStringsCount, stringsCount, uint8ArraysCount, uint16ArraysCount>
+    public let `static`:CompiledStaticResponderStorage<staticStringsCount, stringsCount, stringsWithDateHeaderCount, uint8ArraysCount, uint16ArraysCount>
     public let dynamic:DynamicResponderStorage
     public let conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
 
     @inlinable
     public init(
-        static: CompiledStaticResponderStorage<staticStringsCount, stringsCount, uint8ArraysCount, uint16ArraysCount>,
+        static: CompiledStaticResponderStorage<staticStringsCount, stringsCount, stringsWithDateHeaderCount, uint8ArraysCount, uint16ArraysCount>,
         dynamic: DynamicResponderStorage,
         conditional: [DestinyRoutePathType:any ConditionalRouteResponderProtocol]
     ) {

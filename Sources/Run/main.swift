@@ -15,8 +15,9 @@ import Destiny
 import Logging
 import SwiftCompression
 
-let router:DefaultRouter = #router(
+#declareRouter(
     version: .v1_1,
+    dynamicNotFoundResponder: Optional<DynamicRouteResponder>.none,
     supportedCompressionAlgorithms: [],
     middleware: [
         StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"]),
@@ -181,7 +182,7 @@ let router:DefaultRouter = #router(
         }
     )
 )
-let server = try Server<Router, Socket>(
+/*let server = try Server<Router, Socket>(
     port: 8080,
     router: router,
     logger: Logger(label: "destiny.http.server"),
@@ -196,7 +197,7 @@ let application = Application(
 Task.detached(priority: .userInitiated) {
     try await HTTPDateFormat.shared.load(logger: application.logger)
 }
-try await application.run()
+try await application.run()*/
 
 struct StaticJSONResponse: Encodable {
     let this_outcome_was_inevitable_and_was_your_destiny:Bool

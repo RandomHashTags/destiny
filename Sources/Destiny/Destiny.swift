@@ -35,6 +35,22 @@ public macro router<T: RouterProtocol>(
     _ routes: any RouteProtocol...
 ) -> T = #externalMacro(module: "DestinyMacros", type: "Router")
 
+@freestanding(declaration, names: named(router))
+public macro declareRouter(
+    mutable: Bool = false,
+    typeAnnotation: String? = nil,
+
+    version: HTTPVersion,
+    errorResponder: (any ErrorResponderProtocol)? = nil,
+    dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
+    staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
+    supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
+    middleware: [any MiddlewareProtocol],
+    redirects: [HTTPRequestMethod: [HTTPResponseStatus.Code: [String:String]]] = [:],
+    routerGroups: [any RouterGroupProtocol] = [],
+    _ routes: any RouteProtocol...
+) = #externalMacro(module: "DestinyMacros", type: "Router")
+
 
 /// A convenience macro to create a complete HTTP Message at compile time.
 @freestanding(expression)

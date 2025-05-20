@@ -13,6 +13,8 @@ import DestinyBlueprint
 import Logging
 
 public typealias DefaultRouter = Router<
+    StaticResponderStorage,     // ConcreteStaticResponderStorage
+    DynamicResponderStorage,    // ConcreteDynamicResponderStorage
     StaticErrorResponder,       // ConcreteErrorResponder
     DynamicRouteResponder,      // ConcreteDynamicNotFoundResponder
     RouteResponses.StaticString // ConcreteStaticNotFoundResponder
@@ -20,12 +22,14 @@ public typealias DefaultRouter = Router<
 
 /// Default Router implementation that handles middleware, routes and router groups.
 public struct Router<
+        ConcreteStaticResponderStorage: StaticResponderStorageProtocol,
+        ConcreteDynamicResponderStorage: DynamicResponderStorageProtocol,
         ConcreteErrorResponder: ErrorResponderProtocol,
         ConcreteDynamicNotFoundResponder: DynamicRouteResponderProtocol,
         ConcreteStaticNotFoundResponder: StaticRouteResponderProtocol
     >: RouterProtocol {
-    public private(set) var caseSensitiveResponders:RouterResponderStorage
-    public private(set) var caseInsensitiveResponders:RouterResponderStorage
+    public private(set) var caseSensitiveResponders:RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>
+    public private(set) var caseInsensitiveResponders:RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>
 
     public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
     public var dynamicMiddleware:[any DynamicMiddlewareProtocol]
@@ -41,10 +45,10 @@ public struct Router<
     public init(
         version: HTTPVersion,
         errorResponder: ConcreteErrorResponder,
-        dynamicNotFoundResponder: ConcreteDynamicNotFoundResponder? = nil,
+        dynamicNotFoundResponder: ConcreteDynamicNotFoundResponder?,
         staticNotFoundResponder: ConcreteStaticNotFoundResponder,
-        caseSensitiveResponders: RouterResponderStorage,
-        caseInsensitiveResponders: RouterResponderStorage,
+        caseSensitiveResponders: RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>,
+        caseInsensitiveResponders: RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>,
         staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [any DynamicMiddlewareProtocol],
         routerGroups: [any RouterGroupProtocol]
