@@ -52,7 +52,7 @@ extension RouterResponderStorage {
     public func respondStatically<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
         router: borrowing Router,
         socket: borrowing Socket,
-        startLine: DestinyRoutePathType
+        startLine: SIMD64<UInt8>
     ) async throws -> Bool {
         return try await `static`.respond(router: router, socket: socket, startLine: startLine)
     }

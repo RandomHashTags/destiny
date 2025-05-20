@@ -91,6 +91,7 @@ public struct CompiledStaticResponderStorage<
             }
         }
         for i in stringsWithDateHeader.indices {
+            //print("stringsWithDateHeader.itemAt(i).path=\(stringsWithDateHeader.itemAt(index: i).path.stringSIMD());areEqual=\(stringsWithDateHeader.itemAt(index: i).path == startLine)")
             if stringsWithDateHeader.itemAt(index: i).path == startLine {
                 try await router.respondStatically(socket: socket, responder: stringsWithDateHeader.itemAt(index: i).responder)
                 return true

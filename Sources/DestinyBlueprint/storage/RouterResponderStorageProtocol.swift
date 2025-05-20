@@ -14,4 +14,20 @@ public protocol RouterResponderStorageProtocol: Sendable {
         socket: borrowing Socket,
         request: inout any RequestProtocol
     ) async throws -> Bool
+
+    @inlinable
+    func respondStatically<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        socket: borrowing Socket,
+        startLine: SIMD64<UInt8>
+    ) async throws -> Bool
+
+    @inlinable
+    func respondDynamically<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
+        router: borrowing Router,
+        received: ContinuousClock.Instant,
+        loaded: ContinuousClock.Instant,
+        socket: borrowing Socket,
+        request: inout any RequestProtocol,
+    ) async throws -> Bool
 }

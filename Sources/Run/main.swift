@@ -182,15 +182,15 @@ import SwiftCompression
         }
     )
 )
-/*let server = try Server<Router, Socket>(
+/*let server = try Server<Router, Socket>( // compile problem
     port: 8080,
     router: router,
     logger: Logger(label: "destiny.http.server"),
     commands: [
         StopCommand.self
     ]
-)
-let application = Application(
+)*/
+/*let application = Application(
     server: server,
     logger: Logger(label: "destiny.application")
 )

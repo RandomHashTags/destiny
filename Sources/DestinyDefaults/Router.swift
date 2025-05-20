@@ -13,8 +13,8 @@ import DestinyBlueprint
 import Logging
 
 public typealias DefaultRouter = Router<
-    StaticResponderStorage,     // ConcreteStaticResponderStorage
-    DynamicResponderStorage,    // ConcreteDynamicResponderStorage
+    RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseSensitiveRouterResponderStorage
+    RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseInsensitiveRouterResponderStorage
     StaticErrorResponder,       // ConcreteErrorResponder
     DynamicRouteResponder,      // ConcreteDynamicNotFoundResponder
     RouteResponses.StaticString // ConcreteStaticNotFoundResponder
@@ -22,14 +22,14 @@ public typealias DefaultRouter = Router<
 
 /// Default Router implementation that handles middleware, routes and router groups.
 public struct Router<
-        ConcreteStaticResponderStorage: StaticResponderStorageProtocol,
-        ConcreteDynamicResponderStorage: DynamicResponderStorageProtocol,
+        ConcreteCaseSensitiveRouterResponderStorage: RouterResponderStorageProtocol,
+        ConcreteCaseInsensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         ConcreteErrorResponder: ErrorResponderProtocol,
         ConcreteDynamicNotFoundResponder: DynamicRouteResponderProtocol,
         ConcreteStaticNotFoundResponder: StaticRouteResponderProtocol
     >: RouterProtocol {
-    public private(set) var caseSensitiveResponders:RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>
-    public private(set) var caseInsensitiveResponders:RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>
+    public private(set) var caseSensitiveResponders:ConcreteCaseSensitiveRouterResponderStorage
+    public private(set) var caseInsensitiveResponders:ConcreteCaseInsensitiveRouterResponderStorage
 
     public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
     public var dynamicMiddleware:[any DynamicMiddlewareProtocol]
@@ -47,8 +47,8 @@ public struct Router<
         errorResponder: ConcreteErrorResponder,
         dynamicNotFoundResponder: ConcreteDynamicNotFoundResponder?,
         staticNotFoundResponder: ConcreteStaticNotFoundResponder,
-        caseSensitiveResponders: RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>,
-        caseInsensitiveResponders: RouterResponderStorage<ConcreteStaticResponderStorage, ConcreteDynamicResponderStorage>,
+        caseSensitiveResponders: ConcreteCaseSensitiveRouterResponderStorage,
+        caseInsensitiveResponders: ConcreteCaseInsensitiveRouterResponderStorage,
         staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [any DynamicMiddlewareProtocol],
         routerGroups: [any RouterGroupProtocol]
