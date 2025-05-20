@@ -8,17 +8,17 @@
 import DestinyBlueprint
 
 public struct RouterResponderStorage<
-        StaticResponderStorage: StaticResponderStorageProtocol,
-        DynamicResponderStorage: DynamicResponderStorageProtocol
+        ConcreteStaticResponderStorage: StaticResponderStorageProtocol,
+        ConcreteDynamicResponderStorage: DynamicResponderStorageProtocol
     >: RouterResponderStorageProtocol {
-    public var `static`:StaticResponderStorage
-    public var dynamic:DynamicResponderStorage
+    public var `static`:ConcreteStaticResponderStorage
+    public var dynamic:ConcreteDynamicResponderStorage
     public var conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
 
     @inlinable
     public init(
-        static: StaticResponderStorage,
-        dynamic: DynamicResponderStorage,
+        static: ConcreteStaticResponderStorage,
+        dynamic: ConcreteDynamicResponderStorage,
         conditional: [DestinyRoutePathType:any ConditionalRouteResponderProtocol]
     ) {
         self.static = `static`
