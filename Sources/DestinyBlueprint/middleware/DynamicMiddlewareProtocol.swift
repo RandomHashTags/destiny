@@ -1,9 +1,3 @@
-//
-//  DynamicMiddlewareProtocol.swift
-//
-//
-//  Created by Evan Anderson on 10/29/24.
-//
 
 /// Core Dynamic Middleware protocol which handles requests to dynamic routes.
 public protocol DynamicMiddlewareProtocol: MiddlewareProtocol {

@@ -1,9 +1,3 @@
-//
-//  RequestProtocol.swift
-//
-//
-//  Created by Evan Anderson on 11/11/24.
-//
 
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
 public protocol RequestProtocol: Sendable, ~Copyable {

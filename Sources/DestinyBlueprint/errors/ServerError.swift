@@ -1,9 +1,3 @@
-//
-//  ServerError.swift
-//
-//
-//  Created by Evan Anderson on 2/25/25.
-//
 
 // MARK: ServerError
 public struct ServerError: DestinyErrorProtocol {

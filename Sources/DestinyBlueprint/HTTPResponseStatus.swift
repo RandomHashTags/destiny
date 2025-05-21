@@ -1,9 +1,3 @@
-//
-//  HTTPResponseStatus.swift
-//
-//
-//  Created by Evan Anderson on 1/20/25.
-//
 
 import SwiftSyntax
 

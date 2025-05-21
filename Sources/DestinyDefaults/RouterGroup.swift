@@ -1,9 +1,3 @@
-//
-//  RouterGroup.swift
-//
-//
-//  Created by Evan Anderson on 12/27/24.
-//
 
 import DestinyBlueprint
 import SwiftSyntax
@@ -158,15 +152,19 @@ extension RouterGroup {
                 case "endpoint":
                     endpoint = argument.expression.stringLiteral!.string
                 case "staticMiddleware":
-                    for argument in argument.expression.array!.elements {
-                        if let function = argument.expression.functionCall {
-                            staticMiddleware.append(StaticMiddleware.parse(context: context, function))
+                    if let elements = argument.expression.array?.elements {
+                        for argument in elements {
+                            if let function = argument.expression.functionCall {
+                                staticMiddleware.append(StaticMiddleware.parse(context: context, function))
+                            }
                         }
                     }
                 case "dynamicMiddleware":
-                    for argument in argument.expression.array!.elements {
-                        if let function = argument.expression.functionCall {
-                            dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
+                    if let elements = argument.expression.array?.elements {
+                        for argument in elements {
+                            if let function = argument.expression.functionCall {
+                                dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
+                            }
                         }
                     }
                 default:

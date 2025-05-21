@@ -1,9 +1,3 @@
-//
-//  StringExtensions.swift
-//
-//
-//  Created by Evan Anderson on 4/19/25.
-//
 
 extension String {
     @inlinable

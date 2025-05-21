@@ -1,9 +1,3 @@
-//
-//  DynamicRoute.swift
-//
-//
-//  Created by Evan Anderson on 10/31/24.
-//
 
 import DestinyBlueprint
 import OrderedCollections
@@ -99,7 +93,7 @@ extension DynamicRoute {
         var contentType = HTTPMediaType.textPlain
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler = "nil"
-        var parameters:[String] = []
+        var parameters = [String]()
         for argument in function.arguments {
             switch argument.label?.text {
             case "version":

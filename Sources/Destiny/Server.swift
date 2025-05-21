@@ -1,9 +1,3 @@
-//
-//  Server.swift
-//
-//
-//  Created by Evan Anderson on 10/17/24.
-//
 
 import ArgumentParser
 import DestinyBlueprint

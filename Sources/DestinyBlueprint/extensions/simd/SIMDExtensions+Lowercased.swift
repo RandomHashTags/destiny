@@ -1,9 +1,3 @@
-//
-//  SIMDExtensions+Lowercased.swift
-//
-//
-//  Created by Evan Anderson on 4/17/25.
-//
 
 extension SIMD where Scalar: FixedWidthInteger {
     /// - Complexity: O(1)

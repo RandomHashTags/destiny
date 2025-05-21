@@ -1,9 +1,3 @@
-//
-//  Router.swift
-//
-//
-//  Created by Evan Anderson on 11/6/24.
-//
 
 #if canImport(Foundation)
 import Foundation

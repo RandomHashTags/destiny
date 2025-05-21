@@ -1,9 +1,3 @@
-//
-//  DynamicCORSMiddleware.swift
-//
-//
-//  Created by Evan Anderson on 12/8/24.
-//
 
 import DestinyBlueprint
 import SwiftSyntax

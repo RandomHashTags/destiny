@@ -1,9 +1,3 @@
-//
-//  SIMDExtensions+HasPrefix.swift
-//
-//
-//  Created by Evan Anderson on 10/22/24.
-//
 
 // MARK: SIMD4
 extension SIMD4 where Scalar: BinaryInteger {

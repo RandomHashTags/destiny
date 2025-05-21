@@ -1,9 +1,3 @@
-//
-//  BootCommands.swift
-//
-//
-//  Created by Evan Anderson on 12/31/24.
-//
 
 import ArgumentParser
 

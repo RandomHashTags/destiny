@@ -1,9 +1,3 @@
-//
-//  StaticFileMiddleware.swift
-//
-//
-//  Created by Evan Anderson on 1/12/25.
-//
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials

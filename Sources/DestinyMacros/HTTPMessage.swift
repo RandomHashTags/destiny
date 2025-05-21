@@ -1,9 +1,3 @@
-//
-//  HTTPMessage.swift
-//
-//
-//  Created by Evan Anderson on 11/6/24.
-//
 
 #if canImport(DestinyBlueprint) && canImport(DestinyDefaults) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyBlueprint

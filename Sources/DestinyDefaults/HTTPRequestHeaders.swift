@@ -1,9 +1,3 @@
-//
-//  HTTPRequestHeaders.swift
-//
-//
-//  Created by Evan Anderson on 12/29/24.
-//
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
@@ -61,7 +55,8 @@ public struct HTTPRequestHeaders: HTTPRequestHeadersProtocol { // TODO: make SIM
         }
     }
 
-    @inlinable public func has(_ header: Key) -> Bool {
+    @inlinable
+    public func has(_ header: Key) -> Bool {
         return custom[header] != nil
     }
 

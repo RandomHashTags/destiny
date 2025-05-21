@@ -1,9 +1,3 @@
-//
-//  DestinyErrorProtocol.swift
-//
-//
-//  Created by Evan Anderson on 2/25/25.
-//
 
 #if canImport(Foundation)
 import Foundation

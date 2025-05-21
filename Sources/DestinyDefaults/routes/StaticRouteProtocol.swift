@@ -1,9 +1,3 @@
-//
-//  StaticRouteProtocol.swift
-//
-//
-//  Created by Evan Anderson on 11/6/24.
-//
 
 import DestinyBlueprint
 import SwiftSyntax

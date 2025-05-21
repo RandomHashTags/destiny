@@ -1,9 +1,3 @@
-//
-//  SwiftCompressionExtensions.swift
-//
-//
-//  Created by Evan Anderson on 12/24/24.
-//
 
 import SwiftCompression
 import SwiftSyntax

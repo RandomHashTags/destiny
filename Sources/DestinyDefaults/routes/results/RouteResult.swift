@@ -1,9 +1,3 @@
-//
-//  RouteResult.swift
-//
-//
-//  Created by Evan Anderson on 12/11/24.
-//
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials

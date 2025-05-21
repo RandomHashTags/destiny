@@ -1,9 +1,3 @@
-//
-//  Router.swift
-//
-//
-//  Created by Evan Anderson on 10/17/24.
-//
 
 #if canImport(DestinyDefaults) && canImport(DestinyBlueprint) && canImport(SwiftCompression) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyDefaults
@@ -34,7 +28,7 @@ extension Router: DeclarationMacro {
         var mutable = false
         var typeAnnotation:String? = nil
         let arguments = node.as(ExprSyntax.self)!.macroExpansion!.arguments
-        for argument in arguments {
+        for argument in arguments.prefix(2) {
             switch argument.label?.text {
             case "mutable":
                 mutable = argument.expression.booleanIsTrue
@@ -71,45 +65,59 @@ extension Router {
         var dynamicNotFoundResponder = "nil"
         var staticNotFoundResponder = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
         var storage = Storage()
+        var isCompiled = false
         for child in arguments {
             if let key = child.label?.text {
                 switch key {
+                case "isCompiled":
+                    isCompiled = child.expression.booleanIsTrue
                 case "version":
                     version = HTTPVersion.parse(child.expression) ?? version
                 case "errorResponder":
                     errorResponder = "\(child.expression)"
                 case "dynamicNotFoundResponder":
                     dynamicNotFoundResponder = "\(child.expression)"
+                    if dynamicNotFoundResponder == "nil" {
+                        dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
+                    }
                 case "staticNotFoundResponder":
                     staticNotFoundResponder = "\(child.expression)"
                 case "supportedCompressionAlgorithms":
-                    storage.supportedCompressionAlgorithms = Set(child.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
+                    if let elements = child.expression.array?.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }) {
+                        storage.supportedCompressionAlgorithms = Set(elements)
+                    }
                 case "redirects":
-                    parse_redirects(context: context, version: version, dictionary: child.expression.dictionary!, static_redirects: &storage.staticRedirects, dynamic_redirects: &storage.dynamicRedirects)
+                    if let dictionary = child.expression.dictionary {
+                        parseRedirects(context: context, version: version, dictionary: dictionary, staticRedirects: &storage.staticRedirects, dynamicRedirects: &storage.dynamicRedirects)
+                    }
                 case "middleware":
-                    for element in child.expression.array!.elements {
-                        //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
-                        if let function = element.expression.functionCall {
-                            switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                            case "DynamicMiddleware":     storage.dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
-                            case "DynamicCORSMiddleware": storage.dynamicMiddleware.append(DynamicCORSMiddleware.parse(context: context, function))
-                            case "DynamicDateMiddleware": storage.dynamicMiddleware.append(DynamicDateMiddleware.parse(context: context, function))
-                            case "StaticMiddleware":      storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
-                            default: break
+                    if let elements = child.expression.array?.elements {
+                        for element in elements {
+                            //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
+                            if let function = element.expression.functionCall {
+                                switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                                case "DynamicMiddleware":     storage.dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
+                                case "DynamicCORSMiddleware": storage.dynamicMiddleware.append(DynamicCORSMiddleware.parse(context: context, function))
+                                case "DynamicDateMiddleware": storage.dynamicMiddleware.append(DynamicDateMiddleware.parse(context: context, function))
+                                case "StaticMiddleware":      storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
+                                default: break
+                                }
+                            } else if let _ = element.expression.macroExpansion {
+                                // TODO: support custom middleware
+                            } else {
                             }
-                        } else if let _ = element.expression.macroExpansion {
-                            // TODO: support custom middleware
-                        } else {
                         }
                     }
                 case "routerGroups":
-                    for element in child.expression.array!.elements {
-                        if let function = element.expression.functionCall {
-                            switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                            case "RouterGroup":
-                                storage.routerGroups.append(RouterGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
-                            default:
-                                break
+                    if let elements = child.expression.array?.elements {
+                        for element in elements {
+                            if let function = element.expression.functionCall {
+                                switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                                case "RouterGroup":
+                                    storage.routerGroups.append(RouterGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
+                                default:
+                                    break
+                                }
                             }
                         }
                     }
@@ -164,12 +172,12 @@ extension Router {
         string += "\nstaticNotFoundResponder: \(staticNotFoundResponder),"
 
         let caseSensitiveResponders = routeResponderStorage(
-            staticResponses: storage.staticResponsesString(context: context, caseSensitive: true),
+            staticResponses: storage.staticResponsesString(context: context, caseSensitive: true, isCompiled: isCompiled),
             dynamicResponses: storage.dynamicResponsesString(context: context, caseSensitive: true),
             conditionalResponses: ":"
         )
         let caseInsensitiveResponders = routeResponderStorage(
-            staticResponses: storage.staticResponsesString(context: context, caseSensitive: false),
+            staticResponses: storage.staticResponsesString(context: context, caseSensitive: false, isCompiled: isCompiled),
             dynamicResponses: storage.dynamicResponsesString(context: context, caseSensitive: false),
             conditionalResponses: conditionalRespondersString
         )
@@ -209,7 +217,7 @@ extension Router {
         private var registeredPaths:Set<String> = []
 
         mutating func routerGroupsString(context: some MacroExpansionContext) -> String {
-            var string:String = ""
+            var string = ""
             if !routerGroups.isEmpty {
                 string += "\n" + routerGroups.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
             }
@@ -223,10 +231,11 @@ extension Router {
             return dynamicMiddleware.isEmpty ? "" : "\n" + dynamicMiddleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
         }
 
-        mutating func staticResponsesString(context: some MacroExpansionContext, caseSensitive: Bool) -> String {
-            return static_routes_string(
+        mutating func staticResponsesString(context: some MacroExpansionContext, caseSensitive: Bool, isCompiled: Bool) -> String {
+            return staticRoutesString(
                 context: context,
                 isCaseSensitive: caseSensitive,
+                isCompiled: isCompiled,
                 redirects: staticRedirects.filter({ $0.0.isCaseSensitive == caseSensitive }),
                 middleware: staticMiddleware,
                 staticRoutes.filter({ $0.0.isCaseSensitive == caseSensitive })
@@ -234,7 +243,7 @@ extension Router {
         }
 
         mutating func dynamicResponsesString(context: some MacroExpansionContext, caseSensitive: Bool) -> String {
-            return dynamic_routes_string(context: context, isCaseSensitive: caseSensitive, dynamicRoutes.filter({ $0.0.isCaseSensitive == caseSensitive }))
+            return dynamicRoutesString(context: context, isCaseSensitive: caseSensitive, dynamicRoutes.filter({ $0.0.isCaseSensitive == caseSensitive }))
         }
 
         func conditionalRespondersString() -> String {
@@ -256,12 +265,12 @@ extension Router {
 
 // MARK: Redirects
 extension Router {
-    static func parse_redirects(
+    static func parseRedirects(
         context: some MacroExpansionContext,
         version: HTTPVersion,
         dictionary: DictionaryExprSyntax,
-        static_redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
-        dynamic_redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)]
+        staticRedirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
+        dynamicRedirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)]
     ) {
         guard let dictionary = dictionary.content.as(DictionaryElementListSyntax.self) else { return }
         for methodElement in dictionary {
@@ -271,11 +280,11 @@ extension Router {
                         for valueElement in values {
                             let from:[String] = PathComponent.parseArray(context: context, valueElement.key)
                             let to:[String] = PathComponent.parseArray(context: context, valueElement.value)
-                            if from.count(where: { $0.first == ":" }) == 0 {
+                            if from.firstIndex(where: { $0.first == ":" }) == nil {
                                 var route = StaticRedirectionRoute(version: version, method: method, status: status, from: [], to: [])
                                 route.from = from
                                 route.to = to
-                                static_redirects.append((route, valueElement))
+                                staticRedirects.append((route, valueElement))
                             } else {
                             }
                         }
@@ -293,24 +302,35 @@ extension Router.Storage {
         let buffer:DestinyRoutePathType
         let responder:String
     }
-    mutating func static_routes_string(
+    mutating func staticRoutesString(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
-        isCompiled: Bool = true,
+        isCompiled: Bool,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [StaticMiddleware],
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return ".init()" }
-        var staticStrings:[String] = []
-        var strings:[String] = []
-        var stringsWithDateHeader:[String] = []
-        var uint8Arrays:[String] = []
-        var uint16Arrays:[String] = []
-        let getResponderValue:(Router.Storage.Route) -> String = isCompiled ? {
-            return "// \($0.path)\n.init(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
-        } : {
-            return "// \($0.path)\n\($0.buffer)\n: " + $0.responder
+        var staticStrings = [String]()
+        var strings = [String]()
+        var stringsWithDateHeader = [String]()
+        var uint8Arrays = [String]()
+        var uint16Arrays = [String]()
+        let separator:String
+        let getResponderValue:(Router.Storage.Route) -> String
+        let responderStoragePrefix:String
+        if isCompiled {
+            separator = ""
+            getResponderValue = {
+                return "// \($0.path)\n.init(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
+            }
+            responderStoragePrefix = "Compiled"
+        } else {
+            separator = ":"
+            getResponderValue = {
+                return "// \($0.path)\n\($0.buffer)\n: " + $0.responder
+            }
+            responderStoragePrefix = ""
         }
         if !redirects.isEmpty {
             for (route, function) in redirects {
@@ -345,7 +365,7 @@ extension Router.Storage {
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
                         let responder = try route.result.responderDebugDescription(httpResponse)
-                        let value:String = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
+                        let value = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
                         switch responder.split(separator: "(").first {
                         case "RouteResponses.StaticString": staticStrings.append(value)
                         case "RouteResponses.String": strings.append(value)
@@ -370,19 +390,16 @@ extension Router.Storage {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
             }
         }
-        var values:[String] = []
-        let separator:String = isCompiled ? "" : ":"
-        let staticStringsValue = staticStrings.isEmpty ? separator : "\n" + staticStrings.joined(separator: ",\n") + "\n"
-        let stringsValue = strings.isEmpty ? separator : "\n" + strings.joined(separator: ",\n") + "\n"
-        let stringsWithDateHeaderValue = stringsWithDateHeader.isEmpty ? separator : "\n" + stringsWithDateHeader.joined(separator: ",\n") + "\n"
-        let uint8ArraysValue = uint8Arrays.isEmpty ? separator : "\n" + uint8Arrays.joined(separator: ",\n") + "\n"
-        let uint16ArraysValue = uint16Arrays.isEmpty ? separator : "\n" + uint16Arrays.joined(separator: ",\n") + "\n"
-        values.append("staticStrings: [" + staticStringsValue + "]")
-        values.append("strings: [" + stringsValue + "]")
-        values.append("stringsWithDateHeader: [" + stringsWithDateHeaderValue + "]")
-        values.append("uint8Arrays: [" + uint8ArraysValue + "]")
-        values.append("uint16Arrays: [" + uint16ArraysValue + "]")
-        return (isCompiled ? "Compiled" : "") + "StaticResponderStorage(" + (values.isEmpty ? "" : "\n" + values.joined(separator: ",\n") + "\n") + ")"
+        var values = [String]()
+        values.append("staticStrings: ["         + respondersToString(staticStrings, separator) + "]")
+        values.append("strings: ["               + respondersToString(strings, separator) + "]")
+        values.append("stringsWithDateHeader: [" + respondersToString(stringsWithDateHeader, separator) + "]")
+        values.append("uint8Arrays: ["           + respondersToString(uint8Arrays, separator) + "]")
+        values.append("uint16Arrays: ["          + respondersToString(uint16Arrays, separator) + "]")
+        return responderStoragePrefix + "StaticResponderStorage(" + (values.isEmpty ? "" : "\n" + values.joined(separator: ",\n") + "\n") + ")"
+    }
+    private func respondersToString(_ values: [String], _ separator: String) -> String {
+        return values.isEmpty ? separator : "\n" + values.joined(separator: ",\n") + "\n"
     }
 }
 
@@ -446,7 +463,7 @@ struct RoutePath: Hashable {
 
 // MARK: Dynamic routes string
 extension Router.Storage {
-    mutating func dynamic_routes_string(
+    mutating func dynamicRoutesString(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         _ routes: [(DynamicRoute, FunctionCallExprSyntax)]
@@ -480,7 +497,7 @@ extension Router.Storage {
                 return "// \(string)\n\(buffer)\n: \(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-        var parameterizedByPathCount:[String] = []
+        var parameterizedByPathCount = [String]()
         var parameterizedString = ""
         if !parameterized.isEmpty {
             for (route, function) in parameterized {

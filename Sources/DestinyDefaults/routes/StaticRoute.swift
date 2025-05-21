@@ -1,9 +1,3 @@
-//
-//  StaticRoute.swift
-//
-//
-//  Created by Evan Anderson on 10/29/24.
-//
 
 import DestinyBlueprint
 import OrderedCollections
@@ -138,7 +132,7 @@ extension StaticRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version = version
         var method = HTTPRequestMethod.get
-        var path:[String] = []
+        var path = [String]()
         var isCaseSensitive = true
         var status = HTTPResponseStatus.notImplemented.code
         var contentType = HTTPMediaType.textPlain

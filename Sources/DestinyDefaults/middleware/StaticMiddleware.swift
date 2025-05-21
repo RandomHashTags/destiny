@@ -1,9 +1,3 @@
-//
-//  StaticMiddleware.swift
-//
-//
-//  Created by Evan Anderson on 10/29/24.
-//
 
 import DestinyBlueprint
 import OrderedCollections
@@ -64,7 +58,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     }
 
     public var debugDescription: String {
-        var values:[String] = []
+        var values = [String]()
         if let handlesVersions {
             values.append("handlesVersions: [" + handlesVersions.map({ ".\($0)" }).joined(separator: ",") + "]")
         }

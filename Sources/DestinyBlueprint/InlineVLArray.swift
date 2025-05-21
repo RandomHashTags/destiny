@@ -1,9 +1,3 @@
-//
-//  InlineVLArray.swift
-//
-//
-//  Created by Evan Anderson on 5/7/25.
-//
 
 // MARK: InlineVLArray
 /// Inline variable-length array

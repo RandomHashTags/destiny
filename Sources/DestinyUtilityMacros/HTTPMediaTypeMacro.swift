@@ -1,9 +1,3 @@
-//
-//  HTTPMediaTypeMacro.swift
-//
-//
-//  Created by Evan Anderson on 4/21/25.
-//
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax

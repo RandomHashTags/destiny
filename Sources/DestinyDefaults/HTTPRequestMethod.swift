@@ -1,9 +1,3 @@
-//
-//  HTTPRequestMethod.swift
-//
-//
-//  Created by Evan Anderson on 1/4/25.
-//
 
 import DestinyBlueprint
 import SwiftSyntax

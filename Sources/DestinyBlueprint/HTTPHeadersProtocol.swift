@@ -1,9 +1,3 @@
-//
-//  HTTPHeadersProtocol.swift
-//
-//
-//  Created by Evan Anderson on 12/29/24.
-//
 
 /// Storage for an HTTP Message's headers.
 public protocol HTTPHeadersProtocol: Sendable {

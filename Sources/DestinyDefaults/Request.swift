@@ -1,9 +1,3 @@
-//
-//  Request.swift
-//
-//
-//  Created by Evan Anderson on 11/11/24.
-//
 
 import DestinyBlueprint
 
@@ -53,7 +47,7 @@ public struct Request: RequestProtocol {
 extension Request {
     @inlinable
     public init?<Socket: SocketProtocol & ~Copyable>(socket: borrowing Socket) throws {
-        var path:[String] = []
+        var path = [String]()
         var headers:[String:String] = [:]
         var startLine = DestinyRoutePathType()
         var newStartLine:HTTPStartLine! = nil

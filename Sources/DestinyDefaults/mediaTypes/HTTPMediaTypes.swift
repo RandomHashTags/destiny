@@ -1,9 +1,3 @@
-//
-//  HTTPMediaType.swift
-//
-//
-//  Created by Evan Anderson on 12/30/24.
-//
 
 import DestinyBlueprint
 

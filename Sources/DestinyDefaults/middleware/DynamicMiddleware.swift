@@ -1,9 +1,3 @@
-//
-//  DynamicMiddleware.swift
-//
-//
-//  Created by Evan Anderson on 10/31/24.
-//
 
 import DestinyBlueprint
 import SwiftSyntax

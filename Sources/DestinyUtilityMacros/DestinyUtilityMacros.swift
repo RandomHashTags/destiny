@@ -1,9 +1,3 @@
-//
-//  DestinyUtilityMacros.swift
-//
-//
-//  Created by Evan Anderson on 11/6/24.
-//
 
 #if canImport(SwiftCompilerPlugin) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftCompilerPlugin

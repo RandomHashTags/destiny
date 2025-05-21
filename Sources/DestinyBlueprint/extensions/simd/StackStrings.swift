@@ -1,9 +1,3 @@
-//
-//  StackStrings.swift
-//
-//
-//  Created by Evan Anderson on 10/22/24.
-//
 
 extension SIMD where Scalar: BinaryInteger {
     /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.

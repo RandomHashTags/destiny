@@ -1,9 +1,3 @@
-//
-//  CompiledStaticResponderStorage.swift
-//
-//
-//  Created by Evan Anderson on 5/5/25.
-//
 
 import DestinyBlueprint
 
@@ -50,7 +44,7 @@ public struct CompiledStaticResponderStorage<
     func debugDescription<let count: Int, T: StaticRouteResponderProtocol>(for responders: InlineArray<count, Route<T>>) -> String {
         var s = "[]"
         if !responders.isEmpty {
-            var values:[String] = []
+            var values = [String]()
             values.reserveCapacity(responders.count)
             for i in responders.indices {
                 values.append(responders[i].debugDescription)

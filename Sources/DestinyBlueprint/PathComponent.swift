@@ -1,9 +1,3 @@
-//
-//  PathComponent.swift
-//
-//
-//  Created by Evan Anderson on 11/5/24.
-//
 
 import SwiftDiagnostics
 import SwiftSyntax
@@ -74,7 +68,7 @@ public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible
 // MARK: SwiftSyntax
 extension PathComponent {
     public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
-        var array:[String] = []
+        var array = [String]()
         if let literal = expr.stringLiteral?.string.split(separator: "/") {
             for substring in literal {
                 if substring.contains(" ") {

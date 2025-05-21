@@ -1,9 +1,3 @@
-//
-//  HTTPMediaTypes+Application.swift
-//
-//
-//  Created by Evan Anderson on 12/30/24.
-//
 
 extension HTTPMediaType {
     #HTTPFieldContentType(

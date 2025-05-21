@@ -1,9 +1,3 @@
-//
-//  HTTPResponseHeaders.swift
-//
-//
-//  Created by Evan Anderson on 1/4/25.
-//
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials

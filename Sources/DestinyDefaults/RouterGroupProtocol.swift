@@ -1,9 +1,3 @@
-//
-//  RouterGroupProtocol.swift
-//
-//
-//  Created by Evan Anderson on 11/22/24.
-//
 
 import DestinyBlueprint
 import SwiftSyntax

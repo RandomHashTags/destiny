@@ -1,9 +1,3 @@
-//
-//  SocketError.swift
-//
-//
-//  Created by Evan Anderson on 2/25/25.
-//
 
 public struct SocketError: DestinyErrorProtocol {
     public let identifier:String

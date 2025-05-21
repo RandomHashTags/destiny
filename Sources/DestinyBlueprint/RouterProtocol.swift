@@ -1,9 +1,3 @@
-//
-//  RouterProtocol.swift
-//
-//
-//  Created by Evan Anderson on 11/9/24.
-//
 
 import Logging
 

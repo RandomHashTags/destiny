@@ -1,9 +1,3 @@
-//
-//  DynamicRequestTimestamps.swift
-//
-//
-//  Created by Evan Anderson on 2/19/25.
-//
 
 public struct DynamicRequestTimestamps: Sendable {
     /// When the request was accepted.

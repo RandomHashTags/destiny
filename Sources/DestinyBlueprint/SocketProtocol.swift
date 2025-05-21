@@ -1,9 +1,3 @@
-//
-//  SocketProtocol.swift
-//
-//
-//  Created by Evan Anderson on 10/17/24.
-//
 
 #if canImport(Darwin)
 import Darwin

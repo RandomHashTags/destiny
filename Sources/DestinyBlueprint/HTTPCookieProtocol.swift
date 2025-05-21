@@ -1,9 +1,3 @@
-//
-//  HTTPCookieProtocol.swift
-//
-//
-//  Created by Evan Anderson on 2/25/25.
-//
 
 import SwiftSyntax
 import SwiftSyntaxMacros

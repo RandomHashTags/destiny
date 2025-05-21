@@ -1,9 +1,3 @@
-//
-//  StaticResponderStorage.swift
-//
-//
-//  Created by Evan Anderson on 3/2/25.
-//
 
 public protocol StaticResponderStorageProtocol: CustomDebugStringConvertible, Sendable {
     /// - Returns: Whether or not a response was sent.

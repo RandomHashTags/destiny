@@ -1,9 +1,3 @@
-//
-//  HTTPCookie.swift
-//
-//
-//  Created by Evan Anderson on 2/25/25.
-//
 
 #if canImport(FoundationEssentials)
 import struct FoundationEssentials.Date

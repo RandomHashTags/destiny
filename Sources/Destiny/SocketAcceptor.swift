@@ -1,9 +1,3 @@
-//
-//  SocketAcceptor.swift
-//
-//
-//  Created by Evan Anderson on 4/29/25.
-//
 
 #if canImport(Glibc)
 import Glibc

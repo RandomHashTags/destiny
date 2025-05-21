@@ -1,9 +1,3 @@
-//
-//  RouterResponderStorage.swift
-//
-//
-//  Created by Evan Anderson on 2/19/25.
-//
 
 import DestinyBlueprint
 

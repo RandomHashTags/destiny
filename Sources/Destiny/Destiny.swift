@@ -1,9 +1,3 @@
-//
-//  Destiny.swift
-//
-//
-//  Created by Evan Anderson on 10/17/24.
-//
 
 @_exported import DestinyBlueprint
 @_exported import DestinyDefaults
@@ -39,6 +33,7 @@ public macro router<T: RouterProtocol>(
 public macro declareRouter(
     mutable: Bool = false,
     typeAnnotation: String? = nil,
+    isCompiled: Bool = false,
 
     version: HTTPVersion,
     errorResponder: (any ErrorResponderProtocol)? = nil,

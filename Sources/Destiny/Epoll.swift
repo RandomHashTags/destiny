@@ -1,9 +1,3 @@
-//
-//  Epoll.swift
-//
-//
-//  Created by Evan Anderson on 1/7/25.
-//
 
 #if os(Linux)
 import CEpoll
@@ -98,7 +92,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
         acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
     ) throws -> (loaded: Int, clients: InlineArray<maxEvents, Int32>) {
         var loadedClients:Int32 = -1
-        var events:InlineArray<maxEvents, epoll_event> = .init(repeating: .init())
+        var events = InlineArray<maxEvents, epoll_event>(repeating: .init())
         try events.mutableSpan.withUnsafeBufferPointer { p in
             guard let base = p.baseAddress else { throw EpollError.waitFailed() }
             loadedClients = epoll_wait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout)
@@ -106,7 +100,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
                 throw EpollError.waitFailed()
             }
         }
-        var clients:InlineArray<maxEvents, Int32> = .init(repeating: -1)
+        var clients = InlineArray<maxEvents, Int32>(repeating: -1)
         var clientIndex = 0
         var i = 0
         while i < loadedClients {
@@ -206,6 +200,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
         while !Task.isCancelled && !Task.isShuttingDownGracefully {
             do {
                 let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
+                let received = ContinuousClock.now
                 var i = 0
                 while i < loaded {
                     let client = clients[i]
@@ -218,7 +213,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
                         do {
                             try await router.process(
                                 client: client,
-                                received: .now, // TODO: fix
+                                received: received,
                                 socket: ConcreteSocket.init(fileDescriptor: client),
                                 logger: logger
                             )

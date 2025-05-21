@@ -1,9 +1,3 @@
-//
-//  Benchmarks.swift
-//
-//
-//  Created by Evan Anderson on 10/18/24.
-//
 
 import Benchmark
 import Destiny

@@ -1,9 +1,3 @@
-//
-//  RouteResult+StaticString.swift
-//
-//
-//  Created by Evan Anderson on 5/15/25.
-//
 
 import DestinyBlueprint
 

@@ -1,9 +1,3 @@
-//
-//  HTTPVersion.swift
-//
-//
-//  Created by Evan Anderson on 11/8/24.
-//
 
 import SwiftSyntax
 

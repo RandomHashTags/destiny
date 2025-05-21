@@ -1,9 +1,3 @@
-//
-//  MiddlewareProtocol.swift
-//
-//
-//  Created by Evan Anderson on 10/29/24.
-//
 
 import SwiftSyntax
 import SwiftSyntaxMacros

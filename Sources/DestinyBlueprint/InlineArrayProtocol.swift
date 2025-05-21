@@ -1,9 +1,3 @@
-//
-//  InlineArrayProtocol.swift
-//
-//
-//  Created by Evan Anderson on 4/20/25.
-//
 
 public protocol InlineArrayProtocol: InlineCollectionProtocol, ~Copyable where Index == Int {
     init(repeating value: Element)

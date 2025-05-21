@@ -1,9 +1,3 @@
-//
-//  StaticResponderStorage.swift
-//
-//
-//  Created by Evan Anderson on 3/2/25.
-//
 
 import DestinyBlueprint
 
@@ -87,17 +81,13 @@ extension StaticResponderStorage {
     public mutating func register(path: DestinyRoutePathType, _ responder: any RouteResponderProtocol) {
         if let responder = responder as? RouteResponses.StaticString {
             register(path: path, responder)
-        }
-        if let responder = responder as? RouteResponses.String {
+        } else if let responder = responder as? RouteResponses.String {
             register(path: path, responder)
-        }
-        if let responder = responder as? RouteResponses.StringWithDateHeader {
+        } else if let responder = responder as? RouteResponses.StringWithDateHeader {
             register(path: path, responder)
-        }
-        if let responder = responder as? RouteResponses.UInt8Array {
+        } else if let responder = responder as? RouteResponses.UInt8Array {
             register(path: path, responder)
-        }
-        if let responder = responder as? RouteResponses.UInt16Array {
+        } else if let responder = responder as? RouteResponses.UInt16Array {
             register(path: path, responder)
         }
     }

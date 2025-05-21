@@ -1,9 +1,3 @@
-//
-//  HTTPFieldContentType.swift
-//
-//
-//  Created by Evan Anderson on 11/6/24.
-//
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
@@ -11,8 +5,8 @@ import SwiftSyntaxMacros
 
 enum HTTPFieldContentType: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
-        var cases:[String] = []
-        var httpValues:[String] = []
+        var cases = [String]()
+        var httpValues = [String]()
         var fileExtensions:[String:String] = [:]
         var category:String = ""
         for argument in node.arguments.children(viewMode: .all) {

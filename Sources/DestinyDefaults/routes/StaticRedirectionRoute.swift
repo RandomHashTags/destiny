@@ -1,9 +1,3 @@
-//
-//  StaticRedirectionRoute.swift
-//
-//
-//  Created by Evan Anderson on 12/11/24.
-//
 
 import DestinyBlueprint
 import SwiftSyntax
@@ -36,7 +30,16 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     }
 
     public var debugDescription: String {
-        "StaticRedirectionRoute(version: .\(version), method: \(method.debugDescription), status: \(status), from: \(from), isCaseSensitive: \(isCaseSensitive), to: \(to))"
+        """
+        StaticRedirectionRoute(
+            version: .\(version),
+            method: \(method.debugDescription),
+            status: \(status),
+            from: \(from),
+            isCaseSensitive: \(isCaseSensitive),
+            to: \(to)
+        )
+        """
     }
 
     public func response() throws -> String {
@@ -51,9 +54,9 @@ extension StaticRedirectionRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version = version
         var method = HTTPRequestMethod.get
-        var from:[String] = []
+        var from = [String]()
         var isCaseSensitive = true
-        var to:[String] = []
+        var to = [String]()
         var status = HTTPResponseStatus.movedPermanently.code
         for argument in function.arguments {
             switch argument.label?.text {

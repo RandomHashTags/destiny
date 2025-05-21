@@ -1,9 +1,3 @@
-//
-//  SIMDExtensions+TrailingString.swift
-//
-//
-//  Created by Evan Anderson on 10/22/24.
-//
 
 // MARK: SIMD2
 extension SIMD2 where Scalar == UInt8 {

@@ -1,9 +1,3 @@
-//
-//  HTTPDateFormat.swift
-//
-//
-//  Created by Evan Anderson on 1/6/25.
-//
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials

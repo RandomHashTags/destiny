@@ -1,9 +1,3 @@
-//
-//  HTTPCookieFlag.swift
-//
-//
-//  Created by Evan Anderson on 2/25/25.
-//
 
 public enum HTTPCookieFlag {
 }
