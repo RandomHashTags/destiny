@@ -48,7 +48,7 @@ extension InlineArrayProtocol where Element: Equatable {
         for i in self.indices {
             let element = self.itemAt(index: i)
             if element == separator {
-                var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
+                var slice = InlineArray<sliceLength, Element>(repeating: defaultValue)
                 var sliceIndex = 0
                 while beginning < i, sliceIndex < sliceLength {
                     slice[sliceIndex] = self.itemAt(index: beginning)
@@ -75,15 +75,14 @@ extension InlineArrayProtocol where Element: Equatable {
             let startIndex = i
             var element = self.itemAt(index: i)
             for separator in separators {
+                i += 1
                 if element != separator {
-                    i += 1
                     continue loop
                 } else {
-                    i += 1
                     element = self.itemAt(index: i)
                 }
             }
-            var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
+            var slice = InlineArray<sliceLength, Element>(repeating: defaultValue)
             var sliceIndex = 0
             while beginning < startIndex, sliceIndex < sliceLength {
                 slice[sliceIndex] = self.itemAt(index: beginning)
@@ -154,7 +153,7 @@ extension InlineArrayProtocol {
     /// - Complexity: O(_n_) where _n_ is the length of the collection.
     @inlinable
     public func slice<let sliceLength: Int>(startIndex: Index, endIndex: Index, defaultValue: Element) -> InlineArray<sliceLength, Element> {
-        var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
+        var slice = InlineArray<sliceLength, Element>(repeating: defaultValue)
         var index = 0
         var i = startIndex
         let targetEndIndex = min(endIndex, self.endIndex)
@@ -237,43 +236,36 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: SIMD
 extension InlineArrayProtocol where Element: SIMDScalar {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(1).
     @inlinable
     public func simd8(startIndex: Index = 0) -> SIMD16<Element> {
-        return simd(startIndex: startIndex)
+        simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(1).
     @inlinable
     public func simd16(startIndex: Index = 0) -> SIMD16<Element> {
-        return simd(startIndex: startIndex)
+        simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(1).
     @inlinable
     public func simd32(startIndex: Index = 0) -> SIMD32<Element> {
-        return simd(startIndex: startIndex)
+        simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(1).
     @inlinable
     public func simd64(startIndex: Index = 0) -> SIMD64<Element> {
-        return simd(startIndex: startIndex)
+        simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(1).
     @inlinable
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
-        var simd = T()
-        var i = 0
-        var index = startIndex
-        let endIndex = min(endIndex, startIndex + T.scalarCount)
-        while index < endIndex {
-            simd[i] = self.itemAt(index: index)
-            index += 1
-            i += 1
+        return withUnsafeBytes(of: self) { p in
+            return (p.baseAddress! + startIndex).bindMemory(to: T.self, capacity: T.scalarCount).pointee
         }
-        return simd
     }
 }
 

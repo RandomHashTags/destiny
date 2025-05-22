@@ -3,17 +3,6 @@ public protocol InlineArrayProtocol: InlineCollectionProtocol, ~Copyable where I
     init(repeating value: Element)
 }
 
-// MARK: Extensions
-extension Array where Element == UInt8 {
-    public init<T: InlineArrayProtocol>(_ inlineArray: T) where T.Index == Index, Element == T.Element {
-        self = .init()
-        reserveCapacity(inlineArray.count)
-        for i in inlineArray.indices {
-            append(inlineArray.itemAt(index: i))
-        }
-    }
-}
-
 // MARK Conformances
 extension InlineArray: InlineArrayProtocol {
     @inlinable
@@ -24,5 +13,16 @@ extension InlineArray: InlineArrayProtocol {
     @inlinable
     public mutating func setItemAt(index: Int, element: Element) {
         self[index] = element
+    }
+}
+
+// MARK: Extensions
+extension Array where Element: BinaryInteger {
+    public init<T: InlineArrayProtocol>(_ inlineArray: T) where T.Index == Index, Element == T.Element {
+        self = .init()
+        reserveCapacity(inlineArray.count)
+        for i in inlineArray.indices {
+            append(inlineArray.itemAt(index: i))
+        }
     }
 }

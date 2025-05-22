@@ -1,4 +1,5 @@
 
+/*
 import DestinyBlueprint
 
 public struct CompiledRouterResponderStorage<
@@ -67,4 +68,4 @@ extension CompiledRouterResponderStorage {
         try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
         return true
     }
-}
+}*/
