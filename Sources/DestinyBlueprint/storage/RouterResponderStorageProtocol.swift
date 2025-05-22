@@ -6,7 +6,7 @@ public protocol RouterResponderStorageProtocol: Sendable {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout Socket.ConcreteRequest
     ) async throws -> Bool
 
     @inlinable
@@ -22,6 +22,6 @@ public protocol RouterResponderStorageProtocol: Sendable {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol,
+        request: inout Socket.ConcreteRequest,
     ) async throws -> Bool
 }

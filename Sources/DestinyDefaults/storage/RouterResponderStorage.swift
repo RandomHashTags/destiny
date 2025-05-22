@@ -26,7 +26,7 @@ public struct RouterResponderStorage<
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout Socket.ConcreteRequest
     ) async throws -> Bool {
         if try await respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
@@ -57,7 +57,7 @@ extension RouterResponderStorage {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol,
+        request: inout Socket.ConcreteRequest,
     ) async throws -> Bool {
         return try await dynamic.respond(router: router, received: received, loaded: loaded, socket: socket, request: &request)
     }

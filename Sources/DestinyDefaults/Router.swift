@@ -87,7 +87,7 @@ extension Router {
         socket: borrowing Socket,
         logger: Logger
     ) async throws {
-        guard var request:any RequestProtocol = try Socket.ConcreteRequest(socket: socket) else { return }
+        guard var request = try Socket.ConcreteRequest(socket: socket) else { return }
         try await process(client: client, received: received, loaded: .now, socket: socket, request: &request, logger: logger)
     }
 
@@ -97,7 +97,7 @@ extension Router {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol,
+        request: inout Socket.ConcreteRequest,
         logger: Logger
     ) async throws {
         defer {
@@ -124,14 +124,16 @@ extension Router {
                 }
                 // not found
                 if let dynamicNotFoundResponder {
-                    var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: dynamicNotFoundResponder)
-                    try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
+                    var anyRequest:any RequestProtocol = request
+                    var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: dynamicNotFoundResponder)
+                    try await dynamicNotFoundResponder.respond(to: socket, request: &anyRequest, response: &response)
                 } else {
                     try await staticNotFoundResponder.respond(to: socket)
                 }
             }
         } catch {
-            await errorResponder.respond(to: socket, with: error, for: &request, logger: logger)
+            var anyRequest:any RequestProtocol = request
+            await errorResponder.respond(to: socket, with: error, for: &anyRequest, logger: logger)
         }
     }
 }
@@ -182,10 +184,11 @@ extension Router {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol,
+        request: inout Socket.ConcreteRequest,
         responder: Responder
     ) async throws {
-        var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: responder)
-        try await responder.respond(to: socket, request: &request, response: &response)
+        var anyRequest:any RequestProtocol = request
+        var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: responder)
+        try await responder.respond(to: socket, request: &anyRequest, response: &response)
     }
 }

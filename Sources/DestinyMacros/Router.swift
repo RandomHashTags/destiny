@@ -56,9 +56,17 @@ extension Router {
     ) -> String {
         var version = HTTPVersion.v1_1
         var errorResponder = """
-            StaticErrorResponder { error in
-            RouteResponses.String(HTTPMessage(
-                version: HTTPVersion.v1_1, status: HTTPResponseStatus.ok.code, headers: [:], cookies: [], result: RouteResult.string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"), contentType: HTTPMediaType.applicationJson, charset: nil)
+        StaticErrorResponder { error in
+            RouteResponses.String(
+                HTTPMessage(
+                    version: HTTPVersion.v1_1,
+                    status: HTTPResponseStatus.ok.code,
+                    headers: [:],
+                    cookies: [],
+                    result: RouteResult.string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"),
+                    contentType: HTTPMediaType.applicationJson,
+                    charset: nil
+                )
             )
         }
         """

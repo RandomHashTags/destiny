@@ -43,8 +43,9 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout Socket.ConcreteRequest
     ) async throws -> Bool {
+        var request:any RequestProtocol = request
         for (index, condition) in staticConditions.enumerated() {
             if condition(&request) {
                 try await staticResponders[index].respond(to: socket)

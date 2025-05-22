@@ -75,7 +75,7 @@ extension DynamicResponderStorage {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout Socket.ConcreteRequest
     ) async throws -> Bool {
         guard let responder = responder(for: &request) else { return false }
         try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)

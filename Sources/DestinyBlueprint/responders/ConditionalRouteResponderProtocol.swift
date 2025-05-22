@@ -11,6 +11,6 @@ public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout Socket.ConcreteRequest
     ) async throws -> Bool
 }

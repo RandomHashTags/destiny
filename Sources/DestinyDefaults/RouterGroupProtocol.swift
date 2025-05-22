@@ -13,7 +13,7 @@ public protocol RouterGroupProtocol: CustomDebugStringConvertible, Sendable {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout Socket.ConcreteRequest
     ) async throws -> Bool
 
     #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)

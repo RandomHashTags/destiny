@@ -80,7 +80,7 @@ extension Request {
             // performance falls off a cliff parsing headers; should we
             // just retain the buffer and record the start and end indexes
             // of things, with computed properties when and where necessary?
-            let _ = Self.parseHeaders(buffer: buffer, offset: newStartLine.endIndex + 2, headers: &headers)
+            //let _ = Self.parseHeaders(buffer: buffer, offset: newStartLine.endIndex + 2, headers: &headers)
 
             if read < buffer.count {
                 break

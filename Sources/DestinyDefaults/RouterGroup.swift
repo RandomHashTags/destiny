@@ -117,7 +117,7 @@ extension RouterGroup {
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout Socket.ConcreteRequest
     ) async throws -> Bool {
         if try await staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
