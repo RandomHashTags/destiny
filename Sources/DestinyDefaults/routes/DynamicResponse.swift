@@ -17,7 +17,12 @@ public struct DynamicResponse: DynamicResponseProtocol {
     }
 
     public var debugDescription: String {
-        "DynamicResponse(message: \(message.debugDescription), parameters: \(parameters))"
+        """
+        DynamicResponse(
+            message: \(message.debugDescription),
+            parameters: \(parameters)
+        )
+        """
     }
 
     @inlinable

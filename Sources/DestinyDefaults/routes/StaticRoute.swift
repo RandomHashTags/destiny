@@ -10,7 +10,7 @@ import SwiftSyntaxMacros
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute: StaticRouteProtocol {
     public var path:[String]
-    public let contentType:HTTPMediaType
+    public let contentType:HTTPMediaType?
     public let result:any RouteResultProtocol
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
@@ -26,7 +26,7 @@ public struct StaticRoute: StaticRouteProtocol {
         path: [StaticString],
         isCaseSensitive: Bool = true,
         status: T,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -49,7 +49,7 @@ public struct StaticRoute: StaticRouteProtocol {
         path: [StaticString],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -97,6 +97,7 @@ public struct StaticRoute: StaticRouteProtocol {
         middleware: [any StaticMiddlewareProtocol]
     ) -> any HTTPMessageProtocol {
         var version = version
+        let path = path.joined(separator: "/")
         var status = status
         var contentType = contentType
         var headers = OrderedDictionary<String, String>()
@@ -105,7 +106,7 @@ public struct StaticRoute: StaticRouteProtocol {
         }
         var cookies:[any HTTPCookieProtocol] = []
         for middleware in middleware {
-            if middleware.handles(version: version, method: method, contentType: contentType, status: status) {
+            if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
@@ -193,7 +194,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -207,7 +208,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -221,7 +222,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -235,7 +236,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -249,7 +250,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -263,7 +264,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -277,7 +278,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -291,7 +292,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -305,7 +306,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
@@ -319,7 +320,7 @@ extension StaticRoute {
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         result: any RouteResultProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []

@@ -16,7 +16,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     func handlesStatus(_ code: HTTPResponseStatus.Code) -> Bool
 
     @inlinable
-    func handlesContentType(_ mediaType: HTTPMediaType) -> Bool
+    func handlesContentType(_ mediaType: HTTPMediaType?) -> Bool
 
     /// Response http version this middleware applies to routes.
     var appliesVersion: HTTPVersion? { get }
@@ -37,8 +37,9 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     @inlinable
     func handles(
         version: HTTPVersion,
+        path: String,
         method: HTTPRequestMethod,
-        contentType: HTTPMediaType,
+        contentType: HTTPMediaType?,
         status: HTTPResponseStatus.Code
     ) -> Bool
 
@@ -46,7 +47,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     @inlinable
     func apply(
         version: inout HTTPVersion,
-        contentType: inout HTTPMediaType,
+        contentType: inout HTTPMediaType?,
         status: inout HTTPResponseStatus.Code,
         headers: inout OrderedDictionary<String, String>,
         cookies: inout [any HTTPCookieProtocol]
@@ -54,22 +55,9 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
 }
 extension StaticMiddlewareProtocol {
     @inlinable
-    public func handles(
-        version: HTTPVersion,
-        method: HTTPRequestMethod,
-        contentType: HTTPMediaType,
-        status: HTTPResponseStatus.Code
-    ) -> Bool {
-        return handlesVersion(version)
-            && handlesMethod(method)
-            && handlesContentType(contentType)
-            && handlesStatus(status)
-    }
-
-    @inlinable
     public func apply(
         version: inout HTTPVersion,
-        contentType: inout HTTPMediaType,
+        contentType: inout HTTPMediaType?,
         status: inout HTTPResponseStatus.Code,
         headers: inout OrderedDictionary<String, String>,
         cookies: inout [any HTTPCookieProtocol]
@@ -91,7 +79,7 @@ extension StaticMiddlewareProtocol {
 
     @inlinable
     public func apply<Response: DynamicResponseProtocol>(
-        contentType: inout HTTPMediaType,
+        contentType: inout HTTPMediaType?,
         to response: inout Response
     ) {
         if let appliesVersion {

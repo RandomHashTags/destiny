@@ -157,7 +157,7 @@ extension HTTPMessage {
             }
             let contentLength = result.count
             capacity += 18 + String(contentLength).count // Content-Length: #\r\n
-            capacity += contentLength
+            capacity += 2 + contentLength // \r\n + content
         }
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0

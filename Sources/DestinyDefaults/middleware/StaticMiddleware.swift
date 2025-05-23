@@ -34,6 +34,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     public let appliesContentType:HTTPMediaType?
     public let appliesHeaders:OrderedDictionary<String, String>
     public let appliesCookies:[Cookie]
+    public let excludedRoutes:Set<String>
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
@@ -44,7 +45,8 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: HTTPMediaType? = nil,
         appliesHeaders: OrderedDictionary<String, String> = [:],
-        appliesCookies: [Cookie] = []
+        appliesCookies: [Cookie] = [],
+        excludedRoutes: Set<String> = []
     ) {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
@@ -55,6 +57,22 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         self.appliesContentType = appliesContentType
         self.appliesHeaders = appliesHeaders
         self.appliesCookies = appliesCookies
+        self.excludedRoutes = excludedRoutes
+    }
+
+    @inlinable
+    public func handles(
+        version: HTTPVersion,
+        path: String,
+        method: HTTPRequestMethod,
+        contentType: HTTPMediaType?,
+        status: HTTPResponseStatus.Code
+    ) -> Bool {
+        return handlesVersion(version)
+            && handlesMethod(method)
+            && handlesContentType(contentType)
+            && handlesStatus(status)
+            && !excludedRoutes.contains(path)
     }
 
     public var debugDescription: String {
@@ -86,6 +104,9 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         if !appliesCookies.isEmpty {
             values.append("appliesCookies: [" + appliesCookies.map({ $0.debugDescription }).joined(separator: ",") + "]")
         }
+        if !excludedRoutes.isEmpty {
+            values.append("excludedRoutes: [" + excludedRoutes.map({ "\"" + $0 + "\"" }).joined(separator: ",") + "]")
+        }
         return "StaticMiddleware(" + values.joined(separator: ",") + ")"
     }
 }
@@ -107,8 +128,12 @@ extension StaticMiddleware {
     }
 
     @inlinable
-    public func handlesContentType(_ mediaType: HTTPMediaType) -> Bool {
-        handlesContentTypes?.contains(mediaType) ?? true
+    public func handlesContentType(_ mediaType: HTTPMediaType?) -> Bool {
+        if let mediaType {
+            handlesContentTypes?.contains(mediaType) ?? true
+        } else {
+            true
+        }
     }
 }
 
@@ -125,6 +150,7 @@ extension StaticMiddleware {
         var appliesContentType:HTTPMediaType? = nil
         var appliesHeaders:OrderedDictionary<String, String> = [:]
         var appliesCookies:[Cookie] = []
+        var excludedRoutes:Set<String> = []
         for argument in function.arguments {
             switch argument.label?.text {
             case "handlesVersions":
@@ -145,6 +171,8 @@ extension StaticMiddleware {
                 appliesHeaders = HTTPRequestHeader.parse(context: context, argument.expression)
             case "appliesCookies":
                 appliesCookies = argument.expression.array!.elements.compactMap({ Cookie.parse(context: context, expr: $0.expression) })
+            case "excludedRoutes":
+                excludedRoutes = Set(argument.expression.array!.elements.compactMap({ $0.expression.stringLiteral?.string }))
             default:
                 break
             }
@@ -158,7 +186,8 @@ extension StaticMiddleware {
             appliesStatus: appliesStatus,
             appliesContentType: appliesContentType,
             appliesHeaders: appliesHeaders,
-            appliesCookies: appliesCookies
+            appliesCookies: appliesCookies,
+            excludedRoutes: excludedRoutes
         )
     }
 }

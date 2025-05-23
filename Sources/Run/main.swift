@@ -14,25 +14,43 @@ import SwiftCompression
     dynamicNotFoundResponder: nil,
     supportedCompressionAlgorithms: [],
     middleware: [
-        StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"]),
-        StaticMiddleware(handlesVersions: [.v1_1], appliesHeaders: ["Version":"destiny1.1", "Connection":"close"], appliesCookies: [HTTPCookie(name: "cookie1", value: "yessir"), HTTPCookie(name: "cookie2", value: "pogchamp")]),
+        StaticMiddleware(
+            appliesHeaders: ["Server":"destiny"],
+            excludedRoutes: ["plaintext"]
+        ),
+        StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"], excludedRoutes: []),
+        StaticMiddleware(
+            handlesVersions: [.v1_1],
+            appliesHeaders: ["Version":"destiny1.1", "Connection":"close"],
+            appliesCookies: [HTTPCookie(name: "cookie1", value: "yessir"), HTTPCookie(name: "cookie2", value: "pogchamp")],
+            excludedRoutes: ["plaintext"]
+        ),
         StaticMiddleware(handlesVersions: [.v2_0], appliesHeaders: ["Version":"destiny2.0"]),
         StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
-        StaticMiddleware(appliesHeaders: ["Server":"destiny"]),
-        StaticMiddleware(handlesMethods: [.get], handlesStatuses: [HTTPResponseStatus.notImplemented.code], handlesContentTypes: [HTTPMediaType.textHtml, HTTPMediaType.applicationJson, HTTPMediaType.textPlain], appliesStatus: HTTPResponseStatus.ok.code),
-        StaticMiddleware(handlesMethods: [.get], appliesHeaders: ["You-GET'd":"true"]),
+        StaticMiddleware(
+            handlesMethods: [.get],
+            handlesStatuses: [HTTPResponseStatus.notImplemented.code],
+            handlesContentTypes: [HTTPMediaType.textHtml, HTTPMediaType.applicationJson, HTTPMediaType.textPlain],
+            appliesStatus: HTTPResponseStatus.ok.code,
+            excludedRoutes: ["plaintext"]
+        ),
+        StaticMiddleware(
+            handlesMethods: [.get],
+            appliesHeaders: ["You-GET'd":"true"],
+            excludedRoutes: ["plaintext"]
+        ),
         StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
         //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
         DynamicCORSMiddleware(),
         DynamicDateMiddleware(),
-        DynamicMiddleware({ request, response in
+        /*DynamicMiddleware({ request, response in
             guard request.isMethod(HTTPRequestMethod.get) else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
             #else
             response.setHeader(key: "Womp-Womp", value: String(UInt64.random(in: 0..<UInt64.max)))
             #endif
-        })
+        })*/
     ],
     redirects: [
         .get: [
@@ -127,6 +145,14 @@ import SwiftCompression
         contentType: HTTPMediaType.applicationJson,
         result: .error(CustomError.yipyip)
     ),*/
+    DynamicRoute.get( // https://www.techempower.com/benchmarks
+        path: ["plaintext"],
+        handler: { _, response in
+            response.setStatus(HTTPResponseStatus.ok.code)
+            response.setHeader(key: "Server", value: "Destiny")
+            response.setResult("Hello World!")
+        }
+    ),
     DynamicRoute.get(
         path: ["error2"],
         contentType: HTTPMediaType.textPlain,

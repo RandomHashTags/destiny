@@ -43,7 +43,8 @@ public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible
         }
     }
 
-    /// String representation of this component including the delimiter, if it is a parameter. Used to determine where parameters are located in a route's path at compile time.
+    /// String representation of this component including the delimiter, if it is a parameter.
+    /// Used to determine where parameters are located in a route's path at compile time.
     @inlinable
     public var slug: String {
         switch self {

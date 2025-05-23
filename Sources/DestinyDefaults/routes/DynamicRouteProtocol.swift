@@ -11,7 +11,7 @@ public protocol DynamicRouteProtocol: RouteProtocol {
     var status: HTTPResponseStatus.Code { get set }
 
     /// Default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
-    var contentType: HTTPMediaType { get set }
+    var contentType: HTTPMediaType? { get set }
 
     /// Path of this route.
     var path: [PathComponent] { get set }
