@@ -58,7 +58,7 @@ extension DynamicResponse {
     }
 
     @inlinable
-    public func messageString() throws -> String {
-        try message.string(escapeLineBreak: false)
+    public func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
+        try message.write(to: socket)
     }
 }

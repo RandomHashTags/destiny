@@ -26,5 +26,5 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     mutating func setResult(_ result: String)
 
     @inlinable
-    func messageString() throws -> String
+    func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
 }

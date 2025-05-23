@@ -63,6 +63,6 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
         response: inout any DynamicResponseProtocol
     ) async throws {
         try await logic(&request, &response)
-        try socket.writeString(response.messageString())
+        try response.write(to: socket)
     }
 }

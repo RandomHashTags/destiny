@@ -18,4 +18,7 @@ public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
     /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
     func string(escapeLineBreak: Bool) throws -> String
+
+    @inlinable
+    func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
 }

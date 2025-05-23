@@ -36,7 +36,15 @@ enum HTTPMessage: DeclarationMacro {
             }
         }
         do {
-            var response = try DestinyDefaults.HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset).string(escapeLineBreak: true)
+            var response = try DestinyDefaults.HTTPMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                cookies: cookies,
+                result: result,
+                contentType: contentType,
+                charset: charset
+            ).string(escapeLineBreak: true)
             response = "\"" + response + "\""
             return ["\(raw: response)"]
         } catch {

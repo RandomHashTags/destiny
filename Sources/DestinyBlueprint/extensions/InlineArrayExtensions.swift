@@ -236,31 +236,31 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: SIMD
 extension InlineArrayProtocol where Element: SIMDScalar {
-    /// - Complexity: O(1).
+    /// - Complexity: O(1)
     @inlinable
     public func simd8(startIndex: Index = 0) -> SIMD16<Element> {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1).
+    /// - Complexity: O(1)
     @inlinable
     public func simd16(startIndex: Index = 0) -> SIMD16<Element> {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1).
+    /// - Complexity: O(1)
     @inlinable
     public func simd32(startIndex: Index = 0) -> SIMD32<Element> {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1).
+    /// - Complexity: O(1)
     @inlinable
     public func simd64(startIndex: Index = 0) -> SIMD64<Element> {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1).
+    /// - Complexity: O(1)
     @inlinable
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
         return withUnsafeBytes(of: self) { p in
