@@ -86,7 +86,7 @@ extension StaticMiddlewareProtocol {
             response.setHTTPVersion(appliesVersion)
         }
         if let appliesStatus {
-            response.setStatus(appliesStatus)
+            response.setStatusCode(appliesStatus)
         }
         if let appliesContentType {
             contentType = appliesContentType

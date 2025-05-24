@@ -4,27 +4,67 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     /// Timestamps when request events happen.
     var timestamps: DynamicRequestTimestamps { get set }
 
+    /// - Parameters:
+    ///   - index: Index of a path component.
+    /// - Returns: The parameter located at the given path component index.
     @inlinable
     func parameter(at index: Int) -> String
 
     @inlinable
     mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>)
 
+    /// Set the response's HTTP Version.
+    /// 
+    /// - Parameters:
+    ///   - version: The new HTTP Version to set.
     @inlinable
     mutating func setHTTPVersion(_ version: HTTPVersion)
 
+    /// Set the response's status.
+    /// 
+    /// Default behavior of this function calls `setStatusCode(code:)` with the given type's code.
+    /// 
+    /// - Parameters:
+    ///   - status: A concrete type conforming to `HTTPResponseStatus.StorageProtocol`.
     @inlinable
-    mutating func setStatus(_ code: HTTPResponseStatus.Code)
+    mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T)
 
+    /// Set the response's status code.
+    /// 
+    /// - Parameters:
+    ///   - code: The new status code to set.
+    @inlinable
+    mutating func setStatusCode(_ code: HTTPResponseStatus.Code)
+
+    /// Set a response header to the given value.
+    /// 
+    /// - Parameters:
+    ///   - key: The header you want to modify.
+    ///   - value: The new header value to set.
     @inlinable
     mutating func setHeader(key: String, value: String)
 
     @inlinable
     mutating func appendCookie<Cookie: HTTPCookieProtocol>(_ cookie: Cookie)
 
+    /// Set the content of the message.
+    /// 
+    /// - Parameters:
+    ///   - content: The new content to set.
     @inlinable
-    mutating func setResult(_ result: String)
+    mutating func setContent(_ content: String)
 
+    /// Writes an HTTP Message to a socket.
+    /// 
+    /// - Parameters:
+    ///   - socket: The socket to write to.
     @inlinable
     func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
+}
+
+extension DynamicResponseProtocol {
+    @inlinable
+    public mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T) {
+        setStatusCode(status.code)
+    }
 }

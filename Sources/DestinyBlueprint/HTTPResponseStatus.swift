@@ -20,8 +20,11 @@ extension HTTPResponseStatus {
         var codePhrase: ConcreteCodePhrase { get }
         var category: HTTPResponseStatus.Category { get }
     }
+    /// Default storage for a HTTP Response Status.
     public struct Storage<let phraseCount: Int, let codePhraseCount: Int>: StorageProtocol {
+        /// Status code of the HTTP Response Status.
         public let code:HTTPResponseStatus.Code
+        /// Description/phrase of the HTTP Response Status.
         public let phrase:InlineArray<phraseCount, UInt8>
         public let codePhrase:InlineArray<codePhraseCount, UInt8>
 

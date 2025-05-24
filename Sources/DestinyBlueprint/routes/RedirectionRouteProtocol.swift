@@ -16,7 +16,7 @@ public protocol RedirectionRouteProtocol: RouteProtocol {
 
     /// The HTTP Message of this route. Computed at compile time.
     /// 
-    /// - Throws: any error; if thrown: a compile error is thrown describing the issue.
+    /// - Throws: any error; if thrown: a compile diagnostic shown describing the issue.
     /// - Returns: a string representing a complete HTTP Message.
     func response() throws -> String
 

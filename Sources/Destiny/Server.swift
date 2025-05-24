@@ -15,8 +15,14 @@ public final class Server<ConcreteRouter: RouterProtocol, ClientSocket: SocketPr
     public let backlog:Int32
     public var router:ConcreteRouter
     public let logger:Logger
+
+    /// Commands that can be executed from the terminal when the server is running.
     public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
+
+    /// Called when the server loads successfully, just before it accepts incoming network requests.
     public let onLoad:(@Sendable () -> Void)?
+
+    /// Called when the server terminates.
     public let onShutdown:(@Sendable () -> Void)?
 
     public let reuseAddress:Bool

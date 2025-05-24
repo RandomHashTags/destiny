@@ -31,6 +31,7 @@ public protocol SocketProtocol: ~Copyable, Sendable {
     @inlinable
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 
+    /// Writes a `String` to the socket.
     @inlinable
     func writeString(_ string: String) throws
 }

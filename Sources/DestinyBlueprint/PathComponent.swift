@@ -33,7 +33,7 @@ public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible
         "\"" + slug + "\""
     }
 
-    /// Whether or not this component is a parameter.
+    /// - Returns: Whether or not this component is a parameter.
     @inlinable
     public var isParameter: Bool {
         switch self {
@@ -54,7 +54,7 @@ public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible
         }
     }
 
-    /// String representation of this component where the delimiter is omitted (only the name of the path is present).
+    /// - Returns: A string representation of this component where the delimiter is omitted (only the name of the path is present).
     @inlinable
     public var value: String {
         switch self {

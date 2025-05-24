@@ -6,6 +6,12 @@ public protocol RouterProtocol: Sendable, ~Copyable {
     @inlinable mutating func loadDynamicMiddleware()
 
     /// Process an accepted file descriptor.
+    /// 
+    /// - Parameters:
+    ///   - client: The accepted file descriptor.
+    ///   - received: The instant the socket was accepted.
+    ///   - socket: The socket to write to.
+    ///   - logger: The `Logger` that logs relevant details.
     @inlinable
     func process<Socket: SocketProtocol & ~Copyable>(
         client: Int32,
@@ -14,12 +20,25 @@ public protocol RouterProtocol: Sendable, ~Copyable {
         logger: Logger
     ) async throws
 
+    /// Writes a static responder to the socket.
+    /// 
+    /// - Parameters:
+    ///   - socket: The socket to write to.
+    ///   - responder: The static route responder that will write to the socket.
     @inlinable
     func respondStatically<Socket: SocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
         socket: borrowing Socket,
         responder: Responder
     ) async throws
 
+    /// Writes a dynamic responder to the socket.
+    /// 
+    /// - Parameters:
+    ///   - received: The instant the socket was accepted.
+    ///   - loaded: The instant the socket loaded its default values.
+    ///   - socket: The socket to write to.
+    ///   - request: The socket's request.
+    ///   - responder: The dynamic route responder that will write to the socket.
     @inlinable
     func respondDynamically<Socket: SocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
         received: ContinuousClock.Instant,

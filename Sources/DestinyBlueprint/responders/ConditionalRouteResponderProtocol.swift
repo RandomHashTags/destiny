@@ -1,9 +1,14 @@
 
 /// Core Conditional Route Responder protocol that selects a route responder based on a request.
 public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible, RouteResponderProtocol {
+    /// Try to write a response to a socket.
+    /// 
     /// - Parameters:
-    ///   - socket: The socket.
-    ///   - request: The request.
+    ///   - router: The router this route belongs to.
+    ///   - received: The instant the socket was accepted.
+    ///   - loaded: The instant the socket loaded its default values.
+    ///   - socket: The socket to write to.
+    ///   - request: The socket's request.
     /// - Returns: Whether or not a route responder responded to the request.
     @inlinable
     func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(

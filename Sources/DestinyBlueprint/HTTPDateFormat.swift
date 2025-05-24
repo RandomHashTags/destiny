@@ -20,6 +20,8 @@ import Logging
 import ServiceLifecycle
 
 // MARK: HTTPDateFormat
+/// Default storage that optimally keeps track of the current date in the HTTP Format,
+/// as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
 public struct HTTPDateFormat: Sendable {
     public static var shared = HTTPDateFormat()
 
@@ -27,6 +29,7 @@ public struct HTTPDateFormat: Sendable {
 
     public var nowInlineArray:InlineArrayResult = #inlineArray("Thu, 01 Jan 1970 00:00:00 GMT")
 
+    /// Begins the auto-updating of the current date in the HTTP Format.
     @inlinable
     public mutating func load(logger: Logger) async throws {
         // TODO: make it update at the beginning of the second
@@ -123,11 +126,11 @@ extension HTTPDateFormat {
         index += 1
         value[index] = .space
         index += 1
-        value[index] = 71 // G
+        value[index] = .G
         index += 1
-        value[index] = 77 // M
+        value[index] = .M
         index += 1
-        value[index] = 84 // T
+        value[index] = .T
         return value
     }
     @inlinable

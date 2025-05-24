@@ -352,8 +352,8 @@ extension Router.Storage {
                     } else {
                         registeredPaths.insert(string)
                         let buffer = DestinyRoutePathType(&string)
-                        let responder = try RouteResult.string(route.response()).responderDebugDescription
-                        strings.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
+                        let responder = try RouteResult.stringWithDateHeader(route.response()).responderDebugDescription
+                        stringsWithDateHeader.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
                     }
                 } catch {
                 }
@@ -372,15 +372,16 @@ extension Router.Storage {
                     let buffer = DestinyRoutePathType(&string)
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
-                        let responder = try route.result.responderDebugDescription(httpResponse)
-                        let value = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
-                        switch responder.split(separator: "(").first {
-                        case "RouteResponses.StaticString": staticStrings.append(value)
-                        case "RouteResponses.String": strings.append(value)
-                        case "RouteResponses.StringWithDateHeader": stringsWithDateHeader.append(value)
-                        case "RouteResponses.UInt8Array": uint8Arrays.append(value)
-                        case "RouteResponses.UInt16Array": uint16Arrays.append(value)
-                        default: break
+                        if let responder = try route.result?.responderDebugDescription(httpResponse) {
+                            let value = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
+                            switch responder.split(separator: "(").first {
+                            case "RouteResponses.StaticString": staticStrings.append(value)
+                            case "RouteResponses.String": strings.append(value)
+                            case "RouteResponses.StringWithDateHeader": stringsWithDateHeader.append(value)
+                            case "RouteResponses.UInt8Array": uint8Arrays.append(value)
+                            case "RouteResponses.UInt16Array": uint16Arrays.append(value)
+                            default: break
+                            }
                         }
                     } else {
                         Router.conditionalRoute(
@@ -490,7 +491,7 @@ extension Router.Storage {
                 parameterless.append(route)
             }
         }
-        let parameterless_string = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route, function in
+        let parameterlessString = parameterless.isEmpty ? ":" : "\n" + parameterless.compactMap({ route, function in
             var string = route.startLine
             if !isCaseSensitive {
                 string = string.lowercased()
@@ -543,7 +544,7 @@ extension Router.Storage {
                 return "// \(string)\n\(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-        return "DynamicResponderStorage(\nparameterless: [\(parameterless_string)],\nparameterized: [\(parameterizedString)],\ncatchall: [\(catchallString)]\n)"
+        return "DynamicResponderStorage(\nparameterless: [\(parameterlessString)],\nparameterized: [\(parameterizedString)],\ncatchall: [\(catchallString)]\n)"
     }
 }
 #endif

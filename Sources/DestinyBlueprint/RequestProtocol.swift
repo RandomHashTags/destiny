@@ -13,9 +13,17 @@ public protocol RequestProtocol: Sendable, ~Copyable {
     @inlinable
     func forEachPath(offset: Int, _ yield: (ConcretePathType) -> Void)
 
+    /// - Parameters:
+    ///   - index: Index of a path component.
+    /// - Returns: The path component at the given index.
+    @inlinable
     func path(at index: Int) -> ConcretePathType
+
+    /// The number of path components the request contains.
+    @inlinable
     var pathCount: Int { get }
 
+    /// - Returns: Whether or not the request's method matches the given one.
     @inlinable
     func isMethod<let count: Int>(_ method: InlineArray<count, UInt8>) -> Bool
 

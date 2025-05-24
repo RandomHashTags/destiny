@@ -60,7 +60,6 @@ let package = Package(
             name: "DestinyBlueprint",
             dependencies: [
                 "DestinyUtilityMacros",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "SwiftCompression", package: "swift-compression"),

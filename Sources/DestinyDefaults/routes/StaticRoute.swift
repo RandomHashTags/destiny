@@ -11,7 +11,7 @@ import SwiftSyntaxMacros
 public struct StaticRoute: StaticRouteProtocol {
     public var path:[String]
     public let contentType:HTTPMediaType?
-    public let result:any RouteResultProtocol
+    public let result:(any RouteResultProtocol)?
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
     public let version:HTTPVersion
@@ -28,7 +28,7 @@ public struct StaticRoute: StaticRouteProtocol {
         status: T,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        result: (any RouteResultProtocol)? = nil,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) {
         self.init(
@@ -51,7 +51,7 @@ public struct StaticRoute: StaticRouteProtocol {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        result: (any RouteResultProtocol)? = nil,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) {
         self.version = version
@@ -85,7 +85,7 @@ public struct StaticRoute: StaticRouteProtocol {
             status: \(status),
             contentType: \(contentType.debugDescription),
             charset: \(charset?.debugDescription ?? "nil"),
-            result: \(result.debugDescription),
+            result: \(result?.debugDescription ?? "nil"),
             supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))]
         )
         """
@@ -101,7 +101,7 @@ public struct StaticRoute: StaticRouteProtocol {
         var status = status
         var contentType = contentType
         var headers = OrderedDictionary<String, String>()
-        if result.id == RouteResult.StringWithDateHeader.id {
+        if result?.id == RouteResult.StringWithDateHeader.id {
             headers["Date"] = "Thu, 01 Jan 1970 00:00:00 GMT"
         }
         var cookies:[any HTTPCookieProtocol] = []
@@ -138,7 +138,7 @@ extension StaticRoute {
         var status = HTTPResponseStatus.notImplemented.code
         var contentType = HTTPMediaType.textPlain
         var charset:Charset? = nil
-        var result:any RouteResultProtocol = RouteResult.string("")
+        var result:(any RouteResultProtocol)? = nil
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         for argument in function.arguments {
             switch argument.label?.text {
