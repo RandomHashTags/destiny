@@ -7,7 +7,7 @@ import OrderedCollections
 public struct HTTPMessage: HTTPMessageProtocol {
     public var headers:OrderedDictionary<String, String>
     public var cookies:[any HTTPCookieProtocol]
-    public var result:(any RouteResultProtocol)?
+    public var body:(any ResponseBodyProtocol)?
     public var contentType:HTTPMediaType?
     public var status:HTTPResponseStatus.Code
     public var version:HTTPVersion
@@ -18,7 +18,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
         status: HTTPResponseStatus.Code,
         headers: OrderedDictionary<String, String>,
         cookies: [any HTTPCookieProtocol],
-        result: (any RouteResultProtocol)?,
+        body: (any ResponseBodyProtocol)?,
         contentType: HTTPMediaType?,
         charset: Charset?
     ) {
@@ -26,7 +26,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
         self.status = status
         self.headers = headers
         self.cookies = cookies
-        self.result = result
+        self.body = body
         self.contentType = contentType
         self.charset = charset
     }
@@ -38,15 +38,20 @@ public struct HTTPMessage: HTTPMessageProtocol {
             status: \(status),
             headers: \(headers),
             cookies: \(cookies),
-            result: \(result?.debugDescription ?? "nil"),
+            body: \(body?.debugDescription ?? "nil"),
             contentType: \(contentType?.debugDescription ?? "nil"),
             charset: \(charset?.debugDescription ?? "nil")
         )
         """
     }
 
+    @inlinable
+    public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {
+        status = code
+    }
+
     /// - Parameters:
-    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the result.
+    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
     /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
     public func string(escapeLineBreak: Bool) throws -> String {
@@ -58,16 +63,16 @@ public struct HTTPMessage: HTTPMessageProtocol {
         for cookie in cookies {
             string += "Set-Cookie: \(cookie)" + suffix
         }
-        if var result = try result?.string() {
-            let contentLength = result.utf8.count
-            result.replace("\"", with: "\\\"")
+        if var body = try body?.string() {
+            let contentLength = body.utf8.count
+            body.replace("\"", with: "\\\"")
             if let contentType {
                 string.append(HTTPResponseHeader.contentType.rawName)
                 string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string.append(HTTPResponseHeader.contentLength.rawName)
             string += ": \(contentLength)"
-            string += suffix + suffix + result
+            string += suffix + suffix + body
         }
         return string
     }
@@ -84,44 +89,21 @@ public struct HTTPMessage: HTTPMessageProtocol {
             string += "Set-Cookie: \(cookie)" + suffix
         }
         var bytes:[UInt8]
-        if let result = try result?.bytes() {
+        if let body = try body?.bytes() {
             if let contentType {
                 string.append(HTTPResponseHeader.contentType.rawName)
                 string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string.append(HTTPResponseHeader.contentLength.rawName)
-            string += ": \(result.count)"
+            string += ": \(body.count)"
             string += suffix + suffix
             
             bytes = [UInt8](string.utf8)
-            bytes.append(contentsOf: result)
+            bytes.append(contentsOf: body)
         } else {
             bytes = [UInt8](string.utf8)
         }
         return bytes
-    }
-
-    @inlinable
-    public func bytes(_ closure: (InlineVLArray<UInt8>) throws -> Void) rethrows {
-        /*var byteCount = 14
-        let suffix = String([Character(Unicode.Scalar(.carriageReturn)), Character(Unicode.Scalar(.lineFeed))])
-        var string = version.string + " \(status)" + suffix
-        for (header, value) in headers {
-            string += header + ": " + value + suffix
-            byteCount += header.count + value.count + 4
-        }
-        for cookie in cookies {
-            let cookieDesc = "\(cookie)"
-            string += "Set-Cookie: " + cookieDesc + suffix
-            byteCount += cookieDesc.count + 14
-        }
-        if let result {
-            try result.bytes { array in
-                byteCount += array.count
-            }
-        } else {
-        }*/
-        // TODO: finish
     }
 
     @inlinable
@@ -136,7 +118,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
 
     @inlinable
     public mutating func setBody(_ body: String) {
-        result = RouteResult.string(body)
+        self.body = ResponseBody.string(body)
     }
 }
 
@@ -151,11 +133,11 @@ extension HTTPMessage {
         for cookie in cookies {
             capacity += 14 + "\(cookie)".count // Set-Cookie: x\r\n
         }
-        if let result {
+        if let body {
             if let contentType {
                 capacity += 16 + contentType.description.count + (charset != nil ? 10 + charset!.rawName.count : 0) // Content-Type: x; charset=x\r\n
             }
-            let contentLength = result.count
+            let contentLength = body.count
             capacity += 18 + String(contentLength).count // Content-Length: #\r\n
             capacity += 2 + contentLength // \r\n + content
         }
@@ -173,6 +155,13 @@ extension HTTPMessage {
         })
     }
     @inlinable
+    func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
+        buffer[i] = .carriageReturn
+        i += 1
+        buffer[i] = .lineFeed
+        i += 1
+    }
+    @inlinable
     func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         let versionArray = version.inlineArray
         for indice in versionArray.indices {
@@ -187,10 +176,7 @@ extension HTTPMessage {
             buffer[i + indice] = span[indice]
         }
         i += span.count
-        buffer[i] = .carriageReturn
-        i += 1
-        buffer[i] = .lineFeed
-        i += 1
+        writeCRLF(to: buffer, index: &i)
     }
     @inlinable
     func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: String, value: String) {
@@ -209,10 +195,7 @@ extension HTTPMessage {
             buffer[i + indice] = valueSpan[indice]
         }
         i += valueSpan.count
-        buffer[i] = .carriageReturn
-        i += 1
-        buffer[i] = .lineFeed
-        i += 1
+        writeCRLF(to: buffer, index: &i)
     }
     @inlinable
     func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: any HTTPCookieProtocol) {
@@ -226,15 +209,12 @@ extension HTTPMessage {
             buffer[i + indice] = span[indice]
         }
         i += span.count
-        buffer[i] = .carriageReturn
-        i += 1
-        buffer[i] = .lineFeed
-        i += 1
+        writeCRLF(to: buffer, index: &i)
     }
     @inlinable
     func writeResult(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
-        guard let result else { return }
-        let contentLength = result.count
+        guard let body else { return }
+        let contentLength = body.count
         if let contentType {
             let contentTypeHeader:InlineArray<14, UInt8> = #inlineArray("Content-Type: ")
             for indice in contentTypeHeader.indices {
@@ -258,10 +238,7 @@ extension HTTPMessage {
                 }
                 i += charsetValueSpan.count
             }
-            buffer[i] = .carriageReturn
-            i += 1
-            buffer[i] = .lineFeed
-            i += 1
+            writeCRLF(to: buffer, index: &i)
         }
         let contentLengthHeader:InlineArray<16, UInt8> = #inlineArray("Content-Length: ")
         for indice in contentLengthHeader.indices {
@@ -273,16 +250,10 @@ extension HTTPMessage {
             buffer[i + indice] = contentLengthSpan[indice]
         }
         i += contentLengthSpan.count
-        buffer[i] = .carriageReturn
-        i += 1
-        buffer[i] = .lineFeed
-        i += 1
+        writeCRLF(to: buffer, index: &i)
 
-        buffer[i] = .carriageReturn
-        i += 1
-        buffer[i] = .lineFeed
-        i += 1
-        result.bytes {
+        writeCRLF(to: buffer, index: &i)
+        body.bytes {
             for indice in $0.indices {
                 buffer[i + indice] = $0.itemAt(index: indice)
             }
@@ -305,12 +276,12 @@ extension HTTPMessage {
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: [String:String],
-        result: String?,
+        body: String?,
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), result: result, contentType: contentType, charset: charset)
+        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
     }
 
     @inlinable
@@ -319,12 +290,12 @@ extension HTTPMessage {
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: [HTTPResponseHeader:String],
-        result: String?,
+        body: String?,
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), result: result, contentType: contentType, charset: charset)
+        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
     }
 
     @inlinable
@@ -333,20 +304,20 @@ extension HTTPMessage {
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: String,
-        result: String?,
+        body: String?,
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
         var string = version.string + " \(status)" + suffix + headers
-        if let result {
-            let contentLength = result.utf8.count
+        if let body {
+            let contentLength = body.utf8.count
             if let contentType {
                 string.append(HTTPResponseHeader.contentType.rawName)
                 string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string.append(HTTPResponseHeader.contentLength.rawName)
             string += ": \(contentLength)"
-            string += suffix + suffix + result
+            string += suffix + suffix + body
         }
         return string
     }

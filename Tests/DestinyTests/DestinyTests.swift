@@ -4,32 +4,8 @@ import SwiftCompression
 import Testing
 
 struct DestinyTests {
-    @Test func memoryLayouts() {
-        //print(layout(for: RouteProtocol.self))
-        //print("from: \(layout(for: Test1.self))")
-        //print("to: \(layout(for: DynamicRoute.self))")
-    }
-    func layout<T>(for type: T.Type) -> (Int, Int, Int) {
-        return (
-            MemoryLayout<T>.alignment,
-            MemoryLayout<T>.size,
-            MemoryLayout<T>.stride
-        )
-    }
-
-    struct Test1 {
-        public let version:HTTPVersion
-        public var method:HTTPRequestMethod
-        public var path:[PathComponent]
-        public var status:HTTPResponseStatus
-        public var contentType:HTTPMediaType
-        public var defaultResponse:any DynamicResponseProtocol
-        public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
-        public let handler:@Sendable (_ request: inout any RequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
-        var handlerLogic:String = "{ _, _ in }"
-    }
-
-    @Test func example() {
+    @Test
+    func example() {
         let _:DefaultRouter = #router(
             version: .v2_0,
             middleware: [
@@ -40,7 +16,7 @@ struct DestinyTests {
                 path: ["test1"],
                 contentType: HTTPMediaType.textHtml,
                 charset: Charset.utf8,
-                result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                body: ResponseBody.staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
                 method: .get,
@@ -48,26 +24,27 @@ struct DestinyTests {
                 status: HTTPResponseStatus.movedPermanently,
                 contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
-                result: .staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                body: ResponseBody.staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
                 method: .get,
                 path: ["test3"],
                 contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
-                result: .bytes([UInt8]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf8))
+                body: ResponseBody.bytes([UInt8]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf8))
             ),
-            StaticRoute(
+            /*StaticRoute(
                 method: .get,
                 path: ["test4"],
                 contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
-                result: .bytes16([UInt16]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf16))
-            )
+                body: ResponseBody.bytes16([UInt16]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf16))
+            )*/
         )
     }
 
-    @Test func inlineArrayVL() {
+    @Test
+    func inlineArrayVL() {
         InlineVLArray<UInt8>.create(amount: 5, default: 0, { array in
             #expect(array.count == 5)
             for i in array.indices {
@@ -106,7 +83,8 @@ struct DestinyTests {
         })
     }
 
-    @Test func joinedInlineArrayVL() throws {
+    @Test
+    func joinedInlineArrayVL() throws {
         InlineVLArray<UInt8>.create(amount: 5, default: 0) { first in
             InlineVLArray<UInt8>.create(amount: 6, default: 1) { second in
                 first.join([second]) { joined in
@@ -124,5 +102,3 @@ struct DestinyTests {
         }
     }
 }
-
-import Foundation

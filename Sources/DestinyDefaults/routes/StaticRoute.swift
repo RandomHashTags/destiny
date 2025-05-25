@@ -11,7 +11,7 @@ import SwiftSyntaxMacros
 public struct StaticRoute: StaticRouteProtocol {
     public var path:[String]
     public let contentType:HTTPMediaType?
-    public let result:(any RouteResultProtocol)?
+    public let body:(any ResponseBodyProtocol)?
     public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
 
     public let version:HTTPVersion
@@ -28,7 +28,7 @@ public struct StaticRoute: StaticRouteProtocol {
         status: T,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: (any RouteResultProtocol)? = nil,
+        body: (any ResponseBodyProtocol)? = nil,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) {
         self.init(
@@ -39,7 +39,7 @@ public struct StaticRoute: StaticRouteProtocol {
             status: status.code,
             contentType: contentType,
             charset: charset,
-            result: result,
+            body: body,
             supportedCompressionAlgorithms: supportedCompressionAlgorithms
         )
     }
@@ -51,7 +51,7 @@ public struct StaticRoute: StaticRouteProtocol {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: (any RouteResultProtocol)? = nil,
+        body: (any ResponseBodyProtocol)? = nil,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) {
         self.version = version
@@ -61,7 +61,7 @@ public struct StaticRoute: StaticRouteProtocol {
         self.status = status
         self.contentType = contentType
         self.charset = charset
-        self.result = result
+        self.body = body
         self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
     }
 
@@ -85,7 +85,7 @@ public struct StaticRoute: StaticRouteProtocol {
             status: \(status),
             contentType: \(contentType.debugDescription),
             charset: \(charset?.debugDescription ?? "nil"),
-            result: \(result?.debugDescription ?? "nil"),
+            body: \(body?.debugDescription ?? "nil"),
             supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))]
         )
         """
@@ -101,7 +101,7 @@ public struct StaticRoute: StaticRouteProtocol {
         var status = status
         var contentType = contentType
         var headers = OrderedDictionary<String, String>()
-        if result?.id == RouteResult.StringWithDateHeader.id {
+        if body?.id == ResponseBody.StringWithDateHeader.id {
             headers["Date"] = "Thu, 01 Jan 1970 00:00:00 GMT"
         }
         var cookies:[any HTTPCookieProtocol] = []
@@ -117,13 +117,13 @@ public struct StaticRoute: StaticRouteProtocol {
         }
         headers[HTTPResponseHeader.contentType.rawNameString] = nil
         headers[HTTPResponseHeader.contentLength.rawNameString] = nil
-        return HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, result: result, contentType: contentType, charset: charset)
+        return HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 
     @inlinable
     public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)? {
-        let result = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
-        return RouteResponses.String(result)
+        let body = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
+        return RouteResponses.String(body)
     }
 }
 
@@ -138,7 +138,7 @@ extension StaticRoute {
         var status = HTTPResponseStatus.notImplemented.code
         var contentType = HTTPMediaType.textPlain
         var charset:Charset? = nil
-        var result:(any RouteResultProtocol)? = nil
+        var body:(any ResponseBodyProtocol)? = nil
         var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         for argument in function.arguments {
             switch argument.label?.text {
@@ -156,8 +156,8 @@ extension StaticRoute {
                 contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
             case "charset":
                 charset = Charset(expr: argument.expression)
-            case "result":
-                result = RouteResult.parse(expr: argument.expression) ?? result
+            case "body":
+                body = ResponseBody.parse(expr: argument.expression) ?? body
             case "supportedCompressionAlgorithms":
                 supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
             default:
@@ -172,7 +172,7 @@ extension StaticRoute {
             status: status,
             contentType: contentType,
             charset: charset,
-            result: result,
+            body: body,
             supportedCompressionAlgorithms: supportedCompressionAlgorithms
         )
         if isCaseSensitive {
@@ -196,10 +196,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -210,10 +210,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -224,10 +224,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -238,10 +238,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -252,10 +252,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -266,10 +266,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -280,10 +280,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -294,10 +294,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -308,10 +308,10 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 
     @inlinable
@@ -322,9 +322,9 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        result: any RouteResultProtocol,
+        body: any ResponseBodyProtocol,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) -> Self {
-        return on(version: version, method: .patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, result: result, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
+        return on(version: version, method: .patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms)
     }
 }

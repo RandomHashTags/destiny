@@ -1,32 +1,32 @@
 
 import DestinyBlueprint
 
-extension RouteResult {
+extension ResponseBody {
     @inlinable
-    public static func string(_ value: Swift.String) -> String {
-        Self.String(value)
+    public static func staticString(_ value: Swift.StaticString) -> StaticString {
+        Self.StaticString(value)
     }
 
-    public struct String: RouteResultProtocol {
+    public struct StaticString: ResponseBodyProtocol {
         @inlinable public static var id:UInt8 { 2 }
 
-        public let value:Swift.String
+        public let value:Swift.StaticString
 
         @inlinable
-        public init(_ value: Swift.String) {
+        public init(_ value: Swift.StaticString) {
             self.value = value
         }
 
         public var debugDescription: Swift.String {
-            "RouteResult.string(\"\(value)\")"
+            "ResponseBody.staticString(\"\(value)\")"
         }
 
         public var responderDebugDescription: Swift.String {
-            "RouteResponses.String(\"\(value)\")"
+            "RouteResponses.StaticString(\"\(value)\")"
         }
 
         public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-            Self(input).responderDebugDescription
+            fatalError("cannot do that") // TODO: fix?
         }
 
         public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
@@ -35,22 +35,22 @@ extension RouteResult {
 
         @inlinable
         public var count: Int {
-            value.utf8.count
+            value.utf8CodeUnitCount
         }
         
         @inlinable
         public func string() -> Swift.String {
-            value
+            value.description
         }
 
         @inlinable
         public func bytes() -> [UInt8] {
-            [UInt8](value.utf8)
+            [UInt8](value.description.utf8)
         }
 
         @inlinable
         public func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
-            try InlineVLArray<UInt8>.create(string: value, closure)
+            try InlineVLArray<UInt8>.create(string: value.description, closure)
         }
     }
 }

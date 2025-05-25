@@ -44,7 +44,7 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
 
     public func response() throws -> String {
         let headers:[String:String] = ["Location": "/" + to.joined(separator: "/")]
-        return HTTPMessage.create(escapeLineBreak: true, version: version, status: status, headers: headers, result: nil, contentType: nil, charset: nil)
+        return HTTPMessage.create(escapeLineBreak: true, version: version, status: status, headers: headers, body: nil, contentType: nil, charset: nil)
     }
 }
 

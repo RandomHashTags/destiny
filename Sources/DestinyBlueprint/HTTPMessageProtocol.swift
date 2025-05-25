@@ -4,8 +4,21 @@ public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
     @inlinable
     var version: HTTPVersion { get set }
 
+    /// Set the message's status.
+    /// 
+    /// Default behavior of this function calls `setStatusCode(code:)` with the given type's code.
+    /// 
+    /// - Parameters:
+    ///   - status: A concrete type conforming to `HTTPResponseStatus.StorageProtocol`.
     @inlinable
-    var status: HTTPResponseStatus.Code { get set }
+    mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T)
+
+    /// Set the message's status code.
+    /// 
+    /// - Parameters:
+    ///   - code: The new status code to set.
+    @inlinable
+    mutating func setStatusCode(_ code: HTTPResponseStatus.Code)
 
     /// Set the body of the message.
     /// 
@@ -26,7 +39,7 @@ public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
     mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T)
 
     /// - Parameters:
-    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the result.
+    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
     /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
     func string(escapeLineBreak: Bool) throws -> String
@@ -37,4 +50,11 @@ public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
     ///   - socket: The socket to write to.
     @inlinable
     func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
+}
+
+extension HTTPMessageProtocol {
+    @inlinable
+    public mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T) {
+        setStatusCode(status.code)
+    }
 }

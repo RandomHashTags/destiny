@@ -53,7 +53,7 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
     version: HTTPVersion,
     status: HTTPResponseStatus,
     headers: [String:String] = [:],
-    result: (any RouteResultProtocol)? = nil,
+    body: (any ResponseBodyProtocol)? = nil,
     contentType: HTTPMediaType? = nil,
     charset: Charset? = nil
 ) -> T = #externalMacro(module: "DestinyMacros", type: "HTTPMessage")

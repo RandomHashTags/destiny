@@ -1,12 +1,12 @@
 
 import DestinyBlueprint
 
-extension RouteResult {
+extension ResponseBody {
     @inlinable
     public static func bytes(_ value: [UInt8]) -> Self.Bytes {
         Self.Bytes(value)
     }
-    public struct Bytes: RouteResultProtocol {
+    public struct Bytes: ResponseBodyProtocol {
         @inlinable public static var id:UInt8 { 0 }
 
         public let value:[UInt8]
@@ -17,7 +17,7 @@ extension RouteResult {
         }
 
         public var debugDescription: Swift.String {
-            "RouteResult.bytes(\(value))"
+            "ResponseBody.bytes(\(value))"
         }
 
         public var responderDebugDescription: Swift.String {

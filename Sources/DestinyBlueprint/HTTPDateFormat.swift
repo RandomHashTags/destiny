@@ -68,9 +68,25 @@ public struct HTTPDateFormat: Sendable {
 
 // MARK: Get
 extension HTTPDateFormat {
+    /// - Parameters:
+    ///   - year: Target year.
+    ///   - month: Number of months since January, in the range 0 to 11.
+    ///   - day: Day of the month, in the range 1 to 31.
+    ///   - dayOfWeek: Number of days since Sunday, in the range 0 to 6.
+    ///   - hour: Number of hours past midnight (00:00), in the range 0 to 23.
+    ///   - minute: Number of minutes after the hour, in the range 0 to 59.
+    ///   - second: Number of seconds after the minute, normally in the range 0 to 59, but can be up to 60 to allow for leap seconds.
     /// - Returns: A string that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
     @inlinable
-    public static func get<T: BinaryInteger>(year: T, month: T, day: T, dayOfWeek: T, hour: T, minute: T, second: T) -> InlineArrayResult {
+    public static func get<T: BinaryInteger>(
+        year: T,
+        month: T,
+        day: T,
+        dayOfWeek: T,
+        hour: T,
+        minute: T,
+        second: T
+    ) -> InlineArrayResult {
         let dayName = httpDayName(dayOfWeek)
         let dayNumbers = httpDateNumber(day)
         let monthName = httpMonthName(month)
@@ -79,7 +95,7 @@ extension HTTPDateFormat {
         let minuteNumbers = httpDateNumber(minute)
         let secondNumbers = httpDateNumber(second)
 
-        var value:InlineArrayResult = .init(repeating: 0)
+        var value = InlineArrayResult(repeating: 0)
         value[0] = dayName[0]
         value[1] = dayName[1]
         value[2] = dayName[2]
@@ -136,31 +152,31 @@ extension HTTPDateFormat {
     @inlinable
     static func httpDayName<T: BinaryInteger>(_ int: T) -> InlineArray<3, UInt8> {
         switch int {
-        case 1:  return #inlineArray("Sun")
-        case 2:  return #inlineArray("Mon")
-        case 3:  return #inlineArray("Tue")
-        case 4:  return #inlineArray("Wed")
-        case 5:  return #inlineArray("Thu")
-        case 6:  return #inlineArray("Fri")
-        case 7:  return #inlineArray("Sat")
+        case 0:  return #inlineArray("Sun")
+        case 1:  return #inlineArray("Mon")
+        case 2:  return #inlineArray("Tue")
+        case 3:  return #inlineArray("Wed")
+        case 4:  return #inlineArray("Thu")
+        case 5:  return #inlineArray("Fri")
+        case 6:  return #inlineArray("Sat")
         default: return #inlineArray("???")
         }
     }
     @inlinable
     static func httpMonthName<T: BinaryInteger>(_ int: T) -> InlineArray<3, UInt8> {
         switch int {
-        case 1:  return #inlineArray("Jan")
-        case 2:  return #inlineArray("Feb")
-        case 3:  return #inlineArray("Mar")
-        case 4:  return #inlineArray("Apr")
-        case 5:  return #inlineArray("May")
-        case 6:  return #inlineArray("Jun")
-        case 7:  return #inlineArray("Jul")
-        case 8:  return #inlineArray("Aug")
-        case 9:  return #inlineArray("Sep")
-        case 10: return #inlineArray("Oct")
-        case 11: return #inlineArray("Nov")
-        case 12: return #inlineArray("Dec")
+        case 0:  return #inlineArray("Jan")
+        case 1:  return #inlineArray("Feb")
+        case 2:  return #inlineArray("Mar")
+        case 3:  return #inlineArray("Apr")
+        case 4:  return #inlineArray("May")
+        case 5:  return #inlineArray("Jun")
+        case 6:  return #inlineArray("Jul")
+        case 7:  return #inlineArray("Aug")
+        case 8:  return #inlineArray("Sep")
+        case 9:  return #inlineArray("Oct")
+        case 10: return #inlineArray("Nov")
+        case 11: return #inlineArray("Dec")
         default: return #inlineArray("???")
         }
     }
@@ -199,7 +215,7 @@ extension HTTPDateFormat {
 
     @inlinable
     static func httpNumber<let count: Int, T: BinaryInteger>(_ int: T) -> InlineArray<count, UInt8> {
-        var value:InlineArray<count, UInt8> = .init(repeating: 0)
+        var value = InlineArray<count, UInt8>(repeating: 0)
         var i = 0
         for char in String(int) {
             if i < count, let v = char.asciiValue {
@@ -214,6 +230,7 @@ extension HTTPDateFormat {
 #if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
 // MARK: Glibc
 extension HTTPDateFormat {
+    // https://linux.die.net/man/3/localtime
     @inlinable
     public func nowGlibc() -> InlineArrayResult? {
         var now = time(nil)
@@ -222,7 +239,15 @@ extension HTTPDateFormat {
     }
     @inlinable
     func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
-        return HTTPDateFormat.get(year: 1900 + gmt.tm_year, month: gmt.tm_mon, day: gmt.tm_mday, dayOfWeek: gmt.tm_wday, hour: gmt.tm_hour, minute: gmt.tm_min, second: gmt.tm_sec)
+        return HTTPDateFormat.get(
+            year: 1900 + gmt.tm_year,
+            month: gmt.tm_mon,
+            day: gmt.tm_mday,
+            dayOfWeek: gmt.tm_wday,
+            hour: gmt.tm_hour,
+            minute: gmt.tm_min,
+            second: gmt.tm_sec
+        )
     }
 }
 #endif
@@ -242,7 +267,7 @@ extension HTTPDateFormat {
             components.minute ?? 0,
             components.second ?? 0
         )
-        return get(year: values.0, month: values.1, day: values.2, dayOfWeek: values.3, hour: values.4, minute: values.5, second: values.6)
+        return get(year: values.0, month: values.1-1, day: values.2, dayOfWeek: values.3-1, hour: values.4, minute: values.5, second: values.6)
     }
 }
 

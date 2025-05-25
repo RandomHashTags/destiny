@@ -63,7 +63,7 @@ extension Router {
                     status: HTTPResponseStatus.ok.code,
                     headers: [:],
                     cookies: [],
-                    result: RouteResult.string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"),
+                    body: ResponseBody.string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"),
                     contentType: HTTPMediaType.applicationJson,
                     charset: nil
                 )
@@ -352,7 +352,7 @@ extension Router.Storage {
                     } else {
                         registeredPaths.insert(string)
                         let buffer = DestinyRoutePathType(&string)
-                        let responder = try RouteResult.stringWithDateHeader(route.response()).responderDebugDescription
+                        let responder = try ResponseBody.stringWithDateHeader(route.response()).responderDebugDescription
                         stringsWithDateHeader.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
                     }
                 } catch {
@@ -372,7 +372,7 @@ extension Router.Storage {
                     let buffer = DestinyRoutePathType(&string)
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
-                        if let responder = try route.result?.responderDebugDescription(httpResponse) {
+                        if let responder = try route.body?.responderDebugDescription(httpResponse) {
                             let value = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
                             switch responder.split(separator: "(").first {
                             case "RouteResponses.StaticString": staticStrings.append(value)
@@ -423,7 +423,7 @@ extension Router {
         buffer: DestinyRoutePathType,
         httpResponse: DestinyDefaults.HTTPMessage
     ) {
-        guard let result = httpResponse.result else { return }
+        guard let result = httpResponse.body else { return }
         let body:[UInt8]
         do {
             body = try result.bytes()
@@ -441,7 +441,7 @@ extension Router {
             if let technique = algorithm.technique {
                 do {
                     let compressed = try body.compressed(using: technique)
-                    httpResponse.result = RouteResult.bytes(compressed.data)
+                    httpResponse.body = ResponseBody.bytes(compressed.data)
                     httpResponse.setHeader(key: HTTPResponseHeader.contentEncoding.rawNameString, value: algorithm.acceptEncodingName)
                     httpResponse.setHeader(key: HTTPResponseHeader.vary.rawNameString, value: HTTPRequestHeader.acceptEncoding.rawNameString)
                     do {

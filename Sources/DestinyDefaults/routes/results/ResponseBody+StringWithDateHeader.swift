@@ -1,14 +1,14 @@
 
 import DestinyBlueprint
 
-extension RouteResult {
+extension ResponseBody {
     @inlinable
     public static func stringWithDateHeader(_ value: Swift.String) -> StringWithDateHeader {
         Self.StringWithDateHeader(value)
     }
 
-    public struct StringWithDateHeader: RouteResultProtocol {
-        @inlinable public static var id: UInt8 { 3 }
+    public struct StringWithDateHeader: ResponseBodyProtocol {
+        @inlinable public static var id: UInt8 { 4 }
 
         public var value:Swift.String
 
@@ -18,7 +18,7 @@ extension RouteResult {
         }
 
         public var debugDescription: Swift.String {
-            "RouteResult.stringWithDateHeader(\"\(value)\")"
+            "ResponseBody.stringWithDateHeader(\"\(value)\")"
         }
 
         public var responderDebugDescription: Swift.String {

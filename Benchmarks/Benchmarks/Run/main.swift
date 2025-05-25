@@ -59,7 +59,7 @@ func destiny_service(port: UInt16) -> Destiny.Application {
                     path: "test",
                     status: .ok,
                     contentType: .html,
-                    result: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
+                    body: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
                 )
             ), logger: server_logger
         )

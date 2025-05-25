@@ -44,7 +44,7 @@ extension DynamicResponse {
 
     @inlinable
     public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {
-        message.status = code
+        message.setStatusCode(code)
     }
 
     @inlinable

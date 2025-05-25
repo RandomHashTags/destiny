@@ -69,7 +69,7 @@ import SwiftCompression
                 method: .get,
                 path: ["hoopla"],
                 contentType: HTTPMediaType.textPlain,
-                result: RouteResult.stringWithDateHeader("rly dud")
+                body: ResponseBody.stringWithDateHeader("rly dud")
             ),
             DynamicRoute(
                 method: .get,
@@ -84,66 +84,71 @@ import SwiftCompression
     StaticRoute.get(
         path: ["redirectto"],
         contentType: HTTPMediaType.textHtml,
-        result: RouteResult.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
+        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
+    ),
+    StaticRoute.get(
+        path: ["expressionMacro"],
+        contentType: HTTPMediaType.textPlain,
+        body: ResponseBody.stringWithDateHeader(#filePath)
     ),
     StaticRoute.post(
         path: ["post"],
         contentType: HTTPMediaType.applicationJson,
-        result: RouteResult.stringWithDateHeader(#"{"bing":"bonged"}"#)
+        body: ResponseBody.stringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["bro?what=dude"],
         contentType: HTTPMediaType.applicationJson,
-        result: RouteResult.stringWithDateHeader(#"{"bing":"bonged"}"#)
+        body: ResponseBody.stringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["html"],
         contentType: HTTPMediaType.textHtml,
-        result: RouteResult.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["SHOOP"],
         caseSensitive: false,
         contentType: HTTPMediaType.textHtml,
-        result: RouteResult.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
         contentType: HTTPMediaType.textHtml,
-        result: RouteResult.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["json"],
         contentType: HTTPMediaType.applicationJson,
-        result: RouteResult.stringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
-        //result: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
+        body: ResponseBody.stringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
+        //body: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
     ),
     StaticRoute.get(
         path: ["txt"],
         contentType: HTTPMediaType.textPlain,
-        result: RouteResult.stringWithDateHeader("just a regular txt page; t'was your destiny")
+        body: ResponseBody.stringWithDateHeader("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
         path: ["bytes"],
         contentType: HTTPMediaType.textPlain,
-        result: RouteResult.bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+        body: ResponseBody.bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
     ),
     StaticRoute.get(
         path: ["bytes2"],
         contentType: HTTPMediaType.textPlain,
-        result: RouteResult.bytes([UInt8]("bruh".utf8))
+        body: ResponseBody.bytes([UInt8]("bruh".utf8))
     ),
     StaticRoute.get(
         path: ["bytes3"],
         contentType: HTTPMediaType.textPlain,
-        result: RouteResult.bytes(Array<UInt8>("bruh".utf8))
+        body: ResponseBody.bytes(Array<UInt8>("bruh".utf8))
     ),
     /*StaticRoute.get(
         path: ["error"],
         status: HTTPResponseStatus.badRequest.code,
         contentType: HTTPMediaType.applicationJson,
-        result: .error(CustomError.yipyip)
+        body: .error(CustomError.yipyip)
     ),*/
     DynamicRoute.get( // https://www.techempower.com/benchmarks
         path: ["plaintext"],
@@ -151,6 +156,12 @@ import SwiftCompression
             response.setStatus(HTTPResponseStatus.ok)
             response.setHeader(key: "Server", value: "Destiny")
             response.setBody("Hello World!")
+        }
+    ),
+    DynamicRoute.get(
+        path: ["dynamicExpressionMacro"],
+        handler: { _, response in
+            response.setBody(#filePath)
         }
     ),
     DynamicRoute.get(
@@ -165,7 +176,7 @@ import SwiftCompression
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             response.setBody("bro")
-            //response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
+            //response.body = .string("Host=" + (request.headers["Host"] ?? "nil"))
         }
     ),
     DynamicRoute.get(

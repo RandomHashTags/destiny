@@ -11,7 +11,7 @@ enum HTTPMessage: DeclarationMacro {
         var version:HTTPVersion = .v1_1
         var status = HTTPResponseStatus.notImplemented.code
         var headers:OrderedDictionary<String, String> = [:]
-        var result:(any RouteResultProtocol)? = nil
+        var body:(any ResponseBodyProtocol)? = nil
         var contentType:HTTPMediaType? = nil
         var charset:Charset? = nil
         var cookies:[any HTTPCookieProtocol] = [] // TODO: fix
@@ -24,8 +24,8 @@ enum HTTPMessage: DeclarationMacro {
                     status = HTTPResponseStatus.parse(expr: child.expression)?.code ?? status
                 case "headers":
                     headers = HTTPRequestHeader.parse(context: context, child.expression)
-                case "result":
-                    result = RouteResult.parse(expr: child.expression)
+                case "body":
+                    body = ResponseBody.parse(expr: child.expression)
                 case "contentType":
                     contentType = HTTPMediaType.parse(context: context, expr: child.expression) ?? contentType
                 case "charset":
@@ -41,7 +41,7 @@ enum HTTPMessage: DeclarationMacro {
                 status: status,
                 headers: headers,
                 cookies: cookies,
-                result: result,
+                body: body,
                 contentType: contentType,
                 charset: charset
             ).string(escapeLineBreak: true)
