@@ -37,6 +37,8 @@ extension ResponseBody {
 #endif
         case "macroExpansion":
             return ResponseBody.macroExpansion(function.arguments.first!.expression.description)
+        case "macroExpansionWithDateHeader":
+            return ResponseBody.macroExpansionWithDateHeader(function.arguments.first!.expression.description)
         case "string":
             let s = parseString(function.arguments.first!.expression)
             return ResponseBody.string(s)

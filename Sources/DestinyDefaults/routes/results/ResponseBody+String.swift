@@ -8,7 +8,7 @@ extension ResponseBody {
     }
 
     public struct String: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 4 }
+        @inlinable public static var id:UInt8 { 5 }
 
         public let value:Swift.String
 

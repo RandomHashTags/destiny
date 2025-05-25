@@ -101,7 +101,7 @@ public struct StaticRoute: StaticRouteProtocol {
         var status = status
         var contentType = contentType
         var headers = OrderedDictionary<String, String>()
-        if body?.id == ResponseBody.StringWithDateHeader.id {
+        if let id = body?.id, (id == ResponseBody.StringWithDateHeader.id || id == ResponseBody.MacroExpansionWithDateHeader<String>.id) {
             headers["Date"] = "Thu, 01 Jan 1970 00:00:00 GMT"
         }
         var cookies:[any HTTPCookieProtocol] = []

@@ -73,7 +73,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
             }
             string.append(HTTPResponseHeader.contentLength.rawName)
             string += ": "
-            if fromMacro && body.id == ResponseBody.MacroExpansion<String>.id {
+            if fromMacro && (body.id == ResponseBody.MacroExpansion<String>.id || body.id == ResponseBody.MacroExpansionWithDateHeader<String>.id) {
                 string += "\", body: " + bodyString
             } else {
                 string += "\(contentLength)"

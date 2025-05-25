@@ -91,6 +91,11 @@ import SwiftCompression
         contentType: HTTPMediaType.textPlain,
         body: ResponseBody.macroExpansion(#filePath)
     ),
+    StaticRoute.get(
+        path: ["expressionMacroWithDate"],
+        contentType: HTTPMediaType.textPlain,
+        body: ResponseBody.macroExpansionWithDateHeader(#filePath)
+    ),
     StaticRoute.post(
         path: ["post"],
         contentType: HTTPMediaType.applicationJson,

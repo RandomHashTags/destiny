@@ -321,6 +321,7 @@ extension Router.Storage {
     ) -> String {
         guard !routes.isEmpty else { return ".init()" }
         var macroExpansions = [String]()
+        var macroExpansionsWithDateHeader = [String]()
         var staticStrings = [String]()
         var strings = [String]()
         var stringsWithDateHeader = [String]()
@@ -379,6 +380,8 @@ extension Router.Storage {
                             switch responder.split(separator: "(").first {
                             case "RouteResponses.MacroExpansion":
                                 macroExpansions.append(value)
+                            case "RouteResponses.MacroExpansionWithDateHeader":
+                                macroExpansionsWithDateHeader.append(value)
                             case "RouteResponses.StaticString":
                                 staticStrings.append(value)
                             case "RouteResponses.String":
@@ -410,12 +413,13 @@ extension Router.Storage {
             }
         }
         var values = [String]()
-        values.append("macroExpansions: ["       + respondersToString(macroExpansions, separator) + "]")
-        values.append("staticStrings: ["         + respondersToString(staticStrings, separator) + "]")
-        values.append("strings: ["               + respondersToString(strings, separator) + "]")
-        values.append("stringsWithDateHeader: [" + respondersToString(stringsWithDateHeader, separator) + "]")
-        values.append("uint8Arrays: ["           + respondersToString(uint8Arrays, separator) + "]")
-        values.append("uint16Arrays: ["          + respondersToString(uint16Arrays, separator) + "]")
+        values.append("macroExpansions: ["               + respondersToString(macroExpansions, separator) + "]")
+        values.append("macroExpansionsWithDateHeader: [" + respondersToString(macroExpansionsWithDateHeader, separator) + "]")
+        values.append("staticStrings: ["                 + respondersToString(staticStrings, separator) + "]")
+        values.append("strings: ["                       + respondersToString(strings, separator) + "]")
+        values.append("stringsWithDateHeader: ["         + respondersToString(stringsWithDateHeader, separator) + "]")
+        values.append("uint8Arrays: ["                   + respondersToString(uint8Arrays, separator) + "]")
+        values.append("uint16Arrays: ["                  + respondersToString(uint16Arrays, separator) + "]")
         return responderStoragePrefix + "StaticResponderStorage(" + (values.isEmpty ? "" : "\n" + values.joined(separator: ",\n") + "\n") + ")"
     }
     private func respondersToString(_ values: [String], _ separator: String) -> String {

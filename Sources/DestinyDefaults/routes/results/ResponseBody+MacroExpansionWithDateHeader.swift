@@ -3,30 +3,30 @@ import DestinyBlueprint
 
 extension ResponseBody {
     @inlinable
-    public static func staticString(_ value: Swift.StaticString) -> StaticString {
-        Self.StaticString(value)
+    public static func macroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>(_ value: Value) -> MacroExpansionWithDateHeader<Value> {
+        Self.MacroExpansionWithDateHeader(value)
     }
 
-    public struct StaticString: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 4 }
+    public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol {
+        @inlinable public static var id:UInt8 { 3 }
 
-        public let value:Swift.StaticString
+        public let value:Value
 
         @inlinable
-        public init(_ value: Swift.StaticString) {
+        public init(_ value: Value) {
             self.value = value
         }
 
         public var debugDescription: Swift.String {
-            "ResponseBody.staticString(\"\(value)\")"
+            "ResponseBody.macroExpansionWithDateHeader(\"\(value)\")"
         }
 
         public var responderDebugDescription: Swift.String {
-            "RouteResponses.StaticString(\"\(value)\")"
+            "RouteResponses.MacroExpansionWithDateHeader(\"\(value))"
         }
 
         public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-            fatalError("cannot do that") // TODO: fix?
+            MacroExpansionWithDateHeader<Swift.String>(input).responderDebugDescription
         }
 
         public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T, fromMacro: Bool) throws -> Swift.String {
@@ -35,22 +35,22 @@ extension ResponseBody {
 
         @inlinable
         public var count: Int {
-            value.utf8CodeUnitCount
+            value.count
         }
         
         @inlinable
         public func string() -> Swift.String {
-            value.description
+            value.string()
         }
 
         @inlinable
         public func bytes() -> [UInt8] {
-            [UInt8](value.description.utf8)
+            value.bytes()
         }
 
         @inlinable
         public func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
-            try InlineVLArray<UInt8>.create(string: value.description, closure)
+            try InlineVLArray<UInt8>.create(string: value.string(), closure)
         }
     }
 }
