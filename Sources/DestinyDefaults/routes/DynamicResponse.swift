@@ -58,8 +58,8 @@ extension DynamicResponse {
     }
 
     @inlinable
-    public mutating func setContent(_ content: String) {
-        message.setContent(content)
+    public mutating func setBody(_ body: String) {
+        message.setBody(body)
     }
 
     @inlinable

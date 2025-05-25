@@ -47,12 +47,12 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     @inlinable
     mutating func appendCookie<Cookie: HTTPCookieProtocol>(_ cookie: Cookie)
 
-    /// Set the content of the message.
+    /// Set the body of the message.
     /// 
     /// - Parameters:
-    ///   - content: The new content to set.
+    ///   - body: The new body to set.
     @inlinable
-    mutating func setContent(_ content: String)
+    mutating func setBody(_ body: String)
 
     /// Writes an HTTP Message to a socket.
     /// 

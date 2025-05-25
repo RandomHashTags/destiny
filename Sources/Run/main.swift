@@ -76,7 +76,7 @@ import SwiftCompression
                 path: ["HOOPLA"],
                 contentType: HTTPMediaType.textPlain,
                 handler: { _, response in
-                    response.setContent("RLY DUD")
+                    response.setBody("RLY DUD")
                 }
             )
         ),
@@ -150,7 +150,7 @@ import SwiftCompression
         handler: { _, response in
             response.setStatus(HTTPResponseStatus.ok)
             response.setHeader(key: "Server", value: "Destiny")
-            response.setContent("Hello World!")
+            response.setBody("Hello World!")
         }
     ),
     DynamicRoute.get(
@@ -164,7 +164,7 @@ import SwiftCompression
         path: ["dynamic"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setContent("bro")
+            response.setBody("bro")
             //response.result = .string("Host=" + (request.headers["Host"] ?? "nil"))
         }
     ),
@@ -174,9 +174,9 @@ import SwiftCompression
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            response.setContent(UUID().uuidString)
+            response.setBody(UUID().uuidString)
             #else
-            response.setContent(String(UInt64.random(in: 0..<UInt64.max)))
+            response.setBody(String(UInt64.random(in: 0..<UInt64.max)))
             #endif
         }
     ),
@@ -184,21 +184,21 @@ import SwiftCompression
         path: ["dynamic", ":text"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setContent(response.parameter(at: 0))
+            response.setBody(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
         path: ["anydynamic", "*", "value"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setContent(response.parameter(at: 0))
+            response.setBody(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
         path: ["catchall", "**"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setContent("catchall/**")
+            response.setBody("catchall/**")
         }
     )
 )

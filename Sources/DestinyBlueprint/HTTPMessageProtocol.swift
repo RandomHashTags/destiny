@@ -7,12 +7,12 @@ public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
     @inlinable
     var status: HTTPResponseStatus.Code { get set }
 
-    /// Set the content of the message.
+    /// Set the body of the message.
     /// 
     /// - Parameters:
-    ///   - content: The new content to set.
+    ///   - body: The new body to set.
     @inlinable
-    mutating func setContent(_ content: String)
+    mutating func setBody(_ body: String)
 
     /// Set a header to the given value.
     /// 

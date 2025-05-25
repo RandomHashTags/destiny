@@ -135,8 +135,8 @@ public struct HTTPMessage: HTTPMessageProtocol {
     }
 
     @inlinable
-    public mutating func setContent(_ content: String) {
-        result = RouteResult.string(content)
+    public mutating func setBody(_ body: String) {
+        result = RouteResult.string(body)
     }
 }
 
