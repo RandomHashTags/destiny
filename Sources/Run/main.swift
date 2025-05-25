@@ -89,7 +89,7 @@ import SwiftCompression
     StaticRoute.get(
         path: ["expressionMacro"],
         contentType: HTTPMediaType.textPlain,
-        body: ResponseBody.stringWithDateHeader(#filePath)
+        body: ResponseBody.macroExpansion(#filePath)
     ),
     StaticRoute.post(
         path: ["post"],

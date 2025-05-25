@@ -45,6 +45,21 @@ extension SocketProtocol where Self: ~Copyable {
         #endif
     }
 
+    /// Writes 2 bytes (carriage return and line feed) to the socket.
+    @inlinable
+    public func writeCRLF(count: Int = 1) throws {
+        let capacity = count * 2
+        try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
+            var i = 0
+            while i < count {
+                p[i] = .carriageReturn
+                p[i + 1] = .lineFeed
+                i += 2
+            }
+            try writeBuffer(p.baseAddress!, length: capacity)
+        })
+    }
+
     @inlinable
     public func writeString(_ string: String) throws {
         try string.utf8.withContiguousStorageIfAvailable {

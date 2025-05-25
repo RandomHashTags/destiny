@@ -4,6 +4,7 @@ import DestinyBlueprint
 /// Default storage that handles static routes.
 public struct StaticResponderStorage: StaticResponderStorageProtocol {
 
+    @usableFromInline var macroExpansions:[DestinyRoutePathType:RouteResponses.MacroExpansion]
     @usableFromInline var staticStrings:[DestinyRoutePathType:RouteResponses.StaticString]
     @usableFromInline var strings:[DestinyRoutePathType:RouteResponses.String]
     @usableFromInline var stringsWithDateHeader:[DestinyRoutePathType:RouteResponses.StringWithDateHeader]
@@ -15,12 +16,14 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
     #endif
 
     public init(
+        macroExpansions: [DestinyRoutePathType:RouteResponses.MacroExpansion] = [:],
         staticStrings: [DestinyRoutePathType:RouteResponses.StaticString] = [:],
         strings: [DestinyRoutePathType:RouteResponses.String] = [:],
         stringsWithDateHeader: [DestinyRoutePathType:RouteResponses.StringWithDateHeader] = [:],
         uint8Arrays: [DestinyRoutePathType:RouteResponses.UInt8Array] = [:],
         uint16Arrays: [DestinyRoutePathType:RouteResponses.UInt16Array] = [:]
     ) {
+        self.macroExpansions = macroExpansions
         self.staticStrings = staticStrings
         self.strings = strings
         self.stringsWithDateHeader = stringsWithDateHeader
@@ -35,6 +38,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
     public var debugDescription: String { // TODO: support foundationData
         """
         StaticResponderStorage(
+            macroExpansions: \(macroExpansions.debugDescription),
             staticStrings: \(staticStrings.debugDescription),
             strings: \(strings.debugDescription),
             stringsWithDateHeader: \(stringsWithDateHeader.debugDescription),
@@ -50,7 +54,9 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         socket: borrowing Socket,
         startLine: DestinyRoutePathType
     ) async throws -> Bool {
-        if let r = staticStrings[startLine] {
+        if let r = macroExpansions[startLine] {
+            try await router.respondStatically(socket: socket, responder: r)
+        } else if let r = staticStrings[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
         } else if let r = stringsWithDateHeader[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
@@ -81,6 +87,8 @@ extension StaticResponderStorage {
     public mutating func register(path: DestinyRoutePathType, _ responder: any RouteResponderProtocol) {
         if let responder = responder as? RouteResponses.StaticString {
             register(path: path, responder)
+        } else if let responder = responder as? RouteResponses.StaticString {
+            register(path: path, responder)
         } else if let responder = responder as? RouteResponses.String {
             register(path: path, responder)
         } else if let responder = responder as? RouteResponses.StringWithDateHeader {
@@ -92,6 +100,10 @@ extension StaticResponderStorage {
         }
     }
 
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.MacroExpansion) {
+        macroExpansions[path] = responder
+    }
     @inlinable
     public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.StaticString) {
         staticStrings[path] = responder

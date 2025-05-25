@@ -50,11 +50,11 @@ public struct HTTPMessage: HTTPMessageProtocol {
         status = code
     }
 
-    /// - Parameters:
-    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
-    /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
-    public func string(escapeLineBreak: Bool) throws -> String {
+    public func string(
+        escapeLineBreak: Bool,
+        fromMacro: Bool
+    ) throws -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string = version.string + " \(status)" + suffix
         for (header, value) in headers {
@@ -63,16 +63,23 @@ public struct HTTPMessage: HTTPMessageProtocol {
         for cookie in cookies {
             string += "Set-Cookie: \(cookie)" + suffix
         }
-        if var body = try body?.string() {
-            let contentLength = body.utf8.count
-            body.replace("\"", with: "\\\"")
+        if let body {
+            var bodyString = try body.string()
+            let contentLength = bodyString.utf8.count
+            bodyString.replace("\"", with: "\\\"")
             if let contentType {
                 string.append(HTTPResponseHeader.contentType.rawName)
                 string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
             }
             string.append(HTTPResponseHeader.contentLength.rawName)
-            string += ": \(contentLength)"
-            string += suffix + suffix + body
+            string += ": "
+            if fromMacro && body.id == ResponseBody.MacroExpansion<String>.id {
+                string += "\", body: " + bodyString
+            } else {
+                string += "\(contentLength)"
+                string += suffix + suffix
+                string += bodyString
+            }
         }
         return string
     }

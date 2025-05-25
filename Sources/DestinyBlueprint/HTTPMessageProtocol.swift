@@ -40,9 +40,13 @@ public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
 
     /// - Parameters:
     ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
+    ///   - fromMacro: Whether or not this function was called from a macro expansion.
     /// - Returns: A string representing an HTTP Message with the given values.
     @inlinable
-    func string(escapeLineBreak: Bool) throws -> String
+    func string(
+        escapeLineBreak: Bool,
+        fromMacro: Bool
+    ) throws -> String
 
     /// Writes a message to a socket.
     /// 

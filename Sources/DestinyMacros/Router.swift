@@ -66,7 +66,8 @@ extension Router {
                     body: ResponseBody.string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"),
                     contentType: HTTPMediaType.applicationJson,
                     charset: nil
-                )
+                ),
+                fromMacro: true
             )
         }
         """
@@ -319,6 +320,7 @@ extension Router.Storage {
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return ".init()" }
+        var macroExpansions = [String]()
         var staticStrings = [String]()
         var strings = [String]()
         var stringsWithDateHeader = [String]()
@@ -342,20 +344,20 @@ extension Router.Storage {
         }
         if !redirects.isEmpty {
             for (route, function) in redirects {
-                do {
-                    var string = route.method.rawName.string() + " /" + route.from.joined(separator: "/") + " " + route.version.string
-                    if !isCaseSensitive {
-                        string = string.lowercased()
-                    }
-                    if registeredPaths.contains(string) {
-                        Router.routePathAlreadyRegistered(context: context, node: function, string)
-                    } else {
-                        registeredPaths.insert(string)
-                        let buffer = DestinyRoutePathType(&string)
+                var string = route.method.rawName.string() + " /" + route.from.joined(separator: "/") + " " + route.version.string
+                if !isCaseSensitive {
+                    string = string.lowercased()
+                }
+                if registeredPaths.contains(string) {
+                    Router.routePathAlreadyRegistered(context: context, node: function, string)
+                } else {
+                    registeredPaths.insert(string)
+                    let buffer = DestinyRoutePathType(&string)
+                    do {
                         let responder = try ResponseBody.stringWithDateHeader(route.response()).responderDebugDescription
                         stringsWithDateHeader.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
+                    } catch {
                     }
-                } catch {
                 }
             }
         }
@@ -372,15 +374,23 @@ extension Router.Storage {
                     let buffer = DestinyRoutePathType(&string)
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
-                        if let responder = try route.body?.responderDebugDescription(httpResponse) {
+                        if let responder = try route.body?.responderDebugDescription(httpResponse, fromMacro: true) {
                             let value = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
                             switch responder.split(separator: "(").first {
-                            case "RouteResponses.StaticString": staticStrings.append(value)
-                            case "RouteResponses.String": strings.append(value)
-                            case "RouteResponses.StringWithDateHeader": stringsWithDateHeader.append(value)
-                            case "RouteResponses.UInt8Array": uint8Arrays.append(value)
-                            case "RouteResponses.UInt16Array": uint16Arrays.append(value)
-                            default: break
+                            case "RouteResponses.MacroExpansion":
+                                macroExpansions.append(value)
+                            case "RouteResponses.StaticString":
+                                staticStrings.append(value)
+                            case "RouteResponses.String":
+                                strings.append(value)
+                            case "RouteResponses.StringWithDateHeader":
+                                stringsWithDateHeader.append(value)
+                            case "RouteResponses.UInt8Array":
+                                uint8Arrays.append(value)
+                            case "RouteResponses.UInt16Array":
+                                uint16Arrays.append(value)
+                            default:
+                                break
                             }
                         }
                     } else {
@@ -400,6 +410,7 @@ extension Router.Storage {
             }
         }
         var values = [String]()
+        values.append("macroExpansions: ["       + respondersToString(macroExpansions, separator) + "]")
         values.append("staticStrings: ["         + respondersToString(staticStrings, separator) + "]")
         values.append("strings: ["               + respondersToString(strings, separator) + "]")
         values.append("stringsWithDateHeader: [" + respondersToString(stringsWithDateHeader, separator) + "]")
@@ -445,7 +456,7 @@ extension Router {
                     httpResponse.setHeader(key: HTTPResponseHeader.contentEncoding.rawNameString, value: algorithm.acceptEncodingName)
                     httpResponse.setHeader(key: HTTPResponseHeader.vary.rawNameString, value: HTTPRequestHeader.acceptEncoding.rawNameString)
                     do {
-                        let bytes = try httpResponse.string(escapeLineBreak: false)
+                        let bytes = try httpResponse.string(escapeLineBreak: false, fromMacro: true)
                         responder.staticConditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
                         responder.staticRespondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
                     } catch {

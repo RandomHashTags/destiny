@@ -8,7 +8,7 @@ extension ResponseBody {
     }
 
     public struct StaticString: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 2 }
+        @inlinable public static var id:UInt8 { 3 }
 
         public let value:Swift.StaticString
 
@@ -29,8 +29,8 @@ extension ResponseBody {
             fatalError("cannot do that") // TODO: fix?
         }
 
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
-            try responderDebugDescription(input.string(escapeLineBreak: true))
+        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T, fromMacro: Bool) throws -> Swift.String {
+            try responderDebugDescription(input.string(escapeLineBreak: true, fromMacro: fromMacro))
         }
 
         @inlinable

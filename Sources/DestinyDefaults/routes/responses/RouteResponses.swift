@@ -106,8 +106,8 @@ extension RouteResponses {
         public init(_ value: Swift.String) {
             self.value = value
         }
-        public init(_ response: HTTPMessage) {
-            value = (try? response.string(escapeLineBreak: true)) ?? ""
+        public init(_ response: HTTPMessage, fromMacro: Bool) {
+            value = (try? response.string(escapeLineBreak: true, fromMacro: fromMacro)) ?? ""
         }
 
         public var debugDescription: Swift.String {
@@ -117,6 +117,48 @@ extension RouteResponses {
         @inlinable
         public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.utf8.withContiguousStorageIfAvailable {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            }
+        }
+    }
+}
+
+// MARK: MacroExpansion
+extension RouteResponses {
+    public struct MacroExpansion: StaticRouteResponderProtocol {
+        public let value:Swift.String
+        public let body:Swift.String
+
+        public init(_ value: Swift.String, body: Swift.String) {
+            self.value = value
+            self.body = body
+        }
+        public init(_ response: HTTPMessage, fromMacro: Bool) {
+            value = (try? response.string(escapeLineBreak: true, fromMacro: fromMacro)) ?? ""
+            body = response.body?.debugDescription ?? ""
+        }
+
+        public var debugDescription: Swift.String {
+            """
+            RouteResponses.MacroExpansion(
+                "\(value)",
+                body: \(body)")
+            )
+            """
+        }
+
+        @inlinable
+        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+            // TODO: improve performance | should we create a temporary buffer and correctly populate it so we only need to write to the socket once instead of 4 times?
+            try value.utf8.withContiguousStorageIfAvailable {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            }
+            var s = Swift.String(body.count)
+            try s.withUTF8 {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            }
+            try socket.writeCRLF(count: 2)
+            try body.utf8.withContiguousStorageIfAvailable {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }
         }

@@ -122,7 +122,7 @@ public struct StaticRoute: StaticRouteProtocol {
 
     @inlinable
     public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)? {
-        let body = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
+        let body = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true, fromMacro: context != nil)
         return RouteResponses.String(body)
     }
 }

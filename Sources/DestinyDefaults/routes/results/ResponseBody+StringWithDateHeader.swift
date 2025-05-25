@@ -8,7 +8,7 @@ extension ResponseBody {
     }
 
     public struct StringWithDateHeader: ResponseBodyProtocol {
-        @inlinable public static var id: UInt8 { 4 }
+        @inlinable public static var id: UInt8 { 5 }
 
         public var value:Swift.String
 
@@ -29,8 +29,8 @@ extension ResponseBody {
             Self(input).responderDebugDescription
         }
 
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
-            try responderDebugDescription(input.string(escapeLineBreak: true))
+        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T, fromMacro: Bool) throws -> Swift.String {
+            try responderDebugDescription(input.string(escapeLineBreak: true, fromMacro: fromMacro))
         }
 
         @inlinable
