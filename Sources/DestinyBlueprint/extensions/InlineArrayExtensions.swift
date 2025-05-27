@@ -37,7 +37,6 @@ extension InlineArrayProtocol where Element == UInt8 {
 // MARK: split
 extension InlineArrayProtocol where Element: Equatable {
     /// - Complexity: O(_n_) where _n_ is the length of the collection.
-    @discardableResult
     @inlinable
     public func split<let sliceLength: Int>(
         separator: Element,
@@ -60,7 +59,6 @@ extension InlineArrayProtocol where Element: Equatable {
         }
         return nil
     }
-
     @discardableResult
     @inlinable
     public func split<let sliceLength: Int>(
@@ -94,6 +92,203 @@ extension InlineArrayProtocol where Element: Equatable {
             i += 1
         }
         return nil
+    }
+}
+
+// MARK: Split InlineVLArray
+extension InlineArrayProtocol where Element == UInt8 {
+    /// - Parameters:
+    ///   - yield: Yields a slice of the result; returns whether or not to continue splitting.
+    /// - Complexity: O(1)
+    @inlinable
+    public func split(
+        separator: Element,
+        defaultValue: Element,
+        offset: Index = 0,
+        yield: (inout InlineVLArray<Element>) throws -> Bool
+    ) rethrows {
+        let separatorSIMD = SIMD64<UInt8>(repeating: separator)
+        let noSeparatorFoundMask = SIMDMask<SIMD64<UInt8>.MaskStorage>.init(repeating: false)
+        var beginning = startIndex + offset
+        var index = offset
+        while index < endIndex {
+            let remaining = index.distance(to: endIndex)
+            if remaining >= 64 {
+                try splitSIMD64(
+                    separator: separator,
+                    separatorSIMD: separatorSIMD,
+                    noSeparatorFoundMask: noSeparatorFoundMask,
+                    beginning: &beginning,
+                    index: &index,
+                    yield: yield
+                )
+            } else if remaining >= 32 {
+                try splitSIMD32(
+                    separator: separator,
+                    separatorSIMD: separatorSIMD,
+                    noSeparatorFoundMask: noSeparatorFoundMask,
+                    beginning: &beginning,
+                    index: &index,
+                    yield: yield
+                )
+            } else if remaining >= 16 {
+                try splitSIMD16(
+                    separator: separator,
+                    separatorSIMD: separatorSIMD,
+                    noSeparatorFoundMask: noSeparatorFoundMask,
+                    beginning: &beginning,
+                    index: &index,
+                    yield: yield
+                )
+            } else if remaining >= 8 {
+                try splitSIMD8(
+                    separator: separator,
+                    separatorSIMD: separatorSIMD,
+                    noSeparatorFoundMask: noSeparatorFoundMask,
+                    beginning: &beginning,
+                    index: &index,
+                    yield: yield
+                )
+            } else if remaining >= 4 {
+                try splitSIMD4(
+                    separator: separator,
+                    separatorSIMD: separatorSIMD,
+                    noSeparatorFoundMask: noSeparatorFoundMask,
+                    beginning: &beginning,
+                    index: &index,
+                    yield: yield
+                )
+            } else {
+                while index < endIndex {
+                    if self.itemAt(index: index) == separator {
+                        let continueYielding = try yieldInlineVLArray(capacity: beginning.distance(to: index), beginning: &beginning, index: &index, defaultValue: 0, yield: yield)
+                        if !continueYielding {
+                            break
+                        }
+                    }
+                    index += 1
+                }
+            }
+        }
+    }
+    @inlinable
+    func splitSIMD64(
+        separator: Element,
+        separatorSIMD: SIMD64<UInt8>,
+        noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
+        beginning: inout Index,
+        index: inout Index,
+        yield: (inout InlineVLArray<Element>) throws -> Bool
+    ) rethrows {
+        let buffer = simd64(startIndex: index)
+        if (buffer .== separatorSIMD) == noSeparatorFoundMask {
+            index += 64
+        } else {
+            try splitSIMD32(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
+        }
+    }
+    @inlinable
+    func splitSIMD32(
+        separator: Element,
+        separatorSIMD: SIMD64<UInt8>,
+        noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
+        beginning: inout Index,
+        index: inout Index,
+        yield: (inout InlineVLArray<Element>) throws -> Bool
+    ) rethrows {
+        let mask:SIMDMask<SIMD32<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD32<UInt8>.MaskStorage>.self, capacity: 32).pointee })
+        let buffer = simd32(startIndex: index)
+        if (buffer .== separatorSIMD.lowHalf) == mask {
+            index += 32
+        } else {
+            try splitSIMD16(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
+        }
+    }
+    @inlinable
+    func splitSIMD16(
+        separator: Element,
+        separatorSIMD: SIMD64<UInt8>,
+        noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
+        beginning: inout Index,
+        index: inout Index,
+        yield: (inout InlineVLArray<Element>) throws -> Bool
+    ) rethrows {
+        let mask:SIMDMask<SIMD16<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD16<UInt8>.MaskStorage>.self, capacity: 16).pointee })
+        let buffer = simd16(startIndex: index)
+        if (buffer .== separatorSIMD.lowHalf.lowHalf) == mask {
+            index += 16
+        } else {
+            try splitSIMD8(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
+        }
+    }
+    @inlinable
+    func splitSIMD8(
+        separator: Element,
+        separatorSIMD: SIMD64<UInt8>,
+        noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
+        beginning: inout Index,
+        index: inout Index,
+        yield: (inout InlineVLArray<Element>) throws -> Bool
+    ) rethrows {
+        let mask:SIMDMask<SIMD8<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD8<UInt8>.MaskStorage>.self, capacity: 8).pointee })
+        let buffer = simd8(startIndex: index)
+        if (buffer .== separatorSIMD.lowHalf.lowHalf.lowHalf) == mask {
+            index += 8
+        } else {
+            try splitSIMD4(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
+        }
+    }
+    @inlinable
+    func splitSIMD4(
+        separator: Element,
+        separatorSIMD: SIMD64<UInt8>,
+        noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
+        beginning: inout Index,
+        index: inout Index,
+        yield: (inout InlineVLArray<Element>) throws -> Bool
+    ) rethrows {
+        let mask:SIMDMask<SIMD4<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD4<UInt8>.MaskStorage>.self, capacity: 4).pointee })
+        let buffer = simd4(startIndex: index)
+        if (buffer .== separatorSIMD.lowHalf.lowHalf.lowHalf.lowHalf) == mask {
+            index += 4
+        } else {
+            // contains separator
+            for i in buffer.indices {
+                if buffer[i] == separator {
+                    let continueYielding = try yieldInlineVLArray(capacity: beginning.distance(to: index), beginning: &beginning, index: &index, defaultValue: 0, yield: yield)
+                    if !continueYielding {
+                        break
+                    }
+                }
+                index += 1
+            }
+        }
+    }
+    @inlinable
+    func yieldInlineVLArray(
+        capacity: Int,
+        beginning: inout Index,
+        index: inout Index,
+        defaultValue: Element,
+        yield: (inout InlineVLArray<Element>) throws -> Bool
+    ) rethrows -> Bool {
+        var continueYielding = true
+        try InlineVLArray<Element>.create(amount: capacity, default: defaultValue, { array in
+            var arrayIndex = 0
+            var i = beginning
+            while i < index {
+                array.setItemAt(index: arrayIndex, element: self.itemAt(index: i))
+                arrayIndex += 1
+                i += 1
+            }
+            continueYielding = try yield(&array)
+            if !continueYielding {
+                index = endIndex
+            } else {
+                beginning = index+1
+            }
+        })
+        return continueYielding
     }
 }
 
@@ -199,14 +394,16 @@ extension InlineArrayProtocol where Element == UInt8 {
 // MARK: string
 extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
-    public func string() -> String {
+    public func string(offset: Index = 0) -> String {
         var s = ""
-        for i in self.indices {
+        var i = offset
+        while i < endIndex {
             let char = self.itemAt(index: i)
             if char == 0 {
                 break
             }
             s.append(Character(Unicode.Scalar(char)))
+            i += 1
         }
         return s
     }
@@ -238,7 +435,13 @@ extension InlineArrayProtocol where Element == UInt8 {
 extension InlineArrayProtocol where Element: SIMDScalar {
     /// - Complexity: O(1)
     @inlinable
-    public func simd8(startIndex: Index = 0) -> SIMD16<Element> {
+    public func simd4(startIndex: Index = 0) -> SIMD4<Element> {
+        simd(startIndex: startIndex)
+    }
+
+    /// - Complexity: O(1)
+    @inlinable
+    public func simd8(startIndex: Index = 0) -> SIMD8<Element> {
         simd(startIndex: startIndex)
     }
 
@@ -260,6 +463,10 @@ extension InlineArrayProtocol where Element: SIMDScalar {
         simd(startIndex: startIndex)
     }
 
+    /// Binds the elements to a type conforming to `SIMD where SIMD.Scalar == Element`.
+    /// 
+    /// - Parameters:
+    ///   - startIndex: Where the first element is located.
     /// - Complexity: O(1)
     @inlinable
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {

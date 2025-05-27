@@ -46,50 +46,52 @@ public struct Request: RequestProtocol {
 extension Request {
     @inlinable
     public init?<Socket: SocketProtocol & ~Copyable>(socket: borrowing Socket) throws {
-        var path = [String]()
         var headers:[String:String] = [:]
         var startLine = DestinyRoutePathType()
-        var newStartLine:HTTPStartLine! = nil
+        var (buffer, read) = try socket.readBuffer()
+        if read <= 0 {
+            throw SocketError.malformedRequest()
+        }
+        /*var lineIndex = 0
+        try buffer.split(separator: .carriageReturn, defaultValue: 0, yield: { array in
+            if lineIndex != 0 && array.itemAt(index: 0) != .lineFeed {
+                throw SocketError.malformedRequest()
+            }
+            //print("HTTPStartLine;init;buffer.split;inlineVLArray;count=\(array.count);string=\(array.string(offset: lineIndex == 0 ? 0 : 1))")
+            lineIndex += 1
+            return false
+        })*/
+        newStartLine = try HTTPStartLine(buffer: buffer)
+        path = newStartLine.path.string().split(separator: "/").map { String($0) }
+        for i in 0..<newStartLine.endIndex {
+            startLine[i] = buffer.itemAt(index: i)
+        }
+        self.startLine = startLine
+
+        // performance falls off a cliff parsing headers; should we
+        // just retain the buffer and record the start and end indexes
+        // of things, with computed properties when and where necessary?
+        //let _ = Self.parseHeaders(buffer: buffer, offset: newStartLine.endIndex + 2, headers: &headers)
+
         while true {
-            let (buffer, read) = try socket.readBuffer()
-            if read <= 0 {
-                break
-            }
-            //print("loadRequestLine;read=\(read)")
-
-            newStartLine = try HTTPStartLine(buffer: buffer)
-            path = newStartLine.path.string().split(separator: "/").map { String($0) }
-            var pathIndex = 0
-            for i in 0..<newStartLine.methodCount {
-                startLine[pathIndex] = newStartLine.method[i]
-                pathIndex += 1
-            }
-            startLine[pathIndex] = .space
-            pathIndex += 1
-            for i in 0..<newStartLine.pathCount {
-                startLine[pathIndex] = newStartLine.path[i]
-                pathIndex += 1
-            }
-            startLine[pathIndex] = .space
-            pathIndex += 1
-            for i in 0..<8 {
-                startLine[pathIndex] = newStartLine.version[i]
-                pathIndex += 1
-            }
-
-            // performance falls off a cliff parsing headers; should we
-            // just retain the buffer and record the start and end indexes
-            // of things, with computed properties when and where necessary?
-            //let _ = Self.parseHeaders(buffer: buffer, offset: newStartLine.endIndex + 2, headers: &headers)
-
             if read < buffer.count {
                 break
             }
+            (buffer, read) = try socket.readBuffer()
+            if read <= 0 {
+                break
+            }
         }
-        self.newStartLine = newStartLine
-        self.path = path
         self.headers = .init(headers)
-        self.startLine = startLine
+    }
+}
+
+struct TestPack<each Route: InlineArrayProtocol> {
+    let values:(repeat each Route)
+
+    func test() {
+        for test in repeat each values {
+        }
     }
 }
 
