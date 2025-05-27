@@ -1,10 +1,10 @@
 
 /// Core Request protocol that lays out how a socket's incoming data is parsed.
-public protocol RequestProtocol: Sendable, ~Copyable {
+public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     typealias ConcretePathType = String // TODO: allow custom
 
     /// Initializes the bare minimum data required to process a socket's data.
-    init?<T: SocketProtocol & ~Copyable>(socket: borrowing T) throws
+    init?<T: HTTPSocketProtocol & ~Copyable>(socket: borrowing T) throws
 
     /// The HTTP start-line.
     var startLine: SIMD64<UInt8> { get }
@@ -33,7 +33,7 @@ public protocol RequestProtocol: Sendable, ~Copyable {
     func header(forKey key: String) -> String?
 }
 
-extension RequestProtocol where Self: ~Copyable {
+extension HTTPRequestProtocol where Self: ~Copyable {
     @inlinable
     public func isMethod<T: HTTPRequestMethodProtocol>(_ method: T) -> Bool {
         isMethod(method.rawName)

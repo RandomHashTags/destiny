@@ -1,8 +1,8 @@
 
 import Logging
 
-/// Core Router protocol that handles middleware, routes and router groups.
-public protocol RouterProtocol: Sendable, ~Copyable {
+/// Core HTTPRouter protocol that handles middleware, routes and router groups.
+public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     @inlinable mutating func loadDynamicMiddleware()
 
     /// Process an accepted file descriptor.
@@ -13,7 +13,7 @@ public protocol RouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - logger: The `Logger` that logs relevant details.
     @inlinable
-    func process<Socket: SocketProtocol & ~Copyable>(
+    func process<Socket: HTTPSocketProtocol & ~Copyable>(
         client: Int32,
         received: ContinuousClock.Instant,
         socket: borrowing Socket,
@@ -26,7 +26,7 @@ public protocol RouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - responder: The static route responder that will write to the socket.
     @inlinable
-    func respondStatically<Socket: SocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
+    func respondStatically<Socket: HTTPSocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
         socket: borrowing Socket,
         responder: Responder
     ) async throws
@@ -40,7 +40,7 @@ public protocol RouterProtocol: Sendable, ~Copyable {
     ///   - request: The socket's request.
     ///   - responder: The dynamic route responder that will write to the socket.
     @inlinable
-    func respondDynamically<Socket: SocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
+    func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

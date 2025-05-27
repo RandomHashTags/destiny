@@ -13,7 +13,7 @@ public protocol DynamicMiddlewareProtocol: MiddlewareProtocol {
     /// - Returns: Whether or not to continue processing the request.
     @inlinable
     func handle(
-        request: inout any RequestProtocol,
+        request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol
     ) async throws -> Bool
 }

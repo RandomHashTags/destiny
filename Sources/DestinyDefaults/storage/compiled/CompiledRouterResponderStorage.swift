@@ -25,12 +25,12 @@ public struct CompiledRouterResponderStorage<
     }
 
     @inlinable
-    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol
+        request: inout any HTTPRequestProtocol
     ) async throws -> Bool {
         if try await respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
@@ -48,8 +48,8 @@ public struct CompiledRouterResponderStorage<
 
 extension CompiledRouterResponderStorage {
     @inlinable
-    public func respondStatically<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    public func respondStatically<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         socket: borrowing Socket,
         startLine: SIMD64<UInt8>
     ) async throws -> Bool {
@@ -57,12 +57,12 @@ extension CompiledRouterResponderStorage {
     }
 
     @inlinable
-    public func respondDynamically<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    public func respondDynamically<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
-        request: inout any RequestProtocol,
+        request: inout any HTTPRequestProtocol,
     ) async throws -> Bool {
         guard let responder = dynamic.responder(for: &request) else { return false }
         try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)

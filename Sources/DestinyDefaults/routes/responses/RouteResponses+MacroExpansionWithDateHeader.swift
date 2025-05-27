@@ -10,7 +10,7 @@ extension RouteResponses {
             self.value = value
             self.body = body
         }
-        public init(_ response: HTTPMessage, fromMacro: Bool) {
+        public init(_ response: HTTPResponseMessage, fromMacro: Bool) {
             value = (try? response.string(escapeLineBreak: true, fromMacro: fromMacro)) ?? ""
             body = response.body?.debugDescription ?? ""
         }
@@ -25,7 +25,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.utf8.withContiguousStorageIfAvailable { valuePointer in
                 try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                     try Swift.String(body.count).utf8.withContiguousStorageIfAvailable { contentLengthPointer in

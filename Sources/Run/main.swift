@@ -10,6 +10,7 @@ import Logging
 import SwiftCompression
 
 #declareRouter(
+    isCompiled: false,
     version: .v1_1,
     dynamicNotFoundResponder: nil,
     supportedCompressionAlgorithms: [],
@@ -218,7 +219,7 @@ import SwiftCompression
         }
     )
 )
-let server = try Server<Router, Socket>( // compile problem if using `CompiledStaticResponderStorage` ( https://github.com/swiftlang/swift/issues/81650 )
+let server = try Server<HTTPRouter, Socket>( // compile problem if using `CompiledStaticResponderStorage` ( https://github.com/swiftlang/swift/issues/81650 )
     port: 8080,
     router: router,
     logger: Logger(label: "destiny.http.server"),

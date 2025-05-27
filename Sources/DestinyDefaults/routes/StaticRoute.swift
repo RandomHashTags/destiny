@@ -117,7 +117,7 @@ public struct StaticRoute: StaticRouteProtocol {
         }
         headers[HTTPResponseHeader.contentType.rawNameString] = nil
         headers[HTTPResponseHeader.contentLength.rawNameString] = nil
-        return HTTPMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+        return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 
     @inlinable

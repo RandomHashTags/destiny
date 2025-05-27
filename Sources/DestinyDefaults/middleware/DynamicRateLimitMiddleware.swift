@@ -16,7 +16,7 @@ public final class DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol, Dyna
     }
 
     @inlinable
-    public func handle(request: inout any RequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
+    public func handle(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
         return true
     }
 

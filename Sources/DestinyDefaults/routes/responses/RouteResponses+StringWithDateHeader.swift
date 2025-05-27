@@ -14,7 +14,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             var err:(any Error)? = nil
             value.withUTF8Buffer { valuePointer in
                 do {

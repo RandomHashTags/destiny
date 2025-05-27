@@ -59,7 +59,7 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     /// - Parameters:
     ///   - socket: The socket to write to.
     @inlinable
-    func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
+    func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
 }
 
 extension DynamicResponseProtocol {

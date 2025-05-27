@@ -3,12 +3,12 @@ import DestinyBlueprint
 
 public struct DynamicResponse: DynamicResponseProtocol {
     public var timestamps:DynamicRequestTimestamps
-    public var message:any HTTPMessageProtocol
+    public var message:HTTPResponseMessage
     public var parameters:[String]
 
     public init(
         timestamps: DynamicRequestTimestamps = DynamicRequestTimestamps(received: .now, loaded: .now, processed: .now),
-        message: any HTTPMessageProtocol,
+        message: HTTPResponseMessage,
         parameters: [String]
     ) {
         self.timestamps = timestamps
@@ -63,7 +63,7 @@ extension DynamicResponse {
     }
 
     @inlinable
-    public func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
+    public func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
         try message.write(to: socket)
     }
 }

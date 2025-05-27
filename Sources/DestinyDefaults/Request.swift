@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default storage for request data.
-public struct Request: RequestProtocol {
+public struct Request: HTTPRequestProtocol {
     public let path:[String]
     public let startLine:DestinyRoutePathType
     public let headers:HTTPRequestHeaders
@@ -45,7 +45,7 @@ public struct Request: RequestProtocol {
 // MARK: Init
 extension Request {
     @inlinable
-    public init?<Socket: SocketProtocol & ~Copyable>(socket: borrowing Socket) throws {
+    public init?<Socket: HTTPSocketProtocol & ~Copyable>(socket: borrowing Socket) throws {
         var headers:[String:String] = [:]
         var startLine = DestinyRoutePathType()
         var (buffer, read) = try socket.readBuffer()

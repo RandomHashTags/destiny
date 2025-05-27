@@ -8,7 +8,7 @@ extension RouteResponses {
         public init(_ value: Swift.String) {
             self.value = value
         }
-        public init(_ response: HTTPMessage, fromMacro: Bool) {
+        public init(_ response: HTTPResponseMessage, fromMacro: Bool) {
             value = (try? response.string(escapeLineBreak: true, fromMacro: fromMacro)) ?? ""
         }
 
@@ -17,7 +17,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.utf8.withContiguousStorageIfAvailable {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             }

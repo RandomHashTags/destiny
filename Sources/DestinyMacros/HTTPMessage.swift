@@ -36,7 +36,7 @@ enum HTTPMessage: DeclarationMacro {
             }
         }
         do {
-            var response = try DestinyDefaults.HTTPMessage(
+            var response = try DestinyDefaults.HTTPResponseMessage(
                 version: version,
                 status: status,
                 headers: headers,

@@ -61,10 +61,10 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     }
 
     @inlinable
-    public func handles(
+    public func handles<Method: HTTPRequestMethodProtocol>(
         version: HTTPVersion,
         path: String,
-        method: HTTPRequestMethod,
+        method: Method,
         contentType: HTTPMediaType?,
         status: HTTPResponseStatus.Code
     ) -> Bool {
@@ -118,8 +118,14 @@ extension StaticMiddleware {
     }
 
     @inlinable
-    public func handlesMethod(_ method: HTTPRequestMethod) -> Bool {
-        handlesMethods?.contains(method) ?? true
+    public func handlesMethod<Method: HTTPRequestMethodProtocol>(_ method: Method) -> Bool {
+        guard let handlesMethods else { return true }
+        for m in handlesMethods {
+            if m.rawName == method.rawName {
+                return true
+            }
+        }
+        return false
     }
 
     @inlinable

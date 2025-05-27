@@ -6,7 +6,7 @@ import Foundation
 import DestinyBlueprint
 import Logging
 
-public typealias DefaultRouter = Router<
+public typealias DefaultRouter = HTTPRouter<
     RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseSensitiveRouterResponderStorage
     RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseInsensitiveRouterResponderStorage
     StaticErrorResponder,       // ConcreteErrorResponder
@@ -14,14 +14,14 @@ public typealias DefaultRouter = Router<
     RouteResponses.StaticString // ConcreteStaticNotFoundResponder
 >
 
-/// Default Router implementation that handles middleware, routes and router groups.
-public struct Router<
+/// Default HTTPRouter implementation that handles middleware, routes and router groups.
+public struct HTTPRouter<
         ConcreteCaseSensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         ConcreteCaseInsensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         ConcreteErrorResponder: ErrorResponderProtocol,
         ConcreteDynamicNotFoundResponder: DynamicRouteResponderProtocol,
         ConcreteStaticNotFoundResponder: StaticRouteResponderProtocol
-    >: RouterProtocol {
+    >: HTTPRouterProtocol {
     public private(set) var caseSensitiveResponders:ConcreteCaseSensitiveRouterResponderStorage
     public private(set) var caseInsensitiveResponders:ConcreteCaseInsensitiveRouterResponderStorage
 
@@ -60,7 +60,7 @@ public struct Router<
 }
 
 // MARK: Dynamic middleware
-extension Router {
+extension HTTPRouter {
     @inlinable
     public mutating func loadDynamicMiddleware() {
         for i in dynamicMiddleware.indices {
@@ -69,7 +69,7 @@ extension Router {
     }
 
     @inlinable
-    func handleDynamicMiddleware(for request: inout any RequestProtocol, with response: inout any DynamicResponseProtocol) async throws {
+    func handleDynamicMiddleware(for request: inout any HTTPRequestProtocol, with response: inout any DynamicResponseProtocol) async throws {
         for middleware in dynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {
                 break
@@ -79,9 +79,9 @@ extension Router {
 }
 
 // MARK: Process
-extension Router {
+extension HTTPRouter {
     @inlinable
-    public func process<Socket: SocketProtocol & ~Copyable>(
+    public func process<Socket: HTTPSocketProtocol & ~Copyable>(
         client: Int32,
         received: ContinuousClock.Instant,
         socket: borrowing Socket,
@@ -92,7 +92,7 @@ extension Router {
     }
 
     @inlinable
-    func process<Socket: SocketProtocol & ~Copyable>(
+    func process<Socket: HTTPSocketProtocol & ~Copyable>(
         client: Int32,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
@@ -124,7 +124,7 @@ extension Router {
                 }
                 // not found
                 if let dynamicNotFoundResponder {
-                    var anyRequest:any RequestProtocol = request
+                    var anyRequest:any HTTPRequestProtocol = request
                     var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: dynamicNotFoundResponder)
                     try await dynamicNotFoundResponder.respond(to: socket, request: &anyRequest, response: &response)
                 } else {
@@ -132,16 +132,16 @@ extension Router {
                 }
             }
         } catch {
-            var anyRequest:any RequestProtocol = request
+            var anyRequest:any HTTPRequestProtocol = request
             await errorResponder.respond(to: socket, with: error, for: &anyRequest, logger: logger)
         }
     }
 }
 
 // MARK: Respond
-extension Router {
+extension HTTPRouter {
     @inlinable
-    public func respondStatically<Socket: SocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
+    public func respondStatically<Socket: HTTPSocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
         socket: borrowing Socket,
         responder: Responder
     ) async throws {
@@ -152,7 +152,7 @@ extension Router {
     func defaultDynamicResponse<Responder: DynamicRouteResponderProtocol>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        request: inout any RequestProtocol,
+        request: inout any HTTPRequestProtocol,
         responder: Responder
     ) async throws -> any DynamicResponseProtocol {
         var response = responder.defaultResponse
@@ -180,14 +180,14 @@ extension Router {
     }
 
     @inlinable
-    public func respondDynamically<Socket: SocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
+    public func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
         request: inout Socket.ConcreteRequest,
         responder: Responder
     ) async throws {
-        var anyRequest:any RequestProtocol = request
+        var anyRequest:any HTTPRequestProtocol = request
         var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: responder)
         try await responder.respond(to: socket, request: &anyRequest, response: &response)
     }

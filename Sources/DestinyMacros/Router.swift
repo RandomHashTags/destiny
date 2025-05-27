@@ -56,20 +56,20 @@ extension Router {
     ) -> String {
         var version = HTTPVersion.v1_1
         var errorResponder = """
-        StaticErrorResponder { error in
-            RouteResponses.String(
-                HTTPMessage(
+        StaticErrorResponder({ error in
+            \(RouteResponses.String(
+                DestinyDefaults.HTTPResponseMessage(
                     version: HTTPVersion.v1_1,
                     status: HTTPResponseStatus.ok.code,
                     headers: [:],
                     cookies: [],
-                    body: ResponseBody.string("{\\"error\\":true,\\"reason\\":\\"\\(error)\\"}"),
+                    body: ResponseBody.string("{\"error\":true,\"reason\":\"\\(error)\"}"),
                     contentType: HTTPMediaType.applicationJson,
                     charset: nil
                 ),
                 fromMacro: true
-            )
-        }
+            ).debugDescription)
+        })
         """
         var dynamicNotFoundResponder = "nil"
         var staticNotFoundResponder = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
@@ -174,7 +174,7 @@ extension Router {
         
         let routerGroupsString = storage.routerGroupsString(context: context)
         let conditionalRespondersString = storage.conditionalRespondersString()
-        var string = "Router("
+        var string = "HTTPRouter("
         string += "\nversion: .\(version),"
         string += "\nerrorResponder: \(errorResponder),"
         string += "\ndynamicNotFoundResponder: \(dynamicNotFoundResponder),"
@@ -404,7 +404,7 @@ extension Router.Storage {
                             function: function,
                             string: string,
                             buffer: buffer,
-                            httpResponse: httpResponse as! DestinyDefaults.HTTPMessage // TODO: fix
+                            httpResponse: httpResponse as! DestinyDefaults.HTTPResponseMessage // TODO: fix
                         )
                     }
                 }
@@ -436,14 +436,14 @@ extension Router {
         function: FunctionCallExprSyntax,
         string: String,
         buffer: DestinyRoutePathType,
-        httpResponse: DestinyDefaults.HTTPMessage
+        httpResponse: DestinyDefaults.HTTPResponseMessage
     ) {
         guard let result = httpResponse.body else { return }
         let body:[UInt8]
         do {
             body = try result.bytes()
         } catch {
-            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes: \(error).")))
+            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPResponseMessage bytes: \(error).")))
             return
         }
         var httpResponse = httpResponse
@@ -464,7 +464,7 @@ extension Router {
                         responder.staticConditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
                         responder.staticRespondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
                     } catch {
-                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPMessage bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
+                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPResponseMessage bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
                     }
                 } catch {
                     context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "compressionError", message: "Encountered error while compressing bytes using the " + algorithm.rawValue + " algorithm: \(error).")))

@@ -6,7 +6,7 @@ import Darwin
 #endif
 
 // MARK: Socket
-public struct Socket: SocketProtocol, ~Copyable {
+public struct Socket: HTTPSocketProtocol, ~Copyable {
     public typealias Buffer = InlineArray<1024, UInt8>
 
     public typealias ConcreteRequest = Request

@@ -6,13 +6,13 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let defaultResponse:any DynamicResponseProtocol
-    public let logic:@Sendable (inout any RequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
+    public let logic:@Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
         defaultResponse: any DynamicResponseProtocol,
-        logic: @escaping @Sendable (inout any RequestProtocol, inout any DynamicResponseProtocol) async throws -> Void,
+        logic: @escaping @Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
@@ -57,9 +57,9 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<Socket: SocketProtocol & ~Copyable>(
+    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
         to socket: borrowing Socket,
-        request: inout any RequestProtocol,
+        request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol
     ) async throws {
         try await logic(&request, &response)

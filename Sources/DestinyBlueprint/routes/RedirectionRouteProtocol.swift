@@ -25,7 +25,7 @@ public protocol RedirectionRouteProtocol: RouteProtocol {
     /// 
     /// - Parameters:
     ///   - context: The macro expansion context where this route is being parsed from.
-    ///   - version: The `HTTPVersion` of the `RouterProtocol` this middleware is assigned to.
+    ///   - version: The `HTTPVersion` of the `HTTPRouterProtocol` this middleware is assigned to.
     ///   - function: SwiftSyntax expression that represents this route.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
     #endif

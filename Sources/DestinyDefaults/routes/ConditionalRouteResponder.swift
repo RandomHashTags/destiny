@@ -4,9 +4,9 @@ import SwiftCompression
 
 /// Default Conditional Route Responder implementation where multiple responders are computed at compile time, but only one should be selected based on the request.
 public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
-    public private(set) var staticConditions:[@Sendable (inout any RequestProtocol) -> Bool]
+    public private(set) var staticConditions:[@Sendable (inout any HTTPRequestProtocol) -> Bool]
     public private(set) var staticResponders:[any StaticRouteResponderProtocol]
-    public private(set) var dynamicConditions:[@Sendable (inout any RequestProtocol) -> Bool]
+    public private(set) var dynamicConditions:[@Sendable (inout any HTTPRequestProtocol) -> Bool]
     public private(set) var dynamicResponders:[any DynamicRouteResponderProtocol]
 
     package var staticConditionsDescription = "[]"
@@ -15,9 +15,9 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     package var dynamicRespondersDescription = "[]"
 
     public init(
-        staticConditions: [@Sendable (inout any RequestProtocol) -> Bool],
+        staticConditions: [@Sendable (inout any HTTPRequestProtocol) -> Bool],
         staticResponders: [any StaticRouteResponderProtocol],
-        dynamicConditions: [@Sendable (inout any RequestProtocol) -> Bool],
+        dynamicConditions: [@Sendable (inout any HTTPRequestProtocol) -> Bool],
         dynamicResponders: [any DynamicRouteResponderProtocol]
     ) {
         self.staticConditions = staticConditions
@@ -38,14 +38,14 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
         request: inout Socket.ConcreteRequest
     ) async throws -> Bool {
-        var request:any RequestProtocol = request
+        var request:any HTTPRequestProtocol = request
         for (index, condition) in staticConditions.enumerated() {
             if condition(&request) {
                 try await staticResponders[index].respond(to: socket)

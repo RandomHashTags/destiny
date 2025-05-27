@@ -21,7 +21,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.withUnsafeBytes {
                 try socket.writeBuffer($0.baseAddress!, length: value.count)
             }

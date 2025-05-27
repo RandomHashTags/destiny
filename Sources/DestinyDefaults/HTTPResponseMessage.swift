@@ -2,9 +2,8 @@
 import DestinyBlueprint
 import OrderedCollections
 
-// MARK: HTTPMessage
 /// Default storage for an HTTP Message.
-public struct HTTPMessage: HTTPMessageProtocol {
+public struct HTTPResponseMessage: HTTPMessageProtocol {
     public var headers:OrderedDictionary<String, String>
     public var cookies:[any HTTPCookieProtocol]
     public var body:(any ResponseBodyProtocol)?
@@ -33,7 +32,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
 
     public var debugDescription: String {
         """
-        HTTPMessage(
+        HTTPResponseMessage(
             version: .\(version),
             status: \(status),
             headers: \(headers),
@@ -130,7 +129,7 @@ public struct HTTPMessage: HTTPMessageProtocol {
 }
 
 // MARK: Write
-extension HTTPMessage {
+extension HTTPResponseMessage {
     @inlinable
     public func withUnsafeTemporaryAllocation(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
@@ -268,7 +267,7 @@ extension HTTPMessage {
     }
 
     @inlinable
-    public func write<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
+    public func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
         try self.withUnsafeTemporaryAllocation {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
@@ -276,7 +275,7 @@ extension HTTPMessage {
 }
 
 // MARK: Convenience
-extension HTTPMessage {
+extension HTTPResponseMessage {
     @inlinable
     public static func create(
         escapeLineBreak: Bool,

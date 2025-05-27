@@ -70,8 +70,8 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
 // MARK: Respond
 extension DynamicResponderStorage {
     @inlinable
-    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
@@ -85,7 +85,7 @@ extension DynamicResponderStorage {
 
 extension DynamicResponderStorage {
     @inlinable
-    func responder<Request: RequestProtocol & ~Copyable>(for request: inout Request) -> (any DynamicRouteResponderProtocol)? {
+    func responder<Request: HTTPRequestProtocol & ~Copyable>(for request: inout Request) -> (any DynamicRouteResponderProtocol)? {
         if let responder = parameterless[request.startLine] {
             return responder
         }
@@ -104,7 +104,7 @@ extension DynamicResponderStorage {
     }
 
     @inlinable
-    func catchallResponder<Request: RequestProtocol & ~Copyable>(for request: borrowing Request) -> (any DynamicRouteResponderProtocol)? {
+    func catchallResponder<Request: HTTPRequestProtocol & ~Copyable>(for request: borrowing Request) -> (any DynamicRouteResponderProtocol)? {
         var responderIndex = 0
         loop: while responderIndex < catchall.count {
             let responder = catchall[responderIndex]

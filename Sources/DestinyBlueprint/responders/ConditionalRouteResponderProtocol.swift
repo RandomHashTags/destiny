@@ -11,8 +11,8 @@ public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible,
     ///   - request: The socket's request.
     /// - Returns: Whether or not a route responder responded to the request.
     @inlinable
-    func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

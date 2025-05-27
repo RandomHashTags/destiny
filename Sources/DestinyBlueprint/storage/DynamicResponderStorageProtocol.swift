@@ -10,8 +10,8 @@ public protocol DynamicResponderStorageProtocol: CustomDebugStringConvertible, S
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
     @inlinable
-    func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

@@ -7,7 +7,7 @@ import ServiceLifecycle
 
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.
-public final class Server<ConcreteRouter: RouterProtocol, ClientSocket: SocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
+public final class Server<ConcreteRouter: HTTPRouterProtocol, ClientSocket: HTTPSocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.

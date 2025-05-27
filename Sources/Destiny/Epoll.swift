@@ -147,7 +147,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
 }
 
 // MARK: EpollProcessor
-public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocket: SocketProtocol & ~Copyable>: Sendable, ~Copyable {
+public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocket: HTTPSocketProtocol & ~Copyable>: Sendable, ~Copyable {
     public let instances:InlineArray<threads, Epoll<maxEvents>>
 
     @inlinable
@@ -171,7 +171,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public func run<ConcreteRouter: RouterProtocol>(
+    public func run<ConcreteRouter: HTTPRouterProtocol>(
         timeout: Int32,
         router: ConcreteRouter,
         noTCPDelay: Bool
@@ -189,7 +189,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public static func process<ConcreteRouter: RouterProtocol>(
+    public static func process<ConcreteRouter: HTTPRouterProtocol>(
         _ instance: inout Epoll<maxEvents>,
         timeout: Int32,
         router: ConcreteRouter,

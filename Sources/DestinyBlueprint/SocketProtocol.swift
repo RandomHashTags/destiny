@@ -6,8 +6,6 @@ import Darwin
 /// Core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol: ~Copyable, Sendable {
     associatedtype Buffer:InlineArrayProtocol where Buffer.Element == UInt8
-
-    associatedtype ConcreteRequest:RequestProtocol
     
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 

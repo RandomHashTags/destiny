@@ -3,5 +3,5 @@
 public protocol StaticRouteResponderProtocol: RouteResponderProtocol {
     /// Writes a response to a socket.
     @inlinable
-    func respond<Socket: SocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws
+    func respond<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws
 }

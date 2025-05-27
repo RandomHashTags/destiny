@@ -14,7 +14,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try socket.writeBuffer(value.baseAddress!, length: value.count)
         }
     }
@@ -23,7 +23,7 @@ extension RouteResponses {
 // MARK: InlineArray
 extension InlineArray where Element == UInt8 {
     @inlinable
-    public func respond<T: SocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
         try span.withUnsafeBufferPointer {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }

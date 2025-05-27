@@ -4,13 +4,13 @@ import DestinyBlueprint
 
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
-    associatedtype Cookie:HTTPCookieProtocol
+    associatedtype ConcreteCookie:HTTPCookieProtocol
 
     @inlinable
     func handlesVersion(_ version: HTTPVersion) -> Bool
 
     @inlinable
-    func handlesMethod(_ method: HTTPRequestMethod) -> Bool
+    func handlesMethod<Method: HTTPRequestMethodProtocol>(_ method: Method) -> Bool
 
     @inlinable
     func handlesStatus(_ code: HTTPResponseStatus.Code) -> Bool
@@ -31,14 +31,14 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     var appliesHeaders: OrderedDictionary<String, String> { get }
 
     /// Response cookies this middleware applies to routes.
-    var appliesCookies: [Cookie] { get }
+    var appliesCookies: [ConcreteCookie] { get }
 
     /// Whether or not this middleware handles a route with the given options.
     @inlinable
-    func handles(
+    func handles<Method: HTTPRequestMethodProtocol>(
         version: HTTPVersion,
         path: String,
-        method: HTTPRequestMethod,
+        method: Method,
         contentType: HTTPMediaType?,
         status: HTTPResponseStatus.Code
     ) -> Bool

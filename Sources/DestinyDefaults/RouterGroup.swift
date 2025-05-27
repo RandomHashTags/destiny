@@ -4,7 +4,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: RouterGroup
-/// Default Router Group implementation that handles grouped routes.
+/// Default HTTPRouter Group implementation that handles grouped routes.
 public struct RouterGroup: RouterGroupProtocol {
     public let prefixEndpoints:[String]
     public let staticMiddleware:[any StaticMiddlewareProtocol]
@@ -112,8 +112,8 @@ public struct RouterGroup: RouterGroupProtocol {
 // MARK: Respond
 extension RouterGroup {
     @inlinable
-    public func respond<Router: RouterProtocol & ~Copyable, Socket: SocketProtocol & ~Copyable>(
-        router: borrowing Router,
+    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing HTTPRouter,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

@@ -3,7 +3,7 @@
 @_exported import DestinyDefaults
 import SwiftCompression
 
-/// Default macro to create a `Router`.
+/// Default macro to create a `HTTPRouter`.
 ///
 /// - Parameters:
 ///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
@@ -17,7 +17,7 @@ import SwiftCompression
 ///   - routerGroups: The router groups this router contains.
 ///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(expression)
-public macro router<T: RouterProtocol>(
+public macro router<T: HTTPRouterProtocol>(
     version: HTTPVersion,
     errorResponder: (any ErrorResponderProtocol)? = nil,
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,

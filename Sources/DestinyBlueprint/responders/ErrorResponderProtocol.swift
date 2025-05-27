@@ -5,10 +5,10 @@ import Logging
 public protocol ErrorResponderProtocol: RouteResponderProtocol {
     /// Writes a response to a socket.
     @inlinable
-    func respond<Socket: SocketProtocol & ~Copyable, E: Error>(
+    func respond<Socket: HTTPSocketProtocol & ~Copyable, E: Error>(
         to socket: borrowing Socket,
         with error: E,
-        for request: inout any RequestProtocol,
+        for request: inout any HTTPRequestProtocol,
         logger: Logger
     ) async
 }
