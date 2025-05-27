@@ -123,12 +123,12 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
     }
 
     @inlinable
-    public mutating func setBody(_ body: String) {
-        self.body = ResponseBody.string(body)
+    public mutating func setBody<T: ResponseBodyProtocol>(_ body: T) {
+        self.body = body
     }
 }
 
-// MARK: Write
+// MARK: Unsafe temp allocation
 extension HTTPResponseMessage {
     @inlinable
     public func withUnsafeTemporaryAllocation(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
@@ -265,7 +265,10 @@ extension HTTPResponseMessage {
             }
         }
     }
+}
 
+// MARK: Write
+extension HTTPResponseMessage {
     @inlinable
     public func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
         try self.withUnsafeTemporaryAllocation {

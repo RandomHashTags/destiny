@@ -25,7 +25,7 @@ public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
     /// - Parameters:
     ///   - body: The new body to set.
     @inlinable
-    mutating func setBody(_ body: String)
+    mutating func setBody<T: ResponseBodyProtocol>(_ body: T)
 
     /// Set a header to the given value.
     /// 

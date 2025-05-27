@@ -52,7 +52,7 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     /// - Parameters:
     ///   - body: The new body to set.
     @inlinable
-    mutating func setBody(_ body: String)
+    mutating func setBody<T: ResponseBodyProtocol>(_ body: T)
 
     /// Writes an HTTP Message to a socket.
     /// 

@@ -58,7 +58,7 @@ extension DynamicResponse {
     }
 
     @inlinable
-    public mutating func setBody(_ body: String) {
+    public mutating func setBody<T: ResponseBodyProtocol>(_ body: T) {
         message.setBody(body)
     }
 
