@@ -77,7 +77,7 @@ import SwiftCompression
                 path: ["HOOPLA"],
                 contentType: HTTPMediaType.textPlain,
                 handler: { _, response in
-                    response.setBody("RLY DUD")
+                    response.setBody(ResponseBody.string("RLY DUD"))
                 }
             )
         ),
@@ -161,13 +161,13 @@ import SwiftCompression
         handler: { _, response in
             response.setStatus(HTTPResponseStatus.ok)
             response.setHeader(key: "Server", value: "Destiny")
-            response.setBody("Hello World!")
+            response.setBody(ResponseBody.string("Hello World!"))
         }
     ),
     DynamicRoute.get(
         path: ["dynamicExpressionMacro"],
         handler: { _, response in
-            response.setBody(#filePath)
+            response.setBody(ResponseBody.string(#filePath))
         }
     ),
     DynamicRoute.get(
@@ -181,7 +181,7 @@ import SwiftCompression
         path: ["dynamic"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody("bro")
+            response.setBody(ResponseBody.string("bro"))
             //response.body = .string("Host=" + (request.headers["Host"] ?? "nil"))
         }
     ),
@@ -191,9 +191,9 @@ import SwiftCompression
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            response.setBody(UUID().uuidString)
+            response.setBody(ResponseBody.string(UUID().uuidString))
             #else
-            response.setBody(String(UInt64.random(in: 0..<UInt64.max)))
+            response.setBody(ResponseBody.string(String(UInt64.random(in: 0..<UInt64.max))))
             #endif
         }
     ),
@@ -201,21 +201,21 @@ import SwiftCompression
         path: ["dynamic", ":text"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody(response.parameter(at: 0))
+            response.setBody(ResponseBody.string(response.parameter(at: 0)))
         }
     ),
     DynamicRoute.get(
         path: ["anydynamic", "*", "value"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody(response.parameter(at: 0))
+            response.setBody(ResponseBody.string(response.parameter(at: 0)))
         }
     ),
     DynamicRoute.get(
         path: ["catchall", "**"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody("catchall/**")
+            response.setBody(ResponseBody.string("catchall/**"))
         }
     )
 )
@@ -242,3 +242,113 @@ struct StaticJSONResponse: Encodable {
 enum CustomError: Error {
     case yipyip
 }
+
+/*let test2 = Test2(
+    test3_1: Test3(
+        value1: [],
+        value2: [.init(.init("1"))],
+        value3: [.init(.init("2")), .init(.init("2"))],
+        value4: [.init(.init("3"))],
+        value5: [.init(.init("\"9\", \"9\", \"9\""))],
+        value6: [],
+        value7: [.init(.init("UInt8(7)"))]
+    ),
+    test3_2: Test3(
+        value1: [.init(.init("3, 3, 3"))],
+        value2: [.init(.init("4 4, 4 4"))],
+        value3: [.init(.init("5, 5, 5, 5, 5"))],
+        value4: [],
+        value5: [.init(.init("6"))],
+        value6: [.init(.init("\"8\", 8"))],
+        value7: []
+    )
+)
+
+let test1 = try Test1<Test2>(
+    test2: test2
+)
+
+public protocol Test1Protocol: Sendable {
+}
+public final class Test1<ConcreteTest2: Test2Protocol>: Test1Protocol {
+    public var test2:ConcreteTest2
+    
+    public init(test2: ConcreteTest2) throws {
+        self.test2 = test2
+    }
+}
+
+public protocol Test2Protocol: Sendable {
+}
+public struct Test2<
+        ConcreteTest3_1: Test3Protocol,
+        ConcreteTest3_2: Test3Protocol
+    >: Test2Protocol {
+    public private(set) var test3_1:ConcreteTest3_1
+    public private(set) var test3_2:ConcreteTest3_2
+
+    public init(
+        test3_1: ConcreteTest3_1,
+        test3_2: ConcreteTest3_2
+    ) {
+        self.test3_1 = test3_1
+        self.test3_2 = test3_2
+    }
+}
+
+public protocol Test3Protocol: Sendable {
+}
+public struct Test3<
+        let count1: Int,
+        let count2: Int,
+        let count3: Int,
+        let count4: Int,
+        let count5: Int,
+        let count6: Int,
+        let count7: Int
+    >: Test3Protocol {
+    public let value1:InlineArray<count1, Value<StringResponder>>
+    public let value2:InlineArray<count2, Value<StringResponder>>
+    public let value3:InlineArray<count3, Value<StringResponder>>
+    public let value4:InlineArray<count4, Value<StringResponder>>
+    public let value5:InlineArray<count5, Value<StringResponder>>
+    public let value6:InlineArray<count6, Value<StringResponder>>
+    public let value7:InlineArray<count7, Value<StringResponder>>
+
+    public init(
+        value1: InlineArray<count1, Value<StringResponder>>,
+        value2: InlineArray<count2, Value<StringResponder>>,
+        value3: InlineArray<count3, Value<StringResponder>>,
+        value4: InlineArray<count4, Value<StringResponder>>,
+        value5: InlineArray<count5, Value<StringResponder>>,
+        value6: InlineArray<count6, Value<StringResponder>>,
+        value7: InlineArray<count7, Value<StringResponder>>
+    ) {
+        self.value1 = value1
+        self.value2 = value2
+        self.value3 = value3
+        self.value4 = value4
+        self.value5 = value5
+        self.value6 = value6
+        self.value7 = value7
+    }
+
+    public struct Value<T: ValueResponderProtocol>: Sendable {
+        public let value:T
+
+        public init(_ value: T) {
+            self.value = value
+        }
+    }
+}
+
+public protocol ValueResponderProtocol: Sendable {
+}
+
+public struct StringResponder: ValueResponderProtocol {
+    public let value:String
+
+    public init(_ value: String) {
+        self.value = value
+    }
+}*/
