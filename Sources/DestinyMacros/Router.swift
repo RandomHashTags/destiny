@@ -333,7 +333,7 @@ extension Router.Storage {
         if isCompiled {
             separator = ""
             getResponderValue = {
-                return "// \($0.path)\n.init(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
+                return "// \($0.path)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
             }
             responderStoragePrefix = "Compiled"
         } else {
@@ -412,15 +412,43 @@ extension Router.Storage {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
             }
         }
-        var values = [String]()
-        values.append("macroExpansions: ["               + respondersToString(macroExpansions, separator) + "]")
-        values.append("macroExpansionsWithDateHeader: [" + respondersToString(macroExpansionsWithDateHeader, separator) + "]")
-        values.append("staticStrings: ["                 + respondersToString(staticStrings, separator) + "]")
-        values.append("strings: ["                       + respondersToString(strings, separator) + "]")
-        values.append("stringsWithDateHeader: ["         + respondersToString(stringsWithDateHeader, separator) + "]")
-        values.append("uint8Arrays: ["                   + respondersToString(uint8Arrays, separator) + "]")
-        values.append("uint16Arrays: ["                  + respondersToString(uint16Arrays, separator) + "]")
-        return responderStoragePrefix + "StaticResponderStorage(" + (values.isEmpty ? "" : "\n" + values.joined(separator: ",\n") + "\n") + ")"
+        let keys = [
+            "macroExpansions",
+            "macroExpansionsWithDateHeader",
+            "staticStrings",
+            "strings",
+            "stringsWithDateHeader",
+            "uint8Arrays",
+            "uint16Arrays"
+        ]
+        let values = [
+            respondersToString(macroExpansions, separator),
+            respondersToString(macroExpansionsWithDateHeader, separator),
+            respondersToString(staticStrings, separator),
+            respondersToString(strings, separator),
+            respondersToString(stringsWithDateHeader, separator),
+            respondersToString(uint8Arrays, separator),
+            respondersToString(uint16Arrays, separator)
+        ]
+        var string = responderStoragePrefix + "StaticResponderStorage("
+        if isCompiled {
+            string += "("
+            for var value in values {
+                if !value.isEmpty {
+                    value.removeLast()
+                    string += value + ",\n"
+                }
+            }
+            string.removeLast()
+            string.removeLast()
+            string += ")"
+        } else {
+            for i in keys.indices {
+                string += "\n" + keys[i] + ": [" + values[i] + "],"
+            }
+            string.removeLast()
+        }
+        return string + ")"
     }
     private func respondersToString(_ values: [String], _ separator: String) -> String {
         return values.isEmpty ? separator : "\n" + values.joined(separator: ",\n") + "\n"

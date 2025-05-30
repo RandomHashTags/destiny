@@ -10,7 +10,7 @@ import Logging
 import SwiftCompression
 
 #declareRouter(
-    isCompiled: false,
+    isCompiled: true,
     version: .v1_1,
     dynamicNotFoundResponder: nil,
     supportedCompressionAlgorithms: [],
@@ -219,7 +219,7 @@ import SwiftCompression
         }
     )
 )
-let server = try Server<HTTPRouter, Socket>( // compile problem if using `CompiledStaticResponderStorage` ( https://github.com/swiftlang/swift/issues/81650 )
+let server = try Server<HTTPRouter, Socket>(
     port: 8080,
     router: router,
     logger: Logger(label: "destiny.http.server"),
@@ -242,113 +242,3 @@ struct StaticJSONResponse: Encodable {
 enum CustomError: Error {
     case yipyip
 }
-
-/*let test2 = Test2(
-    test3_1: Test3(
-        value1: [],
-        value2: [.init(.init("1"))],
-        value3: [.init(.init("2")), .init(.init("2"))],
-        value4: [.init(.init("3"))],
-        value5: [.init(.init("\"9\", \"9\", \"9\""))],
-        value6: [],
-        value7: [.init(.init("UInt8(7)"))]
-    ),
-    test3_2: Test3(
-        value1: [.init(.init("3, 3, 3"))],
-        value2: [.init(.init("4 4, 4 4"))],
-        value3: [.init(.init("5, 5, 5, 5, 5"))],
-        value4: [],
-        value5: [.init(.init("6"))],
-        value6: [.init(.init("\"8\", 8"))],
-        value7: []
-    )
-)
-
-let test1 = try Test1<Test2>(
-    test2: test2
-)
-
-public protocol Test1Protocol: Sendable {
-}
-public final class Test1<ConcreteTest2: Test2Protocol>: Test1Protocol {
-    public var test2:ConcreteTest2
-    
-    public init(test2: ConcreteTest2) throws {
-        self.test2 = test2
-    }
-}
-
-public protocol Test2Protocol: Sendable {
-}
-public struct Test2<
-        ConcreteTest3_1: Test3Protocol,
-        ConcreteTest3_2: Test3Protocol
-    >: Test2Protocol {
-    public private(set) var test3_1:ConcreteTest3_1
-    public private(set) var test3_2:ConcreteTest3_2
-
-    public init(
-        test3_1: ConcreteTest3_1,
-        test3_2: ConcreteTest3_2
-    ) {
-        self.test3_1 = test3_1
-        self.test3_2 = test3_2
-    }
-}
-
-public protocol Test3Protocol: Sendable {
-}
-public struct Test3<
-        let count1: Int,
-        let count2: Int,
-        let count3: Int,
-        let count4: Int,
-        let count5: Int,
-        let count6: Int,
-        let count7: Int
-    >: Test3Protocol {
-    public let value1:InlineArray<count1, Value<StringResponder>>
-    public let value2:InlineArray<count2, Value<StringResponder>>
-    public let value3:InlineArray<count3, Value<StringResponder>>
-    public let value4:InlineArray<count4, Value<StringResponder>>
-    public let value5:InlineArray<count5, Value<StringResponder>>
-    public let value6:InlineArray<count6, Value<StringResponder>>
-    public let value7:InlineArray<count7, Value<StringResponder>>
-
-    public init(
-        value1: InlineArray<count1, Value<StringResponder>>,
-        value2: InlineArray<count2, Value<StringResponder>>,
-        value3: InlineArray<count3, Value<StringResponder>>,
-        value4: InlineArray<count4, Value<StringResponder>>,
-        value5: InlineArray<count5, Value<StringResponder>>,
-        value6: InlineArray<count6, Value<StringResponder>>,
-        value7: InlineArray<count7, Value<StringResponder>>
-    ) {
-        self.value1 = value1
-        self.value2 = value2
-        self.value3 = value3
-        self.value4 = value4
-        self.value5 = value5
-        self.value6 = value6
-        self.value7 = value7
-    }
-
-    public struct Value<T: ValueResponderProtocol>: Sendable {
-        public let value:T
-
-        public init(_ value: T) {
-            self.value = value
-        }
-    }
-}
-
-public protocol ValueResponderProtocol: Sendable {
-}
-
-public struct StringResponder: ValueResponderProtocol {
-    public let value:String
-
-    public init(_ value: String) {
-        self.value = value
-    }
-}*/
