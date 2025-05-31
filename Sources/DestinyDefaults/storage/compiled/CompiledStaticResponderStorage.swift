@@ -1,12 +1,12 @@
 
 import DestinyBlueprint
 
-/// Default storage that handles static routes.
+/// Default storage that handles immutable static routes.
 public struct CompiledStaticResponderStorage<each Responder: CompiledStaticResponderStorageRouteProtocol>: StaticResponderStorageProtocol {
-    public let values:(repeat each Responder)
+    public let routes:(repeat each Responder)
 
     public init(_ values: (repeat each Responder)) {
-        self.values = values
+        self.routes = values
     }
 
     @inlinable
@@ -15,9 +15,9 @@ public struct CompiledStaticResponderStorage<each Responder: CompiledStaticRespo
         socket: borrowing Socket,
         startLine: DestinyRoutePathType
     ) async throws -> Bool {
-        for value in repeat each values {
-            if value.path == startLine {
-                try await router.respondStatically(socket: socket, responder: value.responder)
+        for route in repeat each routes {
+            if route.path == startLine {
+                try await router.respondStatically(socket: socket, responder: route.responder)
                 return true
             }
         }
@@ -26,8 +26,8 @@ public struct CompiledStaticResponderStorage<each Responder: CompiledStaticRespo
 
     public var debugDescription: String {
         var s = "CompiledStaticResponderStorage(("
-        for value in repeat each values {
-            s += "\n" + value.debugDescription + ","
+        for route in repeat each routes {
+            s += "\n" + route.debugDescription + ","
         }
         if s.utf8.span.count != 32 { // was modified
             s.removeLast()

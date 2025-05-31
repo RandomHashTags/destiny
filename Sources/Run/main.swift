@@ -19,7 +19,10 @@ import SwiftCompression
             appliesHeaders: ["Server":"destiny"],
             excludedRoutes: ["plaintext"]
         ),
-        StaticMiddleware(handlesVersions: [.v1_0], appliesHeaders: ["Version":"destiny1.0"], excludedRoutes: []),
+        StaticMiddleware(
+            handlesVersions: [.v1_0],
+            appliesHeaders: ["Version":"destiny1.0"]
+        ),
         StaticMiddleware(
             handlesVersions: [.v1_1],
             appliesHeaders: ["Version":"destiny1.1", "Connection":"close"],

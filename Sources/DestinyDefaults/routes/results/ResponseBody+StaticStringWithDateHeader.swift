@@ -3,30 +3,30 @@ import DestinyBlueprint
 
 extension ResponseBody {
     @inlinable
-    public static func string(_ value: Swift.String) -> String {
-        Self.String(value)
+    public static func staticStringWithDateHeader(_ value: Swift.StaticString) -> StaticStringWithDateHeader {
+        Self.StaticStringWithDateHeader(value)
     }
 
-    public struct String: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 6 }
+    public struct StaticStringWithDateHeader: ResponseBodyProtocol {
+        @inlinable public static var id: UInt8 { 5 }
 
-        public let value:Swift.String
+        public var value:Swift.StaticString
 
         @inlinable
-        public init(_ value: Swift.String) {
+        public init(_ value: Swift.StaticString) {
             self.value = value
         }
 
         public var debugDescription: Swift.String {
-            "ResponseBody.string(\"\(value)\")"
+            "ResponseBody.staticStringWithDateHeader(\"\(value)\")"
         }
 
         public var responderDebugDescription: Swift.String {
-            "RouteResponses.String(\"\(value)\")"
+            "RouteResponses.StaticStringWithDateHeader(\"\(value)\")"
         }
 
         public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-            Self(input).responderDebugDescription
+            fatalError("cannot do that")
         }
 
         public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T, fromMacro: Bool) throws -> Swift.String {
@@ -35,17 +35,17 @@ extension ResponseBody {
 
         @inlinable
         public var count: Int {
-            value.utf8.count
+            value.utf8CodeUnitCount
         }
         
         @inlinable
         public func string() -> Swift.String {
-            value
+            value.description
         }
 
         @inlinable
         public func bytes() -> [UInt8] {
-            [UInt8](value.utf8)
+            [UInt8](value.description.utf8)
         }
 
         @inlinable

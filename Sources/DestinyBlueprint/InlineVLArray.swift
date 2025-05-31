@@ -59,6 +59,16 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
 
 extension InlineVLArray where Element == UInt8 {
     @inlinable
+    public static func create(string: StaticString, _ closure: (inout Self) throws -> Void) rethrows {
+        try withUnsafeTemporaryAllocation(of: Element.self, capacity: string.utf8CodeUnitCount, { p in
+            string.withUTF8Buffer { utf8 in
+                let _ = p.initialize(fromContentsOf: utf8)
+            }
+            var array = Self(storage: p)
+            try closure(&array)
+        })
+    }
+    @inlinable
     public static func create<T: StringProtocol>(string: T, _ closure: (inout Self) throws -> Void) rethrows {
         let utf8 = string.utf8
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: utf8.count, { p in

@@ -72,7 +72,18 @@ extension Router {
         })
         """
         var dynamicNotFoundResponder = "nil"
-        var staticNotFoundResponder = #"RouteResponses.StaticString("HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length:9\r\n\r\nnot found")"#
+        var staticNotFoundResponder = try! ResponseBody.stringWithDateHeader("not found").responderDebugDescription(
+            HTTPResponseMessage(
+                version: version,
+                status: HTTPResponseStatus.ok.code,
+                headers: [:],
+                cookies: [],
+                body: ResponseBody.stringWithDateHeader("not found"),
+                contentType: HTTPMediaType.textPlain,
+                charset: Charset.utf8
+            ),
+            fromMacro: true
+        )
         var storage = Storage()
         var isCompiled = false
         for child in arguments {
@@ -323,6 +334,7 @@ extension Router.Storage {
         var macroExpansions = [String]()
         var macroExpansionsWithDateHeader = [String]()
         var staticStrings = [String]()
+        var staticStringsWithDateHeader = [String]()
         var strings = [String]()
         var stringsWithDateHeader = [String]()
         var uint8Arrays = [String]()
@@ -384,6 +396,8 @@ extension Router.Storage {
                                 macroExpansionsWithDateHeader.append(value)
                             case "RouteResponses.StaticString":
                                 staticStrings.append(value)
+                            case "RouteResponses.StaticStringWithDateHeader":
+                                staticStringsWithDateHeader.append(value)
                             case "RouteResponses.String":
                                 strings.append(value)
                             case "RouteResponses.StringWithDateHeader":
@@ -416,6 +430,7 @@ extension Router.Storage {
             "macroExpansions",
             "macroExpansionsWithDateHeader",
             "staticStrings",
+            "staticStringsWithDateHeader",
             "strings",
             "stringsWithDateHeader",
             "uint8Arrays",
@@ -439,8 +454,10 @@ extension Router.Storage {
                     string += value + ",\n"
                 }
             }
-            string.removeLast()
-            string.removeLast()
+            if string.count != 32 { // was modified
+                string.removeLast()
+                string.removeLast()
+            }
             string += ")"
         } else {
             for i in keys.indices {

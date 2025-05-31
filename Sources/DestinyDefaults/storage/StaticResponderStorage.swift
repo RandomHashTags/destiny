@@ -1,12 +1,13 @@
 
 import DestinyBlueprint
 
-/// Default storage that handles static routes.
+/// Default storage that handles mutable static routes.
 public struct StaticResponderStorage: StaticResponderStorageProtocol {
 
     @usableFromInline var macroExpansions:[DestinyRoutePathType:RouteResponses.MacroExpansion]
     @usableFromInline var macroExpansionsWithDateHeader:[DestinyRoutePathType:RouteResponses.MacroExpansionWithDateHeader]
     @usableFromInline var staticStrings:[DestinyRoutePathType:RouteResponses.StaticString]
+    @usableFromInline var staticStringsWithDateHeader:[DestinyRoutePathType:RouteResponses.StaticStringWithDateHeader]
     @usableFromInline var strings:[DestinyRoutePathType:RouteResponses.String]
     @usableFromInline var stringsWithDateHeader:[DestinyRoutePathType:RouteResponses.StringWithDateHeader]
     @usableFromInline var uint8Arrays:[DestinyRoutePathType:RouteResponses.UInt8Array]
@@ -20,6 +21,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         macroExpansions: [DestinyRoutePathType:RouteResponses.MacroExpansion] = [:],
         macroExpansionsWithDateHeader: [DestinyRoutePathType:RouteResponses.MacroExpansionWithDateHeader] = [:],
         staticStrings: [DestinyRoutePathType:RouteResponses.StaticString] = [:],
+        staticStringsWithDateHeader: [DestinyRoutePathType:RouteResponses.StaticStringWithDateHeader] = [:],
         strings: [DestinyRoutePathType:RouteResponses.String] = [:],
         stringsWithDateHeader: [DestinyRoutePathType:RouteResponses.StringWithDateHeader] = [:],
         uint8Arrays: [DestinyRoutePathType:RouteResponses.UInt8Array] = [:],
@@ -28,6 +30,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         self.macroExpansions = macroExpansions
         self.macroExpansionsWithDateHeader = macroExpansionsWithDateHeader
         self.staticStrings = staticStrings
+        self.staticStringsWithDateHeader = staticStringsWithDateHeader
         self.strings = strings
         self.stringsWithDateHeader = stringsWithDateHeader
         self.uint8Arrays = uint8Arrays
@@ -44,6 +47,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
             macroExpansions: \(macroExpansions.debugDescription),
             macroExpansionsWithDateHeader: \(macroExpansionsWithDateHeader.debugDescription),
             staticStrings: \(staticStrings.debugDescription),
+            staticStringsWithDateHeader: \(staticStringsWithDateHeader.debugDescription),
             strings: \(strings.debugDescription),
             stringsWithDateHeader: \(stringsWithDateHeader.debugDescription),
             uint8Arrays: \(uint8Arrays.debugDescription),
@@ -63,6 +67,8 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         } else if let r = macroExpansionsWithDateHeader[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
         } else if let r = staticStrings[startLine] {
+            try await router.respondStatically(socket: socket, responder: r)
+        } else if let r = staticStringsWithDateHeader[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
         } else if let r = stringsWithDateHeader[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
@@ -97,6 +103,8 @@ extension StaticResponderStorage {
             register(path: path, responder)
         } else if let responder = responder as? RouteResponses.StaticString {
             register(path: path, responder)
+        } else if let responder = responder as? RouteResponses.StaticStringWithDateHeader {
+            register(path: path, responder)
         } else if let responder = responder as? RouteResponses.String {
             register(path: path, responder)
         } else if let responder = responder as? RouteResponses.StringWithDateHeader {
@@ -119,6 +127,10 @@ extension StaticResponderStorage {
     @inlinable
     public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.StaticString) {
         staticStrings[path] = responder
+    }
+    @inlinable
+    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.StaticStringWithDateHeader) {
+        staticStringsWithDateHeader[path] = responder
     }
     @inlinable
     public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.String) {

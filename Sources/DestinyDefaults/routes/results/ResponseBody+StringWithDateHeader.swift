@@ -8,7 +8,7 @@ extension ResponseBody {
     }
 
     public struct StringWithDateHeader: ResponseBodyProtocol {
-        @inlinable public static var id: UInt8 { 6 }
+        @inlinable public static var id: UInt8 { 7 }
 
         public var value:Swift.String
 

@@ -1,5 +1,7 @@
 
+#if canImport(SwiftSyntax)
 import SwiftSyntax
+#endif
 
 // MARK: Charset
 /// HTTP charset encodings.

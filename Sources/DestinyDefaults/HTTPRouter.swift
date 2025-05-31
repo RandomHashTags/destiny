@@ -11,7 +11,7 @@ public typealias DefaultRouter = HTTPRouter<
     RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseInsensitiveRouterResponderStorage
     StaticErrorResponder,       // ConcreteErrorResponder
     DynamicRouteResponder,      // ConcreteDynamicNotFoundResponder
-    RouteResponses.StaticString // ConcreteStaticNotFoundResponder
+    RouteResponses.StaticStringWithDateHeader // ConcreteStaticNotFoundResponder
 >
 
 /// Default HTTPRouter implementation that handles middleware, routes and router groups.

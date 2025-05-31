@@ -86,15 +86,6 @@ extension Request {
     }
 }
 
-struct TestPack<each Route: InlineArrayProtocol> {
-    let values:(repeat each Route)
-
-    func test() {
-        for test in repeat each values {
-        }
-    }
-}
-
 // MARK: Parse Headers
 extension Request {
     @inlinable

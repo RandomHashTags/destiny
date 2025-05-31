@@ -68,11 +68,11 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         contentType: HTTPMediaType?,
         status: HTTPResponseStatus.Code
     ) -> Bool {
-        return handlesVersion(version)
+        return !excludedRoutes.contains(path)
+            && handlesVersion(version)
             && handlesMethod(method)
             && handlesContentType(contentType)
             && handlesStatus(status)
-            && !excludedRoutes.contains(path)
     }
 
     public var debugDescription: String {
