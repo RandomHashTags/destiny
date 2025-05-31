@@ -16,7 +16,7 @@ struct DestinyTests {
                 path: ["test1"],
                 contentType: HTTPMediaType.textHtml,
                 charset: Charset.utf8,
-                body: ResponseBody.staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                body: ResponseBody.stringWithDateHeader("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
                 method: .get,
@@ -24,7 +24,7 @@ struct DestinyTests {
                 status: HTTPResponseStatus.movedPermanently,
                 contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
-                body: ResponseBody.staticString("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
+                body: ResponseBody.stringWithDateHeader("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
                 method: .get,

@@ -440,6 +440,7 @@ extension Router.Storage {
             respondersToString(macroExpansions, separator),
             respondersToString(macroExpansionsWithDateHeader, separator),
             respondersToString(staticStrings, separator),
+            respondersToString(staticStringsWithDateHeader, separator),
             respondersToString(strings, separator),
             respondersToString(stringsWithDateHeader, separator),
             respondersToString(uint8Arrays, separator),
