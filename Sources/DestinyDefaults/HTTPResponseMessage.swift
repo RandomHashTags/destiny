@@ -134,6 +134,7 @@ extension HTTPResponseMessage {
             capacity += 4 + key.count + value.count // Header: Value\r\n
         }
         for cookie in cookies {
+            // TODO: fix? Cookie interpolation crashes when ran in debug mode due to "bad pointer dereference" (doesn't crash in release mode)
             capacity += 14 + "\(cookie)".count // Set-Cookie: x\r\n
         }
         if let body {

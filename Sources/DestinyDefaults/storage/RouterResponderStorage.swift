@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 
+/// Default mutable storage that handles conditional, dynamic and static routes.
 public struct RouterResponderStorage<
         ConcreteStaticResponderStorage: StaticResponderStorageProtocol,
         ConcreteDynamicResponderStorage: DynamicResponderStorageProtocol

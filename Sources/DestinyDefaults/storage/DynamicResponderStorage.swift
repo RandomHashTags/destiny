@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-/// Default storage that handles dynamic routes.
+/// Default mutable storage that handles dynamic routes.
 public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]

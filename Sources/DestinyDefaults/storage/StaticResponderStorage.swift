@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-/// Default storage that handles mutable static routes.
+/// Default mutable storage that handles static routes.
 public struct StaticResponderStorage: StaticResponderStorageProtocol {
 
     @usableFromInline var macroExpansions:[DestinyRoutePathType:RouteResponses.MacroExpansion]

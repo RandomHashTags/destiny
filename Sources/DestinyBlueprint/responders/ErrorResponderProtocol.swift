@@ -6,9 +6,9 @@ public protocol ErrorResponderProtocol: RouteResponderProtocol {
     /// Writes a response to a socket.
     @inlinable
     func respond<Socket: HTTPSocketProtocol & ~Copyable, E: Error>(
-        to socket: borrowing Socket,
-        with error: E,
-        for request: inout any HTTPRequestProtocol,
+        socket: borrowing Socket,
+        error: E,
+        request: inout any HTTPRequestProtocol,
         logger: Logger
     ) async
 }

@@ -14,7 +14,12 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
     public var debugDescription: String { "" }
 
     @inlinable
-    public func respond<S: HTTPSocketProtocol & ~Copyable, E: Error>(to socket: borrowing S, with error: E, for request: inout any HTTPRequestProtocol, logger: Logger) async {
+    public func respond<Socket: HTTPSocketProtocol & ~Copyable, E: Error>(
+        socket: borrowing Socket,
+        error: E,
+        request: inout any HTTPRequestProtocol,
+        logger: Logger
+    ) async {
         #if DEBUG
         logger.warning(Logger.Message(stringLiteral: "\(error)"))
         #endif

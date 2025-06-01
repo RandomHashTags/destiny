@@ -34,6 +34,11 @@ public struct DynamicResponse: DynamicResponseProtocol {
     public mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>) {
         parameters[index] = value.string()
     }
+
+    @inlinable
+    public mutating func appendParameter(value: InlineVLArray<UInt8>) {
+        parameters.append(value.string())
+    }
 }
 
 extension DynamicResponse {

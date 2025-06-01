@@ -133,7 +133,7 @@ extension HTTPRouter {
             }
         } catch {
             var anyRequest:any HTTPRequestProtocol = request
-            await errorResponder.respond(to: socket, with: error, for: &anyRequest, logger: logger)
+            await errorResponder.respond(socket: socket, error: error, request: &anyRequest, logger: logger)
         }
     }
 }
@@ -159,6 +159,7 @@ extension HTTPRouter {
         response.timestamps.received = received
         response.timestamps.loaded = loaded
         var index = 0
+        let maximumParameters = responder.pathComponentsCount
         responder.forEachPathComponentParameterIndex { parameterIndex in
             request.path(at: parameterIndex).inlineVLArray {
                 response.setParameter(at: index, value: $0)
@@ -167,7 +168,11 @@ extension HTTPRouter {
                 var i = parameterIndex+1
                 request.forEachPath(offset: i) { path in
                     path.inlineVLArray {
-                        response.setParameter(at: i, value: $0)
+                        if i < maximumParameters {
+                            response.setParameter(at: i, value: $0)
+                        } else {
+                            response.appendParameter(value: $0)
+                        }
                     }
                     i += 1
                 }

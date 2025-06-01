@@ -39,46 +39,6 @@ public struct HTTPRequestMethod {
     }
 }
 
-/*
-// MARK: Parse by literal
-extension HTTPRequestMethod {
-    /// - Complexity: O(1)
-    @inlinable
-    public static func parse(_ literal: String) -> Self? {
-        switch literal {
-        case "get", "GET":         .get
-        case "head", "HEAD":       .head
-        case "post", "POST":       .post
-        case "put", "PUT":         .put
-        case "delete", "DELETE":   .delete
-        case "connect", "CONNECT": .connect
-        case "options", "OPTIONS": .options
-        case "trace", "TRACE":     .trace
-        case "patch", "PATCH":     .patch
-        default:                   nil
-        }
-    }
-}
-// MARK: Init by InlineArray
-extension HTTPRequestMethod {
-    @inlinable
-    public init?(_ key: HTTPStartLine.Method) {
-        switch key {
-        case #inlineArray(count: 20, "GET"):     self = .get
-        case #inlineArray(count: 20, "HEAD"):    self = .head
-        case #inlineArray(count: 20, "POST"):    self = .post
-        case #inlineArray(count: 20, "PUT"):     self = .put
-        case #inlineArray(count: 20, "DELETE"):  self = .delete
-        case #inlineArray(count: 20, "CONNECT"): self = .connect
-        case #inlineArray(count: 20, "OPTIONS"): self = .options
-        case #inlineArray(count: 20, "TRACE"):   self = .trace
-        case #inlineArray(count: 20, "PATCH"):   self = .patch
-        default:                                 return nil
-        }
-    }
-}*/
-
-
 extension HTTPRequestMethod {
     #httpRequestMethods([
         // MARK: Standard

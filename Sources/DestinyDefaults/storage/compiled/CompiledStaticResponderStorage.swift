@@ -1,12 +1,23 @@
 
 import DestinyBlueprint
 
-/// Default storage that handles immutable static routes.
+/// Default immutable storage that handles static routes.
 public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticResponderStorageRouteProtocol>: StaticResponderStorageProtocol {
     public let routes:(repeat each ConcreteRoute)
 
     public init(_ routes: (repeat each ConcreteRoute)) {
         self.routes = routes
+    }
+
+    public var debugDescription: String {
+        var s = "CompiledStaticResponderStorage(\n("
+        for route in repeat each routes {
+            s += "\n" + route.debugDescription + ","
+        }
+        if s.utf8.span.count != 33 { // was modified
+            s.removeLast()
+        }
+        return s + "\n)\n)"
     }
 
     @inlinable
@@ -22,17 +33,6 @@ public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticR
             }
         }
         return false
-    }
-
-    public var debugDescription: String {
-        var s = "CompiledStaticResponderStorage(\n("
-        for route in repeat each routes {
-            s += "\n" + route.debugDescription + ","
-        }
-        if s.utf8.span.count != 33 { // was modified
-            s.removeLast()
-        }
-        return s + "\n)\n)"
     }
 }
 

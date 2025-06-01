@@ -13,6 +13,9 @@ public protocol DynamicResponseProtocol: Sendable, CustomDebugStringConvertible 
     @inlinable
     mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>)
 
+    @inlinable
+    mutating func appendParameter(value: InlineVLArray<UInt8>)
+
     /// Set the response's HTTP Version.
     /// 
     /// - Parameters:

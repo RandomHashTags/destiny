@@ -1,7 +1,10 @@
 
 import DestinyBlueprint
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 /// Core HTTPRouter Group protocol that handles routes grouped by a single endpoint.
 public protocol RouterGroupProtocol: CustomDebugStringConvertible, Sendable {
