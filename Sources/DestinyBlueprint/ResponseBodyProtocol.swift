@@ -1,8 +1,5 @@
 
 public protocol ResponseBodyProtocol: CustomDebugStringConvertible, Sendable {
-    static var id: UInt8 { get }
-    var id: UInt8 { get }
-
     @inlinable
     var count: Int { get }
 
@@ -18,8 +15,18 @@ public protocol ResponseBodyProtocol: CustomDebugStringConvertible, Sendable {
 
     @inlinable
     func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows
+
+    @inlinable
+    var hasDateHeader: Bool { get }
+
+    @inlinable
+    var hasCustomInitializer: Bool { get }
+
+    @inlinable
+    func customInitializer(bodyString: String) -> String
 }
 
 extension ResponseBodyProtocol {
-    @inlinable public var id: UInt8 { Self.id }
+    @inlinable public var hasCustomInitializer: Bool { false }
+    @inlinable public func customInitializer(bodyString: String) -> String { "" }
 }

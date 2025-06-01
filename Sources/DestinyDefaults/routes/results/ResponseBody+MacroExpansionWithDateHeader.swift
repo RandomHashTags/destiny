@@ -8,8 +8,6 @@ extension ResponseBody {
     }
 
     public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 3 }
-
         public let value:Value
 
         @inlinable
@@ -51,6 +49,15 @@ extension ResponseBody {
         @inlinable
         public func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
             try InlineVLArray<UInt8>.create(string: value.string(), closure)
+        }
+
+        @inlinable public var hasDateHeader: Bool { true }
+
+        @inlinable public var hasCustomInitializer: Bool { true }
+
+        @inlinable
+        public func customInitializer(bodyString: Swift.String) -> Swift.String {
+            "\", body: " + bodyString
         }
     }
 }

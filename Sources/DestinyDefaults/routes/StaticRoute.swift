@@ -21,7 +21,7 @@ public struct StaticRoute: StaticRouteProtocol {
     public let isCaseSensitive:Bool
 
     public init<T: HTTPResponseStatus.StorageProtocol>(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
         path: [StaticString],
         isCaseSensitive: Bool = true,
@@ -44,7 +44,7 @@ public struct StaticRoute: StaticRouteProtocol {
         )
     }
     public init(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
         path: [StaticString],
         isCaseSensitive: Bool = true,
@@ -101,10 +101,7 @@ public struct StaticRoute: StaticRouteProtocol {
         var status = status
         var contentType = contentType
         var headers = OrderedDictionary<String, String>()
-        if let id = body?.id,
-                (id == ResponseBody.StringWithDateHeader.id
-                || id == ResponseBody.StaticStringWithDateHeader.id
-                || id == ResponseBody.MacroExpansionWithDateHeader<String>.id) {
+        if body?.hasDateHeader ?? false {
             headers["Date"] = "Thu, 01 Jan 1970 00:00:00 GMT"
         }
         var cookies:[any HTTPCookieProtocol] = []
@@ -192,7 +189,7 @@ extension StaticRoute {
 extension StaticRoute {
     @inlinable
     public static func on(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
         path: [StaticString],
         caseSensitive: Bool = true,
@@ -207,7 +204,7 @@ extension StaticRoute {
 
     @inlinable
     public static func get(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -221,7 +218,7 @@ extension StaticRoute {
 
     @inlinable
     public static func head(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -235,7 +232,7 @@ extension StaticRoute {
 
     @inlinable
     public static func post(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -249,7 +246,7 @@ extension StaticRoute {
 
     @inlinable
     public static func put(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -263,7 +260,7 @@ extension StaticRoute {
 
     @inlinable
     public static func delete(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -277,7 +274,7 @@ extension StaticRoute {
 
     @inlinable
     public static func connect(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -291,7 +288,7 @@ extension StaticRoute {
 
     @inlinable
     public static func options(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -305,7 +302,7 @@ extension StaticRoute {
 
     @inlinable
     public static func trace(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -319,7 +316,7 @@ extension StaticRoute {
 
     @inlinable
     public static func patch(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [StaticString],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,

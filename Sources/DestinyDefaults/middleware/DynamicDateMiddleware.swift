@@ -12,10 +12,6 @@ public final class DynamicDateMiddleware: DynamicMiddlewareProtocol {
     }
 
     @inlinable
-    public func load() {
-    }
-
-    @inlinable
     public func handle(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
         response.setHeader(key: "Date", value: HTTPDateFormat.shared.nowInlineArray.string())
         return true

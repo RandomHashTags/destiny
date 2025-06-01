@@ -72,8 +72,8 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
             }
             string.append(HTTPResponseHeader.contentLength.rawName)
             string += ": "
-            if fromMacro && (body.id == ResponseBody.MacroExpansion<String>.id || body.id == ResponseBody.MacroExpansionWithDateHeader<String>.id) {
-                string += "\", body: " + bodyString
+            if body.hasCustomInitializer {
+                string += body.customInitializer(bodyString: bodyString)
             } else {
                 string += "\(contentLength)"
                 string += suffix + suffix
@@ -226,7 +226,7 @@ extension HTTPResponseMessage {
             for indice in contentTypeHeader.indices {
                 buffer[i + indice] = contentTypeHeader[indice]
             }
-            i += 14
+            i += 14 // contentTypeHeader
             let contentTypeSpan = contentType.description.utf8Span.span
             for indice in contentTypeSpan.indices {
                 buffer[i + indice] = contentTypeSpan[indice]

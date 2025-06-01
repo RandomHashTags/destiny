@@ -21,7 +21,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
     public let isCaseSensitive:Bool
 
     public init(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
@@ -172,7 +172,7 @@ extension DynamicRoute {
 extension DynamicRoute {
     @inlinable
     public static func on(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
         path: [PathComponent],
         caseSensitive: Bool = true,
@@ -188,7 +188,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func get(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -203,7 +203,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func head(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -218,7 +218,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func post(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -233,7 +233,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func put(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -248,7 +248,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func delete(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -263,7 +263,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func connect(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -278,7 +278,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func options(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -293,7 +293,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func trace(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -308,7 +308,7 @@ extension DynamicRoute {
 
     @inlinable
     public static func patch(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,

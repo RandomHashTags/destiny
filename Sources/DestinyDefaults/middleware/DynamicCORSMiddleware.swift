@@ -65,10 +65,6 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
     }
 
     @inlinable
-    public mutating func load() {
-    }
-
-    @inlinable
     public func handle(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
         guard request.header(forKey: HTTPRequestHeader.originRawName) != nil else { return true }
         try await logic(&request, &response)

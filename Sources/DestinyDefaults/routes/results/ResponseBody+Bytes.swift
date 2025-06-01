@@ -7,8 +7,6 @@ extension ResponseBody {
         Self.Bytes(value)
     }
     public struct Bytes: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 0 }
-
         public let value:[UInt8]
 
         @inlinable
@@ -51,5 +49,7 @@ extension ResponseBody {
         public func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
             try InlineVLArray<UInt8>.create(collection: value, closure)
         }
+
+        @inlinable public var hasDateHeader: Bool { false }
     }
 }

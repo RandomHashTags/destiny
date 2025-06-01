@@ -14,7 +14,7 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     public let isCaseSensitive:Bool
 
     public init(
-        version: HTTPVersion = .v1_0,
+        version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
         status: HTTPResponseStatus.Code,
         from: [StaticString],

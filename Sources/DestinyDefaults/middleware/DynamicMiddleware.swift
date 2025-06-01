@@ -16,10 +16,6 @@ public struct DynamicMiddleware: DynamicMiddlewareProtocol {
     }
 
     @inlinable
-    public mutating func load() {
-    }
-
-    @inlinable
     public func handle(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
         try await handleLogic(&request, &response)
         return true

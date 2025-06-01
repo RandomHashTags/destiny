@@ -14,8 +14,6 @@ extension ResponseBody {
         Self.FoundationData(value)
     }
     public struct FoundationData: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 1 }
-
         public let value:Data
 
         @inlinable
@@ -58,6 +56,8 @@ extension ResponseBody {
         public func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
             try InlineVLArray<UInt8>.create(collection: value, closure)
         }
+
+        @inlinable public var hasDateHeader: Bool { false }
     }
 }
 

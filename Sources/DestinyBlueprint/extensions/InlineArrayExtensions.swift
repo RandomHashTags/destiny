@@ -463,16 +463,28 @@ extension InlineArrayProtocol where Element: SIMDScalar {
         simd(startIndex: startIndex)
     }
 
-    /// Binds the elements to a type conforming to `SIMD where SIMD.Scalar == Element`.
+    /// Efficiently copies the elements to a type conforming to `SIMD where SIMD.Scalar == Element`.
     /// 
     /// - Parameters:
     ///   - startIndex: Where the first element is located.
     /// - Complexity: O(1)
     @inlinable
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
-        return withUnsafeBytes(of: self) { p in
-            return (p.baseAddress! + startIndex).bindMemory(to: T.self, capacity: T.scalarCount).pointee
+        var result = T()
+        #if canImport(Foundation)
+        withUnsafeBytes(of: self, { this in 
+            withUnsafeBytes(of: &result, {
+                memcpy(.init(mutating: $0.baseAddress!), this.baseAddress! + startIndex, T.scalarCount)
+            })
+        })
+        #else
+        var i = startIndex
+        for indice in 0..<T.scalarCount {
+            result[indice] = itemAt(index: indice)
+            i += 1
         }
+        #endif
+        return result
     }
 }
 

@@ -8,8 +8,6 @@ extension ResponseBody {
     }
 
     public struct StaticString: ResponseBodyProtocol {
-        @inlinable public static var id:UInt8 { 4 }
-
         public let value:Swift.StaticString
 
         @inlinable
@@ -52,5 +50,7 @@ extension ResponseBody {
         public func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
             try InlineVLArray<UInt8>.create(string: value.description, closure)
         }
+
+        @inlinable public var hasDateHeader: Bool { false }
     }
 }

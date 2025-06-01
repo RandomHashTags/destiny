@@ -2,11 +2,11 @@
 import DestinyBlueprint
 
 /// Default storage that handles immutable static routes.
-public struct CompiledStaticResponderStorage<each Responder: CompiledStaticResponderStorageRouteProtocol>: StaticResponderStorageProtocol {
-    public let routes:(repeat each Responder)
+public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticResponderStorageRouteProtocol>: StaticResponderStorageProtocol {
+    public let routes:(repeat each ConcreteRoute)
 
-    public init(_ values: (repeat each Responder)) {
-        self.routes = values
+    public init(_ routes: (repeat each ConcreteRoute)) {
+        self.routes = routes
     }
 
     @inlinable
@@ -25,35 +25,35 @@ public struct CompiledStaticResponderStorage<each Responder: CompiledStaticRespo
     }
 
     public var debugDescription: String {
-        var s = "CompiledStaticResponderStorage(("
+        var s = "CompiledStaticResponderStorage(\n("
         for route in repeat each routes {
             s += "\n" + route.debugDescription + ","
         }
-        if s.utf8.span.count != 32 { // was modified
+        if s.utf8.span.count != 33 { // was modified
             s.removeLast()
         }
-        return s + "\n))"
+        return s + "\n)\n)"
     }
 }
 
 public protocol CompiledStaticResponderStorageRouteProtocol: CustomDebugStringConvertible, Sendable {
-    associatedtype T:StaticRouteResponderProtocol
+    associatedtype ConcreteResponder:StaticRouteResponderProtocol
 
     var path: DestinyRoutePathType { get }
-    var responder: T { get }
+    var responder: ConcreteResponder { get }
 }
-public struct CompiledStaticResponderStorageRoute<T: StaticRouteResponderProtocol>: CompiledStaticResponderStorageRouteProtocol {
+public struct CompiledStaticResponderStorageRoute<ConcreteResponder: StaticRouteResponderProtocol>: CompiledStaticResponderStorageRouteProtocol {
     public let path:DestinyRoutePathType
-    public let responder:T
+    public let responder:ConcreteResponder
 
-    public init(path: DestinyRoutePathType, responder: T) {
+    public init(path: DestinyRoutePathType, responder: ConcreteResponder) {
         self.path = path
         self.responder = responder
     }
 
     public var debugDescription: String {
         """
-        CompiledStaticResponderStorageRoute<\(T.self)>(
+        CompiledStaticResponderStorageRoute<\(ConcreteResponder.self)>(
             path: \(path.debugDescription),
             responder: \(responder.debugDescription)
         )

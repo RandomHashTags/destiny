@@ -17,3 +17,9 @@ public protocol DynamicMiddlewareProtocol: MiddlewareProtocol {
         response: inout any DynamicResponseProtocol
     ) async throws -> Bool
 }
+
+extension DynamicMiddlewareProtocol {
+    @inlinable
+    public mutating func load() {
+    }
+}
