@@ -50,10 +50,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
     }
 
     @inlinable
-    public func string(
-        escapeLineBreak: Bool,
-        fromMacro: Bool
-    ) throws -> String {
+    public func string(escapeLineBreak: Bool) throws -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string = version.string + " \(status)" + suffix
         for (header, value) in headers {

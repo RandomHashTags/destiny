@@ -22,7 +22,14 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
     public init(
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
         allowedHeaders: Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin],
-        allowedMethods: Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch],
+        allowedMethods: [any HTTPRequestMethodProtocol] = [
+            HTTPRequestMethod.get,
+            HTTPRequestMethod.post,
+            HTTPRequestMethod.put,
+            HTTPRequestMethod.options,
+            HTTPRequestMethod.delete,
+            HTTPRequestMethod.patch
+        ],
         allowCredentials: Bool = false,
         exposedHeaders: Set<HTTPRequestHeader>? = nil,
         maxAge: Int? = 3600 // one hour
@@ -43,7 +50,7 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
         }
 
         let allowedHeaders = allowedHeaders.map({ $0.rawNameString }).joined(separator: ",")
-        let allowedMethods = allowedMethods.map({ $0.rawNameString }).joined(separator: ",")
+        let allowedMethods = allowedMethods.map({ $0.debugDescription }).joined(separator: ",")
         logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowHeadersRawName, value: \"" + allowedHeaders + "\")"
         logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowMethodsRawName, value: \"" + allowedMethods + "\")"
         if allowCredentials {
@@ -82,7 +89,14 @@ extension DynamicCORSMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var allowedOrigin = CORSMiddlewareAllowedOrigin.originBased
         var allowedHeaders:Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin]
-        var allowedMethods:Set<HTTPRequestMethod> = [.get, .post, .put, .options, .delete, .patch]
+        var allowedMethods:[any HTTPRequestMethodProtocol] = [
+            HTTPRequestMethod.get,
+            HTTPRequestMethod.post,
+            HTTPRequestMethod.put,
+            HTTPRequestMethod.options,
+            HTTPRequestMethod.delete,
+            HTTPRequestMethod.patch
+        ]
         var allowCredentials = false
         var maxAge:Int? = 600
         var exposedHeaders:Set<HTTPRequestHeader>? = nil
@@ -106,7 +120,7 @@ extension DynamicCORSMiddleware {
             case "allowedHeaders":
                 allowedHeaders = Set(argument.expression.array!.elements.compactMap({ HTTPRequestHeader(expr: $0.expression) }))
             case "allowedMethods":
-                allowedMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequestMethod(expr: $0.expression) }))
+                allowedMethods = argument.expression.array!.elements.compactMap({ HTTPRequestMethod.parse(expr: $0.expression) })
             case "allowCredentials":
                 allowCredentials = argument.expression.booleanIsTrue
             case "maxAge":

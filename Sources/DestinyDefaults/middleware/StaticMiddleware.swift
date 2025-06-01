@@ -17,7 +17,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     /// Route request methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
-    public let handlesMethods:Set<HTTPRequestMethod>?
+    public let handlesMethods:[any HTTPRequestMethodProtocol]?
 
     /// Route response statuses this middleware handles.
     /// 
@@ -38,7 +38,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
-        handlesMethods: Set<HTTPRequestMethod>? = nil,
+        handlesMethods: [any HTTPRequestMethodProtocol]? = nil,
         handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
         handlesContentTypes: Set<HTTPMediaType>? = nil,
         appliesVersion: HTTPVersion? = nil,
@@ -120,8 +120,9 @@ extension StaticMiddleware {
     @inlinable
     public func handlesMethod<Method: HTTPRequestMethodProtocol>(_ method: Method) -> Bool {
         guard let handlesMethods else { return true }
+        let rn = method.rawNameString()
         for m in handlesMethods {
-            if m.rawName == method.rawName {
+            if m.rawNameString() == rn {
                 return true
             }
         }
@@ -148,7 +149,7 @@ extension StaticMiddleware {
 extension StaticMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil
-        var handlesMethods:Set<HTTPRequestMethod>? = nil
+        var handlesMethods:[any HTTPRequestMethodProtocol]? = nil
         var handlesStatuses:Set<HTTPResponseStatus.Code>? = nil
         var handlesContentTypes:Set<HTTPMediaType>? = nil
         var appliesVersion:HTTPVersion? = nil
@@ -162,7 +163,7 @@ extension StaticMiddleware {
             case "handlesVersions":
                 handlesVersions = Set(argument.expression.array!.elements.compactMap({ HTTPVersion.parse($0.expression) }))
             case "handlesMethods":
-                handlesMethods = Set(argument.expression.array!.elements.compactMap({ HTTPRequestMethod(expr: $0.expression) }))
+                handlesMethods = argument.expression.array?.elements.compactMap({ HTTPRequestMethod.parse(expr: $0.expression) })
             case "handlesStatuses":
                 handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponseStatus.parse(expr: $0.expression)?.code }))
             case "handlesContentTypes":

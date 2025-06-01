@@ -33,12 +33,13 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     func header(forKey key: String) -> String?
 }
 
+/*
 extension HTTPRequestProtocol where Self: ~Copyable {
     @inlinable
     public func isMethod<T: HTTPRequestMethodProtocol>(_ method: T) -> Bool {
         isMethod(method.rawName)
     }
-}
+}*/
 
 /*
 /// Core Request Storage protocol that lays out how data for a request is stored.

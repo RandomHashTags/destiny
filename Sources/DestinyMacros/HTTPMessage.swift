@@ -44,7 +44,7 @@ enum HTTPMessage: DeclarationMacro {
                 body: body,
                 contentType: contentType,
                 charset: charset
-            ).string(escapeLineBreak: true, fromMacro: true)
+            ).string(escapeLineBreak: true)
             response = "\"" + response + "\""
             return ["\(raw: response)"]
         } catch {

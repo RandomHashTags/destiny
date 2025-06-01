@@ -27,8 +27,8 @@ extension ResponseBody {
             Self(input).responderDebugDescription
         }
 
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T, fromMacro: Bool) throws -> Swift.String {
-            try responderDebugDescription(input.string(escapeLineBreak: true, fromMacro: fromMacro))
+        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+            try responderDebugDescription(input.string(escapeLineBreak: true))
         }
 
         @inlinable

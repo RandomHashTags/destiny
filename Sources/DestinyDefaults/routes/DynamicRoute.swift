@@ -16,13 +16,13 @@ public struct DynamicRoute: DynamicRouteProtocol {
     @usableFromInline package var handlerDebugDescription:String = "{ _, _ in }"
 
     public let version:HTTPVersion
-    public var method:HTTPRequestMethod
+    public var method:any HTTPRequestMethodProtocol
     public var status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
 
     public init(
         version: HTTPVersion = .v1_1,
-        method: HTTPRequestMethod,
+        method: any HTTPRequestMethodProtocol,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -99,7 +99,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
 extension DynamicRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
         var version = version
-        var method = HTTPRequestMethod.get
+        var method:any HTTPRequestMethodProtocol = HTTPRequestMethod.get
         var path:[PathComponent] = []
         var isCaseSensitive = true
         var status = HTTPResponseStatus.notImplemented.code
@@ -114,7 +114,7 @@ extension DynamicRoute {
                     version = parsed
                 }
             case "method":
-                method = HTTPRequestMethod(expr: argument.expression) ?? method
+                method = HTTPRequestMethod.parse(expr: argument.expression) ?? method
             case "path":
                 path = PathComponent.parseArray(context: context, argument.expression)
                 for _ in path.filter({ $0.isParameter }) {
@@ -173,7 +173,7 @@ extension DynamicRoute {
     @inlinable
     public static func on(
         version: HTTPVersion = .v1_1,
-        method: HTTPRequestMethod,
+        method: any HTTPRequestMethodProtocol,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -198,7 +198,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -213,7 +213,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -228,7 +228,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -243,7 +243,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -258,7 +258,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -273,7 +273,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -288,7 +288,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -303,7 +303,7 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 
     @inlinable
@@ -318,6 +318,6 @@ extension DynamicRoute {
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: .patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
     }
 }

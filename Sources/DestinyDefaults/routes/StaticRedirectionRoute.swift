@@ -9,13 +9,13 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     public package(set) var from:[String]
     public package(set) var to:[String]
     public let version:HTTPVersion
-    public let method:HTTPRequestMethod
+    public let method:any HTTPRequestMethodProtocol
     public let status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
 
     public init(
         version: HTTPVersion = .v1_1,
-        method: HTTPRequestMethod,
+        method: any HTTPRequestMethodProtocol,
         status: HTTPResponseStatus.Code,
         from: [StaticString],
         isCaseSensitive: Bool = true,
@@ -53,7 +53,7 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
 extension StaticRedirectionRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version = version
-        var method = HTTPRequestMethod.get
+        var method:any HTTPRequestMethodProtocol = HTTPRequestMethod.get
         var from = [String]()
         var isCaseSensitive = true
         var to = [String]()
@@ -61,7 +61,7 @@ extension StaticRedirectionRoute {
         for argument in function.arguments {
             switch argument.label?.text {
             case "version": version = HTTPVersion.parse(argument.expression) ?? version
-            case "method": method = HTTPRequestMethod(expr: argument.expression) ?? method
+            case "method": method = HTTPRequestMethod.parse(expr: argument.expression) ?? method
             case "status": status = HTTPResponseStatus.parse(expr: argument.expression)?.code ?? status
             case "from": from = PathComponent.parseArray(context: context, argument.expression)
             case "isCaseSensitive", "caseSensitive": isCaseSensitive = argument.expression.booleanIsTrue

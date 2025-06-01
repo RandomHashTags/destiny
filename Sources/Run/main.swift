@@ -34,18 +34,18 @@ import SwiftCompression
         StaticMiddleware(handlesVersions: [.v2_0], appliesHeaders: ["Version":"destiny2.0"]),
         StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
         StaticMiddleware(
-            handlesMethods: [.get],
+            handlesMethods: [HTTPRequestMethod.get],
             handlesStatuses: [HTTPResponseStatus.notImplemented.code],
             handlesContentTypes: [HTTPMediaType.textHtml, HTTPMediaType.applicationJson, HTTPMediaType.textPlain],
             appliesStatus: HTTPResponseStatus.ok.code,
             excludedRoutes: ["plaintext"]
         ),
         StaticMiddleware(
-            handlesMethods: [.get],
+            handlesMethods: [HTTPRequestMethod.get],
             appliesHeaders: ["You-GET'd":"true"],
             excludedRoutes: ["plaintext"]
         ),
-        StaticMiddleware(handlesMethods: [.post], appliesHeaders: ["You-POST'd":"true"]),
+        StaticMiddleware(handlesMethods: [HTTPRequestMethod.post], appliesHeaders: ["You-POST'd":"true"]),
         //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
         DynamicCORSMiddleware(),
         DynamicDateMiddleware(),
@@ -59,11 +59,8 @@ import SwiftCompression
         })*/
     ],
     redirects: [
-        .get: [
-            HTTPResponseStatus.temporaryRedirect.code: [
-                "redirectfrom": "redirectto"
-            ]
-        ]
+        // TODO: fix (doesn't get registered to router)
+        StaticRedirectionRoute(method: HTTPRequestMethod.get, status: HTTPResponseStatus.ok.code, from: ["redirectfrom"], to: ["redirectto"])
     ],
     routerGroups: [
         RouterGroup(
@@ -72,13 +69,13 @@ import SwiftCompression
                 StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
             ],
             StaticRoute(
-                method: .get,
+                method: HTTPRequestMethod.get,
                 path: ["hoopla"],
                 contentType: HTTPMediaType.textPlain,
                 body: ResponseBody.stringWithDateHeader("rly dud")
             ),
             DynamicRoute(
-                method: .get,
+                method: HTTPRequestMethod.get,
                 path: ["HOOPLA"],
                 contentType: HTTPMediaType.textPlain,
                 handler: { _, response in

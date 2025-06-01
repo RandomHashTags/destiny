@@ -74,7 +74,7 @@ extension HTTPResponseHeaders {
 // MARK: Allow
 extension HTTPResponseHeaders {
     @inlinable
-    public mutating func allow<C: Collection<HTTPRequestMethod>>(_ methods: C?) -> Self {
+    public mutating func allow<C: Collection<HTTPRequestMethodProtocol>>(_ methods: C?) -> Self {
         var temp = ""
         if let methods {
             var has = false
@@ -82,7 +82,7 @@ extension HTTPResponseHeaders {
                 if has {
                     temp += ", "
                 }
-                temp.append(method.rawName)
+                temp.append(method.rawNameString())
                 has = true
             }
         }

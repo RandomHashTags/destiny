@@ -30,11 +30,6 @@ extension InlineArray where Element == UInt8 {
     }
 
     public var debugDescription: String {
-        var s = "["
-        for i in indices {
-            s.append(Character(Unicode.Scalar(self[i])))
-        }
-        s += "]"
-        return s
+        return "[" + indices.map({ String(self.itemAt(index: $0)) }).joined(separator: ", ") + "]"
     }
 }

@@ -10,8 +10,8 @@ extension RouteResponses {
             self.value = value
             self.body = body
         }
-        public init(_ response: HTTPResponseMessage, fromMacro: Bool) {
-            value = (try? response.string(escapeLineBreak: true, fromMacro: fromMacro)) ?? ""
+        public init(_ response: HTTPResponseMessage) {
+            value = (try? response.string(escapeLineBreak: true)) ?? ""
             body = response.body?.debugDescription ?? ""
         }
 

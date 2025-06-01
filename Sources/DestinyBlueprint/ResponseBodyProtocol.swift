@@ -5,7 +5,7 @@ public protocol ResponseBodyProtocol: CustomDebugStringConvertible, Sendable {
 
     var responderDebugDescription: String { get }
     func responderDebugDescription(_ input: String) -> String
-    func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T, fromMacro: Bool) throws -> String
+    func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String
 
     @inlinable
     func string() -> String

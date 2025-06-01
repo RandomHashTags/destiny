@@ -25,7 +25,7 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol {
     /// - Returns: All the routes associated with the files for the given path.
     public func routes(
         version: HTTPVersion,
-        method: HTTPRequestMethod = .get,
+        method: any HTTPRequestMethodProtocol = HTTPRequestMethod.get,
         charset: Charset? = .utf8,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
     ) throws -> [StaticRoute] {
@@ -42,7 +42,7 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol {
 extension StaticFileMiddleware {
     private func routesFoundation(
         version: HTTPVersion,
-        method: HTTPRequestMethod,
+        method: any HTTPRequestMethodProtocol,
         charset: Charset?,
         supportedCompressionAlgorithms: Set<CompressionAlgorithm>,
         path: String,

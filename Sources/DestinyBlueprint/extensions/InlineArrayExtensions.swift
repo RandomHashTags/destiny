@@ -5,7 +5,7 @@ import Foundation
 
 // MARK: init
 extension InlineArrayProtocol {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public init<T: Collection<Element>>(_ array: T) {
         self = .init(repeating: array[array.startIndex])
@@ -15,7 +15,7 @@ extension InlineArrayProtocol {
     }
 }
 extension InlineArrayProtocol where Element == UInt8 {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public init(_ utf8: String.UTF8View) {
         self = .init(repeating: 0)
@@ -24,7 +24,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         }
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public init<T: SIMD>(_ simd: T) where T.Scalar == Element {
         self = .init(repeating: 0)
@@ -36,7 +36,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: split
 extension InlineArrayProtocol where Element: Equatable {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public func split<let sliceLength: Int>(
         separator: Element,
@@ -294,7 +294,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: first index
 extension InlineArrayProtocol where Element: Equatable {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public func firstIndex(of element: Element, offset: Index = 0) -> Index? {
         var i = startIndex + offset
@@ -310,7 +310,7 @@ extension InlineArrayProtocol where Element: Equatable {
 
 // MARK: first slice
 extension InlineArrayProtocol where Element: Equatable {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public func firstSlice<let sliceLength: Int>(separator: Element, defaultValue: Element, offset: Index = 0) -> (slice: InlineArray<sliceLength, Element>, index: Index) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
@@ -326,7 +326,7 @@ extension InlineArrayProtocol where Element: Equatable {
         return (slice, index)
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public func firstSlice(separator: Element, defaultValue: Element, offset: Index = 0, _ closure: (_ slice: InlineVLArray<Element>, _ index: Index) -> Void) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
@@ -345,7 +345,7 @@ extension InlineArrayProtocol where Element: Equatable {
 
 // MARK: slice
 extension InlineArrayProtocol {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public func slice<let sliceLength: Int>(startIndex: Index, endIndex: Index, defaultValue: Element) -> InlineArray<sliceLength, Element> {
         var slice = InlineArray<sliceLength, Element>(repeating: defaultValue)
@@ -363,7 +363,7 @@ extension InlineArrayProtocol {
 
 // MARK: has prefix
 extension InlineArrayProtocol where Element == UInt8 {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public func hasPrefix<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
         let minCount = min(count, array.count)
@@ -490,25 +490,37 @@ extension InlineArrayProtocol where Element: SIMDScalar {
 
 // MARK: Equatable
 extension InlineArrayProtocol where Element: Equatable {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public static func == (lhs: Self?, rhs: Self) -> Bool {
         guard let lhs else { return false }
         return lhs == rhs
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public static func == (lhs: Self, rhs: Self?) -> Bool {
         guard let rhs else { return false }
         return lhs == rhs
     }
 
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in lhs.indices {
             if lhs.itemAt(index: i) != rhs.itemAt(index: i) {
+                return false
+            }
+        }
+        return true
+    }
+
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    @inlinable
+    public func equals<T: InlineArrayProtocol>(_ array: T) -> Bool where Element == T.Element {
+        guard count == array.count else { return false }
+        for i in indices {
+            if self.itemAt(index: i) != array.itemAt(index: i) {
                 return false
             }
         }
@@ -560,7 +572,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 
 // MARK: Pattern matching
 extension InlineArrayProtocol where Element: Equatable {
-    /// - Complexity: O(_n_) where _n_ is the length of the collection.
+    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
     public static func ~= (lhs: Self, rhs: Self) -> Bool {
         return lhs == rhs

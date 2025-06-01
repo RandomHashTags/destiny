@@ -1,6 +1,6 @@
 
 extension SIMD where Scalar: BinaryInteger {
-    /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
+    /// - Complexity: O(*n*) if `string` is non-contiguous, O(1) if already contiguous.
     @inlinable
     public init(_ string: inout String) {
         var item = Self()
@@ -12,7 +12,7 @@ extension SIMD where Scalar: BinaryInteger {
         self = item
     }
 
-    /// - Complexity: O(_n_) if `string` is non-contiguous, O(1) if already contiguous.
+    /// - Complexity: O(*n*) if `string` is non-contiguous, O(1) if already contiguous.
     @inlinable
     public init(_ string: String) {
         var s = string

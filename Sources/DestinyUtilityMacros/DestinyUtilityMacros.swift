@@ -28,7 +28,8 @@ struct DestinyUtilityMacros: CompilerPlugin {
         HTTPFieldContentType.self,
         InlineArrayMacro.self,
         HTTPResponseStatusesMacro.self,
-        HTTPMediaTypeMacro.self
+        HTTPMediaTypeMacro.self,
+        HTTPRequestMethods.self
     ]
 }
 

@@ -10,6 +10,11 @@ macro HTTPFieldContentType(
     values: [String:HTTPFieldContentTypeDetails]
 ) = #externalMacro(module: "DestinyUtilityMacros", type: "HTTPFieldContentType")
 
+@freestanding(declaration, names: arbitrary)
+macro httpRequestMethods(
+    _ entries: [(memberName: String, method: String)]
+) = #externalMacro(module: "DestinyUtilityMacros", type: "HTTPRequestMethods")
+
 struct HTTPFieldContentTypeDetails {
     let httpValue:String
     let fileExtensions:Set<String>

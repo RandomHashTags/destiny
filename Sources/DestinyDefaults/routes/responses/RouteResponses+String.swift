@@ -8,8 +8,8 @@ extension RouteResponses {
         public init(_ value: Swift.String) {
             self.value = value
         }
-        public init(_ response: HTTPResponseMessage, fromMacro: Bool) {
-            value = (try? response.string(escapeLineBreak: true, fromMacro: fromMacro)) ?? ""
+        public init(_ response: HTTPResponseMessage) {
+            value = (try? response.string(escapeLineBreak: true)) ?? ""
         }
 
         public var debugDescription: Swift.String {
