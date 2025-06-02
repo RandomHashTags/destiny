@@ -319,42 +319,35 @@ extension Router.Storage {
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return ".init()" }
-        var macroExpansions = [String]()
-        var macroExpansionsWithDateHeader = [String]()
-        var staticStrings = [String]()
-        var staticStringsWithDateHeader = [String]()
-        var strings = [String]()
-        var stringsWithDateHeader = [String]()
-        var uint8Arrays = [String]()
-        var uint16Arrays = [String]()
-        let separator:String = ""
+        var routeResponders = [String]()
+        let getRouteStartLine:(StaticRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
+        let getRedirectRouteStartLine:(any RedirectionRouteProtocol) -> String = isCaseSensitive ? { route in
+            return route.method.rawNameString() + " /" + route.from.joined(separator: "/") + " " + route.version.string
+        } : { route in
+            return (route.method.rawNameString() + " /" + route.from.joined(separator: "/") + " " + route.version.string).lowercased()
+        }
         let getResponderValue:(Router.Storage.Route) -> String = {
             return "// \($0.path)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
         }
         if !redirects.isEmpty {
             for (route, function) in redirects {
-                var string = route.method.rawNameString() + " /" + route.from.joined(separator: "/") + " " + route.version.string
-                if !isCaseSensitive {
-                    string = string.lowercased()
-                }
+                var string = getRedirectRouteStartLine(route)
                 if registeredPaths.contains(string) {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
                 } else {
                     registeredPaths.insert(string)
                     do {
                         let responder = try ResponseBody.stringWithDateHeader(route.response()).responderDebugDescription
-                        stringsWithDateHeader.append(getResponderValue(.init(path: string, buffer: .init(&string), responder: responder)))
+                        routeResponders.append(getResponderValue(.init(path: string, buffer: .init(&string), responder: responder)))
                     } catch {
+                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
                     }
                 }
             }
         }
         for (route, function) in routes {
             do {
-                var string = route.startLine
-                if !isCaseSensitive {
-                    string = string.lowercased()
-                }
+                var string = getRouteStartLine(route)
                 if registeredPaths.contains(string) {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
                 } else {
@@ -363,27 +356,7 @@ extension Router.Storage {
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
                     if route.supportedCompressionAlgorithms.isEmpty {
                         if let responder = try route.body?.responderDebugDescription(httpResponse) {
-                            let value = getResponderValue(.init(path: string, buffer: buffer, responder: responder))
-                            switch responder.split(separator: "(").first {
-                            case "RouteResponses.MacroExpansion":
-                                macroExpansions.append(value)
-                            case "RouteResponses.MacroExpansionWithDateHeader":
-                                macroExpansionsWithDateHeader.append(value)
-                            case "RouteResponses.StaticString":
-                                staticStrings.append(value)
-                            case "RouteResponses.StaticStringWithDateHeader":
-                                staticStringsWithDateHeader.append(value)
-                            case "RouteResponses.String":
-                                strings.append(value)
-                            case "RouteResponses.StringWithDateHeader":
-                                stringsWithDateHeader.append(value)
-                            case "RouteResponses.UInt8Array":
-                                uint8Arrays.append(value)
-                            case "RouteResponses.UInt16Array":
-                                uint16Arrays.append(value)
-                            default:
-                                break
-                            }
+                            routeResponders.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
                         }
                     } else if let httpResponse = httpResponse as? HTTPResponseMessage {
                         Router.conditionalRoute(
@@ -396,38 +369,22 @@ extension Router.Storage {
                             httpResponse: httpResponse
                         )
                     } else {
-                        print("Router.Storage;staticRoutesString;conditionalRoute;httpResponse variable is not a HTTPResponseMessage")
+                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "unexpectedHTTPResponseMessage", message: "Router.Storage;staticRoutesString;conditionalRoute;httpResponse variable is not a HTTPResponseMessage")))
                     }
                 }
             } catch {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
             }
         }
-        let values = [
-            respondersToString(macroExpansions, separator),
-            respondersToString(macroExpansionsWithDateHeader, separator),
-            respondersToString(staticStrings, separator),
-            respondersToString(staticStringsWithDateHeader, separator),
-            respondersToString(strings, separator),
-            respondersToString(stringsWithDateHeader, separator),
-            respondersToString(uint8Arrays, separator),
-            respondersToString(uint16Arrays, separator)
-        ]
-        var string = "CompiledStaticResponderStorage(("
-        for var value in values {
-            if !value.isEmpty {
-                value.removeLast()
-                string += value + ",\n"
-            }
+        var string = "CompiledStaticResponderStorage(\n(\n"
+        for value in routeResponders {
+            string += value + ",\n"
         }
-        if string.count != 32 { // was modified
+        if !routeResponders.isEmpty { // was modified
             string.removeLast()
             string.removeLast()
         }
-        return string + "))"
-    }
-    private func respondersToString(_ values: [String], _ separator: String) -> String {
-        return values.isEmpty ? separator : "\n" + values.joined(separator: ",\n") + "\n"
+        return string + "\n)\n)"
     }
 }
 
@@ -496,6 +453,7 @@ extension Router.Storage {
         isCaseSensitive: Bool,
         _ routes: [(DynamicRoute, FunctionCallExprSyntax)]
     ) -> String {
+        let getRouteStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
         let getResponderValue:(Router.Storage.Route) -> String = {
             return "CompiledDynamicResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
         }
@@ -514,10 +472,7 @@ extension Router.Storage {
             }
         }
         let parameterlessString = parameterless.isEmpty ? "" : "\n" + parameterless.compactMap({ route, function in
-            var string = route.startLine
-            if !isCaseSensitive {
-                string = string.lowercased()
-            }
+            let string = getRouteStartLine(route)
             if registeredPaths.contains(string) {
                 Router.routePathAlreadyRegistered(context: context, node: function, string)
                 return nil
@@ -539,10 +494,7 @@ extension Router.Storage {
                 var string = route.method.rawNameString() + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
                 if !registeredPaths.contains(string) {
                     registeredPaths.insert(string)
-                    string = route.startLine
-                    if !isCaseSensitive {
-                        string = string.lowercased()
-                    }
+                    string = getRouteStartLine(route)
                     let responder = getResponderValue(.init(path: string, buffer: .init(string), responder: route.responderDebugDescription))
                     parameterizedByPathCount[route.path.count].append("\n// \(string)\n" + responder)
                 } else {
@@ -552,10 +504,7 @@ extension Router.Storage {
             parameterizedString += "\n" + parameterizedByPathCount.compactMap({ $0.isEmpty ? nil : $0 }).joined(separator: ",\n") + "\n"
         }
         let catchallString = catchall.isEmpty ? "" : "\n" + catchall.compactMap({ route, function in
-            var string = route.startLine
-            if !isCaseSensitive {
-                string = string.lowercased()
-            }
+            let string = getRouteStartLine(route)
             if registeredPaths.contains(string) {
                 Router.routePathAlreadyRegistered(context: context, node: function, string)
                 return nil
@@ -565,11 +514,11 @@ extension Router.Storage {
                 return "// \(string)\n\(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-        var string = "CompiledDynamicResponderStorage((\n"
+        var string = "CompiledDynamicResponderStorage(\n(\n"
         string += parameterlessString + (parameterlessString.isEmpty ? "" : ",\n")
         string += parameterizedString + (parameterizedString.isEmpty ? "" : ",\n")
         string += catchallString
-        return string + "\n))"
+        return string + "\n)\n)"
     }
 }
 #endif
