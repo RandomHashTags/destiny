@@ -1,7 +1,5 @@
 
 import DestinyBlueprint
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 // MARK: RouterGroup
 /// Default mutable HTTPRouter Group implementation that handles grouped routes.
@@ -131,6 +129,10 @@ extension RouterGroup {
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntax
 extension RouterGroup {
     public static func parse(

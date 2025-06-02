@@ -6,8 +6,6 @@ import struct Foundation.Date
 #endif
 
 import DestinyBlueprint
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 public struct HTTPCookie: HTTPCookieProtocol {
     public var name:CookieName
@@ -169,6 +167,10 @@ extension HTTPCookie {
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntax
 extension HTTPCookie {
     public static func parse(context: some MacroExpansionContext, expr: ExprSyntaxProtocol) -> Self? {

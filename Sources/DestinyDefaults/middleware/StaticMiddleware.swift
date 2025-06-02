@@ -1,8 +1,6 @@
 
 import DestinyBlueprint
 import OrderedCollections
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
@@ -145,6 +143,10 @@ extension StaticMiddleware {
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntax
 extension StaticMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {

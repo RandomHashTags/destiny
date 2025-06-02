@@ -1,7 +1,5 @@
 
 import DestinyBlueprint
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 // MARK: DynamicMiddleware
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.
@@ -27,6 +25,10 @@ public struct DynamicMiddleware: DynamicMiddlewareProtocol {
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntax
 extension DynamicMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {

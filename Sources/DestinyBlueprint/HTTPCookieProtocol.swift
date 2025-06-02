@@ -1,6 +1,8 @@
 
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 public protocol HTTPCookieProtocol: CustomDebugStringConvertible, CustomStringConvertible, Sendable {
     associatedtype CookieName = String

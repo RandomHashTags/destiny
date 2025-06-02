@@ -2,8 +2,6 @@
 import DestinyBlueprint
 import OrderedCollections
 import SwiftCompression
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
@@ -95,6 +93,10 @@ public struct DynamicRoute: DynamicRouteProtocol {
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntax
 extension DynamicRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {

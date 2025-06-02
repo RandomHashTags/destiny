@@ -2,9 +2,6 @@
 import DestinyBlueprint
 import OrderedCollections
 import SwiftCompression
-import SwiftDiagnostics
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
@@ -257,6 +254,8 @@ extension HTTPRequestHeader {
 }
 
 #if canImport(SwiftSyntax)
+
+import SwiftSyntax
 // MARK: SwiftSyntax
 extension HTTPRequestHeader {
     public init?(expr: ExprSyntaxProtocol) {
@@ -270,7 +269,11 @@ extension HTTPRequestHeader {
 }
 #endif
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+#if canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftDiagnostics
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntaxMacros
 extension HTTPRequestHeader {
     /// - Returns: The valid headers in a dictionary.

@@ -1,7 +1,5 @@
 
 import DestinyBlueprint
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 // MARK: DynamicCORSMiddleware
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
@@ -84,6 +82,10 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntax
 extension DynamicCORSMiddleware {
     public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {

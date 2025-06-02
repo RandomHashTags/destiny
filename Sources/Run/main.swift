@@ -12,7 +12,6 @@ import SwiftCompression
 // TODO: fix: why do dynamic routes not work when running in debug mode (the response is malformed)?
 
 #declareRouter(
-    isCompiled: true,
     version: .v1_1,
     dynamicNotFoundResponder: nil,
     supportedCompressionAlgorithms: [],

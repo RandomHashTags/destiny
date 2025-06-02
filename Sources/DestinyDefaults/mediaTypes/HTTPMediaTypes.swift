@@ -1,11 +1,6 @@
 
 import DestinyBlueprint
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-import SwiftSyntax
-import SwiftSyntaxMacros
-#endif
-
 // MARK: HTTPMediaType
 /// All recognized media types by the IANA (https://www.iana.org/assignments/media-types/media-types.xhtml), with additional media types.
 /// 
@@ -95,6 +90,10 @@ extension HTTPMediaType {
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
 // MARK: SwiftSyntax
 extension HTTPMediaType {
     public static func parse(context: some MacroExpansionContext, expr: ExprSyntax) -> Self? {

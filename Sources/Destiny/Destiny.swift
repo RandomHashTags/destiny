@@ -33,7 +33,6 @@ public macro router<T: HTTPRouterProtocol>(
 public macro declareRouter(
     mutable: Bool = false,
     typeAnnotation: String? = nil,
-    isCompiled: Bool = false,
 
     version: HTTPVersion,
     errorResponder: (any ErrorResponderProtocol)? = nil,

@@ -1,7 +1,10 @@
 
 import SwiftCompression
+
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
+#endif
 
 /// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
 public protocol RedirectionRouteProtocol: RouteProtocol {

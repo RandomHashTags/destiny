@@ -2,9 +2,6 @@
 import DestinyBlueprint
 import OrderedCollections
 import SwiftCompression
-import SwiftDiagnostics
-import SwiftSyntax
-import SwiftSyntaxMacros
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
@@ -90,7 +87,19 @@ public struct StaticRoute: StaticRouteProtocol {
         )
         """
     }
+}
 
+#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+
+#if canImport(SwiftDiagnostics)
+import SwiftDiagnostics
+#endif
+
+import SwiftSyntax
+import SwiftSyntaxMacros
+
+// MARK: SwiftSyntax
+extension StaticRoute {
     public func response(
         context: MacroExpansionContext?,
         function: FunctionCallExprSyntax?,
@@ -127,8 +136,6 @@ public struct StaticRoute: StaticRouteProtocol {
     }
 }
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-// MARK: SwiftSyntax
 extension StaticRoute {
     public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
         var version = version
