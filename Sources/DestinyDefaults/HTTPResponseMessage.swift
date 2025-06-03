@@ -160,20 +160,25 @@ extension HTTPResponseMessage {
     }
     @inlinable
     func writeString(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, string: inout String) {
-        // TODO: fix: String utf8Span.span doesn't work correctly | https://github.com/swiftlang/swift/issues/81931
+        // TODO: fix: String utf8Span.span doesn't behave as expected | https://github.com/swiftlang/swift/issues/81931
         /*let span = string.utf8Span.span
         for indice in span.indices {
             buffer[i + indice] = span[indice]
         }
         i += span.count*/
-        string.withUTF8 { p in
-            for indice in 0..<p.count {
-                buffer[i + indice] = p[indice]
-            }
-            i += p.count
+        string.withUTF8 {
+            //if $0.count < 64 {
+                for indice in 0..<$0.count {
+                    buffer[i] = $0[indice]
+                    i += 1
+                }
+            //} else {
+            //    buffer.copyBuffer($0, at: &i)
+            //}
         }
     }
 
+    /// Writes `\r` and `\n` to the buffer.
     @inlinable
     func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         buffer[i] = .carriageReturn
@@ -183,11 +188,7 @@ extension HTTPResponseMessage {
     }
     @inlinable
     func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
-        let versionArray = version.inlineArray
-        for indice in versionArray.indices {
-            buffer[i + indice] = versionArray[indice]
-        }
-        i += 8
+        writeInlineArray(to: buffer, index: &i, array: version.inlineArray)
         buffer[i] = .space
         i += 1
 
@@ -209,10 +210,8 @@ extension HTTPResponseMessage {
     @inlinable
     func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: any HTTPCookieProtocol) {
         let headerKey:InlineArray<12, UInt8> = #inlineArray("Set-Cookie: ")
-        for indice in headerKey.indices {
-            buffer[i + indice] = headerKey[indice]
-        }
-        i += 12
+        writeInlineArray(to: buffer, index: &i, array: headerKey)
+
         var cookieString = "\(cookie)"
         writeString(to: buffer, index: &i, string: &cookieString)
         writeCRLF(to: buffer, index: &i)
@@ -220,46 +219,38 @@ extension HTTPResponseMessage {
     @inlinable
     func writeResult(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         guard let body else { return }
-        let contentLength = body.count
         if let contentType {
             let contentTypeHeader:InlineArray<14, UInt8> = #inlineArray("Content-Type: ")
-            for indice in contentTypeHeader.indices {
-                buffer[i + indice] = contentTypeHeader[indice]
-            }
-            i += 14 // contentTypeHeader
-            let contentTypeSpan = contentType.description.utf8Span.span
-            for indice in contentTypeSpan.indices {
-                buffer[i + indice] = contentTypeSpan[indice]
-            }
-            i += contentTypeSpan.count
+            writeInlineArray(to: buffer, index: &i, array: contentTypeHeader)
+
+            var contentTypeDescription = contentType.description
+            writeString(to: buffer, index: &i, string: &contentTypeDescription)
             if let charset {
                 let charsetSpan:InlineArray<10, UInt8> = #inlineArray("; charset=")
-                for indice in charsetSpan.indices {
-                    buffer[i + indice] = charsetSpan[indice]
-                }
-                i += charsetSpan.count
-                let charsetValueSpan = charset.rawName.utf8Span.span
-                for indice in charsetValueSpan.indices {
-                    buffer[i + indice] = charsetValueSpan[indice]
-                }
-                i += charsetValueSpan.count
+                writeInlineArray(to: buffer, index: &i, array: charsetSpan)
+
+                var charsetValue = charset.rawName
+                writeString(to: buffer, index: &i, string: &charsetValue)
             }
             writeCRLF(to: buffer, index: &i)
         }
         let contentLengthHeader:InlineArray<16, UInt8> = #inlineArray("Content-Length: ")
-        for indice in contentLengthHeader.indices {
-            buffer[i + indice] = contentLengthHeader[indice]
-        }
-        i += 16 // contentLengthHeader
-        var contentLengthString = String(contentLength)
+        writeInlineArray(to: buffer, index: &i, array: contentLengthHeader)
+
+        var contentLengthString = String(body.count)
         writeString(to: buffer, index: &i, string: &contentLengthString)
         writeCRLF(to: buffer, index: &i)
 
         writeCRLF(to: buffer, index: &i)
         body.bytes {
-            for indice in $0.indices {
-                buffer[i + indice] = $0.itemAt(index: indice)
-            }
+            buffer.copyBuffer($0.storage, at: &i)
+        }
+    }
+    @inlinable
+    func writeInlineArray<T: InlineArrayProtocol>(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, array: T) where T.Element == UInt8 {
+        for indice in array.indices {
+            buffer[i] = array.itemAt(index: indice)
+            i += 1
         }
     }
 }

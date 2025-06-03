@@ -1,6 +1,15 @@
 
-#if canImport(Foundation)
-import Foundation
+// `ceil` and `memcpy`
+#if canImport(Android)
+import Android
+#elseif canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#elseif canImport(WinSDK)
+import WinSDK
 #endif
 
 // MARK: init
@@ -409,14 +418,18 @@ extension InlineArrayProtocol where Element == UInt8 {
     }
 }
 
-#if canImport(Foundation)
 // MARK: lowercased
 extension InlineArrayProtocol where Element == UInt8 {
-    /// - Complexity: O(_n_ * 2) where _n_ is the length of the collection.
+    /// - Complexity: O(*n* * 2) where _n_ is the length of the collection.
     @inlinable
     public func lowercased() -> Self {
         var value = self
-        let simds = Int(ceil(Double(count) / 64)) // need Foundation for `ceil` call
+        let simds:Int
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
+        simds = Int(ceil(Double(count) / 64))
+        #else
+        simds = Int(ceil(Double(count) / 64)) // TODO: fix
+        #endif
         var startIndex = startIndex
         for _ in 0..<simds {
             let simd = simd64(startIndex: startIndex).lowercased()
@@ -429,7 +442,6 @@ extension InlineArrayProtocol where Element == UInt8 {
         return value
     }
 }
-#endif
 
 // MARK: SIMD
 extension InlineArrayProtocol where Element: SIMDScalar {
@@ -471,7 +483,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
     @inlinable
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
         var result = T()
-        #if canImport(Foundation)
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
         withUnsafeBytes(of: self, { this in 
             withUnsafeBytes(of: &result, {
                 memcpy(.init(mutating: $0.baseAddress!), this.baseAddress! + startIndex, T.scalarCount)

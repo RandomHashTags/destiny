@@ -1,8 +1,14 @@
 
-#if canImport(Foundation)
-import Foundation
+#if canImport(Android)
+import Android
+#elseif canImport(Darwin)
+import Darwin
 #elseif canImport(Glibc)
 import Glibc
+#elseif canImport(Musl)
+import Musl
+#elseif canImport(WinSDK)
+import WinSDK
 #endif
 
 public protocol DestinyErrorProtocol: Error {
@@ -15,10 +21,8 @@ public protocol DestinyErrorProtocol: Error {
 extension DestinyErrorProtocol {
     @usableFromInline
     static func cError(_ identifier: String) -> Self {
-        #if canImport(Foundation)
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
         return Self(identifier: identifier, reason: String(cString: strerror(errno)) + " (errno=\(errno))")
-        #elseif canImport(Glibc)
-        return Self(identifier: identifier, reason: "unspecified (errno=\(errno))")
         #else
         return Self(identifier: identifier, reason: "unspecified")
         #endif

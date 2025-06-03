@@ -18,18 +18,11 @@ extension RouteResponses {
             try value.utf8.span.withUnsafeBufferPointer { valuePointer in
                 try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                     try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
-                        var i = 0
+                        buffer.copyBuffer(valuePointer, at: 0)
                         // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
-                        while i < 20 {
-                            buffer[i] = valuePointer[i]
-                            i += 1
-                        }
+                        var i = 20
                         datePointer.forEach {
                             buffer[i] = $0
-                            i += 1
-                        }
-                        while i < valuePointer.count {
-                            buffer[i] = valuePointer[i]
                             i += 1
                         }
                         try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)

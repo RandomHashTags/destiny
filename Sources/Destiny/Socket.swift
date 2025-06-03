@@ -1,8 +1,14 @@
 
-#if canImport(Glibc)
-import Glibc
+#if canImport(Android)
+import Android
 #elseif canImport(Darwin)
 import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#elseif canImport(WinSDK)
+import WinSDK
 #endif
 
 // MARK: Socket
@@ -129,8 +135,14 @@ extension Socket {
 extension Socket {
     @usableFromInline
     func send(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
-        #if canImport(Glibc)
+        #if canImport(Android)
+        return Android.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
+        #elseif canImport(Darwin)
+        return Darwin.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
+        #elseif canImport(Glibc)
         return SwiftGlibc.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
+        #elseif canImport(WinSDK)
+        return WinSDK.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
         #else
         return write(fileDescriptor, pointer, length)
         #endif

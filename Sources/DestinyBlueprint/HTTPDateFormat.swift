@@ -1,16 +1,15 @@
 
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#elseif canImport(Foundation)
-import Foundation
-#endif
 
-#if canImport(Glibc)
+#if canImport(Android)
+import Android
+#elseif canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
 import Glibc
 #elseif canImport(Musl)
 import Musl
-#elseif canImport(Darwin)
-import Darwin
+#elseif canImport(WinSDK)
+import WinSDK
 #else
 #warning("HTTPDateFormat is currently not supported for your platform; request support at https://github.com/RandomHashTags/destiny/discussions/new?category=request-feature")
 // TODO: support
@@ -24,7 +23,7 @@ import ServiceLifecycle
 /// as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
 public struct HTTPDateFormat: Sendable {
     public static var shared = HTTPDateFormat()
-    public static var placeholder: String { "Thu, 01 Jan 1970 00:00:00 GMT" }
+    @inlinable public static var placeholder: String { "Thu, 01 Jan 1970 00:00:00 GMT" }
 
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 
@@ -55,7 +54,7 @@ public struct HTTPDateFormat: Sendable {
     @inlinable
     public mutating func now() -> InlineArrayResult? {
         let result:InlineArrayResult?
-        #if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
         result = nowGlibc()
         #else
         result = nil
@@ -228,7 +227,7 @@ extension HTTPDateFormat {
     }
 }
 
-#if canImport(Glibc) || canImport(Musl) || canImport(Darwin)
+#if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
 // MARK: Glibc
 extension HTTPDateFormat {
     // https://linux.die.net/man/3/localtime
@@ -254,6 +253,13 @@ extension HTTPDateFormat {
 #endif
 
 #if canImport(FoundationEssentials) || canImport(Foundation)
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
+
 // MARK: Foundation
 extension HTTPDateFormat {
     @inlinable
