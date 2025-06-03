@@ -49,7 +49,7 @@ import SwiftCompression
         DynamicCORSMiddleware(),
         DynamicDateMiddleware(),
         /*DynamicMiddleware({ request, response in
-            guard request.isMethod(HTTPRequestMethod.get) else { return }
+            guard request.isMethod(HTTPRequestMethod.get.array) else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
             #else
@@ -58,11 +58,10 @@ import SwiftCompression
         })*/
     ],
     redirects: [
-        // TODO: fix (doesn't get registered to router)
         StaticRedirectionRoute(method: HTTPRequestMethod.get, status: HTTPResponseStatus.ok.code, from: ["redirectfrom"], to: ["redirectto"])
     ],
-    routerGroups: [
-        RouterGroup(
+    routeGroups: [
+        RouteGroup(
             endpoint: "grouped",
             staticMiddleware: [
                 StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
@@ -216,7 +215,9 @@ import SwiftCompression
         path: ["catchall", "**"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody(ResponseBody.string("catchall/**"))
+            var s = "catchall/**;"
+            response.yieldParameters { s += $0 + ";" }
+            response.setBody(ResponseBody.string(s))
         }
     )
 )

@@ -113,13 +113,13 @@ extension Router {
                             }
                         }
                     }
-                case "routerGroups":
+                case "routeGroups":
                     if let elements = child.expression.array?.elements {
                         for element in elements {
                             if let function = element.expression.functionCall {
                                 switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                                case "RouterGroup":
-                                    storage.routerGroups.append(RouterGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
+                                case "RouteGroup":
+                                    storage.routeGroups.append(RouteGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
                                 default:
                                     break
                                 }
@@ -168,7 +168,7 @@ extension Router {
             }
         }
         if staticNotFoundResponder.isEmpty {
-            staticNotFoundResponder = try! ResponseBody.stringWithDateHeader("not found").responderDebugDescription(
+            staticNotFoundResponder = try! ResponseBody.stringWithDateHeader("").responderDebugDescription(
                 HTTPResponseMessage(
                     version: version,
                     status: HTTPResponseStatus.ok.code,
@@ -181,7 +181,7 @@ extension Router {
             )
         }
         
-        let routerGroupsString = storage.routerGroupsString(context: context)
+        let routeGroupsString = storage.routeGroupsString(context: context)
         let conditionalRespondersString = storage.conditionalRespondersString()
         var string = "HTTPRouter("
         string += "\nversion: .\(version),"
@@ -203,7 +203,7 @@ extension Router {
         string += "\ncaseInsensitiveResponders: " + caseInsensitiveResponders + ","
         string += "\nstaticMiddleware: [\(storage.staticMiddlewareString())],"
         string += "\ndynamicMiddleware: [\(storage.dynamicMiddlewareString())],"
-        string += "\nrouterGroups: [\(routerGroupsString)]"
+        string += "\nrouteGroups: [\(routeGroupsString)]"
         string += "\n)"
         return string
     }
@@ -229,15 +229,15 @@ extension Router {
         var staticRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var staticRoutes:[(StaticRoute, FunctionCallExprSyntax)] = []
         
-        var routerGroups:[any RouterGroupProtocol] = []
+        var routeGroups:[any RouteGroupProtocol] = []
 
         private var conditionalResponders:[RoutePath:any ConditionalRouteResponderProtocol] = [:]
         private var registeredPaths:Set<String> = []
 
-        mutating func routerGroupsString(context: some MacroExpansionContext) -> String {
+        mutating func routeGroupsString(context: some MacroExpansionContext) -> String {
             var string = ""
-            if !routerGroups.isEmpty {
-                string += "\n" + routerGroups.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
+            if !routeGroups.isEmpty {
+                string += "\n" + routeGroups.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
             }
             return string
         }

@@ -14,7 +14,7 @@ import SwiftCompression
 ///   - redirects: The redirects this router contains. Dynamic & Static redirects are automatically created based on this input.
 ///   - middleware: The middleware this router contains. All middleware is handled in the order they are declared (put your most important middleware first).
 ///   - redirects: The redirects this router contains.
-///   - routerGroups: The router groups this router contains.
+///   - routeGroups: The router groups this router contains.
 ///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(expression)
 public macro router<T: HTTPRouterProtocol>(
@@ -25,7 +25,7 @@ public macro router<T: HTTPRouterProtocol>(
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [any MiddlewareProtocol],
     redirects: [any RedirectionRouteProtocol] = [],
-    routerGroups: [any RouterGroupProtocol] = [],
+    routeGroups: [any RouteGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) -> T = #externalMacro(module: "DestinyMacros", type: "Router")
 
@@ -41,7 +41,7 @@ public macro declareRouter(
     supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [any MiddlewareProtocol],
     redirects: [any RedirectionRouteProtocol] = [],
-    routerGroups: [any RouterGroupProtocol] = [],
+    routeGroups: [any RouteGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) = #externalMacro(module: "DestinyMacros", type: "Router")
 

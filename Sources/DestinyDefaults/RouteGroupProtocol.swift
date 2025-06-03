@@ -6,8 +6,8 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 #endif
 
-/// Core HTTPRouter Group protocol that handles routes grouped by a single endpoint.
-public protocol RouterGroupProtocol: CustomDebugStringConvertible, Sendable {
+/// Core Route Group protocol that handles routes grouped by a single endpoint.
+public protocol RouteGroupProtocol: CustomDebugStringConvertible, Sendable {
 
     /// - Returns: Whether or not this router group responded to the request.
     @inlinable

@@ -39,6 +39,13 @@ public struct DynamicResponse: DynamicResponseProtocol {
     public mutating func appendParameter(value: InlineVLArray<UInt8>) {
         parameters.append(value.string())
     }
+
+    @inlinable
+    public func yieldParameters(_ yield: (String) -> Void) {
+        for parameter in parameters {
+            yield(parameter)
+        }
+    }
 }
 
 extension DynamicResponse {

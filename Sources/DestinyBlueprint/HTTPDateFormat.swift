@@ -24,6 +24,7 @@ import ServiceLifecycle
 /// as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
 public struct HTTPDateFormat: Sendable {
     public static var shared = HTTPDateFormat()
+    public static var placeholder: String { "Thu, 01 Jan 1970 00:00:00 GMT" }
 
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 

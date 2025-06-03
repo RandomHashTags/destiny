@@ -282,7 +282,7 @@ extension HTTPResponseMessage {
         escapeLineBreak: Bool,
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: [String:String],
+        headers: OrderedDictionary<String, String>,
         body: String?,
         contentType: HTTPMediaType?,
         charset: Charset?
@@ -296,7 +296,7 @@ extension HTTPResponseMessage {
         escapeLineBreak: Bool,
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: [HTTPResponseHeader:String],
+        headers: OrderedDictionary<HTTPResponseHeader, String>,
         body: String?,
         contentType: HTTPMediaType?,
         charset: Charset?
@@ -333,7 +333,7 @@ extension HTTPResponseMessage {
     @inlinable
     public static func headers(
         suffix: String,
-        headers: [String:String]
+        headers: OrderedDictionary<String, String>
     ) -> String {
         var string = ""
         for (header, value) in headers {
@@ -345,7 +345,7 @@ extension HTTPResponseMessage {
     @inlinable
     public static func headers(
         suffix: String,
-        headers: [HTTPResponseHeader:String]
+        headers: OrderedDictionary<HTTPResponseHeader, String>
     ) -> String {
         var string = ""
         for (header, value) in headers {

@@ -28,7 +28,7 @@ public struct HTTPRouter<
     public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
     public var dynamicMiddleware:[any DynamicMiddlewareProtocol]
 
-    public private(set) var routerGroups:[any RouterGroupProtocol]
+    public private(set) var routeGroups:[any RouteGroupProtocol]
     
     public var errorResponder:ConcreteErrorResponder
     public var dynamicNotFoundResponder:ConcreteDynamicNotFoundResponder?
@@ -45,7 +45,7 @@ public struct HTTPRouter<
         caseInsensitiveResponders: ConcreteCaseInsensitiveRouterResponderStorage,
         staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [any DynamicMiddlewareProtocol],
-        routerGroups: [any RouterGroupProtocol]
+        routeGroups: [any RouteGroupProtocol]
     ) {
         self.version = version
         self.errorResponder = errorResponder
@@ -55,7 +55,7 @@ public struct HTTPRouter<
         self.caseInsensitiveResponders = caseInsensitiveResponders
         self.dynamicMiddleware = dynamicMiddleware
         self.staticMiddleware = staticMiddleware
-        self.routerGroups = routerGroups
+        self.routeGroups = routeGroups
     }
 }
 
@@ -117,7 +117,7 @@ extension HTTPRouter {
             } else if try await caseSensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) {
             } else if try await caseInsensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) { // TODO: support
             } else {
-                for group in routerGroups {
+                for group in routeGroups {
                     if try await group.respond(router: self, received: received, loaded: loaded, socket: socket, request: &request) {
                         return
                     }

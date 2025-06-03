@@ -1,9 +1,9 @@
 
 import DestinyBlueprint
 
-// MARK: RouterGroup
-/// Default mutable HTTPRouter Group implementation that handles grouped routes.
-public struct RouterGroup: RouterGroupProtocol {
+// MARK: RouteGroup
+/// Default mutable Route Group implementation that handles grouped routes.
+public struct RouteGroup: RouteGroupProtocol {
     public let prefixEndpoints:[String]
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]
@@ -96,7 +96,7 @@ public struct RouterGroup: RouterGroupProtocol {
             dynamicMiddlewareString += "\n" + dynamicMiddleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
         }
         return """
-        RouterGroup(
+        RouteGroup(
             prefixEndpoints: \(prefixEndpoints),
             staticMiddleware: \(staticMiddlewareString),
             dynamicMiddleware: \(dynamicMiddlewareString),
@@ -108,7 +108,7 @@ public struct RouterGroup: RouterGroupProtocol {
 }
 
 // MARK: Respond
-extension RouterGroup {
+extension RouteGroup {
     @inlinable
     public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
         router: borrowing HTTPRouter,
@@ -134,7 +134,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: SwiftSyntax
-extension RouterGroup {
+extension RouteGroup {
     public static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion,

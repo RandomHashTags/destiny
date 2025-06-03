@@ -111,7 +111,7 @@ extension StaticRoute {
         var contentType = contentType
         var headers = OrderedDictionary<String, String>()
         if body?.hasDateHeader ?? false {
-            headers["Date"] = "Thu, 01 Jan 1970 00:00:00 GMT"
+            headers["Date"] = HTTPDateFormat.placeholder
         }
         var cookies:[any HTTPCookieProtocol] = []
         for middleware in middleware {
