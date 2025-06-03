@@ -9,8 +9,6 @@ import Destiny
 import Logging
 import SwiftCompression
 
-// TODO: fix: why do dynamic routes not work when running in debug mode (the response is malformed)?
-
 #declareRouter(
     version: .v1_1,
     dynamicNotFoundResponder: nil,

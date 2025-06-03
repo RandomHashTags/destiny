@@ -46,8 +46,6 @@ public struct Request: HTTPRequestProtocol {
 extension Request {
     @inlinable
     public init?<Socket: HTTPSocketProtocol & ~Copyable>(socket: borrowing Socket) throws {
-        var headers:[String:String] = [:]
-        var startLine = DestinyRoutePathType()
         var (buffer, read) = try socket.readBuffer()
         if read <= 0 {
             throw SocketError.malformedRequest()
@@ -61,6 +59,7 @@ extension Request {
             lineIndex += 1
             return false
         })*/
+        var startLine = DestinyRoutePathType()
         newStartLine = try HTTPStartLine(buffer: buffer)
         path = newStartLine.path.string().split(separator: "/").map { String($0) }
         for i in 0..<newStartLine.endIndex {
@@ -71,6 +70,7 @@ extension Request {
         // performance falls off a cliff parsing headers; should we
         // just retain the buffer and record the start and end indexes
         // of things, with computed properties when and where necessary?
+        var headers:[String:String] = [:]
         //let _ = Self.parseHeaders(buffer: buffer, offset: newStartLine.endIndex + 2, headers: &headers)
 
         while true {

@@ -82,9 +82,6 @@ extension Router {
                     errorResponder = "\(child.expression)"
                 case "dynamicNotFoundResponder":
                     dynamicNotFoundResponder = "\(child.expression)"
-                    if dynamicNotFoundResponder == "nil" {
-                        dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
-                    }
                 case "staticNotFoundResponder":
                     staticNotFoundResponder = "\(child.expression)"
                 case "supportedCompressionAlgorithms":
@@ -179,6 +176,9 @@ extension Router {
                     charset: Charset.utf8
                 )
             )
+        }
+        if dynamicNotFoundResponder == "nil" {
+            dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
         }
         
         let routeGroupsString = storage.routeGroupsString(context: context)
@@ -318,7 +318,7 @@ extension Router.Storage {
         middleware: [StaticMiddleware],
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
-        guard !routes.isEmpty else { return ".init()" }
+        guard !routes.isEmpty else { return "CompiledStaticResponderStorage(())" }
         var routeResponders = [String]()
         let getRouteStartLine:(StaticRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
         let getRedirectRouteStartLine:(any RedirectionRouteProtocol) -> String = isCaseSensitive ? { route in
@@ -453,6 +453,7 @@ extension Router.Storage {
         isCaseSensitive: Bool,
         _ routes: [(DynamicRoute, FunctionCallExprSyntax)]
     ) -> String {
+        guard !routes.isEmpty else { return "CompiledDynamicResponderStorage(())" }
         let getRouteStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
         let getResponderValue:(Router.Storage.Route) -> String = {
             return "CompiledDynamicResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"

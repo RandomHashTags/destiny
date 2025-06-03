@@ -6,20 +6,26 @@ import Testing
 struct DestinyTests {
     @Test
     func example() {
-        let _:DefaultRouter = #router(
+        #declareRouter(
             version: .v2_0,
+            dynamicNotFoundResponder: nil,
             middleware: [
-                StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [HTTPMediaType.textHtml], appliesStatus: HTTPResponseStatus.ok.code, appliesHeaders: ["Are-You-My-Brother":"yes"])
+                StaticMiddleware(
+                    handlesMethods: [HTTPRequestMethod.get],
+                    handlesContentTypes: [HTTPMediaType.textHtml],
+                    appliesStatus: HTTPResponseStatus.ok.code,
+                    appliesHeaders: ["Are-You-My-Brother":"yes"]
+                )
             ],
             StaticRoute(
-                method: .get,
+                method: HTTPRequestMethod.get,
                 path: ["test1"],
                 contentType: HTTPMediaType.textHtml,
                 charset: Charset.utf8,
                 body: ResponseBody.stringWithDateHeader("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
-                method: .get,
+                method: HTTPRequestMethod.get,
                 path: ["test2"],
                 status: HTTPResponseStatus.movedPermanently,
                 contentType: HTTPMediaType.textHtml,
@@ -27,14 +33,14 @@ struct DestinyTests {
                 body: ResponseBody.stringWithDateHeader("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
             StaticRoute(
-                method: .get,
+                method: HTTPRequestMethod.get,
                 path: ["test3"],
                 contentType: HTTPMediaType.textHtml,
                 charset: .utf8,
                 body: ResponseBody.bytes([UInt8]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf8))
             ),
             /*StaticRoute(
-                method: .get,
+                method: HTTPRequestMethod.get,
                 path: ["test4"],
                 contentType: HTTPMediaType.textHtml,
                 charset: .utf8,

@@ -20,7 +20,7 @@ public struct StaticRoute: StaticRouteProtocol {
     public init<T: HTTPResponseStatus.StorageProtocol>(
         version: HTTPVersion = .v1_1,
         method: any HTTPRequestMethodProtocol,
-        path: [StaticString],
+        path: [String],
         isCaseSensitive: Bool = true,
         status: T,
         contentType: HTTPMediaType? = nil,
@@ -43,7 +43,7 @@ public struct StaticRoute: StaticRouteProtocol {
     public init(
         version: HTTPVersion = .v1_1,
         method: any HTTPRequestMethodProtocol,
-        path: [StaticString],
+        path: [String],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -53,7 +53,7 @@ public struct StaticRoute: StaticRouteProtocol {
     ) {
         self.version = version
         self.method = method
-        self.path = path.map({ $0.description })
+        self.path = path
         self.isCaseSensitive = isCaseSensitive
         self.status = status
         self.contentType = contentType
@@ -171,10 +171,10 @@ extension StaticRoute {
                 break
             }
         }
-        var route = StaticRoute(
+        return StaticRoute(
             version: version,
             method: method,
-            path: [],
+            path: isCaseSensitive ? path : path.map({ $0.lowercased() }),
             isCaseSensitive: isCaseSensitive,
             status: status,
             contentType: contentType,
@@ -182,12 +182,6 @@ extension StaticRoute {
             body: body,
             supportedCompressionAlgorithms: supportedCompressionAlgorithms
         )
-        if isCaseSensitive {
-            route.path = path
-        } else {
-            route.path = path.map({ $0.lowercased() })
-        }
-        return route
     }
 }
 #endif
@@ -198,7 +192,7 @@ extension StaticRoute {
     public static func on(
         version: HTTPVersion = .v1_1,
         method: any HTTPRequestMethodProtocol,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -212,7 +206,7 @@ extension StaticRoute {
     @inlinable
     public static func get(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -226,7 +220,7 @@ extension StaticRoute {
     @inlinable
     public static func head(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -240,7 +234,7 @@ extension StaticRoute {
     @inlinable
     public static func post(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -254,7 +248,7 @@ extension StaticRoute {
     @inlinable
     public static func put(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -268,7 +262,7 @@ extension StaticRoute {
     @inlinable
     public static func delete(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -282,7 +276,7 @@ extension StaticRoute {
     @inlinable
     public static func connect(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -296,7 +290,7 @@ extension StaticRoute {
     @inlinable
     public static func options(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -310,7 +304,7 @@ extension StaticRoute {
     @inlinable
     public static func trace(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
@@ -324,7 +318,7 @@ extension StaticRoute {
     @inlinable
     public static func patch(
         version: HTTPVersion = .v1_1,
-        path: [StaticString],
+        path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,

@@ -26,7 +26,7 @@ extension ResponseBody {
             Self([UInt8](input.utf8)).responderDebugDescription
         }
 
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String{
+        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
             try responderDebugDescription(input.string(escapeLineBreak: false))
         }
 

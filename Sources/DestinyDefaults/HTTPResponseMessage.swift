@@ -148,8 +148,8 @@ extension HTTPResponseMessage {
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
             writeStartLine(to: p, index: &i)
-            for (key, value) in headers {
-                writeHeader(to: p, index: &i, key: key, value: value)
+            for (var key, var value) in headers {
+                writeHeader(to: p, index: &i, key: &key, value: &value)
             }
             for cookie in cookies {
                 writeCookie(to: p, index: &i, cookie: cookie)
@@ -158,6 +158,22 @@ extension HTTPResponseMessage {
             try closure(p)
         })
     }
+    @inlinable
+    func writeString(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, string: inout String) {
+        // TODO: fix: String utf8Span.span doesn't work correctly | https://github.com/swiftlang/swift/issues/81931
+        /*let span = string.utf8Span.span
+        for indice in span.indices {
+            buffer[i + indice] = span[indice]
+        }
+        i += span.count*/
+        string.withUTF8 { p in
+            for indice in 0..<p.count {
+                buffer[i + indice] = p[indice]
+            }
+            i += p.count
+        }
+    }
+
     @inlinable
     func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         buffer[i] = .carriageReturn
@@ -175,44 +191,30 @@ extension HTTPResponseMessage {
         buffer[i] = .space
         i += 1
 
-        let span = String(status).utf8Span.span
-        for indice in span.indices {
-            buffer[i + indice] = span[indice]
-        }
-        i += span.count
+        var statusString = String(status)
+        writeString(to: buffer, index: &i, string: &statusString)
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
-    func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: String, value: String) {
-        let keySpan = key.utf8Span.span
-        for indice in keySpan.indices {
-            buffer[i + indice] = keySpan[indice]
-        }
-        i += keySpan.count
+    func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: inout String, value: inout String) {
+        writeString(to: buffer, index: &i, string: &key)
         buffer[i] = .colon
         i += 1
         buffer[i] = .space
         i += 1
 
-        let valueSpan = value.utf8Span.span
-        for indice in valueSpan.indices {
-            buffer[i + indice] = valueSpan[indice]
-        }
-        i += valueSpan.count
+        writeString(to: buffer, index: &i, string: &value)
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
     func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: any HTTPCookieProtocol) {
-        let span = "\(cookie)".utf8Span.span
         let headerKey:InlineArray<12, UInt8> = #inlineArray("Set-Cookie: ")
         for indice in headerKey.indices {
             buffer[i + indice] = headerKey[indice]
         }
         i += 12
-        for indice in span.indices {
-            buffer[i + indice] = span[indice]
-        }
-        i += span.count
+        var cookieString = "\(cookie)"
+        writeString(to: buffer, index: &i, string: &cookieString)
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
@@ -249,11 +251,8 @@ extension HTTPResponseMessage {
             buffer[i + indice] = contentLengthHeader[indice]
         }
         i += 16 // contentLengthHeader
-        let contentLengthSpan = String(contentLength).utf8Span.span
-        for indice in contentLengthSpan.indices {
-            buffer[i + indice] = contentLengthSpan[indice]
-        }
-        i += contentLengthSpan.count
+        var contentLengthString = String(contentLength)
+        writeString(to: buffer, index: &i, string: &contentLengthString)
         writeCRLF(to: buffer, index: &i)
 
         writeCRLF(to: buffer, index: &i)
