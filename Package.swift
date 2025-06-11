@@ -3,10 +3,11 @@
 import PackageDescription
 import CompilerPluginSupport
 
-let dependencies:[Package.Dependency]
+let pkgDependencies:[Package.Dependency]
+let destinyModuleDependencies:[Target.Dependency]
 
 #if os(Linux)
-dependencies = [
+pkgDependencies = [
     // Macros
     .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
 
@@ -31,9 +32,17 @@ dependencies = [
     // Epoll
     .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0")
 ]
+
+destinyModuleDependencies = [
+    "DestinyMacros",
+    "DestinyDefaults",
+    .product(name: "ArgumentParser", package: "swift-argument-parser"),
+    .product(name: "CEpoll", package: "CEpoll")
+]
+
 #else
 
-dependencies = [
+pkgDependencies = [
     // Macros
     .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
 
@@ -55,6 +64,13 @@ dependencies = [
     // Compression
     .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")
 ]
+
+destinyModuleDependencies = [
+    "DestinyMacros",
+    "DestinyDefaults",
+    .product(name: "ArgumentParser", package: "swift-argument-parser")
+]
+
 #endif
 
 let package = Package(
@@ -76,7 +92,7 @@ let package = Package(
             enabledTraits: ["DestinyDefaults"]
         )
     ],
-    dependencies: dependencies,
+    dependencies: pkgDependencies,
     targets: [
         .macro(
             name: "DestinyUtilityMacros",
@@ -120,11 +136,7 @@ let package = Package(
         // MARK: Destiny
         .target(
             name: "Destiny",
-            dependencies: [
-                "DestinyMacros",
-                "DestinyDefaults",
-                .product(name: "ArgumentParser", package: "swift-argument-parser")
-            ]
+            dependencies: destinyModuleDependencies
         ),
         
         .macro(
