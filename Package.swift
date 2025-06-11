@@ -3,6 +3,60 @@
 import PackageDescription
 import CompilerPluginSupport
 
+let dependencies:[Package.Dependency]
+
+#if os(Linux)
+dependencies = [
+    // Macros
+    .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
+
+    // Commands
+    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
+
+    // Logging
+    .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
+
+    // Metrics
+    //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
+
+    // Service runtime
+    .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.7.0"),
+
+    // Ordered Dictionary
+    .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
+
+    // Compression
+    .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main"),
+
+    // Epoll
+    .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0")
+]
+#else
+
+dependencies = [
+    // Macros
+    .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
+
+    // Commands
+    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
+
+    // Logging
+    .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
+
+    // Metrics
+    //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
+
+    // Service runtime
+    .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.7.0"),
+
+    // Ordered Dictionary
+    .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
+
+    // Compression
+    .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")
+]
+#endif
+
 let package = Package(
     name: "destiny",
     products: [
@@ -22,28 +76,7 @@ let package = Package(
             enabledTraits: ["DestinyDefaults"]
         )
     ],
-    dependencies: [
-        // Macros
-        .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
-
-        // Commands
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
-
-        // Logging
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
-
-        // Metrics
-        //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
-
-        // Service runtime
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.7.0"),
-
-        // Ordered Dictionary
-        .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
-
-        // Compression
-        .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")
-    ],
+    dependencies: dependencies,
     targets: [
         .macro(
             name: "DestinyUtilityMacros",
@@ -115,10 +148,6 @@ let package = Package(
     ],
     swiftLanguageModes: [.v5]
 )
-
-#if os(Linux)
-package.dependencies.append(.package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"))
-#endif
 
 // TODO: enable the following features: LifetimeDependence
 /*
