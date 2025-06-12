@@ -32,18 +32,12 @@ extension RouteResponses {
                         try body.utf8.withContiguousStorageIfAvailable { bodyPointer in
                             try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count + contentLengthPointer.count + 4 + bodyPointer.count, { buffer in
                                 var i = 0
+                                buffer.copyBuffer(valuePointer, at: &i)
                                 // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
-                                while i < 20 {
-                                    buffer[i] = valuePointer[i]
-                                    i += 1
-                                }
-                                datePointer.forEach {
-                                    buffer[i] = $0
-                                    i += 1
-                                }
-                                while i < valuePointer.count {
-                                    buffer[i] = valuePointer[i]
-                                    i += 1
+                                var offset = 20
+                                for i in 0..<HTTPDateFormat.InlineArrayResult.count {
+                                    buffer[offset] = datePointer[i]
+                                    offset += 1
                                 }
                                 contentLengthPointer.forEach {
                                     buffer[i] = $0
@@ -57,10 +51,7 @@ extension RouteResponses {
                                 i += 1
                                 buffer[i] = .lineFeed
                                 i += 1
-                                bodyPointer.forEach {
-                                    buffer[i] = $0
-                                    i += 1
-                                }
+                                buffer.copyBuffer(bodyPointer, at: &i)
                                 try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
                             })
                         }

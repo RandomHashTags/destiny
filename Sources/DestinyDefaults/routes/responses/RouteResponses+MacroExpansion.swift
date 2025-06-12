@@ -31,10 +31,7 @@ extension RouteResponses {
                     try body.utf8.withContiguousStorageIfAvailable { bodyPointer in
                         try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count + contentLengthPointer.count + 4 + bodyPointer.count, { buffer in
                             var i = 0
-                            valuePointer.forEach {
-                                buffer[i] = $0
-                                i += 1
-                            }
+                            buffer.copyBuffer(valuePointer, at: &i)
                             contentLengthPointer.forEach {
                                 buffer[i] = $0
                                 i += 1
@@ -47,10 +44,7 @@ extension RouteResponses {
                             i += 1
                             buffer[i] = .lineFeed
                             i += 1
-                            bodyPointer.forEach {
-                                buffer[i] = $0
-                                i += 1
-                            }
+                            buffer.copyBuffer(bodyPointer, at: &i)
                             try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
                         })
                     }

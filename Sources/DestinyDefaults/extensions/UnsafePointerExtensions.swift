@@ -30,6 +30,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
     func copyBuffer(_ buffer: UnsafeBufferPointer<Element>, at index: inout Int) {
         #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
         memcpy(baseAddress! + index, buffer.baseAddress!, buffer.count)
+        index += buffer.count
         #else
         buffer.forEach {
             self[index] = $0
@@ -42,6 +43,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
     func copyBuffer(_ buffer: UnsafeMutableBufferPointer<Element>, at index: inout Int) {
         #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
         memcpy(baseAddress! + index, buffer.baseAddress!, buffer.count)
+        index += buffer.count
         #else
         buffer.forEach {
             self[index] = $0
