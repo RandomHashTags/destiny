@@ -14,6 +14,9 @@ extension EpollError {
     @inlinable public static func epollCreateFailed() -> Self { cError("epollCreateFailed") }
     @inlinable public static func epollCreateFailed(_ reason: String) -> Self { Self(identifier: "epollCreateFailed", reason: reason) }
 
+    @inlinable public static func epollPipeFailed() -> Self { cError("epollPipeFailed") }
+    @inlinable public static func epollPipeFailed(_ reason: String) -> Self { Self(identifier: "epollPipeFailed", reason: reason) }
+
     @inlinable public static func epollCtlFailed() -> Self { cError("epollCtlFailed") }
     @inlinable public static func epollCtlFailed(_ reason: String) -> Self { Self(identifier: "epollCtlFailed", reason: reason) }
 

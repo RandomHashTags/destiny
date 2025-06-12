@@ -10,7 +10,7 @@ extension Server where ClientSocket: ~Copyable {
     @inlinable
     func processClientsEpoll<let threads: Int, let maxEvents: Int>(
         serverFD: Int32,
-        router: ConcreteRouter
+        router: Router
     ) async -> InlineArray<threads, InlineArray<maxEvents, Bool>>? {
         setNonBlocking(socket: serverFD)
         do {
@@ -44,6 +44,7 @@ extension Server where ClientSocket: ~Copyable {
 public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     public let serverFD:Int32
     public let fileDescriptor:Int32
+    public let pipeFileDescriptors:InlineArray<2, Int32>
     public let logger:Logger
 
     public init(serverFD: Int32, thread: Int) throws {
@@ -52,8 +53,15 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
         if fileDescriptor == -1 {
             throw EpollError.epollCreateFailed()
         }
+        var pipeFileDescriptors:InlineArray<2, Int32> = [0, 0]
+        try pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
+            guard let base = $0.baseAddress else { throw EpollError.epollPipeFailed() }
+            pipe(.init(mutating: base))
+        }
+        self.pipeFileDescriptors = pipeFileDescriptors
         logger = Logger(label: "destiny.epoll.\(serverFD).thread\(thread)")
         try add(client: serverFD, event: EPOLLIN.rawValue)
+        try add(client: pipeFileDescriptors[0], event: EPOLLIN.rawValue)
         setNonBlocking(socket: self.fileDescriptor)
     }
 
@@ -95,7 +103,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
         var events = InlineArray<maxEvents, epoll_event>(repeating: .init())
         try events.mutableSpan.withUnsafeBufferPointer { p in
             guard let base = p.baseAddress else { throw EpollError.waitFailed() }
-            loadedClients = epoll_wait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout)
+            loadedClients = epoll_pwait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout, nil)
             if loadedClients == -1 {
                 throw EpollError.waitFailed()
             }
@@ -171,9 +179,9 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public func run<ConcreteRouter: HTTPRouterProtocol>(
+    public func run<Router: HTTPRouterProtocol>(
         timeout: Int32,
-        router: ConcreteRouter,
+        router: Router,
         noTCPDelay: Bool
     ) async {
         await withTaskGroup { group in
@@ -189,46 +197,49 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public static func process<ConcreteRouter: HTTPRouterProtocol>(
+    public static func process<Router: HTTPRouterProtocol>(
         _ instance: inout Epoll<maxEvents>,
         timeout: Int32,
-        router: ConcreteRouter,
+        router: Router,
         noTCPDelay: Bool
     ) async {
+        let cancelPipeFD = instance.pipeFileDescriptors[1]
         let logger = instance.logger
         let acceptClient = instance.acceptFunction(noTCPDelay: noTCPDelay)
-        while !Task.isCancelled && !Task.isShuttingDownGracefully {
-            do {
-                let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
-                let received = ContinuousClock.now
-                var i = 0
-                while i < loaded {
-                    let client = clients[i]
-                    do {
-                        try instance.remove(client: client)
-                    } catch {
-                        instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
-                    }
-                    Task.detached {
+        await withTaskCancellationOrGracefulShutdownHandler(operation: {
+            while !Task.isCancelled && !Task.isShuttingDownGracefully {
+                do {
+                    let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
+                    let received = ContinuousClock.now
+                    var i = 0
+                    while i < loaded {
+                        let client = clients[i]
                         do {
-                            try await router.process(
-                                client: client,
-                                received: received,
-                                socket: ConcreteSocket.init(fileDescriptor: client),
-                                logger: logger
-                            )
+                            try instance.remove(client: client)
                         } catch {
-                            logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
+                            instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
                         }
+                        Task.detached {
+                            do {
+                                try await router.process(
+                                    client: client,
+                                    received: received,
+                                    socket: ConcreteSocket.init(fileDescriptor: client),
+                                    logger: logger
+                                )
+                            } catch {
+                                logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
+                            }
+                        }
+                        i += 1
                     }
-                    i += 1
+                } catch {
+                    instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while waiting for client: \(error)"))
                 }
-            } catch {
-                instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while waiting for client: \(error)"))
             }
-        }
-        print("EpollProcessor;process;finished")
-        // TODO: fix (this doesn't get executed when the service is shutdown)
+        }, onCancelOrGracefulShutdown: {
+            write(cancelPipeFD, "x", 1)
+        })
     }
 }
 

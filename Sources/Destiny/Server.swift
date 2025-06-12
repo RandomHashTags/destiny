@@ -7,13 +7,13 @@ import ServiceLifecycle
 
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.
-public final class Server<ConcreteRouter: HTTPRouterProtocol, ClientSocket: HTTPSocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
+public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.
     /// This value is capped at the system's limit.
     public let backlog:Int32
-    public var router:ConcreteRouter
+    public var router:Router
     public let logger:Logger
 
     /// Commands that can be executed from the terminal when the server is running.
@@ -36,7 +36,7 @@ public final class Server<ConcreteRouter: HTTPRouterProtocol, ClientSocket: HTTP
         address: String? = nil,
         port: UInt16,
         backlog: Int32 = SOMAXCONN,
-        router: ConcreteRouter,
+        router: Router,
         logger: Logger,
         commands: [ParsableCommand.Type] = [
             StopCommand.self

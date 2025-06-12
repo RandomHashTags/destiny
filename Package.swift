@@ -9,7 +9,7 @@ let destinyModuleDependencies:[Target.Dependency]
 #if os(Linux)
 pkgDependencies = [
     // Macros
-    .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
+    .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
 
     // Commands
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
@@ -44,7 +44,7 @@ destinyModuleDependencies = [
 
 pkgDependencies = [
     // Macros
-    .package(url: "https://github.com/swiftlang/swift-syntax", from: "600.0.0"),
+    .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
 
     // Commands
     .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
