@@ -7,6 +7,8 @@ import Darwin
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Windows)
+import Windows
 #elseif canImport(WinSDK)
 import WinSDK
 #endif
@@ -28,7 +30,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
 extension UnsafeMutableBufferPointer where Element == UInt8 {
     @inlinable
     func copyBuffer(_ buffer: UnsafeBufferPointer<Element>, at index: inout Int) {
-        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
         memcpy(baseAddress! + index, buffer.baseAddress!, buffer.count)
         index += buffer.count
         #else
@@ -41,7 +43,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
 
     @inlinable
     func copyBuffer(_ buffer: UnsafeMutableBufferPointer<Element>, at index: inout Int) {
-        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
         memcpy(baseAddress! + index, buffer.baseAddress!, buffer.count)
         index += buffer.count
         #else

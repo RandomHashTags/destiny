@@ -7,6 +7,8 @@ import Darwin
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Windows)
+import Windows
 #elseif canImport(WinSDK)
 import WinSDK
 #endif
@@ -21,7 +23,7 @@ public protocol DestinyErrorProtocol: Error {
 extension DestinyErrorProtocol {
     @usableFromInline
     static func cError(_ identifier: String) -> Self {
-        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
         return Self(identifier: identifier, reason: String(cString: strerror(errno)) + " (errno=\(errno))")
         #else
         return Self(identifier: identifier, reason: "unspecified")

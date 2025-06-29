@@ -7,6 +7,8 @@ import Darwin
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Windows)
+import Windows
 #elseif canImport(WinSDK)
 import WinSDK
 #endif
@@ -81,7 +83,9 @@ extension Socket {
         return bytesRead
     }
 
-    /// Reads multiple bytes and writes them into a buffer
+    /// Reads multiple bytes and writes them into a buffer.
+    /// 
+    /// - Returns: The number of bytes received.
     @inlinable
     public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
         if Task.isCancelled { return 0 }
@@ -122,7 +126,7 @@ extension Socket {
         var sent = 0
         while sent < length {
             if Task.isCancelled { return }
-            let result = send(pointer + sent, length - sent)
+            let result = sendMultiplatform(pointer + sent, length - sent)
             if result <= 0 {
                 throw SocketError.writeFailed()
             }
@@ -134,15 +138,9 @@ extension Socket {
 // MARK: Send
 extension Socket {
     @usableFromInline
-    func send(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
-        #if canImport(Android)
-        return Android.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
-        #elseif canImport(Darwin)
-        return Darwin.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
-        #elseif canImport(Glibc)
-        return SwiftGlibc.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
-        #elseif canImport(WinSDK)
-        return WinSDK.send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
+    func sendMultiplatform(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
+        return send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
         #else
         return write(fileDescriptor, pointer, length)
         #endif

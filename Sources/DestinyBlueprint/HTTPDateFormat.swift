@@ -8,6 +8,8 @@ import Darwin
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Windows)
+import Windows
 #elseif canImport(WinSDK)
 import WinSDK
 #else
@@ -54,7 +56,7 @@ public struct HTTPDateFormat: Sendable {
     @inlinable
     public mutating func now() -> InlineArrayResult? {
         let result:InlineArrayResult?
-        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
         result = nowGlibc()
         #else
         result = nil
@@ -227,7 +229,7 @@ extension HTTPDateFormat {
     }
 }
 
-#if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WinSDK)
+#if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
 // MARK: Glibc
 extension HTTPDateFormat {
     // https://linux.die.net/man/3/localtime
