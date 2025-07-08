@@ -1,6 +1,4 @@
 
-import SwiftSyntax
-
 // MARK: HTTPResponseStatus
 /// HTTP Status Codes. 
 /// 
@@ -259,12 +257,15 @@ extension HTTPResponseStatus {
 }
 
 #if canImport(SwiftSyntax)
+
+import SwiftSyntax
+
 // MARK: SwiftSyntax
 extension HTTPResponseStatus {
     public static func parse(expr: ExprSyntax) -> (any Self.StorageProtocol)? {
-        guard let member = expr.as(MemberAccessExprSyntax.self),
+        guard let member = expr.memberAccess,
             member.declName.baseName.text == "code",
-            let base = member.base?.as(MemberAccessExprSyntax.self),
+            let base = member.base?.memberAccess,
             base.base?.as(DeclReferenceExprSyntax.self)?.baseName.text == "HTTPResponseStatus"
         else {
             return nil

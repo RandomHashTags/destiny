@@ -1,12 +1,16 @@
 
 #if canImport(Android)
 import Android
+#elseif canImport(Bionic)
+import Bionic
 #elseif canImport(Darwin)
 import Darwin
 #elseif canImport(Glibc)
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(WASILibc)
+import WASILibc
 #elseif canImport(Windows)
 import Windows
 #elseif canImport(WinSDK)
@@ -23,7 +27,7 @@ public protocol DestinyErrorProtocol: Error {
 extension DestinyErrorProtocol {
     @usableFromInline
     static func cError(_ identifier: String) -> Self {
-        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         return Self(identifier: identifier, reason: String(cString: strerror(errno)) + " (errno=\(errno))")
         #else
         return Self(identifier: identifier, reason: "unspecified")

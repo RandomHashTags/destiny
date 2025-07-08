@@ -1,6 +1,4 @@
 
-import SwiftSyntax
-
 /// List of Hypertext Transfer Protocol versions.
 public enum HTTPVersion: String, Hashable, Sendable {
     case v0_9
@@ -82,6 +80,9 @@ public enum HTTPVersion: String, Hashable, Sendable {
 }
 
 #if canImport(SwiftSyntax)
+
+import SwiftSyntax
+
 // MARK: SwiftSyntax
 extension HTTPVersion {
     public static func parse(_ expr: ExprSyntax) -> HTTPVersion? {

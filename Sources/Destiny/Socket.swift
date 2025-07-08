@@ -1,12 +1,16 @@
 
 #if canImport(Android)
 import Android
+#elseif canImport(Bionic)
+import Bionic
 #elseif canImport(Darwin)
 import Darwin
 #elseif canImport(Glibc)
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(WASILibc)
+import WASILibc
 #elseif canImport(Windows)
 import Windows
 #elseif canImport(WinSDK)
@@ -139,7 +143,7 @@ extension Socket {
 extension Socket {
     @usableFromInline
     func sendMultiplatform(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
-        #if canImport(Android) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(Windows) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         return send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
         #else
         return write(fileDescriptor, pointer, length)

@@ -1,10 +1,4 @@
 
-#if canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-import SwiftDiagnostics
-import SwiftSyntax
-import SwiftSyntaxMacros
-#endif
-
 @freestanding(expression)
 public macro inlineArray<let count: Int>(_ input: String) -> InlineArray<count, UInt8> = #externalMacro(module: "DestinyUtilityMacros", type: "InlineArrayMacro")
 
@@ -23,6 +17,9 @@ macro httpResponseStatuses(
 #if canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 // MARK: SwiftSyntax
 
+import SwiftDiagnostics
+import SwiftSyntax
+import SwiftSyntaxMacros
 
 
 

@@ -1,3 +1,3 @@
 
-public protocol HTTPStartLineProtocol: Sendable {
+public protocol HTTPStartLineProtocol: Sendable, ~Copyable {
 } 
