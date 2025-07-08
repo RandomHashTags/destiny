@@ -1,5 +1,4 @@
 
-import ArgumentParser
 import DestinyBlueprint
 import Foundation
 import Logging
@@ -15,9 +14,6 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
     public let backlog:Int32
     public var router:Router
     public let logger:Logger
-
-    /// Commands that can be executed from the terminal when the server is running.
-    public let commands:[ParsableCommand.Type] // TODO: fix (wait for swift-argument-parser to update to enable official Swift 6 support)
 
     /// Called when the server loads successfully, just before it accepts incoming network requests.
     public let onLoad:(@Sendable () -> Void)?
@@ -36,32 +32,22 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
         address: String? = nil,
         port: UInt16,
         backlog: Int32 = SOMAXCONN,
+        reuseAddress: Bool = true,
+        reusePort: Bool = true,
+        noTCPDelay: Bool = true,
         router: Router,
         logger: Logger,
-        commands: [ParsableCommand.Type] = [
-            StopCommand.self
-        ],
         onLoad: (@Sendable () -> Void)? = nil,
         onShutdown: (@Sendable () -> Void)? = nil
     ) throws {
-        var address = address
-        var port = port
-        var backlog = backlog
-
-        let parsed = try BootCommands.parse()
-        address = parsed.hostname ?? address
-        port = parsed.port ?? port
-        backlog = parsed.backlog ?? backlog
-        reuseAddress = parsed.reuseaddress
-        reusePort = parsed.reuseport
-        noTCPDelay = parsed.tcpnodelay
-
         self.address = address
         self.port = port
         self.backlog = min(SOMAXCONN, backlog)
+        self.reuseAddress = reuseAddress
+        self.reusePort = reusePort
+        self.noTCPDelay = noTCPDelay
         self.router = router
         self.logger = logger
-        self.commands = commands
         self.onLoad = onLoad
         self.onShutdown = onShutdown
     }
@@ -71,9 +57,6 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
         let serverFD1 = try bindAndListen()
         //let serverFD2 = try bindAndListen()
         //let serverFD3 = try bindAndListen()
-        Task {
-            await processCommand()
-        }
         onLoad?()
         router.loadDynamicMiddleware()
         await withTaskCancellationOrGracefulShutdownHandler {
@@ -153,40 +136,6 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
         }
         logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]"))
         return serverFD
-    }
-}
-
-// MARK: Process commands
-extension Server where ClientSocket: ~Copyable {
-    private func readCommand() async -> String? {
-        return await withCheckedContinuation { $0.resume(returning: readLine()) }
-    }
-    func processCommand() async {
-        if let line = await readCommand() {
-            let arguments = line.split(separator: " ")
-            if let targetCMD = arguments.first {
-                let targetCommand = String(targetCMD)
-                for command in commands {
-                    if targetCommand == command.configuration.commandName {
-                        var value = command.init()
-                        do {
-                            if var asyncValue = value as? AsyncParsableCommand {
-                                try await asyncValue.run()
-                            } else {
-                                try value.run()
-                            }
-                        } catch {
-                            self.logger.warning(Logger.Message(stringLiteral: "Encountered error while executing command \"\(targetCMD)\": \(error)"))
-                        }
-                        break
-                    }
-                }
-            }
-        }
-        guard !Task.isCancelled && !Task.isShuttingDownGracefully else { return }
-        Task {
-            await processCommand()
-        }
     }
 }
 

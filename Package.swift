@@ -11,9 +11,6 @@ pkgDependencies = [
     // Macros
     .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
 
-    // Commands
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
-
     // Logging
     .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
 
@@ -36,7 +33,6 @@ pkgDependencies = [
 destinyModuleDependencies = [
     "DestinyMacros",
     "DestinyDefaults",
-    .product(name: "ArgumentParser", package: "swift-argument-parser"),
     .product(name: "CEpoll", package: "CEpoll")
 ]
 
@@ -45,9 +41,6 @@ destinyModuleDependencies = [
 pkgDependencies = [
     // Macros
     .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
-
-    // Commands
-    .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
 
     // Logging
     .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
@@ -67,8 +60,7 @@ pkgDependencies = [
 
 destinyModuleDependencies = [
     "DestinyMacros",
-    "DestinyDefaults",
-    .product(name: "ArgumentParser", package: "swift-argument-parser")
+    "DestinyDefaults"
 ]
 
 #endif
@@ -123,7 +115,6 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyUtilityMacros",
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
                 .product(name: "Collections", package: "swift-collections"),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),

@@ -17,7 +17,7 @@ import Windows
 import WinSDK
 #endif
 
-public protocol SocketAcceptor: Sendable {
+public protocol SocketAcceptor: Sendable, ~Copyable {
 }
 
 extension SocketAcceptor {
