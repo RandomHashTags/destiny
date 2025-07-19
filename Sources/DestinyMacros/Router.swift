@@ -85,41 +85,49 @@ extension Router {
                 case "staticNotFoundResponder":
                     staticNotFoundResponder = "\(child.expression)"
                 case "supportedCompressionAlgorithms":
-                    if let elements = child.expression.array?.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }) {
-                        storage.supportedCompressionAlgorithms = Set(elements)
+                    guard let elements = child.expression.array?.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }) else {
+                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
+                        break
                     }
+                    storage.supportedCompressionAlgorithms = Set(elements)
                 case "redirects":
-                    if let array = child.expression.array {
-                        parseRedirects(context: context, version: version, array: array, staticRedirects: &storage.staticRedirects, dynamicRedirects: &storage.dynamicRedirects)
+                    guard let array = child.expression.array else {
+                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
+                        break
                     }
+                    parseRedirects(context: context, version: version, array: array, staticRedirects: &storage.staticRedirects, dynamicRedirects: &storage.dynamicRedirects)
                 case "middleware":
-                    if let elements = child.expression.array?.elements {
-                        for element in elements {
-                            //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
-                            if let function = element.expression.functionCall {
-                                switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                                case "DynamicMiddleware":     storage.dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
-                                case "DynamicCORSMiddleware": storage.dynamicMiddleware.append(DynamicCORSMiddleware.parse(context: context, function))
-                                case "DynamicDateMiddleware": storage.dynamicMiddleware.append(DynamicDateMiddleware.parse(context: context, function))
-                                case "StaticMiddleware":      storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
-                                default: break
-                                }
-                            } else if let _ = element.expression.macroExpansion {
-                                // TODO: support custom middleware
-                            } else {
+                    guard let elements = child.expression.array?.elements else {
+                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
+                        break
+                    }
+                    for element in elements {
+                        //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
+                        if let function = element.expression.functionCall {
+                            switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                            case "DynamicMiddleware":     storage.dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
+                            case "DynamicCORSMiddleware": storage.dynamicMiddleware.append(DynamicCORSMiddleware.parse(context: context, function))
+                            case "DynamicDateMiddleware": storage.dynamicMiddleware.append(DynamicDateMiddleware.parse(context: context, function))
+                            case "StaticMiddleware":      storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
+                            default: break
                             }
+                        } else if let _ = element.expression.macroExpansion {
+                            // TODO: support custom middleware
+                        } else {
                         }
                     }
                 case "routeGroups":
-                    if let elements = child.expression.array?.elements {
-                        for element in elements {
-                            if let function = element.expression.functionCall {
-                                switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                                case "RouteGroup":
-                                    storage.routeGroups.append(RouteGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
-                                default:
-                                    break
-                                }
+                    guard let elements = child.expression.array?.elements else {
+                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
+                        break
+                    }
+                    for element in elements {
+                        if let function = element.expression.functionCall {
+                            switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                            case "RouteGroup":
+                                storage.routeGroups.append(RouteGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
+                            default:
+                                break
                             }
                         }
                     }
@@ -458,9 +466,9 @@ extension Router.Storage {
         let getResponderValue:(Router.Storage.Route) -> String = {
             return "CompiledDynamicResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
         }
-        var parameterized:[(DynamicRoute, FunctionCallExprSyntax)] = []
-        var parameterless:[(DynamicRoute, FunctionCallExprSyntax)] = []
-        var catchall:[(DynamicRoute, FunctionCallExprSyntax)] = []
+        var parameterized = [(DynamicRoute, FunctionCallExprSyntax)]()
+        var parameterless = [(DynamicRoute, FunctionCallExprSyntax)]()
+        var catchall = [(DynamicRoute, FunctionCallExprSyntax)]()
         for route in routes {
             if route.0.path.count(where: { $0.isParameter }) != 0 {
                 if route.0.path.count(where: { $0 == .catchall }) != 0 {
@@ -522,4 +530,5 @@ extension Router.Storage {
         return string + "\n)\n)"
     }
 }
+
 #endif
