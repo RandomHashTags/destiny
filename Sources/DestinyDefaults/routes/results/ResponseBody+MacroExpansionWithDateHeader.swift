@@ -55,3 +55,46 @@ extension ResponseBody {
         }
     }
 }
+
+/*
+extension ResponseBody.MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
+    @inlinable
+    func temporaryBuffer(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
+        try value.utf8.withContiguousStorageIfAvailable { valuePointer in
+            try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
+                try Swift.String(body.count).utf8.withContiguousStorageIfAvailable { contentLengthPointer in
+                    try body.utf8.withContiguousStorageIfAvailable { bodyPointer in
+                        try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count + contentLengthPointer.count + 4 + bodyPointer.count, { buffer in
+                            var i = 0
+                            buffer.copyBuffer(valuePointer, at: &i)
+                            // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
+                            var offset = 20
+                            for i in 0..<HTTPDateFormat.InlineArrayResult.count {
+                                buffer[offset] = datePointer[i]
+                                offset += 1
+                            }
+                            contentLengthPointer.forEach {
+                                buffer[i] = $0
+                                i += 1
+                            }
+                            buffer[i] = .carriageReturn
+                            i += 1
+                            buffer[i] = .lineFeed
+                            i += 1
+                            buffer[i] = .carriageReturn
+                            i += 1
+                            buffer[i] = .lineFeed
+                            i += 1
+                            buffer.copyBuffer(bodyPointer, at: &i)
+                            try closure(buffer)
+                        })
+                    }
+                }
+            }
+        }
+    }
+    @inlinable
+    public func respond<Socket>(to socket: borrowing Socket) async throws where Socket : HTTPSocketProtocol, Socket : ~Copyable {
+        
+    }
+}*/

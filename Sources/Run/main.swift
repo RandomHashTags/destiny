@@ -65,7 +65,7 @@ import SwiftCompression
         })*/
     ],
     redirects: [
-        StaticRedirectionRoute(method: HTTPRequestMethod.get, status: HTTPResponseStatus.ok.code, from: ["redirectfrom"], to: ["redirectto"])
+        StaticRedirectionRoute(method: HTTPRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])
     ],
     routeGroups: [
         RouteGroup(
@@ -77,7 +77,7 @@ import SwiftCompression
                 method: HTTPRequestMethod.get,
                 path: ["hoopla"],
                 contentType: HTTPMediaType.textPlain,
-                body: ResponseBody.stringWithDateHeader("rly dud")
+                body: StringWithDateHeader("rly dud")
             ),
             DynamicRoute(
                 method: HTTPRequestMethod.get,
@@ -92,7 +92,7 @@ import SwiftCompression
     StaticRoute.get(
         path: ["redirectto"],
         contentType: HTTPMediaType.textHtml,
-        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
+        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["expressionMacro"],
@@ -107,40 +107,40 @@ import SwiftCompression
     StaticRoute.post(
         path: ["post"],
         contentType: HTTPMediaType.applicationJson,
-        body: ResponseBody.stringWithDateHeader(#"{"bing":"bonged"}"#)
+        body: StringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["bro?what=dude"],
         contentType: HTTPMediaType.applicationJson,
-        body: ResponseBody.stringWithDateHeader(#"{"bing":"bonged"}"#)
+        body: StringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["html"],
         contentType: HTTPMediaType.textHtml,
-        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["SHOOP"],
         caseSensitive: false,
         contentType: HTTPMediaType.textHtml,
-        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
         contentType: HTTPMediaType.textHtml,
-        body: ResponseBody.stringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["json"],
         contentType: HTTPMediaType.applicationJson,
-        body: ResponseBody.stringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
+        body: StringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
         //body: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
     ),
     StaticRoute.get(
         path: ["txt"],
         contentType: HTTPMediaType.textPlain,
-        body: ResponseBody.stringWithDateHeader("just a regular txt page; t'was your destiny")
+        body: StringWithDateHeader("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
         path: ["bytes"],

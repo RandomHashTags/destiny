@@ -23,7 +23,11 @@ extension ResponseBody {
     }
     public static func parse(expr: ExprSyntax) -> (any ResponseBodyProtocol)? {
         guard let function = expr.functionCall else { return nil }
-        switch function.calledExpression.memberAccess?.declName.baseName.text {
+        var key = function.calledExpression.memberAccess?.declName.baseName.text.lowercased()
+        if key == nil {
+            key = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text.lowercased()
+        }
+        switch key {
 #if canImport(FoundationEssentials) || canImport(Foundation)
         case "data": // TODO: fix
             return Data(
@@ -33,13 +37,13 @@ extension ResponseBody {
                 })
             )
 #endif
-        case "macroExpansion":
+        case "macroexpansion":
             return ResponseBody.macroExpansion(function.arguments.first!.expression.description)
-        case "macroExpansionWithDateHeader":
+        case "macroexpansionwithdateheader":
             return ResponseBody.macroExpansionWithDateHeader(function.arguments.first!.expression.description)
         case "string":
             return parseString(function.arguments.first!.expression)
-        case "stringWithDateHeader":
+        case "stringwithdateheader":
             return StringWithDateHeader(parseString(function.arguments.first!.expression))
         case "json":
             return nil // TODO: fix

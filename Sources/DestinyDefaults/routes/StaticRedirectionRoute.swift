@@ -15,7 +15,7 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     public init(
         version: HTTPVersion = .v1_1,
         method: any HTTPRequestMethodProtocol,
-        status: HTTPResponseStatus.Code,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.movedPermanently.code,
         from: [StaticString],
         isCaseSensitive: Bool = true,
         to: [StaticString]
