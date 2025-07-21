@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import OrderedCollections
-import SwiftCompression
 
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
@@ -228,7 +227,7 @@ extension HTTPRequestHeader {
 // MARK: Accept-Encoding
 extension HTTPRequestHeader {
     public struct AcceptEncoding: Sendable {
-        public let compression:CompressionAlgorithm
+        public let compression:String
     }
 }
 

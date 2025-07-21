@@ -1,6 +1,5 @@
 
 import DestinyBlueprint
-import SwiftCompression
 
 /// Default Conditional Route Responder implementation where multiple responders are computed at compile time, but only one should be selected based on the request.
 public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {

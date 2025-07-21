@@ -1,8 +1,7 @@
 
-#if canImport(DestinyDefaults) && canImport(DestinyBlueprint) && canImport(SwiftCompression) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
+#if canImport(DestinyDefaults) && canImport(DestinyBlueprint) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyDefaults
 import DestinyBlueprint
-import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -77,7 +76,8 @@ extension Router {
         var staticNotFoundResponder = ""
         var storage = Storage()
         for child in arguments {
-            if let key = child.label?.text {
+            if let label = child.label {
+                let key = label.text
                 switch key {
                 case "version":
                     version = HTTPVersion.parse(child.expression) ?? version
@@ -87,12 +87,6 @@ extension Router {
                     dynamicNotFoundResponder = "\(child.expression)"
                 case "staticNotFoundResponder":
                     staticNotFoundResponder = "\(child.expression)"
-                case "supportedCompressionAlgorithms":
-                    guard let elements = child.expression.array?.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }) else {
-                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
-                        break
-                    }
-                    storage.supportedCompressionAlgorithms = Set(elements)
                 case "redirects":
                     guard let array = child.expression.array else {
                         context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
@@ -112,7 +106,8 @@ extension Router {
                             case "DynamicCORSMiddleware": storage.dynamicMiddleware.append(DynamicCORSMiddleware.parse(context: context, function))
                             case "DynamicDateMiddleware": storage.dynamicMiddleware.append(DynamicDateMiddleware.parse(context: context, function))
                             case "StaticMiddleware":      storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
-                            default: break
+                            default:
+                                context.diagnose(DiagnosticMsg.unhandled(node: function.calledExpression))
                             }
                         } else if let _ = element.expression.macroExpansion {
                             // TODO: support custom middleware
@@ -130,17 +125,18 @@ extension Router {
                             case "RouteGroup":
                                 storage.routeGroups.append(RouteGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
                             default:
-                                break
+                                context.diagnose(DiagnosticMsg.unhandled(node: function))
                             }
                         }
                     }
                 default:
-                    break
+                    context.diagnose(DiagnosticMsg.unhandled(node: label))
                 }
             } else if let function = child.expression.functionCall { // route
                 computeRoute(context: context, version: version, function: function, &storage)
             } else {
                 // TODO: support custom routes
+                context.diagnose(DiagnosticMsg.unhandled(node: child))
             }
         }
         if staticNotFoundResponder.isEmpty {
@@ -207,7 +203,6 @@ extension Router {
                 if let method = targetMethod {
                     route.method = method
                 }
-                route.supportedCompressionAlgorithms.formUnion(storage.supportedCompressionAlgorithms)
                 storage.dynamicRoutes.append((route, function))
             }
         case "StaticRoute":
@@ -215,7 +210,6 @@ extension Router {
                 if let method = targetMethod {
                     route.method = method
                 }
-                route.supportedCompressionAlgorithms.formUnion(storage.supportedCompressionAlgorithms)
                 storage.staticRoutes.append((route, function))
             }
         case "StaticRedirectionRoute":
@@ -223,7 +217,7 @@ extension Router {
                 storage.staticRedirects.append((route, function))
             }
         default:
-            break
+            context.diagnose(DiagnosticMsg.unhandled(node: function.calledExpression))
         }
     }
 }
@@ -238,8 +232,6 @@ extension Router {
 // MARK: Storage
 extension Router {
     struct Storage {
-        var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
-        
         var dynamicMiddleware:[any DynamicMiddlewareProtocol] = []
         var dynamicRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
@@ -316,7 +308,7 @@ extension Router {
                         staticRedirects.append((route, function))
                     }
                 default:
-                    break
+                    context.diagnose(DiagnosticMsg.unhandled(node: methodElement))
                 }
             }
         }
@@ -373,7 +365,7 @@ extension Router.Storage {
                     registeredPaths.insert(string)
                     let buffer = DestinyRoutePathType(&string)
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
-                    if route.supportedCompressionAlgorithms.isEmpty {
+                    if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                         if let responder = try route.body?.responderDebugDescription(httpResponse) {
                             routeResponders.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
                         }

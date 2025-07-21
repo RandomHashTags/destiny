@@ -1,7 +1,6 @@
 
 @_exported import DestinyBlueprint
 @_exported import DestinyDefaults
-import SwiftCompression
 
 /// Default macro to create a `HTTPRouter`.
 ///
@@ -22,7 +21,6 @@ public macro router<T: HTTPRouterProtocol>(
     errorResponder: (any ErrorResponderProtocol)? = nil,
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
-    supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [any MiddlewareProtocol],
     redirects: [any RedirectionRouteProtocol] = [],
     routeGroups: [any RouteGroupProtocol] = [],
@@ -38,7 +36,6 @@ public macro declareRouter(
     errorResponder: (any ErrorResponderProtocol)? = nil,
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
-    supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
     middleware: [any MiddlewareProtocol],
     redirects: [any RedirectionRouteProtocol] = [],
     routeGroups: [any RouteGroupProtocol] = [],

@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import OrderedCollections
-import SwiftCompression
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
@@ -9,7 +8,6 @@ public struct DynamicRoute: DynamicRouteProtocol {
     public var path:[PathComponent]
     public var contentType:HTTPMediaType?
     public var defaultResponse:DynamicResponse
-    public var supportedCompressionAlgorithms:Set<CompressionAlgorithm>
     public let handler:@Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     @usableFromInline package var handlerDebugDescription:String = "{ _, _ in }"
 
@@ -28,7 +26,6 @@ public struct DynamicRoute: DynamicRouteProtocol {
         headers: OrderedDictionary<String, String> = [:],
         cookies: [any HTTPCookieProtocol] = [],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) {
         self.version = version
@@ -41,7 +38,6 @@ public struct DynamicRoute: DynamicRouteProtocol {
             message: HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: nil, charset: nil),
             parameters: []
         )
-        self.supportedCompressionAlgorithms = supportedCompressionAlgorithms
         self.handler = handler
     }
 
@@ -69,7 +65,6 @@ public struct DynamicRoute: DynamicRouteProtocol {
             isCaseSensitive: \(isCaseSensitive),
             status: \(status),
             contentType: \(contentType != nil ? contentType!.debugDescription : "nil"),
-            supportedCompressionAlgorithms: [\(supportedCompressionAlgorithms.map({ "." + $0.rawValue }).joined(separator: ","))],
             handler: \(handlerDebugDescription)
         )
         """
@@ -106,7 +101,6 @@ extension DynamicRoute {
         var isCaseSensitive = true
         var status = HTTPResponseStatus.notImplemented.code
         var contentType:HTTPMediaType? = nil
-        var supportedCompressionAlgorithms:Set<CompressionAlgorithm> = []
         var handler = "nil"
         var parameters = [String]()
         for argument in function.arguments {
@@ -128,8 +122,6 @@ extension DynamicRoute {
                 status = HTTPResponseStatus.parse(expr: argument.expression)?.code ?? status
             case "contentType":
                 contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
-            case "supportedCompressionAlgorithms":
-                supportedCompressionAlgorithms = Set(argument.expression.array!.elements.compactMap({ CompressionAlgorithm.parse($0.expression) }))
             case "handler":
                 handler = "\(argument.expression)"
             default:
@@ -157,7 +149,6 @@ extension DynamicRoute {
             isCaseSensitive: isCaseSensitive,
             status: status,
             contentType: contentType,
-            supportedCompressionAlgorithms: supportedCompressionAlgorithms,
             handler: { _, _ in }
         )
         route.defaultResponse = DynamicResponse(
@@ -182,10 +173,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -197,10 +187,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -212,10 +201,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -227,10 +215,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -242,10 +229,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -257,10 +243,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -272,10 +257,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -287,10 +271,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -302,10 +285,9 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -317,9 +299,8 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: OrderedDictionary<String, String> = [:],
         body: (any ResponseBodyProtocol)? = nil,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = [],
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, supportedCompressionAlgorithms: supportedCompressionAlgorithms, handler: handler)
+        return on(version: version, method: HTTPRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 }

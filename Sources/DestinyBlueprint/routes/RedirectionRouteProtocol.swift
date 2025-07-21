@@ -1,6 +1,4 @@
 
-import SwiftCompression
-
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -32,13 +30,4 @@ public protocol RedirectionRouteProtocol: RouteProtocol {
     ///   - function: SwiftSyntax expression that represents this route.
     static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self?
     #endif
-}
-
-// MARK: SwiftCompression
-// Redirects do not use compression.
-extension RedirectionRouteProtocol {
-    public var supportedCompressionAlgorithms: Set<CompressionAlgorithm> {
-        get { [] }
-        set {}
-    }
 }

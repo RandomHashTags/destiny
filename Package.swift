@@ -24,7 +24,7 @@ pkgDependencies = [
     .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
 
     // Compression
-    .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main"),
+    //.package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main"),
 
     // Epoll
     .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0")
@@ -55,7 +55,7 @@ pkgDependencies = [
     .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
 
     // Compression
-    .package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")
+    //.package(url: "https://github.com/RandomHashTags/swift-compression", branch: "main")
 ]
 
 destinyModuleDependencies = [
@@ -103,7 +103,7 @@ let package = Package(
                 "DestinyUtilityMacros",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "SwiftCompression", package: "swift-compression"),
+                //.product(name: "SwiftCompression", package: "swift-compression"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
@@ -118,7 +118,7 @@ let package = Package(
                 .product(name: "Collections", package: "swift-collections"),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "SwiftCompression", package: "swift-compression"),
+                //.product(name: "SwiftCompression", package: "swift-compression"),
                 .product(name: "ServiceLifecycle", package: "swift-service-lifecycle"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax")

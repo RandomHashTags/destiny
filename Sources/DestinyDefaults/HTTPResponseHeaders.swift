@@ -6,7 +6,6 @@ import Foundation
 #endif
 
 import DestinyBlueprint
-import SwiftCompression
 
 // MARK: HTTPResponseHeaders
 /// Default storage for HTTP response headers.
@@ -20,7 +19,7 @@ public struct HTTPResponseHeaders: HTTPResponseHeadersProtocol { // TODO: finish
     @usableFromInline var acceptRanges:HTTPResponseHeader.AcceptRanges?
     @usableFromInline var age:Int?
     public var allow:String?
-    @usableFromInline var contentEncoding:CompressionAlgorithm?
+    @usableFromInline var contentEncoding:String?
     @usableFromInline var contentLength:Int?
     @usableFromInline var contentType:String?
     @usableFromInline var retryAfterDuration:Int?
@@ -95,7 +94,7 @@ extension HTTPResponseHeaders {
 extension HTTPResponseHeaders {
     @discardableResult
     @inlinable
-    public mutating func contentEncoding(_ algorithm: CompressionAlgorithm?) -> Self {
+    public mutating func contentEncoding(_ algorithm: String?) -> Self {
         contentEncoding = algorithm
         return self
     }

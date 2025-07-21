@@ -1,4 +1,5 @@
 
+/*
 import SwiftCompression
 import SwiftSyntax
 
@@ -105,4 +106,4 @@ extension CompressionAlgorithm {
         }
     }
 }
-#endif
+#endif*/

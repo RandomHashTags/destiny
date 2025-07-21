@@ -1,6 +1,5 @@
 
 import Destiny
-import SwiftCompression
 import Testing
 
 struct DestinyTests {

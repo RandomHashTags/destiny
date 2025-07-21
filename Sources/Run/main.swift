@@ -15,13 +15,11 @@ import Glibc
 
 import Destiny
 import Logging
-import SwiftCompression
 
 // MARK: Router
 #declareRouter(
     version: .v1_1,
     dynamicNotFoundResponder: nil,
-    supportedCompressionAlgorithms: [],
     middleware: [
         StaticMiddleware(
             appliesHeaders: ["Server":"destiny"],

@@ -6,7 +6,6 @@ import Foundation
 #endif
 
 import DestinyBlueprint
-import SwiftCompression
 
 // MARK: HTTPRequestHeaders
 /// Default storage for HTTP request headers.

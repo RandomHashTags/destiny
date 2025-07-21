@@ -6,7 +6,6 @@ import Foundation
 #endif
 
 import DestinyBlueprint
-import SwiftCompression
 
 // MARK: StaticFileMiddleware
 public struct StaticFileMiddleware: FileMiddlewareProtocol {
@@ -26,11 +25,10 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol {
     public func routes(
         version: HTTPVersion,
         method: any HTTPRequestMethodProtocol = HTTPRequestMethod.get,
-        charset: Charset? = .utf8,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm> = []
+        charset: Charset? = .utf8
     ) throws -> [StaticRoute] {
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        return try routesFoundation(version: version, method: method, charset: charset, supportedCompressionAlgorithms: supportedCompressionAlgorithms, path: filePath, endpoint: endpoint)
+        return try routesFoundation(version: version, method: method, charset: charset, path: filePath, endpoint: endpoint)
         #else
         return []
         #endif
@@ -44,7 +42,6 @@ extension StaticFileMiddleware {
         version: HTTPVersion,
         method: any HTTPRequestMethodProtocol,
         charset: Charset?,
-        supportedCompressionAlgorithms: Set<CompressionAlgorithm>,
         path: String,
         endpoint: String
     ) throws -> [StaticRoute] {

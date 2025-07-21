@@ -1,4 +1,6 @@
 
+import Foundation
+
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 // TODO: support case sensitivity
 public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Hashable, Sendable {

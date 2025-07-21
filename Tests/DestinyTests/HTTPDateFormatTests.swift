@@ -1,7 +1,6 @@
 
 import Destiny
 import FoundationEssentials
-import SwiftCompression
 import Testing
 
 struct HTTPDateFormatTests {
