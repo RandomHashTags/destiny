@@ -80,35 +80,6 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         return string
     }
 
-    /// - Returns: A byte array representing an HTTP Message with the given values.
-    @inlinable
-    public func bytes() throws -> [UInt8] {
-        let suffix = String([Character(Unicode.Scalar(.carriageReturn)), Character(Unicode.Scalar(.lineFeed))])
-        var string = version.string + " \(status)" + suffix
-        for (header, value) in headers {
-            string += header + ": " + value + suffix
-        }
-        for cookie in cookies {
-            string += "Set-Cookie: \(cookie)" + suffix
-        }
-        var bytes:[UInt8]
-        if let body = try body?.bytes() {
-            if let contentType {
-                string.append(HTTPResponseHeader.contentType.rawName)
-                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
-            }
-            string.append(HTTPResponseHeader.contentLength.rawName)
-            string += ": \(body.count)"
-            string += suffix + suffix
-            
-            bytes = [UInt8](string.utf8)
-            bytes.append(contentsOf: body)
-        } else {
-            bytes = [UInt8](string.utf8)
-        }
-        return bytes
-    }
-
     @inlinable
     public mutating func setHeader(key: String, value: String) {
         headers[key] = value
@@ -154,7 +125,7 @@ extension HTTPResponseMessage {
             for cookie in cookies {
                 writeCookie(to: p, index: &i, cookie: cookie)
             }
-            writeResult(to: p, index: &i)
+            try writeResult(to: p, index: &i)
             try closure(p)
         })
     }
@@ -217,8 +188,8 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
-    func writeResult(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
-        guard let body else { return }
+    func writeResult(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) throws {
+        guard var body else { return }
         if let contentType {
             let contentTypeHeader:InlineArray<14, UInt8> = #inlineArray("Content-Type: ")
             writeInlineArray(to: buffer, index: &i, array: contentTypeHeader)
@@ -242,9 +213,7 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, index: &i)
 
         writeCRLF(to: buffer, index: &i)
-        body.bytes {
-            buffer.copyBuffer($0.storage, at: &i)
-        }
+        try body.write(to: buffer, at: &i)
     }
     @inlinable
     func writeInlineArray<T: InlineArrayProtocol>(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, array: T) where T.Element == UInt8 {

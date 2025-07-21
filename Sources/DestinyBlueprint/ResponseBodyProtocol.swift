@@ -11,10 +11,7 @@ public protocol ResponseBodyProtocol: CustomDebugStringConvertible, Sendable {
     func string() -> String
 
     @inlinable
-    func bytes() -> [UInt8]
-
-    @inlinable
-    func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows
+    mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws
 
     @inlinable
     var hasDateHeader: Bool { get }
@@ -30,3 +27,120 @@ extension ResponseBodyProtocol {
     @inlinable public var hasCustomInitializer: Bool { false }
     @inlinable public func customInitializer(bodyString: String) -> String { "" }
 }
+
+// MARK: Default conformances
+extension String: ResponseBodyProtocol {
+    public var debugDescription: Swift.String {
+        "\"\(self)\""
+    }
+
+    public var responderDebugDescription: Swift.String {
+        debugDescription
+    }
+
+    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
+        input.responderDebugDescription
+    }
+
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+        try responderDebugDescription(input.string(escapeLineBreak: true))
+    }
+
+    @inlinable
+    public var count: Int {
+        utf8.count
+    }
+    
+    @inlinable
+    public func string() -> Swift.String {
+        self
+    }
+
+    @inlinable public var hasDateHeader: Bool { false }
+
+    @inlinable
+    public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
+        self.withUTF8 { p in
+            buffer.copyBuffer(p, at: &index)
+        }
+    }
+}
+
+extension StaticString: ResponseBodyProtocol {
+    public var debugDescription: Swift.String {
+        "\"\(self.description)\")"
+    }
+
+    public var responderDebugDescription: Swift.String {
+        debugDescription
+    }
+
+    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
+        fatalError("cannot do that") // TODO: fix?
+    }
+
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+        try responderDebugDescription(input.string(escapeLineBreak: true))
+    }
+
+    @inlinable
+    public var count: Int {
+        utf8CodeUnitCount
+    }
+    
+    @inlinable
+    public func string() -> Swift.String {
+        description
+    }
+
+    @inlinable
+    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
+        self.withUTF8Buffer { p in
+            buffer.copyBuffer(p, at: &index)
+        }
+    }
+
+    @inlinable public var hasDateHeader: Bool { false }
+}
+
+#if canImport(FoundationEssentials) || canImport(Foundation)
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#else
+import Foundation
+#endif
+
+extension Data: ResponseBodyProtocol {
+    public var debugDescription: Swift.String {
+        "Data(\(self))"
+    }
+
+    public var responderDebugDescription: Swift.String {
+        debugDescription
+    }
+
+    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
+        Self(Data(input.utf8)).responderDebugDescription
+    }
+
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String{
+        try responderDebugDescription(input.string(escapeLineBreak: false))
+    }
+    
+    @inlinable
+    public func string() -> Swift.String {
+        .init(decoding: self, as: UTF8.self)
+    }
+
+    @inlinable
+    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
+        self.span.withUnsafeBufferPointer { p in
+            buffer.copyBuffer(p, at: &index)
+        }
+    }
+
+    @inlinable public var hasDateHeader: Bool { false }
+}
+
+#endif

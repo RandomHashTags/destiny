@@ -84,7 +84,7 @@ import SwiftCompression
                 path: ["HOOPLA"],
                 contentType: HTTPMediaType.textPlain,
                 handler: { _, response in
-                    response.setBody(ResponseBody.string("RLY DUD"))
+                    response.setBody("RLY DUD")
                 }
             )
         ),
@@ -168,13 +168,13 @@ import SwiftCompression
         handler: { _, response in
             response.setStatus(HTTPResponseStatus.ok)
             response.setHeader(key: "Server", value: "Destiny")
-            response.setBody(ResponseBody.string("Hello World!"))
+            response.setBody("Hello World!")
         }
     ),
     DynamicRoute.get(
         path: ["dynamicExpressionMacro"],
         handler: { _, response in
-            response.setBody(ResponseBody.string(#filePath))
+            response.setBody(#filePath)
         }
     ),
     DynamicRoute.get(
@@ -188,7 +188,7 @@ import SwiftCompression
         path: ["dynamic"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody(ResponseBody.string("bro"))
+            response.setBody("bro")
             //response.body = .string("Host=" + (request.headers["Host"] ?? "nil"))
         }
     ),
@@ -198,9 +198,9 @@ import SwiftCompression
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            response.setBody(ResponseBody.string(UUID().uuidString))
+            response.setBody(UUID().uuidString)
             #else
-            response.setBody(ResponseBody.string(String(UInt64.random(in: 0..<UInt64.max))))
+            response.setBody(String(UInt64.random(in: 0..<UInt64.max)))
             #endif
         }
     ),
@@ -208,14 +208,14 @@ import SwiftCompression
         path: ["dynamic", ":text"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody(ResponseBody.string(response.parameter(at: 0)))
+            response.setBody(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
         path: ["anydynamic", "*", "value"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody(ResponseBody.string(response.parameter(at: 0)))
+            response.setBody(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
@@ -224,7 +224,7 @@ import SwiftCompression
         handler: { request, response in
             var s = "catchall/**;"
             response.yieldParameters { s += $0 + ";" }
-            response.setBody(ResponseBody.string(s))
+            response.setBody(s)
         }
     )
 )

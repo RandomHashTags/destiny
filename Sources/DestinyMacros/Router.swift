@@ -28,12 +28,16 @@ extension Router: DeclarationMacro {
         var mutable = false
         var typeAnnotation:String? = nil
         let arguments = node.as(ExprSyntax.self)!.macroExpansion!.arguments
-        for argument in arguments.prefix(2) {
-            switch argument.label?.text {
+        for arg in arguments.prefix(2) {
+            switch arg.label?.text {
             case "mutable":
-                mutable = argument.expression.booleanIsTrue
+                mutable = arg.expression.booleanIsTrue
             case "typeAnnotation":
-                typeAnnotation = argument.expression.stringLiteral?.string
+                guard let string = arg.expression.stringLiteral?.string else {
+                    context.diagnose(DiagnosticMsg.expectedStringLiteral(expr: arg.expression))
+                    break
+                }
+                typeAnnotation = string
             default:
                 break
             }
@@ -55,19 +59,18 @@ extension Router {
         context: some MacroExpansionContext
     ) -> String {
         var version = HTTPVersion.v1_1
+        let defaultStaticErrorResponse = (try? DestinyDefaults.HTTPResponseMessage(
+            version: HTTPVersion.v1_1,
+            status: HTTPResponseStatus.ok.code,
+            headers: [:],
+            cookies: [],
+            body: "{\"error\":true,\"reason\":\"\\(error)\"}",
+            contentType: HTTPMediaType.applicationJson,
+            charset: nil
+        ).string(escapeLineBreak: true)) ?? ""
         var errorResponder = """
         StaticErrorResponder({ error in
-            \(RouteResponses.String(
-                DestinyDefaults.HTTPResponseMessage(
-                    version: HTTPVersion.v1_1,
-                    status: HTTPResponseStatus.ok.code,
-                    headers: [:],
-                    cookies: [],
-                    body: ResponseBody.string("{\"error\":true,\"reason\":\"\\(error)\"}"),
-                    contentType: HTTPMediaType.applicationJson,
-                    charset: nil
-                )
-            ).debugDescription)
+            \"\(defaultStaticErrorResponse)\"
         })
         """
         var dynamicNotFoundResponder = "nil"
@@ -135,39 +138,7 @@ extension Router {
                     break
                 }
             } else if let function = child.expression.functionCall { // route
-                //print("Router;expansion;route;function=\(function.debugDescription)")
-                let decl:String?
-                var targetMethod:(any HTTPRequestMethodProtocol)? = nil
-                if let member = function.calledExpression.memberAccess {
-                    decl = member.base?.as(DeclReferenceExprSyntax.self)?.baseName.text
-                    targetMethod = HTTPRequestMethod.parse(expr: member)
-                } else {
-                    decl = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
-                }
-                switch decl {
-                case "DynamicRoute":
-                    if var route = DynamicRoute.parse(context: context, version: version, middleware: storage.staticMiddleware, function) {
-                        if let method = targetMethod {
-                            route.method = method
-                        }
-                        route.supportedCompressionAlgorithms.formUnion(storage.supportedCompressionAlgorithms)
-                        storage.dynamicRoutes.append((route, function))
-                    }
-                case "StaticRoute":
-                    if var route = StaticRoute.parse(context: context, version: version, function) {
-                        if let method = targetMethod {
-                            route.method = method
-                        }
-                        route.supportedCompressionAlgorithms.formUnion(storage.supportedCompressionAlgorithms)
-                        storage.staticRoutes.append((route, function))
-                    }
-                case "StaticRedirectionRoute":
-                    if let route = StaticRedirectionRoute.parse(context: context, version: version, function) {
-                        storage.staticRedirects.append((route, function))
-                    }
-                default:
-                    break
-                }
+                computeRoute(context: context, version: version, function: function, &storage)
             } else {
                 // TODO: support custom routes
             }
@@ -176,7 +147,7 @@ extension Router {
             staticNotFoundResponder = try! ResponseBody.stringWithDateHeader("").responderDebugDescription(
                 HTTPResponseMessage(
                     version: version,
-                    status: HTTPResponseStatus.ok.code,
+                    status: HTTPResponseStatus.notFound.code,
                     headers: [:],
                     cookies: [],
                     body: ResponseBody.stringWithDateHeader("not found"),
@@ -214,6 +185,46 @@ extension Router {
         string += "\nrouteGroups: [\(routeGroupsString)]"
         string += "\n)"
         return string
+    }
+    private static func computeRoute(
+        context: some MacroExpansionContext,
+        version: HTTPVersion,
+        function: FunctionCallExprSyntax,
+        _ storage: inout Storage
+    ) {
+        //print("Router;expansion;route;function=\(function.debugDescription)")
+        let decl:String?
+        var targetMethod:(any HTTPRequestMethodProtocol)? = nil
+        if let member = function.calledExpression.memberAccess {
+            decl = member.base?.as(DeclReferenceExprSyntax.self)?.baseName.text
+            targetMethod = HTTPRequestMethod.parse(expr: member)
+        } else {
+            decl = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
+        }
+        switch decl {
+        case "DynamicRoute":
+            if var route = DynamicRoute.parse(context: context, version: version, middleware: storage.staticMiddleware, function) {
+                if let method = targetMethod {
+                    route.method = method
+                }
+                route.supportedCompressionAlgorithms.formUnion(storage.supportedCompressionAlgorithms)
+                storage.dynamicRoutes.append((route, function))
+            }
+        case "StaticRoute":
+            if var route = StaticRoute.parse(context: context, version: version, function) {
+                if let method = targetMethod {
+                    route.method = method
+                }
+                route.supportedCompressionAlgorithms.formUnion(storage.supportedCompressionAlgorithms)
+                storage.staticRoutes.append((route, function))
+            }
+        case "StaticRedirectionRoute":
+            if let route = StaticRedirectionRoute.parse(context: context, version: version, function) {
+                storage.staticRedirects.append((route, function))
+            }
+        default:
+            break
+        }
     }
 }
 
@@ -345,7 +356,7 @@ extension Router.Storage {
                 } else {
                     registeredPaths.insert(string)
                     do {
-                        let responder = try ResponseBody.stringWithDateHeader(route.response()).responderDebugDescription
+                        let responder = try StringWithDateHeader(route.response()).responderDebugDescription
                         routeResponders.append(getResponderValue(.init(path: string, buffer: .init(&string), responder: responder)))
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
@@ -407,6 +418,9 @@ extension Router {
         buffer: DestinyRoutePathType,
         httpResponse: DestinyDefaults.HTTPResponseMessage
     ) {
+        // TODO: refactor
+        return;
+        /*
         guard let result = httpResponse.body else { return }
         let body:[UInt8]
         do {
@@ -416,7 +430,12 @@ extension Router {
             return
         }
         var httpResponse = httpResponse
-        var responder = ConditionalRouteResponder(staticConditions: [], staticResponders: [], dynamicConditions: [], dynamicResponders: [])
+        var responder = ConditionalRouteResponder(
+            staticConditions: [],
+            staticResponders: [],
+            dynamicConditions: [],
+            dynamicResponders: []
+        )
         responder.staticConditionsDescription.removeLast() // ]
         responder.staticRespondersDescription.removeLast() // ]
         //responder.dynamicConditionsDescription.removeLast() // ] // TODO: support
@@ -431,7 +450,7 @@ extension Router {
                     do {
                         let bytes = try httpResponse.string(escapeLineBreak: false)
                         responder.staticConditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
-                        responder.staticRespondersDescription += "\n" + RouteResponses.String(bytes).debugDescription
+                        responder.staticRespondersDescription += "\n\(bytes)"
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPResponseMessage bytes using the " + algorithm.rawValue + " compression algorithm: \(error).")))
                     }
@@ -444,7 +463,7 @@ extension Router {
         }
         responder.staticConditionsDescription += "\n]"
         responder.staticRespondersDescription += "\n]"
-        conditionalResponders[RoutePath(comment: "// \(string)", path: buffer)] = responder
+        conditionalResponders[RoutePath(comment: "// \(string)", path: buffer)] = responder*/
     }
 }
 

@@ -131,8 +131,7 @@ extension StaticRoute {
 
     @inlinable
     public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)? {
-        let body = try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
-        return RouteResponses.String(body)
+        return try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }
 }
 

@@ -25,14 +25,12 @@ extension ResponseBody {
         guard let function = expr.functionCall else { return nil }
         switch function.calledExpression.memberAccess?.declName.baseName.text {
 #if canImport(FoundationEssentials) || canImport(Foundation)
-        case "data":
-            return ResponseBody.data(
-                Data(
-                    function.arguments.first!.expression.array!.elements.compactMap({
-                        guard let s = $0.expression.integerLiteral?.literal.text else { return nil }
-                        return UInt8(s)
-                    })
-                )
+        case "data": // TODO: fix
+            return Data(
+                function.arguments.first!.expression.array!.elements.compactMap({
+                    guard let s = $0.expression.integerLiteral?.literal.text else { return nil }
+                    return UInt8(s)
+                })
             )
 #endif
         case "macroExpansion":
@@ -40,11 +38,9 @@ extension ResponseBody {
         case "macroExpansionWithDateHeader":
             return ResponseBody.macroExpansionWithDateHeader(function.arguments.first!.expression.description)
         case "string":
-            let s = parseString(function.arguments.first!.expression)
-            return ResponseBody.string(s)
+            return parseString(function.arguments.first!.expression)
         case "stringWithDateHeader":
-            let s = parseString(function.arguments.first!.expression)
-            return ResponseBody.stringWithDateHeader(s)
+            return StringWithDateHeader(parseString(function.arguments.first!.expression))
         case "json":
             return nil // TODO: fix
         case "bytes":

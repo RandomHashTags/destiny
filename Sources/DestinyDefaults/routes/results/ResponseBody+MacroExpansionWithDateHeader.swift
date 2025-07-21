@@ -42,13 +42,7 @@ extension ResponseBody {
         }
 
         @inlinable
-        public func bytes() -> [UInt8] {
-            value.bytes()
-        }
-
-        @inlinable
-        public func bytes(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
-            try InlineVLArray<UInt8>.create(string: value.string(), closure)
+        public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         }
 
         @inlinable public var hasDateHeader: Bool { true }
