@@ -1,5 +1,5 @@
 
-public protocol ResponseBodyProtocol: CustomDebugStringConvertible, Sendable {
+public protocol ResponseBodyProtocol: Sendable {
     @inlinable
     var count: Int { get }
 

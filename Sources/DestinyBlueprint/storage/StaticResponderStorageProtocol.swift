@@ -1,5 +1,5 @@
 
-public protocol StaticResponderStorageProtocol: CustomDebugStringConvertible, Sendable {
+public protocol StaticResponderStorageProtocol: Sendable {
     /// Try to write a response to a socket.
     /// 
     /// - Parameters:

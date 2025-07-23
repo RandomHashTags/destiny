@@ -5,7 +5,7 @@ import SwiftSyntax
 
 // MARK: Charset
 /// HTTP charset encodings.
-public enum Charset: String, CustomDebugStringConvertible, Sendable {
+public enum Charset: String, Sendable {
     case any
     case basicMultilingualPlane
     case bocu1
@@ -18,12 +18,6 @@ public enum Charset: String, CustomDebugStringConvertible, Sendable {
     case utf16be
     case utf16le
     case utf32
-
-    // MARK: Debug description
-    @inlinable
-    public var debugDescription: String {
-        "Charset.\(rawValue)"
-    }
 
     // MARK: Raw name
     @inlinable

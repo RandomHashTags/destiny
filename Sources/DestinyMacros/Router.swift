@@ -248,7 +248,7 @@ extension Router {
         mutating func routeGroupsString(context: some MacroExpansionContext) -> String {
             var string = ""
             if !routeGroups.isEmpty {
-                string += "\n" + routeGroups.map({ $0.debugDescription }).joined(separator: ",\n") + "\n"
+                string += "\n" + routeGroups.map({ "\($0)" }).joined(separator: ",\n") + "\n"
             }
             return string
         }

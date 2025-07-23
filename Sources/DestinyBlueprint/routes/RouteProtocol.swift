@@ -1,6 +1,6 @@
 
 /// Core Route protocol.
-public protocol RouteProtocol: CustomDebugStringConvertible, Sendable {
+public protocol RouteProtocol: Sendable {
     /// `HTTPVersion` associated with this route.
     var version: HTTPVersion { get }
     

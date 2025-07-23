@@ -7,7 +7,7 @@ import struct Foundation.Date
 
 import DestinyBlueprint
 
-public struct HTTPCookie: HTTPCookieProtocol {
+public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     public var name:CookieName
     public var value:CookieValue
 

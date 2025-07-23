@@ -15,10 +15,6 @@ extension ResponseBody {
             self.value = value
         }
 
-        public var debugDescription: Swift.String {
-            "ResponseBody.macroExpansionWithDateHeader(\"\(value)\")"
-        }
-
         public var responderDebugDescription: Swift.String {
             "RouteResponses.MacroExpansionWithDateHeader(\"\(value))"
         }

@@ -12,16 +12,11 @@ extension RouteResponses {
         }
         public init(_ response: HTTPResponseMessage) {
             value = (try? response.string(escapeLineBreak: true)) ?? ""
-            body = response.body?.debugDescription ?? ""
-        }
-
-        public var debugDescription: Swift.String {
-            """
-            RouteResponses.MacroExpansionWithDateHeader(
-                "\(value)",
-                body: \(body)")
-            )
-            """
+            if let b = response.body {
+                body = "\(b)"
+            } else {
+                body = ""
+            }
         }
 
         @inlinable

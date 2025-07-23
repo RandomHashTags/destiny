@@ -3,7 +3,7 @@ import Foundation
 
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 // TODO: support case sensitivity
-public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible, ExpressibleByStringLiteral, Hashable, Sendable {
+public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, Hashable, Sendable {
     case literal(String)
     case parameter(String)
     case catchall
@@ -15,14 +15,6 @@ public enum PathComponent: CustomDebugStringConvertible, CustomStringConvertible
             self = .parameter(value[value.index(after: value.startIndex)...].replacingOccurrences(of: ":", with: ""))
         } else {
             self = .literal(value.replacingOccurrences(of: ":", with: ""))
-        }
-    }
-
-    public var debugDescription: String {
-        switch self {
-        case .literal(let s): ".literal(\"\(s)\")"
-        case .parameter(let s): ".parameter(\"\(s)\")"
-        case .catchall: ".catchall"
         }
     }
 

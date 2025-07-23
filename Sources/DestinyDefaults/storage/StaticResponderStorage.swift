@@ -24,7 +24,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
     @usableFromInline var uint16Arrays:[DestinyRoutePathType:RouteResponses.UInt16Array]
 
     #if canImport(FoundationEssentials) || canImport(Foundation)
-    @usableFromInline var foundationData:[DestinyRoutePathType:Data]
+    //@usableFromInline var foundationData:[DestinyRoutePathType:Data] // TODO: support
     #endif
 
     public init(
@@ -47,23 +47,8 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         self.uint16Arrays = uint16Arrays
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
-        foundationData = [:]
+        //foundationData = [:]
         #endif
-    }
-
-    public var debugDescription: String { // TODO: support foundationData
-        """
-        StaticResponderStorage(
-            macroExpansions: \(macroExpansions.debugDescription),
-            macroExpansionsWithDateHeader: \(macroExpansionsWithDateHeader.debugDescription),
-            staticStrings: \(staticStrings.debugDescription),
-            staticStringsWithDateHeader: \(staticStringsWithDateHeader.debugDescription),
-            strings: \(strings.debugDescription),
-            stringsWithDateHeader: \(stringsWithDateHeader.debugDescription),
-            uint8Arrays: \(uint8Arrays.debugDescription),
-            uint16Arrays: \(uint16Arrays.debugDescription)
-        )
-        """
     }
 
     @inlinable
@@ -90,11 +75,11 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
             try await router.respondStatically(socket: socket, responder: r)
         } else {
             #if canImport(FoundationEssentials) || canImport(Foundation)
-            if let r = foundationData[startLine] {
+            /*if let r = foundationData[startLine] {
                 try await router.respondStatically(socket: socket, responder: r)
             } else {
                 return false
-            }
+            }*/
             #else
             return false
             #endif

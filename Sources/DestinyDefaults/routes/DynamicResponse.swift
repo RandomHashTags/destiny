@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public struct DynamicResponse: DynamicResponseProtocol {
+public struct DynamicResponse: DynamicResponseProtocol, CustomDebugStringConvertible {
     public var timestamps:DynamicRequestTimestamps
     public var message:HTTPResponseMessage
     public var parameters:[String]
@@ -19,7 +19,7 @@ public struct DynamicResponse: DynamicResponseProtocol {
     public var debugDescription: String {
         """
         DynamicResponse(
-            message: \(message.debugDescription),
+            message: \(message),
             parameters: \(parameters)
         )
         """

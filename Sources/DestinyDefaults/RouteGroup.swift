@@ -83,28 +83,6 @@ public struct RouteGroup: RouteGroupProtocol {
         self.staticResponses = staticResponses
         self.dynamicResponses = dynamicResponses
     }
-
-    public var debugDescription: String {
-        var staticMiddlewareString = "[]"
-        if !staticMiddleware.isEmpty {
-            staticMiddlewareString.removeLast()
-            staticMiddlewareString += "\n" + staticMiddleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
-        }
-        var dynamicMiddlewareString = "[]"
-        if !dynamicMiddleware.isEmpty {
-            dynamicMiddlewareString.removeLast()
-            dynamicMiddlewareString += "\n" + dynamicMiddleware.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
-        }
-        return """
-        RouteGroup(
-            prefixEndpoints: \(prefixEndpoints),
-            staticMiddleware: \(staticMiddlewareString),
-            dynamicMiddleware: \(dynamicMiddlewareString),
-            staticResponses: \(staticResponses.debugDescription),
-            dynamicResponses: \(dynamicResponses.debugDescription)
-        )
-        """
-    }
 }
 
 // MARK: Respond

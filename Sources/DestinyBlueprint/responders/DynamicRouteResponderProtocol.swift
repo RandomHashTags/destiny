@@ -1,6 +1,6 @@
 
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
-public protocol DynamicRouteResponderProtocol: RouteResponderProtocol {
+public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, CustomDebugStringConvertible {
     /// Yields the path of the route.
     @inlinable
     func forEachPathComponent(_ yield: (PathComponent) -> Void)

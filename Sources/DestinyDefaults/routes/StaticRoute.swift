@@ -65,21 +65,6 @@ public struct StaticRoute: StaticRouteProtocol {
     public mutating func insertPath<C: Collection<String>>(contentsOf newElements: C, at i: Int) {
         path.insert(contentsOf: newElements, at: i)
     }
-
-    public var debugDescription: String {
-        """
-        StaticRoute(
-            version: .\(version),
-            method: \(method.debugDescription),
-            path: \(path),
-            isCaseSensitive: \(isCaseSensitive),
-            status: \(status),
-            contentType: \(contentType.debugDescription),
-            charset: \(charset?.debugDescription ?? "nil"),
-            body: \(body?.debugDescription ?? "nil")
-        )
-        """
-    }
 }
 
 #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)

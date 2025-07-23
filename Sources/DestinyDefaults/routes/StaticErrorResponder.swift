@@ -10,9 +10,6 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
         self.logic = logic
     }
 
-    /// - Warning: Do not call.
-    public var debugDescription: String { "" }
-
     @inlinable
     public func respond<Socket: HTTPSocketProtocol & ~Copyable, E: Error>(
         socket: borrowing Socket,

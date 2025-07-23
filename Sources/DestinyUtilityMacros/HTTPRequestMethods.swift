@@ -5,7 +5,7 @@ import SwiftSyntaxMacros
 
 enum HTTPRequestMethods: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
-        var entries:[Entry] = []
+        var entries = [Entry]()
         for argument in node.arguments {
             guard let array = argument.expression.array else { break }
             for element in array.elements {
@@ -20,7 +20,7 @@ enum HTTPRequestMethods: DeclarationMacro {
                         default: break
                         }
                     }
-                    entries.append(Entry(memberName: memberName, method: method, value: get(method: method)))
+                    entries.append(getEntry(memberName: memberName, method: method))
                 }
             }
         }
@@ -32,7 +32,7 @@ enum HTTPRequestMethods: DeclarationMacro {
         string += "        guard let string = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else { return nil }\n"
         string += "        switch string {\n"
         for entry in entries {
-            var cases:[String] = [
+            var cases = [
                 entry.memberName,
                 entry.memberName.uppercased()
             ]
@@ -49,8 +49,17 @@ enum HTTPRequestMethods: DeclarationMacro {
         string += "        }\n    }"
         return ["\(raw: string)"]
     }
-    static func get(method: String) -> String {
-        return "HTTPRequestMethod.Storage([\(method.compactMap({ guard let v = $0.asciiValue else { return nil }; return String(v) }).joined(separator: ", "))])"
+
+    static func getEntry(
+        memberName: String,
+        method: String
+    ) -> HTTPRequestMethods.Entry {
+        let valueArray:[String] = method.compactMap({
+            guard let v = $0.asciiValue else { return nil }
+            return String(v)
+        })
+        let value = "HTTPRequestMethod.Storage([\(valueArray.joined(separator: ", "))])"
+        return Entry(memberName: memberName, method: method, count: valueArray.count, value: value)
     }
 }
 
@@ -58,6 +67,7 @@ extension HTTPRequestMethods {
     struct Entry {
         let memberName:String
         let method:String
+        let count:Int
         let value:String
     }
 }

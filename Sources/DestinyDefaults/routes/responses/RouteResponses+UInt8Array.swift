@@ -9,10 +9,6 @@ extension RouteResponses {
             self.value = value
         }
 
-        public var debugDescription: Swift.String {
-            "RouteResponses.UInt8Array(\(value))"
-        }
-
         @inlinable
         public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.withUnsafeBufferPointer {

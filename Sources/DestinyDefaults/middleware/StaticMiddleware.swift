@@ -72,41 +72,6 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
             && handlesContentType(contentType)
             && handlesStatus(status)
     }
-
-    public var debugDescription: String {
-        var values = [String]()
-        if let handlesVersions {
-            values.append("handlesVersions: [" + handlesVersions.map({ ".\($0)" }).joined(separator: ",") + "]")
-        }
-        if let handlesMethods {
-            values.append("handlesMethods: [" + handlesMethods.map({ $0.debugDescription }).joined(separator: ",") + "]")
-        }
-        if let handlesStatuses {
-            values.append("handlesStatuses: \(handlesStatuses)")
-        }
-        if let handlesContentTypes {
-            values.append("handlesContentTypes: [" + handlesContentTypes.map({ $0.debugDescription }).joined(separator: ",") + "]")
-        }
-        if let appliesVersion {
-            values.append("appliesVersion: .\(appliesVersion)")
-        }
-        if let appliesStatus {
-            values.append("appliesStatus: \(appliesStatus)")
-        }
-        if let appliesContentType {
-            values.append("appliesStatus: \(appliesContentType.debugDescription)")
-        }
-        if !appliesHeaders.isEmpty {
-            values.append("appliesHeaders: \(appliesHeaders)")
-        }
-        if !appliesCookies.isEmpty {
-            values.append("appliesCookies: [" + appliesCookies.map({ $0.debugDescription }).joined(separator: ",") + "]")
-        }
-        if !excludedRoutes.isEmpty {
-            values.append("excludedRoutes: [" + excludedRoutes.map({ "\"" + $0 + "\"" }).joined(separator: ",") + "]")
-        }
-        return "StaticMiddleware(" + values.joined(separator: ",") + ")"
-    }
 }
 
 extension StaticMiddleware {

@@ -9,17 +9,6 @@ public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticR
         self.routes = routes
     }
 
-    public var debugDescription: String {
-        var s = "CompiledStaticResponderStorage(\n("
-        for route in repeat each routes {
-            s += "\n" + route.debugDescription + ","
-        }
-        if s.utf8.span.count != 33 { // was modified
-            s.removeLast()
-        }
-        return s + "\n)\n)"
-    }
-
     @inlinable
     public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
         router: borrowing HTTPRouter,
@@ -36,7 +25,7 @@ public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticR
     }
 }
 
-public protocol CompiledStaticResponderStorageRouteProtocol: CustomDebugStringConvertible, Sendable {
+public protocol CompiledStaticResponderStorageRouteProtocol: Sendable {
     associatedtype ConcreteResponder:StaticRouteResponderProtocol
 
     var path: DestinyRoutePathType { get }
@@ -49,14 +38,5 @@ public struct CompiledStaticResponderStorageRoute<ConcreteResponder: StaticRoute
     public init(path: DestinyRoutePathType, responder: ConcreteResponder) {
         self.path = path
         self.responder = responder
-    }
-
-    public var debugDescription: String {
-        """
-        CompiledStaticResponderStorageRoute<\(ConcreteResponder.self)>(
-            path: \(path.debugDescription),
-            responder: \(responder.debugDescription)
-        )
-        """
     }
 }

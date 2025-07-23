@@ -48,7 +48,7 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
         }
 
         let allowedHeaders = allowedHeaders.map({ $0.rawNameString }).joined(separator: ",")
-        let allowedMethods = allowedMethods.map({ $0.debugDescription }).joined(separator: ",")
+        let allowedMethods = allowedMethods.map({ "\($0)" }).joined(separator: ",")
         logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowHeadersRawName, value: \"" + allowedHeaders + "\")"
         logicDD += "\n$1.setHeader(key: HTTPResponseHeader.accessControlAllowMethodsRawName, value: \"" + allowedMethods + "\")"
         if allowCredentials {

@@ -26,7 +26,7 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
         """
         DynamicRouteResponder(
             path: \(path),
-            defaultResponse: \(defaultResponse.debugDescription),
+            defaultResponse: \(defaultResponse),
             logic: \(logicDebugDescription)
         )
         """

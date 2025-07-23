@@ -9,14 +9,6 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
         self.routes = routes
     }
 
-    public var debugDescription: String {
-        var s = "CompiledDynamicResponderStorage(\n("
-        for route in repeat each routes {
-            s += "\n" + route.debugDescription + ","
-        }
-        return s + "\n)\n)"
-    }
-
     @inlinable
     public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
         router: borrowing HTTPRouter,
@@ -55,7 +47,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
     }
 }
 
-public protocol CompiledDynamicResponderStorageRouteProtocol: CustomDebugStringConvertible, Sendable {
+public protocol CompiledDynamicResponderStorageRouteProtocol: Sendable {
     associatedtype ConcreteResponder:DynamicRouteResponderProtocol
 
     var path: DestinyRoutePathType { get }
@@ -68,14 +60,5 @@ public struct CompiledDynamicResponderStorageRoute<ConcreteResponder: DynamicRou
     public init(path: DestinyRoutePathType, responder: ConcreteResponder) {
         self.path = path
         self.responder = responder
-    }
-
-    public var debugDescription: String {
-        """
-        CompiledDynamicResponderStorageRoute<\(ConcreteResponder.self)>(
-            path: \(path.debugDescription),
-            responder: \(responder.debugDescription)
-        )
-        """
     }
 }

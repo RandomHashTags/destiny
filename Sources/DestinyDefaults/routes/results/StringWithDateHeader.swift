@@ -16,12 +16,8 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
         self.value = value
     }
 
-    public var debugDescription: Swift.String {
-        "StringWithDateHeader(\"\(value)\")"
-    }
-
     public var responderDebugDescription: Swift.String {
-        debugDescription
+        "StringWithDateHeader(\"\(value)\")"
     }
 
     public func responderDebugDescription(_ input: Swift.String) -> Swift.String {

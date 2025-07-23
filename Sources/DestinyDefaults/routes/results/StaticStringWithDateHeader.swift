@@ -16,10 +16,6 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
         self.value = value
     }
 
-    public var debugDescription: Swift.String {
-        "StaticStringWithDateHeader(\"\(value)\")"
-    }
-
     public var responderDebugDescription: Swift.String {
         "StaticStringWithDateHeader(\"\(value)\")"
     }

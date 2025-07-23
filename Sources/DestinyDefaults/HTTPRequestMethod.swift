@@ -8,7 +8,7 @@ import SwiftSyntax
 // TODO: move to own repo?
 /// HTTP request methods.
 public struct HTTPRequestMethod {
-    public struct Storage<let count: Int>: HTTPRequestMethodProtocol {
+    public struct Storage<let count: Int>: HTTPRequestMethodProtocol, CustomDebugStringConvertible {
         public static func == (lhs: Self, rhs: Self) -> Bool {
             return lhs.array == rhs.array
         }

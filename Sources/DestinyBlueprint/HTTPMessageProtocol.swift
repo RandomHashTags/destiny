@@ -1,5 +1,5 @@
 
-public protocol HTTPMessageProtocol: CustomDebugStringConvertible, Sendable {
+public protocol HTTPMessageProtocol: Sendable {
 
     @inlinable
     var version: HTTPVersion { get set }

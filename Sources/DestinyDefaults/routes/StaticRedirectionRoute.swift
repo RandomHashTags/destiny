@@ -28,19 +28,6 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
         self.to = to.map({ $0.description })
     }
 
-    public var debugDescription: String {
-        """
-        StaticRedirectionRoute(
-            version: .\(version),
-            method: \(method.debugDescription),
-            status: \(status),
-            from: \(from),
-            isCaseSensitive: \(isCaseSensitive),
-            to: \(to)
-        )
-        """
-    }
-
     public func response() throws -> String {
         let headers:OrderedDictionary<String, String> = [
             "Date": HTTPDateFormat.placeholder,

@@ -2,6 +2,7 @@
 // MARK: SIMD2
 extension SIMD2 where Scalar: BinaryInteger {
     /// - Complexity: O(1)
+    @inlinable
     public func split(separator: Scalar) -> Self {
         if x == separator {
             return y != separator ? Self(x: y, y: 0) : self
@@ -19,12 +20,12 @@ extension SIMD4 where Scalar: BinaryInteger {
     public func split(separator: Scalar) -> [Self] {
         // return self if it doesn't require splitting
         guard (self .!= .init(repeating: separator)) != .init(repeating: true) else { return [self] }
-        var array:[Self] = []
+        var array = [Self]()
         array.reserveCapacity(2)
         array.append(.init())
-        let separator_simd:SIMD2<Scalar> = .init(repeating: separator)
-        let all_nonseparator:SIMDMask<SIMD2<Scalar>.MaskStorage> = .init(repeating: true)
-        var did_split:Bool = false
+        let separator_simd = SIMD2<Scalar>(repeating: separator)
+        let all_nonseparator = SIMDMask<SIMD2<Scalar>.MaskStorage>(repeating: true)
+        var did_split = false
         if (lowHalf .!= separator_simd) != all_nonseparator { // whether lowHalf contains separator
             array[0].lowHalf = lowHalf.split(separator: separator)
             did_split = true
@@ -32,7 +33,7 @@ extension SIMD4 where Scalar: BinaryInteger {
             array[0].lowHalf = lowHalf
         }
         if (highHalf .!= separator_simd) != all_nonseparator { // whether highHalf contains separator
-            let value:SIMD2<Scalar> = highHalf.split(separator: separator)
+            let value = highHalf.split(separator: separator)
             if did_split {
                 array.append(.init(lowHalf: value, highHalf: .init()))
             } else if highHalf[1] == separator {

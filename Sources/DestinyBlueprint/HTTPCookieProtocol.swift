@@ -4,7 +4,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 #endif
 
-public protocol HTTPCookieProtocol: CustomDebugStringConvertible, CustomStringConvertible, Sendable {
+public protocol HTTPCookieProtocol: CustomStringConvertible, Sendable {
     associatedtype CookieName = String
     associatedtype CookieValue = String
 

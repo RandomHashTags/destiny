@@ -50,22 +50,8 @@ public struct DynamicRoute: DynamicRouteProtocol {
         """
         DynamicRouteResponder(
             path: \(path),
-            defaultResponse: \(defaultResponse.debugDescription),
+            defaultResponse: \(defaultResponse),
             logic: \(handlerDebugDescription)
-        )
-        """
-    }
-
-    public var debugDescription: String {
-        """
-        DynamicRoute(
-            version: .\(version),
-            method: \(method.debugDescription),
-            path: [\(path.map({ $0.debugDescription }).joined(separator: ","))],
-            isCaseSensitive: \(isCaseSensitive),
-            status: \(status),
-            contentType: \(contentType != nil ? contentType!.debugDescription : "nil"),
-            handler: \(handlerDebugDescription)
         )
         """
     }

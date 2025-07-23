@@ -3,7 +3,7 @@ import DestinyBlueprint
 import OrderedCollections
 
 /// Default storage for an HTTP Message.
-public struct HTTPResponseMessage: HTTPMessageProtocol {
+public struct HTTPResponseMessage: HTTPMessageProtocol, CustomDebugStringConvertible {
     public var headers:OrderedDictionary<String, String>
     public var cookies:[any HTTPCookieProtocol]
     public var body:(any ResponseBodyProtocol)?
@@ -29,6 +29,23 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         self.contentType = contentType
         self.charset = charset
     }
+    public init(
+        headers: OrderedDictionary<String, String>,
+        cookies: [any HTTPCookieProtocol],
+        body: (any ResponseBodyProtocol)?,
+        contentType: HTTPMediaType?,
+        status: HTTPResponseStatus.Code,
+        version: HTTPVersion,
+        charset: Charset?
+    ) {
+        self.version = version
+        self.status = status
+        self.headers = headers
+        self.cookies = cookies
+        self.body = body
+        self.contentType = contentType
+        self.charset = charset
+    }
 
     public var debugDescription: String {
         """
@@ -37,12 +54,13 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
             status: \(status),
             headers: \(headers),
             cookies: \(cookies),
-            body: \(body?.debugDescription ?? "nil"),
-            contentType: \(contentType?.debugDescription ?? "nil"),
-            charset: \(charset?.debugDescription ?? "nil")
+            body: \(body != nil ? "\(body!)" : "nil"),
+            contentType: \(contentType != nil ? "\(contentType!)" : "nil"),
+            charset: \(charset != nil ? "\(charset!)" :  "nil")
         )
         """
     }
+
 
     @inlinable
     public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {

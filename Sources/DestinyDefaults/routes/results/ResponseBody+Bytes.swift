@@ -14,10 +14,6 @@ extension ResponseBody {
             self.value = value
         }
 
-        public var debugDescription: Swift.String {
-            "ResponseBody.bytes(\(value))"
-        }
-
         public var responderDebugDescription: Swift.String {
             "RouteResponses.UInt8Array(\(value))"
         }
