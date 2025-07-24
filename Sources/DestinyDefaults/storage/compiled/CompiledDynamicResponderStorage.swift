@@ -17,30 +17,36 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
         socket: borrowing Socket,
         request: inout Socket.ConcreteRequest
     ) async throws -> Bool {
-        // TODO: fix ("/dynamic" catches "/dynamic/:text")
+        let requestPathCount = request.pathCount
         for route in repeat each routes {
             if route.path == request.startLine { // parameterless
-                //print("\(#function);route.path == request.startLine;route.path=\(route.path.stringSIMD());request.startLine=\(request.startLine.stringSIMD())")
                 try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: route.responder)
                 return true
             } else { // parameterized and catchall
+                let pathComponentsCount = route.responder.pathComponentsCount
                 var found = true
-                loop: for i in 0..<route.responder.pathComponentsCount {
+                var lastIsCatchall = false
+                var lastIsParameter = false
+                loop: for i in 0..<pathComponentsCount {
                     let path = route.responder.pathComponent(at: i)
                     switch path {
                     case .catchall:
+                        lastIsCatchall = true
+                        lastIsParameter = false
                         break loop
                     case .literal(let l):
-                        if l != request.path(at: i) {
+                        lastIsCatchall = false
+                        lastIsParameter = false
+                        if requestPathCount <= i || l != request.path(at: i) {
                             found = false
                             break loop
                         }
                     case .parameter:
-                        break
+                        lastIsCatchall = false
+                        lastIsParameter = true
                     }
                 }
-                if found {
-                    //print("\(#function);found;route.path == request.startLine;route.path=\(route.path.stringSIMD());request.startLine=\(request.startLine.stringSIMD())")
+                if found && (lastIsCatchall || lastIsParameter && requestPathCount == pathComponentsCount) {
                     try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: route.responder)
                     return true
                 }
