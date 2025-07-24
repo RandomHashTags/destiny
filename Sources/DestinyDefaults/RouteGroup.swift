@@ -117,13 +117,13 @@ extension RouteGroup {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         staticMiddleware: [any StaticMiddlewareProtocol],
-        dynamicMiddleware: [any DynamicMiddlewareProtocol],
+        dynamicMiddleware: [FunctionCallExprSyntax],
         _ function: FunctionCallExprSyntax
     ) -> Self {
         var endpoint = ""
         var conditionalResponders:[DestinyRoutePathType:any ConditionalRouteResponderProtocol] = [:]
         var staticMiddleware = staticMiddleware
-        var dynamicMiddleware = dynamicMiddleware
+        var dynamicMiddleware = dynamicMiddleware.compactMap({ DynamicMiddleware.parse(context: context, $0) })
         var staticRoutes:[any StaticRouteProtocol] = []
         var dynamicRoutes:[any DynamicRouteProtocol] = []
         for argument in function.arguments {

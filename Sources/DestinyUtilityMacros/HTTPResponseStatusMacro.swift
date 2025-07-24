@@ -26,9 +26,8 @@ enum HTTPResponseStatusMacro: ExpressionMacro {
 
     static func get(code: Int, phrase: String) -> String {
         let phraseCount = phrase.count
-        let codePhraseValues = "\(code) \(phrase)".compactMap { $0.asciiValue }
         let phrase = phrase.compactMap { $0.asciiValue }.description
-        return "HTTPResponseStatus.Storage<\(phraseCount), \(codePhraseValues.count)>(code: \(code), phrase: \(phrase), codePhrase: \(codePhraseValues))"
+        return "HTTPResponseStatus.Storage<\(phraseCount)>(code: \(code), phrase: \(phrase))"
     }
 }
 

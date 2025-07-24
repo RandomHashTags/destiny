@@ -101,13 +101,15 @@ extension Router {
                     for element in elements {
                         //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
                         if let function = element.expression.functionCall {
-                            switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                            case "DynamicMiddleware":     storage.dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
-                            case "DynamicCORSMiddleware": storage.dynamicMiddleware.append(DynamicCORSMiddleware.parse(context: context, function))
-                            case "DynamicDateMiddleware": storage.dynamicMiddleware.append(DynamicDateMiddleware.parse(context: context, function))
+                            let baseName = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
+                            switch baseName {
                             case "StaticMiddleware":      storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
                             default:
-                                context.diagnose(DiagnosticMsg.unhandled(node: function.calledExpression))
+                                if let baseName, baseName.contains("Dynamic") && baseName.contains("Middleware") {
+                                    storage.dynamicMiddleware.append(function)
+                                } else {
+                                    context.diagnose(DiagnosticMsg.unhandled(node: function.calledExpression))
+                                }
                             }
                         } else if let _ = element.expression.macroExpansion {
                             // TODO: support custom middleware
@@ -123,7 +125,14 @@ extension Router {
                         if let function = element.expression.functionCall {
                             switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                             case "RouteGroup":
-                                storage.routeGroups.append(RouteGroup.parse(context: context, version: version, staticMiddleware: storage.staticMiddleware, dynamicMiddleware: storage.dynamicMiddleware, function))
+                                storage.routeGroups.append(RouteGroup.parse(
+                                    context: context,
+                                    version: version,
+                                    staticMiddleware: storage.staticMiddleware,
+                                    dynamicMiddleware: storage.dynamicMiddleware,
+                                    function
+                                ))
+                                break
                             default:
                                 context.diagnose(DiagnosticMsg.unhandled(node: function))
                             }
@@ -232,7 +241,7 @@ extension Router {
 // MARK: Storage
 extension Router {
     struct Storage {
-        var dynamicMiddleware:[any DynamicMiddlewareProtocol] = []
+        var dynamicMiddleware:[FunctionCallExprSyntax] = []
         var dynamicRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
 
@@ -240,12 +249,13 @@ extension Router {
         var staticRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var staticRoutes:[(StaticRoute, FunctionCallExprSyntax)] = []
         
-        var routeGroups:[any RouteGroupProtocol] = []
+        var routeGroups:[any RouteGroupProtocol] = [] // TODO: refactor
 
         private var conditionalResponders:[RoutePath:any ConditionalRouteResponderProtocol] = [:]
         private var registeredPaths:Set<String> = []
 
         mutating func routeGroupsString(context: some MacroExpansionContext) -> String {
+            return "" // TODO: refactor
             var string = ""
             if !routeGroups.isEmpty {
                 string += "\n" + routeGroups.map({ "\($0)" }).joined(separator: ",\n") + "\n"

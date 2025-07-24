@@ -32,7 +32,7 @@ public protocol RouteGroupProtocol: Sendable {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         staticMiddleware: [any StaticMiddlewareProtocol],
-        dynamicMiddleware: [any DynamicMiddlewareProtocol],
+        dynamicMiddleware: [FunctionCallExprSyntax],
         _ function: FunctionCallExprSyntax
     ) -> Self
     #endif

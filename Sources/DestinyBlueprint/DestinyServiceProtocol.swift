@@ -16,6 +16,8 @@ import Logging
 // MARK: DestinyServiceProtocol
 public protocol DestinyServiceProtocol: Sendable {
     func run() async throws
+
+    /// Shuts down the service.
     func shutdown() async throws
 }
 

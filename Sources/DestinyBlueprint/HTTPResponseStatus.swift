@@ -12,28 +12,22 @@ public enum HTTPResponseStatus {
 // MARK: Storage
 extension HTTPResponseStatus {
     public protocol StorageProtocol: Hashable, Sendable {
-        associatedtype ConcreteCodePhrase:InlineArrayProtocol
-
         var code: HTTPResponseStatus.Code { get }
-        var codePhrase: ConcreteCodePhrase { get }
         var category: HTTPResponseStatus.Category { get }
     }
     /// Default storage for a HTTP Response Status.
-    public struct Storage<let phraseCount: Int, let codePhraseCount: Int>: StorageProtocol {
+    public struct Storage<let phraseCount: Int>: StorageProtocol {
         /// Status code of the HTTP Response Status.
         public let code:HTTPResponseStatus.Code
         /// Description/phrase of the HTTP Response Status.
         public let phrase:InlineArray<phraseCount, UInt8>
-        public let codePhrase:InlineArray<codePhraseCount, UInt8>
 
         public init(
             code: HTTPResponseStatus.Code,
-            phrase: InlineArray<phraseCount, UInt8>,
-            codePhrase: InlineArray<codePhraseCount, UInt8>
+            phrase: InlineArray<phraseCount, UInt8>
         ) {
             self.code = code
             self.phrase = phrase
-            self.codePhrase = codePhrase
         }
 
         /// Category that the status code falls under.

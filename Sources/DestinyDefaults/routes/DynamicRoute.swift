@@ -80,7 +80,12 @@ import SwiftSyntaxMacros
 
 // MARK: SwiftSyntax
 extension DynamicRoute {
-    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, middleware: [any StaticMiddlewareProtocol], _ function: FunctionCallExprSyntax) -> Self? {
+    public static func parse(
+        context: some MacroExpansionContext,
+        version: HTTPVersion,
+        middleware: [any StaticMiddlewareProtocol],
+        _ function: FunctionCallExprSyntax
+    ) -> Self? {
         var version = version
         var method:any HTTPRequestMethodProtocol = HTTPRequestMethod.get
         var path:[PathComponent] = []
@@ -114,8 +119,8 @@ extension DynamicRoute {
                 break
             }
         }
-        var headers:OrderedDictionary<String, String> = [:]
-        var cookies:[any HTTPCookieProtocol] = []
+        var headers = OrderedDictionary<String, String>()
+        var cookies = [any HTTPCookieProtocol]()
         if !isCaseSensitive {
             path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
