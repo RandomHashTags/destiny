@@ -3,7 +3,6 @@ public protocol ResponseBodyProtocol: Sendable {
     @inlinable
     var count: Int { get }
 
-    var responderDebugDescription: String { get }
     func responderDebugDescription(_ input: String) -> String
     func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String
 
@@ -17,32 +16,24 @@ public protocol ResponseBodyProtocol: Sendable {
     var hasDateHeader: Bool { get }
 
     @inlinable
-    var hasCustomInitializer: Bool { get }
-
-    @inlinable
-    func customInitializer(bodyString: String) -> String
+    func customInitializer(bodyString: String) -> String?
 }
 
 extension ResponseBodyProtocol {
-    @inlinable public var hasCustomInitializer: Bool { false }
-    @inlinable public func customInitializer(bodyString: String) -> String { "" }
+    @inlinable public func customInitializer(bodyString: String) -> String? { nil }
 }
 
 // MARK: Default conformances
 extension String: ResponseBodyProtocol {
-    public var debugDescription: Swift.String {
+    public var debugDescription: String {
         "\"\(self)\""
     }
 
-    public var responderDebugDescription: Swift.String {
-        debugDescription
+    public func responderDebugDescription(_ input: String) -> String {
+        input.debugDescription
     }
 
-    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-        input.responderDebugDescription
-    }
-
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 
@@ -52,7 +43,7 @@ extension String: ResponseBodyProtocol {
     }
     
     @inlinable
-    public func string() -> Swift.String {
+    public func string() -> String {
         self
     }
 
@@ -67,19 +58,15 @@ extension String: ResponseBodyProtocol {
 }
 
 extension StaticString: ResponseBodyProtocol {
-    public var debugDescription: Swift.String {
+    public var debugDescription: String {
         "\"\(self.description)\")"
     }
 
-    public var responderDebugDescription: Swift.String {
-        debugDescription
-    }
-
-    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
+    public func responderDebugDescription(_ input: String) -> String {
         fatalError("cannot do that") // TODO: fix?
     }
 
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 
@@ -89,7 +76,7 @@ extension StaticString: ResponseBodyProtocol {
     }
     
     @inlinable
-    public func string() -> Swift.String {
+    public func string() -> String {
         description
     }
 
@@ -112,24 +99,20 @@ import Foundation
 #endif
 
 extension Data: ResponseBodyProtocol {
-    public var debugDescription: Swift.String {
+    public var debugDescription: String {
         "Data(\(self))"
     }
 
-    public var responderDebugDescription: Swift.String {
-        debugDescription
+    public func responderDebugDescription(_ input: String) -> String {
+        Self(Data(input.utf8)).debugDescription
     }
 
-    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-        Self(Data(input.utf8)).responderDebugDescription
-    }
-
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String{
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String{
         try responderDebugDescription(input.string(escapeLineBreak: false))
     }
     
     @inlinable
-    public func string() -> Swift.String {
+    public func string() -> String {
         .init(decoding: self, as: UTF8.self)
     }
 

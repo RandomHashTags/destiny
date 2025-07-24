@@ -17,8 +17,10 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
         socket: borrowing Socket,
         request: inout Socket.ConcreteRequest
     ) async throws -> Bool {
+        // TODO: fix ("/dynamic" catches "/dynamic/:text")
         for route in repeat each routes {
             if route.path == request.startLine { // parameterless
+                //print("\(#function);route.path == request.startLine;route.path=\(route.path.stringSIMD());request.startLine=\(request.startLine.stringSIMD())")
                 try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: route.responder)
                 return true
             } else { // parameterized and catchall
@@ -38,6 +40,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
                     }
                 }
                 if found {
+                    //print("\(#function);found;route.path == request.startLine;route.path=\(route.path.stringSIMD());request.startLine=\(request.startLine.stringSIMD())")
                     try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: route.responder)
                     return true
                 }

@@ -1,6 +1,4 @@
 
-import Foundation
-
 /// Represents an individual path value for a route. Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
 // TODO: support case sensitivity
 public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, Hashable, Sendable {
@@ -12,9 +10,25 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
         if value == "**" {
             self = .catchall
         } else if value.first == ":" || value == "*" {
-            self = .parameter(value[value.index(after: value.startIndex)...].replacingOccurrences(of: ":", with: ""))
+            var correctedValue = String(value[value.index(after: value.startIndex)...])
+            Self.removeChar(char: value.first!, &correctedValue)
+            self = .parameter(correctedValue)
         } else {
-            self = .literal(value.replacingOccurrences(of: ":", with: ""))
+            var correctedValue = value
+            Self.removeChar(char: ":", &correctedValue)
+            self = .literal(correctedValue)
+        }
+    }
+
+    static func removeChar(char: Character, _ string: inout String) {
+        let startIndex = string.startIndex
+        guard string.endIndex != startIndex else { return }
+        var i = string.index(before: string.endIndex)
+        while i > startIndex {
+            if string[i] == char {
+                string.remove(at: i)
+            }
+            string.formIndex(before: &i)
         }
     }
 

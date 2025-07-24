@@ -13,21 +13,4 @@ public final class DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol, Dyna
     public func handle(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
         return true
     }
-
-    public var debugDescription: String {
-        "DynamicRateLimitMiddleware()" // TODO: finish
-    }
 }
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-
-import SwiftSyntax
-import SwiftSyntaxMacros
-
-// MARK: SwiftSyntax
-extension DynamicRateLimitMiddleware {
-    public static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self {
-        return Self()
-    }
-}
-#endif

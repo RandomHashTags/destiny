@@ -14,7 +14,7 @@ public enum ResponseBody {
 import SwiftSyntax
 
 extension ResponseBody {
-    private static func parseString(_ expr: ExprSyntax) -> Swift.String {
+    private static func parseString(_ expr: ExprSyntax) -> String {
         if let s = expr.stringLiteral?.string {
             return s
         } else {

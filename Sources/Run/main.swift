@@ -186,8 +186,7 @@ import Logging
         path: ["dynamic"],
         contentType: HTTPMediaType.textPlain,
         handler: { request, response in
-            response.setBody("bro")
-            //response.body = .string("Host=" + (request.headers["Host"] ?? "nil"))
+            response.setBody("Host=" + (request.header(forKey: "Host") ?? "nil"))
         }
     ),
     DynamicRoute.get(

@@ -15,15 +15,15 @@ extension ResponseBody {
             self.value = value
         }
 
-        public var responderDebugDescription: Swift.String {
+        public var responderDebugDescription: String {
             "RouteResponses.MacroExpansion(\"\(value))"
         }
 
-        public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-            MacroExpansion<Swift.String>(input).responderDebugDescription
+        public func responderDebugDescription(_ input: String) -> String {
+            MacroExpansion<String>(input).responderDebugDescription
         }
 
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
             try responderDebugDescription(input.string(escapeLineBreak: true))
         }
 
@@ -33,7 +33,7 @@ extension ResponseBody {
         }
         
         @inlinable
-        public func string() -> Swift.String {
+        public func string() -> String {
             value.string()
         }
 
@@ -47,10 +47,8 @@ extension ResponseBody {
 
         @inlinable public var hasDateHeader: Bool { false }
 
-        @inlinable public var hasCustomInitializer: Bool { true }
-
         @inlinable
-        public func customInitializer(bodyString: Swift.String) -> Swift.String {
+        public func customInitializer(bodyString: String) -> String? {
             "\", body: " + bodyString
         }
     }

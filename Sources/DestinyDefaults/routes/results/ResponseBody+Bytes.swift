@@ -6,7 +6,7 @@ extension ResponseBody {
     public static func bytes(_ value: [UInt8]) -> Self.Bytes {
         Self.Bytes(value)
     }
-    public struct Bytes: ResponseBodyProtocol {
+    public struct Bytes: ResponseBodyProtocol, CustomStringConvertible {
         public let value:[UInt8]
 
         @inlinable
@@ -14,15 +14,19 @@ extension ResponseBody {
             self.value = value
         }
 
+        public var description: String {
+            "ResponseBody.Bytes(\(value))"
+        }
+
         public var responderDebugDescription: Swift.String {
-            "RouteResponses.UInt8Array(\(value))"
+            description
         }
 
-        public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-            Self([UInt8](input.utf8)).responderDebugDescription
+        public func responderDebugDescription(_ input: String) -> String {
+            "\(Self([UInt8](input.utf8)))"
         }
 
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
             try responderDebugDescription(input.string(escapeLineBreak: false))
         }
 
@@ -32,7 +36,7 @@ extension ResponseBody {
         }
         
         @inlinable
-        public func string() -> Swift.String {
+        public func string() -> String {
             .init(decoding: value, as: UTF8.self)
         }
 
@@ -44,5 +48,14 @@ extension ResponseBody {
         }
 
         @inlinable public var hasDateHeader: Bool { false }
+    }
+}
+
+extension ResponseBody.Bytes: StaticRouteResponderProtocol {
+    @inlinable
+    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        try value.withUnsafeBufferPointer {
+            try socket.writeBuffer($0.baseAddress!, length: $0.count)
+        }
     }
 }

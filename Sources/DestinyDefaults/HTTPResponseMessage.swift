@@ -87,8 +87,8 @@ public struct HTTPResponseMessage: HTTPMessageProtocol, CustomDebugStringConvert
             }
             string.append(HTTPResponseHeader.contentLength.rawName)
             string += ": "
-            if body.hasCustomInitializer {
-                string += body.customInitializer(bodyString: bodyString)
+            if let customInitializer = body.customInitializer(bodyString: bodyString) {
+                string += customInitializer
             } else {
                 string += "\(contentLength)"
                 string += suffix + suffix

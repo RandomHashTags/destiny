@@ -15,15 +15,15 @@ extension ResponseBody {
             self.value = value
         }
 
-        public var responderDebugDescription: Swift.String {
+        public var responderDebugDescription: String {
             "RouteResponses.MacroExpansionWithDateHeader(\"\(value))"
         }
 
-        public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
-            MacroExpansionWithDateHeader<Swift.String>(input).responderDebugDescription
+        public func responderDebugDescription(_ input: String) -> String {
+            MacroExpansionWithDateHeader<String>(input).responderDebugDescription
         }
 
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
             try responderDebugDescription(input.string(escapeLineBreak: true))
         }
 
@@ -33,7 +33,7 @@ extension ResponseBody {
         }
         
         @inlinable
-        public func string() -> Swift.String {
+        public func string() -> String {
             value.string()
         }
 
@@ -43,10 +43,8 @@ extension ResponseBody {
 
         @inlinable public var hasDateHeader: Bool { true }
 
-        @inlinable public var hasCustomInitializer: Bool { true }
-
         @inlinable
-        public func customInitializer(bodyString: Swift.String) -> Swift.String {
+        public func customInitializer(bodyString: String) -> String? {
             "\", body: " + bodyString
         }
     }
@@ -58,7 +56,7 @@ extension ResponseBody.MacroExpansionWithDateHeader: StaticRouteResponderProtoco
     func temporaryBuffer(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
         try value.utf8.withContiguousStorageIfAvailable { valuePointer in
             try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
-                try Swift.String(body.count).utf8.withContiguousStorageIfAvailable { contentLengthPointer in
+                try String(body.count).utf8.withContiguousStorageIfAvailable { contentLengthPointer in
                     try body.utf8.withContiguousStorageIfAvailable { bodyPointer in
                         try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count + contentLengthPointer.count + 4 + bodyPointer.count, { buffer in
                             var i = 0

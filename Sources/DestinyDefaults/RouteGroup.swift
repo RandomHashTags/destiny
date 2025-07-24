@@ -16,8 +16,8 @@ public struct RouteGroup: RouteGroupProtocol {
         dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
         _ routes: any RouteProtocol...
     ) {
-        var staticRoutes:[any StaticRouteProtocol] = []
-        var dynamicRoutes:[any DynamicRouteProtocol] = []
+        var staticRoutes = [any StaticRouteProtocol]()
+        var dynamicRoutes = [any DynamicRouteProtocol]()
         for route in routes {
             if let route = route as? any StaticRouteProtocol {
                 staticRoutes.append(route)
@@ -50,7 +50,7 @@ public struct RouteGroup: RouteGroupProtocol {
             }
         }
 
-        let pathComponents:[PathComponent] = prefixEndpoints.map({ .literal($0) })
+        let pathComponents = prefixEndpoints.map({ PathComponent.literal($0) })
         var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol] = [:]
         var parameterized:[[any DynamicRouteResponderProtocol]] = []
         for var route in dynamicRoutes {
@@ -121,11 +121,11 @@ extension RouteGroup {
         _ function: FunctionCallExprSyntax
     ) -> Self {
         var endpoint = ""
-        var conditionalResponders:[DestinyRoutePathType:any ConditionalRouteResponderProtocol] = [:]
+        var conditionalResponders = [DestinyRoutePathType:any ConditionalRouteResponderProtocol]()
         var staticMiddleware = staticMiddleware
         var dynamicMiddleware = dynamicMiddleware.compactMap({ DynamicMiddleware.parse(context: context, $0) })
-        var staticRoutes:[any StaticRouteProtocol] = []
-        var dynamicRoutes:[any DynamicRouteProtocol] = []
+        var staticRoutes = [any StaticRouteProtocol]()
+        var dynamicRoutes = [any DynamicRouteProtocol]()
         for argument in function.arguments {
             if let label = argument.label?.text {
                 switch label {

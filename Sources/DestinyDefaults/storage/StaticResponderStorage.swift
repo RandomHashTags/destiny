@@ -20,7 +20,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
     @usableFromInline var staticStringsWithDateHeader:[DestinyRoutePathType:StaticStringWithDateHeader]
     @usableFromInline var strings:[DestinyRoutePathType:String]
     @usableFromInline var stringsWithDateHeader:[DestinyRoutePathType:StringWithDateHeader]
-    @usableFromInline var uint8Arrays:[DestinyRoutePathType:RouteResponses.UInt8Array]
+    @usableFromInline var uint8Arrays:[DestinyRoutePathType:ResponseBody.Bytes]
     @usableFromInline var uint16Arrays:[DestinyRoutePathType:RouteResponses.UInt16Array]
 
     #if canImport(FoundationEssentials) || canImport(Foundation)
@@ -34,7 +34,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         staticStringsWithDateHeader: [DestinyRoutePathType:StaticStringWithDateHeader] = [:],
         strings: [DestinyRoutePathType:String] = [:],
         stringsWithDateHeader: [DestinyRoutePathType:StringWithDateHeader] = [:],
-        uint8Arrays: [DestinyRoutePathType:RouteResponses.UInt8Array] = [:],
+        uint8Arrays: [DestinyRoutePathType:ResponseBody.Bytes] = [:],
         uint16Arrays: [DestinyRoutePathType:RouteResponses.UInt16Array] = [:]
     ) {
         self.macroExpansions = macroExpansions
@@ -104,7 +104,7 @@ extension StaticResponderStorage {
             register(path: path, responder)
         } else if let responder = responder as? StringWithDateHeader {
             register(path: path, responder)
-        } else if let responder = responder as? RouteResponses.UInt8Array {
+        } else if let responder = responder as? ResponseBody.Bytes {
             register(path: path, responder)
         } else if let responder = responder as? RouteResponses.UInt16Array {
             register(path: path, responder)
@@ -136,7 +136,7 @@ extension StaticResponderStorage {
         stringsWithDateHeader[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.UInt8Array) {
+    public mutating func register(path: DestinyRoutePathType, _ responder: ResponseBody.Bytes) {
         uint8Arrays[path] = responder
     }
     @inlinable

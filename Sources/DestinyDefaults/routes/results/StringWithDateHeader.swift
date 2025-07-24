@@ -3,28 +3,28 @@ import DestinyBlueprint
 
 extension ResponseBody {
     @inlinable
-    public static func stringWithDateHeader(_ value: Swift.String) -> StringWithDateHeader {
+    public static func stringWithDateHeader(_ value: String) -> StringWithDateHeader {
         StringWithDateHeader(value)
     }
 }
 
 public struct StringWithDateHeader: ResponseBodyProtocol {
-    public var value:Swift.String
+    public var value:String
 
     @inlinable
-    public init(_ value: Swift.String) {
+    public init(_ value: String) {
         self.value = value
     }
 
-    public var responderDebugDescription: Swift.String {
+    public var responderDebugDescription: String {
         "StringWithDateHeader(\"\(value)\")"
     }
 
-    public func responderDebugDescription(_ input: Swift.String) -> Swift.String {
+    public func responderDebugDescription(_ input: String) -> String {
         Self(input).responderDebugDescription
     }
 
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> Swift.String {
+    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 
@@ -34,7 +34,7 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
     }
     
     @inlinable
-    public func string() -> Swift.String {
+    public func string() -> String {
         value
     }
 

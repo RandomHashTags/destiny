@@ -35,6 +35,15 @@ extension StaticString: StaticRouteResponderProtocol {
     }
 }
 
+extension AsyncStream where Element: StaticRouteResponderProtocol {
+    @inlinable
+    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        for await value in self {
+            try await value.respond(to: socket)
+        }
+    }
+}
+
 #if canImport(FoundationEssentials) || canImport(Foundation)
 
 #if canImport(FoundationEssentials)
