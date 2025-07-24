@@ -21,7 +21,6 @@ import WinSDK
 #endif
 
 import Logging
-import ServiceLifecycle
 
 // MARK: HTTPDateFormat
 /// Default storage that optimally keeps track of the current date in the HTTP Format,
@@ -38,7 +37,7 @@ public struct HTTPDateFormat: Sendable {
     @inlinable
     public mutating func load(logger: Logger) async throws {
         // TODO: make it update at the beginning of the second
-        while !Task.isCancelled && !Task.isShuttingDownGracefully {
+        while !Task.isCancelled {
             //let clock:SuspendingClock = SuspendingClock()
             //var now:SuspendingClock.Instant = clock.now
             do {

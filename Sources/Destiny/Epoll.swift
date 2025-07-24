@@ -3,7 +3,6 @@
 import CEpoll
 import Glibc
 import Logging
-import ServiceLifecycle
 
 extension Server where ClientSocket: ~Copyable {
     @discardableResult
@@ -206,40 +205,37 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
         let cancelPipeFD = instance.pipeFileDescriptors[1]
         let logger = instance.logger
         let acceptClient = instance.acceptFunction(noTCPDelay: noTCPDelay)
-        await withTaskCancellationOrGracefulShutdownHandler(operation: {
-            while !Task.isCancelled && !Task.isShuttingDownGracefully {
-                do {
-                    let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
-                    let received = ContinuousClock.now
-                    var i = 0
-                    while i < loaded {
-                        let client = clients[i]
-                        do {
-                            try instance.remove(client: client)
-                        } catch {
-                            instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
-                        }
-                        Task.detached {
-                            do {
-                                try await router.process(
-                                    client: client,
-                                    received: received,
-                                    socket: ConcreteSocket.init(fileDescriptor: client),
-                                    logger: logger
-                                )
-                            } catch {
-                                logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
-                            }
-                        }
-                        i += 1
+        while !Task.isCancelled {
+            do {
+                let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
+                let received = ContinuousClock.now
+                var i = 0
+                while i < loaded {
+                    let client = clients[i]
+                    do {
+                        try instance.remove(client: client)
+                    } catch {
+                        logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
                     }
-                } catch {
-                    instance.logger.warning(Logger.Message(stringLiteral: "Encountered error while waiting for client: \(error)"))
+                    Task.detached {
+                        do {
+                            try await router.process(
+                                client: client,
+                                received: received,
+                                socket: ConcreteSocket.init(fileDescriptor: client),
+                                logger: logger
+                            )
+                        } catch {
+                            logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
+                        }
+                    }
+                    i += 1
                 }
+            } catch {
+                logger.warning(Logger.Message(stringLiteral: "Encountered error while waiting for client: \(error)"))
             }
-        }, onCancelOrGracefulShutdown: {
-            write(cancelPipeFD, "x", 1)
-        })
+        }
+        write(cancelPipeFD, "x", 1)
     }
 }
 

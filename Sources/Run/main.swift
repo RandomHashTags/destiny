@@ -259,7 +259,7 @@ let application = Application(
 Task.detached(priority: .userInitiated) {
     try await HTTPDateFormat.shared.load(logger: application.logger)
 }
-try await application.run()
+application.run()
 
 struct StaticJSONResponse: Encodable {
     let this_outcome_was_inevitable_and_was_your_destiny:Bool
@@ -312,7 +312,7 @@ func processCommand() async {
             break
         }
     }
-    guard !Task.isCancelled && !Task.isShuttingDownGracefully else { return }
+    guard !Task.isCancelled else { return }
     Task {
         await processCommand()
     }

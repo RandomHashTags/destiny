@@ -1,9 +1,8 @@
 
 import Logging
-import ServiceLifecycle
 
 /// Core Server protocol that accepts and processes incoming network requests.
-public protocol HTTPServerProtocol: Service {
+public protocol HTTPServerProtocol: DestinyServiceProtocol {
     /// Main logger for the server.
     var logger: Logger { get }
 }

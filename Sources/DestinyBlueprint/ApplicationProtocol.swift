@@ -1,8 +1,7 @@
 
 import Logging
-import ServiceLifecycle
 
-public protocol ApplicationProtocol: Service {
+public protocol ApplicationProtocol: DestinyServiceProtocol {
     
     /// The application's logger.
     var logger: Logger { get }

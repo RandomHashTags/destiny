@@ -2,7 +2,6 @@
 import DestinyBlueprint
 import Foundation
 import Logging
-import ServiceLifecycle
 
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.
@@ -59,22 +58,13 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
         //let serverFD3 = try bindAndListen()
         onLoad?()
         router.loadDynamicMiddleware()
-        await withTaskCancellationOrGracefulShutdownHandler {
-            await processClients(serverFD: serverFD1)
-            //processClients(serverFD: serverFD2)
-            //processClients(serverFD: serverFD3)
-            /*let duration:Duration = .seconds(5)
-            while !Task.isCancelled && !Task.isShuttingDownGracefully {
-                do {
-                    try await Task.sleep(for: duration)
-                } catch {
-                }
-            }*/
-        } onCancelOrGracefulShutdown: {
-            self.onShutdown?()
-            close(serverFD1)
-            //close(serverFD2)
-            //close(serverFD3)
+        await processClients(serverFD: serverFD1)
+    }
+
+    public func shutdown() async throws {
+        self.onShutdown?()
+        if let serverFD {
+            close(serverFD)
         }
     }
 
@@ -153,7 +143,7 @@ extension Server where ClientSocket: ~Copyable {
     @inlinable
     func processClientsOLD(serverFD: Int32) async {
         let acceptClient = acceptFunction(noTCPDelay: noTCPDelay)
-        while !Task.isCancelled && !Task.isShuttingDownGracefully {
+        while !Task.isCancelled {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0..<backlog {
                     group.addTask {

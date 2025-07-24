@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import Logging
-import ServiceLifecycle
 
 // MARK: DynamicDateMiddleware
 /// Adds the `Date` header to responses for dynamic routes.
