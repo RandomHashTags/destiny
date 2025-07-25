@@ -20,7 +20,7 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+        public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
             try value.utf8.withContiguousStorageIfAvailable { valuePointer in
                 try String(body.count).utf8.withContiguousStorageIfAvailable { contentLengthPointer in
                     try body.utf8.withContiguousStorageIfAvailable { bodyPointer in

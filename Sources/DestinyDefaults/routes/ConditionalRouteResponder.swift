@@ -47,7 +47,7 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
         var request:any HTTPRequestProtocol = request
         for (index, condition) in staticConditions.enumerated() {
             if condition(&request) {
-                try await staticResponders[index].respond(to: socket)
+                try await staticResponders[index].write(to: socket)
                 return true
             }
         }

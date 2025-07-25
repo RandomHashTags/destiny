@@ -15,13 +15,12 @@ import DestinyBlueprint
 public struct StaticResponderStorage: StaticResponderStorageProtocol {
 
     @usableFromInline var macroExpansions:[DestinyRoutePathType:RouteResponses.MacroExpansion]
-    @usableFromInline var macroExpansionsWithDateHeader:[DestinyRoutePathType:RouteResponses.MacroExpansionWithDateHeader]
+    @usableFromInline var macroExpansionsWithDateHeader:[DestinyRoutePathType:MacroExpansionWithDateHeader]
     @usableFromInline var staticStrings:[DestinyRoutePathType:StaticString]
     @usableFromInline var staticStringsWithDateHeader:[DestinyRoutePathType:StaticStringWithDateHeader]
     @usableFromInline var strings:[DestinyRoutePathType:String]
     @usableFromInline var stringsWithDateHeader:[DestinyRoutePathType:StringWithDateHeader]
     @usableFromInline var uint8Arrays:[DestinyRoutePathType:ResponseBody.Bytes]
-    @usableFromInline var uint16Arrays:[DestinyRoutePathType:RouteResponses.UInt16Array]
 
     #if canImport(FoundationEssentials) || canImport(Foundation)
     //@usableFromInline var foundationData:[DestinyRoutePathType:Data] // TODO: support
@@ -29,13 +28,12 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
 
     public init(
         macroExpansions: [DestinyRoutePathType:RouteResponses.MacroExpansion] = [:],
-        macroExpansionsWithDateHeader: [DestinyRoutePathType:RouteResponses.MacroExpansionWithDateHeader] = [:],
+        macroExpansionsWithDateHeader: [DestinyRoutePathType:MacroExpansionWithDateHeader] = [:],
         staticStrings: [DestinyRoutePathType:StaticString] = [:],
         staticStringsWithDateHeader: [DestinyRoutePathType:StaticStringWithDateHeader] = [:],
         strings: [DestinyRoutePathType:String] = [:],
         stringsWithDateHeader: [DestinyRoutePathType:StringWithDateHeader] = [:],
-        uint8Arrays: [DestinyRoutePathType:ResponseBody.Bytes] = [:],
-        uint16Arrays: [DestinyRoutePathType:RouteResponses.UInt16Array] = [:]
+        uint8Arrays: [DestinyRoutePathType:ResponseBody.Bytes] = [:]
     ) {
         self.macroExpansions = macroExpansions
         self.macroExpansionsWithDateHeader = macroExpansionsWithDateHeader
@@ -44,7 +42,6 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         self.strings = strings
         self.stringsWithDateHeader = stringsWithDateHeader
         self.uint8Arrays = uint8Arrays
-        self.uint16Arrays = uint16Arrays
 
         #if canImport(FoundationEssentials) || canImport(Foundation)
         //foundationData = [:]
@@ -71,8 +68,6 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
             try await router.respondStatically(socket: socket, responder: r)
         } else if let r = uint8Arrays[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
-        } else if let r = uint16Arrays[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
         } else {
             #if canImport(FoundationEssentials) || canImport(Foundation)
             /*if let r = foundationData[startLine] {
@@ -94,7 +89,7 @@ extension StaticResponderStorage {
     public mutating func register(path: DestinyRoutePathType, _ responder: any RouteResponderProtocol) {
         if let responder = responder as? RouteResponses.MacroExpansion {
             register(path: path, responder)
-        } else if let responder = responder as? RouteResponses.MacroExpansionWithDateHeader {
+        } else if let responder = responder as? MacroExpansionWithDateHeader {
             register(path: path, responder)
         } else if let responder = responder as? StaticString {
             register(path: path, responder)
@@ -106,8 +101,6 @@ extension StaticResponderStorage {
             register(path: path, responder)
         } else if let responder = responder as? ResponseBody.Bytes {
             register(path: path, responder)
-        } else if let responder = responder as? RouteResponses.UInt16Array {
-            register(path: path, responder)
         }
     }
 
@@ -116,7 +109,7 @@ extension StaticResponderStorage {
         macroExpansions[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.MacroExpansionWithDateHeader) {
+    public mutating func register(path: DestinyRoutePathType, _ responder: MacroExpansionWithDateHeader) {
         macroExpansionsWithDateHeader[path] = responder
     }
     @inlinable
@@ -138,9 +131,5 @@ extension StaticResponderStorage {
     @inlinable
     public mutating func register(path: DestinyRoutePathType, _ responder: ResponseBody.Bytes) {
         uint8Arrays[path] = responder
-    }
-    @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.UInt16Array) {
-        uint16Arrays[path] = responder
     }
 }

@@ -85,7 +85,7 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
 
 extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
         try temporaryBuffer { buffer in
             try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
         }

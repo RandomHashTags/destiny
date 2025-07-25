@@ -3,13 +3,10 @@ import DestinyBlueprint
 import OrderedCollections
 
 /// Default storage for an HTTP Message.
-public struct HTTPResponseMessage: HTTPMessageProtocol, CustomDebugStringConvertible {
-    public var headers:OrderedDictionary<String, String>
-    public var cookies:[any HTTPCookieProtocol]
+public struct HTTPResponseMessage: HTTPMessageProtocol {
+    public var head:HTTPResponseMessageHead
     public var body:(any ResponseBodyProtocol)?
     public var contentType:HTTPMediaType?
-    public var status:HTTPResponseStatus.Code
-    public var version:HTTPVersion
     public var charset:Charset?
 
     public init(
@@ -21,10 +18,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol, CustomDebugStringConvert
         contentType: HTTPMediaType?,
         charset: Charset?
     ) {
-        self.version = version
-        self.status = status
-        self.headers = headers
-        self.cookies = cookies
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
         self.body = body
         self.contentType = contentType
         self.charset = charset
@@ -38,61 +32,52 @@ public struct HTTPResponseMessage: HTTPMessageProtocol, CustomDebugStringConvert
         version: HTTPVersion,
         charset: Charset?
     ) {
-        self.version = version
-        self.status = status
-        self.headers = headers
-        self.cookies = cookies
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
+        self.body = body
+        self.contentType = contentType
+        self.charset = charset
+    }
+    public init(
+        head: HTTPResponseMessageHead,
+        body: (any ResponseBodyProtocol)?,
+        contentType: HTTPMediaType?,
+        charset: Charset?
+    ) {
+        self.head = head
         self.body = body
         self.contentType = contentType
         self.charset = charset
     }
 
-    public var debugDescription: String {
-        """
-        HTTPResponseMessage(
-            version: .\(version),
-            status: \(status),
-            headers: \(headers),
-            cookies: \(cookies),
-            body: \(body != nil ? "\(body!)" : "nil"),
-            contentType: \(contentType != nil ? "\(contentType!)" : "nil"),
-            charset: \(charset != nil ? "\(charset!)" :  "nil")
-        )
-        """
+    @inlinable
+    public var version: HTTPVersion {
+        get { head.version }
+        set { head.version = newValue }
     }
-
 
     @inlinable
     public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {
-        status = code
+        head.status = code
     }
 
     @inlinable
     public func string(escapeLineBreak: Bool) throws -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        var string = version.string + " \(status)" + suffix
-        for (header, value) in headers {
-            string += header + ": " + value + suffix
-        }
-        for cookie in cookies {
-            string += "Set-Cookie: \(cookie)" + suffix
-        }
+        var string = head.string(suffix: suffix)
         if let body {
-            var bodyString = try body.string()
+            var bodyString = body.string()
             let contentLength = bodyString.utf8.count
             bodyString.replace("\"", with: "\\\"")
             if let contentType {
-                string.append(HTTPResponseHeader.contentType.rawName)
-                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += "\(HTTPResponseHeader.contentType.rawName.string()): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
-            string.append(HTTPResponseHeader.contentLength.rawName)
-            string += ": "
+            if body.hasContentLength {
+                string += "\(HTTPResponseHeader.contentLength.rawName.string()): "
+            }
             if let customInitializer = body.customInitializer(bodyString: bodyString) {
                 string += customInitializer
             } else {
-                string += "\(contentLength)"
-                string += suffix + suffix
-                string += bodyString
+                string += "\(contentLength)\(suffix)\(suffix)\(bodyString)"
             }
         }
         return string
@@ -100,12 +85,12 @@ public struct HTTPResponseMessage: HTTPMessageProtocol, CustomDebugStringConvert
 
     @inlinable
     public mutating func setHeader(key: String, value: String) {
-        headers[key] = value
+        head.headers[key] = value
     }
 
     @inlinable
     public mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T) {
-        cookies.append(cookie)
+        head.cookies.append(cookie)
     }
 
     @inlinable
@@ -119,10 +104,10 @@ extension HTTPResponseMessage {
     @inlinable
     public func withUnsafeTemporaryAllocation(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
-        for (key, value) in headers {
+        for (key, value) in head.headers {
             capacity += 4 + key.count + value.count // Header: Value\r\n
         }
-        for cookie in cookies {
+        for cookie in head.cookies {
             // TODO: fix? Cookie interpolation crashes when ran in debug mode due to "bad pointer dereference" (doesn't crash in release mode)
             capacity += 14 + "\(cookie)".count // Set-Cookie: x\r\n
         }
@@ -137,10 +122,10 @@ extension HTTPResponseMessage {
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
             writeStartLine(to: p, index: &i)
-            for (var key, var value) in headers {
+            for (var key, var value) in head.headers {
                 writeHeader(to: p, index: &i, key: &key, value: &value)
             }
-            for cookie in cookies {
+            for cookie in head.cookies {
                 writeCookie(to: p, index: &i, cookie: cookie)
             }
             try writeResult(to: p, index: &i)
@@ -177,11 +162,11 @@ extension HTTPResponseMessage {
     }
     @inlinable
     func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
-        writeInlineArray(to: buffer, index: &i, array: version.inlineArray)
+        writeInlineArray(to: buffer, index: &i, array: head.version.inlineArray)
         buffer[i] = .space
         i += 1
 
-        var statusString = String(status)
+        var statusString = String(head.status)
         writeString(to: buffer, index: &i, string: &statusString)
         writeCRLF(to: buffer, index: &i)
     }
@@ -292,16 +277,13 @@ extension HTTPResponseMessage {
         contentType: HTTPMediaType?,
         charset: Charset?
     ) -> String {
-        var string = version.string + " \(status)" + suffix + headers
+        var string = "\(version.string) \(status)\(suffix)\(headers)"
         if let body {
             let contentLength = body.utf8.count
             if let contentType {
-                string.append(HTTPResponseHeader.contentType.rawName)
-                string += ": \(contentType)" + (charset != nil ? "; charset=" + charset!.rawName : "") + suffix
+                string += "\(HTTPResponseHeader.contentType.rawName.string()): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
-            string.append(HTTPResponseHeader.contentLength.rawName)
-            string += ": \(contentLength)"
-            string += suffix + suffix + body
+            string += "\(HTTPResponseHeader.contentLength.rawName.string()): \(contentLength)\(suffix)\(suffix)\(body)"
         }
         return string
     }
@@ -314,7 +296,7 @@ extension HTTPResponseMessage {
     ) -> String {
         var string = ""
         for (header, value) in headers {
-            string += header + ": " + value + suffix
+            string += "\(header): \(value)\(suffix)"
         }
         return string
     }
@@ -326,7 +308,7 @@ extension HTTPResponseMessage {
     ) -> String {
         var string = ""
         for (header, value) in headers {
-            string += header.rawValue + ": " + value + suffix
+            string += "\(header.rawValue): \(value)\(suffix)"
         }
         return string
     }

@@ -21,7 +21,7 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
         logger.warning(Logger.Message(stringLiteral: "\(error)"))
         #endif
         do {
-            try await logic(error).respond(to: socket)
+            try await logic(error).write(to: socket)
         } catch {
             // TODO: do something
         }

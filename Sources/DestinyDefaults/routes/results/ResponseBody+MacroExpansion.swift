@@ -8,7 +8,7 @@ extension ResponseBody {
     }
 
     public struct MacroExpansion<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol {
-        public let value:Value
+        public var value:Value
 
         @inlinable
         public init(_ value: Value) {
@@ -38,11 +38,8 @@ extension ResponseBody {
         }
 
         @inlinable
-        public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
-            var s = value.string()
-            s.withUTF8 { p in
-                buffer.copyBuffer(p, at: &index)
-            }
+        public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
+            try value.write(to: buffer, at: &index)
         }
 
         @inlinable public var hasDateHeader: Bool { false }

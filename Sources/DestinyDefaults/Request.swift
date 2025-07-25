@@ -116,7 +116,7 @@ extension Request {
         let bufferCount = buffer.count
         let carriageReturnSIMD = SIMD64<UInt8>(repeating: .carriageReturn)
         var startIndex = offset
-        var slice:SIMD64<UInt8> = .zero
+        var slice = SIMD64<UInt8>.zero
         var storage = Headers<128>()
         var i = offset
         while i < bufferCount {
@@ -155,7 +155,7 @@ extension Request {
         guard (simd .== carriageReturnSIMD) != .init(repeating: false) else { return }
         for i in 0..<simdCount {
             if simd[i] == .carriageReturn {
-                storage.append(HeaderIndex(startIndex: startIndex, endIndex: offset + i))
+                storage.append(.init(startIndex: startIndex, endIndex: offset + i))
                 startIndex = offset + i + 2
             }
         }
@@ -184,17 +184,13 @@ extension Request {
             count += 1
         }
     }
-    public struct HeaderIndex: CustomDebugStringConvertible, Sendable {
+    public struct HeaderIndex: Sendable {
         let startIndex:Int
         let endIndex:Int
 
         public init(startIndex: Int, endIndex: Int) {
             self.startIndex = startIndex
             self.endIndex = endIndex
-        }
-
-        public var debugDescription: String {
-            "HeaderIndex(startIndex: \(startIndex), endIndex: \(endIndex))"
         }
     }
 }

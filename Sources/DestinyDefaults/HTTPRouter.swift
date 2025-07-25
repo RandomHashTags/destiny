@@ -128,7 +128,7 @@ extension HTTPRouter {
                     var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: dynamicNotFoundResponder)
                     try await dynamicNotFoundResponder.respond(to: socket, request: &anyRequest, response: &response)
                 } else {
-                    try await staticNotFoundResponder.respond(to: socket)
+                    try await staticNotFoundResponder.write(to: socket)
                 }
             }
         } catch {
@@ -145,7 +145,7 @@ extension HTTPRouter {
         socket: borrowing Socket,
         responder: Responder
     ) async throws {
-        try await responder.respond(to: socket)
+        try await responder.write(to: socket)
     }
 
     @inlinable

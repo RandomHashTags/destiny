@@ -1,5 +1,5 @@
 
-public protocol ResponseBodyProtocol: Sendable {
+public protocol ResponseBodyProtocol: BufferWritable, ~Copyable {
     @inlinable
     var count: Int { get }
 
@@ -10,16 +10,17 @@ public protocol ResponseBodyProtocol: Sendable {
     func string() -> String
 
     @inlinable
-    mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws
+    var hasDateHeader: Bool { get }
 
     @inlinable
-    var hasDateHeader: Bool { get }
+    var hasContentLength: Bool { get }
 
     @inlinable
     func customInitializer(bodyString: String) -> String?
 }
 
 extension ResponseBodyProtocol {
+    @inlinable public var hasContentLength: Bool { true }
     @inlinable public func customInitializer(bodyString: String) -> String? { nil }
 }
 
@@ -48,13 +49,6 @@ extension String: ResponseBodyProtocol {
     }
 
     @inlinable public var hasDateHeader: Bool { false }
-
-    @inlinable
-    public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
-        self.withUTF8 { p in
-            buffer.copyBuffer(p, at: &index)
-        }
-    }
 }
 
 extension StaticString: ResponseBodyProtocol {
@@ -78,13 +72,6 @@ extension StaticString: ResponseBodyProtocol {
     @inlinable
     public func string() -> String {
         description
-    }
-
-    @inlinable
-    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
-        self.withUTF8Buffer { p in
-            buffer.copyBuffer(p, at: &index)
-        }
     }
 
     @inlinable public var hasDateHeader: Bool { false }

@@ -402,8 +402,7 @@ extension Router.Storage {
             string += value + ",\n"
         }
         if !routeResponders.isEmpty { // was modified
-            string.removeLast()
-            string.removeLast()
+            string.removeLast(2)
         }
         return string + "\n)\n)"
     }

@@ -1,45 +1,17 @@
 
 /// Core Static Route Responder protocol that handles requests to static routes.
-public protocol StaticRouteResponderProtocol: RouteResponderProtocol {
-    /// Writes a response to a socket.
-    @inlinable
-    func respond<Socket: HTTPSocketProtocol & ~Copyable>(
-        to socket: borrowing Socket
-    ) async throws
+public protocol StaticRouteResponderProtocol: RouteResponderProtocol, HTTPSocketWritable {
 }
 
 // MARK: Default conformances
-extension String: StaticRouteResponderProtocol {
-    @inlinable
-    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-        try utf8.withContiguousStorageIfAvailable {
-            try socket.writeBuffer($0.baseAddress!, length: $0.count)
-        }
-    }
-}
+extension String: StaticRouteResponderProtocol {}
+extension StaticString: StaticRouteResponderProtocol {}
 
-extension StaticString: StaticRouteResponderProtocol {
+extension AsyncStream where Element: HTTPSocketWritable {
     @inlinable
-    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
-        var err:(any Error)? = nil
-        withUTF8Buffer {
-            do {
-                try socket.writeBuffer($0.baseAddress!, length: $0.count)
-            } catch {
-                err = error
-            }
-        }
-        if let err {
-            throw err
-        }
-    }
-}
-
-extension AsyncStream where Element: StaticRouteResponderProtocol {
-    @inlinable
-    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
         for await value in self {
-            try await value.respond(to: socket)
+            try await value.write(to: socket)
         }
     }
 }
@@ -54,7 +26,7 @@ import struct Foundation.Data
 
 extension Data: StaticRouteResponderProtocol {
     @inlinable
-    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
         try withUnsafeBytes {
             try socket.writeBuffer($0.baseAddress!, length: count)
         }

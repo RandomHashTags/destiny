@@ -140,7 +140,7 @@ extension StaticRoute {
             case "charset":
                 charset = Charset(expr: argument.expression)
             case "body":
-                body = ResponseBody.parse(expr: argument.expression) ?? body
+                body = ResponseBody.parse(context: context, expr: argument.expression) ?? body
             default:
                 break
             }

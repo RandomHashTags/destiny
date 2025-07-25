@@ -8,13 +8,13 @@ import SwiftSyntaxMacros
 
 enum HTTPMessage: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
-        var version:HTTPVersion = .v1_1
+        var version = HTTPVersion.v1_1
         var status = HTTPResponseStatus.notImplemented.code
-        var headers:OrderedDictionary<String, String> = [:]
+        var headers = OrderedDictionary<String, String>()
         var body:(any ResponseBodyProtocol)? = nil
         var contentType:HTTPMediaType? = nil
         var charset:Charset? = nil
-        var cookies:[any HTTPCookieProtocol] = [] // TODO: fix
+        var cookies = [any HTTPCookieProtocol]() // TODO: fix
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
             if let key = child.label?.text {
                 switch key {
@@ -25,7 +25,7 @@ enum HTTPMessage: DeclarationMacro {
                 case "headers":
                     headers = HTTPRequestHeader.parse(context: context, child.expression)
                 case "body":
-                    body = ResponseBody.parse(expr: child.expression)
+                    body = ResponseBody.parse(context: context, expr: child.expression)
                 case "contentType":
                     contentType = HTTPMediaType.parse(context: context, expr: child.expression) ?? contentType
                 case "charset":

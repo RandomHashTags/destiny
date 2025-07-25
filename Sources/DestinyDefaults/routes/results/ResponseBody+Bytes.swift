@@ -53,7 +53,7 @@ extension ResponseBody {
 
 extension ResponseBody.Bytes: StaticRouteResponderProtocol {
     @inlinable
-    public func respond<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
         try value.withUnsafeBufferPointer {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
