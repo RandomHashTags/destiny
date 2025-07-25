@@ -95,7 +95,7 @@ import Logging
     StaticRoute.get(
         path: ["stream"],
         contentType: HTTPMediaType.textPlain,
-        body: ResponseBody.chunkedDataWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
+        body: ResponseBody.streamWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
     ),
     StaticRoute.get(
         path: ["expressionMacro"],

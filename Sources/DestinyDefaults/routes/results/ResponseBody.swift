@@ -42,8 +42,8 @@ extension ResponseBody {
                 })
             )
 #endif
-        case "chunkeddatawithdateheader":
-            return HTTPChunkedDataWithDateHeader(firstArg.expression.description)
+        case "streamwithdateheader":
+            return StreamWithDateHeader(firstArg.expression.description)
         case "macroexpansion":
             return ResponseBody.macroExpansion(firstArg.expression.description)
         case "macroexpansionwithdateheader":

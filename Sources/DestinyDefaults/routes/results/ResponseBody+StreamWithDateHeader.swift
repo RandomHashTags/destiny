@@ -3,11 +3,11 @@ import DestinyBlueprint
 
 extension ResponseBody {
     @inlinable
-    public static func chunkedDataWithDateHeader<Body: HTTPSocketWritable>(_ value: Body) -> HTTPChunkedDataWithDateHeader<Body> {
+    public static func streamWithDateHeader<Body: HTTPSocketWritable>(_ value: Body) -> StreamWithDateHeader<Body> {
         .init(value)
     }
 
-    public struct HTTPChunkedDataWithDateHeader<Body: HTTPSocketWritable>: ResponseBodyProtocol {
+    public struct StreamWithDateHeader<Body: HTTPSocketWritable>: ResponseBodyProtocol {
         public let value:Body
 
         public init(_ value: Body) {
@@ -15,11 +15,11 @@ extension ResponseBody {
         }
 
         public var responderDebugDescription: String {
-            "HTTPChunkedDataWithDateHeader(\"\(value))"
+            "StreamWithDateHeader(\"\(value))"
         }
 
         public func responderDebugDescription(_ input: String) -> String {
-            HTTPChunkedDataWithDateHeader<String>(input).responderDebugDescription
+            StreamWithDateHeader<String>(input).responderDebugDescription
         }
 
         public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {

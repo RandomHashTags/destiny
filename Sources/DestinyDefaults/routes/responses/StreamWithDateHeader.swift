@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public struct HTTPChunkedDataWithDateHeader<Body: HTTPSocketWritable>: StaticRouteResponderProtocol {
+public struct StreamWithDateHeader<Body: HTTPSocketWritable>: StaticRouteResponderProtocol {
     public let head:String
     public let body:Body
 
@@ -12,7 +12,7 @@ public struct HTTPChunkedDataWithDateHeader<Body: HTTPSocketWritable>: StaticRou
 }
 
 // MARK: Write
-extension HTTPChunkedDataWithDateHeader {
+extension StreamWithDateHeader {
     @inlinable
     public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
         try head.utf8.withContiguousStorageIfAvailable { headPointer in
@@ -78,9 +78,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
         _ stream: AsyncThrowingStream<T, Error>
     ) {
         self.chunkSize = chunkSize
-        self.stream = ReusableAsyncThrowingStream {
-            stream
-        }
+        self.stream = ReusableAsyncThrowingStream { stream }
     }
 
     @inlinable
@@ -88,10 +86,11 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
         buffer.initialize(repeating: 0)
+        var err:Error? = nil
         do {
-            for try await var v in stream {
+            for try await var chunk in stream {
                 var i = 0
-                var hex = String(v.chunkDataCount, radix: 16)
+                var hex = String(chunk.chunkDataCount, radix: 16)
                 hex.withUTF8 {
                     for byte in $0 {
                         buffer[i] = byte
@@ -102,23 +101,30 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
                 i += 1
                 buffer[i] = .lineFeed
                 i += 1
-                try v.write(to: buffer, at: &i)
+                try chunk.write(to: buffer, at: &i)
                 buffer[i] = .carriageReturn
                 i += 1
                 buffer[i] = .lineFeed
                 i += 1
                 try socket.writeBuffer(buffer.baseAddress!, length: i)
             }
-            buffer[0] = 48
-            buffer[1] = .carriageReturn
-            buffer[2] = .lineFeed
-            buffer[3] = .carriageReturn
-            buffer[4] = .lineFeed
-            try socket.writeBuffer(buffer.baseAddress!, length: 5)
-            buffer.deallocate()
+            do {
+                buffer[0] = 48
+                buffer[1] = .carriageReturn
+                buffer[2] = .lineFeed
+                buffer[3] = .carriageReturn
+                buffer[4] = .lineFeed
+                try socket.writeBuffer(buffer.baseAddress!, length: 5)
+            } catch {
+                print("AsyncHTTPChunkDataStream;\(#function);error trying to send final chunk to stream") // TODO: use logger
+                err = error
+            }
         } catch {
-            buffer.deallocate()
-            throw error
+            err = error
+        }
+        buffer.deallocate()
+        if let err {
+            throw err
         }
     }
 }
