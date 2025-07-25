@@ -3,6 +3,7 @@ public protocol BufferWritable: Sendable, ~Copyable {
     mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws
 }
 
+// MARK: Default conformances
 extension String: BufferWritable {
     @inlinable
     public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {

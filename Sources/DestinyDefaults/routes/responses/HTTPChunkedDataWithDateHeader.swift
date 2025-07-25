@@ -48,24 +48,77 @@ extension HTTPChunkedDataWithDateHeader {
 }
 
 // MARK: AsyncHTTPChunkDataStream
-public struct AsyncHTTPChunkDataStream<T: HTTPSocketWritable>: HTTPSocketWritable {
-    public let stream:AsyncStream<T>
+public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWritable {
+    public let chunkSize:Int
+    public let stream:ReusableAsyncThrowingStream<T, Error>
 
     public init<S: Sequence<T>>(
+        chunkSize: Int = 1024,
         _ values: S
     ) {
-        stream = AsyncStream { continuation in
-            for value in values {
-                continuation.yield(value)
+        self.chunkSize = chunkSize
+        stream = ReusableAsyncThrowingStream {
+            AsyncThrowingStream { continuation in
+                for value in values {
+                    continuation.yield(value)
+                }
+                continuation.finish()
             }
-            continuation.finish()
+        }
+    }
+    public init(
+        chunkSize: Int = 1024,
+        _ stream: ReusableAsyncThrowingStream<T, Error>
+    ) {
+        self.chunkSize = chunkSize
+        self.stream = stream
+    }
+    public init(
+        chunkSize: Int = 1024,
+        _ stream: AsyncThrowingStream<T, Error>
+    ) {
+        self.chunkSize = chunkSize
+        self.stream = ReusableAsyncThrowingStream {
+            stream
         }
     }
 
     @inlinable
     public func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
-        for await v in stream {
-            try await v.write(to: socket)
+        // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
+        let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
+        buffer.initialize(repeating: 0)
+        do {
+            for try await var v in stream {
+                var i = 0
+                var hex = String(v.chunkDataCount, radix: 16)
+                hex.withUTF8 {
+                    for byte in $0 {
+                        buffer[i] = byte
+                        i += 1
+                    }
+                }
+                buffer[i] = .carriageReturn
+                i += 1
+                buffer[i] = .lineFeed
+                i += 1
+                try v.write(to: buffer, at: &i)
+                buffer[i] = .carriageReturn
+                i += 1
+                buffer[i] = .lineFeed
+                i += 1
+                try socket.writeBuffer(buffer.baseAddress!, length: i)
+            }
+            buffer[0] = 48
+            buffer[1] = .carriageReturn
+            buffer[2] = .lineFeed
+            buffer[3] = .carriageReturn
+            buffer[4] = .lineFeed
+            try socket.writeBuffer(buffer.baseAddress!, length: 5)
+            buffer.deallocate()
+        } catch {
+            buffer.deallocate()
+            throw error
         }
     }
 }

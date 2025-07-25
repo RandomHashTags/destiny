@@ -26,13 +26,13 @@ extension ResponseBody {
             try responderDebugDescription(input.string(escapeLineBreak: true))
         }
 
-        @inlinable public var count: Int { 0 }
+        @inlinable public var count: Int {
+            0
+        }
         
         @inlinable
         public func string() -> String {
-            var s = "\(value)"
-            s.replace("\\\"", with: "\"") // TODO: fix
-            return s
+            "\""
         }
 
         @inlinable public var hasDateHeader: Bool { true }
@@ -41,7 +41,7 @@ extension ResponseBody {
 
         @inlinable
         public func customInitializer(bodyString: String) -> String? {
-            "\", body: " + bodyString
+            "\", body: \(value)"
         }
 
         @inlinable

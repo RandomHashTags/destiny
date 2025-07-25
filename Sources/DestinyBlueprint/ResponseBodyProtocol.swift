@@ -20,18 +20,15 @@ public protocol ResponseBodyProtocol: BufferWritable, ~Copyable {
 }
 
 extension ResponseBodyProtocol {
+    @inlinable public var hasDateHeader: Bool { false }
     @inlinable public var hasContentLength: Bool { true }
     @inlinable public func customInitializer(bodyString: String) -> String? { nil }
 }
 
 // MARK: Default conformances
 extension String: ResponseBodyProtocol {
-    public var debugDescription: String {
-        "\"\(self)\""
-    }
-
     public func responderDebugDescription(_ input: String) -> String {
-        input.debugDescription
+        "\"\(input)\""
     }
 
     public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
@@ -47,17 +44,11 @@ extension String: ResponseBodyProtocol {
     public func string() -> String {
         self
     }
-
-    @inlinable public var hasDateHeader: Bool { false }
 }
 
 extension StaticString: ResponseBodyProtocol {
-    public var debugDescription: String {
-        "\"\(self.description)\")"
-    }
-
     public func responderDebugDescription(_ input: String) -> String {
-        fatalError("cannot do that") // TODO: fix?
+        "\"\(input)\""
     }
 
     public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
@@ -73,8 +64,6 @@ extension StaticString: ResponseBodyProtocol {
     public func string() -> String {
         description
     }
-
-    @inlinable public var hasDateHeader: Bool { false }
 }
 
 #if canImport(FoundationEssentials) || canImport(Foundation)
@@ -109,8 +98,6 @@ extension Data: ResponseBodyProtocol {
             buffer.copyBuffer(p, at: &index)
         }
     }
-
-    @inlinable public var hasDateHeader: Bool { false }
 }
 
 #endif

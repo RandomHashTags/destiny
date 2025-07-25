@@ -92,11 +92,11 @@ import Logging
         contentType: HTTPMediaType.textHtml,
         body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
     ),
-    /*StaticRoute.get(
+    StaticRoute.get(
         path: ["stream"],
         contentType: HTTPMediaType.textPlain,
-        body: ResponseBody.chunkedDataWithDateHeader("test")
-    ),*/
+        body: ResponseBody.chunkedDataWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
+    ),
     StaticRoute.get(
         path: ["expressionMacro"],
         contentType: HTTPMediaType.textPlain,
