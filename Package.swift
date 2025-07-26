@@ -6,10 +6,26 @@ import CompilerPluginSupport
 let pkgDependencies:[Package.Dependency]
 let destinyModuleDependencies:[Target.Dependency]
 
+let swiftSyntaxPackageName: String
+let swiftSyntax: (packageName: String, dependency: Package.Dependency)
+if false {
+    swiftSyntaxPackageName = "fork-swift-syntax"
+    swiftSyntax = (
+        packageName: swiftSyntaxPackageName,
+        dependency: .package(url: "https://github.com/RandomHashTags/\(swiftSyntaxPackageName)", branch: "separate-syntax-nodes")
+    )
+} else {
+    swiftSyntaxPackageName = "swift-syntax"
+    swiftSyntax = (
+        packageName: swiftSyntaxPackageName,
+        dependency: .package(url: "https://github.com/swiftlang/\(swiftSyntaxPackageName)", from: "601.0.1")
+    )
+}
+
 #if os(Linux)
 pkgDependencies = [
     // Macros
-    .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
+    swiftSyntax.dependency,
 
     // Logging
     .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
@@ -34,7 +50,7 @@ destinyModuleDependencies = [
 
 pkgDependencies = [
     // Macros
-    .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
+    swiftSyntax.dependency,
 
     // Logging
     .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
@@ -77,10 +93,10 @@ let package = Package(
         .macro(
             name: "DestinyUtilityMacros",
             dependencies: [
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "SwiftDiagnostics", package: "swift-syntax")
+                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
+                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName),
+                .product(name: "SwiftCompilerPlugin", package: swiftSyntax.packageName),
+                .product(name: "SwiftDiagnostics", package: swiftSyntax.packageName)
             ]
         ),
 
@@ -91,8 +107,8 @@ let package = Package(
                 "DestinyUtilityMacros",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
+                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName)
             ]
         ),
         // MARK: DestinyDefaults
@@ -104,8 +120,8 @@ let package = Package(
                 .product(name: "Collections", package: "swift-collections"),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
+                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName)
             ]
         ),
         // MARK: Destiny
@@ -119,10 +135,10 @@ let package = Package(
             dependencies: [
                 "DestinyUtilityMacros",
                 "DestinyDefaults",
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "SwiftDiagnostics", package: "swift-syntax")
+                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
+                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName),
+                .product(name: "SwiftCompilerPlugin", package: swiftSyntax.packageName),
+                .product(name: "SwiftDiagnostics", package: swiftSyntax.packageName)
             ]
         ),
 
