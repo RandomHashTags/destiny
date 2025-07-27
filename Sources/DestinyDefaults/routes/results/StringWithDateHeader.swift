@@ -16,18 +16,6 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
         self.value = value
     }
 
-    public var responderDebugDescription: String {
-        "StringWithDateHeader(\"\(value)\")"
-    }
-
-    public func responderDebugDescription(_ input: String) -> String {
-        Self(input).responderDebugDescription
-    }
-
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
-        try responderDebugDescription(input.string(escapeLineBreak: true))
-    }
-
     @inlinable
     public var count: Int {
         value.utf8.count
@@ -69,7 +57,7 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
 
 extension StringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try temporaryBuffer {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }

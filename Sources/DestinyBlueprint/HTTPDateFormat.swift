@@ -47,7 +47,7 @@ public struct HTTPDateFormat: Sendable {
                 try await Task.sleep(for: .seconds(1))
                 self.now()
             } catch {
-                logger.warning(Logger.Message(stringLiteral: "[HTTPDateFormat] Encountered error trying to sleep task: \(error)"))
+                logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")
             }
         }
     }
@@ -154,7 +154,7 @@ extension HTTPDateFormat {
         return value
     }
     @inlinable
-    static func httpDayName<T: BinaryInteger>(_ int: T) -> InlineArray<3, UInt8> {
+    static func httpDayName(_ int: some BinaryInteger) -> InlineArray<3, UInt8> {
         switch int {
         case 0:  return #inlineArray("Sun")
         case 1:  return #inlineArray("Mon")
@@ -167,7 +167,7 @@ extension HTTPDateFormat {
         }
     }
     @inlinable
-    static func httpMonthName<T: BinaryInteger>(_ int: T) -> InlineArray<3, UInt8> {
+    static func httpMonthName(_ int: some BinaryInteger) -> InlineArray<3, UInt8> {
         switch int {
         case 0:  return #inlineArray("Jan")
         case 1:  return #inlineArray("Feb")
@@ -201,7 +201,7 @@ extension HTTPDateFormat {
     }
 
     @inlinable
-    static func httpNumber<let count: Int, T: BinaryInteger>(_ int: T) -> InlineArray<count, UInt8> {
+    static func httpNumber<let count: Int>(_ int: some BinaryInteger) -> InlineArray<count, UInt8> {
         var value = InlineArray<count, UInt8>(repeating: 0)
         var i = 0
         for char in String(int) {
@@ -237,40 +237,4 @@ extension HTTPDateFormat {
         )
     }
 }
-#endif
-
-#if canImport(FoundationEssentials) || canImport(Foundation)
-
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
-
-// MARK: Foundation
-extension HTTPDateFormat {
-    @inlinable
-    public static func get(date: Date) -> InlineArrayResult {
-        let components = Calendar.current.dateComponents([.year, .month, .day, .weekday, .hour, .minute, .second], from: date)
-        let values = (
-            components.year ?? 0,
-            components.month ?? 0,
-            components.day ?? 0,
-            components.weekday ?? 0,
-            components.hour ?? 0,
-            components.minute ?? 0,
-            components.second ?? 0
-        )
-        return get(
-            year: values.0,
-            month: UInt8(values.1) - 1,
-            day: UInt8(values.2),
-            dayOfWeek: UInt8(values.3) - 1,
-            hour: UInt8(values.4),
-            minute: UInt8(values.5),
-            second: UInt8(values.6)
-        )
-    }
-}
-
 #endif

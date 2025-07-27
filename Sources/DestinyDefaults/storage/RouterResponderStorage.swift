@@ -22,8 +22,8 @@ public struct RouterResponderStorage<
     }
 
     @inlinable
-    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
@@ -44,17 +44,17 @@ public struct RouterResponderStorage<
 
 extension RouterResponderStorage {
     @inlinable
-    public func respondStatically<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
-        socket: borrowing Socket,
+    public func respondStatically(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
     ) async throws -> Bool {
         return try await `static`.respond(router: router, socket: socket, startLine: startLine)
     }
 
     @inlinable
-    public func respondDynamically<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    public func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

@@ -10,8 +10,8 @@ public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticR
     }
 
     @inlinable
-    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         socket: borrowing Socket,
         startLine: DestinyRoutePathType
     ) async throws -> Bool {

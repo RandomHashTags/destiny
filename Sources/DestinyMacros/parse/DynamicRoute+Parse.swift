@@ -5,6 +5,21 @@ import OrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+// MARK: Responder DebugDescription
+extension DynamicRoute {
+    /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
+    public var responderDebugDescription: String {
+        """
+        DynamicRouteResponder(
+            path: \(path),
+            defaultResponse: \(defaultResponse),
+            logic: \(handlerDebugDescription)
+        )
+        """
+    }
+}
+
+// MARK: Parse
 extension DynamicRoute {
     /// Parsing logic for this dynamic route. Computed at compile time.
     /// 

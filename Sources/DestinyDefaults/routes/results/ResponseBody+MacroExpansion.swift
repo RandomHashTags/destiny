@@ -15,18 +15,6 @@ extension ResponseBody {
             self.value = value
         }
 
-        public var responderDebugDescription: String {
-            "RouteResponses.MacroExpansion(\"\(value))"
-        }
-
-        public func responderDebugDescription(_ input: String) -> String {
-            MacroExpansion<String>(input).responderDebugDescription
-        }
-
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
-            try responderDebugDescription(input.string(escapeLineBreak: true))
-        }
-
         @inlinable
         public var count: Int {
             value.count

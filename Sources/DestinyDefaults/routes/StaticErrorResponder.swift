@@ -11,14 +11,14 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
     }
 
     @inlinable
-    public func respond<Socket: HTTPSocketProtocol & ~Copyable, E: Error>(
-        socket: borrowing Socket,
-        error: E,
+    public func respond(
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        error: some Error,
         request: inout any HTTPRequestProtocol,
         logger: Logger
     ) async {
         #if DEBUG
-        logger.warning(Logger.Message(stringLiteral: "\(error)"))
+        logger.warning("\(error)")
         #endif
         do {
             try await logic(error).write(to: socket)

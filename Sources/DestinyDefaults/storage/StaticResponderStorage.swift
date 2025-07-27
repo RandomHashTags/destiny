@@ -1,14 +1,4 @@
 
-#if canImport(FoundationEssentials) || canImport(Foundation)
-
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
-
-#endif
-
 import DestinyBlueprint
 
 /// Default mutable storage that handles static routes.
@@ -21,10 +11,6 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
     @usableFromInline var strings:[DestinyRoutePathType:String]
     @usableFromInline var stringsWithDateHeader:[DestinyRoutePathType:StringWithDateHeader]
     @usableFromInline var uint8Arrays:[DestinyRoutePathType:ResponseBody.Bytes]
-
-    #if canImport(FoundationEssentials) || canImport(Foundation)
-    //@usableFromInline var foundationData:[DestinyRoutePathType:Data] // TODO: support
-    #endif
 
     public init(
         macroExpansions: [DestinyRoutePathType:RouteResponses.MacroExpansion] = [:],
@@ -42,15 +28,11 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         self.strings = strings
         self.stringsWithDateHeader = stringsWithDateHeader
         self.uint8Arrays = uint8Arrays
-
-        #if canImport(FoundationEssentials) || canImport(Foundation)
-        //foundationData = [:]
-        #endif
     }
 
     @inlinable
-    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         socket: borrowing Socket,
         startLine: DestinyRoutePathType
     ) async throws -> Bool {
@@ -69,15 +51,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         } else if let r = uint8Arrays[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
         } else {
-            #if canImport(FoundationEssentials) || canImport(Foundation)
-            /*if let r = foundationData[startLine] {
-                try await router.respondStatically(socket: socket, responder: r)
-            } else {
-                return false
-            }*/
-            #else
             return false
-            #endif
         }
         return true
     }

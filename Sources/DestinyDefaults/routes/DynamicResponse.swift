@@ -65,17 +65,17 @@ extension DynamicResponse {
     }
 
     @inlinable
-    public mutating func appendCookie<Cookie: HTTPCookieProtocol>(_ cookie: Cookie) {
+    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) {
         message.appendCookie(cookie)
     }
 
     @inlinable
-    public mutating func setBody<T: ResponseBodyProtocol>(_ body: T) {
+    public mutating func setBody(_ body: some ResponseBodyProtocol) {
         message.setBody(body)
     }
 
     @inlinable
-    public func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws {
         try message.write(to: socket)
     }
 }

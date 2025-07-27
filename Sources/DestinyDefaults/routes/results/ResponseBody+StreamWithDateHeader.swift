@@ -14,18 +14,6 @@ extension ResponseBody {
             self.value = value
         }
 
-        public var responderDebugDescription: String {
-            "StreamWithDateHeader(\"\(value))"
-        }
-
-        public func responderDebugDescription(_ input: String) -> String {
-            StreamWithDateHeader<String>(input).responderDebugDescription
-        }
-
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
-            try responderDebugDescription(input.string(escapeLineBreak: true))
-        }
-
         @inlinable public var count: Int {
             0
         }

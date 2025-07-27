@@ -30,7 +30,7 @@ extension HTTPRequestHeader {
         }) else {
             return [:]
         }
-        var headers:OrderedDictionary<String, String> = [:]
+        var headers = OrderedDictionary<String, String>()
         headers.reserveCapacity(dictionary.count)
         for (key, value) in dictionary {
             headers[key] = value

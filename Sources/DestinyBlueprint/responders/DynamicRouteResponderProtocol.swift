@@ -25,8 +25,8 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, CustomDeb
     ///   - request: The socket's request.
     ///   - response: The response to send to the socket.
     @inlinable
-    func respond<Socket: HTTPSocketProtocol & ~Copyable>(
-        to socket: borrowing Socket,
+    func respond(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol
     ) async throws

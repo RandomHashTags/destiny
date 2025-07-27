@@ -18,18 +18,6 @@ extension ResponseBody {
             "ResponseBody.Bytes(\(value))"
         }
 
-        public var responderDebugDescription: Swift.String {
-            description
-        }
-
-        public func responderDebugDescription(_ input: String) -> String {
-            "\(Self([UInt8](input.utf8)))"
-        }
-
-        public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
-            try responderDebugDescription(input.string(escapeLineBreak: false))
-        }
-
         @inlinable
         public var count: Int {
             value.count
@@ -53,7 +41,7 @@ extension ResponseBody {
 
 extension ResponseBody.Bytes: StaticRouteResponderProtocol {
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try value.withUnsafeBufferPointer {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }

@@ -14,7 +14,7 @@ public struct StreamWithDateHeader<Body: HTTPSocketWritable>: StaticRouteRespond
 // MARK: Write
 extension StreamWithDateHeader {
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try head.utf8.withContiguousStorageIfAvailable { headPointer in
             try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                 // 30 = "Transfer-Encoding: chunked".count (26) + "\r\n\r\n".count (4)
@@ -82,7 +82,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
     }
 
     @inlinable
-    public func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
         buffer.initialize(repeating: 0)

@@ -1,5 +1,5 @@
 
-public protocol StaticResponderStorageProtocol: Sendable {
+public protocol StaticResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 
     /// - Parameters:
@@ -8,9 +8,9 @@ public protocol StaticResponderStorageProtocol: Sendable {
     ///   - startLine: The socket's requested endpoint.
     /// - Returns: Whether or not a response was sent.
     @inlinable
-    func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
-        socket: borrowing Socket,
+    func respond(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
     ) async throws -> Bool
 }

@@ -15,12 +15,12 @@ public struct StaticRoute: StaticRouteProtocol {
     public let charset:Charset?
     public let isCaseSensitive:Bool
 
-    public init<T: HTTPResponseStatus.StorageProtocol>(
+    public init(
         version: HTTPVersion = .v1_1,
-        method: any HTTPRequestMethodProtocol,
+        method: some HTTPRequestMethodProtocol,
         path: [String],
         isCaseSensitive: Bool = true,
-        status: T,
+        status: some HTTPResponseStatus.StorageProtocol,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
         body: (any ResponseBodyProtocol)? = nil
@@ -38,7 +38,7 @@ public struct StaticRoute: StaticRouteProtocol {
     }
     public init(
         version: HTTPVersion = .v1_1,
-        method: any HTTPRequestMethodProtocol,
+        method: some HTTPRequestMethodProtocol,
         path: [String],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -62,7 +62,7 @@ public struct StaticRoute: StaticRouteProtocol {
     }
 
     @inlinable
-    public mutating func insertPath<C: Collection<String>>(contentsOf newElements: C, at i: Int) {
+    public mutating func insertPath(contentsOf newElements: some Collection<String>, at i: Int) {
         path.insert(contentsOf: newElements, at: i)
     }
 }
@@ -112,7 +112,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -125,7 +125,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -138,7 +138,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -151,7 +151,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -164,7 +164,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -177,7 +177,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -190,7 +190,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -203,7 +203,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -216,7 +216,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -229,7 +229,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: any ResponseBodyProtocol,
+        body: some ResponseBodyProtocol,
     ) -> Self {
         return on(version: version, method: HTTPRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }

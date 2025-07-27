@@ -2,10 +2,10 @@
 import DestinyBlueprint
 
 /// Core Static Route protocol where a complete HTTP Message is computed at compile time.
-public protocol StaticRouteProtocol: RouteProtocol {
+public protocol StaticRouteProtocol: RouteProtocol, ~Copyable {
     var startLine: String { get }
 
-    mutating func insertPath<C: Collection<String>>(contentsOf newElements: C, at i: Int)
+    mutating func insertPath(contentsOf newElements: some Collection<String>, at i: Int)
 
     /// The HTTP Message of this route.
     /// 

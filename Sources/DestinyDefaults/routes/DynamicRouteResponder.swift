@@ -57,8 +57,8 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
-        to socket: borrowing Socket,
+    public func respond(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol
     ) async throws {

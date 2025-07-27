@@ -3,6 +3,8 @@
 /// Inline variable-length array
 /// - Warning: This object should not be stored as a property
 public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
+    public let storage:UnsafeMutableBufferPointer<Element>
+
     public init(repeating value: Element) {
         fatalError("not implemented")
     }
@@ -26,8 +28,6 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
     @inlinable public var count:Int { storage.count }
     @inlinable public var isEmpty:Bool { storage.isEmpty }
     @inlinable public var indices:Range<Index> { storage.indices }
-
-    public let storage:UnsafeMutableBufferPointer<Element>
 
     @inlinable
     public borrowing func index(after i: Index) -> Index {
@@ -69,7 +69,7 @@ extension InlineVLArray where Element == UInt8 {
         })
     }
     @inlinable
-    public static func create<T: StringProtocol>(string: T, _ closure: (inout Self) throws -> Void) rethrows {
+    public static func create(string: some StringProtocol, _ closure: (inout Self) throws -> Void) rethrows {
         let utf8 = string.utf8
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: utf8.count, { p in
             let _ = p.initialize(fromContentsOf: utf8)
@@ -78,7 +78,7 @@ extension InlineVLArray where Element == UInt8 {
         })
     }
     @inlinable
-    public static func create<T: Collection<UInt8>>(collection: T, _ closure: (inout Self) throws -> Void) rethrows {
+    public static func create(collection: some Collection<UInt8>, _ closure: (inout Self) throws -> Void) rethrows {
         let count = collection.count
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: count, { p in
             let _ = p.initialize(fromContentsOf: collection)
@@ -113,6 +113,7 @@ extension InlineVLArray {
         public init(repeating value: Element) {
             fatalError("not implemented")
         }
+
         @inlinable
         public static func create<let count: Int>(_ elements: InlineArray<count, InlineVLArray<Element>>, closure: (inout Self) throws -> Void) rethrows {
             try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: elements.count, { pointer in

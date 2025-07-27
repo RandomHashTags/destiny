@@ -119,12 +119,12 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
                         do {
                             try add(client: client, event: EPOLLIN.rawValue)
                         } catch {
-                            logger.warning(Logger.Message(stringLiteral: "Encountered error trying to add accepted client to epoll: \(error) (errno=\(errno))"))
+                            logger.warning("Encountered error trying to add accepted client to epoll: \(error) (errno=\(errno))")
                             closeSocket(client, name: "accepted client")
                         }
                     }
                 } catch {
-                    logger.warning(Logger.Message(stringLiteral: "Encountered error trying to accept client (\(event.data.fd)): \(error) (errno=\(errno))"))
+                    logger.warning("Encountered error trying to accept client (\(event.data.fd)): \(error) (errno=\(errno))")
                 }
             } else if event.events & EPOLLIN.rawValue != 0 {
                 clients[clientIndex] = event.data.fd
@@ -143,7 +143,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     public func closeSocket(_ socket: Int32, name: String) {
         let closed = close(socket)
         if closed < 0 {
-            logger.warning(Logger.Message(stringLiteral: "Failed to close socket with name: \(name) (errno=\(errno))"))
+            logger.warning("Failed to close socket with name: \(name) (errno=\(errno))")
         }
     }
 
@@ -178,9 +178,9 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public func run<Router: HTTPRouterProtocol>(
+    public func run(
         timeout: Int32,
-        router: Router,
+        router: some HTTPRouterProtocol,
         noTCPDelay: Bool
     ) async {
         await withTaskGroup { group in
@@ -196,10 +196,10 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public static func process<Router: HTTPRouterProtocol>(
+    public static func process(
         _ instance: inout Epoll<maxEvents>,
         timeout: Int32,
-        router: Router,
+        router: some HTTPRouterProtocol,
         noTCPDelay: Bool
     ) async {
         let cancelPipeFD = instance.pipeFileDescriptors[1]
@@ -215,7 +215,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
                     do {
                         try instance.remove(client: client)
                     } catch {
-                        logger.warning(Logger.Message(stringLiteral: "Encountered error while removing client: \(error)"))
+                        logger.warning("Encountered error while removing client: \(error)")
                     }
                     Task.detached {
                         do {
@@ -226,13 +226,13 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
                                 logger: logger
                             )
                         } catch {
-                            logger.warning(Logger.Message(stringLiteral: "Encountered error while processing client: \(error)"))
+                            logger.warning("Encountered error while processing client: \(error)")
                         }
                     }
                     i += 1
                 }
             } catch {
-                logger.warning(Logger.Message(stringLiteral: "Encountered error while waiting for client: \(error)"))
+                logger.warning("Encountered error while waiting for client: \(error)")
             }
         }
         write(cancelPipeFD, "x", 1)

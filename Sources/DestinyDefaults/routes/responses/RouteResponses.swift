@@ -7,7 +7,7 @@ public enum RouteResponses {
 // MARK: InlineArray
 extension InlineArray where Element == UInt8 {
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try span.withUnsafeBufferPointer {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }

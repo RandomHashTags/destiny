@@ -55,7 +55,7 @@ public struct MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
     }
 
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try temporaryBuffer { buffer in
             try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
         }

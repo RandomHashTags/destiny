@@ -29,6 +29,7 @@ extension ResponseBody {
             key = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text.lowercased()
         }
         switch key {
+            /*
 #if canImport(FoundationEssentials) || canImport(Foundation)
         case "data": // TODO: fix
             return Data(
@@ -37,7 +38,7 @@ extension ResponseBody {
                     return UInt8(s)
                 })
             )
-#endif
+#endif*/
         case "streamwithdateheader":
             return StreamWithDateHeader(firstArg.expression.description)
         case "macroexpansion":

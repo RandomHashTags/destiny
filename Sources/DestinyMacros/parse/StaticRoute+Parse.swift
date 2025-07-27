@@ -75,7 +75,7 @@ extension StaticRoute {
     public func response(
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,
-        middleware: [any StaticMiddlewareProtocol]
+        middleware: [some StaticMiddlewareProtocol]
     ) -> any HTTPMessageProtocol {
         var version = version
         let path = path.joined(separator: "/")
@@ -112,7 +112,7 @@ extension StaticRoute {
     public func responder(
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,
-        middleware: [any StaticMiddlewareProtocol]
+        middleware: [some StaticMiddlewareProtocol]
     ) throws -> (any StaticRouteResponderProtocol)? {
         return try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }

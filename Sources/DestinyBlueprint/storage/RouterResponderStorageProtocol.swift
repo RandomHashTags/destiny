@@ -1,5 +1,5 @@
 
-public protocol RouterResponderStorageProtocol: Sendable {
+public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 
     /// - Parameters:
@@ -10,8 +10,8 @@ public protocol RouterResponderStorageProtocol: Sendable {
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
     @inlinable
-    func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
@@ -26,9 +26,9 @@ public protocol RouterResponderStorageProtocol: Sendable {
     ///   - startLine: The socket's target endpoint.
     /// - Returns: Whether or not a response was sent.
     @inlinable
-    func respondStatically<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
-        socket: borrowing Socket,
+    func respondStatically(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
     ) async throws -> Bool
 
@@ -42,8 +42,8 @@ public protocol RouterResponderStorageProtocol: Sendable {
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
     @inlinable
-    func respondDynamically<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

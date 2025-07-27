@@ -14,7 +14,7 @@ import Foundation
 import Logging
 
 // MARK: DestinyServiceProtocol
-public protocol DestinyServiceProtocol: Sendable {
+public protocol DestinyServiceProtocol: Sendable, ~Copyable {
     func run() async throws
 
     /// Shuts down the service.

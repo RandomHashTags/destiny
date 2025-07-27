@@ -18,7 +18,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
 
     public init(
         version: HTTPVersion = .v1_1,
-        method: any HTTPRequestMethodProtocol,
+        method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
@@ -46,18 +46,8 @@ public struct DynamicRoute: DynamicRouteProtocol {
         DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
 
-    public var responderDebugDescription: String {
-        """
-        DynamicRouteResponder(
-            path: \(path),
-            defaultResponse: \(defaultResponse),
-            logic: \(handlerDebugDescription)
-        )
-        """
-    }
-
     @inlinable
-    public mutating func applyStaticMiddleware<T: StaticMiddlewareProtocol>(_ middleware: [T]) {
+    public mutating func applyStaticMiddleware(_ middleware: [some StaticMiddlewareProtocol]) {
         let path = path.map({ $0.slug }).joined(separator: "/")
         for middleware in middleware {
             if middleware.handles(
@@ -78,7 +68,7 @@ extension DynamicRoute {
     @inlinable
     public static func on(
         version: HTTPVersion = .v1_1,
-        method: any HTTPRequestMethodProtocol,
+        method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,

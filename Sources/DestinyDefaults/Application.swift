@@ -8,8 +8,8 @@ public struct Application: ApplicationProtocol {
     public let serviceGroup:DestinyServiceGroup
     public let logger:Logger
 
-    public init<T: HTTPServerProtocol>(
-        server: T,
+    public init(
+        server: some HTTPServerProtocol,
         services: [any DestinyServiceProtocol] = [],
         logger: Logger
     ) {

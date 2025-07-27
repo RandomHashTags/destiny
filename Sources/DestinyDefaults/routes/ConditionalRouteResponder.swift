@@ -37,8 +37,8 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

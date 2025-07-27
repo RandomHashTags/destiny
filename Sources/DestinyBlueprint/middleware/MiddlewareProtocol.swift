@@ -1,4 +1,4 @@
 
 /// Core Middleware protocol.
-public protocol MiddlewareProtocol: Sendable {
+public protocol MiddlewareProtocol: Sendable, ~Copyable {
 }

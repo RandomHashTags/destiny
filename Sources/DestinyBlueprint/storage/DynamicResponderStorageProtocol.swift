@@ -1,5 +1,5 @@
 
-public protocol DynamicResponderStorageProtocol: Sendable {
+public protocol DynamicResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 
     /// - Parameters:
@@ -10,8 +10,8 @@ public protocol DynamicResponderStorageProtocol: Sendable {
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
     @inlinable
-    func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,

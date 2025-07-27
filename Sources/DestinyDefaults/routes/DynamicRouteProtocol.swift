@@ -20,14 +20,11 @@ public protocol DynamicRouteProtocol: RouteProtocol {
     /// - Returns: The responder for this route.
     @inlinable func responder() -> any DynamicRouteResponderProtocol
 
-    /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
-    var responderDebugDescription: String { get }
-
     /// Applies static middleware to this route.
     /// 
     /// - Parameters:
     ///   - middleware: The static middleware to apply to this route.
-    mutating func applyStaticMiddleware<T: StaticMiddlewareProtocol>(_ middleware: [T])
+    mutating func applyStaticMiddleware(_ middleware: [some StaticMiddlewareProtocol])
 }
 
 extension DynamicRouteProtocol {

@@ -10,7 +10,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     func handlesVersion(_ version: HTTPVersion) -> Bool
 
     @inlinable
-    func handlesMethod<Method: HTTPRequestMethodProtocol>(_ method: Method) -> Bool
+    func handlesMethod(_ method: some HTTPRequestMethodProtocol) -> Bool
 
     @inlinable
     func handlesStatus(_ code: HTTPResponseStatus.Code) -> Bool
@@ -35,10 +35,10 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
 
     /// Whether or not this middleware handles a route with the given options.
     @inlinable
-    func handles<Method: HTTPRequestMethodProtocol>(
+    func handles(
         version: HTTPVersion,
         path: String,
-        method: Method,
+        method: some HTTPRequestMethodProtocol,
         contentType: HTTPMediaType?,
         status: HTTPResponseStatus.Code
     ) -> Bool
@@ -78,9 +78,9 @@ extension StaticMiddlewareProtocol {
     }
 
     @inlinable
-    public func apply<Response: DynamicResponseProtocol>(
+    public func apply(
         contentType: inout HTTPMediaType?,
-        to response: inout Response
+        to response: inout some DynamicResponseProtocol
     ) {
         if let appliesVersion {
             response.setHTTPVersion(appliesVersion)

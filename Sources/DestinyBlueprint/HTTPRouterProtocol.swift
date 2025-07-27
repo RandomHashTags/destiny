@@ -26,9 +26,9 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - responder: The static route responder that will write to the socket.
     @inlinable
-    func respondStatically<Socket: HTTPSocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
-        socket: borrowing Socket,
-        responder: Responder
+    func respondStatically(
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        responder: some StaticRouteResponderProtocol
     ) async throws
 
     /// Writes a dynamic responder to the socket.
@@ -40,11 +40,11 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - request: The socket's request.
     ///   - responder: The dynamic route responder that will write to the socket.
     @inlinable
-    func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
+    func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
         request: inout Socket.ConcreteRequest,
-        responder: Responder
+        responder: some DynamicRouteResponderProtocol
     ) async throws
 }

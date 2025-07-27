@@ -1,3 +1,3 @@
 
-public protocol HTTPCookieStorageProtocol: Sendable {
+public protocol HTTPCookieStorageProtocol: Sendable, ~Copyable {
 }

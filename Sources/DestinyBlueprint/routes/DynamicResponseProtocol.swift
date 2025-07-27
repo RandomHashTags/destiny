@@ -1,6 +1,6 @@
 
 /// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
-public protocol DynamicResponseProtocol: Sendable {
+public protocol DynamicResponseProtocol: Sendable, ~Copyable {
     /// Timestamps when request events happen.
     var timestamps: DynamicRequestTimestamps { get set }
 
@@ -33,7 +33,7 @@ public protocol DynamicResponseProtocol: Sendable {
     /// - Parameters:
     ///   - status: A concrete type conforming to `HTTPResponseStatus.StorageProtocol`.
     @inlinable
-    mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T)
+    mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol)
 
     /// Set the response's status code.
     /// 
@@ -51,26 +51,26 @@ public protocol DynamicResponseProtocol: Sendable {
     mutating func setHeader(key: String, value: String)
 
     @inlinable
-    mutating func appendCookie<Cookie: HTTPCookieProtocol>(_ cookie: Cookie)
+    mutating func appendCookie(_ cookie: some HTTPCookieProtocol)
 
     /// Set the body of the message.
     /// 
     /// - Parameters:
     ///   - body: The new body to set.
     @inlinable
-    mutating func setBody<T: ResponseBodyProtocol>(_ body: T)
+    mutating func setBody(_ body: some ResponseBodyProtocol)
 
     /// Writes an HTTP Message to a socket.
     /// 
     /// - Parameters:
     ///   - socket: The socket to write to.
     @inlinable
-    func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
+    func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws
 }
 
 extension DynamicResponseProtocol {
     @inlinable
-    public mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T) {
+    public mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol) {
         setStatusCode(status.code)
     }
 }

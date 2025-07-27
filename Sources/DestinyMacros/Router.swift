@@ -375,7 +375,7 @@ extension Router.Storage {
                     let buffer = DestinyRoutePathType(&string)
                     let httpResponse = route.response(context: context, function: function, middleware: middleware)
                     if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
-                        if let responder = try route.body?.responderDebugDescription(httpResponse) {
+                        if let responder = try responseBodyResponderDebugDescription(body: route.body, response: httpResponse) {
                             routeResponders.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
                         }
                     } else if let httpResponse = httpResponse as? HTTPResponseMessage {
@@ -404,6 +404,43 @@ extension Router.Storage {
             string.removeLast(2)
         }
         return string + "\n)\n)"
+    }
+    private func responseBodyResponderDebugDescription(
+        body: (any ResponseBodyProtocol)?,
+        response: any HTTPMessageProtocol
+    ) throws -> String? {
+        guard let body else { return nil }
+        let s:String?
+        if let v = body as? String {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? StaticString {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? StringWithDateHeader {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? StaticStringWithDateHeader {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? ResponseBody.Bytes {
+            s = try v.responderDebugDescription(response)
+
+        } else if let v = body as? ResponseBody.MacroExpansionWithDateHeader<StaticString> {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? ResponseBody.MacroExpansionWithDateHeader<String> {
+            s = try v.responderDebugDescription(response)
+
+        } else if let v = body as? ResponseBody.StreamWithDateHeader<StaticString> {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? ResponseBody.StreamWithDateHeader<String> {
+            s = try v.responderDebugDescription(response)
+
+        } else if let v = body as? ResponseBody.StreamWithDateHeader<AsyncHTTPChunkDataStream<String>> {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? ResponseBody.StreamWithDateHeader<AsyncHTTPChunkDataStream<StaticString>> {
+            s = try v.responderDebugDescription(response)
+
+        } else {
+            s = nil
+        }
+        return s
     }
 }
 

@@ -124,7 +124,7 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
             close(serverFD)
             throw ServerError.listenFailed()
         }
-        logger.notice(Logger.Message(stringLiteral: "Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]"))
+        logger.notice("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")
         return serverFD
     }
 }
@@ -156,7 +156,7 @@ extension Server where ClientSocket: ~Copyable {
                                 logger: self.logger
                             )
                         } catch {
-                            self.logger.warning(Logger.Message(stringLiteral: "\(error)"))
+                            self.logger.warning("\(error)")
                         }
                     }
                 }

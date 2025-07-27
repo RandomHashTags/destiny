@@ -72,9 +72,10 @@ destinyModuleDependencies = [
 let package = Package(
     name: "destiny",
     products: [
-        .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
-        .library(name: "DestinyDefaults", targets: ["DestinyDefaults"])
+        .library(name: "DestinyBlueprintFoundation", targets: ["DestinyBlueprintFoundation"]),
+        .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
+        .library(name: "Destiny", targets: ["Destiny"])
     ],
     traits: [
         .default(enabledTraits: ["Destiny"]),
@@ -109,11 +110,19 @@ let package = Package(
                 //.product(name: "Metrics", package: "swift-metrics")
             ]
         ),
+
+        // MARK: DestinyBlueprintFoundation
+        .target(
+            name: "DestinyBlueprintFoundation",
+            dependencies: ["DestinyBlueprint"]
+        ),
+
         // MARK: DestinyDefaults
         .target(
             name: "DestinyDefaults",
             dependencies: [
                 "DestinyBlueprint",
+                "DestinyBlueprintFoundation",
                 "DestinyUtilityMacros",
                 .product(name: "Collections", package: "swift-collections"),
                 .product(name: "Logging", package: "swift-log"),
@@ -122,6 +131,7 @@ let package = Package(
                 .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName)
             ]
         ),
+
         // MARK: Destiny
         .target(
             name: "Destiny",

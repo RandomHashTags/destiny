@@ -47,7 +47,12 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
     }
 
     @inlinable
-    public mutating func register(version: HTTPVersion, route: any DynamicRouteProtocol, responder: any DynamicRouteResponderProtocol, override: Bool) throws {
+    public mutating func register(
+        version: HTTPVersion,
+        route: some DynamicRouteProtocol,
+        responder: some DynamicRouteResponderProtocol,
+        override: Bool
+    ) throws {
         if route.path.firstIndex(where: { $0.isParameter }) == nil {
             var string = route.startLine
             let buffer = DestinyRoutePathType(&string)
@@ -70,8 +75,8 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
 // MARK: Respond
 extension DynamicResponderStorage {
     @inlinable
-    public func respond<HTTPRouter: HTTPRouterProtocol & ~Copyable, Socket: HTTPSocketProtocol & ~Copyable>(
-        router: borrowing HTTPRouter,
+    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+        router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
@@ -85,7 +90,7 @@ extension DynamicResponderStorage {
 
 extension DynamicResponderStorage {
     @inlinable
-    func responder<Request: HTTPRequestProtocol & ~Copyable>(for request: inout Request) -> (any DynamicRouteResponderProtocol)? {
+    func responder(for request: inout some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
         if let responder = parameterless[request.startLine] {
             return responder
         }
@@ -104,7 +109,7 @@ extension DynamicResponderStorage {
     }
 
     @inlinable
-    func catchallResponder<Request: HTTPRequestProtocol & ~Copyable>(for request: borrowing Request) -> (any DynamicRouteResponderProtocol)? {
+    func catchallResponder(for request: borrowing some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
         var responderIndex = 0
         loop: while responderIndex < catchall.count {
             let responder = catchall[responderIndex]

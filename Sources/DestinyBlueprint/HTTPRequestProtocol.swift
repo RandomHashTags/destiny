@@ -4,7 +4,7 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     typealias ConcretePathType = String // TODO: allow custom
 
     /// Initializes the bare minimum data required to process a socket's data.
-    init?<T: HTTPSocketProtocol & ~Copyable>(socket: borrowing T) throws
+    init?(socket: borrowing some HTTPSocketProtocol & ~Copyable) throws
 
     /// The HTTP start-line.
     var startLine: SIMD64<UInt8> { get }

@@ -1,6 +1,6 @@
 
 /// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
-public protocol RedirectionRouteProtocol: RouteProtocol {
+public protocol RedirectionRouteProtocol: RouteProtocol, ~Copyable {
     /// The endpoint that has been moved.
     var from: [String] { get }
 

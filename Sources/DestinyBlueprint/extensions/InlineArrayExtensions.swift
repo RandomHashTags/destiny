@@ -22,7 +22,7 @@ import WinSDK
 extension InlineArrayProtocol {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
-    public init<T: Collection<Element>>(_ array: T) {
+    public init(_ array: some Collection<Element>) {
         self = .init(repeating: array[array.startIndex])
         for i in self.indices {
             self.setItemAt(index: i, element: array[array.index(array.startIndex, offsetBy: i)])
@@ -41,7 +41,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
-    public init<T: SIMD>(_ simd: T) where T.Scalar == Element {
+    public init(_ simd: some SIMD<Element>) {
         self = .init(repeating: 0)
         for i in simd.indices {
             self.setItemAt(index: i, element: simd[i])
@@ -490,7 +490,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
         var result = T()
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-        withUnsafeBytes(of: self, { this in 
+        _ = withUnsafeBytes(of: self, { this in 
             withUnsafeBytes(of: &result, {
                 memcpy(.init(mutating: $0.baseAddress!), this.baseAddress! + startIndex, T.scalarCount)
             })
@@ -548,7 +548,7 @@ extension InlineArrayProtocol where Element: Equatable {
 
 extension InlineArrayProtocol where Element == UInt8 {
     @inlinable
-    public static func == <S: StringProtocol>(lhs: Self, rhs: S) -> Bool {
+    public static func == (lhs: Self, rhs: some StringProtocol) -> Bool {
         let stringCount = rhs.count
         if lhs.count == rhs.count {
             for i in 0..<lhs.count {

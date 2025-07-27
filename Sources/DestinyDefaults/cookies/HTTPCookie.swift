@@ -6,6 +6,7 @@ import struct Foundation.Date
 #endif
 
 import DestinyBlueprint
+import DestinyBlueprintFoundation
 
 public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     public var name:CookieName

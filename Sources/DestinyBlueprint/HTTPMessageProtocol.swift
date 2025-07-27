@@ -1,5 +1,5 @@
 
-public protocol HTTPMessageProtocol: Sendable {
+public protocol HTTPMessageProtocol: Sendable, ~Copyable {
 
     @inlinable
     var version: HTTPVersion { get set }
@@ -11,7 +11,7 @@ public protocol HTTPMessageProtocol: Sendable {
     /// - Parameters:
     ///   - status: A concrete type conforming to `HTTPResponseStatus.StorageProtocol`.
     @inlinable
-    mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T)
+    mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol)
 
     /// Set the message's status code.
     /// 
@@ -25,7 +25,7 @@ public protocol HTTPMessageProtocol: Sendable {
     /// - Parameters:
     ///   - body: The new body to set.
     @inlinable
-    mutating func setBody<T: ResponseBodyProtocol>(_ body: T)
+    mutating func setBody(_ body: some ResponseBodyProtocol)
 
     /// Set a header to the given value.
     /// 
@@ -36,7 +36,7 @@ public protocol HTTPMessageProtocol: Sendable {
     mutating func setHeader(key: String, value: String)
 
     @inlinable
-    mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T)
+    mutating func appendCookie(_ cookie: some HTTPCookieProtocol)
 
     /// - Parameters:
     ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
@@ -49,12 +49,12 @@ public protocol HTTPMessageProtocol: Sendable {
     /// - Parameters:
     ///   - socket: The socket to write to.
     @inlinable
-    func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws
+    func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws
 }
 
 extension HTTPMessageProtocol {
     @inlinable
-    public mutating func setStatus<T: HTTPResponseStatus.StorageProtocol>(_ status: T) {
+    public mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol) {
         setStatusCode(status.code)
     }
 }

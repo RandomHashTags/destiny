@@ -3,9 +3,6 @@ public protocol ResponseBodyProtocol: BufferWritable, ~Copyable {
     @inlinable
     var count: Int { get }
 
-    func responderDebugDescription(_ input: String) -> String
-    func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String
-
     @inlinable
     func string() -> String
 
@@ -27,14 +24,6 @@ extension ResponseBodyProtocol {
 
 // MARK: Default conformances
 extension String: ResponseBodyProtocol {
-    public func responderDebugDescription(_ input: String) -> String {
-        "\"\(input)\""
-    }
-
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
-        try responderDebugDescription(input.string(escapeLineBreak: true))
-    }
-
     @inlinable
     public var count: Int {
         utf8.count
@@ -47,14 +36,6 @@ extension String: ResponseBodyProtocol {
 }
 
 extension StaticString: ResponseBodyProtocol {
-    public func responderDebugDescription(_ input: String) -> String {
-        "\"\(input)\""
-    }
-
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
-        try responderDebugDescription(input.string(escapeLineBreak: true))
-    }
-
     @inlinable
     public var count: Int {
         utf8CodeUnitCount
@@ -65,39 +46,3 @@ extension StaticString: ResponseBodyProtocol {
         description
     }
 }
-
-#if canImport(FoundationEssentials) || canImport(Foundation)
-
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
-
-extension Data: ResponseBodyProtocol {
-    public var debugDescription: String {
-        "Data(\(self))"
-    }
-
-    public func responderDebugDescription(_ input: String) -> String {
-        Self(Data(input.utf8)).debugDescription
-    }
-
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String{
-        try responderDebugDescription(input.string(escapeLineBreak: false))
-    }
-    
-    @inlinable
-    public func string() -> String {
-        .init(decoding: self, as: UTF8.self)
-    }
-
-    @inlinable
-    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
-        self.span.withUnsafeBufferPointer { p in
-            buffer.copyBuffer(p, at: &index)
-        }
-    }
-}
-
-#endif

@@ -1,22 +1,22 @@
 
 public protocol HTTPSocketWritable: Sendable, ~Copyable {
     /// Writes data to a socket.
-    func write<Socket: HTTPSocketProtocol & ~Copyable>(
-        to socket: borrowing Socket
+    func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
     ) async throws
 }
 
 // MARK: Default conformances
 extension String: HTTPSocketWritable {
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try socket.writeString(self)
     }
 }
 
 extension StaticString: HTTPSocketWritable {
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         var err:(any Error)? = nil
         withUTF8Buffer {
             do {

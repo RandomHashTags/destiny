@@ -89,12 +89,12 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
     }
 
     @inlinable
-    public mutating func appendCookie<T: HTTPCookieProtocol>(_ cookie: T) {
+    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) {
         head.cookies.append(cookie)
     }
 
     @inlinable
-    public mutating func setBody<T: ResponseBodyProtocol>(_ body: T) {
+    public mutating func setBody(_ body: some ResponseBodyProtocol) {
         self.body = body
     }
 }
@@ -108,7 +108,6 @@ extension HTTPResponseMessage {
             capacity += 4 + key.count + value.count // Header: Value\r\n
         }
         for cookie in head.cookies {
-            // TODO: fix? Cookie interpolation crashes when ran in debug mode due to "bad pointer dereference" (doesn't crash in release mode)
             capacity += 14 + "\(cookie)".count // Set-Cookie: x\r\n
         }
         if let body {
@@ -132,6 +131,7 @@ extension HTTPResponseMessage {
             try closure(p)
         })
     }
+
     @inlinable
     func writeString(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, string: inout String) {
         // TODO: fix: String utf8Span.span doesn't behave as expected | https://github.com/swiftlang/swift/issues/81931
@@ -230,7 +230,7 @@ extension HTTPResponseMessage {
 // MARK: Write
 extension HTTPResponseMessage {
     @inlinable
-    public func write<Socket: HTTPSocketProtocol & ~Copyable>(to socket: borrowing Socket) throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws {
         try self.withUnsafeTemporaryAllocation {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }

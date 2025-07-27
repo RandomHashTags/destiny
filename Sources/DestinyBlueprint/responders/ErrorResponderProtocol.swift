@@ -2,12 +2,12 @@
 import Logging
 
 /// Core Error Middleware protocol that handles errors thrown from requests.
-public protocol ErrorResponderProtocol: RouteResponderProtocol {
+public protocol ErrorResponderProtocol: RouteResponderProtocol, ~Copyable {
     /// Writes a response to a socket.
     @inlinable
-    func respond<Socket: HTTPSocketProtocol & ~Copyable, E: Error>(
-        socket: borrowing Socket,
-        error: E,
+    func respond(
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        error: some Error,
         request: inout any HTTPRequestProtocol,
         logger: Logger
     ) async

@@ -1,3 +1,3 @@
 
-public protocol StaticMiddlewareStorageProtocol: Sendable {
+public protocol StaticMiddlewareStorageProtocol: Sendable, ~Copyable {
 }

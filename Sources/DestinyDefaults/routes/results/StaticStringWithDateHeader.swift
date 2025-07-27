@@ -16,18 +16,6 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
         self.value = value
     }
 
-    public var responderDebugDescription: String {
-        "StaticStringWithDateHeader(\"\(value)\")"
-    }
-
-    public func responderDebugDescription(_ input: String) -> String {
-        fatalError("cannot do that")
-    }
-
-    public func responderDebugDescription<T: HTTPMessageProtocol>(_ input: T) throws -> String {
-        try responderDebugDescription(input.string(escapeLineBreak: true))
-    }
-
     @inlinable
     public var count: Int {
         value.utf8CodeUnitCount
@@ -85,7 +73,7 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
 
 extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write<T: HTTPSocketProtocol & ~Copyable>(to socket: borrowing T) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try temporaryBuffer { buffer in
             try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
         }

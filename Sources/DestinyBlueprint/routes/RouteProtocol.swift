@@ -1,6 +1,6 @@
 
 /// Core Route protocol.
-public protocol RouteProtocol: Sendable {
+public protocol RouteProtocol: Sendable, ~Copyable {
     /// `HTTPVersion` associated with this route.
     var version: HTTPVersion { get }
     

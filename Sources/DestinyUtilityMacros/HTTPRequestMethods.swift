@@ -27,8 +27,8 @@ enum HTTPRequestMethods: DeclarationMacro {
             "public static let \($0.memberName) = \($0.value)"
         }.joined(separator: "\n    ")
 
-        string += "\n\n    public static func parse<T: ExprSyntaxProtocol>(expr: T) -> (any HTTPRequestMethodProtocol)? {\n"
-        string += "        let string:String?\n"
+        string += "\n\n    public static func parse(expr: some ExprSyntaxProtocol) -> (any HTTPRequestMethodProtocol)? {\n"
+        string += "        let string:String\n"
         string += "        if let v = expr.as(MemberAccessExprSyntax.self)?.declName.baseName.text {\n"
         string += "            string = v\n"
         string += "        } else if let v = expr.as(StringLiteralExprSyntax.self) {\n"
@@ -36,17 +36,15 @@ enum HTTPRequestMethods: DeclarationMacro {
         string += "        } else {\n"
         string += "            return nil\n"
         string += "        }\n"
-        string += "        switch string {\n"
+        string += "        switch string.lowercased() {\n"
         for entry in entries {
             var cases = [
-                entry.memberName,
-                entry.memberName.uppercased()
+                entry.memberName.lowercased()
             ]
             if entry.memberName.first == "`" {
-                var s = entry.memberName
+                var s = entry.memberName.lowercased()
                 s = String(s[s.index(after: s.startIndex)..<s.index(before: s.endIndex)])
                 cases.append(s)
-                cases.append(s.uppercased())
             }
             let casesString = cases.map({ "\"\($0)\"" }).joined(separator: ", ")
             string += "        case \(casesString): return HTTPRequestMethod.\(entry.memberName)\n"

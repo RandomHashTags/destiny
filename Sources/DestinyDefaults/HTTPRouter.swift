@@ -141,19 +141,19 @@ extension HTTPRouter {
 // MARK: Respond
 extension HTTPRouter {
     @inlinable
-    public func respondStatically<Socket: HTTPSocketProtocol & ~Copyable, Responder: StaticRouteResponderProtocol>(
-        socket: borrowing Socket,
-        responder: Responder
+    public func respondStatically(
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        responder: borrowing some StaticRouteResponderProtocol
     ) async throws {
         try await responder.write(to: socket)
     }
 
     @inlinable
-    func defaultDynamicResponse<Responder: DynamicRouteResponderProtocol>(
+    func defaultDynamicResponse(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         request: inout any HTTPRequestProtocol,
-        responder: Responder
+        responder: some DynamicRouteResponderProtocol
     ) async throws -> any DynamicResponseProtocol {
         var response = responder.defaultResponse
         response.timestamps.received = received
@@ -185,12 +185,12 @@ extension HTTPRouter {
     }
 
     @inlinable
-    public func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable, Responder: DynamicRouteResponderProtocol>(
+    public func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
         socket: borrowing Socket,
         request: inout Socket.ConcreteRequest,
-        responder: Responder
+        responder: some DynamicRouteResponderProtocol
     ) async throws {
         var anyRequest:any HTTPRequestProtocol = request
         var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: responder)
