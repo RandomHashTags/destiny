@@ -250,96 +250,76 @@ extension HTTPResponseStatus {
     }
 }
 
-#if canImport(SwiftSyntax)
-
-import SwiftSyntax
-
-// MARK: SwiftSyntax
+// MARK: Parse code
 extension HTTPResponseStatus {
-    public static func parse(expr: ExprSyntax) -> (any Self.StorageProtocol)? {
-        guard let member = expr.memberAccess,
-            member.declName.baseName.text == "code",
-            let base = member.base?.memberAccess,
-            base.base?.as(DeclReferenceExprSyntax.self)?.baseName.text == "HTTPResponseStatus"
-        else {
-            return nil
-        }
-        return parse(staticName: base.declName.baseName.text)
-    }
-}
-#endif
-
-
-// MARK: Parse
-extension HTTPResponseStatus {
-    public static func parse(staticName: String) -> (any Self.StorageProtocol)? {
+    public static func parseCode(staticName: String) -> Code? {
         switch staticName {
-        case "continue": Self.continue
-        case "switchingProtocols": Self.switchingProtocols
-        case "processing": Self.processing
-        case "earlyHints": Self.earlyHints
+        case "continue": Self.continue.code
+        case "switchingProtocols": Self.switchingProtocols.code
+        case "processing": Self.processing.code
+        case "earlyHints": Self.earlyHints.code
 
-        case "ok": Self.ok
-        case "created": Self.created
-        case "accepted": Self.accepted
-        case "nonAuthoritativeInformation": Self.nonAuthoritativeInformation
-        case "noContent": Self.noContent
-        case "resetContent": Self.resetContent
-        case "partialContent": Self.partialContent
-        case "multiStatus": Self.multiStatus
-        case "alreadyReported": Self.alreadyReported
-        case "imUsed": Self.imUsed
+        case "ok": Self.ok.code
+        case "created": Self.created.code
+        case "accepted": Self.accepted.code
+        case "nonAuthoritativeInformation": Self.nonAuthoritativeInformation.code
+        case "noContent": Self.noContent.code
+        case "resetContent": Self.resetContent.code
+        case "partialContent": Self.partialContent.code
+        case "multiStatus": Self.multiStatus.code
+        case "alreadyReported": Self.alreadyReported.code
+        case "imUsed": Self.imUsed.code
 
-        case "multipleChoices": Self.multipleChoices
-        case "movedPermanently": Self.movedPermanently
-        case "found": Self.found
-        case "seeOther": Self.seeOther
-        case "notModified": Self.notModified
-        case "useProxy": Self.useProxy
-        case "temporaryRedirect": Self.temporaryRedirect
-        case "permanentRedirect": Self.permanentRedirect
+        case "multipleChoices": Self.multipleChoices.code
+        case "movedPermanently": Self.movedPermanently.code
+        case "found": Self.found.code
+        case "seeOther": Self.seeOther.code
+        case "notModified": Self.notModified.code
+        case "useProxy": Self.useProxy.code
+        case "temporaryRedirect": Self.temporaryRedirect.code
+        case "permanentRedirect": Self.permanentRedirect.code
 
-        case "badRequest": Self.badRequest
-        case "unauthorized": Self.unauthorized
-        case "paymentRequired": Self.paymentRequired
-        case "forbidden": Self.forbidden
-        case "notFound": Self.notFound
-        case "methodNotAllowed": Self.methodNotAllowed
-        case "notAcceptable": Self.notAcceptable
-        case "proxyAuthenticationRequired": Self.proxyAuthenticationRequired
-        case "requestTimeout": Self.requestTimeout
-        case "conflict": Self.conflict
-        case "gone": Self.gone
-        case "lengthRequired": Self.lengthRequired
-        case "preconditionFailed": Self.preconditionFailed
-        case "payloadTooLarge": Self.payloadTooLarge
-        case "uriTooLong": Self.uriTooLong
-        case "unsupportedMediaType": Self.unsupportedMediaType
-        case "rangeNotSatisfiable": Self.rangeNotSatisfiable
-        case "expectationFailed": Self.expectationFailed
-        case "imATeapot": Self.imATeapot
-        case "misdirectedRequest": Self.misdirectedRequest
-        case "unprocessableContent": Self.unprocessableContent
-        case "locked": Self.locked
-        case "failedDependency": Self.failedDependency
-        case "tooEarly": Self.tooEarly
-        case "upgradeRequired": Self.upgradeRequired
-        case "preconditionRequired": Self.preconditionRequired
-        case "tooManyRequests": Self.tooManyRequests
-        case "requestHeaderFieldsTooLarge": Self.requestHeaderFieldsTooLarge
-        case "unavailableForLegalReasons": Self.unavailableForLegalReasons
+        case "badRequest": Self.badRequest.code
+        case "unauthorized": Self.unauthorized.code
+        case "paymentRequired": Self.paymentRequired.code
+        case "forbidden": Self.forbidden.code
+        case "notFound": Self.notFound.code
+        case "methodNotAllowed": Self.methodNotAllowed.code
+        case "notAcceptable": Self.notAcceptable.code
+        case "proxyAuthenticationRequired": Self.proxyAuthenticationRequired.code
+        case "requestTimeout": Self.requestTimeout.code
+        case "conflict": Self.conflict.code
+        case "gone": Self.gone.code
+        case "lengthRequired": Self.lengthRequired.code
+        case "preconditionFailed": Self.preconditionFailed.code
+        case "payloadTooLarge": Self.payloadTooLarge.code
+        case "uriTooLong": Self.uriTooLong.code
+        case "unsupportedMediaType": Self.unsupportedMediaType.code
+        case "rangeNotSatisfiable": Self.rangeNotSatisfiable.code
+        case "expectationFailed": Self.expectationFailed.code
+        case "imATeapot": Self.imATeapot.code
+        case "misdirectedRequest": Self.misdirectedRequest.code
+        case "unprocessableContent": Self.unprocessableContent.code
+        case "locked": Self.locked.code
+        case "failedDependency": Self.failedDependency.code
+        case "tooEarly": Self.tooEarly.code
+        case "upgradeRequired": Self.upgradeRequired.code
+        case "preconditionRequired": Self.preconditionRequired.code
+        case "tooManyRequests": Self.tooManyRequests.code
+        case "requestHeaderFieldsTooLarge": Self.requestHeaderFieldsTooLarge.code
+        case "unavailableForLegalReasons": Self.unavailableForLegalReasons.code
 
-        case "internalServerError": Self.internalServerError
-        case "notImplemented": Self.notImplemented
-        case "badGateway": Self.badGateway
-        case "serviceUnavailable": Self.serviceUnavailable
-        case "gatewayTimeout": Self.gatewayTimeout
-        case "httpVersionNotSupported": Self.httpVersionNotSupported
-        case "variantAlsoNegotiates": Self.variantAlsoNegotiates
-        case "insufficientStorage": Self.insufficientStorage
-        case "loopDetected": Self.loopDetected
-        case "notExtended": Self.notExtended
-        case "networkAuthenticationRequired": Self.networkAuthenticationRequired
+        case "internalServerError": Self.internalServerError.code
+        case "notImplemented": Self.notImplemented.code
+        case "badGateway": Self.badGateway.code
+        case "serviceUnavailable": Self.serviceUnavailable.code
+        case "gatewayTimeout": Self.gatewayTimeout.code
+        case "httpVersionNotSupported": Self.httpVersionNotSupported.code
+        case "variantAlsoNegotiates": Self.variantAlsoNegotiates.code
+        case "insufficientStorage": Self.insufficientStorage.code
+        case "loopDetected": Self.loopDetected.code
+        case "notExtended": Self.notExtended.code
+        case "networkAuthenticationRequired": Self.networkAuthenticationRequired.code
 
         // TODO: support unofficial and others
         default: nil

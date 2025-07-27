@@ -1,0 +1,23 @@
+
+import DestinyBlueprint
+import DestinyDefaults
+import SwiftSyntax
+import SwiftSyntaxMacros
+
+extension DynamicMiddleware {
+    public static func parse(
+        context: some MacroExpansionContext,
+        _ function: FunctionCallExprSyntax
+    ) -> Self {
+        var logic = "\(function.trailingClosure?.debugDescription ?? "{ _, _ in }")"
+        for argument in function.arguments {
+            if let _ = argument.label?.text {
+            } else {
+                logic = "\(argument.expression)"
+            }
+        }
+        var middleware = DynamicMiddleware { _, _ in }
+        middleware.logic = "\(logic)"
+        return middleware
+    }
+}

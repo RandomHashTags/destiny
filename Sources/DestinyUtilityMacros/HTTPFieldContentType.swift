@@ -1,5 +1,4 @@
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -7,8 +6,8 @@ enum HTTPFieldContentType: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var cases = [String]()
         var httpValues = [String]()
-        var fileExtensions:[String:String] = [:]
-        var category:String = ""
+        var fileExtensions = [String:String]()
+        var category = ""
         for argument in node.arguments.children(viewMode: .all) {
             if let child = argument.as(LabeledExprSyntax.self) {
                 switch child.label?.text {
@@ -22,7 +21,7 @@ enum HTTPFieldContentType: DeclarationMacro {
         var cases_string = ""
         var parseString = "    @inlinable\n    public static func parse\(categoryUppercase)(memberName: String) -> Self? {\n        switch memberName {\n"
         
-        var decls:[DeclSyntax] = []
+        var decls = [DeclSyntax]()
         for (index, var value) in cases.enumerated() {
             value = value[value.startIndex].uppercased() + value[value.index(after: value.startIndex)...]
             parseString += "        case \"\(category)\(value)\": .\(category)\(value)"
@@ -77,4 +76,3 @@ struct HTTPFieldContentTypeDetails {
         }
     }
 }
-#endif

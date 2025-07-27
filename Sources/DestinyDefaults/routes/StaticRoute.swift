@@ -67,20 +67,9 @@ public struct StaticRoute: StaticRouteProtocol {
     }
 }
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-
-#if canImport(SwiftDiagnostics)
-import SwiftDiagnostics
-#endif
-
-import SwiftSyntax
-import SwiftSyntaxMacros
-
-// MARK: SwiftSyntax
+// MARK: Response
 extension StaticRoute {
     public func response(
-        context: MacroExpansionContext?,
-        function: FunctionCallExprSyntax?,
         middleware: [any StaticMiddlewareProtocol]
     ) -> any HTTPMessageProtocol {
         var version = version
@@ -91,73 +80,26 @@ extension StaticRoute {
         if body?.hasDateHeader ?? false {
             headers["Date"] = HTTPDateFormat.placeholder
         }
-        var cookies:[any HTTPCookieProtocol] = []
+        var cookies = [any HTTPCookieProtocol]()
         for middleware in middleware {
             if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        if let context, let function, status == HTTPResponseStatus.notImplemented.code {
-            #if canImport(SwiftDiagnostics)
-            Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
-            #endif
-        }
         headers[HTTPResponseHeader.contentType.rawNameString] = nil
         headers[HTTPResponseHeader.contentLength.rawNameString] = nil
         return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
-
-    @inlinable
-    public func responder(context: MacroExpansionContext?, function: FunctionCallExprSyntax?, middleware: [any StaticMiddlewareProtocol]) throws -> (any StaticRouteResponderProtocol)? {
-        return try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
-    }
 }
 
+// MARK: Responder
 extension StaticRoute {
-    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
-        var version = version
-        var method:any HTTPRequestMethodProtocol = HTTPRequestMethod.get
-        var path = [String]()
-        var isCaseSensitive = true
-        var status = HTTPResponseStatus.notImplemented.code
-        var contentType = HTTPMediaType.textPlain
-        var charset:Charset? = nil
-        var body:(any ResponseBodyProtocol)? = nil
-        for argument in function.arguments {
-            switch argument.label?.text {
-            case "version":
-                version = HTTPVersion.parse(argument.expression) ?? version
-            case "method":
-                method = HTTPRequestMethod.parse(expr: argument.expression) ?? method
-            case "path":
-                path = PathComponent.parseArray(context: context, argument.expression)
-            case "isCaseSensitive", "caseSensitive":
-                isCaseSensitive = argument.expression.booleanIsTrue
-            case "status":
-                status = HTTPResponseStatus.parse(expr: argument.expression)?.code ?? status
-            case "contentType":
-                contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
-            case "charset":
-                charset = Charset(expr: argument.expression)
-            case "body":
-                body = ResponseBody.parse(context: context, expr: argument.expression) ?? body
-            default:
-                break
-            }
-        }
-        return StaticRoute(
-            version: version,
-            method: method,
-            path: isCaseSensitive ? path : path.map({ $0.lowercased() }),
-            isCaseSensitive: isCaseSensitive,
-            status: status,
-            contentType: contentType,
-            charset: charset,
-            body: body
-        )
+    public func responder(
+        middleware: [any StaticMiddlewareProtocol]
+    ) throws -> (any StaticRouteResponderProtocol)? {
+        return try response(middleware: middleware).string(escapeLineBreak: true)
     }
 }
-#endif
 
 // MARK: Convenience inits
 extension StaticRoute {

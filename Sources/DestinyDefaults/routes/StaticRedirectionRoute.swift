@@ -36,36 +36,3 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
         return HTTPResponseMessage.create(escapeLineBreak: true, version: version, status: status, headers: headers, body: nil, contentType: nil, charset: nil)
     }
 }
-
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-
-import SwiftSyntax
-import SwiftSyntaxMacros
-
-// MARK: SwiftSyntax
-extension StaticRedirectionRoute {
-    public static func parse(context: some MacroExpansionContext, version: HTTPVersion, _ function: FunctionCallExprSyntax) -> Self? {
-        var version = version
-        var method:any HTTPRequestMethodProtocol = HTTPRequestMethod.get
-        var from = [String]()
-        var isCaseSensitive = true
-        var to = [String]()
-        var status = HTTPResponseStatus.movedPermanently.code
-        for argument in function.arguments {
-            switch argument.label?.text {
-            case "version": version = HTTPVersion.parse(argument.expression) ?? version
-            case "method": method = HTTPRequestMethod.parse(expr: argument.expression) ?? method
-            case "status": status = HTTPResponseStatus.parse(expr: argument.expression)?.code ?? status
-            case "from": from = PathComponent.parseArray(context: context, argument.expression)
-            case "isCaseSensitive", "caseSensitive": isCaseSensitive = argument.expression.booleanIsTrue
-            case "to": to = PathComponent.parseArray(context: context, argument.expression)
-            default: break
-            }
-        }
-        var route = Self(version: version, method: method, status: status, from: [], isCaseSensitive: isCaseSensitive, to: [])
-        route.from = from
-        route.to = to
-        return route
-    }
-}
-#endif

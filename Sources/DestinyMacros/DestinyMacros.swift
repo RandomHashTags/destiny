@@ -1,5 +1,4 @@
 
-#if canImport(SwiftCompilerPlugin) && canImport(SwiftSyntaxMacros)
 import SwiftCompilerPlugin
 import SwiftSyntaxMacros
 
@@ -10,5 +9,3 @@ struct DestinyMacros: CompilerPlugin {
         HTTPMessage.self
     ]
 }
-
-#endif

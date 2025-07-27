@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 #if canImport(SwiftSyntax)
-import SwiftSyntax
+import SwiftSyntax // TODO: abstract away or fix?
 #endif
 
 // TODO: move to own repo?

@@ -1,5 +1,4 @@
 
-#if canImport(DestinyBlueprint) && canImport(DestinyDefaults) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyBlueprint
 import DestinyDefaults
 import OrderedCollections
@@ -21,7 +20,7 @@ enum HTTPMessage: DeclarationMacro {
                 case "version":
                     version = HTTPVersion.parse(child.expression) ?? version
                 case "status":
-                    status = HTTPResponseStatus.parse(expr: child.expression)?.code ?? status
+                    status = HTTPResponseStatus.parseCode(expr: child.expression) ?? status
                 case "headers":
                     headers = HTTPRequestHeader.parse(context: context, child.expression)
                 case "body":
@@ -52,4 +51,3 @@ enum HTTPMessage: DeclarationMacro {
         }
     }
 }
-#endif

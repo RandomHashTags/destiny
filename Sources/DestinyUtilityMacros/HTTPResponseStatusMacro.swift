@@ -1,5 +1,4 @@
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -30,5 +29,3 @@ enum HTTPResponseStatusMacro: ExpressionMacro {
         return "HTTPResponseStatus.Storage<\(phraseCount)>(code: \(code), phrase: \(phrase))"
     }
 }
-
-#endif

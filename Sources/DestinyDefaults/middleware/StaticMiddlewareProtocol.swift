@@ -2,11 +2,6 @@
 import OrderedCollections
 import DestinyBlueprint
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-import SwiftSyntax
-import SwiftSyntaxMacros
-#endif
-
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     associatedtype ConcreteCookie:HTTPCookieProtocol
@@ -57,14 +52,6 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
         headers: inout OrderedDictionary<String, String>,
         cookies: inout [any HTTPCookieProtocol]
     )
-
-    #if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-    /// Parsing logic for this middleware.
-    /// 
-    /// - Parameters:
-    ///   - function: SwiftSyntax expression that represents this middleware at compile time.
-    static func parse(context: some MacroExpansionContext, _ function: FunctionCallExprSyntax) -> Self
-    #endif
 }
 extension StaticMiddlewareProtocol {
     @inlinable

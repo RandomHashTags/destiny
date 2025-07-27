@@ -1,6 +1,5 @@
 
 import DestinyBlueprint
-import OrderedCollections
 
 // MARK: HTTPRequestHeader
 // Why use this over the apple/swift-http-types?
@@ -251,55 +250,3 @@ extension HTTPRequestHeader {
         }
     }
 }
-
-#if canImport(SwiftSyntax)
-
-import SwiftSyntax
-// MARK: SwiftSyntax
-extension HTTPRequestHeader {
-    public init?(expr: ExprSyntaxProtocol) {
-        guard let string = expr.memberAccess?.declName.baseName.text else { return nil }
-        if let value = Self(rawValue: string) {
-            self = value
-        } else {
-            return nil
-        }
-    }
-}
-#endif
-
-#if canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
-
-import SwiftDiagnostics
-import SwiftSyntaxMacros
-
-// MARK: SwiftSyntaxMacros
-extension HTTPRequestHeader {
-    /// - Returns: The valid headers in a dictionary.
-    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> OrderedDictionary<String, String> {
-        guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
-            guard let key = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }
-            let value = $0.value.stringLiteral?.string ?? ""
-            return (key, value)
-        }) else {
-            return [:]
-        }
-        var headers:OrderedDictionary<String, String> = [:]
-        headers.reserveCapacity(dictionary.count)
-        for (key, value) in dictionary {
-            headers[key] = value
-        }
-        return headers
-    }
-}
-extension HTTPRequestHeader {
-    public static func parse(context: some MacroExpansionContext, _ expr: ExprSyntax) -> String? {
-        guard let key = expr.stringLiteral?.string else { return nil }
-        guard !key.contains(" ") else {
-            context.diagnose(Diagnostic(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
-            return nil
-        }
-        return key
-    }
-}
-#endif

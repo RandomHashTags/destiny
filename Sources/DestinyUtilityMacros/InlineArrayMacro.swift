@@ -1,5 +1,4 @@
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -29,5 +28,3 @@ enum InlineArrayMacro: ExpressionMacro {
         return "\(raw: "\(values)")"
     }
 }
-
-#endif

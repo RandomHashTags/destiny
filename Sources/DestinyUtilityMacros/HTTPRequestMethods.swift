@@ -1,5 +1,4 @@
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -29,7 +28,14 @@ enum HTTPRequestMethods: DeclarationMacro {
         }.joined(separator: "\n    ")
 
         string += "\n\n    public static func parse<T: ExprSyntaxProtocol>(expr: T) -> (any HTTPRequestMethodProtocol)? {\n"
-        string += "        guard let string = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else { return nil }\n"
+        string += "        let string:String?\n"
+        string += "        if let v = expr.as(MemberAccessExprSyntax.self)?.declName.baseName.text {\n"
+        string += "            string = v\n"
+        string += "        } else if let v = expr.as(StringLiteralExprSyntax.self) {\n"
+        string += "            string = \"\\(v)\".lowercased()\n"
+        string += "        } else {\n"
+        string += "            return nil\n"
+        string += "        }\n"
         string += "        switch string {\n"
         for entry in entries {
             var cases = [
@@ -71,5 +77,3 @@ extension HTTPRequestMethods {
         let value:String
     }
 }
-
-#endif

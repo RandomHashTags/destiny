@@ -106,9 +106,7 @@ let package = Package(
             dependencies: [
                 "DestinyUtilityMacros",
                 .product(name: "Logging", package: "swift-log"),
-                //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
-                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName)
+                //.product(name: "Metrics", package: "swift-metrics")
             ]
         ),
         // MARK: DestinyDefaults

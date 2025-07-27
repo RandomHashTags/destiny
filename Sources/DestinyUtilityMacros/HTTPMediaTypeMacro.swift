@@ -1,5 +1,4 @@
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -22,5 +21,3 @@ enum HTTPMediaTypeMacro: ExpressionMacro {
         return "\(raw: string)"
     }
 }
-
-#endif

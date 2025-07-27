@@ -1,5 +1,4 @@
 
-#if canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -40,5 +39,3 @@ extension HTTPResponseStatusesMacro {
         let value:String
     }
 }
-
-#endif

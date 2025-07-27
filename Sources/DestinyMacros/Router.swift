@@ -1,5 +1,4 @@
 
-#if canImport(DestinyDefaults) && canImport(DestinyBlueprint) && canImport(SwiftDiagnostics) && canImport(SwiftSyntax) && canImport(SwiftSyntaxMacros)
 import DestinyDefaults
 import DestinyBlueprint
 import SwiftDiagnostics
@@ -550,5 +549,3 @@ extension Router.Storage {
         return string + "\n)\n)"
     }
 }
-
-#endif
