@@ -12,7 +12,7 @@ if false {
     swiftSyntaxPackageName = "fork-swift-syntax"
     swiftSyntax = (
         packageName: swiftSyntaxPackageName,
-        dependency: .package(url: "https://github.com/RandomHashTags/\(swiftSyntaxPackageName)", branch: "separate-syntax-nodes")
+        dependency: .package(url: "https://github.com/RandomHashTags/\(swiftSyntaxPackageName)", branch: "optimize-codegen-for-ChildNameForKeyPath")
     )
 } else {
     swiftSyntaxPackageName = "swift-syntax"
