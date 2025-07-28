@@ -21,3 +21,12 @@ extension StaticString: BufferWritable {
         }
     }
 }
+
+extension [UInt8]: BufferWritable {
+    @inlinable
+    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
+        self.withUnsafeBufferPointer { p in
+            buffer.copyBuffer(p, at: &index)
+        }
+    }
+}

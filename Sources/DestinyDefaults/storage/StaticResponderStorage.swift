@@ -31,9 +31,9 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
     }
 
     @inlinable
-    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+    public func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
-        socket: borrowing Socket,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: DestinyRoutePathType
     ) async throws -> Bool {
         if let r = macroExpansions[startLine] {
@@ -60,7 +60,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
 // MARK: Register
 extension StaticResponderStorage {
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: any RouteResponderProtocol) {
+    public mutating func register(path: DestinyRoutePathType, _ responder: some RouteResponderProtocol) {
         if let responder = responder as? RouteResponses.MacroExpansion {
             register(path: path, responder)
         } else if let responder = responder as? MacroExpansionWithDateHeader {

@@ -30,3 +30,12 @@ extension StaticString: HTTPSocketWritable {
         }
     }
 }
+
+extension [UInt8]: HTTPSocketWritable {
+    @inlinable
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
+        try self.withUnsafeBufferPointer {
+            try socket.writeBuffer($0.baseAddress!, length: $0.count)
+        }
+    }
+}

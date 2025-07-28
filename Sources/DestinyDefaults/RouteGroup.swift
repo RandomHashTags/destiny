@@ -51,8 +51,8 @@ public struct RouteGroup: RouteGroupProtocol {
         }
 
         let pathComponents = prefixEndpoints.map({ PathComponent.literal($0) })
-        var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol] = [:]
-        var parameterized:[[any DynamicRouteResponderProtocol]] = []
+        var parameterless = [DestinyRoutePathType:any DynamicRouteResponderProtocol]()
+        var parameterized = [[any DynamicRouteResponderProtocol]]()
         for var route in dynamicRoutes {
             route.path.insert(contentsOf: pathComponents, at: 0)
             let responder = route.responder()

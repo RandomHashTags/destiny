@@ -6,6 +6,7 @@ public protocol StaticRouteResponderProtocol: RouteResponderProtocol, HTTPSocket
 // MARK: Default conformances
 extension String: StaticRouteResponderProtocol {}
 extension StaticString: StaticRouteResponderProtocol {}
+extension [UInt8]: StaticRouteResponderProtocol {}
 
 extension AsyncStream where Element: HTTPSocketWritable {
     @inlinable
