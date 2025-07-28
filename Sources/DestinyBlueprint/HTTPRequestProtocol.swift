@@ -36,7 +36,7 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
 /*
 extension HTTPRequestProtocol where Self: ~Copyable {
     @inlinable
-    public func isMethod<T: HTTPRequestMethodProtocol>(_ method: T) -> Bool {
+    public func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
         isMethod(method.rawName)
     }
 }*/

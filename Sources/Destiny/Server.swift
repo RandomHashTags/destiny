@@ -1,7 +1,12 @@
 
 import DestinyBlueprint
-import Foundation
 import Logging
+
+#if canImport(SwiftGlibc)
+import SwiftGlibc
+#elseif canImport(Foundation)
+import Foundation
+#endif
 
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.

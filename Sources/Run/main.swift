@@ -9,8 +9,8 @@ import FoundationEssentials
 import Foundation
 #endif
 
-#if canImport(Glibc)
-import Glibc
+#if canImport(SwiftGlibc)
+import SwiftGlibc
 #endif
 
 import Destiny

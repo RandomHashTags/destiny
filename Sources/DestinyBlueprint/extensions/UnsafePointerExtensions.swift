@@ -5,8 +5,8 @@ import Android
 import Bionic
 #elseif canImport(Darwin)
 import Darwin
-#elseif canImport(Glibc)
-import Glibc
+#elseif canImport(SwiftGlibc)
+import SwiftGlibc
 #elseif canImport(Musl)
 import Musl
 #elseif canImport(WASILibc)
@@ -34,7 +34,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
 extension UnsafeMutableBufferPointer where Element == UInt8 {
     @inlinable
     public func copyBuffer(_ buffer: UnsafeBufferPointer<Element>, at index: inout Int) {
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         memcpy(baseAddress! + index, buffer.baseAddress!, buffer.count)
         index += buffer.count
         #else
@@ -47,7 +47,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
 
     @inlinable
     public func copyBuffer(_ buffer: UnsafeMutableBufferPointer<Element>, at index: inout Int) {
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         memcpy(baseAddress! + index, buffer.baseAddress!, buffer.count)
         index += buffer.count
         #else

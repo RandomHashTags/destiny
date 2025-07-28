@@ -5,8 +5,8 @@ import Android
 import Bionic
 #elseif canImport(Darwin)
 import Darwin
-#elseif canImport(Glibc)
-import Glibc
+#elseif canImport(SwiftGlibc)
+import SwiftGlibc
 #elseif canImport(Musl)
 import Musl
 #elseif canImport(WASILibc)

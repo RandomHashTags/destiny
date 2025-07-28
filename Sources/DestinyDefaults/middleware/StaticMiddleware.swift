@@ -1,6 +1,5 @@
 
 import DestinyBlueprint
-import OrderedCollections
 
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
@@ -30,7 +29,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     public let appliesVersion:HTTPVersion?
     public let appliesStatus:HTTPResponseStatus.Code?
     public let appliesContentType:HTTPMediaType?
-    public let appliesHeaders:OrderedDictionary<String, String>
+    public let appliesHeaders:HTTPHeaders
     public let appliesCookies:[Cookie]
     public let excludedRoutes:Set<String>
 
@@ -42,7 +41,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: HTTPMediaType? = nil,
-        appliesHeaders: OrderedDictionary<String, String> = [:],
+        appliesHeaders: HTTPHeaders = .init(),
         appliesCookies: [Cookie] = [],
         excludedRoutes: Set<String> = []
     ) {

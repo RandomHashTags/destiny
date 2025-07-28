@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import OrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -22,7 +21,7 @@ extension StaticMiddleware {
         var appliesVersion:HTTPVersion? = nil
         var appliesStatus:HTTPResponseStatus.Code? = nil
         var appliesContentType:HTTPMediaType? = nil
-        var appliesHeaders = OrderedDictionary<String, String>()
+        var appliesHeaders = HTTPHeaders()
         var appliesCookies = [Cookie]()
         var excludedRoutes = Set<String>()
         for argument in function.arguments {

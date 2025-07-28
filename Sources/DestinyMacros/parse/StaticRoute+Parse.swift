@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import OrderedCollections
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -81,7 +80,7 @@ extension StaticRoute {
         let path = path.joined(separator: "/")
         var status = status
         var contentType = contentType
-        var headers = OrderedDictionary<String, String>()
+        var headers = HTTPHeaders()
         if body?.hasDateHeader ?? false {
             headers["Date"] = HTTPDateFormat.placeholder
         }

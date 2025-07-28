@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import OrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -9,7 +8,7 @@ enum HTTPMessage: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var version = HTTPVersion.v1_1
         var status = HTTPResponseStatus.notImplemented.code
-        var headers = OrderedDictionary<String, String>()
+        var headers = HTTPHeaders()
         var body:(any ResponseBodyProtocol)? = nil
         var contentType:HTTPMediaType? = nil
         var charset:Charset? = nil

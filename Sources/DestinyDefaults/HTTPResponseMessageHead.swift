@@ -1,15 +1,14 @@
 
 import DestinyBlueprint
-import OrderedCollections
 
 public struct HTTPResponseMessageHead: Sendable {
-    public var headers:OrderedDictionary<String, String>
+    public var headers:HTTPHeaders
     public var cookies:[any HTTPCookieProtocol]
     public var status:HTTPResponseStatus.Code
     public var version:HTTPVersion
 
     public init(
-        headers: OrderedDictionary<String, String>,
+        headers: HTTPHeaders,
         cookies: [any HTTPCookieProtocol],
         status: HTTPResponseStatus.Code,
         version: HTTPVersion
@@ -24,6 +23,7 @@ public struct HTTPResponseMessageHead: Sendable {
     public func string(escapeLineBreak: Bool) -> String {
         return string(suffix: escapeLineBreak ? "\\r\\n" : "\r\n")
     }
+
     @inlinable
     public func string(suffix: String) -> String {
         var string = "\(version.string) \(status)\(suffix)"

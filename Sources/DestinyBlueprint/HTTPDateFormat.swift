@@ -5,8 +5,8 @@ import Android
 import Bionic
 #elseif canImport(Darwin)
 import Darwin
-#elseif canImport(Glibc)
-import Glibc
+#elseif canImport(SwiftGlibc)
+import SwiftGlibc
 #elseif canImport(Musl)
 import Musl
 #elseif canImport(WASILibc)
@@ -58,7 +58,7 @@ public struct HTTPDateFormat: Sendable {
     @inlinable
     public mutating func now() -> InlineArrayResult? {
         let result:InlineArrayResult?
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         result = nowGlibc()
         #else
         result = nil
@@ -214,7 +214,7 @@ extension HTTPDateFormat {
     }
 }
 
-#if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+#if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
 // MARK: Glibc
 extension HTTPDateFormat {
     // https://linux.die.net/man/3/localtime

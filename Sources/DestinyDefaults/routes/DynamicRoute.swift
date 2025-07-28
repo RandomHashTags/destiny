@@ -1,6 +1,5 @@
 
 import DestinyBlueprint
-import OrderedCollections
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
@@ -23,7 +22,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         cookies: [any HTTPCookieProtocol] = [],
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
@@ -73,7 +72,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -87,7 +86,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -101,7 +100,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -115,7 +114,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -129,7 +128,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -143,7 +142,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -157,7 +156,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -171,7 +170,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -185,7 +184,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
@@ -199,7 +198,7 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
-        headers: OrderedDictionary<String, String> = [:],
+        headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {

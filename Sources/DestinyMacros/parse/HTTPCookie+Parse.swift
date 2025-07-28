@@ -22,12 +22,7 @@ extension HTTPCookie {
         var name:CookieName? = nil
         var value:CookieValue? = nil
         var maxAge:UInt64 = 0
-
-        #if canImport(FoundationEssentials) || canImport(Foundation)
-        var expires:Date? = nil
-        #else
         var expires:String? = nil
-        #endif
         var domain:String? = nil
         var path:String? = nil
         var isSecure = false
@@ -45,11 +40,7 @@ extension HTTPCookie {
                         maxAge = i
                     }
                 case "expires":
-                    #if canImport(FoundationEssentials) || canImport(Foundation)
-                    expires = nil // TODO: fix
-                    #else
                     expires = argument.expression.stringLiteral?.string
-                    #endif
                 case "domain":
                     domain = argument.expression.stringLiteral?.string
                 case "path":

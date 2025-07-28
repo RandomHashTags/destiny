@@ -1,10 +1,4 @@
 
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#elseif canImport(Foundation)
-import Foundation
-#endif
-
 import DestinyBlueprint
 
 // MARK: HTTPRequestHeaders
@@ -18,16 +12,12 @@ public struct HTTPRequestHeaders: HTTPRequestHeadersProtocol { // TODO: make SIM
 
     public var accept:String?
     public var acceptCharset:Charset?
-    #if canImport(FoundationEssentials) || canImport(Foundation)
-    public var acceptDatetime:Date?
-    #endif
+    public var acceptDatetimeString:String?
     public var acceptEncoding:HTTPRequestHeader.AcceptEncoding?
     public var contentLength:Int?
     public var contentType:String?
 
-    #if canImport(FoundationEssentials) || canImport(Foundation)
-    public var date:Date?
-    #endif
+    public var dateString:String?
 
     public var from:String?
     public var host:String?
@@ -127,16 +117,14 @@ extension HTTPRequestHeaders {
     }
 }
 
-// MARK: Date
+// MARK: Date string
 extension HTTPRequestHeaders {
-    #if canImport(FoundationEssentials)
     @discardableResult
     @inlinable
-    public mutating func date(_ date: Date?) -> Self {
-        self.date = date
+    public mutating func dateString(_ dateString: String?) -> Self {
+        self.dateString = dateString
         return self
     }
-    #endif
 }
 
 // MARK: From

@@ -1,10 +1,4 @@
 
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#elseif canImport(Foundation)
-import Foundation
-#endif
-
 import DestinyBlueprint
 
 // MARK: HTTPResponseHeaders
@@ -24,9 +18,7 @@ public struct HTTPResponseHeaders: HTTPResponseHeadersProtocol { // TODO: finish
     @usableFromInline var contentType:String?
     @usableFromInline var retryAfterDuration:Int?
 
-    #if canImport(FoundationEssentials) || canImport(Foundation)
-    @usableFromInline var retryAfterDate:Date?
-    #endif
+    public var retryAfterDateString:String?
     
     @usableFromInline var tk:HTTPResponseHeader.TK?
     @usableFromInline var xContentTypeOptions:Bool = false
@@ -132,15 +124,6 @@ extension HTTPResponseHeaders {
         retryAfterDuration = seconds
         return self
     }
-
-    #if canImport(FoundationEssentials) || canImport(Foundation)
-    @discardableResult
-    @inlinable
-    public mutating func retryAfter(_ date: Date?) -> Self {
-        retryAfterDate = date
-        return self
-    }
-    #endif
 }
 
 // MARK: TK

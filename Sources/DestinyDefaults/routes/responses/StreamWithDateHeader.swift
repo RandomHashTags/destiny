@@ -52,9 +52,9 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
     public let chunkSize:Int
     public let stream:ReusableAsyncThrowingStream<T, Error>
 
-    public init<S: Sequence<T>>(
+    public init(
         chunkSize: Int = 1024,
-        _ values: S
+        _ values: some Sequence<T>
     ) {
         self.chunkSize = chunkSize
         stream = ReusableAsyncThrowingStream {
@@ -66,6 +66,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
             }
         }
     }
+
     public init(
         chunkSize: Int = 1024,
         _ stream: ReusableAsyncThrowingStream<T, Error>

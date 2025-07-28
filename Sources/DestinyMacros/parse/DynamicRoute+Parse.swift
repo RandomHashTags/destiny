@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import OrderedCollections
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -68,7 +67,7 @@ extension DynamicRoute {
                 break
             }
         }
-        var headers = OrderedDictionary<String, String>()
+        var headers = HTTPHeaders()
         var cookies = [any HTTPCookieProtocol]()
         if !isCaseSensitive {
             path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })

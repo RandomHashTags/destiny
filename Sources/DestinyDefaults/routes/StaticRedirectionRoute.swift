@@ -1,6 +1,5 @@
 
 import DestinyBlueprint
-import OrderedCollections
 
 // MARK: StaticRedirectionRoute
 /// Default Redirection Route implementation that handles redirects for static routes.
@@ -29,10 +28,9 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     }
 
     public func response() throws -> String {
-        let headers:OrderedDictionary<String, String> = [
-            "Date": HTTPDateFormat.placeholder,
-            "Location": "/" + to.joined(separator: "/")
-        ]
+        var headers = HTTPHeaders()
+        headers["Date"] = HTTPDateFormat.placeholder
+        headers["Location"] = "/" + to.joined(separator: "/")
         return HTTPResponseMessage.create(escapeLineBreak: true, version: version, status: status, headers: headers, body: nil, contentType: nil, charset: nil)
     }
 }

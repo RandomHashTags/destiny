@@ -1,10 +1,12 @@
 
-#if canImport(Foundation)
-import Foundation
-#endif
-
 import DestinyBlueprint
 import Logging
+
+#if canImport(SwiftGlibc)
+import SwiftGlibc
+#elseif canImport(Foundation)
+import Foundation
+#endif
 
 public typealias DefaultRouter = HTTPRouter<
     RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseSensitiveRouterResponderStorage
@@ -101,7 +103,7 @@ extension HTTPRouter {
         logger: Logger
     ) async throws {
         defer {
-            #if canImport(Foundation)
+            #if canImport(SwiftGlibc) || canImport(Foundation)
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
             close(client)
             #else

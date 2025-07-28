@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import OrderedCollections
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -22,7 +21,7 @@ extension HTTPRequestHeader {
     public static func parse(
         context: some MacroExpansionContext,
         _ expr: ExprSyntax
-    ) -> OrderedDictionary<String, String> {
+    ) -> HTTPHeaders {
         guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
             guard let key = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }
             let value = $0.value.stringLiteral?.string ?? ""
@@ -30,7 +29,7 @@ extension HTTPRequestHeader {
         }) else {
             return [:]
         }
-        var headers = OrderedDictionary<String, String>()
+        var headers = HTTPHeaders()
         headers.reserveCapacity(dictionary.count)
         for (key, value) in dictionary {
             headers[key] = value

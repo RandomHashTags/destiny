@@ -33,9 +33,6 @@ pkgDependencies = [
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
-    // Ordered Dictionary
-    .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
-
     // Epoll
     .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0")
 ]
@@ -57,9 +54,6 @@ pkgDependencies = [
 
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
-
-    // Ordered Dictionary
-    .package(url: "https://github.com/apple/swift-collections", from: "1.1.4"),
 ]
 
 destinyModuleDependencies = [
@@ -73,9 +67,11 @@ let package = Package(
     name: "destiny",
     products: [
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
-        .library(name: "DestinyBlueprintFoundation", targets: ["DestinyBlueprintFoundation"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
-        .library(name: "Destiny", targets: ["Destiny"])
+        .library(name: "Destiny", targets: ["Destiny"]),
+
+        .library(name: "DestinyBlueprintFoundation", targets: ["DestinyBlueprintFoundation"]),
+        .library(name: "DestinyDefaultsFoundation", targets: ["DestinyDefaultsFoundation"])
     ],
     traits: [
         .default(enabledTraits: ["Destiny"]),
@@ -86,6 +82,12 @@ let package = Package(
         .trait(
             name: "Destiny",
             description: "Default Destiny experience with the default features and a functional HTTP Server.",
+            enabledTraits: ["DestinyDefaults"]
+        ),
+
+        .trait(
+            name: "DestinyDefaultsFoundation",
+            description: "Foundation extensions to DestinyDefaults.",
             enabledTraits: ["DestinyDefaults"]
         )
     ],
@@ -122,13 +124,21 @@ let package = Package(
             name: "DestinyDefaults",
             dependencies: [
                 "DestinyBlueprint",
-                "DestinyBlueprintFoundation",
                 "DestinyUtilityMacros",
-                .product(name: "Collections", package: "swift-collections"),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
                 .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName)
+            ]
+        ),
+
+        .target(
+            name: "DestinyDefaultsFoundation",
+            dependencies: [
+                "DestinyBlueprint",
+                "DestinyBlueprintFoundation",
+                "DestinyDefaults",
+                "DestinyUtilityMacros"
             ]
         ),
 

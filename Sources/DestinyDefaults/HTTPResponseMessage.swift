@@ -1,6 +1,5 @@
 
 import DestinyBlueprint
-import OrderedCollections
 
 /// Default storage for an HTTP Message.
 public struct HTTPResponseMessage: HTTPMessageProtocol {
@@ -12,7 +11,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
     public init(
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: OrderedDictionary<String, String>,
+        headers: HTTPHeaders,
         cookies: [any HTTPCookieProtocol],
         body: (any ResponseBodyProtocol)?,
         contentType: HTTPMediaType?,
@@ -24,7 +23,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         self.charset = charset
     }
     public init(
-        headers: OrderedDictionary<String, String>,
+        headers: HTTPHeaders,
         cookies: [any HTTPCookieProtocol],
         body: (any ResponseBodyProtocol)?,
         contentType: HTTPMediaType?,
@@ -244,21 +243,7 @@ extension HTTPResponseMessage {
         escapeLineBreak: Bool,
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: OrderedDictionary<String, String>,
-        body: String?,
-        contentType: HTTPMediaType?,
-        charset: Charset?
-    ) -> String {
-        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
-    }
-
-    @inlinable
-    public static func create(
-        escapeLineBreak: Bool,
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: OrderedDictionary<HTTPResponseHeader, String>,
+        headers: HTTPHeaders,
         body: String?,
         contentType: HTTPMediaType?,
         charset: Charset?
@@ -292,23 +277,11 @@ extension HTTPResponseMessage {
     @inlinable
     public static func headers(
         suffix: String,
-        headers: OrderedDictionary<String, String>
+        headers: HTTPHeaders
     ) -> String {
         var string = ""
         for (header, value) in headers {
             string += "\(header): \(value)\(suffix)"
-        }
-        return string
-    }
-
-    @inlinable
-    public static func headers(
-        suffix: String,
-        headers: OrderedDictionary<HTTPResponseHeader, String>
-    ) -> String {
-        var string = ""
-        for (header, value) in headers {
-            string += "\(header.rawValue): \(value)\(suffix)"
         }
         return string
     }

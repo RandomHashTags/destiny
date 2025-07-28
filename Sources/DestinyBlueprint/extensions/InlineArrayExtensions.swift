@@ -6,7 +6,7 @@ import Android
 import Bionic
 #elseif canImport(Darwin)
 import Darwin
-#elseif canImport(Glibc)
+#elseif canImport(SwiftGlibc)
 import Glibc
 #elseif canImport(Musl)
 import Musl
@@ -431,7 +431,7 @@ extension InlineArrayProtocol where Element == UInt8 {
     public func lowercased() -> Self {
         var value = self
         let simds:Int
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         simds = Int(ceil(Double(count) / 64))
         #else
         simds = Int(ceil(Double(count) / 64)) // TODO: fix
@@ -489,7 +489,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
     @inlinable
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
         var result = T()
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         _ = withUnsafeBytes(of: self, { this in 
             withUnsafeBytes(of: &result, {
                 memcpy(.init(mutating: $0.baseAddress!), this.baseAddress! + startIndex, T.scalarCount)
