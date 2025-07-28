@@ -27,7 +27,7 @@ public struct HTTPRequestHeaders: HTTPRequestHeadersProtocol { // TODO: make SIM
     public var upgradeInsecureRequests:Bool = false
     public var xRequestedWith:HTTPRequestHeader.XRequestedWith?
     public var dnt:Bool?
-    public var xHttpMethodOverride:HTTPRequestMethod?
+    public var xHttpMethodOverride:(any HTTPRequestMethodProtocol)?
     public var secGPC:Bool = false
 
     public init(_ custom: [String:String] = [:]) {
@@ -181,7 +181,7 @@ extension HTTPRequestHeaders {
 extension HTTPRequestHeaders {
     @discardableResult
     @inlinable
-    public mutating func xHttpMethodOverride(_ method: HTTPRequestMethod?) -> Self {
+    public mutating func xHttpMethodOverride(_ method: (some HTTPRequestMethodProtocol)?) -> Self {
         xHttpMethodOverride = method
         return self
     }

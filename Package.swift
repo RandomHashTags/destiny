@@ -84,6 +84,11 @@ let package = Package(
             description: "Default Destiny experience with the default features and a functional HTTP Server.",
             enabledTraits: ["DestinyDefaults"]
         ),
+        .trait(
+            name: "DestinySwiftSyntax",
+            description: "Default Destiny experience with the default features and a functional HTTP Server.",
+            enabledTraits: ["Destiny"]
+        ),
 
         .trait(
             name: "DestinyDefaultsFoundation",
@@ -147,6 +152,12 @@ let package = Package(
             name: "Destiny",
             dependencies: destinyModuleDependencies
         ),
+
+        // MARK: DestinySwiftSyntax
+        .target(
+            name: "DestinySwiftSyntax",
+            dependencies: destinyModuleDependencies
+        ),
         
         .macro(
             name: "DestinyMacros",
@@ -160,7 +171,7 @@ let package = Package(
             ]
         ),
 
-        .executableTarget(name: "Run", dependencies: ["Destiny"]),
+        .executableTarget(name: "Run", dependencies: ["DestinySwiftSyntax"]),
 
         .testTarget(
             name: "DestinyTests",

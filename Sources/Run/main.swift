@@ -13,7 +13,7 @@ import Foundation
 import SwiftGlibc
 #endif
 
-import Destiny
+import DestinySwiftSyntax
 import Logging
 
 // MARK: Router

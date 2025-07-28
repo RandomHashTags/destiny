@@ -1,4 +1,6 @@
 
+import DestinyBlueprint
+
 extension HTTPMediaType {
     #HTTPFieldContentType(
         category: "video",

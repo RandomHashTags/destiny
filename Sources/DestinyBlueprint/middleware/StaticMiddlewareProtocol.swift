@@ -1,6 +1,4 @@
 
-import DestinyBlueprint
-
 /// Core Static Middleware protocol which handles static & dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol: MiddlewareProtocol {
     associatedtype ConcreteCookie:HTTPCookieProtocol
