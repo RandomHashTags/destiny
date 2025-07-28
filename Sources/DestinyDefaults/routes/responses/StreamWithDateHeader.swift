@@ -27,9 +27,9 @@ extension StreamWithDateHeader {
                         buffer[offset] = datePointer[i]
                         offset += 1
                     }
-                    let transferEncoding:InlineArray<26, UInt8> = #inlineArray("Transfer-Encoding: chunked")
-                    for indice in transferEncoding.indices {
-                        buffer[i] = transferEncoding[indice]
+                    let transferEncodingChunked:InlineArray<26, UInt8> = [84, 114, 97, 110, 115, 102, 101, 114, 45, 69, 110, 99, 111, 100, 105, 110, 103, 58, 32, 99, 104, 117, 110, 107, 101, 100] // Transfer-Encoding: chunked
+                    for indice in transferEncodingChunked.indices {
+                        buffer[i] = transferEncodingChunked[indice]
                         i += 1
                     }
                     buffer[i] = .carriageReturn

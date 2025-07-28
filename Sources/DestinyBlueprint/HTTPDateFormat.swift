@@ -31,7 +31,7 @@ public struct HTTPDateFormat: Sendable {
 
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 
-    public var nowInlineArray:InlineArrayResult = #inlineArray("Thu, 01 Jan 1970 00:00:00 GMT")
+    public var nowInlineArray:InlineArrayResult = [84, 104, 117, 44, 32, 48, 49, 32, 74, 97, 110, 32, 49, 57, 55, 48, 32, 48, 48, 58, 48, 48, 58, 48, 48, 32, 71, 77, 84] // Thu, 01 Jan 1970 00:00:00 GMT
 
     /// Begins the auto-updating of the current date in the HTTP Format.
     @inlinable
@@ -156,32 +156,32 @@ extension HTTPDateFormat {
     @inlinable
     static func httpDayName(_ int: some BinaryInteger) -> InlineArray<3, UInt8> {
         switch int {
-        case 0:  return #inlineArray("Sun")
-        case 1:  return #inlineArray("Mon")
-        case 2:  return #inlineArray("Tue")
-        case 3:  return #inlineArray("Wed")
-        case 4:  return #inlineArray("Thu")
-        case 5:  return #inlineArray("Fri")
-        case 6:  return #inlineArray("Sat")
-        default: return #inlineArray("???")
+        case 0:  return [83, 117, 110] // Sun
+        case 1:  return [77, 111, 110] // Mon
+        case 2:  return [84, 117, 101] // Tue
+        case 3:  return [87, 101, 100] // Wed
+        case 4:  return [84, 104, 117] // Thu
+        case 5:  return [70, 114, 105] // Fri
+        case 6:  return [83, 97, 116]  // Sat
+        default: return [63, 63, 63]   // ???
         }
     }
     @inlinable
     static func httpMonthName(_ int: some BinaryInteger) -> InlineArray<3, UInt8> {
         switch int {
-        case 0:  return #inlineArray("Jan")
-        case 1:  return #inlineArray("Feb")
-        case 2:  return #inlineArray("Mar")
-        case 3:  return #inlineArray("Apr")
-        case 4:  return #inlineArray("May")
-        case 5:  return #inlineArray("Jun")
-        case 6:  return #inlineArray("Jul")
-        case 7:  return #inlineArray("Aug")
-        case 8:  return #inlineArray("Sep")
-        case 9:  return #inlineArray("Oct")
-        case 10: return #inlineArray("Nov")
-        case 11: return #inlineArray("Dec")
-        default: return #inlineArray("???")
+        case 0:  return [74, 97, 110]  // Jan
+        case 1:  return [70, 101, 98]  // Feb
+        case 2:  return [77, 97, 114]  // Mar
+        case 3:  return [65, 112, 114] // Apr
+        case 4:  return [77, 97, 121]  // May
+        case 5:  return [74, 117, 110] // Jun
+        case 6:  return [74, 117, 108] // Jul
+        case 7:  return [65, 117, 103] // Aug
+        case 8:  return [83, 101, 112] // Sep
+        case 9:  return [79, 99, 116]  // Oct
+        case 10: return [78, 111, 118] // Nov
+        case 11: return [68, 101, 99]  // Dec
+        default: return [63, 63, 63]   // ???
         }
     }
     @inlinable

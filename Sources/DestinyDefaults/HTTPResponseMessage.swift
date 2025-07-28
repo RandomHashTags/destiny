@@ -182,7 +182,7 @@ extension HTTPResponseMessage {
     }
     @inlinable
     func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: any HTTPCookieProtocol) {
-        let headerKey:InlineArray<12, UInt8> = #inlineArray("Set-Cookie: ")
+        let headerKey:InlineArray<12, UInt8> = [83, 101, 116, 45, 67, 111, 111, 107, 105, 101, 58, 32] // "Set-Cookie: "
         writeInlineArray(to: buffer, index: &i, array: headerKey)
 
         var cookieString = "\(cookie)"
@@ -193,13 +193,13 @@ extension HTTPResponseMessage {
     func writeResult(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) throws {
         guard var body else { return }
         if let contentType {
-            let contentTypeHeader:InlineArray<14, UInt8> = #inlineArray("Content-Type: ")
+            let contentTypeHeader:InlineArray<14, UInt8> = [67, 111, 110, 116, 101, 110, 116, 45, 84, 121, 112, 101, 58, 32] // "Content-Type: "
             writeInlineArray(to: buffer, index: &i, array: contentTypeHeader)
 
             var contentTypeDescription = contentType.description
             writeString(to: buffer, index: &i, string: &contentTypeDescription)
             if let charset {
-                let charsetSpan:InlineArray<10, UInt8> = #inlineArray("; charset=")
+                let charsetSpan:InlineArray<10, UInt8> = [59, 32, 99, 104, 97, 114, 115, 101, 116, 61] // "; charset="
                 writeInlineArray(to: buffer, index: &i, array: charsetSpan)
 
                 var charsetValue = charset.rawName
@@ -207,7 +207,7 @@ extension HTTPResponseMessage {
             }
             writeCRLF(to: buffer, index: &i)
         }
-        let contentLengthHeader:InlineArray<16, UInt8> = #inlineArray("Content-Length: ")
+        let contentLengthHeader:InlineArray<16, UInt8> = [67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32] // "Content-Length: "
         writeInlineArray(to: buffer, index: &i, array: contentLengthHeader)
 
         var contentLengthString = String(body.count)
