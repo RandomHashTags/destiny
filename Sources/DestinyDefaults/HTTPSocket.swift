@@ -17,8 +17,10 @@ import Windows
 import WinSDK
 #endif
 
-// MARK: Socket
-public struct Socket: HTTPSocketProtocol, ~Copyable {
+import DestinyBlueprint
+
+/// Default socket storage with the only purpose of handling communication between http clients and the http server.
+public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
     public typealias Buffer = InlineArray<1024, UInt8>
 
     public typealias ConcreteRequest = Request
@@ -32,7 +34,7 @@ public struct Socket: HTTPSocketProtocol, ~Copyable {
 }
 
 // MARK: Reading
-extension Socket {
+extension HTTPSocket {
     @inlinable
     public func readBuffer() throws -> (Buffer, Int) {
         var buffer = Buffer.init(repeating: 0)
@@ -112,7 +114,7 @@ extension Socket {
 }
 
 // MARK: Receive
-extension Socket {
+extension HTTPSocket {
     @usableFromInline
     func receive(_ baseAddress: UnsafeMutablePointer<UInt8>, _ length: Int, _ flags: Int32 = 0) -> Int {
         return recv(fileDescriptor, baseAddress, length, flags)
@@ -124,7 +126,7 @@ extension Socket {
 }
 
 // MARK: Writing
-extension Socket {
+extension HTTPSocket {
     @inlinable
     public func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
         var sent = 0
@@ -140,7 +142,7 @@ extension Socket {
 }
 
 // MARK: Send
-extension Socket {
+extension HTTPSocket {
     @usableFromInline
     func sendMultiplatform(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)

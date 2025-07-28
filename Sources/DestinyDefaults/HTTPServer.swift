@@ -1,16 +1,16 @@
 
-import DestinyBlueprint
-import Logging
-
 #if canImport(SwiftGlibc)
 import SwiftGlibc
 #elseif canImport(Foundation)
 import Foundation
 #endif
 
+import DestinyBlueprint
+import Logging
+
 // MARK: Server
 /// A default `HTTPServerProtocol` implementation.
-public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
+public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.
@@ -75,7 +75,7 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
 
     /// - Returns: The file descriptor of the created socket.
     func bindAndListen() throws -> Int32 {
-        #if os(Linux)
+        #if canImport(SwiftGlibc)
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #else
         let serverFD = socket(AF_INET6, SOCK_STREAM, 0)
@@ -84,8 +84,8 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
             throw ServerError.socketCreationFailed()
         }
         self.serverFD = serverFD
-        Socket.noSigPipe(fileDescriptor: serverFD)
-        #if os(Linux)
+        ClientSocket.noSigPipe(fileDescriptor: serverFD)
+        #if canImport(SwiftGlibc)
         var addr = sockaddr_in6(
             sin6_family: sa_family_t(AF_INET6),
             sin6_port: port.bigEndian,
@@ -111,7 +111,7 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
             var r:Int32 = 1
             setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &r, socklen_t(MemoryLayout<Int32>.size))
         }
-        #if os(Linux)
+        #if canImport(SwiftGlibc)
         if reusePort {
             var r:Int32 = 1
             setsockopt(serverFD, SOL_SOCKET, SO_REUSEPORT, &r, socklen_t(MemoryLayout<Int32>.size))
@@ -135,7 +135,7 @@ public final class Server<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketPr
 }
 
 // MARK: Process clients
-extension Server where ClientSocket: ~Copyable {
+extension HTTPServer where ClientSocket: ~Copyable {
     @inlinable
     func processClients(serverFD: Int32) async {
         #if os(Linux)

@@ -40,6 +40,7 @@ extension SocketAcceptor {
         }
         return (client, .now)
     }
+
     @inlinable
     @Sendable
     static func acceptClientNoTCPDelay(server: Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)? {
