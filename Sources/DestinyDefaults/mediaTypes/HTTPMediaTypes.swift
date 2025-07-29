@@ -5,28 +5,29 @@ import DestinyBlueprint
 extension HTTPMediaType {
     @inlinable
     public static func parse(memberName: String) -> Self? {
-        if let v = parseApplication(memberName: memberName) { return v }
-        if let v = parseFont(memberName: memberName) { return v }
-        if let v = parseHaptics(memberName: memberName) { return v }
-        if let v = parseImage(memberName: memberName) { return v }
-        if let v = parseMessage(memberName: memberName) { return v }
-        if let v = parseModel(memberName: memberName) { return v }
-        if let v = parseMultipart(memberName: memberName) { return v }
-        if let v = parseText(memberName: memberName) { return v }
-        if let v = parseVideo(memberName: memberName) { return v }
+        if let v = HTTPMediaTypeApplication(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeFont(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeHaptics(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeImage(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeMessage(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeModel(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeMultipart(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeText(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeVideo(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
         return nil
     }
+
     @inlinable
     public static func parse(fileExtension: String) -> Self? {
-        if let v = parseApplication(fileExtension: fileExtension) { return v }
-        if let v = parseFont(fileExtension: fileExtension) { return v }
-        if let v = parseHaptics(fileExtension: fileExtension) { return v }
-        if let v = parseImage(fileExtension: fileExtension) { return v }
-        if let v = parseMessage(fileExtension: fileExtension) { return v }
-        if let v = parseModel(fileExtension: fileExtension) { return v }
-        if let v = parseMultipart(fileExtension: fileExtension) { return v }
-        if let v = parseText(fileExtension: fileExtension) { return v }
-        if let v = parseVideo(fileExtension: fileExtension) { return v }
+        if let v = HTTPMediaTypeApplication(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeFont(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeHaptics(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeImage(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeMessage(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeModel(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeMultipart(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeText(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
+        if let v = HTTPMediaTypeVideo(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
         return nil
     }
 }

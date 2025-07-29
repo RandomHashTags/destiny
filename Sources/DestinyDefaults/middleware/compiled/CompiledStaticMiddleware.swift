@@ -3,7 +3,7 @@ import DestinyBlueprint
 
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
-public struct StaticMiddleware: StaticMiddlewareProtocol {
+public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
     /// Route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
@@ -35,7 +35,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: [any HTTPRequestMethodProtocol]? = nil,
         handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
-        handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
+        handlesContentTypes: Set<HTTPMediaType>? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: HTTPMediaType? = nil,
@@ -46,11 +46,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
         self.handlesStatuses = handlesStatuses
-        if let handlesContentTypes {
-            self.handlesContentTypes = Set(handlesContentTypes.map({ .init($0) }))
-        } else {
-            self.handlesContentTypes = nil
-        }
+        self.handlesContentTypes = handlesContentTypes
         self.appliesVersion = appliesVersion
         self.appliesStatus = appliesStatus
         self.appliesContentType = appliesContentType
@@ -75,7 +71,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     }
 }
 
-extension StaticMiddleware {
+extension CompiledStaticMiddleware {
     @inlinable
     public func handlesVersion(_ version: HTTPVersion) -> Bool {
         handlesVersions?.contains(version) ?? true
@@ -108,7 +104,7 @@ extension StaticMiddleware {
     }
 }
 
-extension StaticMiddleware {
+extension CompiledStaticMiddleware {
     @inlinable
     public func apply(
         version: inout HTTPVersion,

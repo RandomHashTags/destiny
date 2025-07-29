@@ -23,7 +23,7 @@ extension StaticRoute {
         var path = [String]()
         var isCaseSensitive = true
         var status = HTTPResponseStatus.notImplemented.code
-        var contentType = HTTPMediaType.textPlain
+        var contentType = HTTPMediaType(HTTPMediaTypeText.plain)
         var charset:Charset? = nil
         var body:(any ResponseBodyProtocol)? = nil
         for argument in function.arguments {

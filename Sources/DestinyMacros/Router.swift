@@ -63,7 +63,7 @@ extension Router {
             headers: [:],
             cookies: [],
             body: "{\"error\":true,\"reason\":\"\\(error)\"}",
-            contentType: HTTPMediaType.applicationJson,
+            contentType: HTTPMediaTypeApplication.json,
             charset: nil
         ).string(escapeLineBreak: true)) ?? ""
         var errorResponder = """
@@ -155,7 +155,7 @@ extension Router {
                     headers: [:],
                     cookies: [],
                     body: ResponseBody.stringWithDateHeader("not found"),
-                    contentType: HTTPMediaType.textPlain,
+                    contentType: HTTPMediaType(HTTPMediaTypeText.plain),
                     charset: Charset.utf8
                 )
             )
@@ -244,7 +244,7 @@ extension Router {
         var dynamicRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
 
-        var staticMiddleware:[StaticMiddleware] = []
+        var staticMiddleware:[CompiledStaticMiddleware] = []
         var staticRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var staticRoutes:[(StaticRoute, FunctionCallExprSyntax)] = []
         
@@ -335,7 +335,7 @@ extension Router.Storage {
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
-        middleware: [StaticMiddleware],
+        middleware: [CompiledStaticMiddleware],
         _ routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return "CompiledStaticResponderStorage(())" }

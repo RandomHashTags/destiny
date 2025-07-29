@@ -13,6 +13,11 @@ public struct HTTPMediaType: CustomDebugStringConvertible, Hashable, HTTPMediaTy
         self.subType = subType
     }
 
+    public init(_ type: some HTTPMediaTypeProtocol) {
+        self.type = type.type
+        self.subType = type.subType
+    }
+
     @inlinable
     public var description: String {
         return "\(type)/\(subType)"

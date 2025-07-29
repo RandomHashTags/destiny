@@ -106,6 +106,26 @@ extension DynamicRoute {
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
+    @inlinable
+    public static func on(
+        version: HTTPVersion = .v1_1,
+        method: some HTTPRequestMethodProtocol,
+        path: [PathComponent],
+        caseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
+        contentType: (some HTTPMediaTypeProtocol)? = nil,
+        headers: HTTPHeaders = .init(),
+        body: (any ResponseBodyProtocol)? = nil,
+        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        let mediaType:HTTPMediaType?
+        if let contentType {
+            mediaType = .init(contentType)
+        } else {
+            mediaType = nil
+        }
+        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: mediaType, headers: headers, body: body, handler: handler)
+    }
 
     @inlinable
     public static func get(
@@ -114,6 +134,20 @@ extension DynamicRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
+        headers: HTTPHeaders = .init(),
+        body: (any ResponseBodyProtocol)? = nil,
+        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    ) -> Self {
+        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+    }
+
+    @inlinable
+    public static func get(
+        version: HTTPVersion = .v1_1,
+        path: [PathComponent],
+        caseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
+        contentType: (some HTTPMediaTypeProtocol)? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void

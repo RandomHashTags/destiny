@@ -5,14 +5,21 @@ import PackageDescription
 let package = Package(
     name: "CodeGeneration",
     products: [
-        .library(
+        .executable(
             name: "CodeGeneration",
             targets: ["CodeGeneration"]
         ),
     ],
+    dependencies: [
+        .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
+    ],
     targets: [
-        .target(
-            name: "CodeGeneration"
+        .executableTarget(
+            name: "CodeGeneration",
+            dependencies: [
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxBuilder", package: "swift-syntax")
+            ]
         ),
         .testTarget(
             name: "CodeGenerationTests",

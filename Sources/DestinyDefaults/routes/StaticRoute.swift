@@ -35,6 +35,35 @@ public struct StaticRoute: StaticRouteProtocol {
             body: body
         )
     }
+
+    public init(
+        version: HTTPVersion = .v1_1,
+        method: some HTTPRequestMethodProtocol,
+        path: [String],
+        isCaseSensitive: Bool = true,
+        status: some HTTPResponseStatus.StorageProtocol,
+        contentType: (some HTTPMediaTypeProtocol)? = nil,
+        charset: Charset? = nil,
+        body: (any ResponseBodyProtocol)? = nil
+    ) {
+        let mediaType:HTTPMediaType?
+        if let contentType {
+            mediaType = .init(contentType)
+        } else {
+            mediaType = nil
+        }
+        self.init(
+            version: version,
+            method: method,
+            path: path,
+            isCaseSensitive: isCaseSensitive,
+            status: status.code,
+            contentType: mediaType,
+            charset: charset,
+            body: body
+        )
+    }
+
     public init(
         version: HTTPVersion = .v1_1,
         method: some HTTPRequestMethodProtocol,
@@ -115,6 +144,25 @@ extension StaticRoute {
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
+    @inlinable
+    public static func on(
+        version: HTTPVersion = .v1_1,
+        method: any HTTPRequestMethodProtocol,
+        path: [String],
+        caseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
+        contentType: (some HTTPMediaTypeProtocol)? = nil,
+        charset: Charset? = nil,
+        body: some ResponseBodyProtocol,
+    ) -> Self {
+        let mediaType:HTTPMediaType?
+        if let contentType {
+            mediaType = .init(contentType)
+        } else {
+            mediaType = nil
+        }
+        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: mediaType, charset: charset, body: body)
+    }
 
     @inlinable
     public static func get(
@@ -123,6 +171,19 @@ extension StaticRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
+        charset: Charset? = nil,
+        body: some ResponseBodyProtocol,
+    ) -> Self {
+        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+    }
+
+    @inlinable
+    public static func get(
+        version: HTTPVersion = .v1_1,
+        path: [String],
+        caseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
+        contentType: (some HTTPMediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
@@ -149,6 +210,19 @@ extension StaticRoute {
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
+        charset: Charset? = nil,
+        body: some ResponseBodyProtocol,
+    ) -> Self {
+        return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+    }
+
+    @inlinable
+    public static func post(
+        version: HTTPVersion = .v1_1,
+        path: [String],
+        caseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = HTTPResponseStatus.notImplemented.code,
+        contentType: (some HTTPMediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {

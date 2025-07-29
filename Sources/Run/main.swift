@@ -40,7 +40,7 @@ import Logging
         StaticMiddleware(
             handlesMethods: [HTTPRequestMethod.get],
             handlesStatuses: [HTTPResponseStatus.notImplemented.code],
-            handlesContentTypes: [HTTPMediaType.textHtml, HTTPMediaType.applicationJson, HTTPMediaType.textPlain],
+            handlesContentTypes: [HTTPMediaTypeText.html, HTTPMediaTypeApplication.json, HTTPMediaTypeText.plain],
             appliesStatus: HTTPResponseStatus.ok.code,
             excludedRoutes: ["plaintext"]
         ),
@@ -53,14 +53,14 @@ import Logging
         //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
         DynamicCORSMiddleware(),
         DynamicDateMiddleware(),
-        /*DynamicMiddleware({ request, response in
+        DynamicMiddleware({ request, response in
             guard request.isMethod(HTTPRequestMethod.get.array) else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
             #else
             response.setHeader(key: "Womp-Womp", value: String(UInt64.random(in: 0..<UInt64.max)))
             #endif
-        })*/
+        })
     ],
     redirects: [
         StaticRedirectionRoute(method: HTTPRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])
@@ -75,13 +75,13 @@ import Logging
             StaticRoute(
                 method: HTTPRequestMethod.get,
                 path: ["hoopla"],
-                contentType: HTTPMediaType.textPlain,
+                contentType: HTTPMediaTypeText.plain,
                 body: StringWithDateHeader("rly dud")
             ),
             DynamicRoute(
                 method: HTTPRequestMethod.get,
                 path: ["HOOPLA"],
-                contentType: HTTPMediaType.textPlain,
+                contentType: HTTPMediaTypeText.plain,
                 handler: { _, response in
                     response.setBody("RLY DUD")
                 }
@@ -90,81 +90,81 @@ import Logging
     ],*/
     StaticRoute.get(
         path: ["redirectto"],
-        contentType: HTTPMediaType.textHtml,
+        contentType: HTTPMediaTypeText.html,
         body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["stream"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.streamWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
     ),
     StaticRoute.get(
         path: ["expressionMacro"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.macroExpansion(#filePath)
     ),
     StaticRoute.get(
         path: ["expressionMacroWithDate"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.macroExpansionWithDateHeader(#filePath)
     ),
     StaticRoute.post(
         path: ["post"],
-        contentType: HTTPMediaType.applicationJson,
+        contentType: HTTPMediaTypeApplication.json,
         body: StringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["bro?what=dude"],
-        contentType: HTTPMediaType.applicationJson,
+        contentType: HTTPMediaTypeApplication.json,
         body: StringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["html"],
-        contentType: HTTPMediaType.textHtml,
+        contentType: HTTPMediaTypeText.html,
         body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["SHOOP"],
         caseSensitive: false,
-        contentType: HTTPMediaType.textHtml,
+        contentType: HTTPMediaTypeText.html,
         body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
-        contentType: HTTPMediaType.textHtml,
+        contentType: HTTPMediaTypeText.html,
         body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["json"],
-        contentType: HTTPMediaType.applicationJson,
+        contentType: HTTPMediaTypeApplication.json,
         body: StringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
         //body: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
     ),
     StaticRoute.get(
         path: ["txt"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         body: StringWithDateHeader("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
         path: ["bytes"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
     ),
     StaticRoute.get(
         path: ["bytes2"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.bytes([UInt8]("bruh".utf8))
     ),
     StaticRoute.get(
         path: ["bytes3"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.bytes(Array<UInt8>("bruh".utf8))
     ),
     /*StaticRoute.get(
         path: ["error"],
         status: HTTPResponseStatus.badRequest.code,
-        contentType: HTTPMediaType.applicationJson,
+        contentType: HTTPMediaTypeApplication.json,
         body: .error(CustomError.yipyip)
     ),*/
     DynamicRoute.get( // https://www.techempower.com/benchmarks
@@ -183,14 +183,14 @@ import Logging
     ),
     DynamicRoute.get(
         path: ["error2"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             throw CustomError.yipyip
         }
     ),
     DynamicRoute.get(
         path: ["dynamic"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             response.setBody("Host=" + (request.header(forKey: "Host") ?? "nil"))
         }
@@ -198,7 +198,7 @@ import Logging
     DynamicRoute.get(
         version: .v2_0,
         path: ["dynamic2"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.setBody(UUID().uuidString)
@@ -209,21 +209,21 @@ import Logging
     ),
     DynamicRoute.get(
         path: ["dynamic", ":text"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             response.setBody(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
         path: ["anydynamic", "*", "value"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             response.setBody(response.parameter(at: 0))
         }
     ),
     DynamicRoute.get(
         path: ["catchall", "**"],
-        contentType: HTTPMediaType.textPlain,
+        contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             var s = "catchall/**;"
             response.yieldParameters { s += $0 + ";" }

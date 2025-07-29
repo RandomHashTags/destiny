@@ -21,7 +21,7 @@ enum HTTPResponseStatusesMacro: DeclarationMacro {
                         default: break
                         }
                     }
-                    entries.append(Entry(memberName: memberName, code: code, value: HTTPResponseStatusMacro.get(code: code, phrase: phrase)))
+                    entries.append(Entry(memberName: memberName, code: code, value: get(code: code, phrase: phrase)))
                 }
             }
         }
@@ -29,6 +29,12 @@ enum HTTPResponseStatusesMacro: DeclarationMacro {
             "/// https://www.rfc-editor.org/rfc/rfc9110.html#status.\($0.code)\n    public static let \($0.memberName) = \($0.value)"
         }.joined(separator: "\n    ")
         return ["\(raw: string)"]
+    }
+
+    static func get(code: Int, phrase: String) -> String {
+        let phraseCount = phrase.count
+        let phrase = phrase.compactMap { $0.asciiValue }.description
+        return "HTTPResponseStatus.Storage<\(phraseCount)>(code: \(code), phrase: \(phrase))"
     }
 }
 

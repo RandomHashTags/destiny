@@ -23,6 +23,25 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         self.charset = charset
     }
     public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        cookies: [any HTTPCookieProtocol],
+        body: (any ResponseBodyProtocol)?,
+        contentType: (some HTTPMediaTypeProtocol)?,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
+        self.body = body
+        if let contentType {
+            self.contentType = .init(contentType)
+        } else {
+            self.contentType = nil
+        }
+        self.charset = charset
+    }
+
+    public init(
         headers: HTTPHeaders,
         cookies: [any HTTPCookieProtocol],
         body: (any ResponseBodyProtocol)?,
@@ -253,12 +272,26 @@ extension HTTPResponseMessage {
 
     @inlinable
     public static func create(
+        escapeLineBreak: Bool,
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: some HTTPHeadersProtocol,
+        body: String?,
+        contentType: (some HTTPMediaTypeProtocol)?,
+        charset: Charset?
+    ) -> String {
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
+    }
+
+    @inlinable
+    public static func create(
         suffix: String,
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: String,
         body: String?,
-        contentType: HTTPMediaType?,
+        contentType: (some HTTPMediaTypeProtocol)?,
         charset: Charset?
     ) -> String {
         var string = "\(version.string) \(status)\(suffix)\(headers)"
