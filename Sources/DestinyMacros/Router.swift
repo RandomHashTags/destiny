@@ -342,9 +342,9 @@ extension Router.Storage {
         var routeResponders = [String]()
         let getRouteStartLine:(StaticRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
         let getRedirectRouteStartLine:(any RedirectionRouteProtocol) -> String = isCaseSensitive ? { route in
-            return route.newLocationPath()
+            return route.fromStartLine()
         } : { route in
-            return route.newLocationPath().lowercased()
+            return route.fromStartLine().lowercased()
         }
         let getResponderValue:(Router.Storage.Route) -> String = {
             return "// \($0.path)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"

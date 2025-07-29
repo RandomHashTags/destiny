@@ -36,7 +36,7 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     }
 
     @inlinable
-    public func newLocationPath() -> String {
+    public func fromStartLine() -> String {
         return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
     }
 

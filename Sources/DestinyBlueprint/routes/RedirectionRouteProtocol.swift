@@ -1,8 +1,8 @@
 
 /// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
 public protocol RedirectionRouteProtocol: RouteProtocol, ~Copyable {
-    /// New route path this route redirects to.
-    func newLocationPath() -> String
+    /// The http start line this route redirects from.
+    func fromStartLine() -> String
 
     /// The HTTP Message of this route. Computed at compile time.
     /// 
