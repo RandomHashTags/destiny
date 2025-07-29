@@ -22,7 +22,7 @@ extension StaticMiddleware {
         var appliesStatus:HTTPResponseStatus.Code? = nil
         var appliesContentType:HTTPMediaType? = nil
         var appliesHeaders = HTTPHeaders()
-        var appliesCookies = [Cookie]()
+        var appliesCookies = [HTTPCookie]()
         var excludedRoutes = Set<String>()
         for argument in function.arguments {
             switch argument.label?.text {
@@ -43,7 +43,7 @@ extension StaticMiddleware {
             case "appliesHeaders":
                 appliesHeaders = HTTPRequestHeader.parse(context: context, argument.expression)
             case "appliesCookies":
-                appliesCookies = argument.expression.array!.elements.compactMap({ Cookie.parse(context: context, expr: $0.expression) })
+                appliesCookies = argument.expression.array!.elements.compactMap({ HTTPCookie.parse(context: context, expr: $0.expression) })
             case "excludedRoutes":
                 excludedRoutes = Set(argument.expression.array!.elements.compactMap({ $0.expression.stringLiteral?.string }))
             default:

@@ -59,6 +59,12 @@ public struct HTTPRequestHeaders: HTTPRequestHeadersProtocol { // TODO: make SIM
     }
 }
 
+extension HTTPRequestHeaders {
+    public func makeIterator() -> HTTPHeadersProtocolIterator {
+        HTTPHeadersProtocolIterator(headers: []) // TODO: fix
+    }
+}
+
 // MARK: Accept
 extension HTTPRequestHeaders {
     @discardableResult

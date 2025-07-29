@@ -9,7 +9,6 @@ public protocol DynamicResponderStorageProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
-    @inlinable
     func respond<Socket: HTTPSocketProtocol & ~Copyable>(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,

@@ -10,26 +10,21 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     var startLine: SIMD64<UInt8> { get }
 
     /// Yields the endpoint the request wants to reach, separated by the forward slash character.
-    @inlinable
     func forEachPath(offset: Int, _ yield: (ConcretePathType) -> Void)
 
     /// - Parameters:
     ///   - index: Index of a path component.
     /// - Returns: The path component at the given index.
-    @inlinable
     func path(at index: Int) -> ConcretePathType
 
     /// The number of path components the request contains.
-    @inlinable
     var pathCount: Int { get }
 
     /// - Returns: Whether or not the request's method matches the given one.
-    @inlinable
     func isMethod<let count: Int>(_ method: InlineArray<count, UInt8>) -> Bool
 
     //@inlinable func header<let keyCount: Int, valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 
-    @inlinable
     func header(forKey key: String) -> String?
 }
 

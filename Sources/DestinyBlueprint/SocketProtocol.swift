@@ -15,22 +15,18 @@ public protocol SocketProtocol: ~Copyable, Sendable {
     init(fileDescriptor: Int32)
 
     /// Reads a buffer from the socket.
-    @inlinable
     func readBuffer(
         into baseAddress: UnsafeMutablePointer<UInt8>,
         length: Int,
         flags: Int32
     ) throws -> Int
 
-    @inlinable
     func readBuffer() throws -> (Buffer, Int)
 
     /// Writes a buffer to the socket.
-    @inlinable
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
 
     /// Writes a `String` to the socket.
-    @inlinable
     func writeString(_ string: String) throws
 }
 

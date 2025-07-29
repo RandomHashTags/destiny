@@ -44,6 +44,12 @@ public struct HTTPResponseHeaders: HTTPResponseHeadersProtocol { // TODO: finish
     }
 }
 
+extension HTTPResponseHeaders {
+    public func makeIterator() -> HTTPHeadersProtocolIterator {
+        HTTPHeadersProtocolIterator(headers: []) // TODO: fix
+    }
+}
+
 // MARK: Accept-Ranges
 extension HTTPResponseHeaders {
     @inlinable

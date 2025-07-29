@@ -1,18 +1,13 @@
 
 public protocol ResponseBodyProtocol: BufferWritable, ~Copyable {
-    @inlinable
     var count: Int { get }
 
-    @inlinable
     func string() -> String
 
-    @inlinable
     var hasDateHeader: Bool { get }
 
-    @inlinable
     var hasContentLength: Bool { get }
 
-    @inlinable
     func customInitializer(bodyString: String) -> String?
 }
 

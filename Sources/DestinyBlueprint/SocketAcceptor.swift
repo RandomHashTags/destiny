@@ -18,6 +18,7 @@ import WinSDK
 #endif
 
 public protocol SocketAcceptor: Sendable, ~Copyable {
+    func acceptFunction(noTCPDelay: Bool) -> @Sendable (Int32?) throws -> (fileDescriptor: Int32, instant: ContinuousClock.Instant)?
 }
 
 extension SocketAcceptor {

@@ -7,7 +7,6 @@ public protocol StaticResponderStorageProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - startLine: The socket's requested endpoint.
     /// - Returns: Whether or not a response was sent.
-    @inlinable
     func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,

@@ -4,8 +4,6 @@ import DestinyBlueprint
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 public struct StaticMiddleware: StaticMiddlewareProtocol {
-    public typealias Cookie = HTTPCookie
-
     /// Route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
@@ -30,7 +28,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     public let appliesStatus:HTTPResponseStatus.Code?
     public let appliesContentType:HTTPMediaType?
     public let appliesHeaders:HTTPHeaders
-    public let appliesCookies:[Cookie]
+    public let appliesCookies:[HTTPCookie]
     public let excludedRoutes:Set<String>
 
     public init(
@@ -42,7 +40,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: HTTPMediaType? = nil,
         appliesHeaders: HTTPHeaders = .init(),
-        appliesCookies: [Cookie] = [],
+        appliesCookies: [HTTPCookie] = [],
         excludedRoutes: Set<String> = []
     ) {
         self.handlesVersions = handlesVersions
@@ -103,5 +101,53 @@ extension StaticMiddleware {
         } else {
             true
         }
+    }
+}
+
+extension StaticMiddleware {
+    @inlinable
+    public func apply(
+        version: inout HTTPVersion,
+        contentType: inout HTTPMediaType?,
+        status: inout HTTPResponseStatus.Code,
+        headers: inout some HTTPHeadersProtocol,
+        cookies: inout [any HTTPCookieProtocol]
+    ) {
+        if let appliesVersion {
+            version = appliesVersion
+        }
+        if let appliesStatus {
+            status = appliesStatus
+        }
+        if let appliesContentType {
+            contentType = appliesContentType
+        }
+        for (header, value) in appliesHeaders {
+            headers[header] = value
+        }
+        cookies.append(contentsOf: appliesCookies)
+    }
+
+    @inlinable
+    public func apply(
+        contentType: inout HTTPMediaType?,
+        to response: inout some DynamicResponseProtocol
+    ) {
+        if let appliesVersion {
+            response.setHTTPVersion(appliesVersion)
+        }
+        if let appliesStatus {
+            response.setStatusCode(appliesStatus)
+        }
+        if let appliesContentType {
+            contentType = appliesContentType
+        }
+        for (header, value) in appliesHeaders {
+            response.setHeader(key: header, value: value)
+        }
+        for cookie in appliesCookies {
+            response.appendCookie(cookie)
+        }
+        // TODO: fix
     }
 }

@@ -243,7 +243,7 @@ extension HTTPResponseMessage {
         escapeLineBreak: Bool,
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
+        headers: some HTTPHeadersProtocol,
         body: String?,
         contentType: HTTPMediaType?,
         charset: Charset?
@@ -277,7 +277,7 @@ extension HTTPResponseMessage {
     @inlinable
     public static func headers(
         suffix: String,
-        headers: HTTPHeaders
+        headers: some HTTPHeadersProtocol
     ) -> String {
         var string = ""
         for (header, value) in headers {

@@ -7,23 +7,18 @@ public protocol DynamicResponseProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - index: Index of a path component.
     /// - Returns: The parameter located at the given path component index.
-    @inlinable
     func parameter(at index: Int) -> String
 
-    @inlinable
     mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>)
 
-    @inlinable
     mutating func appendParameter(value: InlineVLArray<UInt8>)
 
-    @inlinable
     func yieldParameters(_ yield: (String) -> Void)
 
     /// Set the response's HTTP Version.
     /// 
     /// - Parameters:
     ///   - version: The new HTTP Version to set.
-    @inlinable
     mutating func setHTTPVersion(_ version: HTTPVersion)
 
     /// Set the response's status.
@@ -32,14 +27,12 @@ public protocol DynamicResponseProtocol: Sendable, ~Copyable {
     /// 
     /// - Parameters:
     ///   - status: A concrete type conforming to `HTTPResponseStatus.StorageProtocol`.
-    @inlinable
     mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol)
 
     /// Set the response's status code.
     /// 
     /// - Parameters:
     ///   - code: The new status code to set.
-    @inlinable
     mutating func setStatusCode(_ code: HTTPResponseStatus.Code)
 
     /// Set a response header to the given value.
@@ -47,24 +40,20 @@ public protocol DynamicResponseProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - key: The header you want to modify.
     ///   - value: The new header value to set.
-    @inlinable
     mutating func setHeader(key: String, value: String)
 
-    @inlinable
     mutating func appendCookie(_ cookie: some HTTPCookieProtocol)
 
     /// Set the body of the message.
     /// 
     /// - Parameters:
     ///   - body: The new body to set.
-    @inlinable
     mutating func setBody(_ body: some ResponseBodyProtocol)
 
     /// Writes an HTTP Message to a socket.
     /// 
     /// - Parameters:
     ///   - socket: The socket to write to.
-    @inlinable
     func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws
 }
 

@@ -3,10 +3,8 @@ import DestinyBlueprint
 
 /// Types conforming to this protocol can be used as...
 public protocol ResponseBodyValueProtocol: BufferWritable, ~Copyable {
-    @inlinable
     var count: Int { get }
 
-    @inlinable
     func string() -> String
 }
 

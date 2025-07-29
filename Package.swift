@@ -38,7 +38,6 @@ pkgDependencies = [
 ]
 
 destinyModuleDependencies = [
-    "DestinyMacros",
     "DestinyDefaults",
     .product(name: "CEpoll", package: "CEpoll")
 ]
@@ -77,16 +76,16 @@ let package = Package(
         .default(enabledTraits: ["Destiny"]),
         .trait(
             name: "DestinyDefaults",
-            description: "Default Destiny features, excluding a functional HTTP Server."
+            description: "Default DestinyBlueprint implementations."
         ),
         .trait(
             name: "Destiny",
-            description: "Default Destiny experience with the default features and a functional HTTP Server.",
+            description: "Destiny (without Swift Macros)",
             enabledTraits: ["DestinyDefaults"]
         ),
         .trait(
             name: "DestinySwiftSyntax",
-            description: "Default Destiny experience with the default features and a functional HTTP Server.",
+            description: "Destiny (with Swift Macros)",
             enabledTraits: ["Destiny"]
         ),
 
@@ -132,8 +131,7 @@ let package = Package(
                 "DestinyUtilityMacros",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
-                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName)
+                .product(name: "SwiftSyntax", package: swiftSyntax.packageName)
             ]
         ),
 
@@ -156,7 +154,10 @@ let package = Package(
         // MARK: DestinySwiftSyntax
         .target(
             name: "DestinySwiftSyntax",
-            dependencies: destinyModuleDependencies
+            dependencies: [
+                "Destiny",
+                "DestinyMacros"
+            ]
         ),
         
         .macro(

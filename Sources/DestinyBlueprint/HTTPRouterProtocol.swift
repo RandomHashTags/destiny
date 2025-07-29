@@ -3,7 +3,7 @@ import Logging
 
 /// Core HTTPRouter protocol that handles middleware, routes and router groups.
 public protocol HTTPRouterProtocol: Sendable, ~Copyable {
-    @inlinable mutating func loadDynamicMiddleware()
+    mutating func loadDynamicMiddleware()
 
     /// Process an accepted file descriptor.
     /// 
@@ -12,7 +12,6 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - received: The instant the socket was accepted.
     ///   - socket: The socket to write to.
     ///   - logger: The `Logger` that logs relevant details.
-    @inlinable
     func process<Socket: HTTPSocketProtocol & ~Copyable>(
         client: Int32,
         received: ContinuousClock.Instant,
@@ -25,7 +24,6 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - socket: The socket to write to.
     ///   - responder: The static route responder that will write to the socket.
-    @inlinable
     func respondStatically(
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         responder: some StaticRouteResponderProtocol
@@ -39,7 +37,6 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     ///   - responder: The dynamic route responder that will write to the socket.
-    @inlinable
     func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,

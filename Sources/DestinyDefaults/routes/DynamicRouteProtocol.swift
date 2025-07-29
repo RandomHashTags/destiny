@@ -18,7 +18,7 @@ public protocol DynamicRouteProtocol: RouteProtocol {
     var defaultResponse: ConcreteDynamicResponse { get set }
 
     /// - Returns: The responder for this route.
-    @inlinable func responder() -> any DynamicRouteResponderProtocol
+    func responder() -> any DynamicRouteResponderProtocol
 
     /// Applies static middleware to this route.
     /// 

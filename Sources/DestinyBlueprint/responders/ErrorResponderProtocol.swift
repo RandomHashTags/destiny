@@ -4,7 +4,6 @@ import Logging
 /// Core Error Middleware protocol that handles errors thrown from requests.
 public protocol ErrorResponderProtocol: RouteResponderProtocol, ~Copyable {
     /// Writes a response to a socket.
-    @inlinable
     func respond(
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         error: some Error,

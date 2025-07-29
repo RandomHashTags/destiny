@@ -34,7 +34,7 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
 
     @inlinable
     public var description: String {
-        "\"" + slug + "\""
+        "\"\(slug)\""
     }
 
     /// - Returns: Whether or not this component is a parameter.

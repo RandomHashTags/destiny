@@ -9,7 +9,6 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
-    @inlinable
     func respond<Socket: HTTPSocketProtocol & ~Copyable>(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
@@ -25,7 +24,6 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - startLine: The socket's target endpoint.
     /// - Returns: Whether or not a response was sent.
-    @inlinable
     func respondStatically(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
@@ -41,7 +39,6 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
-    @inlinable
     func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,

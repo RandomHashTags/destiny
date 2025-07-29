@@ -2,7 +2,6 @@
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, CustomDebugStringConvertible {
     /// Yields the path of the route.
-    @inlinable
     func forEachPathComponent(_ yield: (PathComponent) -> Void)
 
     /// - Returns: The `PathComponent` located at the given index.
@@ -12,7 +11,6 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, CustomDeb
     var pathComponentsCount: Int { get }
 
     /// Yields the index where parameters are location in the path.
-    @inlinable
     func forEachPathComponentParameterIndex(_ yield: (Int) -> Void)
 
     /// Default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
@@ -24,7 +22,6 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, CustomDeb
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     ///   - response: The response to send to the socket.
-    @inlinable
     func respond(
         to socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout any HTTPRequestProtocol,
