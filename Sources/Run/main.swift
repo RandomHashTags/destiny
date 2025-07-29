@@ -65,6 +65,7 @@ import Logging
     redirects: [
         StaticRedirectionRoute(method: HTTPRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])
     ],
+    /*
     routeGroups: [
         RouteGroup(
             endpoint: "grouped",
@@ -86,7 +87,7 @@ import Logging
                 }
             )
         ),
-    ],
+    ],*/
     StaticRoute.get(
         path: ["redirectto"],
         contentType: HTTPMediaType.textHtml,

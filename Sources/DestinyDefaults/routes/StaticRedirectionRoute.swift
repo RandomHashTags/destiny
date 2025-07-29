@@ -4,10 +4,18 @@ import DestinyBlueprint
 // MARK: StaticRedirectionRoute
 /// Default Redirection Route implementation that handles redirects for static routes.
 public struct StaticRedirectionRoute: RedirectionRouteProtocol {
+    /// The endpoint that has been moved.
     public package(set) var from:[String]
+
+    /// The redirection endpoint.
     public package(set) var to:[String]
-    public let version:HTTPVersion
+
     public let method:any HTTPRequestMethodProtocol
+
+    /// `HTTPVersion` associated with this route.
+    public let version:HTTPVersion
+
+    /// Status of this redirection route.
     public let status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
 
@@ -25,6 +33,11 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
         self.from = from.map({ $0.description })
         self.isCaseSensitive = isCaseSensitive
         self.to = to.map({ $0.description })
+    }
+
+    @inlinable
+    public func newLocationPath() -> String {
+        return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
     }
 
     public func response() throws -> String {

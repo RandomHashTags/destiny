@@ -1,14 +1,8 @@
 
 /// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
 public protocol RedirectionRouteProtocol: RouteProtocol, ~Copyable {
-    /// The endpoint that has been moved.
-    var from: [String] { get }
-
-    /// The redirection endpoint.
-    var to: [String] { get }
-
-    /// Status of this redirection route.
-    var status: HTTPResponseStatus.Code { get }
+    /// New route path this route redirects to.
+    func newLocationPath() -> String
 
     /// The HTTP Message of this route. Computed at compile time.
     /// 

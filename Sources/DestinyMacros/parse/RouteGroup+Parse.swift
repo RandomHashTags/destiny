@@ -65,12 +65,14 @@ extension RouteGroup {
                 }
             }
         }
+        fatalError("not yet supported") // TODO: fix
+        /*
         return Self(
             endpoint: endpoint,
             staticMiddleware: staticMiddleware,
             dynamicMiddleware: dynamicMiddleware,
             staticRoutes: staticRoutes,
             dynamicRoutes: dynamicRoutes
-        )
+        )*/
     }
 }

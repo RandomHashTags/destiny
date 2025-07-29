@@ -4,14 +4,22 @@ import DestinyBlueprint
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
 public struct DynamicRoute: DynamicRouteProtocol {
+    /// Path of this route.
     public var path:[PathComponent]
+
+    /// Default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
     public var contentType:HTTPMediaType?
+
+    /// Default HTTP Message computed by default values and static middleware.
     public var defaultResponse:DynamicResponse
     public let handler:@Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     @usableFromInline package var handlerDebugDescription:String = "{ _, _ in }"
 
+    /// `HTTPVersion` associated with this route.
     public let version:HTTPVersion
     public var method:any HTTPRequestMethodProtocol
+
+    /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     public var status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
 
@@ -41,6 +49,16 @@ public struct DynamicRoute: DynamicRouteProtocol {
     }
 
     @inlinable
+    public var pathCount: Int {
+        path.count
+    }
+
+    @inlinable
+    public var pathContainsParameters: Bool {
+        path.firstIndex(where: { $0.isParameter }) == nil
+    }
+
+    @inlinable
     public func responder() -> any DynamicRouteResponderProtocol {
         DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
@@ -59,6 +77,11 @@ public struct DynamicRoute: DynamicRouteProtocol {
                 middleware.apply(contentType: &contentType, to: &defaultResponse)
             }
         }
+    }
+
+    @inlinable
+    public func startLine() -> String {
+        return method.rawNameString() + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
     }
 }
 

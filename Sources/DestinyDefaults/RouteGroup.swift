@@ -10,7 +10,7 @@ public struct RouteGroup: RouteGroupProtocol {
     public let staticResponses:StaticResponderStorage
     public let dynamicResponses:DynamicResponderStorage
 
-    public init(
+    /*public init(
         endpoint: String,
         staticMiddleware: [any StaticMiddlewareProtocol] = [],
         dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
@@ -64,12 +64,12 @@ public struct RouteGroup: RouteGroupProtocol {
                 }
                 parameterized[route.path.count].append(responder)
             } else {
-                parameterless[DestinyRoutePathType(route.startLine)] = responder
+                parameterless[DestinyRoutePathType(route.startLine())] = responder
             }
         }
         self.staticResponses = staticResponses
         self.dynamicResponses = .init(parameterless: parameterless, parameterized: parameterized, catchall: []) // TODO: fix catchall
-    }
+    }*/
     public init(
         prefixEndpoints: [String],
         staticMiddleware: [any StaticMiddlewareProtocol],

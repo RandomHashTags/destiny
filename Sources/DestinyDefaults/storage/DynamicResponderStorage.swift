@@ -53,8 +53,8 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
         responder: some DynamicRouteResponderProtocol,
         override: Bool
     ) throws {
-        if route.path.firstIndex(where: { $0.isParameter }) == nil {
-            var string = route.startLine
+        if route.pathContainsParameters {
+            var string = route.startLine()
             let buffer = DestinyRoutePathType(&string)
             if override || parameterless[buffer] == nil {
                 parameterless[buffer] = responder
@@ -62,12 +62,13 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
                 // TODO: throw error
             }
         } else {
-            if parameterized.count <= route.path.count {
-                for _ in parameterized.count...route.path.count {
+            let pathCount = route.pathCount
+            if parameterized.count <= pathCount {
+                for _ in parameterized.count...pathCount {
                     parameterized.append([])
                 }
             }
-            parameterized[route.path.count].append(responder)
+            parameterized[pathCount].append(responder)
         }
     }
 }

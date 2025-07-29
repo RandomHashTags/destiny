@@ -342,9 +342,9 @@ extension Router.Storage {
         var routeResponders = [String]()
         let getRouteStartLine:(StaticRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
         let getRedirectRouteStartLine:(any RedirectionRouteProtocol) -> String = isCaseSensitive ? { route in
-            return route.method.rawNameString() + " /" + route.from.joined(separator: "/") + " " + route.version.string
+            return route.newLocationPath()
         } : { route in
-            return (route.method.rawNameString() + " /" + route.from.joined(separator: "/") + " " + route.version.string).lowercased()
+            return route.newLocationPath().lowercased()
         }
         let getResponderValue:(Router.Storage.Route) -> String = {
             return "// \($0.path)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
@@ -518,7 +518,7 @@ extension Router.Storage {
         _ routes: [(DynamicRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return "CompiledDynamicResponderStorage(())" }
-        let getRouteStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
+        let getRouteStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
         let getResponderValue:(Router.Storage.Route) -> String = {
             return "CompiledDynamicResponderStorageRoute(\npath: \($0.buffer),\nresponder: " + $0.responder + "\n)"
         }
@@ -526,7 +526,7 @@ extension Router.Storage {
         var parameterless = [(DynamicRoute, FunctionCallExprSyntax)]()
         var catchall = [(DynamicRoute, FunctionCallExprSyntax)]()
         for route in routes {
-            if route.0.path.count(where: { $0.isParameter }) != 0 {
+            if route.0.path.firstIndex(where: { $0.isParameter }) != nil {
                 if route.0.path.count(where: { $0 == .catchall }) != 0 {
                     catchall.append(route)
                 } else {

@@ -12,9 +12,9 @@ extension HTTPCookieFlag {
         @inlinable
         public var httpValue: String {
             switch self {
-            case .strict: return "Strict"
-            case .lax: return "Lax"
-            case .none: return "None"
+            case .strict: "Strict"
+            case .lax:    "Lax"
+            case .none:   "None"
             }
         }
     }

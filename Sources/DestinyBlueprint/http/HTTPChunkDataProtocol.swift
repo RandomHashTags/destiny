@@ -1,7 +1,4 @@
 
-import DestinyBlueprint
-
-// MARK: HTTPChunkData
 public protocol HTTPChunkDataProtocol: BufferWritable, HTTPSocketWritable, ~Copyable {
     var chunkDataCount: Int { get }
 }
