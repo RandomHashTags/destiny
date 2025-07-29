@@ -1,6 +1,9 @@
 
 public protocol HTTPSocketWritable: Sendable, ~Copyable {
-    /// Writes data to a socket.
+    /// Writes data to the socket.
+    /// 
+    /// - Parameters:
+    ///   - socket: some noncopyable `HTTPSocketProtocol`.
     func write(
         to socket: borrowing some HTTPSocketProtocol & ~Copyable
     ) async throws

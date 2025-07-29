@@ -61,18 +61,55 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
         let allowedHeaders = allowedHeaders.map({ $0.rawNameString }).joined(separator: ",")
         let allowedMethods = allowedMethods.map({ "\($0)" }).joined(separator: ",")
         let exposedHeaders = exposedHeaders?.map({ $0.rawNameString }).joined(separator: ",")
-        logic = {
-            originLogic(&$0, &$1)
-            $1.setHeader(key: HTTPResponseHeader.accessControlAllowHeadersRawName, value: allowedHeaders)
-            $1.setHeader(key: HTTPResponseHeader.accessControlAllowMethodsRawName, value: allowedMethods)
-            if allowCredentials {
-                $1.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: "true")
+        if allowCredentials {
+            if let exposedHeaders {
+                if let maxAge {
+                    logic = {
+                        Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
+                        $1.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: "true")
+                        $1.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: exposedHeaders)
+                        $1.setHeader(key: HTTPResponseHeader.accessControlMaxAgeRawName, value: "\(maxAge)")
+                    }
+                } else {
+                    logic = {
+                        Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
+                        $1.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: "true")
+                        $1.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: exposedHeaders)
+                    }
+                }
+            } else if let maxAge {
+                logic = {
+                    Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
+                    $1.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: "true")
+                    $1.setHeader(key: HTTPResponseHeader.accessControlMaxAgeRawName, value: "\(maxAge)")
+                }
+            } else {
+                logic = {
+                    Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
+                    $1.setHeader(key: HTTPResponseHeader.accessControlAllowCredentialsRawName, value: "true")
+                }
             }
-            if let exposedHeaders = exposedHeaders {
-                $1.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: exposedHeaders)
-            }
+        } else if let exposedHeaders {
             if let maxAge {
+                logic = {
+                    Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
+                    $1.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: exposedHeaders)
+                    $1.setHeader(key: HTTPResponseHeader.accessControlMaxAgeRawName, value: "\(maxAge)")
+                }
+            } else {
+                logic = {
+                    Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
+                    $1.setHeader(key: HTTPResponseHeader.accessControlExposeHeadersRawName, value: exposedHeaders)
+                }
+            }
+        } else if let maxAge {
+            logic = {
+                Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
                 $1.setHeader(key: HTTPResponseHeader.accessControlMaxAgeRawName, value: "\(maxAge)")
+            }
+        } else {
+            logic = {
+                Self.handleSharedLogic(&$0, &$1, originLogic, allowedHeaders, allowedMethods)
             }
         }
     }
@@ -85,5 +122,28 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
         guard request.header(forKey: HTTPRequestHeader.originRawName) != nil else { return true }
         try await logic(&request, &response)
         return true
+    }
+}
+
+extension DynamicCORSMiddleware {
+    @inlinable
+    static func handleSharedLogic(
+        _ request: inout any HTTPRequestProtocol,
+        _ response: inout any DynamicResponseProtocol,
+        _ originLogic: (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) -> Void,
+        _ allowedHeaders: String,
+        _ allowedMethods: String
+    ) {
+        originLogic(&request, &response)
+        response.setHeader(key: HTTPResponseHeader.accessControlAllowHeadersRawName, value: allowedHeaders)
+        response.setHeader(key: HTTPResponseHeader.accessControlAllowMethodsRawName, value: allowedMethods)
+    }
+}
+
+// MARK: Allowed origin logic
+// TODO: determined whether or not this improves performance instead of using the heap allocated `originLogic`
+extension DynamicCORSMiddleware {
+    @inlinable
+    func allowedOrigin_all(_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) {
     }
 }

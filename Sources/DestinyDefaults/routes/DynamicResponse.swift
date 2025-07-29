@@ -75,7 +75,7 @@ extension DynamicResponse {
     }
 
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws {
-        try message.write(to: socket)
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
+        try await message.write(to: socket)
     }
 }

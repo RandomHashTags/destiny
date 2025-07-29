@@ -1,15 +1,7 @@
 
-public protocol HTTPMessageProtocol: Sendable, ~Copyable {
+public protocol HTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
 
     var version: HTTPVersion { get set }
-
-    /// Set the message's status.
-    /// 
-    /// Default behavior of this function calls `setStatusCode(code:)` with the given type's code.
-    /// 
-    /// - Parameters:
-    ///   - status: A concrete type conforming to `HTTPResponseStatus.StorageProtocol`.
-    mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol)
 
     /// Set the message's status code.
     /// 
@@ -36,17 +28,4 @@ public protocol HTTPMessageProtocol: Sendable, ~Copyable {
     ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
     /// - Returns: A string representing an HTTP Message with the given values.
     func string(escapeLineBreak: Bool) throws -> String
-
-    /// Writes a message to a socket.
-    /// 
-    /// - Parameters:
-    ///   - socket: The socket to write to.
-    func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws
-}
-
-extension HTTPMessageProtocol {
-    @inlinable
-    public mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol) {
-        setStatusCode(status.code)
-    }
 }

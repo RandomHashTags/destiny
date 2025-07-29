@@ -1,6 +1,6 @@
 
 /// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
-public protocol DynamicResponseProtocol: Sendable, ~Copyable {
+public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     /// Timestamps when request events happen.
     var timestamps: DynamicRequestTimestamps { get set }
 
@@ -20,14 +20,6 @@ public protocol DynamicResponseProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - version: The new HTTP Version to set.
     mutating func setHTTPVersion(_ version: HTTPVersion)
-
-    /// Set the response's status.
-    /// 
-    /// Default behavior of this function calls `setStatusCode(code:)` with the given type's code.
-    /// 
-    /// - Parameters:
-    ///   - status: A concrete type conforming to `HTTPResponseStatus.StorageProtocol`.
-    mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol)
 
     /// Set the response's status code.
     /// 
@@ -49,17 +41,4 @@ public protocol DynamicResponseProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - body: The new body to set.
     mutating func setBody(_ body: some ResponseBodyProtocol)
-
-    /// Writes an HTTP Message to a socket.
-    /// 
-    /// - Parameters:
-    ///   - socket: The socket to write to.
-    func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws
-}
-
-extension DynamicResponseProtocol {
-    @inlinable
-    public mutating func setStatus(_ status: some HTTPResponseStatus.StorageProtocol) {
-        setStatusCode(status.code)
-    }
 }

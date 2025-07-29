@@ -3,20 +3,13 @@
 public protocol StaticRouteProtocol: RouteProtocol, ~Copyable {
     var startLine: String { get }
 
+    /// Insert paths into this route's path at the given index.
+    /// 
+    /// Used by Route Groups at compile time.
     mutating func insertPath(
         contentsOf newElements: some Collection<String>,
         at i: Int
     )
-
-    /// The HTTP Message of this route.
-    /// 
-    /// - Parameters:
-    ///   - middleware: Static middleware that this route will apply.
-    /// - Returns: An `HTTPResponseMessage`.
-    /// - Warning: You should apply any statuses and headers using the middleware.
-    func response(
-        middleware: [any StaticMiddlewareProtocol]
-    ) -> any HTTPMessageProtocol
 
     /// The `StaticRouteResponderProtocol` responder for this route.
     /// 

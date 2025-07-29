@@ -83,6 +83,11 @@ public struct DynamicRoute: DynamicRouteProtocol {
     public func startLine() -> String {
         return method.rawNameString() + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
     }
+
+    @inlinable
+    public mutating func insertPath(contentsOf newElements: some Collection<PathComponent>, at i: Int) {
+        path.insert(contentsOf: newElements, at: i)
+    }
 }
 
 // MARK: Convenience inits

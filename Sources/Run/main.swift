@@ -170,7 +170,7 @@ import Logging
     DynamicRoute.get( // https://www.techempower.com/benchmarks
         path: ["plaintext"],
         handler: { _, response in
-            response.setStatus(HTTPResponseStatus.ok)
+            response.setStatusCode(HTTPResponseStatus.ok.code)
             response.setHeader(key: "Server", value: "Destiny")
             response.setBody("Hello World!")
         }

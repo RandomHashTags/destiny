@@ -10,7 +10,7 @@ public struct RouteGroup: RouteGroupProtocol {
     public let staticResponses:StaticResponderStorage
     public let dynamicResponses:DynamicResponderStorage
 
-    /*public init(
+    public init(
         endpoint: String,
         staticMiddleware: [any StaticMiddlewareProtocol] = [],
         dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
@@ -54,22 +54,23 @@ public struct RouteGroup: RouteGroupProtocol {
         var parameterless = [DestinyRoutePathType:any DynamicRouteResponderProtocol]()
         var parameterized = [[any DynamicRouteResponderProtocol]]()
         for var route in dynamicRoutes {
-            route.path.insert(contentsOf: pathComponents, at: 0)
+            route.insertPath(contentsOf: pathComponents, at: 0)
             let responder = route.responder()
-            if route.path.count(where: { $0.isParameter }) != 0 {
-                if parameterized.count <= route.path.count {
-                    for _ in 0...(route.path.count - parameterized.count) {
+            if route.pathContainsParameters {
+                let pathCount = route.pathCount
+                if parameterized.count <= pathCount {
+                    for _ in 0...(pathCount - parameterized.count) {
                         parameterized.append([])
                     }
                 }
-                parameterized[route.path.count].append(responder)
+                parameterized[pathCount].append(responder)
             } else {
                 parameterless[DestinyRoutePathType(route.startLine())] = responder
             }
         }
         self.staticResponses = staticResponses
         self.dynamicResponses = .init(parameterless: parameterless, parameterized: parameterized, catchall: []) // TODO: fix catchall
-    }*/
+    }
     public init(
         prefixEndpoints: [String],
         staticMiddleware: [any StaticMiddlewareProtocol],

@@ -80,9 +80,9 @@ extension StaticMiddleware {
     @inlinable
     public func handlesMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
         guard let handlesMethods else { return true }
-        let rn = method.rawNameString()
+        let methodName = method.rawNameString()
         for m in handlesMethods {
-            if m.rawNameString() == rn {
+            if m.rawNameString() == methodName {
                 return true
             }
         }

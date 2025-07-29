@@ -6,6 +6,14 @@ public protocol DynamicRouteProtocol: RouteProtocol {
     /// Whether or not this route accepts any value at any of its paths.
     var pathContainsParameters: Bool { get }
 
+    /// Insert paths into this route's path at the given index.
+    /// 
+    /// Used by Route Groups at compile time.
+    mutating func insertPath(
+        contentsOf newElements: some Collection<PathComponent>,
+        at i: Int
+    )
+
     /// - Returns: The responder for this route.
     func responder() -> any DynamicRouteResponderProtocol
 

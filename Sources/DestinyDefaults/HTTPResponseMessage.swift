@@ -114,8 +114,7 @@ extension HTTPResponseMessage {
                 capacity += 16 + contentType.description.count + (charset != nil ? 10 + charset!.rawName.count : 0) // Content-Type: x; charset=x\r\n
             }
             let contentLength = body.count
-            capacity += 18 + String(contentLength).count // Content-Length: #\r\n
-            capacity += 2 + contentLength // \r\n + content
+            capacity += 20 + String(contentLength).count + contentLength // "Content-Length: #\r\n\r\n" + content
         }
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
@@ -229,7 +228,7 @@ extension HTTPResponseMessage {
 // MARK: Write
 extension HTTPResponseMessage {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try self.withUnsafeTemporaryAllocation {
             try socket.writeBuffer($0.baseAddress!, length: $0.count)
         }
