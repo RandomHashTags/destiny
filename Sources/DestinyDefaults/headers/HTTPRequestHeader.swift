@@ -219,8 +219,6 @@ extension HTTPRequestHeader {
 extension HTTPRequestHeader {
     @inlinable
     static func get(_ header: Self) -> String { header.rawNameString }
-
-    public static let originRawName:String = get(.origin)
 }
 
 // MARK: Accept-Encoding

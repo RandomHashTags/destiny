@@ -232,16 +232,6 @@ extension HTTPResponseHeader {
 // Convenience properties; used so we don't pay performance overhead when we don't want to
 extension HTTPResponseHeader {
     internal static func get(_ header: Self) -> String { header.rawNameString }
-
-    public static let acceptPatchRawName = get(.acceptPatch)
-    public static let accessControlAllowOriginRawName = get(.accessControlAllowOrigin)
-    public static let accessControlAllowCredentialsRawName = get(.accessControlAllowCredentials)
-    public static let accessControlAllowHeadersRawName = get(.accessControlAllowHeaders)
-    public static let accessControlAllowMethodsRawName = get(.accessControlAllowMethods)
-    public static let accessControlExposeHeadersRawName = get(.accessControlExposeHeaders)
-    public static let accessControlMaxAgeRawName = get(.accessControlMaxAge)
-    public static let contentTypeRawName = get(.contentType)
-    public static let varyRawName = get(.vary)
 }
 
 // MARK: Accept-CH
