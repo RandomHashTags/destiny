@@ -67,6 +67,7 @@ let package = Package(
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
         .library(name: "Destiny", targets: ["Destiny"]),
+        .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 
         .library(name: "DestinyBlueprintFoundation", targets: ["DestinyBlueprintFoundation"]),
         .library(name: "DestinyDefaultsFoundation", targets: ["DestinyDefaultsFoundation"])
