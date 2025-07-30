@@ -5,8 +5,18 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-extension HTTPRequestHeader {
-    public init?(expr: ExprSyntaxProtocol) {
+extension HTTPStandardRequestHeader {
+    public init?(expr: some ExprSyntaxProtocol) {
+        guard let string = expr.memberAccess?.declName.baseName.text else { return nil }
+        if let value = Self(rawValue: string) {
+            self = value
+        } else {
+            return nil
+        }
+    }
+}
+extension HTTPNonStandardRequestHeader {
+    public init?(expr: some ExprSyntaxProtocol) {
         guard let string = expr.memberAccess?.declName.baseName.text else { return nil }
         if let value = Self(rawValue: string) {
             self = value
@@ -20,7 +30,7 @@ extension HTTPRequestHeader {
     /// - Returns: The valid headers in a dictionary.
     public static func parse(
         context: some MacroExpansionContext,
-        _ expr: ExprSyntax
+        _ expr: some ExprSyntaxProtocol
     ) -> HTTPHeaders {
         guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
             guard let key = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }

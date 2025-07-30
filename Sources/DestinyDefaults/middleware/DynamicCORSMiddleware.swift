@@ -19,7 +19,7 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
     ///   - maxAge: How long the response to the preflight request can be cached without sending another preflight request; measured in seconds. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-max-age).
     public init(
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
-        allowedHeaders: Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin],
+        allowedHeaders: Set<HTTPStandardRequestHeader> = [.accept, .authorization, .contentType, .origin],
         allowedMethods: [any HTTPRequestMethodProtocol] = [
             HTTPStandardRequestMethod.get,
             HTTPStandardRequestMethod.post,
@@ -29,13 +29,13 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
             HTTPStandardRequestMethod.patch
         ],
         allowCredentials: Bool = false,
-        exposedHeaders: Set<HTTPRequestHeader>? = nil,
+        exposedHeaders: Set<HTTPStandardRequestHeader>? = nil,
         maxAge: Int? = 3600 // one hour
     ) {
         self.allowedOrigin = allowedOrigin
-        let allowedHeaders = allowedHeaders.map({ $0.rawNameString }).joined(separator: ",")
+        let allowedHeaders = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
         let allowedMethods = allowedMethods.map({ "\($0)" }).joined(separator: ",")
-        let exposedHeaders = exposedHeaders?.map({ $0.rawNameString }).joined(separator: ",")
+        let exposedHeaders = exposedHeaders?.map({ $0.rawName }).joined(separator: ",")
         if allowCredentials {
             if let exposedHeaders {
                 if let maxAgeString = Self.maxAgeString(maxAge) {

@@ -79,7 +79,7 @@ extension DynamicRoute {
             }
         }
         if let contentType {
-            headers[HTTPResponseHeader.contentType.rawNameString] = "\(contentType)"
+            headers[HTTPStandardResponseHeader.contentType.rawName] = "\(contentType)"
         }
         var route = DynamicRoute(
             version: version,

@@ -23,9 +23,16 @@ try await withThrowingDiscardingTaskGroup { group in
     group.addTask {
         try await generateHTTPResponseStatuses()
     }
+    group.addTask {
+        try await generateHTTPRequestHeaders()
+    }
+    group.addTask {
+        try await generateHTTPResponseHeaders()
+    }
 }
 
-func writeToDisk(destination: URL, _ values: [(fileName: String, content: String)]) async throws {
+func writeToDisk(folder: String, _ values: [(fileName: String, content: String)]) async throws {
+    let destination = sourceDestination.appending(component: folder)
     try FileManager.default.createDirectory(
         atPath: destination.path,
         withIntermediateDirectories: true,
@@ -47,16 +54,20 @@ func writeToDisk(destination: URL, _ values: [(fileName: String, content: String
 }
 
 func generateHTTPMediaTypes() async throws {
-    let destination = sourceDestination.appending(component: "mediaTypes")
-    try await writeToDisk(destination: destination, HTTPMediaTypes.generateSources())
+    try await writeToDisk(folder: "mediaTypes", HTTPMediaTypes.generateSources())
 }
 
 func generateHTTPRequestMethods() async throws {
-    let destination = sourceDestination.appending(component: "requestMethods")
-    try await writeToDisk(destination: destination, HTTPRequestMethods.generateSources())
+    try await writeToDisk(folder: "requestMethods", HTTPRequestMethods.generateSources())
 }
 
 func generateHTTPResponseStatuses() async throws {
-    let destination = sourceDestination.appending(component: "responseStatuses")
-    try await writeToDisk(destination: destination, HTTPResponseStatuses.generateSources())
+    try await writeToDisk(folder: "responseStatuses", HTTPResponseStatuses.generateSources())
+}
+
+func generateHTTPRequestHeaders() async throws {
+    try await writeToDisk(folder: "headers", HTTPRequestHeaders.generateSources())
+}
+func generateHTTPResponseHeaders() async throws {
+    try await writeToDisk(folder: "headers", HTTPResponseHeaders.generateSources())
 }

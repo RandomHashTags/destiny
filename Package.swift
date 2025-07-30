@@ -56,7 +56,6 @@ pkgDependencies = [
 ]
 
 destinyModuleDependencies = [
-    "DestinyMacros",
     "DestinyDefaults"
 ]
 
@@ -97,21 +96,10 @@ let package = Package(
     ],
     dependencies: pkgDependencies,
     targets: [
-        .macro(
-            name: "DestinyUtilityMacros",
-            dependencies: [
-                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
-                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName),
-                .product(name: "SwiftCompilerPlugin", package: swiftSyntax.packageName),
-                .product(name: "SwiftDiagnostics", package: swiftSyntax.packageName)
-            ]
-        ),
-
         // MARK: DestinyBlueprint
         .target(
             name: "DestinyBlueprint",
             dependencies: [
-                "DestinyUtilityMacros",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics")
             ]
@@ -128,10 +116,8 @@ let package = Package(
             name: "DestinyDefaults",
             dependencies: [
                 "DestinyBlueprint",
-                "DestinyUtilityMacros",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "SwiftSyntax", package: swiftSyntax.packageName)
             ]
         ),
 
@@ -140,8 +126,7 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyBlueprintFoundation",
-                "DestinyDefaults",
-                "DestinyUtilityMacros"
+                "DestinyDefaults"
             ]
         ),
 
@@ -163,7 +148,6 @@ let package = Package(
         .macro(
             name: "DestinyMacros",
             dependencies: [
-                "DestinyUtilityMacros",
                 "DestinyDefaults",
                 .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
                 .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName),

@@ -114,8 +114,8 @@ extension StaticRoute {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        headers[HTTPResponseHeader.contentType.rawNameString] = nil
-        headers[HTTPResponseHeader.contentLength.rawNameString] = nil
+        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
+        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
         return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 }
