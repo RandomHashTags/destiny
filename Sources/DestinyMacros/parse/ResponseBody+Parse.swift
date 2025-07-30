@@ -22,7 +22,12 @@ extension ResponseBody {
         context: some MacroExpansionContext,
         expr: some ExprSyntaxProtocol
     ) -> (any ResponseBodyProtocol)? {
-        guard let function = expr.functionCall else { return nil }
+        guard let function = expr.functionCall else {
+            if let string = expr.stringLiteral?.string {
+                return string
+            }
+            return nil
+        }
         guard let firstArg = function.arguments.first else { return nil }
         var key = function.calledExpression.memberAccess?.declName.baseName.text.lowercased()
         if key == nil {

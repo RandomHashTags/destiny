@@ -378,7 +378,7 @@ extension Router.Storage {
                         if let responder = try responseBodyResponderDebugDescription(body: route.body, response: httpResponse) {
                             routeResponders.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
                         } else {
-                            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body))")))
+                            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
                         }
                     } else if let httpResponse = httpResponse as? HTTPResponseMessage {
                         Router.conditionalRoute(
@@ -424,6 +424,11 @@ extension Router.Storage {
         } else if let v = body as? ResponseBody.Bytes {
             s = try v.responderDebugDescription(response)
 
+        } else if let v = body as? ResponseBody.MacroExpansion<StaticString> {
+            s = try v.responderDebugDescription(response)
+        } else if let v = body as? ResponseBody.MacroExpansion<String> {
+            s = try v.responderDebugDescription(response)
+        
         } else if let v = body as? ResponseBody.MacroExpansionWithDateHeader<StaticString> {
             s = try v.responderDebugDescription(response)
         } else if let v = body as? ResponseBody.MacroExpansionWithDateHeader<String> {

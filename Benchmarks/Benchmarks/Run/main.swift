@@ -52,13 +52,7 @@ try await application.run()
     StaticRoute.get(
         path: ["test"],
         contentType: HTTPMediaTypeText.html,
-        body: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"
-    ),
-    DynamicRoute.get(
-        path: ["dynamic"],
-        body: "wut",
-        handler: { request, response in
-        }
+        body: StringWithDateHeader("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
     )
 )
 
