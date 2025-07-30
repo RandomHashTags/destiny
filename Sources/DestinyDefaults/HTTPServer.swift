@@ -43,7 +43,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
         logger: Logger,
         onLoad: (@Sendable () -> Void)? = nil,
         onShutdown: (@Sendable () -> Void)? = nil
-    ) throws {
+    ) {
         self.address = address
         self.port = port
         self.backlog = min(SOMAXCONN, backlog)
