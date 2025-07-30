@@ -4,7 +4,7 @@ import SwiftSyntax
 
 // MARK: SwiftSyntax
 extension HTTPVersion {
-    public static func parse(_ expr: ExprSyntax) -> HTTPVersion? {
+    public static func parse(_ expr: some ExprSyntaxProtocol) -> HTTPVersion? {
         switch expr.as(MemberAccessExprSyntax.self)?.declName.baseName.text {
         case "v0_9": .v0_9
         case "v1_0": .v1_0

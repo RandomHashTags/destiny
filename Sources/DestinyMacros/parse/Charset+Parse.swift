@@ -3,7 +3,7 @@ import DestinyDefaults
 import SwiftSyntax
 
 extension Charset {
-    public init?(expr: ExprSyntax) {
+    public init?(expr: some ExprSyntaxProtocol) {
         guard let string = expr.memberAccess?.declName.baseName.text ?? expr.stringLiteral?.string.lowercased() else {
             return nil
         }

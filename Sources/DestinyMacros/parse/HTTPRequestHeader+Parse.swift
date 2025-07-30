@@ -51,7 +51,7 @@ extension HTTPRequestHeader {
 extension HTTPRequestHeader {
     public static func parse(
         context: some MacroExpansionContext,
-        _ expr: ExprSyntax
+        _ expr: some ExprSyntaxProtocol
     ) -> String? {
         guard let key = expr.stringLiteral?.string else { return nil }
         guard !key.contains(" ") else {

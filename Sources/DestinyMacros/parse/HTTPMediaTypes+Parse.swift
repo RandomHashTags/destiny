@@ -5,7 +5,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension HTTPMediaType {
-    public static func parse(context: some MacroExpansionContext, expr: ExprSyntax) -> Self? {
+    public static func parse(context: some MacroExpansionContext, expr: some ExprSyntaxProtocol) -> Self? {
         if let s = expr.memberAccess?.declName.baseName.text {
             return parse(memberName: s) ?? parse(fileExtension: s)
         } else if let function = expr.functionCall {

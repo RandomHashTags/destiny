@@ -6,7 +6,7 @@ import SwiftSyntaxMacros
 
 // MARK: SwiftSyntax
 extension PathComponent {
-    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [String] {
+    public static func parseArray(context: some MacroExpansionContext, _ expr: some ExprSyntaxProtocol) -> [String] {
         var array = [String]()
         if let literal = expr.stringLiteral?.string.split(separator: "/") {
             for substring in literal {
@@ -29,11 +29,11 @@ extension PathComponent {
         return array
     }
 
-    public static func parseArray(context: some MacroExpansionContext, _ expr: ExprSyntax) -> [PathComponent] {
+    public static func parseArray(context: some MacroExpansionContext, _ expr: some ExprSyntaxProtocol) -> [PathComponent] {
         return expr.array?.elements.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []
     }
 
-    public init?(context: some MacroExpansionContext, expression: ExprSyntax) {
+    public init?(context: some MacroExpansionContext, expression: some ExprSyntaxProtocol) {
         guard let string = expression.stringLiteral?.string ?? expression.functionCall?.calledExpression.memberAccess?.declName.baseName.text else { return nil }
         if string.contains(" ") {
             Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expression)

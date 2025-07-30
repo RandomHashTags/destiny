@@ -19,7 +19,7 @@ extension CompressionAlgorithm {
 #if canImport(SwiftSyntax)
 // MARK: SwiftSyntax
 extension CompressionAlgorithm {
-    public static func parse(_ expr: ExprSyntax) -> Self? {
+    public static func parse(_ expr: some ExprSyntaxProtocol) -> Self? {
         let key:String
         guard let function = expr.functionCall else { return nil }
         if let string = function.calledExpression.memberAccess?.declName.baseName.text {

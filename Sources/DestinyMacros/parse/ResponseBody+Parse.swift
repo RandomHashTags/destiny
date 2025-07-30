@@ -11,7 +11,7 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension ResponseBody {
-    private static func parseString(_ expr: ExprSyntax) -> String {
+    private static func parseString(_ expr: some ExprSyntaxProtocol) -> String {
         if let s = expr.stringLiteral?.string {
             return s
         } else {
@@ -20,7 +20,7 @@ extension ResponseBody {
     }
     public static func parse(
         context: some MacroExpansionContext,
-        expr: ExprSyntax
+        expr: some ExprSyntaxProtocol
     ) -> (any ResponseBodyProtocol)? {
         guard let function = expr.functionCall else { return nil }
         guard let firstArg = function.arguments.first else { return nil }
