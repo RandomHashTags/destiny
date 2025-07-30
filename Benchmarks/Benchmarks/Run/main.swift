@@ -2,7 +2,7 @@
 import HTTPTypes
 import ServiceLifecycle
 import Logging
-//import Destiny
+import DestinySwiftSyntax
 import Hummingbird
 import Vapor
 
@@ -13,7 +13,7 @@ let hostname:String = "192.168.1.96"
 #endif
 
 // MARK: App
-public struct App : Service {
+public struct App: Service {
     public let services:[Service]
     public let logger:Logger
 
@@ -25,16 +25,16 @@ public struct App : Service {
         self.logger = logger
     }
     public func run() async throws {
-        let service_group:ServiceGroup = ServiceGroup(configuration: .init(services: services, logger: logger))
-        try await service_group.run()
+        let group = ServiceGroup(configuration: .init(services: services, logger: logger))
+        try await group.run()
     }
 }
 
-var environment:Vapor.Environment = .production
+var environment = Vapor.Environment.production
 try! LoggingSystem.bootstrap(from: &environment)
 
-let logger:Logger = Logger(label: "destiny.application.benchmark")
-let application:App = App(services: [
+let logger = Logger(label: "destiny.application.benchmark")
+let application = App(services: [
     //destiny_service(port: 8080),
     hummingbird_service(port: 8081),
     vapor_service(port: 8082)
@@ -42,36 +42,52 @@ let application:App = App(services: [
 try await application.run()
 
 
-/*
 // MARK: Destiny
-func destiny_service(port: UInt16) -> Destiny.Application {
-    let server_logger:Logger = Logger(label: "destiny.http.server")
-    return Destiny.Application(services: [
-        Destiny.Server(address: hostname, port: port, maxPendingConnections: 5000, router:
-            #router(
-                returnType: .staticString,
-                version: "HTTP/1.1",
-                middleware: [
-                    StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.html])
-                ],
-                StaticRoute(
-                    method: .get,
-                    path: "test",
-                    status: .ok,
-                    contentType: .html,
-                    body: .string("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
-                )
-            ), logger: server_logger
-        )
-    ], logger: logger)
-}*/
+#declareRouter(
+    version: .v1_1,
+    middleware: [
+        StaticMiddleware(handlesMethods: [HTTPStandardRequestMethod.get], handlesContentTypes: [HTTPMediaTypeText.html], appliesStatus: HTTPStandardResponseStatus.ok.code)
+    ],
+    redirects: [],
+    StaticRoute.get(
+        path: ["test"],
+        contentType: HTTPMediaTypeText.html,
+        body: "<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"
+    ),
+    DynamicRoute.get(
+        path: ["dynamic"],
+        body: "wut",
+        handler: { request, response in
+        }
+    )
+)
+
+func destiny_service(port: UInt16) -> Destiny.Application? {
+    let server = try! Destiny.HTTPServer<HTTPRouter, HTTPSocket>(
+        address: hostname,
+        port: port,
+        backlog: 5000,
+        router: router,
+        logger: Logger(label: "destiny.http.server"),
+        onLoad: nil
+    )
+    let application = Application(
+        server: server,
+        logger: Logger(label: "destiny.application")
+    )
+    Task.detached(priority: .userInitiated) {
+        try await HTTPDateFormat.shared.load(logger: application.logger)
+    }
+    application.run()
+    return nil
+}
 
 
 // MARK: Hummingbird
 func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<BasicRequestContext>> {
-    let router:Hummingbird.Router<BasicRequestContext> = Hummingbird.Router()
-    let body:Hummingbird.ResponseBody = .init(byteBuffer: ByteBuffer(string: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#))
-    let headers:HTTPFields = HTTPFields(dictionaryLiteral:
+    let router = Hummingbird.Router()
+    let body = Hummingbird.ResponseBody(byteBuffer: ByteBuffer(string: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#))
+    let headers = Hummingbird.HTTPFields(dictionaryLiteral:
         (.init("Version")!, "destiny1.1"),
         (.init("Server")!, "destiny"),
         (.init("Connection")!, "close"),
@@ -81,11 +97,11 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
         (.contentType, "text/html"),
         (.init("Content-Length")!, "132")
     )
-    let response:Hummingbird.Response = Response(status: .ok, headers: headers, body: body)
-    router.get(RouterPath("html")) { request, _ in
+    let response = Hummingbird.Response(status: .ok, headers: headers, body: body)
+    router.get("html") { request, _ in
         return response
     }
-    router.get(RouterPath("error")) { request, _ in
+    router.get("error") { request, _ in
         throw CustomError.yeet
         return ""
     }
@@ -95,7 +111,7 @@ func hummingbird_service(port: Int) -> Hummingbird.Application<RouterResponder<B
 
 // MARK: Vapor
 func vapor_service(port: Int) -> Service {
-    struct VaporService : Service {
+    struct VaporService: Service {
         let app:Vapor.Application
         func run() async throws {
             try await app.execute()
@@ -104,20 +120,20 @@ func vapor_service(port: Int) -> Service {
     return VaporService(app: vapor_application(port: port))
 }
 func vapor_application(port: Int) -> Vapor.Application {
-    let app:Vapor.Application = Application(environment)
+    let app = Vapor.Application(environment)
     app.http.server.configuration.port = port
     app.http.server.configuration.hostname = hostname
     app.clients.use(.http)
 
-    let body:Vapor.Response.Body = .init(staticString: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
-    let headers:HTTPHeaders = HTTPHeaders(dictionaryLiteral:
+    let body = Vapor.Response.Body(staticString: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+    let headers = Vapor.HTTPHeaders(dictionaryLiteral:
         ("Version", "destiny1.1"),
         ("Server", "destiny"),
         ("Connection", "close"),
         ("You-GET'd", "true"),
         ("Set-Cookie", "cookie1=yessir"),
         ("Set-Cookie", "cookie2=pogchamp"),
-        (HTTPHeaders.Name.contentType.description, "text/html"),
+        ("Content-Type", "text/html"),
         ("Content-Length", "132")
     )
     app.get(["html"]) { request in

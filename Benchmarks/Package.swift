@@ -9,18 +9,18 @@ let package = Package(
         .macOS(.v14)
     ],
     dependencies: [
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.2"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.3"),
 
         // networking
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.7.0"),
-        .package(url: "https://github.com/apple/swift-nio", from: "2.82.0"),
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.8.0"),
+        .package(url: "https://github.com/apple/swift-nio", from: "2.85.0"),
+        .package(url: "https://github.com/apple/swift-log", from: "1.6.4"),
 
-        .package(url: "https://github.com/swift-server/async-http-client", from: "1.23.1"),
+        .package(url: "https://github.com/swift-server/async-http-client", from: "1.26.1"),
 
-        //.package(name: "destiny", path: "../"),
-        .package(url: "https://github.com/vapor/vapor", exact: "4.114.1"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.11.1")
+        .package(url: "https://github.com/RandomHashTags/destiny", branch: "main"),
+        .package(url: "https://github.com/vapor/vapor", exact: "4.115.1"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.15.0")
     ],
     targets: [
         .target(
@@ -45,7 +45,7 @@ let package = Package(
         .target(
             name: "TestDestiny",
             dependencies: [
-                //.product(name: "Destiny", package: "destiny")
+                .product(name: "DestinySwiftSyntax", package: "destiny")
             ],
             path: "Benchmarks/Destiny"
         ),

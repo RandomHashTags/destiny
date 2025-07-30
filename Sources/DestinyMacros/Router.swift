@@ -377,6 +377,8 @@ extension Router.Storage {
                     if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                         if let responder = try responseBodyResponderDebugDescription(body: route.body, response: httpResponse) {
                             routeResponders.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
+                        } else {
+                            context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body))")))
                         }
                     } else if let httpResponse = httpResponse as? HTTPResponseMessage {
                         Router.conditionalRoute(
