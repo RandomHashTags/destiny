@@ -21,7 +21,7 @@ extension StaticRedirectionRoute {
         var from = [String]()
         var isCaseSensitive = true
         var to = [String]()
-        var status = HTTPResponseStatus.movedPermanently.code
+        var status = HTTPStandardResponseStatus.movedPermanently.code
         for argument in function.arguments {
             switch argument.label?.text {
             case "version": version = HTTPVersion.parse(argument.expression) ?? version

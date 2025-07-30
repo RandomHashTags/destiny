@@ -38,7 +38,7 @@ extension DynamicRoute {
         var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
         var path = [PathComponent]()
         var isCaseSensitive = true
-        var status = HTTPResponseStatus.notImplemented.code
+        var status = HTTPStandardResponseStatus.notImplemented.code
         var contentType:HTTPMediaType? = nil
         var handler = "nil"
         var parameters = [String]()

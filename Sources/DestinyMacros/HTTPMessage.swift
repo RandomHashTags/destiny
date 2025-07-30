@@ -7,7 +7,7 @@ import SwiftSyntaxMacros
 enum HTTPMessage: DeclarationMacro {
     static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
         var version = HTTPVersion.v1_1
-        var status = HTTPResponseStatus.notImplemented.code
+        var status = HTTPStandardResponseStatus.notImplemented.code
         var headers = HTTPHeaders()
         var body:(any ResponseBodyProtocol)? = nil
         var contentType:HTTPMediaType? = nil

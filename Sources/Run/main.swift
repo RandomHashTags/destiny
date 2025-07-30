@@ -39,9 +39,9 @@ import Logging
         StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
         StaticMiddleware(
             handlesMethods: [HTTPStandardRequestMethod.get],
-            handlesStatuses: [HTTPResponseStatus.notImplemented.code],
+            handlesStatuses: [HTTPStandardResponseStatus.notImplemented.code],
             handlesContentTypes: [HTTPMediaTypeText.html, HTTPMediaTypeApplication.json, HTTPMediaTypeText.plain],
-            appliesStatus: HTTPResponseStatus.ok.code,
+            appliesStatus: HTTPStandardResponseStatus.ok.code,
             excludedRoutes: ["plaintext"]
         ),
         StaticMiddleware(
@@ -163,14 +163,14 @@ import Logging
     ),
     /*StaticRoute.get(
         path: ["error"],
-        status: HTTPResponseStatus.badRequest.code,
+        status: HTTPStandardResponseStatus.badRequest.code,
         contentType: HTTPMediaTypeApplication.json,
         body: .error(CustomError.yipyip)
     ),*/
     DynamicRoute.get( // https://www.techempower.com/benchmarks
         path: ["plaintext"],
         handler: { _, response in
-            response.setStatusCode(HTTPResponseStatus.ok.code)
+            response.setStatusCode(HTTPStandardResponseStatus.ok.code)
             response.setHeader(key: "Server", value: "Destiny")
             response.setBody("Hello World!")
         }

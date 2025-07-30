@@ -59,7 +59,7 @@ extension Router {
         var version = HTTPVersion.v1_1
         let defaultStaticErrorResponse = (try? DestinyDefaults.HTTPResponseMessage(
             version: HTTPVersion.v1_1,
-            status: HTTPResponseStatus.ok.code,
+            status: HTTPStandardResponseStatus.ok.code,
             headers: [:],
             cookies: [],
             body: "{\"error\":true,\"reason\":\"\\(error)\"}",
@@ -151,7 +151,7 @@ extension Router {
             staticNotFoundResponder = try! ResponseBody.stringWithDateHeader("").responderDebugDescription(
                 HTTPResponseMessage(
                     version: version,
-                    status: HTTPResponseStatus.notFound.code,
+                    status: HTTPStandardResponseStatus.notFound.code,
                     headers: [:],
                     cookies: [],
                     body: ResponseBody.stringWithDateHeader("not found"),

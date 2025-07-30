@@ -20,6 +20,9 @@ try await withThrowingDiscardingTaskGroup { group in
     group.addTask {
         try await generateHTTPRequestMethods()
     }
+    group.addTask {
+        try await generateHTTPResponseStatuses()
+    }
 }
 
 func writeToDisk(destination: URL, _ values: [(fileName: String, content: String)]) async throws {
@@ -51,4 +54,9 @@ func generateHTTPMediaTypes() async throws {
 func generateHTTPRequestMethods() async throws {
     let destination = sourceDestination.appending(component: "requestMethods")
     try await writeToDisk(destination: destination, HTTPRequestMethods.generateSources())
+}
+
+func generateHTTPResponseStatuses() async throws {
+    let destination = sourceDestination.appending(component: "responseStatuses")
+    try await writeToDisk(destination: destination, HTTPResponseStatuses.generateSources())
 }

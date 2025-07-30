@@ -22,7 +22,7 @@ extension StaticRoute {
         var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
         var path = [String]()
         var isCaseSensitive = true
-        var status = HTTPResponseStatus.notImplemented.code
+        var status = HTTPStandardResponseStatus.notImplemented.code
         var contentType = HTTPMediaType(HTTPMediaTypeText.plain)
         var charset:Charset? = nil
         var body:(any ResponseBodyProtocol)? = nil
@@ -90,7 +90,7 @@ extension StaticRoute {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        if status == HTTPResponseStatus.notImplemented.code {
+        if status == HTTPStandardResponseStatus.notImplemented.code {
             Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
         }
         headers[HTTPResponseHeader.contentType.rawNameString] = nil
