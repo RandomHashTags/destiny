@@ -174,7 +174,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -187,7 +187,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -200,7 +200,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -213,7 +213,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -226,7 +226,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -239,7 +239,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -252,7 +252,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -265,7 +265,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -278,7 +278,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -291,7 +291,7 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
     @inlinable
@@ -304,6 +304,6 @@ extension StaticRoute {
         charset: Charset? = nil,
         body: some ResponseBodyProtocol,
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 }

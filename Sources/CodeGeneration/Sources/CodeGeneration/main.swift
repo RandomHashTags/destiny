@@ -13,21 +13,25 @@ try FileManager.default.createDirectory(
     attributes: nil
 )
 
-try await generateHTTPMediaTypes()
+try await withThrowingDiscardingTaskGroup { group in
+    group.addTask {
+        try await generateHTTPMediaTypes()
+    }
+    group.addTask {
+        try await generateHTTPRequestMethods()
+    }
+}
 
-func generateHTTPMediaTypes() async throws {
-    let httpMediaTypesDestination = sourceDestination.appending(component: "mediaTypes")
+func writeToDisk(destination: URL, _ values: [(fileName: String, content: String)]) async throws {
     try FileManager.default.createDirectory(
-        atPath: httpMediaTypesDestination.path,
+        atPath: destination.path,
         withIntermediateDirectories: true,
         attributes: nil
     )
-
-    let httpMediaTypes = HTTPMediaTypes.generateSources()
     try await withThrowingDiscardingTaskGroup { group in
-        for (fileName, content) in httpMediaTypes {
+        for (fileName, content) in values {
             group.addTask {
-                let url = httpMediaTypesDestination.appending(component: fileName)
+                let url = destination.appending(component: fileName)
                 if FileManager.default.fileExists(atPath: url.path) {
                     let contents = content.data(using: .utf8)
                     FileManager.default.createFile(atPath: url.path, contents: contents)
@@ -37,4 +41,14 @@ func generateHTTPMediaTypes() async throws {
             }
         }
     }
+}
+
+func generateHTTPMediaTypes() async throws {
+    let destination = sourceDestination.appending(component: "mediaTypes")
+    try await writeToDisk(destination: destination, HTTPMediaTypes.generateSources())
+}
+
+func generateHTTPRequestMethods() async throws {
+    let destination = sourceDestination.appending(component: "requestMethods")
+    try await writeToDisk(destination: destination, HTTPRequestMethods.generateSources())
 }

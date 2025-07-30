@@ -17,7 +17,7 @@ extension StaticRedirectionRoute {
         _ function: FunctionCallExprSyntax
     ) -> Self? {
         var version = version
-        var method:any HTTPRequestMethodProtocol = HTTPRequestMethod.get
+        var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
         var from = [String]()
         var isCaseSensitive = true
         var to = [String]()

@@ -21,7 +21,7 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     var pathCount: Int { get }
 
     /// - Returns: Whether or not the request's method matches the given one.
-    func isMethod<let count: Int>(_ method: InlineArray<count, UInt8>) -> Bool
+    func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool
 
     //@inlinable func header<let keyCount: Int, valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 

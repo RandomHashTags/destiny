@@ -21,12 +21,12 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
         allowedHeaders: Set<HTTPRequestHeader> = [.accept, .authorization, .contentType, .origin],
         allowedMethods: [any HTTPRequestMethodProtocol] = [
-            HTTPRequestMethod.get,
-            HTTPRequestMethod.post,
-            HTTPRequestMethod.put,
-            HTTPRequestMethod.options,
-            HTTPRequestMethod.delete,
-            HTTPRequestMethod.patch
+            HTTPStandardRequestMethod.get,
+            HTTPStandardRequestMethod.post,
+            HTTPStandardRequestMethod.put,
+            HTTPStandardRequestMethod.options,
+            HTTPStandardRequestMethod.delete,
+            HTTPStandardRequestMethod.patch
         ],
         allowCredentials: Bool = false,
         exposedHeaders: Set<HTTPRequestHeader>? = nil,

@@ -1,3 +1,4 @@
+
 import DestinyBlueprint
 
 public enum HTTPMediaTypeModel: String, HTTPMediaTypeProtocol {

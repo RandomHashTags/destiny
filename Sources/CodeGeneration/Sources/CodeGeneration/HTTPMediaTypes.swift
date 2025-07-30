@@ -1,6 +1,4 @@
 
-import SwiftSyntax
-
 struct HTTPMediaTypes {
     static func generateSources() -> [(fileName: String, content: String)] {
         let array = [
@@ -36,6 +34,7 @@ struct HTTPMediaTypes {
             return "        case .\($0.subType): \(value)"
         }).joined(separator: "\n")
         return """
+        
         import DestinyBlueprint
 
         public enum HTTPMediaType\(type): String, HTTPMediaTypeProtocol {

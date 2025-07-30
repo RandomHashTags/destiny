@@ -38,23 +38,23 @@ import Logging
         StaticMiddleware(handlesVersions: [.v2_0], appliesHeaders: ["Version":"destiny2.0"]),
         StaticMiddleware(handlesVersions: [.v3_0], appliesHeaders: ["Version":"destiny3.0"]),
         StaticMiddleware(
-            handlesMethods: [HTTPRequestMethod.get],
+            handlesMethods: [HTTPStandardRequestMethod.get],
             handlesStatuses: [HTTPResponseStatus.notImplemented.code],
             handlesContentTypes: [HTTPMediaTypeText.html, HTTPMediaTypeApplication.json, HTTPMediaTypeText.plain],
             appliesStatus: HTTPResponseStatus.ok.code,
             excludedRoutes: ["plaintext"]
         ),
         StaticMiddleware(
-            handlesMethods: [HTTPRequestMethod.get],
+            handlesMethods: [HTTPStandardRequestMethod.get],
             appliesHeaders: ["You-GET'd":"true"],
             excludedRoutes: ["plaintext"]
         ),
-        StaticMiddleware(handlesMethods: [HTTPRequestMethod.post], appliesHeaders: ["You-POST'd":"true"]),
+        StaticMiddleware(handlesMethods: [HTTPStandardRequestMethod.post], appliesHeaders: ["You-POST'd":"true"]),
         //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
         DynamicCORSMiddleware(),
         DynamicDateMiddleware(),
         DynamicMiddleware({ request, response in
-            guard request.isMethod(HTTPRequestMethod.get.array) else { return }
+            guard request.isMethod(HTTPStandardRequestMethod.get) else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
             #else
@@ -63,7 +63,7 @@ import Logging
         })
     ],
     redirects: [
-        StaticRedirectionRoute(method: HTTPRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])
+        StaticRedirectionRoute(method: HTTPStandardRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])
     ],
     /*
     routeGroups: [
@@ -73,13 +73,13 @@ import Logging
                 StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
             ],
             StaticRoute(
-                method: HTTPRequestMethod.get,
+                method: HTTPStandardRequestMethod.get,
                 path: ["hoopla"],
                 contentType: HTTPMediaTypeText.plain,
                 body: StringWithDateHeader("rly dud")
             ),
             DynamicRoute(
-                method: HTTPRequestMethod.get,
+                method: HTTPStandardRequestMethod.get,
                 path: ["HOOPLA"],
                 contentType: HTTPMediaTypeText.plain,
                 handler: { _, response in

@@ -32,8 +32,8 @@ public struct Request: HTTPRequestProtocol {
     }
 
     @inlinable
-    public func isMethod<let count: Int>(_ method: InlineArray<count, UInt8>) -> Bool {
-        method.stringRepresentationsAreEqual(newStartLine.method)
+    public func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
+        method.rawNameString() == newStartLine.method.string()
     }
 
     @inlinable

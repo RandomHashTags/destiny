@@ -1,3 +1,4 @@
+
 import DestinyBlueprint
 
 public enum HTTPMediaTypeFont: String, HTTPMediaTypeProtocol {

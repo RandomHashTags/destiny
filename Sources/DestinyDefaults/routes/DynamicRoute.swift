@@ -81,7 +81,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
 
     @inlinable
     public func startLine() -> String {
-        return method.rawNameString() + " /" + path.map({ $0.slug }).joined(separator: "/") + " " + version.string
+        return "\(method.rawNameString()) /\(path.map({ $0.slug }).joined(separator: "/")) \(version.string)" 
     }
 
     @inlinable
@@ -138,7 +138,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -152,7 +152,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -166,7 +166,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -180,7 +180,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -194,7 +194,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -208,7 +208,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -222,7 +222,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -236,7 +236,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -250,7 +250,7 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
     @inlinable
@@ -264,6 +264,6 @@ extension DynamicRoute {
         body: (any ResponseBodyProtocol)? = nil,
         handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) -> Self {
-        return on(version: version, method: HTTPRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
+        return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 }

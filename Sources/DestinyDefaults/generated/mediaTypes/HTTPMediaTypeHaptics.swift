@@ -1,3 +1,4 @@
+
 import DestinyBlueprint
 
 public enum HTTPMediaTypeHaptics: String, HTTPMediaTypeProtocol {

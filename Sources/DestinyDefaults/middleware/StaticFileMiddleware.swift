@@ -18,7 +18,7 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol { // TODO: finish
     /// - Returns: All the routes associated with the files for the given path.
     public func routes(
         version: HTTPVersion,
-        method: some HTTPRequestMethodProtocol = HTTPRequestMethod.get,
+        method: some HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get,
         charset: Charset? = .utf8
     ) throws -> [StaticRoute] {
         return []

@@ -35,7 +35,7 @@ extension DynamicRoute {
         _ function: FunctionCallExprSyntax
     ) -> Self? {
         var version = version
-        var method:any HTTPRequestMethodProtocol = HTTPRequestMethod.get
+        var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
         var path = [PathComponent]()
         var isCaseSensitive = true
         var status = HTTPResponseStatus.notImplemented.code
