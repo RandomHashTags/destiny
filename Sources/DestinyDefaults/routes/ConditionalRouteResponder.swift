@@ -37,13 +37,15 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     }
 
     @inlinable
-    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+    public func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool {
+        // TODO: fix
+        /*
         var request:any HTTPRequestProtocol = request
         for (index, condition) in staticConditions.enumerated() {
             if condition(&request) {
@@ -59,7 +61,7 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
                 //try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: dynamicResponders[index])
                 return true
             }
-        }
+        }*/
         return false
     }
 }

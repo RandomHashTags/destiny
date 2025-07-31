@@ -28,7 +28,7 @@ public struct HTTPRouter<
     public private(set) var caseInsensitiveResponders:ConcreteCaseInsensitiveRouterResponderStorage
 
     public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
-    public var dynamicMiddleware:[any DynamicMiddlewareProtocol]
+    public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
 
     public private(set) var routeGroups:[any RouteGroupProtocol]
     
@@ -46,7 +46,7 @@ public struct HTTPRouter<
         caseSensitiveResponders: ConcreteCaseSensitiveRouterResponderStorage,
         caseInsensitiveResponders: ConcreteCaseInsensitiveRouterResponderStorage,
         staticMiddleware: [any StaticMiddlewareProtocol],
-        dynamicMiddleware: [any DynamicMiddlewareProtocol],
+        opaqueDynamicMiddleware: [any OpaqueDynamicMiddlewareProtocol],
         routeGroups: [any RouteGroupProtocol]
     ) {
         self.version = version
@@ -55,7 +55,7 @@ public struct HTTPRouter<
         self.staticNotFoundResponder = staticNotFoundResponder
         self.caseSensitiveResponders = caseSensitiveResponders
         self.caseInsensitiveResponders = caseInsensitiveResponders
-        self.dynamicMiddleware = dynamicMiddleware
+        self.opaqueDynamicMiddleware = opaqueDynamicMiddleware
         self.staticMiddleware = staticMiddleware
         self.routeGroups = routeGroups
     }
@@ -65,14 +65,14 @@ public struct HTTPRouter<
 extension HTTPRouter {
     @inlinable
     public mutating func loadDynamicMiddleware() {
-        for i in dynamicMiddleware.indices {
-            dynamicMiddleware[i].load()
+        for i in opaqueDynamicMiddleware.indices {
+            opaqueDynamicMiddleware[i].load()
         }
     }
 
     @inlinable
-    func handleDynamicMiddleware(for request: inout any HTTPRequestProtocol, with response: inout any DynamicResponseProtocol) async throws {
-        for middleware in dynamicMiddleware {
+    func handleDynamicMiddleware(for request: inout some HTTPRequestProtocol & ~Copyable, with response: inout some DynamicResponseProtocol) async throws {
+        for middleware in opaqueDynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {
                 break
             }
@@ -83,23 +83,23 @@ extension HTTPRouter {
 // MARK: Process
 extension HTTPRouter {
     @inlinable
-    public func process<Socket: HTTPSocketProtocol & ~Copyable>(
+    public func process(
         client: Int32,
         received: ContinuousClock.Instant,
-        socket: borrowing Socket,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
         logger: Logger
     ) async throws {
-        guard var request = try Socket.ConcreteRequest(socket: socket) else { return }
+        var request = try socket.loadRequest()
         try await process(client: client, received: received, loaded: .now, socket: socket, request: &request, logger: logger)
     }
 
     @inlinable
-    func process<Socket: HTTPSocketProtocol & ~Copyable>(
+    func process(
         client: Int32,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
     ) async throws {
         defer {
@@ -126,16 +126,14 @@ extension HTTPRouter {
                 }
                 // not found
                 if let dynamicNotFoundResponder {
-                    var anyRequest:any HTTPRequestProtocol = request
-                    var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: dynamicNotFoundResponder)
-                    try await dynamicNotFoundResponder.respond(to: socket, request: &anyRequest, response: &response)
+                    var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: dynamicNotFoundResponder)
+                    try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
                 } else {
                     try await staticNotFoundResponder.write(to: socket)
                 }
             }
         } catch {
-            var anyRequest:any HTTPRequestProtocol = request
-            await errorResponder.respond(socket: socket, error: error, request: &anyRequest, logger: logger)
+            await errorResponder.respond(socket: socket, error: error, request: &request, logger: logger)
         }
     }
 }
@@ -154,7 +152,7 @@ extension HTTPRouter {
     func defaultDynamicResponse(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        request: inout any HTTPRequestProtocol,
+        request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws -> any DynamicResponseProtocol {
         var response = responder.defaultResponse
@@ -187,15 +185,14 @@ extension HTTPRouter {
     }
 
     @inlinable
-    public func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
+    public func respondDynamically(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws {
-        var anyRequest:any HTTPRequestProtocol = request
-        var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &anyRequest, responder: responder)
-        try await responder.respond(to: socket, request: &anyRequest, response: &response)
+        var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: responder)
+        try await responder.respond(to: socket, request: &request, response: &response)
     }
 }

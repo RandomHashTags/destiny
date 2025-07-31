@@ -7,7 +7,10 @@ public enum CORSMiddlewareAllowedOrigin: Sendable {
     case originBased
 
     @inlinable
-    public func apply(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) {
+    public func apply(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        response: inout some DynamicResponseProtocol
+    ) {
         switch self {
         case .all:
             Self.applyAll(response: &response)
@@ -25,24 +28,36 @@ public enum CORSMiddlewareAllowedOrigin: Sendable {
 
 extension CORSMiddlewareAllowedOrigin {
     @inlinable
-    static func applyAll(response: inout any DynamicResponseProtocol) {
+    static func applyAll(
+        response: inout some DynamicResponseProtocol
+    ) {
         response.setHeader(key: "Access-Control-Allow-Origin", value: "*")
     }
 
     @inlinable
-    static func applyAny(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol, origins: Set<String>) {
+    static func applyAny(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        response: inout some DynamicResponseProtocol,
+        origins: Set<String>
+    ) {
         if let origin = request.header(forKey: "Origin"), origins.contains(origin) {
             response.setHeader(key: "Access-Control-Allow-Origin", value: origin)
         }
     }
 
     @inlinable
-    static func applyCustom(response: inout any DynamicResponseProtocol, string: String) {
+    static func applyCustom(
+        response: inout some DynamicResponseProtocol,
+        string: String
+    ) {
         response.setHeader(key: "Access-Control-Allow-Origin", value: string)
     }
 
     @inlinable
-    static func applyOriginBased(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) {
+    static func applyOriginBased(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        response: inout some DynamicResponseProtocol
+    ) {
         response.setHeader(key: "Vary", value: "origin")
         if let origin = request.header(forKey: "Origin") {
             response.setHeader(key: "Access-Control-Allow-Origin", value: origin)

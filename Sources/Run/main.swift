@@ -246,14 +246,14 @@ let reuseAddress = processArg(key: "reuseaddress")?.elementsEqual("true") ?? tru
 let reusePort = processArg(key: "reuseport")?.elementsEqual("true") ?? true
 let noTCPDelay = processArg(key: "tcpnodelay")?.elementsEqual("true") ?? true
 
-let server = try HTTPServer<HTTPRouter, HTTPSocket>(
+let server = HTTPServer<HTTPRouter, HTTPSocket>(
     address: address,
     port: port,
     backlog: backlog,
     reuseAddress: reuseAddress,
     reusePort: reusePort,
     noTCPDelay: noTCPDelay,
-    router: router,
+    router: DeclaredRouter.router,
     logger: Logger(label: "destiny.http.server"),
     onLoad: serverOnLoad
 )

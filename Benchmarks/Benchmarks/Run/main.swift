@@ -35,7 +35,7 @@ try! LoggingSystem.bootstrap(from: &environment)
 
 let logger = Logger(label: "destiny.application.benchmark")
 let application = App(services: [
-    //destiny_service(port: 8080),
+    //DestinyService(port: 8080),
     hummingbird_service(port: 8081),
     vapor_service(port: 8082)
 ], logger: logger)
@@ -50,14 +50,28 @@ try await application.run()
     ],
     redirects: [],
     StaticRoute.get(
-        path: ["test"],
+        path: ["html"],
         contentType: HTTPMediaTypeText.html,
         body: StringWithDateHeader("<!DOCTYPE html><html><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>")
     )
 )
 
-func destiny_service(port: UInt16) -> Destiny.Application? {
-    let server = try! Destiny.HTTPServer<HTTPRouter, HTTPSocket>(
+struct DestinyService: Service {
+    let port:UInt16
+
+    init(port: UInt16) {
+        self.port = port
+    }
+
+    func run() async throws {
+        let application = destiny_application(port: port)
+        Task.detached {
+            application.run()
+        }
+    }
+}
+func destiny_application(port: UInt16) -> Destiny.Application {
+    let server = Destiny.HTTPServer<HTTPRouter, HTTPSocket>(
         address: hostname,
         port: port,
         backlog: 5000,
@@ -72,8 +86,7 @@ func destiny_service(port: UInt16) -> Destiny.Application? {
     Task.detached(priority: .userInitiated) {
         try await HTTPDateFormat.shared.load(logger: application.logger)
     }
-    application.run()
-    return nil
+    return application
 }
 
 

@@ -22,12 +22,12 @@ public struct RouterResponderStorage<
     }
 
     @inlinable
-    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+    public func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool {
         if try await respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
@@ -53,12 +53,12 @@ extension RouterResponderStorage {
     }
 
     @inlinable
-    public func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
+    public func respondDynamically(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable,
     ) async throws -> Bool {
         return try await dynamic.respond(router: router, received: received, loaded: loaded, socket: socket, request: &request)
     }

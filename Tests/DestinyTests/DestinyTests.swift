@@ -1,5 +1,5 @@
 
-import Destiny
+import DestinySwiftSyntax
 import Testing
 
 struct DestinyTests {
@@ -10,38 +10,34 @@ struct DestinyTests {
             dynamicNotFoundResponder: nil,
             middleware: [
                 StaticMiddleware(
-                    handlesMethods: [HTTPRequestMethod.get],
-                    handlesContentTypes: [HTTPMediaType.textHtml],
-                    appliesStatus: HTTPResponseStatus.ok.code,
+                    handlesMethods: [HTTPStandardRequestMethod.get],
+                    handlesContentTypes: [HTTPMediaTypeText.html],
+                    appliesStatus: HTTPStandardResponseStatus.ok.code,
                     appliesHeaders: ["Are-You-My-Brother":"yes"]
                 )
             ],
-            StaticRoute(
-                method: HTTPRequestMethod.get,
+            StaticRoute.get(
                 path: ["test1"],
-                contentType: HTTPMediaType.textHtml,
+                contentType: HTTPMediaTypeText.html,
                 charset: Charset.utf8,
                 body: ResponseBody.stringWithDateHeader("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
-            StaticRoute(
-                method: HTTPRequestMethod.get,
+            StaticRoute.get(
                 path: ["test2"],
-                status: HTTPResponseStatus.movedPermanently,
-                contentType: HTTPMediaType.textHtml,
+                status: HTTPStandardResponseStatus.movedPermanently.code,
+                contentType: HTTPMediaTypeText.html,
                 charset: .utf8,
                 body: ResponseBody.stringWithDateHeader("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>")
             ),
-            StaticRoute(
-                method: HTTPRequestMethod.get,
+            StaticRoute.get(
                 path: ["test3"],
-                contentType: HTTPMediaType.textHtml,
+                contentType: HTTPMediaTypeText.html,
                 charset: .utf8,
                 body: ResponseBody.bytes([UInt8]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf8))
             ),
-            /*StaticRoute(
-                method: HTTPRequestMethod.get,
+            /*StaticRoute.get(
                 path: ["test4"],
-                contentType: HTTPMediaType.textHtml,
+                contentType: HTTPMediaTypeText.html,
                 charset: .utf8,
                 body: ResponseBody.bytes16([UInt16]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf16))
             )*/

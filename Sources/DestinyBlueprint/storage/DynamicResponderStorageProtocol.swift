@@ -9,11 +9,11 @@ public protocol DynamicResponderStorageProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
-    func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+    func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool
 }

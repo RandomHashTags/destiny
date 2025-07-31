@@ -23,13 +23,16 @@ import DestinyBlueprint
 public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
     public typealias Buffer = InlineArray<1024, UInt8>
 
-    public typealias ConcreteRequest = Request
-
     public let fileDescriptor:Int32
 
     public init(fileDescriptor: Int32) {
         self.fileDescriptor = fileDescriptor
         Self.noSigPipe(fileDescriptor: fileDescriptor)
+    }
+
+    @inlinable
+    public func loadRequest() throws -> Request {
+        return try Request(socket: self)
     }
 }
 

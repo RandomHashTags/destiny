@@ -4,7 +4,7 @@ import DestinyBlueprint
 // MARK: DynamicCORSMiddleware
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
-public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewareProtocol {
+public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddlewareProtocol {
     public let allowedOrigin:CORSMiddlewareAllowedOrigin
     public let logicKind:DynamicCORSLogic
 
@@ -68,7 +68,10 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
     }
 
     @inlinable
-    public func handle(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
+    public func handle(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        response: inout some DynamicResponseProtocol
+    ) async throws -> Bool {
         guard request.header(forKey: "Origin") != nil else { return true }
         allowedOrigin.apply(request: &request, response: &response)
         try await logicKind.apply(to: &response)
@@ -80,7 +83,7 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, DynamicMiddlewarePr
 extension DynamicCORSMiddleware {
     @inlinable
     static func handleSharedLogic(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String
     ) {
@@ -92,7 +95,7 @@ extension DynamicCORSMiddleware {
 extension DynamicCORSMiddleware {
     @inlinable
     static func logic_allowCredentials_exposedHeaders_maxAge(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String,
@@ -104,7 +107,7 @@ extension DynamicCORSMiddleware {
 
     @inlinable
     static func logic_allowCredentials_exposedHeaders(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String
@@ -115,7 +118,7 @@ extension DynamicCORSMiddleware {
 
     @inlinable
     static func logic_allowCredentials_maxAge(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ maxAgeString: String
@@ -126,7 +129,7 @@ extension DynamicCORSMiddleware {
 
     @inlinable
     static func logic_allowCredentials(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String
     ) {
@@ -138,7 +141,7 @@ extension DynamicCORSMiddleware {
 extension DynamicCORSMiddleware {
     @inlinable
     static func logic_exposedHeaders_maxAge(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String,
@@ -150,7 +153,7 @@ extension DynamicCORSMiddleware {
 
     @inlinable
     static func logic_exposedHeaders(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String
@@ -163,7 +166,7 @@ extension DynamicCORSMiddleware {
 extension DynamicCORSMiddleware {
     @inlinable
     static func logic_maxAge(
-        _ response: inout any DynamicResponseProtocol,
+        _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ maxAgeString: String

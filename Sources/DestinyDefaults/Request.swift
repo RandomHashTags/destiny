@@ -45,7 +45,7 @@ public struct Request: HTTPRequestProtocol {
 // MARK: Init
 extension Request {
     @inlinable
-    public init?(socket: borrowing some HTTPSocketProtocol & ~Copyable) throws {
+    public init(socket: borrowing some HTTPSocketProtocol & ~Copyable) throws {
         var (buffer, read) = try socket.readBuffer()
         if read <= 0 {
             throw SocketError.malformedRequest()

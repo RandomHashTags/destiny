@@ -10,11 +10,11 @@ public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible,
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     /// - Returns: Whether or not a route responder responded to the request.
-    func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+    func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool
 }

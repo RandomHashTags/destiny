@@ -12,10 +12,10 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - received: The instant the socket was accepted.
     ///   - socket: The socket to write to.
     ///   - logger: The `Logger` that logs relevant details.
-    func process<Socket: HTTPSocketProtocol & ~Copyable>(
+    func process(
         client: Int32,
         received: ContinuousClock.Instant,
-        socket: borrowing Socket,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
         logger: Logger
     ) async throws
 
@@ -37,11 +37,11 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     ///   - responder: The dynamic route responder that will write to the socket.
-    func respondDynamically<Socket: HTTPSocketProtocol & ~Copyable>(
+    func respondDynamically(
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest,
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws
 }

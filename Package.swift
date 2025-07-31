@@ -161,7 +161,7 @@ let package = Package(
 
         .testTarget(
             name: "DestinyTests",
-            dependencies: ["Destiny"]
+            dependencies: ["DestinySwiftSyntax"]
         ),
     ],
     swiftLanguageModes: [.v5]

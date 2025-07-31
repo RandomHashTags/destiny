@@ -376,36 +376,6 @@ extension InlineArrayProtocol {
     }
 }
 
-// MARK: has prefix
-extension InlineArrayProtocol where Element == UInt8 {
-    /// - Complexity: O(*n*) where _n_ is the length of the collection.
-    @inlinable
-    public func hasPrefix<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
-        let minCount = min(count, array.count)
-        // TODO: support SIMD
-        /*switch minCount {
-        case let x where x <= 8:
-            break
-        case let x where x <= 16:
-            break
-        case let x where x <= 32:
-            break
-        case let x where x <= 64:
-            break
-        default:
-            break
-        }*/
-        var i = startIndex
-        while i < minCount {
-            if self.itemAt(index: i) != array.itemAt(index: i) {
-                return false
-            }
-            i += 1
-        }
-        return true
-    }
-}
-
 // MARK: string
 extension InlineArrayProtocol where Element == UInt8 {
     @inlinable

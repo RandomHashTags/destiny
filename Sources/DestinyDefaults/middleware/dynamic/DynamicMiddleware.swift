@@ -1,9 +1,8 @@
 
 import DestinyBlueprint
 
-// MARK: DynamicMiddleware
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.
-public struct DynamicMiddleware: DynamicMiddlewareProtocol {
+public struct DynamicMiddleware: ExistentialDynamicMiddlewareProtocol {
     public let handleLogic:@Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
     package var logic:String = "{ _, _ in }"
 
@@ -14,7 +13,10 @@ public struct DynamicMiddleware: DynamicMiddlewareProtocol {
     }
 
     @inlinable
-    public func handle(request: inout any HTTPRequestProtocol, response: inout any DynamicResponseProtocol) async throws -> Bool {
+    public func handle(
+        request: inout any HTTPRequestProtocol,
+        response: inout any DynamicResponseProtocol
+    ) async throws -> Bool {
         try await handleLogic(&request, &response)
         return true
     }

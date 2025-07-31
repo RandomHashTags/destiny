@@ -89,12 +89,12 @@ public struct RouteGroup: RouteGroupProtocol {
 // MARK: Respond
 extension RouteGroup {
     @inlinable
-    public func respond<Socket: HTTPSocketProtocol & ~Copyable>(
+    public func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
         received: ContinuousClock.Instant,
         loaded: ContinuousClock.Instant,
-        socket: borrowing Socket,
-        request: inout Socket.ConcreteRequest
+        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool {
         if try await staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
             return true

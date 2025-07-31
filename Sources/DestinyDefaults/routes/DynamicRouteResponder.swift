@@ -33,13 +33,6 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     }
 
     @inlinable
-    public func forEachPathComponent(_ yield: (PathComponent) -> Void) {
-        for component in path {
-            yield(component)
-        }
-    }
-
-    @inlinable
     public var pathComponentsCount: Int {
         path.count
     }
@@ -59,10 +52,11 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     @inlinable
     public func respond(
         to socket: borrowing some HTTPSocketProtocol & ~Copyable,
-        request: inout any HTTPRequestProtocol,
-        response: inout any DynamicResponseProtocol
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        response: inout some DynamicResponseProtocol
     ) async throws {
-        try await logic(&request, &response)
+        // TODO: fix
+        //try await logic(&anyRequest, &anyResponse)
         try await response.write(to: socket)
     }
 }

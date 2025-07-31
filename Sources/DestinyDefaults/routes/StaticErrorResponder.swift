@@ -14,7 +14,7 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
     public func respond(
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         error: some Error,
-        request: inout any HTTPRequestProtocol,
+        request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
     ) async {
         #if DEBUG

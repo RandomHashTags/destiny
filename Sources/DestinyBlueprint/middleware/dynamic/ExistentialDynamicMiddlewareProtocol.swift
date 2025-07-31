@@ -1,9 +1,5 @@
 
-/// Core Dynamic Middleware protocol which handles requests to dynamic routes.
-public protocol DynamicMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
-    /// Load logic when the middleware is ready to process requests.
-    mutating func load()
-
+public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Copyable {
     /// The handler.
     /// 
     /// - Parameters:
@@ -14,10 +10,4 @@ public protocol DynamicMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
         request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol
     ) async throws -> Bool
-}
-
-extension DynamicMiddlewareProtocol {
-    @inlinable
-    public mutating func load() {
-    }
 }

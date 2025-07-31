@@ -43,7 +43,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
                 }
             }
             await group.waitForAll()
-            // TODO: fix | doesn't cancel when graceful shutdown is triggered
+            // TODO: fix? | doesn't cancel when graceful shutdown is triggered
         }
     }
 
