@@ -156,8 +156,6 @@ extension HTTPRouter {
         responder: some DynamicRouteResponderProtocol
     ) async throws -> any DynamicResponseProtocol {
         var response = responder.defaultResponse
-        response.timestamps.received = received
-        response.timestamps.loaded = loaded
         var index = 0
         let maximumParameters = responder.pathComponentsCount
         responder.forEachPathComponentParameterIndex { parameterIndex in
@@ -180,7 +178,6 @@ extension HTTPRouter {
             index += 1
         }
         try await handleDynamicMiddleware(for: &request, with: &response)
-        response.timestamps.processed = .now
         return response
     }
 

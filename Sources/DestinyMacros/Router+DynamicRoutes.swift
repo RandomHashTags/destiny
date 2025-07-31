@@ -110,7 +110,7 @@ extension Router.Storage {
 
                 init(
                     path: InlineArray<pathCount, PathComponent>,
-                    defaultResponse: any DynamicResponseProtocol,
+                    defaultResponse: any DynamicResponseProtocol
                 ) {
                     self.path = path
                     parameterPathIndexes = path.indices.compactMap({ path[$0].isParameter ? $0 : nil })

@@ -1,28 +1,16 @@
 
 import DestinyBlueprint
 
-public struct DynamicResponse: DynamicResponseProtocol, CustomDebugStringConvertible {
-    public var timestamps:DynamicRequestTimestamps
+public struct DynamicResponse: DynamicResponseProtocol {
     public var message:HTTPResponseMessage
     public var parameters:[String]
 
     public init(
-        timestamps: DynamicRequestTimestamps = DynamicRequestTimestamps(received: .now, loaded: .now, processed: .now),
         message: HTTPResponseMessage,
         parameters: [String]
     ) {
-        self.timestamps = timestamps
         self.message = message
         self.parameters = parameters
-    }
-
-    public var debugDescription: String {
-        """
-        DynamicResponse(
-            message: \(message),
-            parameters: \(parameters)
-        )
-        """
     }
 
     @inlinable

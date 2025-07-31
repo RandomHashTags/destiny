@@ -1,9 +1,6 @@
 
 /// Core Dynamic Response protocol that builds a HTTP Message to dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
-    /// Timestamps when request events happen.
-    var timestamps: DynamicRequestTimestamps { get set }
-
     /// - Parameters:
     ///   - index: Index of a path component.
     /// - Returns: The parameter located at the given path component index.
