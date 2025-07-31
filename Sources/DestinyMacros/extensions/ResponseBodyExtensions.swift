@@ -24,33 +24,6 @@ extension StaticString {
     }
 }
 
-// MARK: Foundation
-
-#if canImport(FoundationEssentials) || canImport(Foundation)
-
-#if canImport(FoundationEssentials)
-import FoundationEssentials
-#else
-import Foundation
-#endif
-
-extension Data {
-    public var debugDescription: String {
-        "Data(\(self))"
-    }
-
-    public func responderDebugDescription(_ input: String) -> String {
-        Self(Data(input.utf8)).debugDescription
-    }
-
-    public func responderDebugDescription(_ input: some HTTPMessageProtocol) throws -> String{
-        try responderDebugDescription(input.string(escapeLineBreak: false))
-    }
-}
-
-#endif
-
-
 // MARK: Bytes
 extension ResponseBody.Bytes {
     public var responderDebugDescription: Swift.String {

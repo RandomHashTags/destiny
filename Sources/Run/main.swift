@@ -226,7 +226,7 @@ import Logging
         contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             var s = "catchall/**;"
-            response.yieldParameters { s += $0 + ";" }
+            response.yieldParameters { s += "\($0);" }
             response.setBody(s)
         }
     )

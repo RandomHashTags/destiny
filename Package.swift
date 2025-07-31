@@ -67,10 +67,7 @@ let package = Package(
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
         .library(name: "Destiny", targets: ["Destiny"]),
-        .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
-
-        .library(name: "DestinyBlueprintFoundation", targets: ["DestinyBlueprintFoundation"]),
-        .library(name: "DestinyDefaultsFoundation", targets: ["DestinyDefaultsFoundation"])
+        .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"])
     ],
     traits: [
         .default(enabledTraits: ["Destiny"]),
@@ -106,12 +103,6 @@ let package = Package(
             ]
         ),
 
-        // MARK: DestinyBlueprintFoundation
-        .target(
-            name: "DestinyBlueprintFoundation",
-            dependencies: ["DestinyBlueprint"]
-        ),
-
         // MARK: DestinyDefaults
         .target(
             name: "DestinyDefaults",
@@ -119,15 +110,6 @@ let package = Package(
                 "DestinyBlueprint",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-            ]
-        ),
-
-        .target(
-            name: "DestinyDefaultsFoundation",
-            dependencies: [
-                "DestinyBlueprint",
-                "DestinyBlueprintFoundation",
-                "DestinyDefaults"
             ]
         ),
 
