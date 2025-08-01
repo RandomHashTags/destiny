@@ -1,6 +1,6 @@
 
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
-public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, CustomDebugStringConvertible {
+public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable {
     /// - Returns: The `PathComponent` located at the given index.
     func pathComponent(at index: Int) -> PathComponent
 

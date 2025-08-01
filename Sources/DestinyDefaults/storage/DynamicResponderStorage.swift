@@ -25,17 +25,17 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
         var parameterlessString = "[:]"
         if !parameterless.isEmpty {
             parameterlessString.removeLast(2)
-            parameterlessString += "\n" + parameterless.map({ "// \($0.key.stringSIMD())\n\($0.key)" + ":" + $0.value.debugDescription }).joined(separator: ",\n") + "\n]"
+            parameterlessString += "\n" + parameterless.map({ "// \($0.key.stringSIMD())\n\($0.key):\($0.value)" }).joined(separator: ",\n") + "\n]"
         }
         var parameterizedString = "[]"
         if !parameterized.isEmpty {
             parameterizedString.removeLast()
-            parameterizedString += "\n" + parameterized.map({ "[" + $0.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]" }).joined(separator: ",\n") + "\n]"
+            parameterizedString += "\n" + parameterized.map({ "[" + $0.map({ "\($0)" }).joined(separator: ",\n") + "\n]" }).joined(separator: ",\n") + "\n]"
         }
         var catchallString = "[]"
         if !catchall.isEmpty {
             catchallString.removeLast()
-            catchallString += "\n" + catchall.map({ $0.debugDescription }).joined(separator: ",\n") + "\n]"
+            catchallString += "\n" + catchall.map({ "\($0)" }).joined(separator: ",\n") + "\n]"
         }
         return """
         DynamicResponderStorage(
@@ -77,7 +77,7 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
 extension DynamicResponderStorage {
     @inlinable
     public func respond(
-        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool {

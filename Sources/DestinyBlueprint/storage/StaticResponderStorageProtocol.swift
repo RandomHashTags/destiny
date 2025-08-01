@@ -8,7 +8,7 @@ public protocol StaticResponderStorageProtocol: Sendable, ~Copyable {
     ///   - startLine: The socket's requested endpoint.
     /// - Returns: Whether or not a response was sent.
     func respond(
-        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
     ) async throws -> Bool

@@ -32,19 +32,18 @@ extension Router: DeclarationMacro {
                 break
             }
         }
+        var decls = [DeclSyntax]()
         let (router, structs) = compute(arguments: arguments, context: context)
-        var string = structs
-        if !string.isEmpty {
-            string += "\n"
-        }
-        string += "struct DeclaredRouter {\n"
+        decls.append(contentsOf: structs.map({ .init($0) }))
+        var string = "// MARK: Router\nstruct DeclaredRouter {\n"
         string += "static \(mutable ? "var" : "let") router"
         if let typeAnnotation {
             string += ":" + typeAnnotation
         }
         string += " = " + router
         string += "\n}"
-        return [.init(stringLiteral: string)]
+        decls.append("\(raw: string)")
+        return decls
     }
 }
 

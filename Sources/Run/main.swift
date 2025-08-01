@@ -21,7 +21,7 @@ LoggingSystem.bootstrap { label in
     #if DEBUG
     handler.logLevel = .debug
     #else
-    handler.logLevel = .warning
+    handler.logLevel = .error
     #endif
     return handler
 }

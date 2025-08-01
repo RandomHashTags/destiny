@@ -8,7 +8,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
     func respond(
-        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool
@@ -21,7 +21,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     ///   - startLine: The socket's target endpoint.
     /// - Returns: Whether or not a response was sent.
     func respondStatically(
-        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
     ) async throws -> Bool
@@ -34,7 +34,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     ///   - request: The socket's request.
     /// - Returns: Whether or not a response was sent.
     func respondDynamically(
-        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
     ) async throws -> Bool

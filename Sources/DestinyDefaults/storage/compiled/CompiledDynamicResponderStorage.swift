@@ -11,7 +11,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
 
     @inlinable
     public func respond(
-        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool {
@@ -54,7 +54,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
     }
 }
 
-public protocol CompiledDynamicResponderStorageRouteProtocol: Sendable {
+public protocol CompiledDynamicResponderStorageRouteProtocol: Sendable, ~Copyable {
     associatedtype ConcreteResponder:DynamicRouteResponderProtocol
 
     var path: DestinyRoutePathType { get }

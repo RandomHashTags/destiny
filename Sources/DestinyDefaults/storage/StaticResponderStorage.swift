@@ -32,7 +32,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
 
     @inlinable
     public func respond(
-        router: borrowing some HTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: DestinyRoutePathType
     ) async throws -> Bool {

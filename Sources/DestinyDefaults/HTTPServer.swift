@@ -16,7 +16,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
     /// The maximum amount of pending connections the Server will queue.
     /// This value is capped at the system's limit.
     public let backlog:Int32
-    public var router:Router
+    public let router:Router
     public let logger:Logger
 
     /// Called when the server loads successfully, just before it accepts incoming network requests.
@@ -154,13 +154,10 @@ extension HTTPServer where ClientSocket: ~Copyable {
                     group.addTask {
                         do {
                             guard let client = try acceptClient(serverFD) else { return }
-                            try await self.router.process(
-                                client: client,
-                                socket: ClientSocket(fileDescriptor: client),
-                                logger: self.logger
-                            )
+                            let socket = ClientSocket(fileDescriptor: client)
+                            self.router.handle(client: client, socket: socket, logger: self.logger)
                         } catch {
-                            self.logger.warning("\(error)")
+                            self.logger.warning("\(#function);\(error)")
                         }
                     }
                 }

@@ -68,17 +68,8 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
                     } catch {
                         logger.warning("Encountered error while removing client: \(error)")
                     }
-                    Task {
-                        do {
-                            try await router.process(
-                                client: client,
-                                socket: ConcreteSocket.init(fileDescriptor: client),
-                                logger: logger
-                            )
-                        } catch {
-                            logger.warning("Encountered error while processing client: \(error)")
-                        }
-                    }
+                    let socket = ConcreteSocket(fileDescriptor: client)
+                    router.handle(client: client, socket: socket, logger: logger)
                     i += 1
                 }
             } catch {
@@ -107,7 +98,7 @@ extension HTTPServer where ClientSocket: ~Copyable {
                 processor.instances[i].closeFileDescriptor()
             }
         } catch {
-            print("epollProcessor;processClientsEpoll;broken")
+            logger.error("epollProcessor;processClientsEpoll;broken;error=\(error)")
         }
         return nil
     }

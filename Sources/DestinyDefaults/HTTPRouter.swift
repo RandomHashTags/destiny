@@ -17,15 +17,15 @@ public typealias DefaultRouter = HTTPRouter<
 >
 
 /// Default HTTPRouter implementation that handles middleware, routes and router groups.
-public struct HTTPRouter<
+public final class HTTPRouter<
         ConcreteCaseSensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         ConcreteCaseInsensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         ConcreteErrorResponder: ErrorResponderProtocol,
         ConcreteDynamicNotFoundResponder: DynamicRouteResponderProtocol,
         ConcreteStaticNotFoundResponder: StaticRouteResponderProtocol
     >: HTTPRouterProtocol {
-    public private(set) var caseSensitiveResponders:ConcreteCaseSensitiveRouterResponderStorage
-    public private(set) var caseInsensitiveResponders:ConcreteCaseInsensitiveRouterResponderStorage
+    public let caseSensitiveResponders:ConcreteCaseSensitiveRouterResponderStorage
+    public let caseInsensitiveResponders:ConcreteCaseInsensitiveRouterResponderStorage
 
     public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
     public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
@@ -64,7 +64,7 @@ public struct HTTPRouter<
 // MARK: Dynamic middleware
 extension HTTPRouter {
     @inlinable
-    public mutating func loadDynamicMiddleware() {
+    public func loadDynamicMiddleware() {
         for i in opaqueDynamicMiddleware.indices {
             opaqueDynamicMiddleware[i].load()
         }
@@ -80,18 +80,27 @@ extension HTTPRouter {
     }
 }
 
-// MARK: Process
+// MARK: Handle
 extension HTTPRouter {
     @inlinable
-    public func process(
+    public func handle(
         client: Int32,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: consuming some HTTPSocketProtocol & ~Copyable,
         logger: Logger
-    ) async throws {
-        var request = try socket.loadRequest()
-        try await process(client: client, socket: socket, request: &request, logger: logger)
+    ) {
+        Task {
+            do {
+                var request = try socket.loadRequest()
+                try await process(client: client, socket: socket, request: &request, logger: logger)
+            } catch {
+                logger.warning("Encountered error while processing client: \(error)")
+            }
+        }
     }
+}
 
+// MARK: Process
+extension HTTPRouter {
     @inlinable
     func process(
         client: Int32,
