@@ -85,19 +85,16 @@ extension HTTPRouter {
     @inlinable
     public func process(
         client: Int32,
-        received: ContinuousClock.Instant,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         logger: Logger
     ) async throws {
         var request = try socket.loadRequest()
-        try await process(client: client, received: received, loaded: .now, socket: socket, request: &request, logger: logger)
+        try await process(client: client, socket: socket, request: &request, logger: logger)
     }
 
     @inlinable
     func process(
         client: Int32,
-        received: ContinuousClock.Instant,
-        loaded: ContinuousClock.Instant,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
@@ -116,17 +113,17 @@ extension HTTPRouter {
         do {
             if try await caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
             } else if try await caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine.lowercased()) {
-            } else if try await caseSensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) {
-            } else if try await caseInsensitiveResponders.respondDynamically(router: self, received: received, loaded: loaded, socket: socket, request: &request) { // TODO: support
+            } else if try await caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) {
+            } else if try await caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) { // TODO: support
             } else {
                 for group in routeGroups {
-                    if try await group.respond(router: self, received: received, loaded: loaded, socket: socket, request: &request) {
+                    if try await group.respond(router: self, socket: socket, request: &request) {
                         return
                     }
                 }
                 // not found
                 if let dynamicNotFoundResponder {
-                    var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: dynamicNotFoundResponder)
+                    var response = try await defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
                     try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
                 } else {
                     try await staticNotFoundResponder.write(to: socket)
@@ -150,8 +147,6 @@ extension HTTPRouter {
 
     @inlinable
     func defaultDynamicResponse(
-        received: ContinuousClock.Instant,
-        loaded: ContinuousClock.Instant,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws -> any DynamicResponseProtocol {
@@ -183,13 +178,11 @@ extension HTTPRouter {
 
     @inlinable
     public func respondDynamically(
-        received: ContinuousClock.Instant,
-        loaded: ContinuousClock.Instant,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws {
-        var response = try await defaultDynamicResponse(received: received, loaded: loaded, request: &request, responder: responder)
+        var response = try await defaultDynamicResponse(request: &request, responder: responder)
         try await responder.respond(to: socket, request: &request, response: &response)
     }
 }

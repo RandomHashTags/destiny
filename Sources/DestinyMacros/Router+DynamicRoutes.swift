@@ -4,7 +4,6 @@ import DestinyDefaults
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-// MARK: Dynamic routes string
 extension Router.Storage {
     mutating func dynamicRoutesString(
         context: some MacroExpansionContext,
@@ -93,8 +92,7 @@ extension Router.Storage {
     ) -> String {
         var responder = route.responder
         let logicSplit = responder.split(separator: "logic: {")
-        if let responderBody = logicSplit.getPositive(1) {
-            let parameters = responderBody.firstIndex(of: "\n")!
+        if let responderBody = logicSplit.getPositive(1), let parameters = responderBody.firstIndex(of: "\n") {
             var test = responderBody[responderBody.index(after: parameters)...]
             while test.last != "}" {
                 test.removeLast()

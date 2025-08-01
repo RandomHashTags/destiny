@@ -60,7 +60,6 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
         while !Task.isCancelled {
             do {
                 let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
-                let received = ContinuousClock.now
                 var i = 0
                 while i < loaded {
                     let client = clients[i]
@@ -69,11 +68,10 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
                     } catch {
                         logger.warning("Encountered error while removing client: \(error)")
                     }
-                    Task.detached {
+                    Task {
                         do {
                             try await router.process(
                                 client: client,
-                                received: received,
                                 socket: ConcreteSocket.init(fileDescriptor: client),
                                 logger: logger
                             )

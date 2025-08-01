@@ -39,8 +39,6 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     @inlinable
     public func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
-        received: ContinuousClock.Instant,
-        loaded: ContinuousClock.Instant,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool {

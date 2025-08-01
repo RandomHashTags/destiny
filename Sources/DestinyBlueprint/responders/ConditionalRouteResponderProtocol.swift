@@ -5,15 +5,11 @@ public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible,
     /// 
     /// - Parameters:
     ///   - router: The router this route belongs to.
-    ///   - received: The instant the socket was accepted.
-    ///   - loaded: The instant the socket loaded its default values.
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     /// - Returns: Whether or not a route responder responded to the request.
     func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
-        received: ContinuousClock.Instant,
-        loaded: ContinuousClock.Instant,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool

@@ -23,7 +23,8 @@ extension Router.Storage {
             return route.fromStartLine().lowercased()
         }
         let getResponderValue:(Router.Storage.Route) -> String = {
-            return "// \($0.path)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \($0.responder)\n)"
+            let responder = $0.responder
+            return "// \($0.path)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \(responder)\n)"
         }
         if !redirects.isEmpty {
             for (route, function) in redirects {

@@ -16,6 +16,16 @@ import SwiftGlibc
 import DestinySwiftSyntax
 import Logging
 
+LoggingSystem.bootstrap { label in
+    var handler = StreamLogHandler.standardOutput(label: label)
+    #if DEBUG
+    handler.logLevel = .debug
+    #else
+    handler.logLevel = .warning
+    #endif
+    return handler
+}
+
 // MARK: Router
 #declareRouter(
     version: .v1_1,

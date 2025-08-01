@@ -153,10 +153,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
                 for _ in 0..<backlog {
                     group.addTask {
                         do {
-                            guard let (client, instant) = try acceptClient(serverFD) else { return }
+                            guard let client = try acceptClient(serverFD) else { return }
                             try await self.router.process(
                                 client: client,
-                                received: instant,
                                 socket: ClientSocket(fileDescriptor: client),
                                 logger: self.logger
                             )

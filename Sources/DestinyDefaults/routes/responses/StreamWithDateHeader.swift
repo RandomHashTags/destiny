@@ -16,32 +16,31 @@ extension StreamWithDateHeader {
     @inlinable
     public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
         try head.utf8.withContiguousStorageIfAvailable { headPointer in
-            try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
-                // 30 = "Transfer-Encoding: chunked".count (26) + "\r\n\r\n".count (4)
-                try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: headPointer.count + 30, { buffer in
-                    var i = 0
-                    buffer.copyBuffer(headPointer, at: &i)
-                    // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
-                    var offset = 20
-                    for i in 0..<HTTPDateFormat.InlineArrayResult.count {
-                        buffer[offset] = datePointer[i]
-                        offset += 1
-                    }
-                    let transferEncodingChunked:InlineArray<26, UInt8> = [84, 114, 97, 110, 115, 102, 101, 114, 45, 69, 110, 99, 111, 100, 105, 110, 103, 58, 32, 99, 104, 117, 110, 107, 101, 100] // Transfer-Encoding: chunked
-                    for indice in transferEncodingChunked.indices {
-                        buffer[i] = transferEncodingChunked[indice]
-                        i += 1
-                    }
-                    buffer[i] = .carriageReturn
+            let dateSpan = HTTPDateFormat.shared.nowInlineArray.span
+            // 30 = "Transfer-Encoding: chunked".count (26) + "\r\n\r\n".count (4)
+            try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: headPointer.count + 30, { buffer in
+                var i = 0
+                buffer.copyBuffer(headPointer, at: &i)
+                // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
+                var offset = 20
+                for indice in dateSpan.indices {
+                    buffer[offset] = dateSpan[indice]
+                    offset += 1
+                }
+                let transferEncodingChunked:InlineArray<26, UInt8> = [84, 114, 97, 110, 115, 102, 101, 114, 45, 69, 110, 99, 111, 100, 105, 110, 103, 58, 32, 99, 104, 117, 110, 107, 101, 100] // Transfer-Encoding: chunked
+                for indice in transferEncodingChunked.indices {
+                    buffer[i] = transferEncodingChunked[indice]
                     i += 1
-                    buffer[i] = .lineFeed
-                    i += 1
-                    buffer[i] = .carriageReturn
-                    i += 1
-                    buffer[i] = .lineFeed
-                    try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
-                })
-            }
+                }
+                buffer[i] = .carriageReturn
+                i += 1
+                buffer[i] = .lineFeed
+                i += 1
+                buffer[i] = .carriageReturn
+                i += 1
+                buffer[i] = .lineFeed
+                try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+            })
         }
         try await body.write(to: socket)
     }

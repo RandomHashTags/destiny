@@ -60,7 +60,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     @inlinable
     public mutating func wait(
         timeout: Int32 = -1,
-        acceptClient: (Int32) throws -> (Int32, ContinuousClock.Instant)?
+        acceptClient: (Int32) throws -> Int32?
     ) throws -> (loaded: Int, clients: InlineArray<maxEvents, Int32>) {
         var loadedClients:Int32 = -1
         var events = InlineArray<maxEvents, epoll_event>(repeating: .init())
@@ -78,7 +78,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
             let event = events[i]
             if event.data.fd == serverFD {
                 do {
-                    if let (client, instant) = try acceptClient(serverFD) {
+                    if let client = try acceptClient(serverFD) {
                         setNonBlocking(socket: client)
                         do {
                             try add(client: client, event: EPOLLIN.rawValue)

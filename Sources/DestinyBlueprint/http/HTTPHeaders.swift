@@ -51,6 +51,7 @@ extension HTTPHeaders {
 }
 
 extension HTTPHeaders {
+    @inlinable
     public func makeIterator() -> HTTPHeadersProtocolIterator {
         HTTPHeadersProtocolIterator(headers: _storage)
     }

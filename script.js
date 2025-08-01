@@ -3,7 +3,7 @@ import { sleep } from 'k6';
 
 export const options = {
   // A number specifying the number of VUs to run concurrently.
-  vus: 10000,
+  vus: 1000,
   // A string specifying the total duration of the test run.
   duration: '10s',
 
@@ -39,6 +39,6 @@ export const options = {
 // about authoring k6 scripts.
 //
 export default function() {
-  http.get('http://192.168.1.174:8080/html');
+  http.get('http://localhost:8080/html');
   sleep(1);
 }

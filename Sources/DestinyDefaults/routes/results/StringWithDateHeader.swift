@@ -29,18 +29,17 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
     @inlinable
     func temporaryBuffer(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
         try value.utf8.span.withUnsafeBufferPointer { valuePointer in
-            try HTTPDateFormat.shared.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
-                try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
-                    buffer.copyBuffer(valuePointer, at: 0)
-                    // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
-                    var i = 20
-                    datePointer.forEach {
-                        buffer[i] = $0
-                        i += 1
-                    }
-                    try closure(buffer)
-                })
-            }
+            try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
+                buffer.copyBuffer(valuePointer, at: 0)
+                // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
+                var i = 20
+                let dateSpan = HTTPDateFormat.shared.nowInlineArray.span
+                for indice in dateSpan.indices {
+                    buffer[i] = dateSpan[indice]
+                    i += 1
+                }
+                try closure(buffer)
+            })
         }
     }
 

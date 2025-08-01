@@ -91,15 +91,13 @@ extension RouteGroup {
     @inlinable
     public func respond(
         router: borrowing some HTTPRouterProtocol & ~Copyable,
-        received: ContinuousClock.Instant,
-        loaded: ContinuousClock.Instant,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws -> Bool {
         if try await staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
         } else if let responder = dynamicResponses.responder(for: &request) {
-            try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: responder)
+            try await router.respondDynamically(socket: socket, request: &request, responder: responder)
             return true
         } else {
             return false
