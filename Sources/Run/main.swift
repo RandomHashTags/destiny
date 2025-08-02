@@ -134,11 +134,6 @@ LoggingSystem.bootstrap { label in
         body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
-        path: ["html2"],
-        contentType: HTTPMediaTypeText.html,
-        body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
-    ),
-    StaticRoute.get(
         path: ["SHOOP"],
         caseSensitive: false,
         contentType: HTTPMediaTypeText.html,

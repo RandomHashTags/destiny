@@ -7,15 +7,15 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     var startLine: SIMD64<UInt8> { get }
 
     /// Yields the endpoint the request wants to reach, separated by the forward slash character.
-    func forEachPath(offset: Int, _ yield: (ConcretePathType) -> Void)
+    mutating func forEachPath(offset: Int, _ yield: (ConcretePathType) -> Void)
 
     /// - Parameters:
     ///   - index: Index of a path component.
     /// - Returns: The path component at the given index.
-    func path(at index: Int) -> ConcretePathType
+    mutating func path(at index: Int) -> ConcretePathType
 
     /// The number of path components the request contains.
-    var pathCount: Int { get }
+    mutating func pathCount() -> Int
 
     /// - Returns: Whether or not the request's method matches the given one.
     func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool

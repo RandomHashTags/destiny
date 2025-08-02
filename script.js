@@ -3,7 +3,7 @@ import { sleep } from 'k6';
 
 export const options = {
   // A number specifying the number of VUs to run concurrently.
-  vus: 10000,
+  vus: 1024,
   // A string specifying the total duration of the test run.
   duration: '10s',
 

@@ -93,8 +93,8 @@ extension DynamicResponderStorage {
         if let responder = parameterless[request.startLine] {
             return responder
         }
-        let pathCount = request.pathCount
-        guard let responders = parameterized.getPositive(pathCount) else { return catchallResponder(for: request) }
+        let pathCount = request.pathCount()
+        guard let responders = parameterized.getPositive(pathCount) else { return catchallResponder(for: &request) }
         loop: for responder in responders {
             for i in 0..<pathCount {
                 let path = responder.pathComponent(at: i)
@@ -104,11 +104,11 @@ extension DynamicResponderStorage {
             }
             return responder
         }
-        return catchallResponder(for: request)
+        return catchallResponder(for: &request)
     }
 
     @inlinable
-    func catchallResponder(for request: borrowing some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
+    func catchallResponder(for request: inout some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
         var responderIndex = 0
         loop: while responderIndex < catchall.count {
             let responder = catchall[responderIndex]

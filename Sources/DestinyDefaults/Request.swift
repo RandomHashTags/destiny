@@ -3,7 +3,6 @@ import DestinyBlueprint
 
 /// Default storage for request data.
 public struct Request: HTTPRequestProtocol {
-    public let path:[String]
     public let startLine:DestinyRoutePathType
     public let headers:HTTPRequestHeaders
     public let newStartLine:HTTPStartLine
@@ -13,19 +12,21 @@ public struct Request: HTTPRequestProtocol {
     }*/
 
     public init(
-        path: [String],
         startLine: DestinyRoutePathType,
         headers: HTTPRequestHeaders,
         newStartLine: HTTPStartLine
     ) {
-        self.path = path
         self.startLine = startLine
         self.headers = headers
         self.newStartLine = newStartLine
     }
 
+    public lazy var path: [String] = {
+        return newStartLine.path.string().split(separator: "/").map { String($0) }
+    }()
+
     @inlinable
-    public func forEachPath(offset: Int = 0, _ yield: (String) -> Void) {
+    public mutating func forEachPath(offset: Int = 0, _ yield: (String) -> Void) {
         var i = offset
         while i < path.count {
             yield(path[i])
@@ -34,12 +35,12 @@ public struct Request: HTTPRequestProtocol {
     }
 
     @inlinable
-    public func path(at index: Int) -> String {
+    public mutating func path(at index: Int) -> String {
         path[index]
     }
 
     @inlinable
-    public var pathCount: Int {
+    public mutating func pathCount() -> Int {
         path.count
     }
 
@@ -73,7 +74,6 @@ extension Request {
         })*/
         var startLine = DestinyRoutePathType()
         let newStartLine = try HTTPStartLine(buffer: buffer)
-        let path = newStartLine.path.string().split(separator: "/").map { String($0) }
         for i in 0..<newStartLine.endIndex {
             startLine[i] = buffer.itemAt(index: i)
         }
@@ -94,11 +94,10 @@ extension Request {
             }
         }
         return Request(
-            path: path,
             startLine: startLine,
             headers: .init(headers),
-            newStartLine: newStartLine)
-        
+            newStartLine: newStartLine
+        )
     }
 }
 

@@ -31,10 +31,5 @@ extension ResponseBody {
         }
 
         @inlinable public var hasDateHeader: Bool { true }
-
-        @inlinable
-        public func customInitializer(bodyString: String) -> String? {
-            "\", body: " + bodyString
-        }
     }
 }

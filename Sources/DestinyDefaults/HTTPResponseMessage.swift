@@ -90,12 +90,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
                 string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
             if body.hasContentLength {
-                string += "\(HTTPStandardResponseHeader.contentLength.rawName): "
-            }
-            if let customInitializer = body.customInitializer(bodyString: bodyString) {
-                string += customInitializer
-            } else {
-                string += "\(contentLength)\(suffix)\(suffix)\(bodyString)"
+                string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)\(bodyString)"
             }
         }
         return string

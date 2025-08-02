@@ -2,11 +2,11 @@
 import DestinyBlueprint
 
 public struct StreamWithDateHeader<Body: HTTPSocketWritable>: StaticRouteResponderProtocol {
-    public let head:String.UTF8View
+    public let head:StaticString
     public let body:Body
 
-    public init(_ head: String, body: Body) {
-        self.head = head.utf8
+    public init(_ head: StaticString, body: Body) {
+        self.head = head
         self.body = body
     }
 }
@@ -15,9 +15,10 @@ public struct StreamWithDateHeader<Body: HTTPSocketWritable>: StaticRouteRespond
 extension StreamWithDateHeader {
     @inlinable
     public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        try head.withContiguousStorageIfAvailable { headPointer in
+        var err:(any Error)? = nil
+        head.withUTF8Buffer { headPointer in
             // 30 = "Transfer-Encoding: chunked".count (26) + "\r\n\r\n".count (4)
-            try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: headPointer.count + 30, { buffer in
+             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: headPointer.count + 30, { buffer in
                 var i = 0
                 buffer.copyBuffer(headPointer, at: &i)
                 // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
@@ -39,8 +40,15 @@ extension StreamWithDateHeader {
                 buffer[i] = .carriageReturn
                 i += 1
                 buffer[i] = .lineFeed
-                try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+                do {
+                    try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+                } catch {
+                    err = error
+                }
             })
+        }
+        if let err {
+            throw err
         }
         try await body.write(to: socket)
     }
@@ -86,7 +94,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
         buffer.initialize(repeating: 0)
-        var err:Error? = nil
+        var err:(any Error)? = nil
         do {
             for try await var chunk in stream {
                 var i = 0

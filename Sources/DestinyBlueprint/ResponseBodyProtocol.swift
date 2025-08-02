@@ -7,14 +7,11 @@ public protocol ResponseBodyProtocol: BufferWritable, ~Copyable {
     var hasDateHeader: Bool { get }
 
     var hasContentLength: Bool { get }
-
-    func customInitializer(bodyString: String) -> String?
 }
 
 extension ResponseBodyProtocol {
     @inlinable public var hasDateHeader: Bool { false }
     @inlinable public var hasContentLength: Bool { true }
-    @inlinable public func customInitializer(bodyString: String) -> String? { nil }
 }
 
 // MARK: Default conformances

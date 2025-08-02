@@ -23,7 +23,7 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
     
     @inlinable
     public func string() -> String {
-        value.description
+        "\(value)"
     }
 
     @inlinable

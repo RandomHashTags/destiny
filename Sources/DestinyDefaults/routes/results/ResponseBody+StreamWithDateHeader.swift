@@ -20,17 +20,12 @@ extension ResponseBody {
         
         @inlinable
         public func string() -> String {
-            "\""
+            ""
         }
 
         @inlinable public var hasDateHeader: Bool { true }
 
         @inlinable public var hasContentLength: Bool { false }
-
-        @inlinable
-        public func customInitializer(bodyString: String) -> String? {
-            "\", body: \(value)"
-        }
 
         @inlinable
         public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {

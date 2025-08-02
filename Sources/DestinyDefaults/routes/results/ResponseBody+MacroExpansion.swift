@@ -29,10 +29,5 @@ extension ResponseBody {
         public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
             try value.write(to: buffer, at: &index)
         }
-
-        @inlinable
-        public func customInitializer(bodyString: String) -> String? {
-            "\", body: " + bodyString
-        }
     }
 }
