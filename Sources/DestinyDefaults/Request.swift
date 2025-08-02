@@ -12,6 +12,18 @@ public struct Request: HTTPRequestProtocol {
         return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.simd.leadingString() + ")"
     }*/
 
+    public init(
+        path: [String],
+        startLine: DestinyRoutePathType,
+        headers: HTTPRequestHeaders,
+        newStartLine: HTTPStartLine
+    ) {
+        self.path = path
+        self.startLine = startLine
+        self.headers = headers
+        self.newStartLine = newStartLine
+    }
+
     @inlinable
     public func forEachPath(offset: Int = 0, _ yield: (String) -> Void) {
         var i = offset
@@ -42,10 +54,10 @@ public struct Request: HTTPRequestProtocol {
     }
 }
 
-// MARK: Init
+// MARK: Load
 extension Request {
     @inlinable
-    public init(socket: borrowing some HTTPSocketProtocol & ~Copyable) throws {
+    public static func load(socket: borrowing some HTTPSocketProtocol & ~Copyable) throws -> Request {
         var (buffer, read) = try socket.readBuffer()
         if read <= 0 {
             throw SocketError.malformedRequest()
@@ -60,12 +72,11 @@ extension Request {
             return false
         })*/
         var startLine = DestinyRoutePathType()
-        newStartLine = try HTTPStartLine(buffer: buffer)
-        path = newStartLine.path.string().split(separator: "/").map { String($0) }
+        let newStartLine = try HTTPStartLine(buffer: buffer)
+        let path = newStartLine.path.string().split(separator: "/").map { String($0) }
         for i in 0..<newStartLine.endIndex {
             startLine[i] = buffer.itemAt(index: i)
         }
-        self.startLine = startLine
 
         // performance falls off a cliff parsing headers; should we
         // just retain the buffer and record the start and end indexes
@@ -82,7 +93,12 @@ extension Request {
                 break
             }
         }
-        self.headers = .init(headers)
+        return Request(
+            path: path,
+            startLine: startLine,
+            headers: .init(headers),
+            newStartLine: newStartLine)
+        
     }
 }
 

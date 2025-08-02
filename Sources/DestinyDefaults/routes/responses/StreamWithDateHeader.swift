@@ -2,11 +2,11 @@
 import DestinyBlueprint
 
 public struct StreamWithDateHeader<Body: HTTPSocketWritable>: StaticRouteResponderProtocol {
-    public let head:String
+    public let head:String.UTF8View
     public let body:Body
 
     public init(_ head: String, body: Body) {
-        self.head = head
+        self.head = head.utf8
         self.body = body
     }
 }
@@ -15,14 +15,14 @@ public struct StreamWithDateHeader<Body: HTTPSocketWritable>: StaticRouteRespond
 extension StreamWithDateHeader {
     @inlinable
     public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        try head.utf8.withContiguousStorageIfAvailable { headPointer in
-            let dateSpan = HTTPDateFormat.shared.nowInlineArray.span
+        try head.withContiguousStorageIfAvailable { headPointer in
             // 30 = "Transfer-Encoding: chunked".count (26) + "\r\n\r\n".count (4)
             try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: headPointer.count + 30, { buffer in
                 var i = 0
                 buffer.copyBuffer(headPointer, at: &i)
                 // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
                 var offset = 20
+                let dateSpan = HTTPDateFormat.nowInlineArray
                 for indice in dateSpan.indices {
                     buffer[offset] = dateSpan[indice]
                     offset += 1

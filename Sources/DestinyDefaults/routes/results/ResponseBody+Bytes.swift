@@ -32,8 +32,6 @@ extension ResponseBody {
         public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
             value.write(to: buffer, at: &index)
         }
-
-        @inlinable public var hasDateHeader: Bool { false }
     }
 }
 

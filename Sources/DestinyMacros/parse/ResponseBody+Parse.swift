@@ -34,26 +34,20 @@ extension ResponseBody {
             key = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text.lowercased()
         }
         switch key {
-            /*
-#if canImport(FoundationEssentials) || canImport(Foundation)
-        case "data": // TODO: fix
-            return Data(
-                firstArg.expression.array!.elements.compactMap({
-                    guard let s = $0.expression.integerLiteral?.literal.text else { return nil }
-                    return UInt8(s)
-                })
-            )
-#endif*/
         case "streamwithdateheader":
-            return StreamWithDateHeader(firstArg.expression.description)
+            return IntermediateResponseBody(type: .streamWithDateHeader, firstArg.expression.description)
         case "macroexpansion":
-            return ResponseBody.macroExpansion(firstArg.expression.description)
+            return IntermediateResponseBody(type: .macroExpansion, firstArg.expression.description)
         case "macroexpansionwithdateheader":
-            return ResponseBody.macroExpansionWithDateHeader(firstArg.expression.description)
+            return IntermediateResponseBody(type: .macroExpansionWithDateHeader, firstArg.expression.description)
         case "string":
             return parseString(firstArg.expression)
         case "stringwithdateheader":
             return StringWithDateHeader(parseString(firstArg.expression))
+        case "staticstring":
+            return IntermediateResponseBody(type: .staticString, parseString(firstArg.expression))
+        case "staticstringwithdateheader":
+            return IntermediateResponseBody(type: .staticStringWithDateHeader, parseString(firstArg.expression))
         case "json":
             return nil // TODO: fix
         case "bytes":

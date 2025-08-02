@@ -101,7 +101,7 @@ LoggingSystem.bootstrap { label in
     StaticRoute.get(
         path: ["redirectto"],
         contentType: HTTPMediaTypeText.html,
-        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
+        body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["stream"],
@@ -121,40 +121,45 @@ LoggingSystem.bootstrap { label in
     StaticRoute.post(
         path: ["post"],
         contentType: HTTPMediaTypeApplication.json,
-        body: StringWithDateHeader(#"{"bing":"bonged"}"#)
+        body: StaticStringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["bro?what=dude"],
         contentType: HTTPMediaTypeApplication.json,
-        body: StringWithDateHeader(#"{"bing":"bonged"}"#)
+        body: StaticStringWithDateHeader(#"{"bing":"bonged"}"#)
     ),
     StaticRoute.get(
         path: ["html"],
         contentType: HTTPMediaTypeText.html,
-        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+    ),
+    StaticRoute.get(
+        path: ["html2"],
+        contentType: HTTPMediaTypeText.html,
+        body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["SHOOP"],
         caseSensitive: false,
         contentType: HTTPMediaTypeText.html,
-        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         version: .v2_0,
         path: ["html2"],
         contentType: HTTPMediaTypeText.html,
-        body: StringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
     ),
     StaticRoute.get(
         path: ["json"],
         contentType: HTTPMediaTypeApplication.json,
-        body: StringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
+        body: StaticStringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
         //body: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
     ),
     StaticRoute.get(
         path: ["txt"],
         contentType: HTTPMediaTypeText.plain,
-        body: StringWithDateHeader("just a regular txt page; t'was your destiny")
+        body: StaticStringWithDateHeader("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
         path: ["bytes"],
@@ -271,9 +276,8 @@ let application = Application(
     server: server,
     logger: Logger(label: "destiny.application")
 )
-Task.detached(priority: .userInitiated) {
-    try await HTTPDateFormat.shared.load(logger: application.logger)
-}
+HTTPDateFormat.load(logger: application.logger)
+
 application.run()
 
 struct StaticJSONResponse: Encodable {

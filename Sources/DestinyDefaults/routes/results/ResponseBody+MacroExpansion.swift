@@ -30,8 +30,6 @@ extension ResponseBody {
             try value.write(to: buffer, at: &index)
         }
 
-        @inlinable public var hasDateHeader: Bool { false }
-
         @inlinable
         public func customInitializer(bodyString: String) -> String? {
             "\", body: " + bodyString

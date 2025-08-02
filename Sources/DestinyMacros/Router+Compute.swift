@@ -104,13 +104,13 @@ extension Router {
             }
         }
         if staticNotFoundResponder.isEmpty {
-            staticNotFoundResponder = try! ResponseBody.stringWithDateHeader("").responderDebugDescription(
+            staticNotFoundResponder = try! StringWithDateHeader("").responderDebugDescription(
                 HTTPResponseMessage(
                     version: version,
                     status: HTTPStandardResponseStatus.notFound.code,
                     headers: [:],
                     cookies: [],
-                    body: ResponseBody.stringWithDateHeader("not found"),
+                    body: StringWithDateHeader("not found"),
                     contentType: HTTPMediaType(HTTPMediaTypeText.plain),
                     charset: Charset.utf8
                 )

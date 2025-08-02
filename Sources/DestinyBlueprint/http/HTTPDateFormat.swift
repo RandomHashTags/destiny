@@ -26,28 +26,29 @@ import Logging
 /// Default storage that optimally keeps track of the current date in the HTTP Format,
 /// as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
 public struct HTTPDateFormat: Sendable {
-    public static var shared = HTTPDateFormat()
     @inlinable public static var placeholder: String { "Thu, 01 Jan 1970 00:00:00 GMT" }
 
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 
-    public var nowInlineArray:InlineArrayResult = [84, 104, 117, 44, 32, 48, 49, 32, 74, 97, 110, 32, 49, 57, 55, 48, 32, 48, 48, 58, 48, 48, 58, 48, 48, 32, 71, 77, 84] // Thu, 01 Jan 1970 00:00:00 GMT
+    public static var nowInlineArray:InlineArrayResult = [84, 104, 117, 44, 32, 48, 49, 32, 74, 97, 110, 32, 49, 57, 55, 48, 32, 48, 48, 58, 48, 48, 58, 48, 48, 32, 71, 77, 84] // Thu, 01 Jan 1970 00:00:00 GMT
 
     /// Begins the auto-updating of the current date in the HTTP Format.
     @inlinable
-    public mutating func load(logger: Logger) async throws {
+    public static func load(logger: Logger) {
         // TODO: make it update at the beginning of the second
-        while !Task.isCancelled {
-            //let clock:SuspendingClock = SuspendingClock()
-            //var now:SuspendingClock.Instant = clock.now
-            do {
-                //var updateAt:SuspendingClock.Instant = now
-                //updateAt.duration(to: Duration.init(secondsComponent: 1, attosecondsComponent: 0))
-                //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
-                try await Task.sleep(for: .seconds(1))
-                self.now()
-            } catch {
-                logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")
+        Task.detached(priority: .userInitiated) {
+            while !Task.isCancelled {
+                //let clock:SuspendingClock = SuspendingClock()
+                //var now:SuspendingClock.Instant = clock.now
+                do {
+                    //var updateAt:SuspendingClock.Instant = now
+                    //updateAt.duration(to: Duration.init(secondsComponent: 1, attosecondsComponent: 0))
+                    //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
+                    try await Task.sleep(for: .seconds(1))
+                    Self.now()
+                } catch {
+                    logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")
+                }
             }
         }
     }
@@ -56,7 +57,7 @@ public struct HTTPDateFormat: Sendable {
     /// - Returns: The HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
     @discardableResult
     @inlinable
-    public mutating func now() -> InlineArrayResult? {
+    public static func now() -> InlineArrayResult? {
         let result:InlineArrayResult?
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         result = nowGlibc()
@@ -64,7 +65,7 @@ public struct HTTPDateFormat: Sendable {
         result = nil
         #endif
         if let result {
-            nowInlineArray = result
+            Self.nowInlineArray = result
         }
         return result
     }
@@ -219,13 +220,13 @@ extension HTTPDateFormat {
 extension HTTPDateFormat {
     // https://linux.die.net/man/3/localtime
     @inlinable
-    public func nowGlibc() -> InlineArrayResult? {
+    public static func nowGlibc() -> InlineArrayResult? {
         var now = time(nil)
         guard let gmt = gmtime(&now) else { return nil }
         return httpDateGlibc(gmt.pointee)
     }
     @inlinable
-    func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
+    static func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
         return HTTPDateFormat.get(
             year: 1900 + Int(gmt.tm_year),
             month: UInt8(gmt.tm_mon),

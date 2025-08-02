@@ -9,31 +9,31 @@ extension ResponseBody {
 }
 
 public struct StringWithDateHeader: ResponseBodyProtocol {
-    public var value:String
+    public let value:String.UTF8View
 
     @inlinable
     public init(_ value: String) {
-        self.value = value
+        self.value = value.utf8
     }
 
     @inlinable
     public var count: Int {
-        value.utf8.count
+        value.count
     }
     
     @inlinable
     public func string() -> String {
-        value
+        String(value)
     }
 
     @inlinable
     func temporaryBuffer(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
-        try value.utf8.span.withUnsafeBufferPointer { valuePointer in
+        try value.span.withUnsafeBufferPointer { valuePointer in
             try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
                 buffer.copyBuffer(valuePointer, at: 0)
                 // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
                 var i = 20
-                let dateSpan = HTTPDateFormat.shared.nowInlineArray.span
+                let dateSpan = HTTPDateFormat.nowInlineArray
                 for indice in dateSpan.indices {
                     buffer[i] = dateSpan[indice]
                     i += 1

@@ -87,10 +87,10 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
             let contentLength = bodyString.utf8.count
             bodyString.replace("\"", with: "\\\"")
             if let contentType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName.string()): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
             if body.hasContentLength {
-                string += "\(HTTPStandardResponseHeader.contentLength.rawName.string()): "
+                string += "\(HTTPStandardResponseHeader.contentLength.rawName): "
             }
             if let customInitializer = body.customInitializer(bodyString: bodyString) {
                 string += customInitializer
@@ -298,9 +298,9 @@ extension HTTPResponseMessage {
         if let body {
             let contentLength = body.utf8.count
             if let contentType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName.string()): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
-            string += "\(HTTPStandardResponseHeader.contentLength.rawName.string()): \(contentLength)\(suffix)\(suffix)\(body)"
+            string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)\(body)"
         }
         return string
     }

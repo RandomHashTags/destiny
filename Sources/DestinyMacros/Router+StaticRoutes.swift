@@ -50,7 +50,7 @@ extension Router.Storage {
                 } else {
                     registeredPaths.insert(string)
                     let buffer = DestinyRoutePathType(&string)
-                    let httpResponse = route.response(context: context, function: function, middleware: middleware)
+                    let httpResponse = route.response(context: context, function: function, middleware: middleware) as! HTTPResponseMessage // TODO: fix
                     if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                         if let responder = try responseBodyResponderDebugDescription(body: route.body, response: httpResponse) {
                             routeResponders.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
@@ -86,39 +86,17 @@ extension Router.Storage {
     }
     private func responseBodyResponderDebugDescription(
         body: (any ResponseBodyProtocol)?,
-        response: any HTTPMessageProtocol
+        response: HTTPResponseMessage
     ) throws -> String? {
         guard let body else { return nil }
         let s:String?
         if let v = body as? String {
             s = try v.responderDebugDescription(response)
-        } else if let v = body as? StaticString {
-            s = try v.responderDebugDescription(response)
         } else if let v = body as? StringWithDateHeader {
             s = try v.responderDebugDescription(response)
-        } else if let v = body as? StaticStringWithDateHeader {
+        } else if let v = body as? IntermediateResponseBody {
             s = try v.responderDebugDescription(response)
         } else if let v = body as? ResponseBody.Bytes {
-            s = try v.responderDebugDescription(response)
-
-        } else if let v = body as? ResponseBody.MacroExpansion<StaticString> {
-            s = try v.responderDebugDescription(response)
-        } else if let v = body as? ResponseBody.MacroExpansion<String> {
-            s = try v.responderDebugDescription(response)
-        
-        } else if let v = body as? ResponseBody.MacroExpansionWithDateHeader<StaticString> {
-            s = try v.responderDebugDescription(response)
-        } else if let v = body as? ResponseBody.MacroExpansionWithDateHeader<String> {
-            s = try v.responderDebugDescription(response)
-
-        } else if let v = body as? ResponseBody.StreamWithDateHeader<StaticString> {
-            s = try v.responderDebugDescription(response)
-        } else if let v = body as? ResponseBody.StreamWithDateHeader<String> {
-            s = try v.responderDebugDescription(response)
-
-        } else if let v = body as? ResponseBody.StreamWithDateHeader<AsyncHTTPChunkDataStream<String>> {
-            s = try v.responderDebugDescription(response)
-        } else if let v = body as? ResponseBody.StreamWithDateHeader<AsyncHTTPChunkDataStream<StaticString>> {
             s = try v.responderDebugDescription(response)
 
         } else {

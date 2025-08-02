@@ -32,7 +32,7 @@ public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
 
     @inlinable
     public func loadRequest() throws -> Request {
-        return try Request(socket: self)
+        return try Request.load(socket: self)
     }
 }
 
