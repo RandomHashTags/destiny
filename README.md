@@ -2,13 +2,33 @@
 
 <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.2+-F05138?style=&logo=swift" alt="Requires at least Swift 6.2"></a> <img src="https://img.shields.io/badge/Platforms-Any-gold"> <a href="https://discord.com/invite/VyuFQUpcUz"><img src="https://img.shields.io/badge/Chat-Discord-7289DA?style=&logo=discord"></a> <a href="https://github.com/RandomHashTags/destiny/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="Apache 2.0 License"></a>
 
-Destiny is a standalone lightweight web server that makes use of the latest Swift features (annotations, concurrency, macros, noncopyable types, parameter packs, inline arrays, spans) to push performance to the absolute limits of the Swift Language, and designed to be easy to use while using the minimum amount of dependencies.
+Destiny is a standalone lightweight web server that makes use of the latest Swift features to push performance to the limit of the language, and designed to be easy to use while using the minimum amount of dependencies.
 
 It provides a router (which is used via a Swift Macro) that accepts middleware, redirects, routes, and route groups for processing requests.
 
 Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 
 We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Destiny's inner workings to perform optimally, empowering the developer to determine the data structures and types used (if you don't use the default implementations from `DestinyDefaults`).
+
+## Table of Contents
+
+- [Roadmap](#roadmap)
+  - [Completed](#completed)
+  - [WIP](#wip)
+  - [TODO](#todo)
+- [Techniques](#techniques)
+  - [TODO](#todo-1)
+  - [Limitations](#limitations)
+- [Getting Started](#getting-started)
+  - [Routes](#routes)
+    - [Wildcards](#wildcards)
+- [Benchmarks](#benchmarks)
+  - [Static](#static)
+  - [Dynamic](#dynamic)
+  - [Conclusion](#conclusion)
+- [Contributing](#contributing)
+- [Support](#support)
+  - [Funding](#funding)
 
 ## Roadmap
 
@@ -28,6 +48,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [x] Case insensitive routes <b>(Feb 19, 2025 | dynamic routes need a little more work)</b>
 - [x] Routes with wildcards <b>(Feb 19, 2025)</b>
 - [x] Better handling of clients to unlock more throughput <b>(Feb 23, 2025)</b>
+- [x] Response streaming <b>(Aug 2, 2025)</b>
 
 ### WIP
 
@@ -44,7 +65,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 
 - [ ] Cache Middleware
 - [ ] Route queries
-- [ ] Response/data streaming
+- [ ] Request body streaming
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
 - [ ] TLS/SSL
@@ -53,6 +74,138 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] Support custom middleware & routes in default `#router`
 - [ ] Support third-party macro expansions in `#router`
 - [ ] Embedded support
+
+## Techniques
+
+List of techniques Destiny uses to push performance to the limits of the Swift Language.
+
+<details>
+
+<summary>Structs everywhere</summary>
+
+To avoid heap allocation and pointer indirection
+
+</details>
+
+<details>
+
+<summary>Noncopyable types</summary>
+
+To avoid retain/release and ARC traffic
+
+</details>
+
+<details>
+
+<summary>@inlinable annotation</summary>
+
+To make sure we inline hot-paths as much as possible
+
+</details>
+
+<details>
+
+<summary>Actor avoidance</summary>
+
+To encourage better state management and data structures
+
+</details>
+
+<details>
+
+<summary>InlineArrays</summary>
+
+To avoid heap allocations (especially in hot-paths)
+
+</details>
+
+<details>
+
+<summary>Concurrency</summary>
+
+To maximize multi-core performance and support non-blocking operations
+
+</details>
+
+<details>
+
+<summary>Macros</summary>
+
+Unlocks compile-time optimizations for middleware, routes and responders
+
+<b>Most compile-time optimizations for optimal runtime performance happens here</b>
+
+</details>
+
+<details>
+
+<summary>Parameter Packs</summary>
+
+For compile-time array optimizations, reducing heap allocations and dynamic dispatch 
+
+</details>
+
+<details>
+
+<summary>Opaque types</summary>
+
+To avoid dynamic dispatch, existentials and boxing (especially in hot-paths)
+
+</details>
+
+<details>
+
+<summary>Generic Parameters</summary>
+
+Only where opaque types aren't applicable to avoid dynamic dispatch, existentials and boxing (especially in hot-paths)
+
+</details>
+
+<details>
+
+<summary>Code Generation</summary>
+
+For tedious work and easier development
+
+</details>
+
+<details>
+
+<summary>Minimal Dependencies</summary>
+
+To reduce binary size and simplify development
+
+</details>
+
+<details>
+
+<summary>Module Abstractions</summary>
+
+To simplify and allow more control over development implementations
+
+</details>
+
+<details>
+
+<summary>Benchmarks and performance profiling</summary>
+
+To determine best data structures and techniques for optimal performance without sacrificing functionality
+
+</details>
+
+### TODO
+
+List of techniques Destiny wants to incorporate to push performance even further, not strictly Swift related.
+
+- file descriptor pool and reuse (eliminates file descriptor acceptance overhead)
+- typed throws (improving runtime performance and a step closer to support embedded; eliminates heap allocation, metadata and dynamic dispatch for error handling)
+- kqueue support
+
+### Limitations
+
+Areas that Swift needs more development/support to unlock more performance at the language level.
+
+- `~Copyable` types in parameter packs (current `Copyable` requirement requires retain/release and ARC traffic)
 
 ## Getting started
 
@@ -88,3 +241,13 @@ This library is the clear leader in reliability, performance and efficiency. Sta
 ## Contributing
 
 Create a PR.
+
+## Support
+
+You can create a discussion here on GitHub for support or join my Discord server at https://discord.com/invite/VyuFQUpcUz.
+
+### Funding
+
+I developed this project to allow everyone to create better http servers. I develop and maintain many free open-source projects full-time for the benefit of everyone.
+
+You can show your financial appreciation for this project and others by sponsoring us here on GitHub or other ways listed in the [FUNDING.yml](https://github.com/RandomHashTags/destiny/blob/main/.github/FUNDING.yml).
