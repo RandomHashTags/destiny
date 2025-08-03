@@ -31,19 +31,12 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
         var err:(any Error)? = nil
         value.withUTF8Buffer { valuePointer in
             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
-                var i = 0
+                buffer.copyBuffer(valuePointer, at: 0)
                 // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
-                while i < 20 {
-                    buffer[i] = valuePointer[i]
-                    i += 1
-                }
+                var i = 20
                 let dateSpan = HTTPDateFormat.nowInlineArray
                 for indice in dateSpan.indices {
                     buffer[i] = dateSpan[indice]
-                    i += 1
-                }
-                while i < valuePointer.count {
-                    buffer[i] = valuePointer[i]
                     i += 1
                 }
                 do {

@@ -6,6 +6,8 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     /// The HTTP start-line.
     var startLine: SIMD64<UInt8> { get }
 
+    mutating func startLineLowercased() -> SIMD64<UInt8>
+
     /// Yields the endpoint the request wants to reach, separated by the forward slash character.
     mutating func forEachPath(offset: Int, _ yield: (ConcretePathType) -> Void)
 
@@ -22,7 +24,7 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
 
     //@inlinable func header<let keyCount: Int, valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 
-    func header(forKey key: String) -> String?
+    mutating func header(forKey key: String) -> String?
 }
 
 /*

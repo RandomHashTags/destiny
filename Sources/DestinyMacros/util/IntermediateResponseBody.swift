@@ -31,6 +31,10 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     public func responderDebugDescription(_ response: HTTPResponseMessage) throws -> String {
         let responseString = try response.intermediateString(escapeLineBreak: true)
         switch type {
+        case .bytes:
+            return "ResponseBody.Bytes(\(value))"
+        case .inlineBytes:
+            return "ResponseBody.InlineBytes(\(value))"
         case .macroExpansion:
             return "RouteResponses.MacroExpansion(\"\(responseString)\", body: \(value))"
         case .macroExpansionWithDateHeader:
@@ -66,6 +70,8 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
 }
 
 public enum IntermediateResponseBodyType: Sendable {
+    case bytes
+    case inlineBytes
     case macroExpansion
     case macroExpansionWithDateHeader
     case streamWithDateHeader

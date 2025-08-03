@@ -65,16 +65,16 @@ public enum HTTPVersion: String, Hashable, Sendable {
         }
     }
 
-    /// `InlineArray<8, UInt8>` representation of this HTTP Version.
+    /// `InlineByteArray<8>` representation of this HTTP Version.
     @inlinable
-    public var inlineArray: InlineArray<8, UInt8> {
+    public var inlineByteArray: InlineByteArray<8> {
         switch self {
-        case .v0_9: [72, 84, 84, 80, 47, 48, 46, 57] // HTTP/0.9
-        case .v1_0: [72, 84, 84, 80, 47, 49, 46, 48] // HTTP/1.0
-        case .v1_1: [72, 84, 84, 80, 47, 49, 46, 49] // HTTP/1.1
-        case .v1_2: [72, 84, 84, 80, 47, 49, 46, 50] // HTTP/1.2
-        case .v2_0: [72, 84, 84, 80, 47, 50, 46, 48] // HTTP/2.0
-        case .v3_0: [72, 84, 84, 80, 47, 51, 46, 48] // HTTP/3.0
+        case .v0_9: .init([72, 84, 84, 80, 47, 48, 46, 57]) // HTTP/0.9
+        case .v1_0: .init([72, 84, 84, 80, 47, 49, 46, 48]) // HTTP/1.0
+        case .v1_1: .init([72, 84, 84, 80, 47, 49, 46, 49]) // HTTP/1.1
+        case .v1_2: .init([72, 84, 84, 80, 47, 49, 46, 50]) // HTTP/1.2
+        case .v2_0: .init([72, 84, 84, 80, 47, 50, 46, 48]) // HTTP/2.0
+        case .v3_0: .init([72, 84, 84, 80, 47, 51, 46, 48]) // HTTP/3.0
         }
     }
 }

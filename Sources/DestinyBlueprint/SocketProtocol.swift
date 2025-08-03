@@ -5,7 +5,7 @@ import Darwin
 
 /// Core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol: ~Copyable, Sendable {
-    associatedtype Buffer:InlineArrayProtocol where Buffer.Element == UInt8
+    associatedtype Buffer:InlineByteArrayProtocol
     
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 
@@ -25,6 +25,11 @@ public protocol SocketProtocol: ~Copyable, Sendable {
 
     /// Writes a buffer to the socket.
     func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
+
+    /// Writes multiple buffers to the socket utilizing `writev`.
+    func writeBuffers<let count: Int>(
+        _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
+    ) throws
 
     /// Writes a `String` to the socket.
     func writeString(_ string: String) throws

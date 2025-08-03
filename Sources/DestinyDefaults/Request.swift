@@ -4,21 +4,28 @@ import DestinyBlueprint
 /// Default storage for request data.
 public struct Request: HTTPRequestProtocol {
     public let startLine:DestinyRoutePathType
-    public let headers:HTTPRequestHeaders
     public let newStartLine:HTTPStartLine
-
-    /*public var description: String {
-        return startLine.leadingString() + " (" + methodSIMD.leadingString() + "; " + uri.leadingString() + ";" + version.simd.leadingString() + ")"
-    }*/
 
     public init(
         startLine: DestinyRoutePathType,
-        headers: HTTPRequestHeaders,
         newStartLine: HTTPStartLine
     ) {
         self.startLine = startLine
-        self.headers = headers
         self.newStartLine = newStartLine
+    }
+
+    public lazy var headers: HTTPRequestHeaders = {
+        return .init([:])
+    }()
+
+    @usableFromInline
+    lazy var _startLineLowercased: SIMD64<UInt8> = {
+        return startLine.lowercased()
+    }()
+
+    @inlinable
+    public mutating func startLineLowercased() -> SIMD64<UInt8> {
+        return _startLineLowercased
     }
 
     public lazy var path: [String] = {
@@ -50,7 +57,7 @@ public struct Request: HTTPRequestProtocol {
     }
 
     @inlinable
-    public func header(forKey key: String) -> String? {
+    public mutating func header(forKey key: String) -> String? {
         headers[key]
     }
 }
@@ -59,25 +66,17 @@ public struct Request: HTTPRequestProtocol {
 extension Request {
     @inlinable
     public static func load(socket: borrowing some HTTPSocketProtocol & ~Copyable) throws -> Request {
-        var (buffer, read) = try socket.readBuffer()
+        let (buffer, read) = try socket.readBuffer()
         if read <= 0 {
             throw SocketError.malformedRequest()
         }
-        /*var lineIndex = 0
-        try buffer.split(separator: .carriageReturn, defaultValue: 0, yield: { array in
-            if lineIndex != 0 && array.itemAt(index: 0) != .lineFeed {
-                throw SocketError.malformedRequest()
-            }
-            //print("HTTPStartLine;init;buffer.split;inlineVLArray;count=\(array.count);string=\(array.string(offset: lineIndex == 0 ? 0 : 1))")
-            lineIndex += 1
-            return false
-        })*/
         var startLine = DestinyRoutePathType()
         let newStartLine = try HTTPStartLine(buffer: buffer)
         for i in 0..<newStartLine.endIndex {
             startLine[i] = buffer.itemAt(index: i)
         }
 
+        /*
         // performance falls off a cliff parsing headers; should we
         // just retain the buffer and record the start and end indexes
         // of things, with computed properties when and where necessary?
@@ -92,10 +91,9 @@ extension Request {
             if read <= 0 {
                 break
             }
-        }
+        }*/
         return Request(
             startLine: startLine,
-            headers: .init(headers),
             newStartLine: newStartLine
         )
     }
@@ -104,7 +102,11 @@ extension Request {
 // MARK: Parse Headers
 extension Request {
     @inlinable
-    public static func parseHeaders<T: InlineArrayProtocol>(buffer: T, offset: Int, headers: inout [String:String]) where T.Element == UInt8 {
+    public static func parseHeaders(
+        buffer: some InlineByteArrayProtocol,
+        offset: Int,
+        headers: inout [String:String]
+    ) {
         var skip:UInt8 = 0
         let nextLine = InlineArray<256, UInt8>(repeating: 0)
         let _:InlineArray<256, UInt8>? = buffer.split(
@@ -127,7 +129,11 @@ extension Request {
 }
 extension Request {
     @inlinable
-    public static func parseHeaders2<T: InlineArrayProtocol>(buffer: T, offset: Int, headers: inout [String:String]) where T.Element == UInt8 {
+    public static func parseHeaders2(
+        buffer: some InlineByteArrayProtocol,
+        offset: Int,
+        headers: inout [String:String]
+    ) {
         let bufferCount = buffer.count
         let carriageReturnSIMD = SIMD64<UInt8>(repeating: .carriageReturn)
         var startIndex = offset
@@ -184,7 +190,7 @@ extension Request {
 
         public init() {
             self.count = 0
-            self.values = .init(repeating: Request.HeaderIndex(startIndex: 0, endIndex: 0))
+            self.values = .init(repeating: .init(startIndex: 0, endIndex: 0))
         }
 
         @inlinable

@@ -21,7 +21,7 @@ import DestinyBlueprint
 
 /// Default socket storage with the only purpose of handling communication between http clients and the http server.
 public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
-    public typealias Buffer = InlineArray<1024, UInt8>
+    public typealias Buffer = InlineByteArray<1024>
 
     public let fileDescriptor:Int32
 
@@ -141,6 +141,19 @@ extension HTTPSocket {
             }
             sent += result
         }
+    }
+
+    @inlinable
+    public func writeBuffers<let count: Int>(
+        _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
+    ) throws {
+        withUnsafeTemporaryAllocation(of: iovec.self, capacity: count, { iovecs in
+            for i in buffers.indices {
+                let buffer = buffers[i]
+                iovecs[i] = .init(iov_base: .init(mutating: buffer.baseAddress), iov_len: buffer.count)
+            }
+            writev(fileDescriptor, iovecs.baseAddress, Int32(count))
+        })
     }
 }
 

@@ -13,7 +13,7 @@ public struct HTTPStartLine: HTTPStartLineProtocol {
 
     public let endIndex:Int
 
-    public init<T: InlineArrayProtocol>(buffer: T) throws where T.Element == UInt8 {
+    public init(buffer: some InlineByteArrayProtocol) throws {
         let (methodArray, methodSpaceIndex):(Method, Int) = buffer.firstSlice(separator: .space, defaultValue: 0)
         let (pathArray, pathSpaceIndex):(RequestTarget, Int) = buffer.firstSlice(separator: .space, defaultValue: 0, offset: methodSpaceIndex+1)
         let versionArray:InlineArray<8, UInt8> = buffer.slice(startIndex: pathSpaceIndex+1, endIndex: pathSpaceIndex+9, defaultValue: 0)

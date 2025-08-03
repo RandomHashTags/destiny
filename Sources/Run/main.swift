@@ -157,6 +157,11 @@ LoggingSystem.bootstrap { label in
         body: StaticStringWithDateHeader("just a regular txt page; t'was your destiny")
     ),
     StaticRoute.get(
+        path: ["inlineBytes"],
+        contentType: HTTPMediaTypeText.plain,
+        body: ResponseBody.inlineBytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+    ),
+    StaticRoute.get(
         path: ["bytes"],
         contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])

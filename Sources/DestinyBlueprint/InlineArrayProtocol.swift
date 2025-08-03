@@ -4,7 +4,7 @@ public protocol InlineArrayProtocol: InlineCollectionProtocol, ~Copyable where I
 }
 
 // MARK Conformances
-extension InlineArray: InlineArrayProtocol {
+extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
     @inlinable
     public func itemAt(index: Index) -> Element {
         self[index]
@@ -13,6 +13,13 @@ extension InlineArray: InlineArrayProtocol {
     @inlinable
     public mutating func setItemAt(index: Int, element: Element) {
         self[index] = element
+    }
+
+    @inlinable
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
+        try withUnsafePointer(to: self, {
+            try socket.writeBuffer($0, length: count)
+        })
     }
 }
 

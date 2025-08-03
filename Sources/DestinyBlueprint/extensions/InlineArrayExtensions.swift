@@ -327,7 +327,11 @@ extension InlineArrayProtocol where Element: Equatable {
 extension InlineArrayProtocol where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
-    public func firstSlice<let sliceLength: Int>(separator: Element, defaultValue: Element, offset: Index = 0) -> (slice: InlineArray<sliceLength, Element>, index: Index) {
+    public func firstSlice<let sliceLength: Int>(
+        separator: Element,
+        defaultValue: Element,
+        offset: Index = 0
+    ) -> (slice: InlineArray<sliceLength, Element>, index: Index) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
         let numberOfItems = min(sliceLength, offset.distance(to: index))
         var slice:InlineArray<sliceLength, Element> = .init(repeating: defaultValue)
@@ -343,7 +347,12 @@ extension InlineArrayProtocol where Element: Equatable {
 
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
-    public func firstSlice(separator: Element, defaultValue: Element, offset: Index = 0, _ closure: (_ slice: InlineVLArray<Element>, _ index: Index) -> Void) {
+    public func firstSlice(
+        separator: Element,
+        defaultValue: Element,
+        offset: Index = 0,
+        _ closure: (_ slice: InlineVLArray<Element>, _ index: Index) -> Void
+    ) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
         InlineVLArray<Element>.create(amount: offset.distance(to: index), default: defaultValue) { array in
             var targetIndex = offset
@@ -362,7 +371,11 @@ extension InlineArrayProtocol where Element: Equatable {
 extension InlineArrayProtocol {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
     @inlinable
-    public func slice<let sliceLength: Int>(startIndex: Index, endIndex: Index, defaultValue: Element) -> InlineArray<sliceLength, Element> {
+    public func slice<let sliceLength: Int>(
+        startIndex: Index,
+        endIndex: Index,
+        defaultValue: Element
+    ) -> InlineArray<sliceLength, Element> {
         var slice = InlineArray<sliceLength, Element>(repeating: defaultValue)
         var index = 0
         var i = startIndex

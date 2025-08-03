@@ -51,26 +51,9 @@ extension ResponseBody {
         case "json":
             return nil // TODO: fix
         case "bytes":
-            var bytes = [UInt8]()
-            let expression = firstArg.expression
-            if let initCall = expression.functionCall {
-                let interp = "\(initCall.calledExpression)"
-                if (interp == "[UInt8]" || interp == "Array<UInt8>"),
-                        let member = initCall.arguments.first?.expression.memberAccess,
-                        let string = member.base?.stringLiteral?.string {
-                    switch member.declName.baseName.text {
-                    case "utf8": bytes = [UInt8](string.utf8)
-                    //case "utf16": bytes = [UInt16](string.utf16)
-                    default: break
-                    }
-                }
-            } else if let array:[UInt8] = expression.array?.elements.compactMap({
-                guard let integer = $0.expression.integerLiteral?.literal.text else { return nil }
-                return UInt8(integer)
-            }) {
-                bytes = array
-            }
-            return ResponseBody.bytes(bytes)
+            return IntermediateResponseBody(type: .bytes, firstArg.expression.description)
+        case "inlinebytes":
+            return IntermediateResponseBody(type: .inlineBytes, firstArg.expression.description)
         case "bytes16":
             var bytes = [UInt16]()
             let expression = firstArg.expression
