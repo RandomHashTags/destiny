@@ -80,9 +80,16 @@ extension Router {
 
 extension Router.Storage {
     struct Route {
-        let path:String
+        let startLine:String
         let buffer:DestinyRoutePathType
         let responder:String
+
+        var path: Substring {
+            startLine.split(separator: " ")[1]
+        }
+        var paths: [Substring] {
+            path.split(separator: "/")
+        }
     }
 }
 

@@ -71,7 +71,10 @@ extension HTTPRouter {
     }
 
     @inlinable
-    func handleDynamicMiddleware(for request: inout some HTTPRequestProtocol & ~Copyable, with response: inout some DynamicResponseProtocol) async throws {
+    func handleDynamicMiddleware(
+        for request: inout some HTTPRequestProtocol & ~Copyable,
+        with response: inout some DynamicResponseProtocol
+    ) async throws {
         for middleware in opaqueDynamicMiddleware {
             if try await !middleware.handle(request: &request, response: &response) {
                 break
@@ -159,7 +162,7 @@ extension HTTPRouter {
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws -> any DynamicResponseProtocol {
-        var response = responder.defaultResponse
+        var response = responder.defaultResponse()
         var index = 0
         let maximumParameters = responder.pathComponentsCount
         responder.forEachPathComponentParameterIndex { parameterIndex in

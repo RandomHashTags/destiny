@@ -24,7 +24,7 @@ extension Router.Storage {
         }
         let getResponderValue:(Router.Storage.Route) -> String = {
             let responder = $0.responder
-            return "// \($0.path)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \(responder)\n)"
+            return "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \(responder)\n)"
         }
         if !redirects.isEmpty {
             for (route, function) in redirects {
@@ -35,7 +35,7 @@ extension Router.Storage {
                     registeredPaths.insert(string)
                     do {
                         let responder = try StringWithDateHeader(route.response()).responderDebugDescription
-                        routeResponders.append(getResponderValue(.init(path: string, buffer: .init(&string), responder: responder)))
+                        routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
                     }
@@ -53,7 +53,7 @@ extension Router.Storage {
                     let httpResponse = route.response(context: context, function: function, middleware: middleware) as! HTTPResponseMessage // TODO: fix
                     if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                         if let responder = try responseBodyResponderDebugDescription(body: route.body, response: httpResponse) {
-                            routeResponders.append(getResponderValue(.init(path: string, buffer: buffer, responder: responder)))
+                            routeResponders.append(getResponderValue(.init(startLine: string, buffer: buffer, responder: responder)))
                         } else {
                             context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
                         }

@@ -54,7 +54,7 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
         for (index, condition) in dynamicConditions.enumerated() {
             if condition(&request) {
                 let responder = dynamicResponders[index]
-                var response = responder.defaultResponse
+                var response = responder.defaultResponse()
                 try await responder.respond(to: socket, request: &request, response: &response)
                 //try await router.respondDynamically(received: received, loaded: loaded, socket: socket, request: &request, responder: dynamicResponders[index])
                 return true

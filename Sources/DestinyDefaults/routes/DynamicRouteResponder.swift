@@ -5,19 +5,19 @@ import DestinyBlueprint
 public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugStringConvertible {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
-    public let defaultResponse:any DynamicResponseProtocol
+    public let _defaultResponse:DynamicResponse
     public let logic:@Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
-        defaultResponse: any DynamicResponseProtocol,
+        defaultResponse: DynamicResponse,
         logic: @escaping @Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
         parameterPathIndexes = path.enumerated().compactMap({ $1.isParameter ? $0 : nil })
-        self.defaultResponse = defaultResponse
+        self._defaultResponse = defaultResponse
         self.logic = logic
         self.logicDebugDescription = logicDebugDescription
     }
@@ -26,10 +26,15 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
         """
         DynamicRouteResponder(
             path: \(path),
-            defaultResponse: \(defaultResponse),
+            defaultResponse: \(_defaultResponse),
             logic: \(logicDebugDescription)
         )
         """
+    }
+
+    @inlinable
+    public func defaultResponse() -> DynamicResponse {
+        return _defaultResponse
     }
 
     @inlinable

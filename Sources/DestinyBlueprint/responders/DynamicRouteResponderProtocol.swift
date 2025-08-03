@@ -1,6 +1,8 @@
 
 /// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
 public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable {
+    associatedtype ConcreteDynamicResponse:DynamicResponseProtocol
+
     /// - Returns: The `PathComponent` located at the given index.
     func pathComponent(at index: Int) -> PathComponent
 
@@ -11,7 +13,7 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     func forEachPathComponentParameterIndex(_ yield: (Int) -> Void)
 
     /// Default `DynamicResponseProtocol` value computed at compile time taking into account all static middleware.
-    var defaultResponse: any DynamicResponseProtocol { get }
+    func defaultResponse() -> ConcreteDynamicResponse
 
     /// Writes a response to a socket.
     /// 
