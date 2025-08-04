@@ -10,16 +10,27 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     public let pipeFileDescriptors:InlineArray<2, Int32>
     public let logger:Logger
 
-    public init(serverFD: Int32, thread: Int) throws {
+    public init(
+        serverFD: Int32,
+        thread: Int
+    ) throws(EpollError) {
         self.serverFD = serverFD
         fileDescriptor = epoll_create1(0)
         if fileDescriptor == -1 {
             throw EpollError.epollCreateFailed()
         }
         var pipeFileDescriptors:InlineArray<2, Int32> = [0, 0]
-        try pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
-            guard let base = $0.baseAddress else { throw EpollError.epollPipeFailed() }
-            pipe(.init(mutating: base))
+        var err:EpollError? = nil
+        pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
+            do throws(EpollError) {
+                guard let base = $0.baseAddress else { throw EpollError.epollPipeFailed() }
+                pipe(.init(mutating: base))
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw err
         }
         self.pipeFileDescriptors = pipeFileDescriptors
         logger = Logger(label: "epoll.destinyblueprint.\(serverFD).thread\(thread)")
@@ -41,7 +52,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     }
 
     @inlinable
-    public func add(client: Int32, event: UInt32) throws {
+    public func add(client: Int32, event: UInt32) throws(EpollError) {
         var e = epoll_event()
         e.events = event
         e.data.fd = client
@@ -51,7 +62,7 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     }
 
     @inlinable
-    public func remove(client: Int32) throws {
+    public func remove(client: Int32) throws(EpollError) {
         if epoll_ctl(fileDescriptor, EPOLL_CTL_DEL, client, nil) == -1 {
             throw EpollError.epollCtlFailed()
         }
@@ -60,16 +71,24 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     @inlinable
     public mutating func wait(
         timeout: Int32 = -1,
-        acceptClient: (Int32) throws -> Int32?
-    ) throws -> (loaded: Int, clients: InlineArray<maxEvents, Int32>) {
+        acceptClient: (Int32) throws(SocketError) -> Int32?
+    ) throws(EpollError) -> (loaded: Int, clients: InlineArray<maxEvents, Int32>) {
         var loadedClients:Int32 = -1
         var events = InlineArray<maxEvents, epoll_event>(repeating: .init())
-        try events.mutableSpan.withUnsafeBufferPointer { p in
-            guard let base = p.baseAddress else { throw EpollError.waitFailed() }
-            loadedClients = epoll_pwait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout, nil)
-            if loadedClients == -1 {
-                throw EpollError.waitFailed()
+        var err:EpollError? = nil
+        events.mutableSpan.withUnsafeBufferPointer { p in
+            do throws(EpollError) {
+                guard let base = p.baseAddress else { throw EpollError.waitFailed() }
+                loadedClients = epoll_pwait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout, nil)
+            } catch {
+                err = error
             }
+        }
+        if let err {
+            throw err
+        }
+        if loadedClients == -1 {
+            throw EpollError.waitFailed()
         }
         var clients = InlineArray<maxEvents, Int32>(repeating: -1)
         var clientIndex = 0
@@ -77,10 +96,10 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
         while i < loadedClients {
             let event = events[i]
             if event.data.fd == serverFD {
-                do {
+                do throws(SocketError) {
                     if let client = try acceptClient(serverFD) {
                         setNonBlocking(socket: client)
-                        do {
+                        do throws(EpollError) {
                             try add(client: client, event: EPOLLIN.rawValue)
                         } catch {
                             logger.warning("Encountered error trying to add accepted client to epoll: \(error) (errno=\(errno))")

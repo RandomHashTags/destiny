@@ -32,3 +32,7 @@ extension SocketError {
     @inlinable public static func malformedRequest() -> Self { cError("malformedRequest") }
     @inlinable public static func malformedRequest(_ reason: String) -> Self { Self(identifier: "malformedRequest", reason: reason) }
 }
+
+extension SocketError {
+    @inlinable public static func bufferWriteError(_ error: BufferWriteError) -> Self { Self(identifier: "bufferWriteError", reason: "\(error)") }
+}

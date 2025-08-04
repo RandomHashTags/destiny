@@ -3,5 +3,5 @@
 public protocol HTTPSocketProtocol: SocketProtocol, ~Copyable {
     associatedtype ConcreteRequest:HTTPRequestProtocol
 
-    func loadRequest() throws -> ConcreteRequest
+    func loadRequest() throws(SocketError) -> ConcreteRequest
 }

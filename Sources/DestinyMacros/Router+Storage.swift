@@ -48,7 +48,7 @@ extension Router {
                     func customLogic(
                         request: inout some HTTPRequestProtocol & ~Copyable,
                         response: inout some DynamicResponseProtocol
-                    ) async throws {
+                    ) async throws(MiddlewareError) {
                         \(functionString)
                     }
 
@@ -56,7 +56,7 @@ extension Router {
                     func handle(
                         request: inout some HTTPRequestProtocol & ~Copyable,
                         response: inout some DynamicResponseProtocol
-                    ) async throws -> Bool {
+                    ) async throws(MiddlewareError) -> Bool {
                         try await customLogic(request: &request, response: &response)
                         return true
                     }

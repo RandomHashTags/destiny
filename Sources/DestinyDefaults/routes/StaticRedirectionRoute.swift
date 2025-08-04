@@ -40,7 +40,7 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
         return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
     }
 
-    public func response() throws -> String {
+    public func response() -> String {
         var headers = HTTPHeaders()
         headers["Date"] = HTTPDateFormat.placeholder
         headers["Location"] = "/" + to.joined(separator: "/")

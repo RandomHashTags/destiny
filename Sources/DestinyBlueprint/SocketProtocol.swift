@@ -19,20 +19,25 @@ public protocol SocketProtocol: ~Copyable, Sendable {
         into baseAddress: UnsafeMutablePointer<UInt8>,
         length: Int,
         flags: Int32
-    ) throws -> Int
+    ) throws(SocketError) -> Int
 
-    func readBuffer() throws -> (Buffer, Int)
+    func readBuffer() throws(SocketError) -> (Buffer, Int)
 
     /// Writes a buffer to the socket.
-    func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws
+    func writeBuffer(
+        _ pointer: UnsafeRawPointer,
+        length: Int
+    ) throws(SocketError)
 
     /// Writes multiple buffers to the socket utilizing `writev`.
     func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
-    ) throws
+    ) throws(SocketError)
 
     /// Writes a `String` to the socket.
-    func writeString(_ string: String) throws
+    func writeString(
+        _ string: String
+    ) throws(SocketError)
 }
 
 extension SocketProtocol where Self: ~Copyable {
@@ -46,23 +51,43 @@ extension SocketProtocol where Self: ~Copyable {
 
     /// Writes 2 bytes (carriage return and line feed) to the socket.
     @inlinable
-    public func writeCRLF(count: Int = 1) throws {
+    public func writeCRLF(
+        count: Int = 1
+    ) throws(SocketError) {
         let capacity = count * 2
-        try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
+        var err:SocketError? = nil
+        withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
             while i < count {
                 p[i] = .carriageReturn
                 p[i + 1] = .lineFeed
                 i += 2
             }
-            try writeBuffer(p.baseAddress!, length: capacity)
+            do throws(SocketError) {
+                try writeBuffer(p.baseAddress!, length: capacity)
+            } catch {
+                err = error
+            }
         })
+        if let err {
+            throw err
+        }
     }
 
     @inlinable
-    public func writeString(_ string: String) throws {
-        try string.utf8.withContiguousStorageIfAvailable {
-            try self.writeBuffer($0.baseAddress!, length: $0.count)
+    public func writeString(
+        _ string: String
+    ) throws(SocketError) {
+        var err:SocketError? = nil
+        string.utf8.withContiguousStorageIfAvailable {
+            do throws(SocketError) {
+                try self.writeBuffer($0.baseAddress!, length: $0.count)
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw err
         }
     }
 }

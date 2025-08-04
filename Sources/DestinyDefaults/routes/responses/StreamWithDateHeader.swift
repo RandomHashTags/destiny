@@ -14,8 +14,10 @@ public struct StreamWithDateHeader<Body: HTTPSocketWritable>: StaticRouteRespond
 // MARK: Write
 extension StreamWithDateHeader {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        var err:(any Error)? = nil
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
+        var err:SocketError? = nil
         head.withUTF8Buffer { headPointer in
             // 30 = "Transfer-Encoding: chunked".count (26) + "\r\n\r\n".count (4)
              withUnsafeTemporaryAllocation(of: UInt8.self, capacity: headPointer.count + 30, { buffer in
@@ -40,7 +42,7 @@ extension StreamWithDateHeader {
                 buffer[i] = .carriageReturn
                 i += 1
                 buffer[i] = .lineFeed
-                do {
+                do throws(SocketError) {
                     try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
                 } catch {
                     err = error
@@ -57,7 +59,7 @@ extension StreamWithDateHeader {
 // MARK: AsyncHTTPChunkDataStream
 public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWritable {
     public let chunkSize:Int
-    public let stream:ReusableAsyncThrowingStream<T, Error>
+    public let stream:ReusableAsyncThrowingStream<T, Error> // TODO: fix
 
     public init(
         chunkSize: Int = 1024,
@@ -90,12 +92,14 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
     }
 
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
         buffer.initialize(repeating: 0)
-        var err:(any Error)? = nil
-        do {
+        var err:SocketError? = nil
+        do throws(Error) { // TODO: fix
             for try await var chunk in stream {
                 var i = 0
                 var hex = String(chunk.chunkDataCount, radix: 16)
@@ -109,14 +113,20 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
                 i += 1
                 buffer[i] = .lineFeed
                 i += 1
-                try chunk.write(to: buffer, at: &i)
+
+                do throws(BufferWriteError) {
+                    try chunk.write(to: buffer, at: &i)
+                } catch {
+                    throw SocketError.bufferWriteError(error)
+                }
+
                 buffer[i] = .carriageReturn
                 i += 1
                 buffer[i] = .lineFeed
                 i += 1
                 try socket.writeBuffer(buffer.baseAddress!, length: i)
             }
-            do {
+            do throws(SocketError) {
                 buffer[0] = 48
                 buffer[1] = .carriageReturn
                 buffer[2] = .lineFeed
@@ -128,7 +138,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
                 err = error
             }
         } catch {
-            err = error
+            err = .init(identifier: "streamWithDateHeaderWriteError", reason: "\(error)")
         }
         buffer.deallocate()
         if let err {

@@ -65,7 +65,9 @@ public struct Request: HTTPRequestProtocol {
 // MARK: Load
 extension Request {
     @inlinable
-    public static func load(socket: borrowing some HTTPSocketProtocol & ~Copyable) throws -> Request {
+    public static func load(
+        socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) throws(SocketError) -> Request {
         let (buffer, read) = try socket.readBuffer()
         if read <= 0 {
             throw SocketError.malformedRequest()

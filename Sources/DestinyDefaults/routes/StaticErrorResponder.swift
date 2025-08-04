@@ -20,7 +20,7 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
         #if DEBUG
         logger.warning("\(error)")
         #endif
-        do {
+        do throws(SocketError) {
             try await logic(error).write(to: socket)
         } catch {
             // TODO: do something

@@ -26,9 +26,9 @@ public struct Application: ApplicationProtocol {
         serviceGroup.run()
     }
 
-    public func shutdown() async throws {
+    public func shutdown() async {
         logger.notice("Application shutting down...")
-        try await serviceGroup.shutdown()
+        await serviceGroup.shutdown()
         logger.notice("Application shutdown successfully")
     }
 }

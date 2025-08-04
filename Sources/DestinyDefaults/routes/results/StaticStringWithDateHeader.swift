@@ -27,8 +27,8 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
     }
 
     @inlinable
-    func temporaryBuffer(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) throws {
-        var err:(any Error)? = nil
+    func temporaryBuffer<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) throws(E) {
+        var err:E? = nil
         value.withUTF8Buffer { valuePointer in
             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
                 buffer.copyBuffer(valuePointer, at: 0)
@@ -39,7 +39,7 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
                     buffer[i] = dateSpan[indice]
                     i += 1
                 }
-                do {
+                do throws(E) {
                     try closure(buffer)
                     return
                 } catch {
@@ -53,8 +53,8 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
     }
 
     @inlinable
-    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
-        try temporaryBuffer { completeBuffer in
+    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(BufferWriteError) {
+        temporaryBuffer { completeBuffer in
             index = 0
             buffer.copyBuffer(completeBuffer, at: &index)
         }
@@ -65,9 +65,17 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
 
 extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        try temporaryBuffer { buffer in
-            try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws(SocketError) {
+        var err:SocketError? = nil
+        temporaryBuffer({ buffer in
+            do throws(SocketError) {
+                try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+            } catch {
+                err = error
+            }
+        })
+        if let err {
+            throw err
         }
     }
 }

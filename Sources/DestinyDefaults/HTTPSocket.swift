@@ -31,7 +31,7 @@ public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
     }
 
     @inlinable
-    public func loadRequest() throws -> Request {
+    public func loadRequest() throws(SocketError) -> Request {
         return try Request.load(socket: self)
     }
 }
@@ -39,24 +39,41 @@ public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
 // MARK: Reading
 extension HTTPSocket {
     @inlinable
-    public func readBuffer() throws -> (Buffer, Int) {
+    public func readBuffer() throws(SocketError) -> (Buffer, Int) {
         var buffer = Buffer.init(repeating: 0)
-        let read = try withUnsafeMutableBytes(of: &buffer) { p in
-            return try readBuffer(into: p.baseAddress!, length: Buffer.count)
+        var err:SocketError? = nil
+        let read = withUnsafeMutableBytes(of: &buffer) { p in
+            do throws(SocketError) {
+                return try readBuffer(into: p.baseAddress!, length: Buffer.count)
+            } catch {
+                err = error
+                return -1
+            }
+        }
+        if let err {
+            throw err
         }
         return (buffer, read)
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(
+        into buffer: UnsafeMutableBufferPointer<UInt8>,
+        length: Int,
+        flags: Int32 = 0
+    ) throws(SocketError) -> Int {
         guard let baseAddress = buffer.baseAddress else { return 0 }
         return try readBuffer(into: baseAddress, length: length, flags: flags)
     }
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(
+        into baseAddress: UnsafeMutablePointer<UInt8>,
+        length: Int,
+        flags: Int32 = 0
+    ) throws(SocketError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
             if Task.isCancelled { return 0 }
@@ -75,7 +92,11 @@ extension HTTPSocket {
 
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
-    public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) throws -> Int {
+    public func readBuffer(
+        into baseAddress: UnsafeMutableRawPointer,
+        length: Int,
+        flags: Int32 = 0
+    ) throws(SocketError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
             if Task.isCancelled { return 0 }
@@ -96,7 +117,10 @@ extension HTTPSocket {
     /// 
     /// - Returns: The number of bytes received.
     @inlinable
-    public func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int) throws -> Int {
+    public func readBuffer(
+        into baseAddress: UnsafeMutableRawPointer,
+        length: Int
+    ) throws(SocketError) -> Int {
         if Task.isCancelled { return 0 }
         let read = receive(baseAddress, length, 0)
         if read < 0 { // error
@@ -106,7 +130,7 @@ extension HTTPSocket {
     }
 
     @inlinable
-    public func handleReadError() throws {
+    public func handleReadError() throws(SocketError) {
         #if canImport(Glibc)
         if errno == EAGAIN || errno == EWOULDBLOCK {
             return
@@ -131,7 +155,10 @@ extension HTTPSocket {
 // MARK: Writing
 extension HTTPSocket {
     @inlinable
-    public func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) throws {
+    public func writeBuffer(
+        _ pointer: UnsafeRawPointer,
+        length: Int
+    ) throws(SocketError) {
         var sent = 0
         while sent < length {
             if Task.isCancelled { return }
@@ -146,7 +173,7 @@ extension HTTPSocket {
     @inlinable
     public func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
-    ) throws {
+    ) {
         withUnsafeTemporaryAllocation(of: iovec.self, capacity: count, { iovecs in
             for i in buffers.indices {
                 let buffer = buffers[i]

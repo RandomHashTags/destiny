@@ -124,7 +124,7 @@ extension StaticRoute {
 extension StaticRoute {
     public func responder(
         middleware: [any StaticMiddlewareProtocol]
-    ) throws -> (any StaticRouteResponderProtocol)? {
+    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
         return try response(middleware: middleware).string(escapeLineBreak: true)
     }
 }

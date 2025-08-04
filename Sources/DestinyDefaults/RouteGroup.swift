@@ -41,7 +41,7 @@ public struct RouteGroup: RouteGroupProtocol {
         var staticResponses = StaticResponderStorage()
         for var route in staticRoutes {
             route.insertPath(contentsOf: prefixEndpoints, at: 0)
-            do {
+            do throws(HTTPMessageError) {
                 if let responder = try route.responder(middleware: staticMiddleware) {
                     staticResponses.register(path: DestinyRoutePathType(route.startLine), responder)
                 }
@@ -93,7 +93,7 @@ extension RouteGroup {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         if try await staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
         } else if let responder = dynamicResponses.responder(for: &request) {

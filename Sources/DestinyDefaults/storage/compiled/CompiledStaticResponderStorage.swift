@@ -14,7 +14,7 @@ public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticR
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: DestinyRoutePathType
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         for route in repeat each routes {
             if route.path == startLine {
                 try await router.respondStatically(socket: socket, responder: route.responder)

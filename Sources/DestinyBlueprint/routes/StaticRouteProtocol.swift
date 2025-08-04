@@ -18,5 +18,5 @@ public protocol StaticRouteProtocol: RouteProtocol, ~Copyable {
     /// - Throws: any error.
     func responder(
         middleware: [any StaticMiddlewareProtocol]
-    ) throws -> (any StaticRouteResponderProtocol)?
+    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)?
 }

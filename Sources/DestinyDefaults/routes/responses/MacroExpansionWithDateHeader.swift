@@ -13,8 +13,8 @@ public struct MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
     }
 
     @inlinable
-    func temporaryBuffer(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) throws {
-        var err:(any Error)? = nil
+    func temporaryBuffer<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) throws(E) {
+        var err:E? = nil
         value.withUTF8Buffer { valuePointer in
             bodyCount.withContiguousStorageIfAvailable { contentLengthPointer in
                 body.withContiguousStorageIfAvailable { bodyPointer in
@@ -41,7 +41,7 @@ public struct MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
                         buffer[i] = .lineFeed
                         i += 1
                         buffer.copyBuffer(bodyPointer, at: &i)
-                        do {
+                        do throws(E) {
                             try closure(buffer)
                             return
                         } catch {
@@ -58,9 +58,19 @@ public struct MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
     }
 
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        try temporaryBuffer { buffer in
-            try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
+        var err:SocketError? = nil
+        temporaryBuffer { buffer in
+            do throws(SocketError) {
+                try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw err
         }
     }
 }

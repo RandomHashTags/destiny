@@ -19,7 +19,7 @@ public protocol HTTPRouterProtocol: AnyObject, Sendable {
     func respondStatically(
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         responder: some StaticRouteResponderProtocol
-    ) async throws
+    ) async throws(ResponderError)
 
     /// Writes a dynamic responder to the socket.
     /// 
@@ -31,5 +31,5 @@ public protocol HTTPRouterProtocol: AnyObject, Sendable {
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
-    ) async throws
+    ) async throws(ResponderError)
 }

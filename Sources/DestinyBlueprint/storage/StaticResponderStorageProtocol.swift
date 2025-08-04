@@ -11,5 +11,5 @@ public protocol StaticResponderStorageProtocol: Sendable, ~Copyable {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
-    ) async throws -> Bool
+    ) async throws(ResponderError) -> Bool
 }

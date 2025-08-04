@@ -10,7 +10,7 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
     }
     
     @inlinable
-    public static func create(amount: Int, default: Element, _ closure: (inout Self) throws -> Void) rethrows {
+    public static func create<E: Error>(amount: Int, default: Element, _ closure: (inout Self) throws(E) -> Void) rethrows {
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: amount, { p in
             let _ = p.initialize(repeating: `default`)
             var array = Self(storage: p)
@@ -59,7 +59,10 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
 
 extension InlineVLArray where Element == UInt8 {
     @inlinable
-    public static func create(string: StaticString, _ closure: (inout Self) throws -> Void) rethrows {
+    public static func create<E: Error>(
+        string: StaticString,
+        _ closure: (inout Self) throws(E) -> Void
+    ) rethrows {
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: string.utf8CodeUnitCount, { p in
             string.withUTF8Buffer { utf8 in
                 let _ = p.initialize(fromContentsOf: utf8)
@@ -69,7 +72,10 @@ extension InlineVLArray where Element == UInt8 {
         })
     }
     @inlinable
-    public static func create(string: some StringProtocol, _ closure: (inout Self) throws -> Void) rethrows {
+    public static func create<E: Error>(
+        string: some StringProtocol,
+        _ closure: (inout Self) throws(E) -> Void
+    ) rethrows {
         let utf8 = string.utf8
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: utf8.count, { p in
             let _ = p.initialize(fromContentsOf: utf8)
@@ -78,7 +84,10 @@ extension InlineVLArray where Element == UInt8 {
         })
     }
     @inlinable
-    public static func create(collection: some Collection<UInt8>, _ closure: (inout Self) throws -> Void) rethrows {
+    public static func create<E: Error>(
+        collection: some Collection<UInt8>,
+        _ closure: (inout Self) throws(E) -> Void
+    ) rethrows {
         let count = collection.count
         try withUnsafeTemporaryAllocation(of: Element.self, capacity: count, { p in
             let _ = p.initialize(fromContentsOf: collection)
@@ -91,7 +100,10 @@ extension InlineVLArray where Element == UInt8 {
 // MARK: Join
 extension InlineVLArray {
     @inlinable
-    public func join<let count: Int>(_ arrays: InlineArray<count, InlineVLArray>, _ closure: (inout Joined) throws -> Void) rethrows {
+    public func join<E: Error, let count: Int>(
+        _ arrays: InlineArray<count, InlineVLArray>,
+        _ closure: (inout Joined) throws(E) -> Void
+    ) rethrows {
         try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: 1 + count, { pointer in
             pointer.initializeElement(at: 0, to: self.storage)
             for i in arrays.indices {
@@ -115,7 +127,10 @@ extension InlineVLArray {
         }
 
         @inlinable
-        public static func create<let count: Int>(_ elements: InlineArray<count, InlineVLArray<Element>>, closure: (inout Self) throws -> Void) rethrows {
+        public static func create<E: Error, let count: Int>(
+            _ elements: InlineArray<count, InlineVLArray<Element>>,
+            closure: (inout Self) throws(E) -> Void
+        ) rethrows {
             try withUnsafeTemporaryAllocation(of: UnsafeMutableBufferPointer<Element>.self, capacity: elements.count, { pointer in
                 for i in elements.indices {
                     pointer.initializeElement(at: i, to: elements.itemAt(index: i).storage)
@@ -195,7 +210,7 @@ extension InlineVLArray {
         }
 
         @inlinable
-        public func forEachElement(_ yielding: (Element) throws -> Void) rethrows {
+        public func forEachElement<E: Error>(_ yielding: (Element) throws(E) -> Void) rethrows {
             for i in storage.indices {
                 let buffer = storage[i]
                 for j in buffer.indices {

@@ -52,7 +52,7 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
         route: some DynamicRouteProtocol,
         responder: some DynamicRouteResponderProtocol,
         override: Bool
-    ) throws {
+    ) {
         if route.pathContainsParameters {
             var string = route.startLine()
             let buffer = DestinyRoutePathType(&string)
@@ -80,7 +80,7 @@ extension DynamicResponderStorage {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         guard let responder = responder(for: &request) else { return false }
         try await router.respondDynamically(socket: socket, request: &request, responder: responder)
         return true

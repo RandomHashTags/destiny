@@ -85,7 +85,7 @@ struct DestinyTests {
     }
 
     @Test
-    func joinedInlineArrayVL() throws {
+    func joinedInlineArrayVL() {
         InlineVLArray<UInt8>.create(amount: 5, default: 0) { first in
             InlineVLArray<UInt8>.create(amount: 6, default: 1) { second in
                 first.join([second]) { joined in

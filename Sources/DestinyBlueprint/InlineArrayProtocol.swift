@@ -16,10 +16,18 @@ extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
     }
 
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        try withUnsafePointer(to: self, {
-            try socket.writeBuffer($0, length: count)
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws(SocketError) {
+        var err:SocketError? = nil
+        withUnsafePointer(to: self, {
+            do throws(SocketError) {
+                try socket.writeBuffer($0, length: count)
+            } catch {
+                err = error
+            }
         })
+        if let err {
+            throw err
+        }
     }
 }
 

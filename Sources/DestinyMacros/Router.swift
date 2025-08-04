@@ -7,14 +7,20 @@ import SwiftSyntaxMacros
 
 // MARK: ExpressionMacro
 enum Router: ExpressionMacro {
-    static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> ExprSyntax {
+    static func expansion(
+        of node: some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> ExprSyntax {
         return "\(raw: compute(arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
     }
 }
 
 // MARK: DeclarationMacro
 extension Router: DeclarationMacro {
-    static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
+    static func expansion(
+        of node: some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> [DeclSyntax] {
         var mutable = false
         var typeAnnotation:String? = nil
         let arguments = node.as(ExprSyntax.self)!.macroExpansion!.arguments

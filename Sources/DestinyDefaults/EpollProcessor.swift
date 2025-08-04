@@ -1,7 +1,7 @@
 
 #if os(Linux)
-import DestinyBlueprint
 import CEpoll
+import DestinyBlueprint
 import Glibc
 import Logging
 
@@ -12,7 +12,7 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     @inlinable
     public init(
         serverFD: Int32
-    ) throws {
+    ) throws { // TODO: fix
         var i = 0
         instances = try .init(
             first: .init(serverFD: serverFD, thread: i),
@@ -25,7 +25,10 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
     }
 
     @inlinable
-    public func add(client: Int32, event: UInt32) throws {
+    public func add(
+        client: Int32,
+        event: UInt32
+    ) throws(EpollError) {
         try instances[Int(client) % threads].add(client: client, event: event)
     }
 
@@ -58,12 +61,12 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
         let logger = instance.logger
         let acceptClient = instance.acceptFunction(noTCPDelay: noTCPDelay)
         while !Task.isCancelled {
-            do {
+            do throws(EpollError) {
                 let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
                 var i = 0
                 while i < loaded {
                     let client = clients[i]
-                    do {
+                    do throws(EpollError) {
                         try instance.remove(client: client)
                     } catch {
                         logger.warning("Encountered error while removing client: \(error)")
@@ -89,8 +92,8 @@ extension HTTPServer where ClientSocket: ~Copyable {
         router: Router
     ) async -> InlineArray<threads, InlineArray<maxEvents, Bool>>? {
         setNonBlocking(socket: serverFD)
-        do {
-            let processor = try EpollProcessor<threads, maxEvents, ClientSocket>(
+        do { // TODO: fix
+            let processor = try EpollProcessor<threads, maxEvents, ClientSocket>.init(
                 serverFD: serverFD
             )
             await processor.run(timeout: -1, router: router, noTCPDelay: noTCPDelay)

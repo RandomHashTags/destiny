@@ -9,5 +9,5 @@ public protocol OpaqueDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Cop
     func handle(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
-    ) async throws -> Bool
+    ) async throws(MiddlewareError) -> Bool
 }

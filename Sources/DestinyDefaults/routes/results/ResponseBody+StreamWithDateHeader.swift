@@ -28,7 +28,7 @@ extension ResponseBody {
         @inlinable public var hasContentLength: Bool { false }
 
         @inlinable
-        public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
+        public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         }
     }
 }

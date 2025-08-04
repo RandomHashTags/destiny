@@ -74,10 +74,14 @@ extension HTTPRouter {
     func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) async throws {
+    ) async throws(ResponderError) {
         for middleware in opaqueDynamicMiddleware {
-            if try await !middleware.handle(request: &request, response: &response) {
-                break
+            do throws(MiddlewareError) {
+                if try await !middleware.handle(request: &request, response: &response) {
+                    break
+                }
+            } catch {
+                throw .middlewareError(error)
             }
         }
     }
@@ -92,11 +96,15 @@ extension HTTPRouter {
         logger: Logger
     ) {
         Task {
-            do {
+            do throws(SocketError) {
                 var request = try socket.loadRequest()
-                try await process(client: client, socket: socket, request: &request, logger: logger)
+                do throws(ResponderError) {
+                    try await process(client: client, socket: socket, request: &request, logger: logger)
+                } catch {
+                    logger.warning("Encountered error while processing client: \(error)")
+                }
             } catch {
-                logger.warning("Encountered error while processing client: \(error)")
+                logger.warning("Encountered error while loading request: \(error)")
             }
         }
     }
@@ -110,7 +118,7 @@ extension HTTPRouter {
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
-    ) async throws {
+    ) async throws(ResponderError) {
         defer {
             #if canImport(SwiftGlibc) || canImport(Foundation)
             shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
@@ -122,7 +130,7 @@ extension HTTPRouter {
         #if DEBUG
         logger.info(Logger.Message(stringLiteral: request.startLine.stringSIMD()))
         #endif
-        do {
+        do throws(ResponderError) {
             if try await caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
             } else if try await caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine.lowercased()) {
             } else if try await caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) {
@@ -138,7 +146,11 @@ extension HTTPRouter {
                     var response = try await defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
                     try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
                 } else {
-                    try await staticNotFoundResponder.write(to: socket)
+                    do throws(SocketError) {
+                        try await staticNotFoundResponder.write(to: socket)
+                    } catch {
+                        throw .socketError(error)
+                    }
                 }
             }
         } catch {
@@ -153,15 +165,19 @@ extension HTTPRouter {
     public func respondStatically(
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         responder: borrowing some StaticRouteResponderProtocol
-    ) async throws {
-        try await responder.write(to: socket)
+    ) async throws(ResponderError) {
+        do throws(SocketError) {
+            try await responder.write(to: socket)
+        } catch {
+            throw .socketError(error)
+        }
     }
 
     @inlinable
     func defaultDynamicResponse(
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
-    ) async throws -> some DynamicResponseProtocol {
+    ) async throws(ResponderError) -> some DynamicResponseProtocol {
         var response = responder.defaultResponse()
         var index = 0
         let maximumParameters = responder.pathComponentsCount
@@ -193,7 +209,7 @@ extension HTTPRouter {
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
-    ) async throws {
+    ) async throws(ResponderError) {
         var response = try await defaultDynamicResponse(request: &request, responder: responder)
         try await responder.respond(to: socket, request: &request, response: &response)
     }

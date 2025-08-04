@@ -15,10 +15,10 @@ import Logging
 
 // MARK: DestinyServiceProtocol
 public protocol DestinyServiceProtocol: Sendable, ~Copyable {
-    func run() async throws
+    func run() async throws(ServiceError)
 
     /// Shuts down the service.
-    func shutdown() async throws
+    func shutdown() async throws(ServiceError)
 }
 
 // MARK: DestinyServiceGroup
@@ -45,7 +45,7 @@ public final class DestinyServiceGroup: Sendable {
         for i in services.indices {
             let service = services[i]
             let t = Task.detached {
-                do {
+                do throws(ServiceError) {
                     try await service.run()
                 } catch {
                     self.logger.error("\(#function);error trying to run service=\(error)")
@@ -75,7 +75,7 @@ public final class DestinyServiceGroup: Sendable {
         dispatchMain()
     }
 
-    public func shutdown() async throws {
+    public func shutdown() async {
         logger.notice("Sending signal: SIGTERM")
         await _shutdown(signal: SIGTERM)
     }
@@ -83,7 +83,7 @@ public final class DestinyServiceGroup: Sendable {
         await withTaskGroup { group in 
             for service in services {
                 group.addTask {
-                    do {
+                    do throws(ServiceError) {
                         try await service.shutdown()
                     } catch {
                         self.logger.error("\(#function);error shutting down service=\(error)")

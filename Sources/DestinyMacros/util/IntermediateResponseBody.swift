@@ -26,10 +26,10 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         value
     }
 
-    @inlinable public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {}
+    @inlinable public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {}
 
-    public func responderDebugDescription(_ response: HTTPResponseMessage) throws -> String {
-        let responseString = try response.intermediateString(escapeLineBreak: true)
+    public func responderDebugDescription(_ response: HTTPResponseMessage) -> String {
+        let responseString = response.intermediateString(escapeLineBreak: true)
         switch type {
         case .bytes:
             return "ResponseBody.Bytes(\(value))"
@@ -81,7 +81,7 @@ public enum IntermediateResponseBodyType: Sendable {
 
 extension HTTPResponseMessage {
     @inlinable
-    func intermediateString(escapeLineBreak: Bool) throws -> String {
+    func intermediateString(escapeLineBreak: Bool) -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string = head.string(suffix: suffix)
         if let body {

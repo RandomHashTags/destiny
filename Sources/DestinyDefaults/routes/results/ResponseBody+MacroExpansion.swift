@@ -26,7 +26,10 @@ extension ResponseBody {
         }
 
         @inlinable
-        public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
+        public mutating func write(
+            to buffer: UnsafeMutableBufferPointer<UInt8>,
+            at index: inout Int
+        ) throws(BufferWriteError) {
             try value.write(to: buffer, at: &index)
         }
     }

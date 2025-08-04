@@ -27,7 +27,7 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
     }
 
     @inlinable
-    func temporaryBuffer(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
+    func temporaryBuffer<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
         try value.span.withUnsafeBufferPointer { valuePointer in
             try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
                 buffer.copyBuffer(valuePointer, at: 0)
@@ -56,9 +56,19 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
 
 extension StringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        try temporaryBuffer {
-            try socket.writeBuffer($0.baseAddress!, length: $0.count)
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
+        var err:SocketError? = nil
+        temporaryBuffer {
+            do throws(SocketError) {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw err
         }
     }
 }

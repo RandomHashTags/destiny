@@ -20,7 +20,7 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol { // TODO: finish
         version: HTTPVersion,
         method: some HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get,
         charset: Charset? = .utf8
-    ) throws -> [StaticRoute] {
+    ) throws(MiddlewareError) -> [StaticRoute] {
         return []
     }
 }

@@ -27,5 +27,7 @@ public protocol HTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
     /// - Parameters:
     ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
     /// - Returns: A string representing an HTTP Message with the given values.
-    func string(escapeLineBreak: Bool) throws -> String
+    func string(
+        escapeLineBreak: Bool
+    ) throws(HTTPMessageError) -> String
 }

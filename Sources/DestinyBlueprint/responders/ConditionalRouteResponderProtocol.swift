@@ -12,5 +12,5 @@ public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible,
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws -> Bool
+    ) async throws(ResponderError) -> Bool
 }

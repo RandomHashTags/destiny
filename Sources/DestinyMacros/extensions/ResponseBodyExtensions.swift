@@ -8,7 +8,7 @@ extension String {
         "\"\(input)\""
     }
 
-    func responderDebugDescription(_ input: some HTTPMessageProtocol) throws -> String {
+    func responderDebugDescription(_ input: some HTTPMessageProtocol) throws(HTTPMessageError) -> String {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 }
@@ -23,7 +23,7 @@ extension ResponseBody.Bytes {
         "\(Self([UInt8](input.utf8)))"
     }
 
-    func responderDebugDescription(_ input: some HTTPMessageProtocol) throws -> String {
+    func responderDebugDescription(_ input: some HTTPMessageProtocol) throws(HTTPMessageError) -> String {
         try responderDebugDescription(input.string(escapeLineBreak: false))
     }
 }
@@ -38,7 +38,7 @@ extension StringWithDateHeader {
         Self(input).responderDebugDescription
     }
 
-    func responderDebugDescription(_ input: some HTTPMessageProtocol) throws -> String {
+    func responderDebugDescription(_ input: some HTTPMessageProtocol) throws(HTTPMessageError) -> String {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 }

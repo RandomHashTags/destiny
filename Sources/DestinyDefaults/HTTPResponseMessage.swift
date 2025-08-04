@@ -79,7 +79,9 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
     }
 
     @inlinable
-    public func string(escapeLineBreak: Bool) throws -> String {
+    public func string(
+        escapeLineBreak: Bool
+    ) -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string = head.string(suffix: suffix)
         if let body {
@@ -115,7 +117,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
 // MARK: Unsafe temp allocation
 extension HTTPResponseMessage {
     @inlinable
-    public func withUnsafeTemporaryAllocation(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws -> Void) rethrows {
+    public func withUnsafeTemporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
         for (key, value) in head.headers {
             capacity += 4 + key.count + value.count // Header: Value\r\n
@@ -203,7 +205,10 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
-    func writeResult(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) throws {
+    func writeResult(
+        to buffer: UnsafeMutableBufferPointer<UInt8>,
+        index i: inout Int
+    ) throws(BufferWriteError) {
         guard var body else { return }
         if let contentType {
             let contentTypeHeader:InlineByteArray<14> = .init([67, 111, 110, 116, 101, 110, 116, 45, 84, 121, 112, 101, 58, 32]) // "Content-Type: "
@@ -242,9 +247,19 @@ extension HTTPResponseMessage {
 // MARK: Write
 extension HTTPResponseMessage {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-        try self.withUnsafeTemporaryAllocation {
-            try socket.writeBuffer($0.baseAddress!, length: $0.count)
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
+        var err:SocketError? = nil
+        self.withUnsafeTemporaryAllocation {
+            do throws(SocketError) {
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw err
         }
     }
 }
