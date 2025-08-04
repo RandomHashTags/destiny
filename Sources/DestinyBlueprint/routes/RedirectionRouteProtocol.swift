@@ -8,5 +8,5 @@ public protocol RedirectionRouteProtocol: RouteProtocol, ~Copyable {
     /// 
     /// - Throws: any error; if thrown: a compile diagnostic shown describing the issue.
     /// - Returns: a string representing a complete HTTP Message.
-    func response() throws -> String
+    func response() throws(AnyError) -> String
 }

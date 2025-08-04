@@ -53,7 +53,10 @@ public struct InlineByteArray<let count: Int>: InlineByteArrayProtocol {
     }
 
     @inlinable
-    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws {
+    public func write(
+        to buffer: UnsafeMutableBufferPointer<UInt8>,
+        at index: inout Int
+    ) {
         for i in indices {
             buffer[index] = itemAt(index: i)
             index += 1
@@ -61,7 +64,7 @@ public struct InlineByteArray<let count: Int>: InlineByteArrayProtocol {
     }
 
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
+    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws(SocketError) {
         try await _storage.write(to: socket)
     }
 }

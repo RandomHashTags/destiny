@@ -26,7 +26,7 @@ public struct RouterResponderStorage<
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         if try await respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
         }
@@ -46,7 +46,7 @@ extension RouterResponderStorage {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         return try await `static`.respond(router: router, socket: socket, startLine: startLine)
     }
 
@@ -55,7 +55,7 @@ extension RouterResponderStorage {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         return try await dynamic.respond(router: router, socket: socket, request: &request)
     }
 }

@@ -80,7 +80,7 @@ extension InlineArrayProtocol where Element: Equatable {
         separators: Element...,
         defaultValue: Element,
         offset: Index = 0,
-        yield: (InlineArray<sliceLength, Element>) throws -> Void
+        yield: (InlineArray<sliceLength, Element>) throws(AnyError) -> Void
     ) rethrows -> InlineArray<sliceLength, Element>? {
         var beginning = offset
         var i = offset
@@ -120,7 +120,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         separator: Element,
         defaultValue: Element,
         offset: Index = 0,
-        yield: (inout InlineVLArray<Element>) throws -> Bool
+        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let separatorSIMD = SIMD64<UInt8>(repeating: separator)
         let noSeparatorFoundMask = SIMDMask<SIMD64<UInt8>.MaskStorage>.init(repeating: false)
@@ -193,7 +193,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws -> Bool
+        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let buffer = simd64(startIndex: index)
         if (buffer .== separatorSIMD) == noSeparatorFoundMask {
@@ -209,7 +209,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws -> Bool
+        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD32<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD32<UInt8>.MaskStorage>.self, capacity: 32).pointee })
         let buffer = simd32(startIndex: index)
@@ -226,7 +226,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws -> Bool
+        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD16<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD16<UInt8>.MaskStorage>.self, capacity: 16).pointee })
         let buffer = simd16(startIndex: index)
@@ -243,7 +243,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws -> Bool
+        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD8<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD8<UInt8>.MaskStorage>.self, capacity: 8).pointee })
         let buffer = simd8(startIndex: index)
@@ -260,7 +260,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws -> Bool
+        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD4<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD4<UInt8>.MaskStorage>.self, capacity: 4).pointee })
         let buffer = simd4(startIndex: index)
@@ -285,7 +285,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         beginning: inout Index,
         index: inout Index,
         defaultValue: Element,
-        yield: (inout InlineVLArray<Element>) throws -> Bool
+        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
     ) rethrows -> Bool {
         var continueYielding = true
         try InlineVLArray<Element>.create(amount: capacity, default: defaultValue, { array in

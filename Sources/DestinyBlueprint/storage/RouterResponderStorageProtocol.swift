@@ -11,7 +11,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws -> Bool
+    ) async throws(ResponderError) -> Bool
 
     /// Try to write a response to a socket, only checking static storage.
     /// 
@@ -24,7 +24,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: SIMD64<UInt8>
-    ) async throws -> Bool
+    ) async throws(ResponderError) -> Bool
 
     /// Try to write a response to a socket, only checking dynamic storage.
     /// 
@@ -37,5 +37,5 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,
-    ) async throws -> Bool
+    ) async throws(ResponderError) -> Bool
 }

@@ -9,5 +9,5 @@ public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol,
     func handle(
         request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol
-    ) async throws -> Bool
+    ) async throws(MiddlewareError) -> Bool
 }

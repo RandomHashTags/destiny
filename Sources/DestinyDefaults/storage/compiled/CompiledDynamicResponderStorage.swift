@@ -14,7 +14,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         let requestPathCount = request.pathCount()
         for route in repeat each routes {
             if route.path == request.startLine { // parameterless

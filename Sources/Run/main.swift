@@ -200,7 +200,7 @@ LoggingSystem.bootstrap { label in
         path: ["error2"],
         contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
-            throw CustomError.yipyip
+            //throw ResponderError.inferred(CustomError.yipyip) // TODO: this breaks compilation | why? | error says the following but doesn't use `any Error`: invalid conversion of thrown error type 'any Error' to 'ResponderError'
         }
     ),
     DynamicRoute.get(
@@ -321,11 +321,11 @@ func processCommand() async {
         let arguments = line.split(separator: " ")
         switch arguments.first {
         case "stop", "shutdown":
-            do {
-                try await Application.shared.shutdown()
-            } catch {
-                Application.shared.logger.warning("Encountered error trying to shutdown application: \(error)")
-            }
+            //do throws(ServiceError) {
+                await Application.shared.shutdown()
+            //} catch {
+            //    Application.shared.logger.warning("Encountered error trying to shutdown application: \(error)")
+            //}
             return
         default:
             break

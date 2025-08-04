@@ -112,7 +112,7 @@ extension StaticRoute {
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
-    ) throws -> (any StaticRouteResponderProtocol)? {
+    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
         return try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }
 }

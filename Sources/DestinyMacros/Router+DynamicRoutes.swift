@@ -136,9 +136,13 @@ extension Router.Storage {
                     to socket: borrowing some HTTPSocketProtocol & ~Copyable,
                     request: inout some HTTPRequestProtocol & ~Copyable,
                     response: inout some DynamicResponseProtocol
-                ) async throws {
+                ) async throws(ResponderError) {
                     \(responder)
-                    try await response.write(to: socket)
+                    do throws(SocketError) {
+                        try await response.write(to: socket)
+                    } catch {
+                        throw .socketError(error)
+                    }
                 }
             }
             """

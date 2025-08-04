@@ -10,7 +10,9 @@ extension [UInt8]: StaticRouteResponderProtocol {}
 
 extension AsyncStream where Element: HTTPSocketWritable {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
         for await value in self {
             try await value.write(to: socket)
         }

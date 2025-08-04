@@ -3,11 +3,11 @@ import DestinyBlueprint
 
 /// Default Existential Dynamic Middleware implementation which handles requests to dynamic routes.
 public struct ExistentialDynamicMiddleware: ExistentialDynamicMiddlewareProtocol {
-    public let handleLogic:@Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    public let handleLogic:@Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(MiddlewareError) -> Void
     package var logic:String = "{ _, _ in }"
 
     public init(
-        _ handleLogic: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws -> Void
+        _ handleLogic: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(MiddlewareError) -> Void
     ) {
         self.handleLogic = handleLogic
     }
@@ -16,7 +16,7 @@ public struct ExistentialDynamicMiddleware: ExistentialDynamicMiddlewareProtocol
     public func handle(
         request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol
-    ) async throws -> Bool {
+    ) async throws(MiddlewareError) -> Bool {
         try await handleLogic(&request, &response)
         return true
     }

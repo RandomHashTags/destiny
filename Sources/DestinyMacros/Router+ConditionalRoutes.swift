@@ -19,7 +19,7 @@ extension Router {
         /*
         guard let result = httpResponse.body else { return }
         let body:[UInt8]
-        do {
+        do throws(HTTPMessageError) {
             body = try result.bytes()
         } catch {
             context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "httpResponseBytes", message: "Encountered error when getting the HTTPResponseMessage bytes: \(error).")))
@@ -38,12 +38,12 @@ extension Router {
         //responder.dynamicRespondersDescription.removeLast() // ]
         for algorithm in route.supportedCompressionAlgorithms {
             if let technique = algorithm.technique {
-                do {
+                do throws(AnyError) {
                     let compressed = try body.compressed(using: technique)
                     httpResponse.body = ResponseBody.bytes(compressed.data)
                     httpResponse.setHeader(key: HTTPResponseHeader.contentEncoding.rawNameString, value: algorithm.acceptEncodingName)
                     httpResponse.setHeader(key: HTTPResponseHeader.vary.rawNameString, value: HTTPRequestHeader.acceptEncoding.rawNameString)
-                    do {
+                    do throws(HTTPMessageError) {
                         let bytes = try httpResponse.string(escapeLineBreak: false)
                         responder.staticConditionsDescription += "\n{ $0.headers[HTTPRequestHeader.acceptEncoding.rawNameString]?.contains(\"" + algorithm.acceptEncodingName + "\") ?? false }"
                         responder.staticRespondersDescription += "\n\(bytes)"

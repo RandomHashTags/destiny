@@ -14,8 +14,10 @@ extension RouteResponses {
         }
 
         @inlinable
-        public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
-            var err:(any Error)? = nil
+        public func write(
+            to socket: borrowing some HTTPSocketProtocol & ~Copyable
+        ) async throws(SocketError) {
+            var err:SocketError? = nil
             value.withUTF8Buffer { valuePointer in
                 bodyCount.withContiguousStorageIfAvailable { contentLengthPointer in
                     body.withContiguousStorageIfAvailable { bodyPointer in
@@ -35,7 +37,7 @@ extension RouteResponses {
                             buffer[i] = .lineFeed
                             i += 1
                             buffer.copyBuffer(bodyPointer, at: &i)
-                            do {
+                            do throws(SocketError) {
                                 try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
                                 return
                             } catch {

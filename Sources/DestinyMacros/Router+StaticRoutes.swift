@@ -33,7 +33,7 @@ extension Router.Storage {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
                 } else {
                     registeredPaths.insert(string)
-                    do {
+                    do throws(AnyError) {
                         let responder = try StringWithDateHeader(route.response()).responderDebugDescription
                         routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
                     } catch {
@@ -43,7 +43,7 @@ extension Router.Storage {
             }
         }
         for (route, function) in routes {
-            do {
+            do throws(HTTPMessageError) {
                 var string = getRouteStartLine(route)
                 if registeredPaths.contains(string) {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
@@ -87,7 +87,7 @@ extension Router.Storage {
     private func responseBodyResponderDebugDescription(
         body: (any ResponseBodyProtocol)?,
         response: HTTPResponseMessage
-    ) throws -> String? {
+    ) throws(HTTPMessageError) -> String? {
         guard let body else { return nil }
         let s:String?
         if let v = body as? String {
@@ -95,7 +95,7 @@ extension Router.Storage {
         } else if let v = body as? StringWithDateHeader {
             s = try v.responderDebugDescription(response)
         } else if let v = body as? IntermediateResponseBody {
-            s = try v.responderDebugDescription(response)
+            s = v.responderDebugDescription(response)
         } else if let v = body as? ResponseBody.Bytes {
             s = try v.responderDebugDescription(response)
 

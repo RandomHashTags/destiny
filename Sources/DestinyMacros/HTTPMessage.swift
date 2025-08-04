@@ -5,7 +5,10 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 enum HTTPMessage: DeclarationMacro {
-    static func expansion(of node: some FreestandingMacroExpansionSyntax, in context: some MacroExpansionContext) throws -> [DeclSyntax] {
+    static func expansion(
+        of node: some FreestandingMacroExpansionSyntax,
+        in context: some MacroExpansionContext
+    ) throws -> [DeclSyntax] {
         var version = HTTPVersion.v1_1
         var status = HTTPStandardResponseStatus.notImplemented.code
         var headers = HTTPHeaders()
@@ -33,20 +36,16 @@ enum HTTPMessage: DeclarationMacro {
                 }
             }
         }
-        do {
-            var response = try DestinyDefaults.HTTPResponseMessage(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: cookies,
-                body: body,
-                contentType: contentType,
-                charset: charset
-            ).string(escapeLineBreak: true)
-            response = "\"" + response + "\""
-            return ["\(raw: response)"]
-        } catch {
-            return []
-        }
+        var response = DestinyDefaults.HTTPResponseMessage(
+            version: version,
+            status: status,
+            headers: headers,
+            cookies: cookies,
+            body: body,
+            contentType: contentType,
+            charset: charset
+        ).string(escapeLineBreak: true)
+        response = "\"" + response + "\""
+        return ["\(raw: response)"]
     }
 }

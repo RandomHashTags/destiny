@@ -35,7 +35,7 @@ public struct StaticResponderStorage: StaticResponderStorageProtocol {
         router: some HTTPRouterProtocol,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         startLine: DestinyRoutePathType
-    ) async throws -> Bool {
+    ) async throws(ResponderError) -> Bool {
         if let r = macroExpansions[startLine] {
             try await router.respondStatically(socket: socket, responder: r)
         } else if let r = macroExpansionsWithDateHeader[startLine] {

@@ -29,7 +29,10 @@ extension ResponseBody {
         }
 
         @inlinable
-        public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
+        public func write(
+            to buffer: UnsafeMutableBufferPointer<UInt8>,
+            at index: inout Int
+        ) {
             value.write(to: buffer, at: &index)
         }
     }
@@ -37,7 +40,9 @@ extension ResponseBody {
 
 extension ResponseBody.Bytes: StaticRouteResponderProtocol {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws {
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
         try await value.write(to: socket)
     }
 }

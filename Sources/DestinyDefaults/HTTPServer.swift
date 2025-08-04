@@ -57,16 +57,20 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
     }
     
     // MARK: Run
-    public func run() async throws {
-        let serverFD1 = try bindAndListen()
-        //let serverFD2 = try bindAndListen()
-        //let serverFD3 = try bindAndListen()
-        onLoad?()
-        router.loadDynamicMiddleware()
-        await processClients(serverFD: serverFD1)
+    public func run() async throws(ServiceError) {
+        do throws(ServerError) {
+            let serverFD1 = try bindAndListen()
+            //let serverFD2 = try bindAndListen()
+            //let serverFD3 = try bindAndListen()
+            onLoad?()
+            router.loadDynamicMiddleware()
+            await processClients(serverFD: serverFD1)
+        } catch {
+            throw .serverError(error)
+        }
     }
 
-    public func shutdown() async throws {
+    public func shutdown() {
         self.onShutdown?()
         if let serverFD {
             close(serverFD)
@@ -74,7 +78,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
     }
 
     /// - Returns: The file descriptor of the created socket.
-    func bindAndListen() throws -> Int32 {
+    func bindAndListen() throws(ServerError) -> Int32 {
         #if canImport(SwiftGlibc)
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #else
@@ -152,7 +156,7 @@ extension HTTPServer where ClientSocket: ~Copyable {
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0..<backlog {
                     group.addTask {
-                        do {
+                        do throws(SocketError) {
                             guard let client = try acceptClient(serverFD) else { return }
                             let socket = ClientSocket(fileDescriptor: client)
                             self.router.handle(client: client, socket: socket, logger: self.logger)

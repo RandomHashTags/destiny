@@ -12,7 +12,7 @@ extension String {
     }
 
     @inlinable
-    public func inlineVLArray(_ closure: (inout InlineVLArray<UInt8>) throws -> Void) rethrows {
+    public func inlineVLArray<E: Error>(_ closure: (inout InlineVLArray<UInt8>) throws(E) -> Void) rethrows {
         try InlineVLArray<UInt8>.create(string: self, closure)
     }
 }
