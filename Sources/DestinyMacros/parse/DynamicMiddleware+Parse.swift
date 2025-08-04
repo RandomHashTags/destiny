@@ -10,10 +10,10 @@ extension DynamicMiddleware {
         _ function: FunctionCallExprSyntax
     ) -> Self {
         var logic = "\(function.trailingClosure?.debugDescription ?? "{ _, _ in }")"
-        for argument in function.arguments {
-            if let _ = argument.label?.text {
+        for arg in function.arguments {
+            if let _ = arg.label?.text {
             } else {
-                logic = "\(argument.expression)"
+                logic = "\(arg.expression)"
             }
         }
         var middleware = DynamicMiddleware { _, _ in }

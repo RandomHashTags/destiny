@@ -86,7 +86,7 @@ public struct StaticRoute: StaticRouteProtocol {
 
     @inlinable
     public var startLine: String {
-        return method.rawNameString() + " /" + path.joined(separator: "/") + " " + version.string
+        return "\(method.rawNameString()) /\(path.joined(separator: "/")) \(version.string)" 
     }
 
     @inlinable
@@ -99,7 +99,7 @@ public struct StaticRoute: StaticRouteProtocol {
 extension StaticRoute {
     public func response(
         middleware: [any StaticMiddlewareProtocol]
-    ) -> any HTTPMessageProtocol {
+    ) -> some HTTPMessageProtocol {
         var version = version
         let path = path.joined(separator: "/")
         var status = status

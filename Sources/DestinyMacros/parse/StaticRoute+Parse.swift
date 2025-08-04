@@ -26,24 +26,24 @@ extension StaticRoute {
         var contentType = HTTPMediaType(HTTPMediaTypeText.plain)
         var charset:Charset? = nil
         var body:(any ResponseBodyProtocol)? = nil
-        for argument in function.arguments {
-            switch argument.label?.text {
+        for arg in function.arguments {
+            switch arg.label?.text {
             case "version":
-                version = HTTPVersion.parse(argument.expression) ?? version
+                version = HTTPVersion.parse(arg.expression) ?? version
             case "method":
-                method = HTTPRequestMethod.parse(expr: argument.expression) ?? method
+                method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
             case "path":
-                path = PathComponent.parseArray(context: context, argument.expression)
+                path = PathComponent.parseArray(context: context, arg.expression)
             case "isCaseSensitive", "caseSensitive":
-                isCaseSensitive = argument.expression.booleanIsTrue
+                isCaseSensitive = arg.expression.booleanIsTrue
             case "status":
-                status = HTTPResponseStatus.parseCode(expr: argument.expression) ?? status
+                status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
             case "contentType":
-                contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
+                contentType = HTTPMediaType.parse(context: context, expr: arg.expression) ?? contentType
             case "charset":
-                charset = Charset(expr: argument.expression)
+                charset = Charset(expr: arg.expression)
             case "body":
-                body = ResponseBody.parse(context: context, expr: argument.expression) ?? body
+                body = ResponseBody.parse(context: context, expr: arg.expression) ?? body
             default:
                 break
             }
@@ -75,7 +75,7 @@ extension StaticRoute {
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
-    ) -> any HTTPMessageProtocol {
+    ) -> some HTTPMessageProtocol {
         var version = version
         let path = path.joined(separator: "/")
         var status = status

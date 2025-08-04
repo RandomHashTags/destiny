@@ -29,11 +29,7 @@ extension Router: DeclarationMacro {
             case "mutable":
                 mutable = arg.expression.booleanIsTrue
             case "typeAnnotation":
-                guard let string = arg.expression.stringLiteral?.string else {
-                    context.diagnose(DiagnosticMsg.expectedStringLiteral(expr: arg.expression))
-                    break
-                }
-                typeAnnotation = string
+                typeAnnotation = arg.expression.stringLiteralString(context: context)
             default:
                 break
             }
@@ -65,11 +61,11 @@ extension Router {
     static func parseRedirects(
         context: some MacroExpansionContext,
         version: HTTPVersion,
-        array: ArrayExprSyntax,
+        array: ArrayElementListSyntax,
         staticRedirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
         dynamicRedirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)]
     ) {
-        for methodElement in array.elements {
+        for methodElement in array {
             if let function = methodElement.expression.functionCall {
                 switch methodElement.expression.functionCall?.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                 case "StaticRedirectionRoute":

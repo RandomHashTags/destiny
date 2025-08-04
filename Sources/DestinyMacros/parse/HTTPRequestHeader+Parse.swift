@@ -6,8 +6,11 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension HTTPStandardRequestHeader {
-    public init?(expr: some ExprSyntaxProtocol) {
-        guard let string = expr.memberAccess?.declName.baseName.text else { return nil }
+    public init?(context: some MacroExpansionContext, expr: some ExprSyntaxProtocol) {
+        guard let string = expr.memberAccess?.declName.baseName.text else {
+            context.diagnose(DiagnosticMsg.expectedMemberAccessExpr(expr: expr))
+            return nil
+        }
         if let value = Self(rawValue: string) {
             self = value
         } else {
@@ -16,8 +19,11 @@ extension HTTPStandardRequestHeader {
     }
 }
 extension HTTPNonStandardRequestHeader {
-    public init?(expr: some ExprSyntaxProtocol) {
-        guard let string = expr.memberAccess?.declName.baseName.text else { return nil }
+    public init?(context: some MacroExpansionContext, expr: some ExprSyntaxProtocol) {
+        guard let string = expr.memberAccess?.declName.baseName.text else {
+            context.diagnose(DiagnosticMsg.expectedMemberAccessExpr(expr: expr))
+            return nil
+        }
         if let value = Self(rawValue: string) {
             self = value
         } else {
@@ -53,7 +59,7 @@ extension HTTPRequestHeader {
         context: some MacroExpansionContext,
         _ expr: some ExprSyntaxProtocol
     ) -> String? {
-        guard let key = expr.stringLiteral?.string else { return nil }
+        guard let key = expr.stringLiteralString(context: context) else { return nil }
         guard !key.contains(" ") else {
             context.diagnose(Diagnostic(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
             return nil

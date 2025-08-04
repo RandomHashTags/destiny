@@ -96,8 +96,6 @@ extension Router.Storage {
             s = try v.responderDebugDescription(response)
         } else if let v = body as? IntermediateResponseBody {
             s = v.responderDebugDescription(response)
-        } else if let v = body as? ResponseBody.Bytes {
-            s = try v.responderDebugDescription(response)
 
         } else {
             s = nil

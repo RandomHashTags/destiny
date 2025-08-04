@@ -42,27 +42,27 @@ extension DynamicRoute {
         var contentType:HTTPMediaType? = nil
         var handler = "nil"
         var parameters = [String]()
-        for argument in function.arguments {
-            switch argument.label?.text {
+        for arg in function.arguments {
+            switch arg.label?.text {
             case "version":
-                if let parsed = HTTPVersion.parse(argument.expression) {
+                if let parsed = HTTPVersion.parse(arg.expression) {
                     version = parsed
                 }
             case "method":
-                method = HTTPRequestMethod.parse(expr: argument.expression) ?? method
+                method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
             case "path":
-                path = PathComponent.parseArray(context: context, argument.expression)
+                path = PathComponent.parseArray(context: context, arg.expression)
                 for _ in path.filter({ $0.isParameter }) {
                     parameters.append("")
                 }
             case "isCaseSensitive", "caseSensitive":
-                isCaseSensitive = argument.expression.booleanIsTrue
+                isCaseSensitive = arg.expression.booleanIsTrue
             case "status":
-                status = HTTPResponseStatus.parseCode(expr: argument.expression) ?? status
+                status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
             case "contentType":
-                contentType = HTTPMediaType.parse(context: context, expr: argument.expression) ?? contentType
+                contentType = HTTPMediaType.parse(context: context, expr: arg.expression) ?? contentType
             case "handler":
-                handler = "\(argument.expression)"
+                handler = "\(arg.expression)"
             default:
                 break
             }

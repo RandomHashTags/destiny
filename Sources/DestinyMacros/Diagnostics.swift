@@ -71,6 +71,22 @@ extension ExprSyntaxProtocol {
     package var array: ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
     package var dictionary: DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
 }
+extension ExprSyntaxProtocol {
+    package func arrayElements(context: some MacroExpansionContext) -> ArrayElementListSyntax? {
+        guard let elements = array?.elements else {
+            context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: self))
+            return nil
+        }
+        return elements
+    }
+    package func stringLiteralString(context: some MacroExpansionContext) -> String? {
+        guard let s = stringLiteral?.string else {
+            context.diagnose(DiagnosticMsg.expectedStringLiteral(expr: self))
+            return nil
+        }
+        return s
+    }
+}
 
 extension ExprSyntaxProtocol {
     package var booleanIsTrue: Bool {

@@ -24,28 +24,38 @@ extension StaticMiddleware {
         var appliesHeaders = HTTPHeaders()
         var appliesCookies = [HTTPCookie]()
         var excludedRoutes = Set<String>()
-        for argument in function.arguments {
-            switch argument.label?.text {
+        for arg in function.arguments {
+            switch arg.label?.text {
             case "handlesVersions":
-                handlesVersions = Set(argument.expression.array!.elements.compactMap({ HTTPVersion.parse($0.expression) }))
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                handlesVersions = Set(array.compactMap({ HTTPVersion.parse($0.expression) }))
             case "handlesMethods":
-                handlesMethods = argument.expression.array?.elements.compactMap({ HTTPRequestMethod.parse(expr: $0.expression) })
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                handlesMethods = array.compactMap({ HTTPRequestMethod.parse(expr: $0.expression) })
             case "handlesStatuses":
-                handlesStatuses = Set(argument.expression.array!.elements.compactMap({ HTTPResponseStatus.parseCode(expr: $0.expression) }))
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                handlesStatuses = Set(array.compactMap({ HTTPResponseStatus.parseCode(expr: $0.expression) }))
             case "handlesContentTypes":
-                handlesContentTypes = Set(argument.expression.array!.elements.compactMap({ HTTPMediaType.parse(memberName: "\($0.expression.memberAccess!.declName.baseName.text)") }))
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                handlesContentTypes = Set(array.compactMap({ HTTPMediaType.parse(memberName: "\($0.expression.memberAccess!.declName.baseName.text)") }))
             case "appliesVersion":
-                appliesVersion = HTTPVersion.parse(argument.expression)
+                appliesVersion = HTTPVersion.parse(arg.expression)
             case "appliesStatus":
-                appliesStatus = HTTPResponseStatus.parseCode(expr: argument.expression)
+                appliesStatus = HTTPResponseStatus.parseCode(expr: arg.expression)
             case "appliesContentType":
-                appliesContentType = HTTPMediaType.parse(memberName: argument.expression.memberAccess!.declName.baseName.text)
+                guard let memberName = arg.expression.memberAccess?.declName.baseName.text else {
+                    context.diagnose(DiagnosticMsg.expectedMemberAccessExpr(expr: arg.expression))
+                    break
+                }
+                appliesContentType = HTTPMediaType.parse(memberName: memberName)
             case "appliesHeaders":
-                appliesHeaders = HTTPRequestHeader.parse(context: context, argument.expression)
+                appliesHeaders = HTTPRequestHeader.parse(context: context, arg.expression)
             case "appliesCookies":
-                appliesCookies = argument.expression.array!.elements.compactMap({ HTTPCookie.parse(context: context, expr: $0.expression) })
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                appliesCookies = array.compactMap({ HTTPCookie.parse(context: context, expr: $0.expression) })
             case "excludedRoutes":
-                excludedRoutes = Set(argument.expression.array!.elements.compactMap({ $0.expression.stringLiteral?.string }))
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                excludedRoutes = Set(array.compactMap({ $0.expression.stringLiteralString(context: context) }))
             default:
                 break
             }

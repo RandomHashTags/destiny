@@ -10,7 +10,7 @@ extension Router {
         context: some MacroExpansionContext
     ) -> (router: String, structs: [any DeclSyntaxProtocol]) {
         var version = HTTPVersion.v1_1
-        let defaultStaticErrorResponse = (try? DestinyDefaults.HTTPResponseMessage(
+        let defaultStaticErrorResponse = HTTPResponseMessage(
             version: HTTPVersion.v1_1,
             status: HTTPStandardResponseStatus.ok.code,
             headers: [:],
@@ -18,7 +18,7 @@ extension Router {
             body: "{\"error\":true,\"reason\":\"\\(error)\"}",
             contentType: HTTPMediaTypeApplication.json,
             charset: nil
-        ).string(escapeLineBreak: true)) ?? ""
+        ).string(escapeLineBreak: true)
         var errorResponder = """
         StaticErrorResponder({ error in
             \"\(defaultStaticErrorResponse)\"
@@ -40,17 +40,11 @@ extension Router {
                 case "staticNotFoundResponder":
                     staticNotFoundResponder = "\(child.expression)"
                 case "redirects":
-                    guard let array = child.expression.array else {
-                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
-                        break
-                    }
+                    guard let array = child.expression.arrayElements(context: context) else { break }
                     parseRedirects(context: context, version: version, array: array, staticRedirects: &storage.staticRedirects, dynamicRedirects: &storage.dynamicRedirects)
                 case "middleware":
-                    guard let elements = child.expression.array?.elements else {
-                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
-                        break
-                    }
-                    for element in elements {
+                    guard let array = child.expression.arrayElements(context: context) else { break }
+                    for element in array {
                         //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
                         if let function = element.expression.functionCall {
                             let baseName = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
@@ -73,11 +67,8 @@ extension Router {
                         }
                     }
                 case "routeGroups":
-                    guard let elements = child.expression.array?.elements else {
-                        context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: child.expression))
-                        break
-                    }
-                    for element in elements {
+                    guard let array = child.expression.arrayElements(context: context) else { break }
+                    for element in array {
                         if let function = element.expression.functionCall {
                             switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                             case "RouteGroup":

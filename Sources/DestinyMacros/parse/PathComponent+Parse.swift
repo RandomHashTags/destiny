@@ -18,7 +18,7 @@ extension PathComponent {
             }
         } else if let arrayElements = expr.array?.elements {
             for element in arrayElements {
-                guard let string = element.expression.stringLiteral?.string else { return [] }
+                guard let string = element.expression.stringLiteralString(context: context) else { return [] }
                 if string.contains(" ") {
                     Diagnostic.spacesNotAllowedInRoutePath(context: context, node: element.expression)
                     return []
@@ -30,7 +30,7 @@ extension PathComponent {
     }
 
     public static func parseArray(context: some MacroExpansionContext, _ expr: some ExprSyntaxProtocol) -> [PathComponent] {
-        return expr.array?.elements.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []
+        return expr.arrayElements(context: context)?.compactMap({ PathComponent(context: context, expression: $0.expression) }) ?? []
     }
 
     public init?(context: some MacroExpansionContext, expression: some ExprSyntaxProtocol) {

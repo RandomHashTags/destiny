@@ -54,27 +54,6 @@ extension ResponseBody {
             return IntermediateResponseBody(type: .bytes, firstArg.expression.description)
         case "inlinebytes":
             return IntermediateResponseBody(type: .inlineBytes, firstArg.expression.description)
-        case "bytes16":
-            var bytes = [UInt16]()
-            let expression = firstArg.expression
-            if let initCall = expression.functionCall {
-                let interp = "\(initCall.calledExpression)"
-                if (interp == "[UInt16]" || interp == "Array<UInt16>"),
-                        let member = initCall.arguments.first?.expression.memberAccess,
-                        let string = member.base?.stringLiteral?.string {
-                    switch member.declName.baseName.text {
-                    case "utf16": bytes = [UInt16](string.utf16)
-                    default: break
-                    }
-                }
-            } else if let array:[UInt16] = expression.array?.elements.compactMap({
-                guard let integer = $0.expression.integerLiteral?.literal.text else { return nil }
-                return UInt16(integer)
-            }) {
-                bytes = array
-            }
-            //self = .bytes16(bytes)
-            return nil
         case "error":
             return nil // TODO: fix
         default:

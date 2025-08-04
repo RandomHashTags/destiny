@@ -22,14 +22,14 @@ extension StaticRedirectionRoute {
         var isCaseSensitive = true
         var to = [String]()
         var status = HTTPStandardResponseStatus.movedPermanently.code
-        for argument in function.arguments {
-            switch argument.label?.text {
-            case "version": version = HTTPVersion.parse(argument.expression) ?? version
-            case "method": method = HTTPRequestMethod.parse(expr: argument.expression) ?? method
-            case "status": status = HTTPResponseStatus.parseCode(expr: argument.expression) ?? status
-            case "from": from = PathComponent.parseArray(context: context, argument.expression)
-            case "isCaseSensitive", "caseSensitive": isCaseSensitive = argument.expression.booleanIsTrue
-            case "to": to = PathComponent.parseArray(context: context, argument.expression)
+        for arg in function.arguments {
+            switch arg.label?.text {
+            case "version": version = HTTPVersion.parse(arg.expression) ?? version
+            case "method": method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
+            case "status": status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
+            case "from": from = PathComponent.parseArray(context: context, arg.expression)
+            case "isCaseSensitive", "caseSensitive": isCaseSensitive = arg.expression.booleanIsTrue
+            case "to": to = PathComponent.parseArray(context: context, arg.expression)
             default: break
             }
         }

@@ -26,31 +26,29 @@ extension RouteGroup {
         var dynamicMiddleware = dynamicMiddleware.compactMap({ DynamicMiddleware.parse(context: context, $0) })
         var staticRoutes = [any StaticRouteProtocol]()
         var dynamicRoutes = [any DynamicRouteProtocol]()
-        for argument in function.arguments {
-            if let label = argument.label?.text {
+        for arg in function.arguments {
+            if let label = arg.label?.text {
                 switch label {
                 case "endpoint":
-                    endpoint = argument.expression.stringLiteral!.string
+                    endpoint = arg.expression.stringLiteral!.string
                 case "staticMiddleware":
-                    if let elements = argument.expression.array?.elements {
-                        for argument in elements {
-                            if let function = argument.expression.functionCall {
-                                staticMiddleware.append(StaticMiddleware.parse(context: context, function))
-                            }
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
+                    for arg in array {
+                        if let function = arg.expression.functionCall {
+                            staticMiddleware.append(StaticMiddleware.parse(context: context, function))
                         }
                     }
                 case "dynamicMiddleware":
-                    if let elements = argument.expression.array?.elements {
-                        for argument in elements {
-                            if let function = argument.expression.functionCall {
-                                dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
-                            }
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
+                    for arg in array {
+                        if let function = arg.expression.functionCall {
+                            dynamicMiddleware.append(DynamicMiddleware.parse(context: context, function))
                         }
                     }
                 default:
                     break
                 }
-            } else if let function = argument.expression.functionCall {
+            } else if let function = arg.expression.functionCall {
                 switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                 case "StaticRoute":
                     if let route = StaticRoute.parse(context: context, version: version, function) {

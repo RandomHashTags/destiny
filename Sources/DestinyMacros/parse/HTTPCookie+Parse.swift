@@ -29,28 +29,28 @@ extension HTTPCookie {
         var isHTTPOnly = false
         var sameSite:HTTPCookieFlag.SameSite? = nil
         if let function = expr.functionCall {
-            for argument in function.arguments {
-                switch argument.label?.text {
+            for arg in function.arguments {
+                switch arg.label?.text {
                 case "name":
-                    name = argument.expression.stringLiteral?.string
+                    name = arg.expression.stringLiteralString(context: context)
                 case "value":
-                    value = argument.expression.stringLiteral?.string
+                    value = arg.expression.stringLiteralString(context: context)
                 case "maxAge":
-                    if let s = argument.expression.integerLiteral?.literal.text, let i = UInt64(s) {
+                    if let s = arg.expression.integerLiteral?.literal.text, let i = UInt64(s) {
                         maxAge = i
                     }
                 case "expires":
-                    expires = argument.expression.stringLiteral?.string
+                    expires = arg.expression.stringLiteralString(context: context)
                 case "domain":
-                    domain = argument.expression.stringLiteral?.string
+                    domain = arg.expression.stringLiteralString(context: context)
                 case "path":
-                    path = argument.expression.stringLiteral?.string
+                    path = arg.expression.stringLiteralString(context: context)
                 case "isSecure":
-                    isSecure = argument.expression.booleanIsTrue
+                    isSecure = arg.expression.booleanIsTrue
                 case "isHTTPOnly":
-                    isHTTPOnly = argument.expression.booleanIsTrue
+                    isHTTPOnly = arg.expression.booleanIsTrue
                 case "sameSite":
-                    sameSite = HTTPCookieFlag.SameSite(rawValue: argument.expression.memberAccess?.declName.baseName.text ?? "")
+                    sameSite = HTTPCookieFlag.SameSite(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "")
                 default:
                     break
                 }
