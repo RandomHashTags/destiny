@@ -161,7 +161,7 @@ extension HTTPRouter {
     func defaultDynamicResponse(
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
-    ) async throws -> any DynamicResponseProtocol {
+    ) async throws -> some DynamicResponseProtocol {
         var response = responder.defaultResponse()
         var index = 0
         let maximumParameters = responder.pathComponentsCount
