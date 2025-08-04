@@ -49,6 +49,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [x] Routes with wildcards <b>(Feb 19, 2025)</b>
 - [x] Better handling of clients to unlock more throughput <b>(Feb 23, 2025)</b>
 - [x] Response streaming <b>(Aug 2, 2025)</b>
+- [x] Typed throws where applicable <b>(Aug 3, 2025)</b>
 
 ### WIP
 
@@ -60,6 +61,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] Rate Limit Middleware
 - [ ] Optimal Memory Layout for stored objects
 - [ ] Cookies
+- [ ] Embedded support
 
 ### TODO
 
@@ -73,7 +75,6 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] Native load balancing & clustering
 - [ ] Support custom middleware & routes in default `#router`
 - [ ] Support third-party macro expansions in `#router`
-- [ ] Embedded support
 
 ## Techniques
 
@@ -155,9 +156,17 @@ To avoid dynamic dispatch, existentials and boxing (especially in hot-paths)
 
 <details>
 
-<summary>Generic Parameters</summary>
+<summary>Generic parameters</summary>
 
 Only where opaque types aren't applicable to avoid dynamic dispatch, existentials and boxing (especially in hot-paths)
+
+</details>
+
+<details>
+
+<summary>Typed throws</summary>
+
+To improve runtime performance and a step closer to support embedded; eliminates heap allocation, metadata and dynamic dispatch for error handling
 
 </details>
 
@@ -198,14 +207,13 @@ To determine best data structures and techniques for optimal performance without
 List of techniques Destiny wants to incorporate to push performance even further, not strictly Swift related.
 
 - file descriptor pool and reuse (eliminates file descriptor acceptance overhead)
-- typed throws (improving runtime performance and a step closer to support embedded; eliminates heap allocation, metadata and dynamic dispatch for error handling)
 - kqueue support
 
 ### Limitations
 
 Areas that Swift needs more development/support to unlock more performance at the language level.
 
-- `~Copyable` types in parameter packs (current `Copyable` requirement requires retain/release and ARC traffic)
+- `~Copyable` types in parameter packs (current `Copyable` requirement causes retain/release and ARC traffic)
 
 ## Getting started
 
@@ -232,7 +240,7 @@ Initial testing of a basic HTML response shows that this library has the lowest 
 
 ### Dynamic
 
-Depends on how much dynamic content you add, but initial testing compared to a Static response peforms about the same, but usually costs a few microseconds more (~10-50). I am actively researching and testing improvements.
+Depends on how much dynamic content you add, but initial testing compared to a Static response performs about the same, but usually costs a few microseconds more (~10-50). I am actively researching and testing improvements.
 
 ### Conclusion
 
