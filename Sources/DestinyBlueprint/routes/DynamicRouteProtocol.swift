@@ -1,6 +1,8 @@
 
 /// Core Dynamic Route protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
 public protocol DynamicRouteProtocol: RouteProtocol {
+    associatedtype ConcreteResponder:DynamicRouteResponderProtocol
+
     var pathCount: Int { get }
 
     /// Whether or not this route accepts any value at any of its paths.
@@ -15,7 +17,7 @@ public protocol DynamicRouteProtocol: RouteProtocol {
     )
 
     /// - Returns: The responder for this route.
-    func responder() -> any DynamicRouteResponderProtocol
+    func responder() -> ConcreteResponder
 
     /// Applies static middleware to this route.
     /// 

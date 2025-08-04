@@ -69,12 +69,13 @@ extension Router {
             if let function = methodElement.expression.functionCall {
                 switch methodElement.expression.functionCall?.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                 case "StaticRedirectionRoute":
-                    if let route = StaticRedirectionRoute.parse(context: context, version: version, function) {
-                        staticRedirects.append((route, function))
-                    }
+                    let route = StaticRedirectionRoute.parse(context: context, version: version, function)
+                    staticRedirects.append((route, function))
                 default:
-                    context.diagnose(DiagnosticMsg.unhandled(node: methodElement))
+                    context.diagnose(DiagnosticMsg.unhandled(node: function))
                 }
+            } else {
+                context.diagnose(DiagnosticMsg.unhandled(node: methodElement))
             }
         }
     }

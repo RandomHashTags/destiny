@@ -33,7 +33,7 @@ extension DynamicRoute {
         version: HTTPVersion,
         middleware: [any StaticMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
-    ) -> Self? {
+    ) -> Self {
         var version = version
         var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
         var path = [PathComponent]()

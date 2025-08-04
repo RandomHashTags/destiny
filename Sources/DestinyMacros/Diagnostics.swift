@@ -21,8 +21,8 @@ extension DiagnosticMsg: FixItMessage {
 
 // MARK: General
 extension DiagnosticMsg {
-    static func unhandled(node: some SyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: node, message: DiagnosticMsg(id: "unhandled", message: "Unhandled", severity: .warning))
+    static func unhandled(node: some SyntaxProtocol, notes: String = "") -> Diagnostic {
+        Diagnostic(node: node, message: DiagnosticMsg(id: "unhandled", message: "Unhandled\(notes.isEmpty ? "" : "; \(notes)")", severity: .warning))
     }
 }
 

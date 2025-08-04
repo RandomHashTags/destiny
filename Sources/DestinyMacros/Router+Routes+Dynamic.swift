@@ -100,6 +100,7 @@ extension Router.Storage {
             responderBodyArguments.removeLast()
             responder = String(responderBodyArguments)
 
+            var dynamicResponseTypeAnnotation:Substring = "DynamicResponse"
             var defaultResponse:Substring = "DynamicResponse()"
             let defaultResponseSplit = logicSplit.getPositive(0)?.split(separator: "defaultResponse:")
             if var defaultResponseArgument = defaultResponseSplit?.getPositive(1) {
@@ -107,6 +108,7 @@ extension Router.Storage {
                     defaultResponseArgument.removeLast()
                 }
                 defaultResponse = defaultResponseArgument
+                dynamicResponseTypeAnnotation = defaultResponse.split(separator: "(")[0]
                 //responder = String(defaultResponseSplit!.first!)
             }
 
@@ -117,6 +119,7 @@ extension Router.Storage {
             // MARK: \(name)
             struct \(name): DynamicRouteResponderProtocol {
                 let path:InlineArray<\(paths.count), PathComponent> = \(paths)
+                let _defaultResponse = \(defaultResponse)
 
                 @inlinable var pathComponentsCount: Int { \(paths.count) }
                 @inlinable func pathComponent(at index: Int) -> PathComponent { path[index] }
@@ -127,8 +130,8 @@ extension Router.Storage {
                 }
 
                 @inlinable
-                func defaultResponse() -> \(defaultResponse.split(separator: "(")[0]) {
-                    \(defaultResponse)
+                func defaultResponse() -> \(dynamicResponseTypeAnnotation) {
+                    _defaultResponse
                 }
 
                 @inlinable

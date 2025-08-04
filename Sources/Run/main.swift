@@ -75,21 +75,18 @@ LoggingSystem.bootstrap { label in
     redirects: [
         StaticRedirectionRoute(method: HTTPStandardRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])
     ],
-    /*
     routeGroups: [
         RouteGroup(
             endpoint: "grouped",
             staticMiddleware: [
                 StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
             ],
-            StaticRoute(
-                method: HTTPStandardRequestMethod.get,
+            StaticRoute.get(
                 path: ["hoopla"],
                 contentType: HTTPMediaTypeText.plain,
                 body: StringWithDateHeader("rly dud")
             ),
-            DynamicRoute(
-                method: HTTPStandardRequestMethod.get,
+            DynamicRoute.get(
                 path: ["HOOPLA"],
                 contentType: HTTPMediaTypeText.plain,
                 handler: { _, response in
@@ -97,7 +94,7 @@ LoggingSystem.bootstrap { label in
                 }
             )
         ),
-    ],*/
+    ],
     StaticRoute.get(
         path: ["redirectto"],
         contentType: HTTPMediaTypeText.html,

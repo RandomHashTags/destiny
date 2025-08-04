@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default mutable storage that handles dynamic routes.
-public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
+public struct DynamicResponderStorage: MutableDynamicResponderStorageProtocol {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]
 
@@ -12,9 +12,9 @@ public struct DynamicResponderStorage: DynamicResponderStorageProtocol {
     public var catchall:[any DynamicRouteResponderProtocol]
 
     public init(
-        parameterless: [DestinyRoutePathType:any DynamicRouteResponderProtocol],
-        parameterized: [[any DynamicRouteResponderProtocol]],
-        catchall: [any DynamicRouteResponderProtocol]
+        parameterless: [DestinyRoutePathType:any DynamicRouteResponderProtocol] = [:],
+        parameterized: [[any DynamicRouteResponderProtocol]] = [],
+        catchall: [any DynamicRouteResponderProtocol] = []
     ) {
         self.parameterless = parameterless
         self.parameterized = parameterized
@@ -89,7 +89,7 @@ extension DynamicResponderStorage {
 
 extension DynamicResponderStorage {
     @inlinable
-    func responder(for request: inout some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
+    package func responder(for request: inout some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
         if let responder = parameterless[request.startLine] {
             return responder
         }

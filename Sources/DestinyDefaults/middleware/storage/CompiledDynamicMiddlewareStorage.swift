@@ -1,8 +1,8 @@
 
 import DestinyBlueprint
 
-/// Default immutable storage that handles static middleware.
-public struct CompiledStaticMiddlewareStorage<each ConcreteMiddleware: StaticMiddlewareProtocol>: ImmutableStaticMiddlewareStorageProtocol {
+/// Default immutable storage that handles dynamic middleware.
+public struct CompiledDynamicMiddlewareStorage<each ConcreteMiddleware: DynamicMiddlewareProtocol>: ImmutableDynamicMiddlewareStorageProtocol {
     public let middleware:(repeat each ConcreteMiddleware)
 
     public init(_ middleware: (repeat each ConcreteMiddleware)) {
@@ -10,7 +10,7 @@ public struct CompiledStaticMiddlewareStorage<each ConcreteMiddleware: StaticMid
     }
 
     @inlinable
-    public func forEach(_ closure: (any StaticMiddlewareProtocol) -> Void) {
+    public func forEach(_ closure: (any DynamicMiddlewareProtocol) -> Void) {
         for middleware in repeat each middleware {
             closure(middleware)
         }

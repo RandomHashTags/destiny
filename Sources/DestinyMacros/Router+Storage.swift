@@ -17,13 +17,12 @@ extension Router {
         var staticRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
         var staticRoutes:[(StaticRoute, FunctionCallExprSyntax)] = []
         
-        var routeGroups:[any RouteGroupProtocol] = [] // TODO: refactor
+        var routeGroups:[any DeclSyntaxProtocol] = []
 
         var conditionalResponders:[RoutePath:any ConditionalRouteResponderProtocol] = [:]
         var registeredPaths:Set<String> = []
 
         mutating func routeGroupsString(context: some MacroExpansionContext) -> String {
-            return "" // TODO: refactor
             var string = ""
             if !routeGroups.isEmpty {
                 string += "\n" + routeGroups.map({ "\($0)" }).joined(separator: ",\n") + "\n"

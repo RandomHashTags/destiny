@@ -15,7 +15,7 @@ extension StaticRedirectionRoute {
         context: some MacroExpansionContext,
         version: HTTPVersion, 
         _ function: FunctionCallExprSyntax
-    ) -> Self? {
+    ) -> Self {
         var version = version
         var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
         var from = [String]()

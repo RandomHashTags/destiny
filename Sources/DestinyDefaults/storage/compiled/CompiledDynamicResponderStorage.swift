@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default immutable storage that handles dynamic routes.
-public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynamicResponderStorageRouteProtocol>: DynamicResponderStorageProtocol {
+public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynamicResponderStorageRouteProtocol>: ImmutableDynamicResponderStorageProtocol {
     public let routes:(repeat each ConcreteRoute)
 
     public init(_ routes: (repeat each ConcreteRoute)) {

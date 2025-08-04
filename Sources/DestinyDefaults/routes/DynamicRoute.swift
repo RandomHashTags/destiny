@@ -33,7 +33,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
         headers: HTTPHeaders = .init(),
         cookies: [any HTTPCookieProtocol] = [],
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) {
         self.version = version
         self.method = method
@@ -59,7 +59,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
     }
 
     @inlinable
-    public func responder() -> any DynamicRouteResponderProtocol {
+    public func responder() -> DynamicRouteResponder {
         DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
 
@@ -102,7 +102,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -116,7 +116,7 @@ extension DynamicRoute {
         contentType: (some HTTPMediaTypeProtocol)? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         let mediaType:HTTPMediaType?
         if let contentType {
@@ -136,7 +136,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -150,7 +150,7 @@ extension DynamicRoute {
         contentType: (some HTTPMediaTypeProtocol)? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -164,7 +164,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -178,7 +178,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -192,7 +192,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -206,7 +206,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -220,7 +220,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -234,7 +234,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -248,7 +248,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
@@ -262,7 +262,7 @@ extension DynamicRoute {
         contentType: HTTPMediaType? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
-        handler: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
