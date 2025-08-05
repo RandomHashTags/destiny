@@ -20,7 +20,7 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     /// - Parameters:
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
-    ///   - response: The response to send to the socket.
+    ///   - response: The http message to send to the socket.
     func respond(
         to socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable,

@@ -1,3 +1,3 @@
 
-public protocol MutableDynamicResponderStorageProtocol: DynamicResponderStorageProtocol, ~Copyable {
+public protocol MutableDynamicResponderStorageProtocol: AnyObject, CustomDebugStringConvertible, DynamicResponderStorageProtocol {
 }

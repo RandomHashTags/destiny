@@ -258,7 +258,7 @@ let reuseAddress = processArg(key: "reuseaddress")?.elementsEqual("true") ?? tru
 let reusePort = processArg(key: "reuseport")?.elementsEqual("true") ?? true
 let noTCPDelay = processArg(key: "tcpnodelay")?.elementsEqual("true") ?? true
 
-let server = HTTPServer<HTTPRouter, HTTPSocket>(
+let server = HTTPServer<CompiledHTTPRouter, HTTPSocket>(
     address: address,
     port: port,
     backlog: backlog,

@@ -93,7 +93,7 @@ extension RouteGroup {
             parameterless: parameterless,
             parameterized: parameterized,
             catchall: []
-        ) // TODO: fix catchall
+        ) // TODO: make compiled version
 
         let staticMiddlewareString = staticMiddleware.map({ "\($0)" }).joined(separator: ",\n")
         let dynamicMiddlewareString = storage.dynamicMiddleware.map({ "\($0)" }).joined(separator: ",\n")
@@ -117,9 +117,9 @@ extension RouteGroup {
             prefixEndpoints: \(prefixEndpoints),
             immutableStaticMiddleware: \(immutableStaticMiddlewareString),
             immutableDynamicMiddleware: \(immutableDynamicMiddleware),
-            immutableStaticResponders: Optional<CompiledStaticResponderStorage<CompiledStaticResponderStorageRoute<StringWithDateHeader>>>.none,
+            immutableStaticResponders: CompiledStaticResponderStorage(()),
             mutableStaticResponders: \(staticResponses),
-            immutableDynamicResponders: Optional<CompiledDynamicResponderStorage<CompiledDynamicResponderStorageRoute<DynamicRouteResponder>>>.none,
+            immutableDynamicResponders: CompiledDynamicResponderStorage(()),
             mutableDynamicResponders: \(dynamicResponses)
         )
         """

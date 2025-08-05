@@ -3,17 +3,17 @@ import DestinyBlueprint
 
 /// Default mutable storage that handles conditional, dynamic and static routes.
 public struct RouterResponderStorage<
-        ConcreteStaticResponderStorage: StaticResponderStorageProtocol,
-        ConcreteDynamicResponderStorage: DynamicResponderStorageProtocol
+        StaticResponderStorage: StaticResponderStorageProtocol,
+        DynamicResponderStorage: DynamicResponderStorageProtocol
     >: RouterResponderStorageProtocol {
-    public var `static`:ConcreteStaticResponderStorage
-    public var dynamic:ConcreteDynamicResponderStorage
-    public var conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
+    public let `static`:StaticResponderStorage
+    public let dynamic:DynamicResponderStorage
+    public let conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
 
     @inlinable
     public init(
-        static: ConcreteStaticResponderStorage,
-        dynamic: ConcreteDynamicResponderStorage,
+        static: StaticResponderStorage,
+        dynamic: DynamicResponderStorage,
         conditional: [DestinyRoutePathType:any ConditionalRouteResponderProtocol]
     ) {
         self.static = `static`

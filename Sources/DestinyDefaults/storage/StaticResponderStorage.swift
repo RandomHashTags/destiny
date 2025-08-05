@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default mutable storage that handles static routes.
-public struct StaticResponderStorage: MutableStaticResponderStorageProtocol {
+public final class StaticResponderStorage: MutableStaticResponderStorageProtocol, @unchecked Sendable {
 
     @usableFromInline var macroExpansions:[DestinyRoutePathType:RouteResponses.MacroExpansion]
     @usableFromInline var macroExpansionsWithDateHeader:[DestinyRoutePathType:MacroExpansionWithDateHeader]
@@ -57,10 +57,27 @@ public struct StaticResponderStorage: MutableStaticResponderStorageProtocol {
     }
 }
 
+// MARK: Debug description
+extension StaticResponderStorage {
+    public var debugDescription: String {
+        """
+        StaticResponderStorage(
+            macroExpansions: \(macroExpansions),
+            macroExpansionsWithDateHeader: \(macroExpansionsWithDateHeader),
+            staticStrings: \(staticStrings),
+            staticStringsWithDateHeader: \(staticStringsWithDateHeader),
+            strings: \(strings),
+            stringsWithDateHeader: \(stringsWithDateHeader),
+            bytes: \(bytes)
+        )
+        """
+    }
+}
+
 // MARK: Register
 extension StaticResponderStorage {
     @inlinable
-    public mutating func register(
+    public func register(
         path: DestinyRoutePathType,
         _ responder: some StaticRouteResponderProtocol
     ) {
@@ -82,31 +99,31 @@ extension StaticResponderStorage {
     }
 
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: RouteResponses.MacroExpansion) {
+    public func register(path: DestinyRoutePathType, _ responder: RouteResponses.MacroExpansion) {
         macroExpansions[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: MacroExpansionWithDateHeader) {
+    public func register(path: DestinyRoutePathType, _ responder: MacroExpansionWithDateHeader) {
         macroExpansionsWithDateHeader[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: StaticString) {
+    public func register(path: DestinyRoutePathType, _ responder: StaticString) {
         staticStrings[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: StaticStringWithDateHeader) {
+    public func register(path: DestinyRoutePathType, _ responder: StaticStringWithDateHeader) {
         staticStringsWithDateHeader[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: String) {
+    public func register(path: DestinyRoutePathType, _ responder: String) {
         strings[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: StringWithDateHeader) {
+    public func register(path: DestinyRoutePathType, _ responder: StringWithDateHeader) {
         stringsWithDateHeader[path] = responder
     }
     @inlinable
-    public mutating func register(path: DestinyRoutePathType, _ responder: ResponseBody.Bytes) {
+    public func register(path: DestinyRoutePathType, _ responder: ResponseBody.Bytes) {
         bytes[path] = responder
     }
 }

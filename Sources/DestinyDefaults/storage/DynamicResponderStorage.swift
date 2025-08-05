@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default mutable storage that handles dynamic routes.
-public struct DynamicResponderStorage: MutableDynamicResponderStorageProtocol {
+public final class DynamicResponderStorage: MutableDynamicResponderStorageProtocol, @unchecked Sendable {
     /// The dynamic routes without parameters.
     public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]
 
@@ -47,7 +47,7 @@ public struct DynamicResponderStorage: MutableDynamicResponderStorageProtocol {
     }
 
     @inlinable
-    public mutating func register(
+    public func register(
         version: HTTPVersion,
         route: some DynamicRouteProtocol,
         responder: some DynamicRouteResponderProtocol,

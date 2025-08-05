@@ -15,19 +15,19 @@ public struct CompiledRouteGroup<
     public let immutableStaticMiddleware:ImmutableStaticMiddlewareStorage?
     public let immutableDynamicMiddleware:ImmutableDynamicMiddlewareStorage?
 
-    public let immutableStaticResponders:ImmutableStaticResponders?
+    public let immutableStaticResponders:ImmutableStaticResponders
     public var mutableStaticResponders:MutableStaticResponders
 
-    public let immutableDynamicResponders:ImmutableDynamicResponders?
+    public let immutableDynamicResponders:ImmutableDynamicResponders
     public var mutableDynamicResponders:MutableDynamicResponders
 
     public init(
         prefixEndpoints: InlineArray<prefixEndpointsCount, String>,
         immutableStaticMiddleware: ImmutableStaticMiddlewareStorage?,
         immutableDynamicMiddleware: ImmutableDynamicMiddlewareStorage?,
-        immutableStaticResponders: ImmutableStaticResponders?,
+        immutableStaticResponders: ImmutableStaticResponders,
         mutableStaticResponders: MutableStaticResponders,
-        immutableDynamicResponders: ImmutableDynamicResponders?,
+        immutableDynamicResponders: ImmutableDynamicResponders,
         mutableDynamicResponders: MutableDynamicResponders
     ) {
         self.prefixEndpoints = prefixEndpoints
@@ -48,11 +48,11 @@ extension CompiledRouteGroup {
         socket: borrowing some HTTPSocketProtocol & ~Copyable,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws(ResponderError) -> Bool {
-        if let immutableStaticResponders, try await immutableStaticResponders.respond(router: router, socket: socket, startLine: request.startLine) {
+        if try await immutableStaticResponders.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
         } else if try await mutableStaticResponders.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
-        } else if let immutableDynamicResponders, try await immutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
+        } else if try await immutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
             return true
         } else if try await mutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
             return true

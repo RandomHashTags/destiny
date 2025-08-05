@@ -194,6 +194,9 @@ For tedious work and easier development
 
 To reduce binary size and simplify development
 
+- no Foundation
+- no SwiftNIO
+
 </details>
 
 <details>
