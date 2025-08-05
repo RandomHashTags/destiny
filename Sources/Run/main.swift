@@ -84,7 +84,7 @@ LoggingSystem.bootstrap { label in
             StaticRoute.get(
                 path: ["hoopla"],
                 contentType: HTTPMediaTypeText.plain,
-                body: StringWithDateHeader("rly dud")
+                body: StaticStringWithDateHeader("rly dud")
             ),
             DynamicRoute.get(
                 path: ["HOOPLA"],

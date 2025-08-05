@@ -51,7 +51,11 @@ extension Router: DeclarationMacro {
 
 // MARK: Diagnostics
 extension Router {
-    static func routePathAlreadyRegistered(context: some MacroExpansionContext, node: some SyntaxProtocol, _ string: String) {
+    static func routePathAlreadyRegistered(
+        context: some MacroExpansionContext,
+        node: some SyntaxProtocol,
+        _ string: String
+    ) {
         context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "routePathAlreadyRegistered", message: "Route path (\(string)) already registered.")))
     }
 }
@@ -77,21 +81,6 @@ extension Router {
             } else {
                 context.diagnose(DiagnosticMsg.unhandled(node: methodElement))
             }
-        }
-    }
-}
-
-extension Router.Storage {
-    struct Route {
-        let startLine:String
-        let buffer:DestinyRoutePathType
-        let responder:String
-
-        var path: Substring {
-            startLine.split(separator: " ")[1]
-        }
-        var paths: [Substring] {
-            path.split(separator: "/")
         }
     }
 }

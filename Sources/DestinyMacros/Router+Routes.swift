@@ -10,7 +10,7 @@ extension Router {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         function: FunctionCallExprSyntax,
-        storage: inout Storage
+        storage: inout RouterStorage
     ) {
         //print("Router;expansion;route;function=\(function.debugDescription)")
         let decl:String?

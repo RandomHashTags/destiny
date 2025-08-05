@@ -6,13 +6,13 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: Static routes string
-extension Router.Storage {
+extension RouterStorage {
     mutating func staticRoutesString(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [CompiledStaticMiddleware],
-        _ routes: [(StaticRoute, FunctionCallExprSyntax)]
+        routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
         guard !routes.isEmpty else { return "CompiledStaticResponderStorage(())" }
         var routeResponders = [String]()
@@ -22,7 +22,7 @@ extension Router.Storage {
         } : { route in
             return route.fromStartLine().lowercased()
         }
-        let getResponderValue:(Router.Storage.Route) -> String = {
+        let getResponderValue:(RouterStorage.Route) -> String = {
             let responder = $0.responder
             return "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \(responder)\n)"
         }

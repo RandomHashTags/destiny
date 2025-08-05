@@ -24,7 +24,7 @@ extension Router {
     static func parseMiddleware(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
-        storage: inout Storage
+        storage: inout RouterStorage
     ) {
         guard let text = precheck(context: context, function: function) else { return }
         if text.contains("Static") {
@@ -38,7 +38,7 @@ extension Router {
     static func parseStaticMiddleware(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
-        storage: inout Storage
+        storage: inout RouterStorage
     ) {
         guard let text = precheck(context: context, function: function) else { return }
         guard text.contains("Static") else {
@@ -51,7 +51,7 @@ extension Router {
     static func parseDynamicMiddleware(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
-        storage: inout Storage
+        storage: inout RouterStorage
     ) {
         guard let text = precheck(context: context, function: function) else { return }
         guard text.contains("Dynamic") else {

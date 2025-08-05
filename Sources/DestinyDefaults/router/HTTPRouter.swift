@@ -30,7 +30,7 @@ public final class HTTPRouter<
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     nonisolated(unsafe) public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
 
-    nonisolated(unsafe) public private(set) var routeGroups:[any RouteGroupProtocol]
+    public let routeGroups:[any RouteGroupProtocol]
     
     public let errorResponder:ErrorResponder?
     public let dynamicNotFoundResponder:DynamicNotFoundResponder?
@@ -55,17 +55,17 @@ public final class HTTPRouter<
         self.staticMiddleware = staticMiddleware
         self.routeGroups = routeGroups
     }
-}
 
-// MARK: Dynamic middleware
-extension HTTPRouter {
     @inlinable
     public func load() {
         for i in opaqueDynamicMiddleware.indices {
             opaqueDynamicMiddleware[i].load()
         }
     }
+}
 
+// MARK: Dynamic middleware
+extension HTTPRouter {
     @inlinable
     public func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
