@@ -8,14 +8,6 @@ import SwiftGlibc
 import Foundation
 #endif
 
-public typealias DefaultRouter = HTTPRouter<
-    RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseSensitiveRouterResponderStorage
-    RouterResponderStorage<StaticResponderStorage, DynamicResponderStorage>,     // ConcreteCaseInsensitiveRouterResponderStorage
-    StaticErrorResponder,       // ConcreteErrorResponder
-    DynamicRouteResponder,      // ConcreteDynamicNotFoundResponder
-    StringWithDateHeader // ConcreteStaticNotFoundResponder
->
-
 /// Default HTTPRouter implementation that handles middleware, routes and router groups.
 public final class HTTPRouter<
         ConcreteCaseSensitiveRouterResponderStorage: RouterResponderStorageProtocol,
@@ -27,14 +19,14 @@ public final class HTTPRouter<
     public let caseSensitiveResponders:ConcreteCaseSensitiveRouterResponderStorage
     public let caseInsensitiveResponders:ConcreteCaseInsensitiveRouterResponderStorage
 
-    public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
-    public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
+    nonisolated(unsafe) public private(set) var staticMiddleware:[any StaticMiddlewareProtocol]
+    nonisolated(unsafe) public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
 
-    public private(set) var routeGroups:[any RouteGroupProtocol]
+    nonisolated(unsafe) public private(set) var routeGroups:[any RouteGroupProtocol]
     
-    public var errorResponder:ConcreteErrorResponder
-    public var dynamicNotFoundResponder:ConcreteDynamicNotFoundResponder?
-    public var staticNotFoundResponder:ConcreteStaticNotFoundResponder
+    public let errorResponder:ConcreteErrorResponder
+    public let dynamicNotFoundResponder:ConcreteDynamicNotFoundResponder?
+    public let staticNotFoundResponder:ConcreteStaticNotFoundResponder
 
     public let version:HTTPVersion
     
@@ -64,7 +56,7 @@ public final class HTTPRouter<
 // MARK: Dynamic middleware
 extension HTTPRouter {
     @inlinable
-    public func loadDynamicMiddleware() {
+    public func load() {
         for i in opaqueDynamicMiddleware.indices {
             opaqueDynamicMiddleware[i].load()
         }

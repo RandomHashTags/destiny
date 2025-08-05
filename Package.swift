@@ -145,8 +145,7 @@ let package = Package(
             name: "DestinyTests",
             dependencies: ["DestinySwiftSyntax"]
         ),
-    ],
-    swiftLanguageModes: [.v5]
+    ]
 )
 
 // TODO: enable the following features: LifetimeDependence

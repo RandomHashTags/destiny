@@ -9,7 +9,7 @@ public struct HTTPStartLine: HTTPStartLineProtocol {
     public let methodCount:Int
     public let path:RequestTarget
     public let pathCount:Int
-    public let version:InlineArray<8, UInt8>
+    public let version:HTTPVersion
 
     public let endIndex:Int
 
@@ -26,7 +26,7 @@ public struct HTTPStartLine: HTTPStartLineProtocol {
         methodCount = methodSpaceIndex
         path = pathArray
         pathCount = methodSpaceIndex.distance(to: pathSpaceIndex)-1
-        version = versionArray
+        version = v
         endIndex = pathSpaceIndex+9
     }
 }

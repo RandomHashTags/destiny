@@ -128,6 +128,11 @@ public enum HTTPStandardResponseStatus: String, HTTPResponseStatus.StorageProtoc
     case networkAuthenticationRequired
 
     @inlinable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(code)
+    }
+
+    @inlinable
     public var code: UInt16 {
         switch self {
         case .`continue`: 100

@@ -63,7 +63,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
 
     public init(
         chunkSize: Int = 1024,
-        _ values: some Sequence<T>
+        _ values: some Sequence<T> & Sendable
     ) {
         self.chunkSize = chunkSize
         stream = ReusableAsyncThrowingStream {

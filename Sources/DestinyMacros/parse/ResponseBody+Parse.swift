@@ -1,10 +1,4 @@
 
-#if canImport(FoundationEssentials)
-import struct FoundationEssentials.Data
-#elseif canImport(Foundation)
-import struct Foundation.Data
-#endif
-
 import DestinyBlueprint
 import DestinyDefaults
 import SwiftSyntax
@@ -57,6 +51,7 @@ extension ResponseBody {
         case "error":
             return nil // TODO: fix
         default:
+            context.diagnose(DiagnosticMsg.unhandled(node: expr))
             return nil
         }
     }

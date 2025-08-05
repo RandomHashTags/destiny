@@ -49,7 +49,7 @@ extension RouteGroup {
                         }
                     }
                 default:
-                    break
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg))
                 }
             } else if let function = arg.expression.functionCall {
                 Router.parseRoute(context: context, version: version, function: function, storage: &storage)

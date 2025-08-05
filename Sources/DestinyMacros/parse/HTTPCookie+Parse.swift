@@ -1,10 +1,4 @@
 
-#if canImport(FoundationEssentials)
-import struct FoundationEssentials.Date
-#elseif canImport(Foundation)
-import struct Foundation.Date
-#endif
-
 import DestinyBlueprint
 import DestinyDefaults
 import SwiftSyntax
@@ -52,7 +46,7 @@ extension HTTPCookie {
                 case "sameSite":
                     sameSite = HTTPCookieFlag.SameSite(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "")
                 default:
-                    break
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg))
                 }
             }
         }

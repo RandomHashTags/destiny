@@ -45,11 +45,14 @@ extension DynamicRoute {
         for arg in function.arguments {
             switch arg.label?.text {
             case "version":
-                if let parsed = HTTPVersion.parse(arg.expression) {
-                    version = parsed
-                }
+                guard let parsed = HTTPVersion.parse(context: context, expr: arg.expression) else { break }
+                version = parsed
             case "method":
-                method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
+                guard let parsed = HTTPRequestMethod.parse(expr: arg.expression) else {
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg.expression))
+                    break
+                }
+                method = parsed
             case "path":
                 path = PathComponent.parseArray(context: context, arg.expression)
                 for _ in path.filter({ $0.isParameter }) {
@@ -58,13 +61,21 @@ extension DynamicRoute {
             case "isCaseSensitive", "caseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "status":
-                status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
+                guard let parsed = HTTPResponseStatus.parseCode(expr: arg.expression) else {
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg.expression))
+                    break
+                }
+                status = parsed
             case "contentType":
-                contentType = HTTPMediaType.parse(context: context, expr: arg.expression) ?? contentType
+                guard let parsed = HTTPMediaType.parse(context: context, expr: arg.expression) else {
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg.expression))
+                    break
+                }
+                contentType = parsed
             case "handler":
                 handler = "\(arg.expression)"
             default:
-                break
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
         var headers = HTTPHeaders()

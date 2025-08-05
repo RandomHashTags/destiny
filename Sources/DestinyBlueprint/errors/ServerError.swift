@@ -21,3 +21,7 @@ extension ServerError {
     @inlinable public static func listenFailed() -> Self { cError("listenFailed") }
     @inlinable public static func listenFailed(_ reason: String) -> Self { Self(identifier: "listenFailed", reason: reason) }
 }
+
+extension ServerError {
+    @inlinable public static func routerError(_ error: RouterError) -> Self { Self(identifier: "routerError", reason: "\(error)") }
+}

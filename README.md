@@ -50,6 +50,8 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [x] Better handling of clients to unlock more throughput <b>(Feb 23, 2025)</b>
 - [x] Response streaming <b>(Aug 2, 2025)</b>
 - [x] Typed throws where applicable <b>(Aug 3, 2025)</b>
+- [x] Foundation-less <b>(Aug 5, 2025)</b>
+- [x] Swift 6 Languge Mode <b>(Aug 5, 2025)</b>
 
 ### WIP
 
@@ -167,6 +169,14 @@ Only where opaque types aren't applicable to avoid dynamic dispatch, existential
 <summary>Typed throws</summary>
 
 To improve runtime performance and a step closer to support embedded; eliminates heap allocation, metadata and dynamic dispatch for error handling
+
+</details>
+
+<details>
+
+<summary>Swift 6 Language Mode</summary>
+
+To avoid data races by enforcing compile time data race safety
 
 </details>
 

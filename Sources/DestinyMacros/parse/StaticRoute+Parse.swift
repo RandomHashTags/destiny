@@ -29,11 +29,11 @@ extension StaticRoute {
         for arg in function.arguments {
             switch arg.label?.text {
             case "version":
-                version = HTTPVersion.parse(arg.expression) ?? version
+                version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
             case "method":
                 method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
             case "path":
-                path = PathComponent.parseArray(context: context, arg.expression)
+                path = PathComponent.parseArray(context: context, expr: arg.expression)
             case "isCaseSensitive", "caseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "status":
@@ -45,7 +45,7 @@ extension StaticRoute {
             case "body":
                 body = ResponseBody.parse(context: context, expr: arg.expression) ?? body
             default:
-                break
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
         return StaticRoute(

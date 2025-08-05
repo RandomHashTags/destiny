@@ -30,7 +30,13 @@ public struct HTTPDateFormat: Sendable {
 
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 
-    public static var nowInlineArray:InlineArrayResult = [84, 104, 117, 44, 32, 48, 49, 32, 74, 97, 110, 32, 49, 57, 55, 48, 32, 48, 48, 58, 48, 48, 58, 48, 48, 32, 71, 77, 84] // Thu, 01 Jan 1970 00:00:00 GMT
+    @usableFromInline
+    nonisolated(unsafe) static var _nowInlineArray:InlineArrayResult = [84, 104, 117, 44, 32, 48, 49, 32, 74, 97, 110, 32, 49, 57, 55, 48, 32, 48, 48, 58, 48, 48, 58, 48, 48, 32, 71, 77, 84] // Thu, 01 Jan 1970 00:00:00 GMT
+
+    @inlinable
+    public static var nowInlineArray: InlineArrayResult {
+        _nowInlineArray
+    }
 
     /// Begins the auto-updating of the current date in the HTTP Format.
     @inlinable
@@ -45,7 +51,9 @@ public struct HTTPDateFormat: Sendable {
                     //updateAt.duration(to: Duration.init(secondsComponent: 1, attosecondsComponent: 0))
                     //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
                     try await Task.sleep(for: .seconds(1))
-                    Self.now()
+                    if let result = Self.now() {
+                        _nowInlineArray = result
+                    }
                 } catch {
                     logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")
                 }
@@ -53,7 +61,6 @@ public struct HTTPDateFormat: Sendable {
         }
     }
 
-    /// Mutates `self` assigning `nowInlineArray` to the HTTP formatted result representing the time it was executed.
     /// - Returns: The HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
     @discardableResult
     @inlinable
@@ -64,9 +71,6 @@ public struct HTTPDateFormat: Sendable {
         #else
         result = nil
         #endif
-        if let result {
-            Self.nowInlineArray = result
-        }
         return result
     }
 }

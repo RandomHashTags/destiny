@@ -3,7 +3,7 @@ import DestinyBlueprint
 import Logging
 
 public struct Application: ApplicationProtocol {
-    public static private(set) var shared:Application! = nil
+    nonisolated(unsafe) public static private(set) var shared:Application! = nil
 
     public let serviceGroup:DestinyServiceGroup
     public let logger:Logger
@@ -22,6 +22,7 @@ public struct Application: ApplicationProtocol {
         self.logger = logger
         Self.shared = self
     }
+
     public func run() {
         serviceGroup.run()
     }

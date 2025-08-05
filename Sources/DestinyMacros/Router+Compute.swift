@@ -29,10 +29,9 @@ extension Router {
         var storage = Storage()
         for child in arguments {
             if let label = child.label {
-                let key = label.text
-                switch key {
+                switch label.text {
                 case "version":
-                    version = HTTPVersion.parse(child.expression) ?? version
+                    version = HTTPVersion.parse(context: context, expr: child.expression) ?? version
                 case "errorResponder":
                     errorResponder = "\(child.expression)"
                 case "dynamicNotFoundResponder":

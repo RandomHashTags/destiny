@@ -43,6 +43,11 @@ public enum HTTPNonStandardResponseStatus: String, HTTPResponseStatus.StoragePro
     case _561
 
     @inlinable
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(code)
+    }
+
+    @inlinable
     public var code: UInt16 {
         switch self {
         case .thisIsFine: 218

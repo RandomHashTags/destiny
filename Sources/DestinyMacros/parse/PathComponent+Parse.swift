@@ -4,9 +4,8 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-// MARK: SwiftSyntax
 extension PathComponent {
-    public static func parseArray(context: some MacroExpansionContext, _ expr: some ExprSyntaxProtocol) -> [String] {
+    public static func parseArray(context: some MacroExpansionContext, expr: some ExprSyntaxProtocol) -> [String] {
         var array = [String]()
         if let literal = expr.stringLiteral?.string.split(separator: "/") {
             for substring in literal {

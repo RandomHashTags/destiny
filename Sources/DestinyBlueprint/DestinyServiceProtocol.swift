@@ -27,7 +27,7 @@ public final class DestinyServiceGroup: Sendable {
     public let logger:Logger
     private let onShutdown:@Sendable (Int32) -> Void
 
-    private var tasks:[Task<(), Never>] = []
+    nonisolated(unsafe) private var tasks:[Task<(), Never>] = []
 
     public init(
         services: [any DestinyServiceProtocol],
@@ -54,7 +54,8 @@ public final class DestinyServiceGroup: Sendable {
             }
             tasks.append(t)
         }
-        let signalHandlers = [
+        // signalHandlers
+        let _ = [
             SIGINT, // ctrl+C in interactive mode
             SIGTERM, // docker container stop container_name
         ].map { signalName in
@@ -80,6 +81,7 @@ public final class DestinyServiceGroup: Sendable {
         await _shutdown(signal: SIGTERM)
     }
     private func _shutdown(signal: Int32) async {
+        logger.notice("Received signal: SIGTERM")
         await withTaskGroup { group in 
             for service in services {
                 group.addTask {

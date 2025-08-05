@@ -30,7 +30,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
     public let noTCPDelay:Bool
 
     @usableFromInline
-    private(set) var serverFD:Int32? = nil
+    nonisolated(unsafe) private(set) var serverFD:Int32? = nil
 
     public init(
         address: String? = nil,
@@ -63,7 +63,11 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
             //let serverFD2 = try bindAndListen()
             //let serverFD3 = try bindAndListen()
             onLoad?()
-            router.loadDynamicMiddleware()
+            do throws(RouterError) {
+                try router.load()
+            } catch {
+                throw .routerError(error)
+            }
             await processClients(serverFD: serverFD1)
         } catch {
             throw .serverError(error)

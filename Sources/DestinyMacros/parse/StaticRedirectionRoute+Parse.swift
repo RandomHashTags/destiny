@@ -24,13 +24,14 @@ extension StaticRedirectionRoute {
         var status = HTTPStandardResponseStatus.movedPermanently.code
         for arg in function.arguments {
             switch arg.label?.text {
-            case "version": version = HTTPVersion.parse(arg.expression) ?? version
+            case "version": version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
             case "method": method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
             case "status": status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
-            case "from": from = PathComponent.parseArray(context: context, arg.expression)
+            case "from": from = PathComponent.parseArray(context: context, expr: arg.expression)
             case "isCaseSensitive", "caseSensitive": isCaseSensitive = arg.expression.booleanIsTrue
-            case "to": to = PathComponent.parseArray(context: context, arg.expression)
-            default: break
+            case "to": to = PathComponent.parseArray(context: context, expr: arg.expression)
+            default:
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
         var route = Self(version: version, method: method, status: status, from: [], isCaseSensitive: isCaseSensitive, to: [])

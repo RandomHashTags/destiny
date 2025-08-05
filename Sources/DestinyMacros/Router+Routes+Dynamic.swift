@@ -50,7 +50,7 @@ extension Router.Storage {
                         parameterizedByPathCount.append("")
                     }
                 }
-                var string = route.method.rawNameString() + " /" + route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/") + " " + route.version.string
+                var string = "\(route.method.rawNameString()) /\(route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/")) \(route.version.string)"
                 if !registeredPaths.contains(string) {
                     registeredPaths.insert(string)
                     string = getRouteStartLine(route)

@@ -28,7 +28,7 @@ extension StaticMiddleware {
             switch arg.label?.text {
             case "handlesVersions":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
-                handlesVersions = Set(array.compactMap({ HTTPVersion.parse($0.expression) }))
+                handlesVersions = Set(array.compactMap({ HTTPVersion.parse(context: context, expr: $0.expression) }))
             case "handlesMethods":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
                 handlesMethods = array.compactMap({ HTTPRequestMethod.parse(expr: $0.expression) })
@@ -39,7 +39,7 @@ extension StaticMiddleware {
                 guard let array = arg.expression.arrayElements(context: context) else { break }
                 handlesContentTypes = Set(array.compactMap({ HTTPMediaType.parse(memberName: "\($0.expression.memberAccess!.declName.baseName.text)") }))
             case "appliesVersion":
-                appliesVersion = HTTPVersion.parse(arg.expression)
+                appliesVersion = HTTPVersion.parse(context: context, expr: arg.expression)
             case "appliesStatus":
                 appliesStatus = HTTPResponseStatus.parseCode(expr: arg.expression)
             case "appliesContentType":
@@ -57,7 +57,7 @@ extension StaticMiddleware {
                 guard let array = arg.expression.arrayElements(context: context) else { break }
                 excludedRoutes = Set(array.compactMap({ $0.expression.stringLiteralString(context: context) }))
             default:
-                break
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
         return CompiledStaticMiddleware(

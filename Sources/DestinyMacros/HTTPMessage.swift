@@ -20,7 +20,7 @@ enum HTTPMessage: DeclarationMacro {
             if let key = child.label?.text {
                 switch key {
                 case "version":
-                    version = HTTPVersion.parse(child.expression) ?? version
+                    version = HTTPVersion.parse(context: context, expr: child.expression) ?? version
                 case "status":
                     status = HTTPResponseStatus.parseCode(expr: child.expression) ?? status
                 case "headers":
@@ -32,7 +32,7 @@ enum HTTPMessage: DeclarationMacro {
                 case "charset":
                     charset = Charset(expr: child.expression)
                 default:
-                    break
+                    context.diagnose(DiagnosticMsg.unhandled(node: child))
                 }
             }
         }
