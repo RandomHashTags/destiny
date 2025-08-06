@@ -7,14 +7,22 @@ import SwiftSyntaxMacros
 
 // MARK: Static routes string
 extension RouterStorage {
-    mutating func staticRoutesString(
+    mutating func staticRoutesSyntax(
+        mutable: Bool,
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [CompiledStaticMiddleware],
         routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
-        guard !routes.isEmpty else { return "CompiledStaticResponderStorage(())" }
+        let typeAnnotation = "\(mutable ? "" : "Compiled")StaticResponderStorage"
+        guard !routes.isEmpty else {
+            if mutable {
+                return "\(typeAnnotation)()"
+            } else {
+                return "\(typeAnnotation)(())"
+            }
+        }
         var routeResponders = [String]()
         let getRouteStartLine:(StaticRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
         let getRedirectRouteStartLine:(any RedirectionRouteProtocol) -> String = isCaseSensitive ? { route in
@@ -68,21 +76,27 @@ extension RouterStorage {
                             httpResponse: httpResponse
                         )
                     } else {
-                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "unexpectedHTTPResponseMessage", message: "Router.Storage;staticRoutesString;conditionalRoute;httpResponse variable is not a HTTPResponseMessage")))
+                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "unexpectedHTTPResponseMessage", message: "Router.Storage;staticRoutesSyntax;conditionalRoute;httpResponse variable is not a HTTPResponseMessage")))
                     }
                 }
             } catch {
                 context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
             }
         }
-        var string = "CompiledStaticResponderStorage(\n(\n"
+        var string = "\(typeAnnotation)(\n"
+        if !mutable {
+            string += "(\n"
+        }
         for value in routeResponders {
             string += value + ",\n"
         }
         if !routeResponders.isEmpty { // was modified
             string.removeLast(2)
         }
-        return string + "\n)\n)"
+        if !mutable {
+            string += "\n)"
+        }
+        return string + "\n)"
     }
     private func responseBodyResponderDebugDescription(
         body: (any ResponseBodyProtocol)?,

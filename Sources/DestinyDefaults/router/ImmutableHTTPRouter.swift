@@ -8,18 +8,17 @@ import SwiftGlibc
 import Foundation
 #endif
 
-/// Default HTTPRouter implementation that handles mutable middleware, routes and router groups.
-public final class HTTPRouter<
-        CaseSensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
-        CaseInsensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
+/// Default HTTPRouter implementation that handles immutable middleware, routes and router groups.
+public struct ImmutableHTTPRouter<
+        CaseSensitiveRouterResponderStorage: RouterResponderStorageProtocol,
+        CaseInsensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,
         StaticNotFoundResponder: StaticRouteResponderProtocol
-    >: HTTPMutableRouterProtocol {
+    >: HTTPRouterProtocol {
     public let caseSensitiveResponders:CaseSensitiveRouterResponderStorage
     public let caseInsensitiveResponders:CaseInsensitiveRouterResponderStorage
 
-    public let staticMiddleware:[any StaticMiddlewareProtocol]
     nonisolated(unsafe) public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
 
     public let routeGroups:[any RouteGroupProtocol]
@@ -34,7 +33,6 @@ public final class HTTPRouter<
         staticNotFoundResponder: StaticNotFoundResponder?,
         caseSensitiveResponders: CaseSensitiveRouterResponderStorage,
         caseInsensitiveResponders: CaseInsensitiveRouterResponderStorage,
-        staticMiddleware: [any StaticMiddlewareProtocol],
         opaqueDynamicMiddleware: [any OpaqueDynamicMiddlewareProtocol],
         routeGroups: [any RouteGroupProtocol]
     ) {
@@ -44,20 +42,19 @@ public final class HTTPRouter<
         self.caseSensitiveResponders = caseSensitiveResponders
         self.caseInsensitiveResponders = caseInsensitiveResponders
         self.opaqueDynamicMiddleware = opaqueDynamicMiddleware
-        self.staticMiddleware = staticMiddleware
         self.routeGroups = routeGroups
     }
 
     @inlinable
     public func load() {
-        for i in opaqueDynamicMiddleware.indices {
+        /*for i in opaqueDynamicMiddleware.indices {
             opaqueDynamicMiddleware[i].load()
-        }
+        }*/ // TODO: fix?
     }
 }
 
 // MARK: Dynamic middleware
-extension HTTPRouter {
+extension ImmutableHTTPRouter {
     @inlinable
     public func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
@@ -76,7 +73,7 @@ extension HTTPRouter {
 }
 
 // MARK: Handle
-extension HTTPRouter {
+extension ImmutableHTTPRouter {
     @inlinable
     public func handle(
         client: Int32,
@@ -124,7 +121,7 @@ extension HTTPRouter {
 }
 
 // MARK: Respond
-extension HTTPRouter {
+extension ImmutableHTTPRouter {
     @inlinable
     public func respond(
         client: Int32,
@@ -145,35 +142,5 @@ extension HTTPRouter {
             return false
         }
         return true
-    }
-}
-
-// MARK: Register
-extension HTTPRouter {
-    @inlinable
-    public func register(
-        caseSensitive: Bool,
-        path: SIMD64<UInt8>,
-        responder: some StaticRouteResponderProtocol
-    ) {
-        if caseSensitive {
-            caseSensitiveResponders.register(path: path, responder: responder)
-        } else {
-            caseInsensitiveResponders.register(path: path, responder: responder)
-        }
-    }
-
-    @inlinable
-    public func register(
-        caseSensitive: Bool,
-        route: some DynamicRouteProtocol,
-        responder: some DynamicRouteResponderProtocol,
-        override: Bool
-    ) {
-        if caseSensitive {
-            caseSensitiveResponders.register(route: route, responder: responder, override: override)
-        } else {
-            caseInsensitiveResponders.register(route: route, responder: responder, override: override)
-        }
     }
 }

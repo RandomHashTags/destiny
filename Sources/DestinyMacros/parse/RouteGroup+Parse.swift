@@ -65,18 +65,18 @@ extension RouteGroup {
         let staticMiddlewareString = staticMiddleware.map({ "\($0)" }).joined(separator: ",\n")
         let dynamicMiddlewareString = storage.dynamicMiddleware.map({ "\($0)" }).joined(separator: ",\n")
 
-        let immutableStaticMiddlewareString:String
+        let immutableStaticMiddlewareSyntax:String
         if staticMiddleware.isEmpty {
-            immutableStaticMiddlewareString = "Optional<CompiledStaticMiddlewareStorage<StaticMiddleware>>.none"
+            immutableStaticMiddlewareSyntax = "Optional<CompiledStaticMiddlewareStorage<StaticMiddleware>>.none"
         } else {
-            immutableStaticMiddlewareString = "CompiledStaticMiddlewareStorage((\n\(staticMiddlewareString)\n))"
+            immutableStaticMiddlewareSyntax = "CompiledStaticMiddlewareStorage((\n\(staticMiddlewareString)\n))"
         }
 
-        let immutableDynamicMiddleware:String
+        let immutableDynamicMiddlewareSyntax:String
         if storage.dynamicMiddleware.isEmpty {
-            immutableDynamicMiddleware = "Optional<CompiledDynamicMiddlewareStorage<DynamicMiddleware>>.none"
+            immutableDynamicMiddlewareSyntax = "Optional<CompiledDynamicMiddlewareStorage<DynamicMiddleware>>.none"
         } else {
-            immutableDynamicMiddleware = "CompiledDynamicMiddlewareStorage((\n\(dynamicMiddlewareString)\n))"
+            immutableDynamicMiddlewareSyntax = "CompiledDynamicMiddlewareStorage((\n\(dynamicMiddlewareString)\n))"
         }
 
         for i in storage.staticRoutes.indices {
@@ -84,7 +84,8 @@ extension RouteGroup {
             route.insertPath(contentsOf: prefixEndpoints, at: 0)
             storage.staticRoutes[i] = (route, function)
         }
-        let staticResponders = storage.staticRoutesString(
+        let staticRespondersSyntax = storage.staticRoutesSyntax(
+            mutable: false,
             context: context,
             isCaseSensitive: true,
             redirects: storage.staticRedirects,
@@ -97,7 +98,8 @@ extension RouteGroup {
             route.insertPath(contentsOf: pathComponents, at: 0)
             storage.dynamicRoutes[i] = (route, function)
         }
-        let dynamicResponders = storage.dynamicRoutesString(
+        let dynamicRespondersSyntax = storage.dynamicRoutesSyntax(
+            mutable: false,
             context: context,
             isCaseSensitive: true,
             routes: storage.dynamicRoutes
@@ -106,11 +108,11 @@ extension RouteGroup {
         let compiled = """
         CompiledRouteGroup(
             prefixEndpoints: \(prefixEndpoints),
-            immutableStaticMiddleware: \(immutableStaticMiddlewareString),
-            immutableDynamicMiddleware: \(immutableDynamicMiddleware),
-            immutableStaticResponders: \(staticResponders),
+            immutableStaticMiddleware: \(immutableStaticMiddlewareSyntax),
+            immutableDynamicMiddleware: \(immutableDynamicMiddlewareSyntax),
+            immutableStaticResponders: \(staticRespondersSyntax),
             mutableStaticResponders: StaticResponderStorage(),
-            immutableDynamicResponders: \(dynamicResponders),
+            immutableDynamicResponders: \(dynamicRespondersSyntax),
             mutableDynamicResponders: DynamicResponderStorage()
         )
         """

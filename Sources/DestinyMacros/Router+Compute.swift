@@ -105,6 +105,7 @@ extension Router {
             dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
         }
         let immutableRouter = httpRouter(
+            mutable: false,
             context: context,
             errorResponder: "Optional<StaticErrorResponder>.none",
             dynamicNotFoundResponder: "Optional<DynamicRouteResponder>.none",
@@ -113,6 +114,7 @@ extension Router {
         )
         var mutableStorage = RouterStorage()
         let mutableRouter = httpRouter(
+            mutable: true,
             context: context,
             errorResponder: errorResponder,
             dynamicNotFoundResponder: dynamicNotFoundResponder,
@@ -127,6 +129,7 @@ extension Router {
     }
 
     private static func httpRouter(
+        mutable: Bool,
         context: some MacroExpansionContext,
         errorResponder: String,
         dynamicNotFoundResponder: String,
@@ -135,24 +138,28 @@ extension Router {
     ) -> String {
         let routeGroupsString = storage.routeGroupsString(context: context)
         let conditionalRespondersString = storage.conditionalRespondersString()
-        var string = "HTTPRouter("
+        var string = "\(mutable ? "" : "Immutable")HTTPRouter("
         string += "\nerrorResponder: \(errorResponder),"
         string += "\ndynamicNotFoundResponder: \(dynamicNotFoundResponder),"
         string += "\nstaticNotFoundResponder: \(staticNotFoundResponder),"
 
         let caseSensitiveResponders = routeResponderStorage(
-            staticResponses: storage.staticResponsesString(context: context, caseSensitive: true),
-            dynamicResponses: storage.dynamicResponsesString(context: context, caseSensitive: true),
+            mutable: mutable,
+            staticResponses: storage.staticResponsesSyntax(mutable: mutable, context: context, caseSensitive: true),
+            dynamicResponses: storage.dynamicResponsesString(mutable: mutable, context: context, caseSensitive: true),
             conditionalResponses: ":"
         )
         let caseInsensitiveResponders = routeResponderStorage(
-            staticResponses: storage.staticResponsesString(context: context, caseSensitive: false),
-            dynamicResponses: storage.dynamicResponsesString(context: context, caseSensitive: false),
+            mutable: mutable,
+            staticResponses: storage.staticResponsesSyntax(mutable: mutable, context: context, caseSensitive: false),
+            dynamicResponses: storage.dynamicResponsesString(mutable: mutable, context: context, caseSensitive: false),
             conditionalResponses: conditionalRespondersString
         )
         string += "\ncaseSensitiveResponders: \(caseSensitiveResponders),"
         string += "\ncaseInsensitiveResponders: \(caseInsensitiveResponders),"
-        string += "\nstaticMiddleware: [\(storage.staticMiddlewareString())],"
+        if mutable {
+            string += "\nstaticMiddleware: [\(storage.staticMiddlewareString())],"
+        }
         string += "\nopaqueDynamicMiddleware: [\(storage.dynamicMiddlewareString())],"
         string += "\nrouteGroups: [\(routeGroupsString)]"
         string += "\n)"
@@ -160,11 +167,12 @@ extension Router {
     }
 
     private static func routeResponderStorage(
+        mutable: Bool,
         staticResponses: String,
         dynamicResponses: String,
         conditionalResponses: String
     ) -> String {
-        var string = "RouterResponderStorage("
+        var string = "\(mutable ? "" : "Compiled")RouterResponderStorage("
         string += "\nstatic: \(staticResponses),"
         string += "\ndynamic: \(dynamicResponses),"
         string += "\nconditional: [\(conditionalResponses)]"

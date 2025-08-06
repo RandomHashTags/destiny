@@ -79,8 +79,13 @@ public struct RouterStorage {
         return string
     }
 
-    mutating func staticResponsesString(context: some MacroExpansionContext, caseSensitive: Bool) -> String {
-        return staticRoutesString(
+    mutating func staticResponsesSyntax(
+        mutable: Bool,
+        context: some MacroExpansionContext,
+        caseSensitive: Bool
+    ) -> String {
+        return staticRoutesSyntax(
+            mutable: mutable,
             context: context,
             isCaseSensitive: caseSensitive,
             redirects: staticRedirects.filter({ $0.0.isCaseSensitive == caseSensitive }),
@@ -89,8 +94,13 @@ public struct RouterStorage {
         )
     }
 
-    mutating func dynamicResponsesString(context: some MacroExpansionContext, caseSensitive: Bool) -> String {
-        return dynamicRoutesString(
+    mutating func dynamicResponsesString(
+        mutable: Bool,
+        context: some MacroExpansionContext,
+        caseSensitive: Bool
+    ) -> String {
+        return dynamicRoutesSyntax(
+            mutable: mutable,
             context: context,
             isCaseSensitive: caseSensitive,
             routes: dynamicRoutes.filter({ $0.0.isCaseSensitive == caseSensitive })

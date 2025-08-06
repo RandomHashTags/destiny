@@ -45,32 +45,6 @@ public final class DynamicResponderStorage: MutableDynamicResponderStorageProtoc
         )
         """
     }
-
-    @inlinable
-    public func register(
-        version: HTTPVersion,
-        route: some DynamicRouteProtocol,
-        responder: some DynamicRouteResponderProtocol,
-        override: Bool
-    ) {
-        if route.pathContainsParameters {
-            var string = route.startLine()
-            let buffer = DestinyRoutePathType(&string)
-            if override || parameterless[buffer] == nil {
-                parameterless[buffer] = responder
-            } else {
-                // TODO: throw error
-            }
-        } else {
-            let pathCount = route.pathCount
-            if parameterized.count <= pathCount {
-                for _ in parameterized.count...pathCount {
-                    parameterized.append([])
-                }
-            }
-            parameterized[pathCount].append(responder)
-        }
-    }
 }
 
 // MARK: Respond
@@ -85,9 +59,7 @@ extension DynamicResponderStorage {
         try await router.respondDynamically(socket: socket, request: &request, responder: responder)
         return true
     }
-}
 
-extension DynamicResponderStorage {
     @inlinable
     package func responder(for request: inout some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
         if let responder = parameterless[request.startLine] {
@@ -127,5 +99,33 @@ extension DynamicResponderStorage {
             responderIndex += 1
         }
         return nil
+    }
+}
+
+// MARK: Register
+extension DynamicResponderStorage {
+    @inlinable
+    public func register(
+        route: some DynamicRouteProtocol,
+        responder: some DynamicRouteResponderProtocol,
+        override: Bool
+    ) {
+        if route.pathContainsParameters {
+            var string = route.startLine()
+            let buffer = DestinyRoutePathType(&string)
+            if override || parameterless[buffer] == nil {
+                parameterless[buffer] = responder
+            } else {
+                // TODO: throw error
+            }
+        } else {
+            let pathCount = route.pathCount
+            if parameterized.count <= pathCount {
+                for _ in parameterized.count...pathCount {
+                    parameterized.append([])
+                }
+            }
+            parameterized[pathCount].append(responder)
+        }
     }
 }

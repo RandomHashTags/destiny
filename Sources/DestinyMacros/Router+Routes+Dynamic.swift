@@ -5,12 +5,20 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension RouterStorage {
-    mutating func dynamicRoutesString(
+    mutating func dynamicRoutesSyntax(
+        mutable: Bool,
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         routes: [(DynamicRoute, FunctionCallExprSyntax)]
     ) -> String {
-        guard !routes.isEmpty else { return "CompiledDynamicResponderStorage(())" }
+        let typeAnnotation = "\(mutable ? "" : "Compiled")DynamicResponderStorage"
+        guard !routes.isEmpty else {
+            if mutable {
+                return "\(typeAnnotation)()" 
+            } else {
+                return "\(typeAnnotation)(())"
+            }
+        }
         let getRouteStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
         var parameterized = [(DynamicRoute, FunctionCallExprSyntax)]()
         var parameterless = [(DynamicRoute, FunctionCallExprSyntax)]()
@@ -75,11 +83,17 @@ extension RouterStorage {
                 return "// \(string)\n\(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-        var string = "CompiledDynamicResponderStorage(\n(\n"
+        var string = "\(typeAnnotation)(\n"
+        if !mutable {
+            string += "(\n"
+        }
         string += parameterlessString + (parameterlessString.isEmpty ? "" : ",\n")
         string += parameterizedString + (parameterizedString.isEmpty ? "" : ",\n")
         string += catchallString
-        return string + "\n)\n)"
+        if !mutable {
+            string += "\n)"
+        }
+        return string + "\n)"
     }
 
     mutating func getResponderValue(

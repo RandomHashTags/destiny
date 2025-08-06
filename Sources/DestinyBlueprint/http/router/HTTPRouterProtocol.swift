@@ -2,15 +2,17 @@
 import Logging
 
 /// Core HTTPRouter protocol that handles middleware, routes and router groups.
-public protocol HTTPRouterProtocol: AnyObject, Sendable {
+public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     func load() throws(RouterError)
 
+    /// Handle logic for a given socket.
     func handle(
         client: Int32,
         socket: consuming some HTTPSocketProtocol & ~Copyable,
         logger: Logger
     )
 
+    /// Handle dynamic middleware for a given request and dynamic response.
     func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol

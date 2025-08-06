@@ -8,17 +8,17 @@ import SwiftGlibc
 import Foundation
 #endif
 
-/// Default HTTPRouter implementation that optimally handles immutable and mutable data.
+/// Default HTTPRouter implementation that optimally handles immutable and mutable middleware, routes and route groups.
 public final class CompiledHTTPRouter<
         ImmutableRouter: HTTPRouterProtocol,
-        MutableRouter: HTTPRouterProtocol
-    >: HTTPRouterProtocol {
+        MutableRouter: HTTPMutableRouterProtocol
+    >: HTTPMutableRouterProtocol {
     public let immutable:ImmutableRouter
-    public let mutable:MutableRouter?
+    public let mutable:MutableRouter
     
     public init(
         immutable: ImmutableRouter,
-        mutable: MutableRouter?
+        mutable: MutableRouter
     ) {
         self.immutable = immutable
         self.mutable = mutable
@@ -30,9 +30,7 @@ extension CompiledHTTPRouter {
     @inlinable
     public func load() throws(RouterError) {
         try immutable.load()
-        if let mutable {
-            try mutable.load()
-        }
+        try mutable.load()
     }
 
     @inlinable
@@ -41,9 +39,7 @@ extension CompiledHTTPRouter {
         with response: inout some DynamicResponseProtocol
     ) async throws(ResponderError) {
         try await immutable.handleDynamicMiddleware(for: &request, with: &response)
-        if let mutable {
-            try await mutable.handleDynamicMiddleware(for: &request, with: &response)
-        }
+        try await mutable.handleDynamicMiddleware(for: &request, with: &response)
     }
 }
 
@@ -95,9 +91,31 @@ extension CompiledHTTPRouter {
         if try await immutable.respond(client: client, socket: socket, request: &request, logger: logger) {
             return true
         }
-        if let mutable, try await mutable.respond(client: client, socket: socket, request: &request, logger: logger) {
+        if try await mutable.respond(client: client, socket: socket, request: &request, logger: logger) {
             return true
         }
         return false
+    }
+}
+
+// MARK: Register
+extension CompiledHTTPRouter {
+    @inlinable
+    public func register(
+        caseSensitive: Bool,
+        path: SIMD64<UInt8>,
+        responder: some StaticRouteResponderProtocol
+    ) {
+        mutable.register(caseSensitive: caseSensitive, path: path, responder: responder)
+    }
+
+    @inlinable
+    public func register(
+        caseSensitive: Bool,
+        route: some DynamicRouteProtocol,
+        responder: some DynamicRouteResponderProtocol,
+        override: Bool
+    ) {
+        mutable.register(caseSensitive: caseSensitive, route: route, responder: responder, override: override)
     }
 }
