@@ -7,8 +7,8 @@ public struct CompiledRouteGroup<
         ImmutableStaticMiddlewareStorage: ImmutableStaticMiddlewareStorageProtocol,
         ImmutableDynamicMiddlewareStorage: ImmutableDynamicMiddlewareStorageProtocol,
         ImmutableStaticResponders: ImmutableStaticResponderStorageProtocol,
-        MutableStaticResponders: MutableStaticResponderStorageProtocol,
         ImmutableDynamicResponders: ImmutableDynamicResponderStorageProtocol,
+        MutableStaticResponders: MutableStaticResponderStorageProtocol,
         MutableDynamicResponders: MutableDynamicResponderStorageProtocol
     >: RouteGroupProtocol {
     public let prefixEndpoints:InlineArray<prefixEndpointsCount, String>
@@ -16,26 +16,26 @@ public struct CompiledRouteGroup<
     public let immutableDynamicMiddleware:ImmutableDynamicMiddlewareStorage?
 
     public let immutableStaticResponders:ImmutableStaticResponders
-    public var mutableStaticResponders:MutableStaticResponders
-
     public let immutableDynamicResponders:ImmutableDynamicResponders
-    public var mutableDynamicResponders:MutableDynamicResponders
+
+    public let mutableStaticResponders:MutableStaticResponders
+    public let mutableDynamicResponders:MutableDynamicResponders
 
     public init(
         prefixEndpoints: InlineArray<prefixEndpointsCount, String>,
         immutableStaticMiddleware: ImmutableStaticMiddlewareStorage?,
         immutableDynamicMiddleware: ImmutableDynamicMiddlewareStorage?,
         immutableStaticResponders: ImmutableStaticResponders,
-        mutableStaticResponders: MutableStaticResponders,
         immutableDynamicResponders: ImmutableDynamicResponders,
+        mutableStaticResponders: MutableStaticResponders,
         mutableDynamicResponders: MutableDynamicResponders
     ) {
         self.prefixEndpoints = prefixEndpoints
         self.immutableStaticMiddleware = immutableStaticMiddleware
         self.immutableDynamicMiddleware = immutableDynamicMiddleware
         self.immutableStaticResponders = immutableStaticResponders
-        self.mutableStaticResponders = mutableStaticResponders
         self.immutableDynamicResponders = immutableDynamicResponders
+        self.mutableStaticResponders = mutableStaticResponders
         self.mutableDynamicResponders = mutableDynamicResponders
     }
 }

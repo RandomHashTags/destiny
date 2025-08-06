@@ -29,7 +29,10 @@ public final class StaticResponderStorage: MutableStaticResponderStorageProtocol
         self.stringsWithDateHeader = stringsWithDateHeader
         self.bytes = bytes
     }
+}
 
+// AMRK: Respond
+extension StaticResponderStorage {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
@@ -54,23 +57,6 @@ public final class StaticResponderStorage: MutableStaticResponderStorageProtocol
             return false
         }
         return true
-    }
-}
-
-// MARK: Debug description
-extension StaticResponderStorage {
-    public var debugDescription: String {
-        """
-        StaticResponderStorage(
-            macroExpansions: \(macroExpansions),
-            macroExpansionsWithDateHeader: \(macroExpansionsWithDateHeader),
-            staticStrings: \(staticStrings),
-            staticStringsWithDateHeader: \(staticStringsWithDateHeader),
-            strings: \(strings),
-            stringsWithDateHeader: \(stringsWithDateHeader),
-            bytes: \(bytes)
-        )
-        """
     }
 }
 

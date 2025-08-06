@@ -20,31 +20,6 @@ public final class DynamicResponderStorage: MutableDynamicResponderStorageProtoc
         self.parameterized = parameterized
         self.catchall = catchall
     }
-
-    public var debugDescription: String {
-        var parameterlessString = "[:]"
-        if !parameterless.isEmpty {
-            parameterlessString.removeLast(2)
-            parameterlessString += "\n" + parameterless.map({ "// \($0.key.stringSIMD())\n\($0.key):\($0.value)" }).joined(separator: ",\n") + "\n]"
-        }
-        var parameterizedString = "[]"
-        if !parameterized.isEmpty {
-            parameterizedString.removeLast()
-            parameterizedString += "\n" + parameterized.map({ "[" + $0.map({ "\($0)" }).joined(separator: ",\n") + "\n]" }).joined(separator: ",\n") + "\n]"
-        }
-        var catchallString = "[]"
-        if !catchall.isEmpty {
-            catchallString.removeLast()
-            catchallString += "\n" + catchall.map({ "\($0)" }).joined(separator: ",\n") + "\n]"
-        }
-        return """
-        DynamicResponderStorage(
-            parameterless: \(parameterlessString),
-            parameterized: \(parameterizedString),
-            catchall: \(catchallString)
-        )
-        """
-    }
 }
 
 // MARK: Respond

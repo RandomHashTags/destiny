@@ -1,5 +1,5 @@
 
-public protocol MutableDynamicResponderStorageProtocol: AnyObject, CustomDebugStringConvertible, DynamicResponderStorageProtocol {
+public protocol MutableDynamicResponderStorageProtocol: AnyObject, DynamicResponderStorageProtocol {
     /// Registers a dynamic route responder to the given route path.
     func register(
         route: some DynamicRouteProtocol,
