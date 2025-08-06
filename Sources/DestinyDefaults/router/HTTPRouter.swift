@@ -12,6 +12,7 @@ import Foundation
 public final class HTTPRouter<
         CaseSensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
         CaseInsensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
+        StaticMiddlewareStorage: MutableStaticMiddlewareStorageProtocol,
         RouteGroupStorage: MutableRouteGroupStorageProtocol,
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,
@@ -20,7 +21,7 @@ public final class HTTPRouter<
     public let caseSensitiveResponders:CaseSensitiveRouterResponderStorage
     public let caseInsensitiveResponders:CaseInsensitiveRouterResponderStorage
 
-    public let staticMiddleware:[any StaticMiddlewareProtocol]
+    public let staticMiddleware:StaticMiddlewareStorage
     nonisolated(unsafe) public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
 
     public let routeGroups:RouteGroupStorage
@@ -35,7 +36,7 @@ public final class HTTPRouter<
         staticNotFoundResponder: StaticNotFoundResponder?,
         caseSensitiveResponders: CaseSensitiveRouterResponderStorage,
         caseInsensitiveResponders: CaseInsensitiveRouterResponderStorage,
-        staticMiddleware: [any StaticMiddlewareProtocol],
+        staticMiddleware: StaticMiddlewareStorage,
         opaqueDynamicMiddleware: [any OpaqueDynamicMiddlewareProtocol],
         routeGroups: RouteGroupStorage
     ) {

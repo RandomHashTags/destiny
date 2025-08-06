@@ -11,7 +11,7 @@ enum Router: ExpressionMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> ExprSyntax {
-        return "\(raw: compute(arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
+        return "\(raw: compute(mutable: true, arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
     }
 }
 
@@ -21,7 +21,7 @@ extension Router: DeclarationMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
-        var mutable = false
+        var mutable = true
         var typeAnnotation:String? = nil
         let arguments = node.as(ExprSyntax.self)!.macroExpansion!.arguments
         for arg in arguments.prefix(2) {
@@ -34,7 +34,7 @@ extension Router: DeclarationMacro {
                 break
             }
         }
-        let (router, structs) = compute(arguments: arguments, context: context)
+        let (router, structs) = compute(mutable: mutable, arguments: arguments, context: context)
         var declaredRouter = try! StructDeclSyntax("struct DeclaredRouter {}")
         for s in structs {
             declaredRouter.memberBlock.members.append(MemberBlockItemSyntax(decl: s))
@@ -42,7 +42,7 @@ extension Router: DeclarationMacro {
         let routerDecl = VariableDeclSyntax(
             leadingTrivia: .init(stringLiteral: "// MARK: compiled router\n"),
             modifiers: [DeclModifierSyntax(name: "static")],
-            mutable ? .var : .let,
+            .let,
             name: "router",
             type: typeAnnotation == nil ? nil : .init(type: TypeSyntax.init(stringLiteral: typeAnnotation!)),
             initializer: .init(value: ExprSyntax(stringLiteral: router))
