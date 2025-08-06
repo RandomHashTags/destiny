@@ -34,18 +34,21 @@ extension Router: DeclarationMacro {
                 break
             }
         }
-        var decls = [DeclSyntax]()
         let (router, structs) = compute(arguments: arguments, context: context)
-        decls.append(contentsOf: structs.map({ .init($0) }))
-        var string = "// MARK: Router\nstruct DeclaredRouter {\n"
-        string += "static \(mutable ? "var" : "let") router"
-        if let typeAnnotation {
-            string += ":" + typeAnnotation
+        var declaredRouter = try! StructDeclSyntax("struct DeclaredRouter {}")
+        for s in structs {
+            declaredRouter.memberBlock.members.append(MemberBlockItemSyntax(decl: s))
         }
-        string += " = " + router
-        string += "\n}"
-        decls.append("\(raw: string)")
-        return decls
+        let routerDecl = VariableDeclSyntax(
+            leadingTrivia: .init(stringLiteral: "// MARK: compiled router\n"),
+            modifiers: [DeclModifierSyntax(name: "static")],
+            mutable ? .var : .let,
+            name: "router",
+            type: typeAnnotation == nil ? nil : .init(type: TypeSyntax.init(stringLiteral: typeAnnotation!)),
+            initializer: .init(value: ExprSyntax(stringLiteral: router))
+        )
+        declaredRouter.memberBlock.members.append(MemberBlockItemSyntax(decl: routerDecl))
+        return [.init(declaredRouter)]
     }
 }
 

@@ -34,7 +34,7 @@ extension RouterStorage {
                 parameterless.append(route)
             }
         }
-        let parameterlessString = parameterless.isEmpty ? "" : "\n" + parameterless.compactMap({ route, function in
+        let parameterlessString = parameterless.isEmpty ? "" : parameterless.compactMap({ route, function in
             let string = getRouteStartLine(route)
             if registeredPaths.contains(string) {
                 Router.routePathAlreadyRegistered(context: context, node: function, string)
@@ -70,7 +70,7 @@ extension RouterStorage {
             }
             parameterizedString += "\n" + parameterizedByPathCount.compactMap({ $0.isEmpty ? nil : $0 }).joined(separator: ",\n") + "\n"
         }
-        let catchallString = catchall.isEmpty ? "" : "\n" + catchall.compactMap({ route, function in
+        let catchallString = catchall.isEmpty ? "" : catchall.compactMap({ route, function in
             let string = getRouteStartLine(route)
             if registeredPaths.contains(string) {
                 Router.routePathAlreadyRegistered(context: context, node: function, string)

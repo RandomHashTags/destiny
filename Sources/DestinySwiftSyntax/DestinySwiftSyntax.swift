@@ -26,33 +26,19 @@ public macro router<T: HTTPRouterProtocol>(
     _ routes: any RouteProtocol...
 ) -> T = #externalMacro(module: "DestinyMacros", type: "Router")
 
-@freestanding(
-    declaration,
-    names:
-        named(DeclaredRouter),
-        named(OpaqueDynamicMiddleware0),
-        named(OpaqueDynamicMiddleware1),
-        named(OpaqueDynamicMiddleware2),
-        named(OpaqueDynamicMiddleware3),
-        named(OpaqueDynamicMiddleware4),
-        named(OpaqueDynamicMiddleware5),
-        named(OpaqueDynamicMiddleware6),
-        named(OpaqueDynamicMiddleware7),
-        named(OpaqueDynamicMiddleware8),
-        named(OpaqueDynamicMiddleware9),
-        named(OpaqueDynamicMiddleware10),
-        named(DynamicResponder0),
-        named(DynamicResponder1),
-        named(DynamicResponder2),
-        named(DynamicResponder3),
-        named(DynamicResponder4),
-        named(DynamicResponder5),
-        named(DynamicResponder6),
-        named(DynamicResponder7),
-        named(DynamicResponder8),
-        named(DynamicResponder9),
-        named(DynamicResponder10)
-)
+/// A convenience macro to create a complete HTTP Message at compile time.
+@freestanding(expression)
+public macro httpMessage<T: ExpressibleByStringLiteral>(
+    version: HTTPVersion,
+    status: HTTPResponseStatus,
+    headers: [String:String] = [:],
+    body: (any ResponseBodyProtocol)? = nil,
+    contentType: HTTPMediaType? = nil,
+    charset: Charset? = nil
+) -> T = #externalMacro(module: "DestinyMacros", type: "HTTPMessage")
+
+/// Declares a struct named `DeclaredRouter` where a compiled router and its optimized data is stored.
+@freestanding(declaration, names: named(DeclaredRouter))
 public macro declareRouter(
     mutable: Bool = false,
     typeAnnotation: String? = nil,
@@ -66,15 +52,3 @@ public macro declareRouter(
     routeGroups: [any RouteGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) = #externalMacro(module: "DestinyMacros", type: "Router")
-
-
-/// A convenience macro to create a complete HTTP Message at compile time.
-@freestanding(expression)
-public macro httpMessage<T: ExpressibleByStringLiteral>(
-    version: HTTPVersion,
-    status: HTTPResponseStatus,
-    headers: [String:String] = [:],
-    body: (any ResponseBodyProtocol)? = nil,
-    contentType: HTTPMediaType? = nil,
-    charset: Charset? = nil
-) -> T = #externalMacro(module: "DestinyMacros", type: "HTTPMessage")
