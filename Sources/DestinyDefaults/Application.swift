@@ -28,8 +28,8 @@ public struct Application: ApplicationProtocol {
     }
 
     public func shutdown() async {
-        logger.notice("Application shutting down...")
+        logger.info("Application shutting down...")
         await serviceGroup.shutdown()
-        logger.notice("Application shutdown successfully")
+        logger.info("Application shutdown successfully")
     }
 }

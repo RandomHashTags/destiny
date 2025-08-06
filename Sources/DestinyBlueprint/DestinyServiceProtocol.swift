@@ -50,7 +50,7 @@ public final class DestinyServiceGroup: Sendable {
                 } catch {
                     self.logger.error("\(#function);error trying to run service=\(error)")
                 }
-                self.logger.notice("service exited")
+                self.logger.info("service exited")
             }
             tasks.append(t)
         }
@@ -65,7 +65,7 @@ public final class DestinyServiceGroup: Sendable {
             #endif
             let signalSource = DispatchSource.makeSignalSource(signal: signalName, queue: .main)
             signalSource.setEventHandler {
-                self.logger.notice("Got signal: \(signalName)")
+                self.logger.info("Got signal: \(signalName)")
                 Task {
                     await self._shutdown(signal: signalName)
                 }
@@ -77,11 +77,11 @@ public final class DestinyServiceGroup: Sendable {
     }
 
     public func shutdown() async {
-        logger.notice("Sending signal: SIGTERM")
+        logger.info("Sending signal: SIGTERM")
         await _shutdown(signal: SIGTERM)
     }
     private func _shutdown(signal: Int32) async {
-        logger.notice("Received signal: SIGTERM")
+        logger.info("Received signal: SIGTERM")
         await withTaskGroup { group in 
             for service in services {
                 group.addTask {

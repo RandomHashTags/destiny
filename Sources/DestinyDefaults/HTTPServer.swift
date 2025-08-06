@@ -137,7 +137,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
             close(serverFD)
             throw ServerError.listenFailed()
         }
-        logger.notice("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")
+        logger.info("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")
         return serverFD
     }
 }
