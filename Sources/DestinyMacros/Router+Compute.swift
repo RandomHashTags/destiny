@@ -136,7 +136,13 @@ extension Router {
         staticNotFoundResponder: String,
         storage: inout RouterStorage
     ) -> String {
-        let routeGroupsString = storage.routeGroupsString(context: context)
+        var routeGroupsString = storage.routeGroupsString(context: context)
+        if mutable {
+            routeGroupsString = "RouteGroupStorage(\n[\(routeGroupsString)]\n)"
+        } else {
+            routeGroupsString = "CompiledRouteGroupStorage(\(routeGroupsString))"
+        }
+
         let conditionalRespondersString = storage.conditionalRespondersString()
         var string = "\(mutable ? "" : "Immutable")HTTPRouter("
         string += "\nerrorResponder: \(errorResponder),"
@@ -161,7 +167,7 @@ extension Router {
             string += "\nstaticMiddleware: [\(storage.staticMiddlewareString())],"
         }
         string += "\nopaqueDynamicMiddleware: [\(storage.dynamicMiddlewareString())],"
-        string += "\nrouteGroups: [\(routeGroupsString)]"
+        string += "\nrouteGroups: \(routeGroupsString)"
         string += "\n)"
         return string
     }

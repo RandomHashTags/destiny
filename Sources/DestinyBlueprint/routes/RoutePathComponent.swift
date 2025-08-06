@@ -58,9 +58,12 @@ extension RoutePathComponent: ExpressibleByStringLiteral {
 extension RoutePathComponent {
     /// Splits a `String`, by the forward slash character (`/`), into respective route path components.
     public static func parse(_ string: String) -> [Self] {
-        let split = string.split(separator: "/")
+        return parse(subSequence: string.split(separator: "/"))
+    }
+
+    public static func parse(subSequence: some Sequence<Substring>) -> [Self] {
         var paths = [Self]()
-        loop: for splitSlice in split {
+        loop: for splitSlice in subSequence {
             let splitSliceCount = splitSlice.count
             if splitSliceCount > 64 {
                 var i = 0

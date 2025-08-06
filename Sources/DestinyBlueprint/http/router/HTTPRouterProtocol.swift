@@ -20,7 +20,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
 
     /// Responds to a socket.
     /// 
-    /// - Returns: Whether or not a response was sent to the socket.
+    /// - Returns: Whether or not a response was sent.
     func respond(
         client: Int32,
         socket: borrowing some HTTPSocketProtocol & ~Copyable,

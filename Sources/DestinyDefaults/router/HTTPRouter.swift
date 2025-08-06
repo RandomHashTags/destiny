@@ -12,6 +12,7 @@ import Foundation
 public final class HTTPRouter<
         CaseSensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
         CaseInsensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
+        RouteGroupStorage: MutableRouteGroupStorageProtocol,
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,
         StaticNotFoundResponder: StaticRouteResponderProtocol
@@ -22,7 +23,7 @@ public final class HTTPRouter<
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     nonisolated(unsafe) public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
 
-    public let routeGroups:[any RouteGroupProtocol]
+    public let routeGroups:RouteGroupStorage
     
     public let errorResponder:ErrorResponder?
     public let dynamicNotFoundResponder:DynamicNotFoundResponder?
@@ -36,7 +37,7 @@ public final class HTTPRouter<
         caseInsensitiveResponders: CaseInsensitiveRouterResponderStorage,
         staticMiddleware: [any StaticMiddlewareProtocol],
         opaqueDynamicMiddleware: [any OpaqueDynamicMiddlewareProtocol],
-        routeGroups: [any RouteGroupProtocol]
+        routeGroups: RouteGroupStorage
     ) {
         self.errorResponder = errorResponder
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
@@ -137,12 +138,7 @@ extension HTTPRouter {
         } else if try await caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) {
         } else if try await caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) { // TODO: support
         } else {
-            for group in routeGroups {
-                if try await group.respond(router: self, socket: socket, request: &request) {
-                    return true
-                }
-            }
-            return false
+            return try await routeGroups.respond(router: self, socket: socket, request: &request)
         }
         return true
     }
