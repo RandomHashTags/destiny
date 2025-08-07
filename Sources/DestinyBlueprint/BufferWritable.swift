@@ -1,4 +1,5 @@
 
+/// Types conforming to this protocol can write its contents to an `UnsafeMutableBufferPointer<UInt8>`.
 public protocol BufferWritable: Sendable, ~Copyable {
     mutating func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,

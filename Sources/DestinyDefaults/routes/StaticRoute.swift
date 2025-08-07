@@ -98,7 +98,7 @@ public struct StaticRoute: StaticRouteProtocol {
 // MARK: Response
 extension StaticRoute {
     public func response(
-        middleware: [any StaticMiddlewareProtocol]
+        middleware: some StaticMiddlewareStorageProtocol
     ) -> some HTTPMessageProtocol {
         var version = version
         let path = path.joined(separator: "/")
@@ -109,7 +109,7 @@ extension StaticRoute {
             headers["Date"] = HTTPDateFormat.placeholder
         }
         var cookies = [any HTTPCookieProtocol]()
-        for middleware in middleware {
+        middleware.forEach { middleware in
             if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
@@ -123,7 +123,7 @@ extension StaticRoute {
 // MARK: Responder
 extension StaticRoute {
     public func responder(
-        middleware: [any StaticMiddlewareProtocol]
+        middleware: some StaticMiddlewareStorageProtocol
     ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
         return try response(middleware: middleware).string(escapeLineBreak: true)
     }

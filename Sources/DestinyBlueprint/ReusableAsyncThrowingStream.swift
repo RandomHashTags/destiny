@@ -1,4 +1,5 @@
 
+/// An `AsyncSequence` that stores an async stream that can be reused.
 public struct ReusableAsyncThrowingStream<Element, E: Error>: AsyncSequence, Sendable {
     public typealias AsyncIterator = AsyncThrowingStream<Element, E>.Iterator
 

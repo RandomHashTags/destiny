@@ -65,7 +65,7 @@ extension StaticResponderStorage {
     @inlinable
     public func register(
         path: DestinyRoutePathType,
-        _ responder: some StaticRouteResponderProtocol
+        responder: some StaticRouteResponderProtocol
     ) {
         if let responder = responder as? RouteResponses.MacroExpansion {
             register(path: path, responder)

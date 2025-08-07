@@ -1,4 +1,5 @@
 
+/// Types conforming to this protocol indicate they're stored as an inline array.
 public protocol InlineArrayProtocol: InlineCollectionProtocol, ~Copyable where Index == Int {
     init(repeating value: Element)
 }

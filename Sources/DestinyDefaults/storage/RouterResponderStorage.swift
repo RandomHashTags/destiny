@@ -68,7 +68,7 @@ extension RouterResponderStorage {
         path: SIMD64<UInt8>,
         responder: some StaticRouteResponderProtocol
     ) {
-        `static`.register(path: path, responder)
+        `static`.register(path: path, responder: responder)
     }
 
     @inlinable

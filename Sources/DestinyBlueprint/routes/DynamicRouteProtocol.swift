@@ -3,6 +3,7 @@
 public protocol DynamicRouteProtocol: RouteProtocol {
     associatedtype ConcreteResponder:DynamicRouteResponderProtocol
 
+    /// Number of path components this route has. 
     var pathCount: Int { get }
 
     /// Whether or not this route accepts any value at any of its paths.
@@ -23,7 +24,9 @@ public protocol DynamicRouteProtocol: RouteProtocol {
     /// 
     /// - Parameters:
     ///   - middleware: The static middleware to apply to this route.
-    mutating func applyStaticMiddleware(_ middleware: [some StaticMiddlewareProtocol])
+    mutating func applyStaticMiddleware(
+        _ middleware: [some StaticMiddlewareProtocol]
+    )
 
     func startLine() -> String
 }

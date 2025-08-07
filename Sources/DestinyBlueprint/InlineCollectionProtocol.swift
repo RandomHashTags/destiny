@@ -1,4 +1,5 @@
 
+/// Types conforming to this protocol indicate they're stored as an inline collection.
 public protocol InlineCollectionProtocol: InlineSequenceProtocol, ~Copyable {
     associatedtype Index:Comparable
 

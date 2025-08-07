@@ -1,8 +1,8 @@
 
 import DestinyBlueprint
 
-/// Default immutable storage that handles dynamic middleware.
-public struct CompiledDynamicMiddlewareStorage<each ConcreteMiddleware: DynamicMiddlewareProtocol>: ImmutableDynamicMiddlewareStorageProtocol {
+/// Default immutable Dynamic Middleware storage that handles dynamic middleware.
+public struct CompiledDynamicMiddlewareStorage<each ConcreteMiddleware: DynamicMiddlewareProtocol>: DynamicMiddlewareStorageProtocol {
     public let middleware:(repeat each ConcreteMiddleware)
 
     public init(_ middleware: (repeat each ConcreteMiddleware)) {

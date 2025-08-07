@@ -6,7 +6,7 @@ import Logging
 public struct StaticErrorResponder: ErrorResponderProtocol {
     public let logic:@Sendable (_ error: any Error) -> any StaticRouteResponderProtocol
 
-    public init(_ logic: @escaping @Sendable (_ error: any Error) -> any StaticRouteResponderProtocol) {
+    public init(_ logic: @Sendable @escaping (_ error: any Error) -> any StaticRouteResponderProtocol) {
         self.logic = logic
     }
 

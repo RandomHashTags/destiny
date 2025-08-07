@@ -10,13 +10,4 @@ public protocol StaticRouteProtocol: RouteProtocol, ~Copyable {
         contentsOf newElements: some Collection<String>,
         at i: Int
     )
-
-    /// The `StaticRouteResponderProtocol` responder for this route.
-    /// 
-    /// - Parameters:
-    ///   - middleware: Static middleware that this route will apply.
-    /// - Throws: any error.
-    func responder(
-        middleware: [any StaticMiddlewareProtocol]
-    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)?
 }

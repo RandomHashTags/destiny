@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 
+/// Default mutable Static Middleware storage that handles static middleware.
 public final class StaticMiddlewareStorage: MutableStaticMiddlewareStorageProtocol, @unchecked Sendable {
     @usableFromInline
     var middleware:[any StaticMiddlewareProtocol]

@@ -1,4 +1,5 @@
 
+/// Types conforming to this protocol can write their contents to an HTTP Socket.
 public protocol HTTPSocketWritable: Sendable, ~Copyable {
     /// Writes data to the socket.
     /// 

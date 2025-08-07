@@ -1,11 +1,17 @@
 
 import Logging
 
-/// Core HTTPRouter protocol that handles middleware, routes and router groups.
+/// Core HTTP Router protocol that handles middleware, routes and router groups.
 public protocol HTTPRouterProtocol: Sendable, ~Copyable {
+    /// Load logic before this router is ready to handle sockets.
     func load() throws(RouterError)
 
     /// Handle logic for a given socket.
+    /// 
+    /// - Parameters:
+    ///   - client: File descriptor assigned to the socket.
+    ///   - socket: The socket.
+    ///   - logger: Logger of the socket acceptor that called this function.
     func handle(
         client: Int32,
         socket: consuming some HTTPSocketProtocol & ~Copyable,
@@ -19,6 +25,12 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ) async throws(ResponderError)
 
     /// Responds to a socket.
+    /// 
+    /// - Parameters:
+    ///   - client: File descriptor assigned to the socket.
+    ///   - socket: The socket.
+    ///   - request: A loaded request for the socket.
+    ///   - logger: Logger of the socket acceptor that called this function.
     /// 
     /// - Returns: Whether or not a response was sent.
     func respond(

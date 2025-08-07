@@ -1,4 +1,5 @@
 
+/// Core immutable Static Responder Storage protocol that stores static responders for static routes.
 public protocol StaticResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 

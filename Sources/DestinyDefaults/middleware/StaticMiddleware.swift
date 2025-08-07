@@ -58,7 +58,10 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
         self.appliesCookies = appliesCookies
         self.excludedRoutes = excludedRoutes
     }
+}
 
+// MARK: Handles
+extension StaticMiddleware {
     @inlinable
     public func handles(
         version: HTTPVersion,
@@ -73,9 +76,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
             && handlesContentType(contentType)
             && handlesStatus(status)
     }
-}
 
-extension StaticMiddleware {
     @inlinable
     public func handlesVersion(_ version: HTTPVersion) -> Bool {
         handlesVersions?.contains(version) ?? true
@@ -108,6 +109,7 @@ extension StaticMiddleware {
     }
 }
 
+// MARK: Apply
 extension StaticMiddleware {
     @inlinable
     public func apply(

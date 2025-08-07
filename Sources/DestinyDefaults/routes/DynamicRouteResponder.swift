@@ -12,7 +12,7 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
     public init(
         path: [PathComponent],
         defaultResponse: DynamicResponse,
-        logic: @escaping @Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws(ResponderError) -> Void,
+        logic: @Sendable @escaping (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws(ResponderError) -> Void,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path

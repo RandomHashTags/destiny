@@ -1,15 +1,7 @@
 
-/// Core Static Middleware protocol which handles static & dynamic routes at compile time.
+/// Core Static Middleware protocol that handles static and dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
-    func handlesVersion(_ version: HTTPVersion) -> Bool
-
-    func handlesMethod(_ method: some HTTPRequestMethodProtocol) -> Bool
-
-    func handlesStatus(_ code: HTTPResponseStatus.Code) -> Bool
-
-    func handlesContentType(_ mediaType: HTTPMediaType?) -> Bool
-
-    /// Whether or not this middleware handles a route with the given options.
+    /// - Returns: Whether or not this middleware handles a route with the given options.
     func handles(
         version: HTTPVersion,
         path: String,

@@ -1,13 +1,13 @@
 
 import DestinyBlueprint
 
-/// Default Route Group implementation that handles grouped routes.
+/// Default immutable Route Group implementation that handles grouped routes.
 public struct CompiledRouteGroup<
         let prefixEndpointsCount: Int,
-        ImmutableStaticMiddlewareStorage: ImmutableStaticMiddlewareStorageProtocol,
-        ImmutableDynamicMiddlewareStorage: ImmutableDynamicMiddlewareStorageProtocol,
-        ImmutableStaticResponders: ImmutableStaticResponderStorageProtocol,
-        ImmutableDynamicResponders: ImmutableDynamicResponderStorageProtocol,
+        ImmutableStaticMiddlewareStorage: StaticMiddlewareStorageProtocol,
+        ImmutableDynamicMiddlewareStorage: DynamicMiddlewareStorageProtocol,
+        ImmutableStaticResponders: StaticResponderStorageProtocol,
+        ImmutableDynamicResponders: DynamicResponderStorageProtocol,
         MutableStaticResponders: MutableStaticResponderStorageProtocol,
         MutableDynamicResponders: MutableDynamicResponderStorageProtocol
     >: RouteGroupProtocol {

@@ -1,4 +1,5 @@
 
+/// Core immutable Router Responder Storage protocol that stores route responders for routes.
 public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 

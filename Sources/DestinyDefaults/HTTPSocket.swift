@@ -19,7 +19,7 @@ import WinSDK
 
 import DestinyBlueprint
 
-/// Default socket storage with the only purpose of handling communication between http clients and the http server.
+/// Default HTTP Socket implementation.
 public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
     public typealias Buffer = InlineByteArray<1024>
 

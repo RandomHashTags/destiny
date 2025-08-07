@@ -9,7 +9,7 @@ import DestinyBlueprint
 import Logging
 
 // MARK: Server
-/// A default `HTTPServerProtocol` implementation.
+/// Default HTTP Server implementation.
 public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16

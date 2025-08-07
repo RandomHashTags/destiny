@@ -8,7 +8,7 @@ import SwiftGlibc
 import Foundation
 #endif
 
-/// Default HTTPRouter implementation that handles immutable middleware, routes and router groups.
+/// Default HTTP Router implementation that handles immutable middleware, routes and router groups.
 public struct ImmutableHTTPRouter<
         CaseSensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         CaseInsensitiveRouterResponderStorage: RouterResponderStorageProtocol,

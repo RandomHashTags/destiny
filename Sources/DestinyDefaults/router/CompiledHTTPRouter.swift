@@ -8,7 +8,7 @@ import SwiftGlibc
 import Foundation
 #endif
 
-/// Default HTTPRouter implementation that optimally handles immutable and mutable middleware, routes and route groups.
+/// Default HTTP Router implementation that optimally handles immutable and mutable middleware, routes and route groups.
 public final class CompiledHTTPRouter<
         ImmutableRouter: HTTPRouterProtocol,
         MutableRouter: HTTPMutableRouterProtocol

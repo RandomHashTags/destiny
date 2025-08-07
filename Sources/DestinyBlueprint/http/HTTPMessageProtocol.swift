@@ -1,4 +1,5 @@
 
+/// Core HTTP Message protocol that builds a complete HTTP Message.
 public protocol HTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
 
     var version: HTTPVersion { get set }

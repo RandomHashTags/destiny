@@ -1,4 +1,5 @@
 
+/// Types conforming to this protocol indicate they're stored as an inline array where their `Element` == `UInt8`.
 public protocol InlineByteArrayProtocol: InlineArrayProtocol, BufferWritable, HTTPSocketWritable, ~Copyable where Element == UInt8 {
 }
 

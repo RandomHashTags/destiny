@@ -1,4 +1,5 @@
 
+/// Core immutable Route Group Storage protocol that stores responders for routes within this route group.
 public protocol RouteGroupStorageProtocol: Sendable, ~Copyable {
     /// Responds to a socket.
     /// 

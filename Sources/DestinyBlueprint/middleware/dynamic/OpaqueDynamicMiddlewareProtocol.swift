@@ -1,4 +1,5 @@
 
+/// Core Dynamic Middleware protocol that handles dynamic requests and its response as opaque types.
 public protocol OpaqueDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Copyable {
     /// The handler.
     /// 

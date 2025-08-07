@@ -6,7 +6,7 @@ public protocol RedirectionRouteProtocol: RouteProtocol, ~Copyable {
 
     /// The HTTP Message of this route. Computed at compile time.
     /// 
-    /// - Throws: any error; if thrown: a compile diagnostic shown describing the issue.
+    /// - Throws: `AnyError`; if thrown: a compile diagnostic is shown describing the issue.
     /// - Returns: a string representing a complete HTTP Message.
     func response() throws(AnyError) -> String
 }

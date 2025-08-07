@@ -17,6 +17,7 @@ import Windows
 import WinSDK
 #endif
 
+/// Types conforming to this protocol can accept file descriptors.
 public protocol SocketAcceptor: Sendable, ~Copyable {
     /// - Returns: The file descriptor.
     func acceptFunction(

@@ -220,7 +220,7 @@ extension HTTPDateFormat {
 }
 
 #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-// MARK: Glibc
+// MARK: SwiftGlibc
 extension HTTPDateFormat {
     // https://linux.die.net/man/3/localtime
     @inlinable

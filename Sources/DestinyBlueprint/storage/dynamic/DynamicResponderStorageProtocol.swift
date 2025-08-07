@@ -1,4 +1,5 @@
 
+/// Core immutable Dynamic Responder Storage protocol that stores dynamic responders for dynamic routes.
 public protocol DynamicResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 

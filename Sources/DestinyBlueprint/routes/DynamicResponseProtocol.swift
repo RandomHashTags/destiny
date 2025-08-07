@@ -6,25 +6,28 @@ public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     /// - Returns: The parameter located at the given path component index.
     func parameter(at index: Int) -> String
 
-    mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>)
+    mutating func setParameter(
+        at index: Int,
+        value: InlineVLArray<UInt8>
+    )
 
     mutating func appendParameter(value: InlineVLArray<UInt8>)
 
     func yieldParameters(_ yield: (String) -> Void)
 
-    /// Set the response's HTTP Version.
+    /// Sets the HTTP Version of the message.
     /// 
     /// - Parameters:
     ///   - version: The new HTTP Version to set.
     mutating func setHTTPVersion(_ version: HTTPVersion)
 
-    /// Set the response's status code.
+    /// Sets the status code of the message.
     /// 
     /// - Parameters:
     ///   - code: The new status code to set.
     mutating func setStatusCode(_ code: HTTPResponseStatus.Code)
 
-    /// Set a response header to the given value.
+    /// Sets a header to the given value.
     /// 
     /// - Parameters:
     ///   - key: The header you want to modify.
@@ -33,7 +36,7 @@ public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
 
     mutating func appendCookie(_ cookie: some HTTPCookieProtocol)
 
-    /// Set the body of the message.
+    /// Sets the body of the message.
     /// 
     /// - Parameters:
     ///   - body: The new body to set.

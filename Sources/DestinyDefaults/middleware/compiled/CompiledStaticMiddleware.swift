@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-// MARK: StaticMiddleware
+// MARK: CompiledStaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
     /// Route request versions this middleware handles.
@@ -54,7 +54,10 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
         self.appliesCookies = appliesCookies
         self.excludedRoutes = excludedRoutes
     }
+}
 
+// MARK: Handles
+extension CompiledStaticMiddleware {
     @inlinable
     public func handles(
         version: HTTPVersion,
@@ -69,9 +72,7 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
             && handlesContentType(contentType)
             && handlesStatus(status)
     }
-}
 
-extension CompiledStaticMiddleware {
     @inlinable
     public func handlesVersion(_ version: HTTPVersion) -> Bool {
         handlesVersions?.contains(version) ?? true
@@ -104,6 +105,7 @@ extension CompiledStaticMiddleware {
     }
 }
 
+// MARK: Apply
 extension CompiledStaticMiddleware {
     @inlinable
     public func apply(

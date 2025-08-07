@@ -56,19 +56,20 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 ### WIP
 
 - [ ] Metric Middleware
-- [ ] DocC Documentation and tutorials
+- [ ] DocC Documentation
 - [ ] Unit testing
 - [ ] SIMD processing for better performance
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
 - [ ] Optimal Memory Layout for stored objects
 - [ ] Cookies
+- [ ] Route queries
 - [ ] Embedded support
 
 ### TODO
 
+- [ ] DocC Tutorials
 - [ ] Cache Middleware
-- [ ] Route queries
 - [ ] Request body streaming
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
@@ -84,7 +85,7 @@ List of techniques Destiny uses to push performance to the limits of the Swift L
 
 <details>
 
-<summary>Structs everywhere</summary>
+<summary>Structs by default</summary>
 
 To avoid heap allocation and pointer indirection
 
@@ -269,6 +270,6 @@ You can create a discussion here on GitHub for support or join my Discord server
 
 ### Funding
 
-I developed this project to allow everyone to create better http servers. I develop and maintain many free open-source projects full-time for the benefit of everyone.
+This project was developed to allow everyone to create better http servers. I develop and maintain many free open-source projects full-time for the benefit of everyone.
 
 You can show your financial appreciation for this project and others by sponsoring us here on GitHub or other ways listed in the [FUNDING.yml](https://github.com/RandomHashTags/destiny/blob/main/.github/FUNDING.yml).

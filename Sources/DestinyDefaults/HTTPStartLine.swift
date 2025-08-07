@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 
+/// Default HTTP Start Line implementation.
 public struct HTTPStartLine: HTTPStartLineProtocol {
     public typealias Method = InlineArray<20, UInt8>
     public typealias RequestTarget = InlineArray<64, UInt8>

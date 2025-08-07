@@ -86,7 +86,7 @@ extension HTTPResponseMessage {
         var string = head.string(suffix: suffix)
         if let body {
             if let contentType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
             }
             if body.hasContentLength {
                 let contentLength = body.string().utf8.count

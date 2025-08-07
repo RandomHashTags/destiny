@@ -7,7 +7,7 @@ public struct ExistentialDynamicMiddleware: ExistentialDynamicMiddlewareProtocol
     package var logic:String = "{ _, _ in }"
 
     public init(
-        _ handleLogic: @escaping @Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(MiddlewareError) -> Void
+        _ handleLogic: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) async throws(MiddlewareError) -> Void
     ) {
         self.handleLogic = handleLogic
     }

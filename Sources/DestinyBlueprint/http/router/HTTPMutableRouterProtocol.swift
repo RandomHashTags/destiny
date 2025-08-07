@@ -1,5 +1,5 @@
 
-/// Core HTTPRouter protocol that can modify features after the server has started.
+/// Core HTTP Router protocol that can modify its contents after the server has started.
 public protocol HTTPMutableRouterProtocol: AnyObject, HTTPRouterProtocol {
 
     /// Registers a static route responder to the given route path.
