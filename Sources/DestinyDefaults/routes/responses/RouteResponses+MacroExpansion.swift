@@ -19,31 +19,22 @@ extension RouteResponses {
         ) async throws(SocketError) {
             var err:SocketError? = nil
             value.withUTF8Buffer { valuePointer in
-                bodyCount.withContiguousStorageIfAvailable { contentLengthPointer in
+                bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
                     body.withContiguousStorageIfAvailable { bodyPointer in
-                        withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count + contentLengthPointer.count + 4 + bodyPointer.count, { buffer in
-                            var i = 0
-                            buffer.copyBuffer(valuePointer, at: &i)
-                            contentLengthPointer.forEach {
-                                buffer[i] = $0
-                                i += 1
-                            }
-                            buffer[i] = .carriageReturn
-                            i += 1
-                            buffer[i] = .lineFeed
-                            i += 1
-                            buffer[i] = .carriageReturn
-                            i += 1
-                            buffer[i] = .lineFeed
-                            i += 1
-                            buffer.copyBuffer(bodyPointer, at: &i)
+                        let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
+                        bodyCountSuffix.span.withUnsafeBufferPointer { contentLengthSuffixPointer in
                             do throws(SocketError) {
-                                try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
+                                try socket.writeBuffers([
+                                    valuePointer,
+                                    bodyCountPointer,
+                                    contentLengthSuffixPointer,
+                                    bodyPointer
+                                ])
                                 return
                             } catch {
                                 err = error
                             }
-                        })
+                        }
                     }
                 }
             }

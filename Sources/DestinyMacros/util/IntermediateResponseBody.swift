@@ -29,16 +29,19 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     @inlinable public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {}
 
     public func responderDebugDescription(_ response: some HTTPMessageProtocol) -> String {
-        let responseString = response.intermediateString(escapeLineBreak: true)
+        var responseString = response.intermediateString(escapeLineBreak: true)
         switch type {
         case .bytes:
             return "ResponseBody.Bytes(\(value))"
         case .inlineBytes:
             return "ResponseBody.InlineBytes(\(value))"
         case .macroExpansion:
+            responseString.removeLast(8 + value.count + String(value.count).count)
             return "RouteResponses.MacroExpansion(\"\(responseString)\", body: \(value))"
         case .macroExpansionWithDateHeader:
-            return "MacroExpansionWithDateHeader(\"\(responseString)\", body: \(value))"
+            var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
+            postDate.removeLast(8 + value.count + String(value.count).count)
+            return "MacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
         case .streamWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues(responseString)
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
