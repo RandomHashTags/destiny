@@ -3,9 +3,9 @@ import { sleep } from 'k6';
 
 export const options = {
   // A number specifying the number of VUs to run concurrently.
-  vus: 1024,
+  vus: 900,
   // A string specifying the total duration of the test run.
-  duration: '20s',
+  duration: '120s',
 
   // Uncomment this section to enable the use of Browser API in your tests.
   //

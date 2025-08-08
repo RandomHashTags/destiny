@@ -22,12 +22,12 @@ extension RouteResponses {
                 bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
                     body.withContiguousStorageIfAvailable { bodyPointer in
                         let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
-                        bodyCountSuffix.span.withUnsafeBufferPointer { contentLengthSuffixPointer in
+                        bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
                             do throws(SocketError) {
                                 try socket.writeBuffers([
                                     valuePointer,
                                     bodyCountPointer,
-                                    contentLengthSuffixPointer,
+                                    bodyCountSuffixPointer,
                                     bodyPointer
                                 ])
                                 return

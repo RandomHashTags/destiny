@@ -220,7 +220,9 @@ To determine best data structures and techniques for optimal performance without
 
 List of techniques Destiny wants to incorporate to push performance even further, not strictly Swift related.
 
-- file descriptor pool and reuse (eliminates file descriptor acceptance overhead)
+- file descriptor pool
+- connection pool
+- optionally batch responses
 - kqueue support
 
 ### Limitations
