@@ -28,28 +28,28 @@ extension ResponseBody {
             key = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text.lowercased()
         }
         switch key {
-        case "streamwithdateheader":
-            return IntermediateResponseBody(type: .streamWithDateHeader, firstArg.expression.description)
+        case "bytes":
+            return IntermediateResponseBody(type: .bytes, firstArg.expression.description)
+        case "error":
+            return nil // TODO: fix
+        case "inlinebytes":
+            return IntermediateResponseBody(type: .inlineBytes, firstArg.expression.description)
+        case "json":
+            return nil // TODO: fix
         case "macroexpansion":
             return IntermediateResponseBody(type: .macroExpansion, firstArg.expression.description)
         case "macroexpansionwithdateheader":
             return IntermediateResponseBody(type: .macroExpansionWithDateHeader, firstArg.expression.description)
-        case "string":
-            return parseString(firstArg.expression)
-        case "stringwithdateheader":
-            return StringWithDateHeader(parseString(firstArg.expression))
         case "staticstring":
             return IntermediateResponseBody(type: .staticString, parseString(firstArg.expression))
         case "staticstringwithdateheader":
             return IntermediateResponseBody(type: .staticStringWithDateHeader, parseString(firstArg.expression))
-        case "json":
-            return nil // TODO: fix
-        case "bytes":
-            return IntermediateResponseBody(type: .bytes, firstArg.expression.description)
-        case "inlinebytes":
-            return IntermediateResponseBody(type: .inlineBytes, firstArg.expression.description)
-        case "error":
-            return nil // TODO: fix
+        case "streamwithdateheader":
+            return IntermediateResponseBody(type: .streamWithDateHeader, firstArg.expression.description)
+        case "string":
+            return parseString(firstArg.expression)
+        case "stringwithdateheader":
+            return IntermediateResponseBody(type: .stringWithDateHeader, parseString(firstArg.expression))
         default:
             context.diagnose(DiagnosticMsg.unhandled(node: expr))
             return nil

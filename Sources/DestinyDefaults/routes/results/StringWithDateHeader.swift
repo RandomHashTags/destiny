@@ -2,17 +2,36 @@
 import DestinyBlueprint
 
 extension ResponseBody {
-    @inlinable
     public static func stringWithDateHeader(_ value: String) -> StringWithDateHeader {
-        StringWithDateHeader(value)
+        .init(value)
+    }
+
+    public static func stringWithDateHeader(
+        preDateValue: String,
+        postDateValue: String,
+        value: String
+    ) -> StringWithDateHeader {
+        .init(preDateValue: preDateValue, postDateValue: postDateValue, value: value)
     }
 }
 
 public struct StringWithDateHeader: ResponseBodyProtocol {
+    public let preDateValue:String.UTF8View
+    public let postDateValue:String.UTF8View
     public let value:String.UTF8View
 
-    @inlinable
     public init(_ value: String) {
+        preDateValue = "".utf8
+        postDateValue = "".utf8
+        self.value = value.utf8
+    }
+    public init(
+        preDateValue: String,
+        postDateValue: String,
+        value: String
+    ) {
+        self.preDateValue = preDateValue.utf8
+        self.postDateValue = postDateValue.utf8
         self.value = value.utf8
     }
 
@@ -43,28 +62,42 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
         }
     }
 
-    @inlinable
-    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
-        temporaryBuffer { completeBuffer in
-            index = 0
-            buffer.copyBuffer(completeBuffer, at: &index)
-        }
-    }
-
     @inlinable public var hasDateHeader: Bool { true }
 }
 
+// MARK: Write to buffer
+extension StringWithDateHeader {
+    @inlinable
+    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
+        index = 0
+        preDateValue.withContiguousStorageIfAvailable {
+            buffer.copyBuffer($0, at: &index)
+        }
+        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer {
+            buffer.copyBuffer($0, at: &index)
+        }
+        postDateValue.withContiguousStorageIfAvailable {
+            buffer.copyBuffer($0, at: &index)
+        }
+    }
+}
+
+// MARK: Write to socket
 extension StringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func write(
         to socket: borrowing some HTTPSocketProtocol & ~Copyable
     ) async throws(SocketError) {
         var err:SocketError? = nil
-        temporaryBuffer {
-            do throws(SocketError) {
-                try socket.writeBuffer($0.baseAddress!, length: $0.count)
-            } catch {
-                err = error
+        preDateValue.withContiguousStorageIfAvailable { preDatePointer in
+            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
+                postDateValue.withContiguousStorageIfAvailable { postDatePointer in
+                    do throws(SocketError) {
+                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
+                    } catch {
+                        err = error
+                    }
+                }
             }
         }
         if let err {

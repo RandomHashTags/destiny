@@ -28,7 +28,7 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
 
     @inlinable public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {}
 
-    public func responderDebugDescription(_ response: HTTPResponseMessage) -> String {
+    public func responderDebugDescription(_ response: some HTTPMessageProtocol) -> String {
         let responseString = response.intermediateString(escapeLineBreak: true)
         switch type {
         case .bytes:
@@ -40,11 +40,17 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         case .macroExpansionWithDateHeader:
             return "MacroExpansionWithDateHeader(\"\(responseString)\", body: \(value))"
         case .streamWithDateHeader:
-            return "StreamWithDateHeader(\"\(responseString)\", body: \(value))"
+            var (preDate, postDate) = preDateAndPostDateValues(responseString)
+            postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
+            return "StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
+        case .stringWithDateHeader:
+            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
+            return "StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"
         case .staticString:
             return "StaticString(\"\(responseString)\(escapedValue())\")"
         case .staticStringWithDateHeader:
-            return "StaticStringWithDateHeader(\"\(responseString)\(escapedValue())\")"
+            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
+            return "StaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
         }
     }
     func escapedValue() -> String {
@@ -53,10 +59,19 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         return string
     }
 
+    private func preDateAndPostDateValues(_ string: String) -> (preDate: Substring, postDate: Substring) {
+        let preDate = string[string.startIndex..<string.index(string.startIndex, offsetBy: 22)]
+        let postDate = string[string.index(string.startIndex, offsetBy: 51)...]
+        return (preDate, postDate)
+    }
+
     @inlinable
     public var hasDateHeader: Bool {
         switch type {
-        case .macroExpansionWithDateHeader, .streamWithDateHeader, .staticStringWithDateHeader:
+        case .macroExpansionWithDateHeader,
+                .streamWithDateHeader,
+                .staticStringWithDateHeader,
+                .stringWithDateHeader:
             return true
         default:
             return false
@@ -77,6 +92,7 @@ public enum IntermediateResponseBodyType: Sendable {
     case streamWithDateHeader
     case staticString
     case staticStringWithDateHeader
+    case stringWithDateHeader
 }
 
 extension HTTPResponseMessage {

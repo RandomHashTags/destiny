@@ -4,76 +4,77 @@ import DestinyBlueprint
 extension ResponseBody {
     @inlinable
     public static func staticStringWithDateHeader(_ value: StaticString) -> StaticStringWithDateHeader {
-        StaticStringWithDateHeader(value)
+        StaticStringWithDateHeader(preDateValue: "", postDateValue: value)
+    }
+    @inlinable
+    public static func staticStringWithDateHeader(preDateValue: StaticString, postDateValue: StaticString) -> StaticStringWithDateHeader {
+        StaticStringWithDateHeader(preDateValue: preDateValue, postDateValue: postDateValue)
     }
 }
 
 public struct StaticStringWithDateHeader: ResponseBodyProtocol {
-    public let value:StaticString
+    public let preDateValue:StaticString
+    public let postDateValue:StaticString
 
-    @inlinable
     public init(_ value: StaticString) {
-        self.value = value
+        self.preDateValue = ""
+        self.postDateValue = value
+    }
+
+    public init(
+        preDateValue: StaticString,
+        postDateValue: StaticString
+    ) {
+        self.preDateValue = preDateValue
+        self.postDateValue = postDateValue
     }
 
     @inlinable
     public var count: Int {
-        value.utf8CodeUnitCount
+        preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.count
     }
     
     @inlinable
     public func string() -> String {
-        "\(value)"
-    }
-
-    @inlinable
-    func temporaryBuffer<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) throws(E) {
-        var err:E? = nil
-        value.withUTF8Buffer { valuePointer in
-            withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
-                buffer.copyBuffer(valuePointer, at: 0)
-                // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
-                var i = 20
-                let dateSpan = HTTPDateFormat.nowInlineArray
-                for indice in dateSpan.indices {
-                    buffer[i] = dateSpan[indice]
-                    i += 1
-                }
-                do throws(E) {
-                    try closure(buffer)
-                    return
-                } catch {
-                    err = error
-                }
-            })
-        }
-        if let err {
-            throw err
-        }
-    }
-
-    @inlinable
-    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(BufferWriteError) {
-        temporaryBuffer { completeBuffer in
-            index = 0
-            buffer.copyBuffer(completeBuffer, at: &index)
-        }
+        "\(preDateValue)\(HTTPDateFormat.placeholder)\(postDateValue)"
     }
 
     @inlinable public var hasDateHeader: Bool { true }
 }
 
+// MARK: Write to buffer
+extension StaticStringWithDateHeader {
+    @inlinable
+    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
+        index = 0
+        preDateValue.withUTF8Buffer {
+            buffer.copyBuffer($0, at: &index)
+        }
+        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer {
+            buffer.copyBuffer($0, at: &index)
+        }
+        postDateValue.withUTF8Buffer {
+            buffer.copyBuffer($0, at: &index)
+        }
+    }
+}
+
+// MARK: Write to socket
 extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws(SocketError) {
         var err:SocketError? = nil
-        temporaryBuffer({ buffer in
-            do throws(SocketError) {
-                try socket.writeBuffer(buffer.baseAddress!, length: buffer.count)
-            } catch {
-                err = error
+        preDateValue.withUTF8Buffer { preDatePointer in
+            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
+                postDateValue.withUTF8Buffer { postDatePointer in
+                    do throws(SocketError) {
+                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
+                    } catch {
+                        err = error
+                    }
+                }
             }
-        })
+        }
         if let err {
             throw err
         }

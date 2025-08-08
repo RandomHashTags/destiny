@@ -42,7 +42,7 @@ extension RouterStorage {
                 } else {
                     registeredPaths.insert(string)
                     do throws(AnyError) {
-                        let responder = try StringWithDateHeader(route.response()).responderDebugDescription
+                        let responder = try IntermediateResponseBody(type: .stringWithDateHeader, "").responderDebugDescription(route.response())
                         routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
@@ -105,8 +105,6 @@ extension RouterStorage {
         guard let body else { return nil }
         let s:String?
         if let v = body as? String {
-            s = try v.responderDebugDescription(response)
-        } else if let v = body as? StringWithDateHeader {
             s = try v.responderDebugDescription(response)
         } else if let v = body as? IntermediateResponseBody {
             s = v.responderDebugDescription(response)

@@ -99,6 +99,11 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
     }
 
     @inlinable
+    public func intermediateString(escapeLineBreak: Bool) -> String {
+        string(escapeLineBreak: escapeLineBreak)
+    }
+
+    @inlinable
     public mutating func setHeader(key: String, value: String) {
         head.headers[key] = value
     }
