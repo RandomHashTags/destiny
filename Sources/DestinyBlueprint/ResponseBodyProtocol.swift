@@ -17,11 +17,6 @@ extension ResponseBodyProtocol {
 // MARK: Default conformances
 extension String: ResponseBodyProtocol {
     @inlinable
-    public var count: Int {
-        utf8.count
-    }
-    
-    @inlinable
     public func string() -> String {
         self
     }

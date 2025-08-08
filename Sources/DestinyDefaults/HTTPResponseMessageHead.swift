@@ -35,4 +35,13 @@ public struct HTTPResponseMessageHead: Sendable {
         }
         return string
     }
+
+    @inlinable
+    public func cookieDescriptions<E: Error>(
+        _ closure: (inout InlineVLArray<String>) throws(E) -> Void
+    ) rethrows {
+        try InlineVLArray.create(amount: cookies.count, initialize: {
+            return "\(cookies[$0])"
+        }, closure)
+    }
 }

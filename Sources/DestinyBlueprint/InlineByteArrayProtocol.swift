@@ -3,6 +3,7 @@
 public protocol InlineByteArrayProtocol: InlineArrayProtocol, BufferWritable, HTTPSocketWritable, ~Copyable where Element == UInt8 {
 }
 
+/// An inline array where the `Element` == `UInt8`.
 public struct InlineByteArray<let count: Int>: InlineByteArrayProtocol {
 
     public typealias ArrayLiteralElement = UInt8

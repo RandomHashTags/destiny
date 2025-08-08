@@ -18,11 +18,6 @@ public struct HTTPMediaType: CustomDebugStringConvertible, Hashable, HTTPMediaTy
         self.subType = type.subType
     }
 
-    @inlinable
-    public var description: String {
-        return "\(type)/\(subType)"
-    }
-
     public var debugDescription: String {
         return "HTTPMediaType(type: \"\(type)\", subType: \"\(subType)\")"
     }

@@ -63,14 +63,14 @@ LoggingSystem.bootstrap { label in
         //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
         DynamicCORSMiddleware(),
         DynamicDateMiddleware(),
-        DynamicMiddleware({ request, response in
+        /*DynamicMiddleware({ request, response in
             guard request.isMethod(HTTPStandardRequestMethod.get) else { return }
             #if canImport(FoundationEssentials) || canImport(Foundation)
             response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
             #else
             response.setHeader(key: "Womp-Womp", value: String(UInt64.random(in: 0..<UInt64.max)))
             #endif
-        })
+        })*/
     ],
     redirects: [
         StaticRedirectionRoute(method: HTTPStandardRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])

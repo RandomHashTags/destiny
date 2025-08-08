@@ -79,7 +79,7 @@ extension SocketProtocol where Self: ~Copyable {
         _ string: String
     ) throws(SocketError) {
         var err:SocketError? = nil
-        string.utf8.withContiguousStorageIfAvailable {
+        string.utf8Span.span.withUnsafeBufferPointer {
             do throws(SocketError) {
                 try self.writeBuffer($0.baseAddress!, length: $0.count)
             } catch {

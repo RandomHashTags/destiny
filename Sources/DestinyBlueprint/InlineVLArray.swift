@@ -19,6 +19,17 @@ public struct InlineVLArray<Element>: InlineArrayProtocol, @unchecked Sendable {
     }
 
     @inlinable
+    public static func create<E: Error>(amount: Int, initialize: (Int) -> Element, _ closure: (inout Self) throws(E) -> Void) rethrows {
+        try withUnsafeTemporaryAllocation(of: Element.self, capacity: amount, { p in
+            for i in 0..<amount {
+                p[i] = initialize(i)
+            }
+            var array = Self(storage: p)
+            try closure(&array)
+        })
+    }
+
+    @inlinable
     public init(storage: UnsafeMutableBufferPointer<Element>) {
         self.storage = storage
     }

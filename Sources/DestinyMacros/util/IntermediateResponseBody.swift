@@ -105,7 +105,7 @@ extension HTTPResponseMessage {
                 string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
             }
             if body.hasContentLength {
-                let contentLength = body.string().utf8.count
+                let contentLength = body.string().utf8Span.count
                 string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)"
             }
         }

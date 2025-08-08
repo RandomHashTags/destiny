@@ -86,13 +86,15 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         var string = head.string(suffix: suffix)
         if let body {
             var bodyString = body.string()
-            let contentLength = bodyString.utf8.count
             bodyString.replace("\"", with: "\\\"")
             if let contentType {
                 string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
             if body.hasContentLength {
+                let contentLength = bodyString.utf8Span.count
                 string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)\(bodyString)"
+            } else {
+                string += "\(suffix)\(bodyString)"
             }
         }
         return string
@@ -119,55 +121,71 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
     }
 }
 
-// MARK: Unsafe temp allocation
+// MARK: Temp allocation
 extension HTTPResponseMessage {
     @inlinable
-    public func withUnsafeTemporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
+    public func temporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
         for (key, value) in head.headers {
             capacity += 4 + key.count + value.count // Header: Value\r\n
         }
-        for cookie in head.cookies {
-            capacity += 14 + "\(cookie)".count // Set-Cookie: x\r\n
-        }
+        var contentTypeDescription:String
+        var charsetRawName:String
+        var contentLengthString:String
         if let body {
             if let contentType {
-                capacity += 16 + contentType.description.count + (charset != nil ? 10 + charset!.rawName.count : 0) // Content-Type: x; charset=x\r\n
+                contentTypeDescription = contentType.description
+                capacity += 16 + contentTypeDescription.utf8Span.count // "Content-Type: x\r\n"
+                if let charset {
+                    charsetRawName = charset.rawName
+                    capacity += 10 + charsetRawName.utf8Span.count // "; charset=x"
+                } else {
+                    charsetRawName = ""
+                }
+            } else {
+                contentTypeDescription = ""
+                charsetRawName = ""
             }
-            let contentLength = body.count
-            capacity += 20 + String(contentLength).count + contentLength // "Content-Length: #\r\n\r\n" + content
+            let bodyCount = body.count
+            contentLengthString = String(bodyCount)
+            capacity += 20 + contentLengthString.utf8Span.count + bodyCount // "Content-Length: #\r\n\r\n" + content
+        } else {
+            contentTypeDescription = ""
+            contentLengthString = ""
+            charsetRawName = ""
         }
-        try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
-            var i = 0
-            writeStartLine(to: p, index: &i)
-            for (var key, var value) in head.headers {
-                writeHeader(to: p, index: &i, key: &key, value: &value)
+        try head.cookieDescriptions { cookieDescriptions in
+            for indice in cookieDescriptions.indices {
+                capacity += 14 + cookieDescriptions.itemAt(index: indice).utf8Span.count // Set-Cookie: x\r\n
             }
-            for cookie in head.cookies {
-                writeCookie(to: p, index: &i, cookie: cookie)
-            }
-            try writeResult(to: p, index: &i)
-            try closure(p)
-        })
+            try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
+                var i = 0
+                writeStartLine(to: p, index: &i)
+                for (key, value) in head.headers {
+                    writeHeader(to: p, index: &i, key: key, value: value)
+                }
+                for indice in cookieDescriptions.indices {
+                    writeCookie(to: p, index: &i, cookie: cookieDescriptions.itemAt(index: indice))
+                }
+                try writeResult(
+                    to: p,
+                    index: &i,
+                    contentTypeDescription: contentTypeDescription,
+                    charsetRawName: charsetRawName,
+                    contentLengthString: contentLengthString
+                )
+                try closure(p)
+            })
+        }
     }
 
     @inlinable
-    func writeString(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, string: inout String) {
-        // TODO: fix: String utf8Span.span doesn't behave as expected | https://github.com/swiftlang/swift/issues/81931
-        /*let span = string.utf8Span.span
-        for indice in span.indices {
-            buffer[i + indice] = span[indice]
-        }
-        i += span.count*/
-        string.withUTF8 {
-            //if $0.count < 64 {
-                for indice in 0..<$0.count {
-                    buffer[i] = $0[indice]
-                    i += 1
-                }
-            //} else {
-            //    buffer.copyBuffer($0, at: &i)
-            //}
+    func writeString(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, string: String) {
+        string.utf8Span.span.withUnsafeBufferPointer {
+            $0.forEach {
+                buffer[i] = $0
+                i += 1
+            }
         }
     }
 
@@ -185,56 +203,54 @@ extension HTTPResponseMessage {
         buffer[i] = .space
         i += 1
 
-        var statusString = String(head.status)
-        writeString(to: buffer, index: &i, string: &statusString)
+        let statusString = String(head.status)
+        writeString(to: buffer, index: &i, string: statusString)
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
-    func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: inout String, value: inout String) {
-        writeString(to: buffer, index: &i, string: &key)
+    func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: String, value: String) {
+        writeString(to: buffer, index: &i, string: key)
         buffer[i] = .colon
         i += 1
         buffer[i] = .space
         i += 1
 
-        writeString(to: buffer, index: &i, string: &value)
+        writeString(to: buffer, index: &i, string: value)
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
-    func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: any HTTPCookieProtocol) {
+    func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: String) {
         let headerKey:InlineByteArray<12> = .init([83, 101, 116, 45, 67, 111, 111, 107, 105, 101, 58, 32]) // "Set-Cookie: "
         writeInlineArray(to: buffer, index: &i, array: headerKey)
 
-        var cookieString = "\(cookie)"
-        writeString(to: buffer, index: &i, string: &cookieString)
+        writeString(to: buffer, index: &i, string: cookie)
         writeCRLF(to: buffer, index: &i)
     }
     @inlinable
     func writeResult(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
-        index i: inout Int
+        index i: inout Int,
+        contentTypeDescription: String,
+        charsetRawName: String,
+        contentLengthString: String
     ) throws(BufferWriteError) {
         guard var body else { return }
-        if let contentType {
+        if contentType != nil {
             let contentTypeHeader:InlineByteArray<14> = .init([67, 111, 110, 116, 101, 110, 116, 45, 84, 121, 112, 101, 58, 32]) // "Content-Type: "
             writeInlineArray(to: buffer, index: &i, array: contentTypeHeader)
 
-            var contentTypeDescription = contentType.description
-            writeString(to: buffer, index: &i, string: &contentTypeDescription)
-            if let charset {
+            writeString(to: buffer, index: &i, string: contentTypeDescription)
+            if charset != nil {
                 let charsetSpan:InlineByteArray<10> = .init([59, 32, 99, 104, 97, 114, 115, 101, 116, 61]) // "; charset="
                 writeInlineArray(to: buffer, index: &i, array: charsetSpan)
-
-                var charsetValue = charset.rawName
-                writeString(to: buffer, index: &i, string: &charsetValue)
+                writeString(to: buffer, index: &i, string: charsetRawName)
             }
             writeCRLF(to: buffer, index: &i)
         }
         let contentLengthHeader:InlineByteArray<16> = .init([67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32]) // "Content-Length: "
         writeInlineArray(to: buffer, index: &i, array: contentLengthHeader)
 
-        var contentLengthString = String(body.count)
-        writeString(to: buffer, index: &i, string: &contentLengthString)
+        writeString(to: buffer, index: &i, string: contentLengthString)
         writeCRLF(to: buffer, index: &i)
 
         writeCRLF(to: buffer, index: &i)
@@ -256,7 +272,7 @@ extension HTTPResponseMessage {
         to socket: borrowing some HTTPSocketProtocol & ~Copyable
     ) async throws(SocketError) {
         var err:SocketError? = nil
-        self.withUnsafeTemporaryAllocation {
+        self.temporaryAllocation {
             do throws(SocketError) {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             } catch {
@@ -312,6 +328,7 @@ extension HTTPResponseMessage {
         var string = "\(version.string) \(status)\(suffix)\(headers)"
         if let body {
             let contentLength = body.utf8.count
+            //let test = body.utf8Span.count // TODO: crashes LSP
             if let contentType {
                 string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
