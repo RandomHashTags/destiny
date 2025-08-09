@@ -37,11 +37,12 @@ public struct HTTPResponseMessageHead: Sendable {
     }
 
     @inlinable
-    public func cookieDescriptions<E: Error>(
-        _ closure: (inout InlineVLArray<String>) throws(E) -> Void
-    ) rethrows {
-        try InlineVLArray.create(amount: cookies.count, initialize: {
-            return "\(cookies[$0])"
-        }, closure)
+    public func cookieDescriptions() -> [String] {
+        var array = [String]()
+        array.reserveCapacity(cookies.count)
+        for cookie in cookies {
+            array.append("\(cookie)")
+        }
+        return array
     }
 }

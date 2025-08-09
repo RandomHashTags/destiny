@@ -154,29 +154,28 @@ extension HTTPResponseMessage {
             contentLengthString = ""
             charsetRawName = ""
         }
-        try head.cookieDescriptions { cookieDescriptions in
-            for indice in cookieDescriptions.indices {
-                capacity += 14 + cookieDescriptions.itemAt(index: indice).utf8Span.count // Set-Cookie: x\r\n
-            }
-            try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
-                var i = 0
-                writeStartLine(to: p, index: &i)
-                for (key, value) in head.headers {
-                    writeHeader(to: p, index: &i, key: key, value: value)
-                }
-                for indice in cookieDescriptions.indices {
-                    writeCookie(to: p, index: &i, cookie: cookieDescriptions.itemAt(index: indice))
-                }
-                try writeResult(
-                    to: p,
-                    index: &i,
-                    contentTypeDescription: contentTypeDescription,
-                    charsetRawName: charsetRawName,
-                    contentLengthString: contentLengthString
-                )
-                try closure(p)
-            })
+        let cookieDescriptions = head.cookieDescriptions()
+        for cookie in cookieDescriptions {
+            capacity += 14 + cookie.utf8Span.count // Set-Cookie: x\r\n
         }
+        try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
+            var i = 0
+            writeStartLine(to: p, index: &i)
+            for (key, value) in head.headers {
+                writeHeader(to: p, index: &i, key: key, value: value)
+            }
+            for cookie in cookieDescriptions {
+                writeCookie(to: p, index: &i, cookie: cookie)
+            }
+            try writeResult(
+                to: p,
+                index: &i,
+                contentTypeDescription: contentTypeDescription,
+                charsetRawName: charsetRawName,
+                contentLengthString: contentLengthString
+            )
+            try closure(p)
+        })
     }
 
     @inlinable
