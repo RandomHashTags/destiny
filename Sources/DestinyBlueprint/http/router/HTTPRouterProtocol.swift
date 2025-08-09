@@ -22,7 +22,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) async throws(ResponderError)
+    ) throws(ResponderError)
 
     /// Responds to a socket.
     /// 
@@ -36,7 +36,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
-    ) async throws(ResponderError) -> Bool
+    ) throws(ResponderError) -> Bool
 
     /// Writes a static response to the socket.
     /// 
@@ -58,7 +58,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
-    ) async throws(ResponderError)
+    ) throws(ResponderError)
 }
 
 // MARK: Defaults
@@ -79,7 +79,7 @@ extension HTTPRouterProtocol {
     public func defaultDynamicResponse(
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
-    ) async throws(ResponderError) -> some DynamicResponseProtocol {
+    ) throws(ResponderError) -> some DynamicResponseProtocol {
         var response = responder.defaultResponse()
         var index = 0
         let maximumParameters = responder.pathComponentsCount
@@ -102,7 +102,6 @@ extension HTTPRouterProtocol {
             }
             index += 1
         }
-        try await handleDynamicMiddleware(for: &request, with: &response)
         return response
     }
 
@@ -111,8 +110,9 @@ extension HTTPRouterProtocol {
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
-    ) async throws(ResponderError) {
-        var response = try await defaultDynamicResponse(request: &request, responder: responder)
-        try await responder.respond(to: socket, request: &request, response: &response)
+    ) throws(ResponderError) {
+        var response = try defaultDynamicResponse(request: &request, responder: responder)
+        try handleDynamicMiddleware(for: &request, with: &response)
+        try responder.respond(to: socket, request: &request, response: &response)
     }
 }

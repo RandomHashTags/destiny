@@ -59,13 +59,18 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
         to socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
-    ) async throws(ResponderError) {
+    ) throws(ResponderError) {
         // TODO: fix
         //try await logic(&anyRequest, &anyResponse)
+        var err:ResponderError? = nil
         do throws(SocketError) {
             try response.write(to: socket)
         } catch {
-            throw .socketError(error)
+            err = .socketError(error)
+        }
+        socket.socketClose()
+        if let err {
+            throw err
         }
     }
 }

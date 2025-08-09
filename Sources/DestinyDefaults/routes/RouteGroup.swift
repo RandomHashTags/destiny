@@ -45,11 +45,11 @@ extension RouteGroup {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool {
+    ) throws(ResponderError) -> Bool {
         if try staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
         } else if let responder = dynamicResponses.responder(for: &request) {
-            try await router.respondDynamically(socket: socket, request: &request, responder: responder)
+            try router.respondDynamically(socket: socket, request: &request, responder: responder)
             return true
         } else {
             return false

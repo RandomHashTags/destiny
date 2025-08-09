@@ -10,7 +10,7 @@ public struct DynamicDateMiddleware: OpaqueDynamicMiddlewareProtocol {
     public func handle(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
-    ) async -> Bool {
+    ) -> Bool {
         response.setHeader(key: "Date", value: HTTPDateFormat.nowInlineArray.string())
         return true
     }

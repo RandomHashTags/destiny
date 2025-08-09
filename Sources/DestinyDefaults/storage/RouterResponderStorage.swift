@@ -56,8 +56,8 @@ extension RouterResponderStorage {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-    ) async throws(ResponderError) -> Bool {
-        return try await dynamic.respond(router: router, socket: socket, request: &request)
+    ) throws(ResponderError) -> Bool {
+        return try dynamic.respond(router: router, socket: socket, request: &request)
     }
 }
 

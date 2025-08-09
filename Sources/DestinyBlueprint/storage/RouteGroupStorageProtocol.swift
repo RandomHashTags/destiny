@@ -8,5 +8,5 @@ public protocol RouteGroupStorageProtocol: Sendable, ~Copyable {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool
+    ) throws(ResponderError) -> Bool
 }

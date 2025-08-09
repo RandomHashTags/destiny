@@ -13,7 +13,7 @@ public final class DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol, Opaq
     public func handle(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
-    ) async throws(MiddlewareError) -> Bool {
+    ) throws(MiddlewareError) -> Bool {
         return true
     }
 }

@@ -33,7 +33,7 @@ extension CompiledRouterResponderStorage {
         if try respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
         }
-        if try await respondDynamically(router: router, socket: socket, request: &request) {
+        if try respondDynamically(router: router, socket: socket, request: &request) {
             return true
         }
         if let responder = conditional[request.startLine] {
@@ -56,7 +56,7 @@ extension CompiledRouterResponderStorage {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-    ) async throws(ResponderError) -> Bool {
-        return try await dynamic.respond(router: router, socket: socket, request: &request)
+    ) throws(ResponderError) -> Bool {
+        return try dynamic.respond(router: router, socket: socket, request: &request)
     }
 }

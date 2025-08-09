@@ -25,5 +25,5 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
         to socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
-    ) async throws(ResponderError)
+    ) throws(ResponderError)
 }

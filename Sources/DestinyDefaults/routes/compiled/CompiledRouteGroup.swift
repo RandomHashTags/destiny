@@ -47,14 +47,14 @@ extension CompiledRouteGroup {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool {
+    ) throws(ResponderError) -> Bool {
         if try immutableStaticResponders.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
         } else if try mutableStaticResponders.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
-        } else if try await immutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
+        } else if try immutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
             return true
-        } else if try await mutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
+        } else if try mutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
             return true
         } else {
             return false

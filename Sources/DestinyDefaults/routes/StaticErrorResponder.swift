@@ -16,7 +16,7 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
-    ) async {
+    ) {
         #if DEBUG
         logger.warning("\(error)")
         #endif

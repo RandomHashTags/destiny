@@ -49,7 +49,7 @@ public struct RouterStorage {
                 func customLogic(
                     request: inout some HTTPRequestProtocol & ~Copyable,
                     response: inout some DynamicResponseProtocol
-                ) async throws(MiddlewareError) {
+                ) throws(MiddlewareError) {
                     \(functionString)
                 }
 
@@ -57,7 +57,7 @@ public struct RouterStorage {
                 func handle(
                     request: inout some HTTPRequestProtocol & ~Copyable,
                     response: inout some DynamicResponseProtocol
-                ) async throws(MiddlewareError) -> Bool {
+                ) throws(MiddlewareError) -> Bool {
                     try await customLogic(request: &request, response: &response)
                     return true
                 }

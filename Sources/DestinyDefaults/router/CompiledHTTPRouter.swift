@@ -31,9 +31,9 @@ extension CompiledHTTPRouter {
     public func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) async throws(ResponderError) {
-        try await immutable.handleDynamicMiddleware(for: &request, with: &response)
-        try await mutable.handleDynamicMiddleware(for: &request, with: &response)
+    ) throws(ResponderError) {
+        try immutable.handleDynamicMiddleware(for: &request, with: &response)
+        try mutable.handleDynamicMiddleware(for: &request, with: &response)
     }
 }
 
@@ -45,25 +45,20 @@ extension CompiledHTTPRouter {
         socket: consuming some HTTPSocketProtocol & ~Copyable,
         logger: Logger
     ) {
-        Task {
-            defer {
-                client.socketClose()
-            }
-            do throws(SocketError) {
-                var request = try socket.loadRequest()
-                #if DEBUG
-                logger.info("\(request.startLine.stringSIMD())")
-                #endif
-                do throws(ResponderError) {
-                    if !(try await respond(socket: client, request: &request, logger: logger)) {
-                        // TODO: not found
-                    }
-                } catch {
-                    logger.warning("Encountered error while processing client: \(error)")
+        do throws(SocketError) {
+            var request = try socket.loadRequest()
+            #if DEBUG
+            logger.info("\(request.startLine.stringSIMD())")
+            #endif
+            do throws(ResponderError) {
+                if !(try respond(socket: client, request: &request, logger: logger)) {
+                    // TODO: not found
                 }
             } catch {
-                logger.warning("Encountered error while loading request: \(error)")
+                logger.warning("Encountered error while processing client: \(error)")
             }
+        } catch {
+            logger.warning("Encountered error while loading request: \(error)")
         }
     }
 }
@@ -75,11 +70,11 @@ extension CompiledHTTPRouter {
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
-    ) async throws(ResponderError) -> Bool {
-        if try await immutable.respond(socket: socket, request: &request, logger: logger) {
+    ) throws(ResponderError) -> Bool {
+        if try immutable.respond(socket: socket, request: &request, logger: logger) {
             return true
         }
-        if try await mutable.respond(socket: socket, request: &request, logger: logger) {
+        if try mutable.respond(socket: socket, request: &request, logger: logger) {
             return true
         }
         return false
