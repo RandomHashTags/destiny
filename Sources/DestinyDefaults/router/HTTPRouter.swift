@@ -7,7 +7,7 @@ public final class HTTPRouter<
         CaseSensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
         CaseInsensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
         StaticMiddlewareStorage: MutableStaticMiddlewareStorageProtocol,
-        OpaqueDynamicMiddlewareStorage: OpaqueDynamicMiddlewareStorageProtocol,
+        OpaqueDynamicMiddlewareStorage: MutableOpaqueDynamicMiddlewareStorageProtocol,
         RouteGroupStorage: MutableRouteGroupStorageProtocol,
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,

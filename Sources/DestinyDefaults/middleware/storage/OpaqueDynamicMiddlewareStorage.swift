@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public final class OpaqueDynamicMiddlewareStorage: OpaqueDynamicMiddlewareStorageProtocol, @unchecked Sendable {
+public final class OpaqueDynamicMiddlewareStorage: MutableOpaqueDynamicMiddlewareStorageProtocol, @unchecked Sendable {
     @usableFromInline
     var middleware:[any OpaqueDynamicMiddlewareProtocol]
 
@@ -19,5 +19,10 @@ public final class OpaqueDynamicMiddlewareStorage: OpaqueDynamicMiddlewareStorag
                 break
             }
         }
+    }
+
+    @inlinable
+    public func register(_ middleware: some OpaqueDynamicMiddlewareProtocol) {
+        self.middleware.append(middleware)
     }
 }
