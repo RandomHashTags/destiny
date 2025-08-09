@@ -76,9 +76,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
 
     public func shutdown() {
         self.onShutdown?()
-        if let serverFD {
-            close(serverFD)
-        }
+        serverFD?.socketClose()
     }
 
     /// - Returns: The file descriptor of the created socket.
@@ -130,11 +128,11 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
             bind(serverFD, UnsafePointer<sockaddr>(OpaquePointer($0)), socklen_t(MemoryLayout<sockaddr_in6>.size))
         }
         if binded == -1 {
-            close(serverFD)
+            serverFD.socketClose()
             throw ServerError.bindFailed()
         }
         if listen(serverFD, backlog) == -1 {
-            close(serverFD)
+            serverFD.socketClose()
             throw ServerError.listenFailed()
         }
         logger.info("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")

@@ -17,11 +17,11 @@ extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
     }
 
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws(SocketError) {
+    public func write(to socket: Int32) throws(SocketError) {
         var err:SocketError? = nil
         withUnsafePointer(to: self, {
             do throws(SocketError) {
-                try socket.writeBuffer($0, length: count)
+                try socket.socketWriteBuffer($0, length: count)
             } catch {
                 err = error
             }

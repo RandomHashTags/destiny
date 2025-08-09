@@ -1,37 +1,43 @@
 
 /// Types conforming to this protocol can write their contents to an HTTP Socket.
-public protocol HTTPSocketWritable: Sendable, ~Copyable {
-    /// Synchronously writes data to the socket.
+public protocol AsyncHTTPSocketWritable: Sendable, ~Copyable {
+    /// Asynchronously writes data to the socket.
     /// 
     /// - Parameters:
     ///   - socket: some noncopyable `HTTPSocketProtocol`.
     func write(
         to socket: Int32
-    ) throws(SocketError)
+    ) async throws(SocketError)
 }
 
-extension HTTPSocketWritable {
+extension AsyncHTTPSocketWritable {
+    /// Asynchronously writes data to the socket.
+    /// 
+    /// - Parameters:
+    ///   - socket: some noncopyable `HTTPSocketProtocol`.
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws(SocketError) {
-        try write(to: socket.fileDescriptor)
+    public func write(
+        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+    ) async throws(SocketError) {
+        try await write(to: socket.fileDescriptor)
     }
 }
 
 // MARK: Default conformances
-extension String: HTTPSocketWritable {
+extension String: AsyncHTTPSocketWritable {
     @inlinable
     public func write(
         to socket: Int32
-    ) throws(SocketError) {
+    ) async throws(SocketError) {
         try socket.socketWriteString(self)
     }
 }
 
-extension StaticString: HTTPSocketWritable {
+extension StaticString: AsyncHTTPSocketWritable {
     @inlinable
     public func write(
         to socket: Int32
-    ) throws(SocketError) {
+    ) async throws(SocketError) {
         var err:SocketError? = nil
         withUTF8Buffer {
             do throws(SocketError) {
@@ -46,11 +52,11 @@ extension StaticString: HTTPSocketWritable {
     }
 }
 
-extension [UInt8]: HTTPSocketWritable {
+extension [UInt8]: AsyncHTTPSocketWritable {
     @inlinable
     public func write(
         to socket: Int32
-    ) throws(SocketError) {
+    ) async throws(SocketError) {
         var err:SocketError? = nil
         self.withUnsafeBufferPointer {
             do throws(SocketError) {

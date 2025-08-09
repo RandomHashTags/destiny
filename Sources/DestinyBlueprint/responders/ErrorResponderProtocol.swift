@@ -9,5 +9,5 @@ public protocol ErrorResponderProtocol: RouteResponderProtocol, ~Copyable {
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
-    ) async
+    )
 }

@@ -145,13 +145,13 @@ extension RouterStorage {
 
                 @inlinable
                 func respond(
-                    to socket: borrowing some HTTPSocketProtocol & ~Copyable,
+                    to socket: Int32,
                     request: inout some HTTPRequestProtocol & ~Copyable,
                     response: inout some DynamicResponseProtocol
-                ) async throws(ResponderError) {
+                ) throws(ResponderError) {
                     \(responder)
                     do throws(SocketError) {
-                        try await response.write(to: socket)
+                        try response.write(to: socket)
                     } catch {
                         throw .socketError(error)
                     }

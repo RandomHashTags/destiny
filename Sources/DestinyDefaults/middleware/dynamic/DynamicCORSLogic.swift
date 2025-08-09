@@ -14,7 +14,7 @@ public enum DynamicCORSLogic: Sendable {
     @inlinable
     public func apply(
         to response: inout some DynamicResponseProtocol
-    ) async {
+    ) {
         switch self {
         case .allowCredentials_exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):
             DynamicCORSMiddleware.logic_allowCredentials_exposedHeaders_maxAge(&response, allowedHeaders, allowedMethods, exposedHeaders, maxAge)

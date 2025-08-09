@@ -12,13 +12,13 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool {
+    ) throws(ResponderError) -> Bool {
         let requestPathCount = request.pathCount()
         for route in repeat each routes {
             if route.path == request.startLine { // parameterless
-                try await router.respondDynamically(socket: socket, request: &request, responder: route.responder)
+                try router.respondDynamically(socket: socket, request: &request, responder: route.responder)
                 return true
             } else { // parameterized and catchall
                 let pathComponentsCount = route.responder.pathComponentsCount
@@ -45,7 +45,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
                     }
                 }
                 if found && (lastIsCatchall || lastIsParameter && requestPathCount == pathComponentsCount) {
-                    try await router.respondDynamically(socket: socket, request: &request, responder: route.responder)
+                    try router.respondDynamically(socket: socket, request: &request, responder: route.responder)
                     return true
                 }
             }

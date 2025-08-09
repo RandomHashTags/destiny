@@ -3,7 +3,7 @@ import DestinyBlueprint
 
 extension ResponseBody {
     @inlinable
-    public static func streamWithDateHeader<Body: HTTPSocketWritable>(_ body: Body) -> StreamWithDateHeader<Body> {
+    public static func streamWithDateHeader<Body: AsyncHTTPSocketWritable>(_ body: Body) -> StreamWithDateHeader<Body> {
         .init(body)
     }
     @inlinable
@@ -16,7 +16,7 @@ extension ResponseBody {
     }
 }
 
-public struct StreamWithDateHeader<Body: HTTPSocketWritable>: ResponseBodyProtocol {
+public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyProtocol {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
     public let body:Body
@@ -63,14 +63,14 @@ extension StreamWithDateHeader {
 extension StreamWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func write(
-        to socket: borrowing some HTTPSocketProtocol & ~Copyable
-    ) async throws(SocketError) {
+        to socket: Int32
+    ) throws(SocketError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
             HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                 postDateValue.withUTF8Buffer { postDatePointer in
                     do throws(SocketError) {
-                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
+                        try socket.socketWriteBuffers([preDatePointer, datePointer, postDatePointer])
                     } catch {
                         err = error
                     }
@@ -80,6 +80,15 @@ extension StreamWithDateHeader: StaticRouteResponderProtocol {
         if let err {
             throw err
         }
-        try await body.write(to: socket)
+        Task {
+            defer {
+                socket.socketClose()
+            }
+            do throws(SocketError) {
+                try await body.write(to: socket)
+            } catch {
+                // TODO: log error
+            }
+        }
     }
 }

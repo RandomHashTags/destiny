@@ -2,17 +2,11 @@
 import DestinyBlueprint
 import Logging
 
-#if canImport(SwiftGlibc)
-import SwiftGlibc
-#elseif canImport(Foundation)
-import Foundation
-#endif
-
 /// Default HTTP Router implementation that optimally handles immutable and mutable middleware, routes and route groups.
 public final class CompiledHTTPRouter<
-        ImmutableRouter: HTTPRouterProtocol,
-        MutableRouter: HTTPMutableRouterProtocol
-    >: HTTPMutableRouterProtocol {
+        ImmutableRouter: DestinyHTTPRouterProtocol,
+        MutableRouter: DestinyHTTPMutableRouterProtocol
+    >: DestinyHTTPMutableRouterProtocol {
     public let immutable:ImmutableRouter
     public let mutable:MutableRouter
     
@@ -37,9 +31,9 @@ extension CompiledHTTPRouter {
     public func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) async throws(ResponderError) {
-        try await immutable.handleDynamicMiddleware(for: &request, with: &response)
-        try await mutable.handleDynamicMiddleware(for: &request, with: &response)
+    ) throws(ResponderError) {
+        try immutable.handleDynamicMiddleware(for: &request, with: &response)
+        try mutable.handleDynamicMiddleware(for: &request, with: &response)
     }
 }
 
@@ -51,30 +45,20 @@ extension CompiledHTTPRouter {
         socket: consuming some HTTPSocketProtocol & ~Copyable,
         logger: Logger
     ) {
-        Task {
-            defer {
-                #if canImport(SwiftGlibc) || canImport(Foundation)
-                shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
-                close(client)
-                #else
-                #warning("Unable to shutdown and close client file descriptor!")
-                #endif
-            }
-            do throws(SocketError) {
-                var request = try socket.loadRequest()
-                #if DEBUG
-                logger.info("\(request.startLine.stringSIMD())")
-                #endif
-                do throws(ResponderError) {
-                    if !(try await respond(client: client, socket: socket, request: &request, logger: logger)) {
-                        // TODO: not found
-                    }
-                } catch {
-                    logger.warning("Encountered error while processing client: \(error)")
+        do throws(SocketError) {
+            var request = try socket.loadRequest()
+            #if DEBUG
+            logger.info("\(request.startLine.stringSIMD())")
+            #endif
+            do throws(ResponderError) {
+                if !(try respond(socket: client, request: &request, logger: logger)) {
+                    // TODO: not found
                 }
             } catch {
-                logger.warning("Encountered error while loading request: \(error)")
+                logger.warning("Encountered error while processing client: \(error)")
             }
+        } catch {
+            logger.warning("Encountered error while loading request: \(error)")
         }
     }
 }
@@ -83,15 +67,14 @@ extension CompiledHTTPRouter {
 extension CompiledHTTPRouter {
     @inlinable
     public func respond(
-        client: Int32,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
-    ) async throws(ResponderError) -> Bool {
-        if try await immutable.respond(client: client, socket: socket, request: &request, logger: logger) {
+    ) throws(ResponderError) -> Bool {
+        if try immutable.respond(socket: socket, request: &request, logger: logger) {
             return true
         }
-        if try await mutable.respond(client: client, socket: socket, request: &request, logger: logger) {
+        if try mutable.respond(socket: socket, request: &request, logger: logger) {
             return true
         }
         return false

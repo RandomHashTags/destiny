@@ -29,8 +29,8 @@ public struct MacroExpansionWithDateHeader {
 extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func write(
-        to socket: borrowing some HTTPSocketProtocol & ~Copyable
-    ) async throws(SocketError) {
+        to socket: Int32
+    ) throws(SocketError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
             HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
@@ -40,7 +40,7 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
                         bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
                             body.withContiguousStorageIfAvailable { bodyPointer in
                                 do throws(SocketError) {
-                                    try socket.writeBuffers([
+                                    try socket.socketWriteBuffers([
                                         preDatePointer,
                                         datePointer,
                                         postDatePointer,
@@ -57,6 +57,7 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
                 }
             }
         }
+        socket.socketClose()
         if let err {
             throw err
         }

@@ -39,9 +39,9 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool {
+    ) throws(ResponderError) -> Bool {
         // TODO: fix
         /*
         var request:any HTTPRequestProtocol = request

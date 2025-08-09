@@ -1,8 +1,4 @@
 
-#if canImport(Darwin)
-import Darwin
-#endif
-
 /// Core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol: ~Copyable, Sendable {
     associatedtype Buffer:InlineByteArrayProtocol
@@ -78,16 +74,6 @@ extension SocketProtocol where Self: ~Copyable {
     public func writeString(
         _ string: String
     ) throws(SocketError) {
-        var err:SocketError? = nil
-        string.utf8Span.span.withUnsafeBufferPointer {
-            do throws(SocketError) {
-                try self.writeBuffer($0.baseAddress!, length: $0.count)
-            } catch {
-                err = error
-            }
-        }
-        if let err {
-            throw err
-        }
+        try fileDescriptor.socketWriteString(string)
     }
 }

@@ -10,7 +10,7 @@ public protocol DynamicResponderStorageProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not a response was sent.
     func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool
+    ) throws(ResponderError) -> Bool
 }
