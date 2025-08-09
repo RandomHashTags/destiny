@@ -36,23 +36,23 @@ extension StaticResponderStorage {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         startLine: DestinyRoutePathType
-    ) async throws(ResponderError) -> Bool {
+    ) throws(ResponderError) -> Bool {
         if let r = macroExpansions[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, responder: r)
         } else if let r = macroExpansionsWithDateHeader[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, responder: r)
         } else if let r = staticStrings[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, responder: r)
         } else if let r = staticStringsWithDateHeader[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, responder: r)
         } else if let r = stringsWithDateHeader[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, responder: r)
         } else if let r = strings[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, responder: r)
         } else if let r = bytes[startLine] {
-            try await router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, responder: r)
         } else {
             return false
         }

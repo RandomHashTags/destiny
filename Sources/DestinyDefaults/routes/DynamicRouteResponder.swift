@@ -56,7 +56,7 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
 
     @inlinable
     public func respond(
-        to socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        to socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
     ) async throws(ResponderError) {

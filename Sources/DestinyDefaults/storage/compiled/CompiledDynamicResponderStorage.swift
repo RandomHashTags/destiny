@@ -12,7 +12,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws(ResponderError) -> Bool {
         let requestPathCount = request.pathCount()

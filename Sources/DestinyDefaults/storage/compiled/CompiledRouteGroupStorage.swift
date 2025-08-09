@@ -14,7 +14,7 @@ extension CompiledRouteGroupStorage {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws(ResponderError) -> Bool {
         for group in repeat each groups {

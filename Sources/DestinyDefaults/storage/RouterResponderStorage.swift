@@ -27,10 +27,10 @@ extension RouterResponderStorage {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws(ResponderError) -> Bool {
-        if try await respondStatically(router: router, socket: socket, startLine: request.startLine) {
+        if try respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
         }
         if try await respondDynamically(router: router, socket: socket, request: &request) {
@@ -45,16 +45,16 @@ extension RouterResponderStorage {
     @inlinable
     public func respondStatically(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         startLine: SIMD64<UInt8>
-    ) async throws(ResponderError) -> Bool {
-        return try await `static`.respond(router: router, socket: socket, startLine: startLine)
+    ) throws(ResponderError) -> Bool {
+        return try `static`.respond(router: router, socket: socket, startLine: startLine)
     }
 
     @inlinable
     public func respondDynamically(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
     ) async throws(ResponderError) -> Bool {
         return try await dynamic.respond(router: router, socket: socket, request: &request)

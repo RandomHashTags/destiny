@@ -43,10 +43,10 @@ extension RouteGroup {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws(ResponderError) -> Bool {
-        if try await staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
+        if try staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
             return true
         } else if let responder = dynamicResponses.responder(for: &request) {
             try await router.respondDynamically(socket: socket, request: &request, responder: responder)

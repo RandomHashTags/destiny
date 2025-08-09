@@ -27,37 +27,35 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// Responds to a socket.
     /// 
     /// - Parameters:
-    ///   - client: File descriptor assigned to the socket.
-    ///   - socket: The socket.
+    ///   - socket: File descriptor assigned to the socket.
     ///   - request: A loaded request for the socket.
     ///   - logger: Logger of the socket acceptor that called this function.
     /// 
     /// - Returns: Whether or not a response was sent.
     func respond(
-        client: Int32,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
     ) async throws(ResponderError) -> Bool
 
-    /// Writes a static responder to the socket.
+    /// Writes a static response to the socket.
     /// 
     /// - Parameters:
     ///   - socket: The socket to write to.
     ///   - responder: The static route responder that will write to the socket.
     func respondStatically(
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         responder: some StaticRouteResponderProtocol
-    ) async throws(ResponderError)
+    ) throws(ResponderError)
 
-    /// Writes a dynamic responder to the socket.
+    /// Writes a dynamic response to the socket.
     /// 
     /// - Parameters:
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     ///   - responder: The dynamic route responder that will write to the socket.
     func respondDynamically(
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws(ResponderError)
@@ -67,9 +65,9 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
 extension HTTPRouterProtocol {
     @inlinable
     public func respondStatically(
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         responder: borrowing some StaticRouteResponderProtocol
-    ) async throws(ResponderError) {
+    ) throws(ResponderError) {
         do throws(SocketError) {
             try responder.write(to: socket)
         } catch {
@@ -110,7 +108,7 @@ extension HTTPRouterProtocol {
 
     @inlinable
     public func respondDynamically(
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) async throws(ResponderError) {

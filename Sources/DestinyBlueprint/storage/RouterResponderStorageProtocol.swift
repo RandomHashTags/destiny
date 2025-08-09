@@ -10,7 +10,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not a response was sent.
     func respond(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: borrowing Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) async throws(ResponderError) -> Bool
 
@@ -23,9 +23,9 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not a response was sent.
     func respondStatically(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         startLine: SIMD64<UInt8>
-    ) async throws(ResponderError) -> Bool
+    ) throws(ResponderError) -> Bool
 
     /// Try to write a response to a socket, only checking dynamic storage.
     /// 
@@ -36,7 +36,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not a response was sent.
     func respondDynamically(
         router: some HTTPRouterProtocol,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
     ) async throws(ResponderError) -> Bool
 }

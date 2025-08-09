@@ -96,11 +96,11 @@ extension ImmutableHTTPRouter {
                 logger.info("\(request.startLine.stringSIMD())")
                 #endif
                 do throws(ResponderError) {
-                    guard !(try await respond(client: client, socket: socket, request: &request, logger: logger)) else { return }
+                    guard !(try await respond(socket: client, request: &request, logger: logger)) else { return }
                     // not found
                     if let dynamicNotFoundResponder {
                         var response = try await defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
-                        try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
+                        try await dynamicNotFoundResponder.respond(to: client, request: &request, response: &response)
                     } else if let staticNotFoundResponder {
                         do throws(SocketError) {
                             try staticNotFoundResponder.write(to: socket)
@@ -125,13 +125,16 @@ extension ImmutableHTTPRouter {
 extension ImmutableHTTPRouter {
     @inlinable
     public func respond(
-        client: Int32,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
     ) async throws(ResponderError) -> Bool {
-        if try await caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
-        } else if try await caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLineLowercased()) {
+        if try caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
+            socket.socketClose()
+            return true
+        } else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLineLowercased()) {
+            socket.socketClose()
+            return true
         } else if try await caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) {
         } else if try await caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) { // TODO: support
         } else {

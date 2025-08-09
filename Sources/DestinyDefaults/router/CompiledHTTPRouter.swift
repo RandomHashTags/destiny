@@ -66,7 +66,7 @@ extension CompiledHTTPRouter {
                 logger.info("\(request.startLine.stringSIMD())")
                 #endif
                 do throws(ResponderError) {
-                    if !(try await respond(client: client, socket: socket, request: &request, logger: logger)) {
+                    if !(try await respond(socket: client, request: &request, logger: logger)) {
                         // TODO: not found
                     }
                 } catch {
@@ -83,15 +83,14 @@ extension CompiledHTTPRouter {
 extension CompiledHTTPRouter {
     @inlinable
     public func respond(
-        client: Int32,
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
     ) async throws(ResponderError) -> Bool {
-        if try await immutable.respond(client: client, socket: socket, request: &request, logger: logger) {
+        if try await immutable.respond(socket: socket, request: &request, logger: logger) {
             return true
         }
-        if try await mutable.respond(client: client, socket: socket, request: &request, logger: logger) {
+        if try await mutable.respond(socket: socket, request: &request, logger: logger) {
             return true
         }
         return false
