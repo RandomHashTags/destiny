@@ -41,7 +41,7 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool {
+    ) throws(ResponderError) -> Bool {
         // TODO: fix
         /*
         var request:any HTTPRequestProtocol = request

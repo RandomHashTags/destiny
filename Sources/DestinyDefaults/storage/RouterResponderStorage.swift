@@ -29,15 +29,15 @@ extension RouterResponderStorage {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool {
+    ) throws(ResponderError) -> Bool {
         if try respondStatically(router: router, socket: socket, startLine: request.startLine) {
             return true
         }
-        if try await respondDynamically(router: router, socket: socket, request: &request) {
+        if try respondDynamically(router: router, socket: socket, request: &request) {
             return true
         }
         if let responder = conditional[request.startLine] {
-            return try await responder.respond(router: router, socket: socket, request: &request)
+            return try responder.respond(router: router, socket: socket, request: &request)
         }
         return false
     }

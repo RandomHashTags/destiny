@@ -12,7 +12,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
         router: some HTTPRouterProtocol,
         socket: borrowing Int32,
         request: inout some HTTPRequestProtocol & ~Copyable
-    ) async throws(ResponderError) -> Bool
+    ) throws(ResponderError) -> Bool
 
     /// Try to write a response to a socket, only checking static storage.
     /// 
