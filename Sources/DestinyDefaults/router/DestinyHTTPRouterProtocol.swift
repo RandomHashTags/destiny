@@ -7,7 +7,7 @@ public protocol DestinyHTTPRouterProtocol: HTTPRouterProtocol, ~Copyable {
     func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) throws(ResponderError)
+    ) throws(MiddlewareError)
 
     /// Responds to a socket.
     /// 
@@ -75,7 +75,11 @@ extension DestinyHTTPRouterProtocol {
         responder: some DynamicRouteResponderProtocol
     ) throws(ResponderError) {
         var response = try defaultDynamicResponse(request: &request, responder: responder)
-        try handleDynamicMiddleware(for: &request, with: &response)
+        do throws(MiddlewareError) {
+            try handleDynamicMiddleware(for: &request, with: &response)
+        } catch {
+            throw .middlewareError(error)
+        }
         try responder.respond(to: socket, request: &request, response: &response)
     }
 }

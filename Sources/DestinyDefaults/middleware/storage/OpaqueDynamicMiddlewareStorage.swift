@@ -1,0 +1,23 @@
+
+import DestinyBlueprint
+
+public final class OpaqueDynamicMiddlewareStorage: OpaqueDynamicMiddlewareStorageProtocol, @unchecked Sendable {
+    @usableFromInline
+    var middleware:[any OpaqueDynamicMiddlewareProtocol]
+
+    public init(_ middleware: [any OpaqueDynamicMiddlewareProtocol]) {
+        self.middleware = middleware
+    }
+
+    @inlinable
+    public func handle(
+        for request: inout some HTTPRequestProtocol & ~Copyable,
+        with response: inout some DynamicResponseProtocol
+    ) throws(MiddlewareError) {
+        for middleware in middleware {
+            if try !middleware.handle(request: &request, response: &response) {
+                break
+            }
+        }
+    }
+}

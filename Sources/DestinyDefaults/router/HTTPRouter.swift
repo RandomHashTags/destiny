@@ -7,6 +7,7 @@ public final class HTTPRouter<
         CaseSensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
         CaseInsensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
         StaticMiddlewareStorage: MutableStaticMiddlewareStorageProtocol,
+        OpaqueDynamicMiddlewareStorage: OpaqueDynamicMiddlewareStorageProtocol,
         RouteGroupStorage: MutableRouteGroupStorageProtocol,
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,
@@ -16,7 +17,7 @@ public final class HTTPRouter<
     public let caseInsensitiveResponders:CaseInsensitiveRouterResponderStorage
 
     public let staticMiddleware:StaticMiddlewareStorage
-    nonisolated(unsafe) public var opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
+    public let opaqueDynamicMiddleware:OpaqueDynamicMiddlewareStorage
 
     public let routeGroups:RouteGroupStorage
     
@@ -31,7 +32,7 @@ public final class HTTPRouter<
         caseSensitiveResponders: CaseSensitiveRouterResponderStorage,
         caseInsensitiveResponders: CaseInsensitiveRouterResponderStorage,
         staticMiddleware: StaticMiddlewareStorage,
-        opaqueDynamicMiddleware: [any OpaqueDynamicMiddlewareProtocol],
+        opaqueDynamicMiddleware: OpaqueDynamicMiddlewareStorage,
         routeGroups: RouteGroupStorage
     ) {
         self.errorResponder = errorResponder
@@ -46,9 +47,9 @@ public final class HTTPRouter<
 
     @inlinable
     public func load() {
-        for i in opaqueDynamicMiddleware.indices {
+        /*for i in opaqueDynamicMiddleware.indices {
             opaqueDynamicMiddleware[i].load()
-        }
+        }*/ // TODO: fix?
     }
 }
 
@@ -58,16 +59,8 @@ extension HTTPRouter {
     public func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) throws(ResponderError) {
-        for middleware in opaqueDynamicMiddleware {
-            do throws(MiddlewareError) {
-                if try !middleware.handle(request: &request, response: &response) {
-                    break
-                }
-            } catch {
-                throw .middlewareError(error)
-            }
-        }
+    ) throws(MiddlewareError) {
+        try opaqueDynamicMiddleware.handle(for: &request, with: &response)
     }
 }
 

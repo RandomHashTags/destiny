@@ -31,7 +31,7 @@ extension CompiledHTTPRouter {
     public func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) throws(ResponderError) {
+    ) throws(MiddlewareError) {
         try immutable.handleDynamicMiddleware(for: &request, with: &response)
         try mutable.handleDynamicMiddleware(for: &request, with: &response)
     }

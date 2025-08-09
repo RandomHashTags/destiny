@@ -11,20 +11,7 @@ extension Router {
         context: some MacroExpansionContext
     ) -> (router: String, structs: [any DeclSyntaxProtocol]) {
         var version = HTTPVersion.v1_1
-        let defaultStaticErrorResponse = HTTPResponseMessage(
-            version: HTTPVersion.v1_1,
-            status: HTTPStandardResponseStatus.ok.code,
-            headers: [:],
-            cookies: [],
-            body: "{\"error\":true,\"reason\":\"\\(error)\"}",
-            contentType: HTTPMediaTypeApplication.json,
-            charset: nil
-        ).string(escapeLineBreak: true)
-        var errorResponder = """
-        StaticErrorResponder({ error in
-            \"\(defaultStaticErrorResponse)\"
-        })
-        """
+        var errorResponder = ""
         var dynamicNotFoundResponder = "nil"
         var staticNotFoundResponder = ""
         var storage = RouterStorage()
@@ -88,6 +75,25 @@ extension Router {
                 // TODO: support custom routes
             }
         }
+        if errorResponder.isEmpty {
+            let defaultStaticErrorResponse = HTTPResponseMessage(
+                version: version,
+                status: HTTPStandardResponseStatus.ok.code,
+                headers: [:],
+                cookies: [],
+                body: "{\"error\":true,\"reason\":\"\\(error)\"}",
+                contentType: HTTPMediaTypeApplication.json,
+                charset: nil
+            ).string(escapeLineBreak: true)
+            errorResponder = """
+            StaticErrorResponder({ error in
+                \"\(defaultStaticErrorResponse)\"
+            })
+            """
+        }
+        if dynamicNotFoundResponder == "nil" {
+            dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
+        }
         if staticNotFoundResponder.isEmpty {
             staticNotFoundResponder = IntermediateResponseBody(type: .staticStringWithDateHeader, "").responderDebugDescription(
                 HTTPResponseMessage(
@@ -100,9 +106,6 @@ extension Router {
                     charset: Charset.utf8
                 )
             )
-        }
-        if dynamicNotFoundResponder == "nil" {
-            dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
         }
         let immutableRouter = httpRouter(
             mutable: false,
@@ -169,7 +172,7 @@ extension Router {
             string.insert(contentsOf: "Immutable", at: string.startIndex)
             routeGroupsString = "CompiledRouteGroupStorage(\(routeGroupsString))"
         }
-        string += "\nopaqueDynamicMiddleware: [\(storage.dynamicMiddlewareString())],"
+        string += "\nopaqueDynamicMiddleware: \(storage.dynamicMiddlewareString(mutable: mutable)),"
         string += "\nrouteGroups: \(routeGroupsString)"
         string += "\n)"
         return string

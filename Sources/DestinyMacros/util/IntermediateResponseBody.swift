@@ -36,11 +36,11 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         case .inlineBytes:
             return "ResponseBody.InlineBytes(\(value))"
         case .macroExpansion:
-            responseString.removeLast(8 + value.count + String(value.count).count)
+            responseString.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
             return "RouteResponses.MacroExpansion(\"\(responseString)\", body: \(value))"
         case .macroExpansionWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
-            postDate.removeLast(8 + value.count + String(value.count).count)
+            postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
             return "MacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
         case .streamWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues(responseString)
@@ -96,22 +96,4 @@ public enum IntermediateResponseBodyType: Sendable {
     case staticString
     case staticStringWithDateHeader
     case stringWithDateHeader
-}
-
-extension HTTPResponseMessage {
-    @inlinable
-    func intermediateString(escapeLineBreak: Bool) -> String {
-        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        var string = head.string(suffix: suffix)
-        if let body {
-            if let contentType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
-            }
-            if body.hasContentLength {
-                let contentLength = body.string().utf8Span.count
-                string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)"
-            }
-        }
-        return string
-    }
 }

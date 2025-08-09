@@ -102,7 +102,18 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
 
     @inlinable
     public func intermediateString(escapeLineBreak: Bool) -> String {
-        string(escapeLineBreak: escapeLineBreak)
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        var string = head.string(suffix: suffix)
+        if let body {
+            if let contentType {
+                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
+            }
+            if body.hasContentLength {
+                let contentLength = body.string().utf8Span.count
+                string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)"
+            }
+        }
+        return string
     }
 
     @inlinable

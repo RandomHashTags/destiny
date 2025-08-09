@@ -6,6 +6,7 @@ import Logging
 public struct ImmutableHTTPRouter<
         CaseSensitiveRouterResponderStorage: RouterResponderStorageProtocol,
         CaseInsensitiveRouterResponderStorage: RouterResponderStorageProtocol,
+        OpaqueDynamicMiddlewareStorage: OpaqueDynamicMiddlewareStorageProtocol,
         RouteGroupStorage: RouteGroupStorageProtocol,
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,
@@ -14,7 +15,7 @@ public struct ImmutableHTTPRouter<
     public let caseSensitiveResponders:CaseSensitiveRouterResponderStorage
     public let caseInsensitiveResponders:CaseInsensitiveRouterResponderStorage
 
-    public let opaqueDynamicMiddleware:[any OpaqueDynamicMiddlewareProtocol]
+    public let opaqueDynamicMiddleware:OpaqueDynamicMiddlewareStorage
 
     public let routeGroups:RouteGroupStorage
 
@@ -28,7 +29,7 @@ public struct ImmutableHTTPRouter<
         staticNotFoundResponder: StaticNotFoundResponder?,
         caseSensitiveResponders: CaseSensitiveRouterResponderStorage,
         caseInsensitiveResponders: CaseInsensitiveRouterResponderStorage,
-        opaqueDynamicMiddleware: [any OpaqueDynamicMiddlewareProtocol],
+        opaqueDynamicMiddleware: OpaqueDynamicMiddlewareStorage,
         routeGroups: RouteGroupStorage
     ) {
         self.errorResponder = errorResponder
@@ -54,16 +55,8 @@ extension ImmutableHTTPRouter {
     public func handleDynamicMiddleware(
         for request: inout some HTTPRequestProtocol & ~Copyable,
         with response: inout some DynamicResponseProtocol
-    ) throws(ResponderError) {
-        for middleware in opaqueDynamicMiddleware {
-            do throws(MiddlewareError) {
-                if try !middleware.handle(request: &request, response: &response) {
-                    break
-                }
-            } catch {
-                throw .middlewareError(error)
-            }
-        }
+    ) throws(MiddlewareError) {
+        try opaqueDynamicMiddleware.handle(for: &request, with: &response)
     }
 }
 
