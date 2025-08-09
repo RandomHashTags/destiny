@@ -63,7 +63,7 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
         // TODO: fix
         //try await logic(&anyRequest, &anyResponse)
         do throws(SocketError) {
-            try await response.write(to: socket)
+            try response.write(to: socket)
         } catch {
             throw .socketError(error)
         }

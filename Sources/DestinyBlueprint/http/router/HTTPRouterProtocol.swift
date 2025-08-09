@@ -71,7 +71,7 @@ extension HTTPRouterProtocol {
         responder: borrowing some StaticRouteResponderProtocol
     ) async throws(ResponderError) {
         do throws(SocketError) {
-            try await responder.write(to: socket)
+            try responder.write(to: socket)
         } catch {
             throw .socketError(error)
         }

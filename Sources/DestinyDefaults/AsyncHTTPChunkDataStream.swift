@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWritable {
+public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: AsyncHTTPSocketWritable {
     public let chunkSize:Int
     public let stream:ReusableAsyncThrowingStream<T, Error> // TODO: fix
 
@@ -37,7 +37,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
 
     @inlinable
     public func write(
-        to socket: borrowing some HTTPSocketProtocol & ~Copyable
+        to socket: Int32
     ) async throws(SocketError) {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
@@ -68,7 +68,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
                 i += 1
                 buffer[i] = .lineFeed
                 i += 1
-                try socket.writeBuffer(buffer.baseAddress!, length: i)
+                try socket.socketWriteBuffer(buffer.baseAddress!, length: i)
             }
             do throws(SocketError) {
                 buffer[0] = 48
@@ -76,7 +76,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: HTTPSocketWrit
                 buffer[2] = .lineFeed
                 buffer[3] = .carriageReturn
                 buffer[4] = .lineFeed
-                try socket.writeBuffer(buffer.baseAddress!, length: 5)
+                try socket.socketWriteBuffer(buffer.baseAddress!, length: 5)
             } catch {
                 print("AsyncHTTPChunkDataStream;\(#function);error trying to send final chunk to stream") // TODO: use logger
                 err = error

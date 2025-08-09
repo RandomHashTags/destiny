@@ -14,7 +14,7 @@ extension AsyncStream where Element: HTTPSocketWritable {
         to socket: borrowing some HTTPSocketProtocol & ~Copyable
     ) async throws(SocketError) {
         for await value in self {
-            try await value.write(to: socket)
+            try value.write(to: socket)
         }
     }
 }

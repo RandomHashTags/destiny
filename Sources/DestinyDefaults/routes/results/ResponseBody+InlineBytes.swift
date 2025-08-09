@@ -47,8 +47,8 @@ extension ResponseBody {
 extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {
     @inlinable
     public func write(
-        to socket: borrowing some HTTPSocketProtocol & ~Copyable
-    ) async throws(SocketError) {
-        try await value.write(to: socket)
+        to socket: Int32
+    ) throws(SocketError) {
+        try value.write(to: socket)
     }
 }

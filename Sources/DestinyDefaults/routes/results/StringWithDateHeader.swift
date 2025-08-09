@@ -86,14 +86,14 @@ extension StringWithDateHeader {
 extension StringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func write(
-        to socket: borrowing some HTTPSocketProtocol & ~Copyable
-    ) async throws(SocketError) {
+        to socket: Int32
+    ) throws(SocketError) {
         var err:SocketError? = nil
         preDateValue.withContiguousStorageIfAvailable { preDatePointer in
             HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                 postDateValue.withContiguousStorageIfAvailable { postDatePointer in
                     do throws(SocketError) {
-                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
+                        try socket.socketWriteBuffers([preDatePointer, datePointer, postDatePointer])
                     } catch {
                         err = error
                     }

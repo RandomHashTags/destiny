@@ -107,7 +107,7 @@ extension HTTPRouter {
                         try await dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
                     } else if let staticNotFoundResponder {
                         do throws(SocketError) {
-                            try await staticNotFoundResponder.write(to: socket)
+                            try staticNotFoundResponder.write(to: socket)
                         } catch {
                             throw .socketError(error)
                         }

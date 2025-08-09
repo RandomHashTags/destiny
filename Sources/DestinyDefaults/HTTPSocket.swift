@@ -78,7 +78,7 @@ extension HTTPSocket {
         while bytesRead < length {
             if Task.isCancelled { return 0 }
             let toRead = min(Buffer.count, length - bytesRead)
-            let read = receive(baseAddress + bytesRead, toRead, flags)
+            let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
                 try handleReadError()
                 break
@@ -101,7 +101,7 @@ extension HTTPSocket {
         while bytesRead < length {
             if Task.isCancelled { return 0 }
             let toRead = min(Buffer.count, length - bytesRead)
-            let read = receive(baseAddress + bytesRead, toRead, flags)
+            let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
                 try handleReadError()
                 break
@@ -122,7 +122,7 @@ extension HTTPSocket {
         length: Int
     ) throws(SocketError) -> Int {
         if Task.isCancelled { return 0 }
-        let read = receive(baseAddress, length, 0)
+        let read = fileDescriptor.socketReceive(baseAddress, length, 0)
         if read < 0 { // error
             try handleReadError()
         }
@@ -140,18 +140,6 @@ extension HTTPSocket {
     }
 }
 
-// MARK: Receive
-extension HTTPSocket {
-    @usableFromInline
-    func receive(_ baseAddress: UnsafeMutablePointer<UInt8>, _ length: Int, _ flags: Int32 = 0) -> Int {
-        return recv(fileDescriptor, baseAddress, length, flags)
-    }
-    @usableFromInline
-    func receive(_ baseAddress: UnsafeMutableRawPointer, _ length: Int, _ flags: Int32 = 0) -> Int {
-        return recv(fileDescriptor, baseAddress, length, flags)
-    }
-}
-
 // MARK: Writing
 extension HTTPSocket {
     @inlinable
@@ -159,6 +147,7 @@ extension HTTPSocket {
         _ pointer: UnsafeRawPointer,
         length: Int
     ) throws(SocketError) {
+
         var sent = 0
         while sent < length {
             if Task.isCancelled { return }
@@ -173,14 +162,8 @@ extension HTTPSocket {
     @inlinable
     public func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
-    ) {
-        withUnsafeTemporaryAllocation(of: iovec.self, capacity: count, { iovecs in
-            for i in buffers.indices {
-                let buffer = buffers[i]
-                iovecs[i] = .init(iov_base: .init(mutating: buffer.baseAddress), iov_len: buffer.count)
-            }
-            writev(fileDescriptor, iovecs.baseAddress, Int32(count))
-        })
+    ) throws(SocketError) {
+        try fileDescriptor.socketWriteBuffers(buffers)
     }
 }
 
@@ -188,10 +171,6 @@ extension HTTPSocket {
 extension HTTPSocket {
     @usableFromInline
     func sendMultiplatform(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-        return send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
-        #else
-        return write(fileDescriptor, pointer, length)
-        #endif
+        return fileDescriptor.socketSendMultiplatform(pointer, length)
     }
 }

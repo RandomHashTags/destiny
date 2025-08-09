@@ -66,7 +66,7 @@ public struct InlineByteArray<let count: Int>: InlineByteArrayProtocol {
     }
 
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) async throws(SocketError) {
-        try await _storage.write(to: socket)
+    public func write(to socket: Int32) throws(SocketError) {
+        try _storage.write(to: socket)
     }
 }

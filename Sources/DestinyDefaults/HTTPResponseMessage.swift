@@ -269,12 +269,12 @@ extension HTTPResponseMessage {
 extension HTTPResponseMessage {
     @inlinable
     public func write(
-        to socket: borrowing some HTTPSocketProtocol & ~Copyable
-    ) async throws(SocketError) {
+        to socket: Int32
+    ) throws(SocketError) {
         var err:SocketError? = nil
         self.temporaryAllocation {
             do throws(SocketError) {
-                try socket.writeBuffer($0.baseAddress!, length: $0.count)
+                try socket.socketWriteBuffer($0.baseAddress!, length: $0.count)
             } catch {
                 err = error
             }
