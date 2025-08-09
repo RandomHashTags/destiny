@@ -2,12 +2,6 @@
 import DestinyBlueprint
 import Logging
 
-#if canImport(SwiftGlibc)
-import SwiftGlibc
-#elseif canImport(Foundation)
-import Foundation
-#endif
-
 /// Default HTTP Router implementation that handles mutable middleware, routes and router groups.
 public final class HTTPRouter<
         CaseSensitiveRouterResponderStorage: MutableRouterResponderStorageProtocol,
@@ -87,12 +81,7 @@ extension HTTPRouter {
     ) {
         Task {
             defer {
-                #if canImport(SwiftGlibc) || canImport(Foundation)
-                shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
-                close(client)
-                #else
-                #warning("Unable to shutdown and close client file descriptor!")
-                #endif
+                client.socketClose()
             }
             do throws(SocketError) {
                 var request = try socket.loadRequest()
@@ -134,11 +123,7 @@ extension HTTPRouter {
         logger: Logger
     ) async throws(ResponderError) -> Bool {
         if try caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
-            socket.socketClose()
-            return true
         } else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLineLowercased()) {
-            socket.socketClose()
-            return true
         } else if try await caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) {
         } else if try await caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) { // TODO: support
         } else {

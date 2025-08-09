@@ -2,12 +2,6 @@
 import DestinyBlueprint
 import Logging
 
-#if canImport(SwiftGlibc)
-import SwiftGlibc
-#elseif canImport(Foundation)
-import Foundation
-#endif
-
 /// Default HTTP Router implementation that optimally handles immutable and mutable middleware, routes and route groups.
 public final class CompiledHTTPRouter<
         ImmutableRouter: HTTPRouterProtocol,
@@ -53,12 +47,7 @@ extension CompiledHTTPRouter {
     ) {
         Task {
             defer {
-                #if canImport(SwiftGlibc) || canImport(Foundation)
-                shutdown(client, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
-                close(client)
-                #else
-                #warning("Unable to shutdown and close client file descriptor!")
-                #endif
+                client.socketClose()
             }
             do throws(SocketError) {
                 var request = try socket.loadRequest()

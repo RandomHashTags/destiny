@@ -75,6 +75,7 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
                 }
             }
         }
+        socket.socketClose()
         if let err {
             throw err
         }

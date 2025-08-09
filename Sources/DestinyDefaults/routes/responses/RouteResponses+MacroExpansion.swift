@@ -30,7 +30,6 @@ extension RouteResponses {
                                     bodyCountSuffixPointer,
                                     bodyPointer
                                 ])
-                                return
                             } catch {
                                 err = error
                             }
@@ -38,6 +37,7 @@ extension RouteResponses {
                     }
                 }
             }
+            socket.socketClose()
             if let err {
                 throw err
             }

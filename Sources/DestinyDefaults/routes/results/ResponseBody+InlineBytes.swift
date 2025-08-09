@@ -49,6 +49,15 @@ extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {
     public func write(
         to socket: Int32
     ) throws(SocketError) {
-        try value.write(to: socket)
+        var err:SocketError? = nil
+        do throws(SocketError) {
+            try value.write(to: socket)
+        } catch {
+            err = error
+        }
+        socket.socketClose()
+        if let err {
+            throw err
+        }
     }
 }
