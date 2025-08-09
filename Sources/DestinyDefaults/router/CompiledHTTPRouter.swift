@@ -51,14 +51,19 @@ extension CompiledHTTPRouter {
             logger.info("\(request.startLine.stringSIMD())")
             #endif
             do throws(ResponderError) {
-                if !(try respond(socket: client, request: &request, logger: logger)) {
-                    // TODO: not found
+                guard !(try respond(socket: client, request: &request, logger: logger)) else { return }
+                if !(try respondWithNotFound(socket: client, request: &request, logger: logger)) {
+                    client.socketClose()
                 }
             } catch {
                 logger.warning("Encountered error while processing client: \(error)")
+                if !respondWithError(socket: client, error: error, request: &request, logger: logger) {
+                    client.socketClose()
+                }
             }
         } catch {
             logger.warning("Encountered error while loading request: \(error)")
+            client.socketClose()
         }
     }
 }
@@ -78,6 +83,35 @@ extension CompiledHTTPRouter {
             return true
         }
         return false
+    }
+
+    @inlinable
+    public func respondWithNotFound(
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        logger: Logger
+    ) throws(ResponderError) -> Bool {
+        if try mutable.respondWithNotFound(socket: socket, request: &request, logger: logger) {
+        } else if try immutable.respondWithNotFound(socket: socket, request: &request, logger: logger) {
+        } else {
+            return false
+        }
+        return true
+    }
+
+    @inlinable
+    public func respondWithError(
+        socket: Int32,
+        error: some Error,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        logger: Logger
+    ) -> Bool {
+        if mutable.respondWithError(socket: socket, error: error, request: &request, logger: logger) {
+        } else if immutable.respondWithError(socket: socket, error: error, request: &request, logger: logger) {
+        } else {
+            return false
+        }
+        return true
     }
 }
 

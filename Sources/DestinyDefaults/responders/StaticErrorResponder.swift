@@ -12,7 +12,7 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
 
     @inlinable
     public func respond(
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
@@ -23,7 +23,8 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
         do throws(SocketError) {
             try logic(error).write(to: socket)
         } catch {
-            // TODO: do something
+            logger.warning("[StaticErrorResponder] Encountered error trying to write response: \(error)")
         }
+        socket.socketClose()
     }
 }

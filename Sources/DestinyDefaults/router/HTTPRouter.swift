@@ -86,21 +86,13 @@ extension HTTPRouter {
             #endif
             do throws(ResponderError) {
                 guard !(try respond(socket: client, request: &request, logger: logger)) else { return }
-                // not found
-                if let dynamicNotFoundResponder {
-                    var response = try defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
-                    try dynamicNotFoundResponder.respond(to: client, request: &request, response: &response)
-                } else if let staticNotFoundResponder {
-                    do throws(SocketError) {
-                        try staticNotFoundResponder.write(to: socket)
-                    } catch {
-                        throw .socketError(error)
-                    }
+                if !(try respondWithNotFound(socket: client, request: &request, logger: logger)) {
+                    client.socketClose()
                 }
             } catch {
                 logger.warning("Encountered error while processing client: \(error)")
-                if let errorResponder {
-                    errorResponder.respond(socket: socket, error: error, request: &request, logger: logger)
+                if !respondWithError(socket: client, error: error, request: &request, logger: logger) {
+                    client.socketClose()
                 }
             }
         } catch {
@@ -124,6 +116,39 @@ extension HTTPRouter {
         } else {
             return try routeGroups.respond(router: self, socket: socket, request: &request)
         }
+        return true
+    }
+
+    @inlinable
+    public func respondWithNotFound(
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        logger: Logger
+    ) throws(ResponderError) -> Bool {
+        if let dynamicNotFoundResponder {
+            var response = try defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
+            try dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
+        } else if let staticNotFoundResponder {
+            do throws(SocketError) {
+                try staticNotFoundResponder.write(to: socket)
+            } catch {
+                throw .socketError(error)
+            }
+        } else {
+            return false
+        }
+        return true
+    }
+
+    @inlinable
+    public func respondWithError(
+        socket: Int32,
+        error: some Error,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        logger: Logger
+    ) -> Bool {
+        guard let errorResponder else { return false }
+        errorResponder.respond(socket: socket, error: error, request: &request, logger: logger)
         return true
     }
 }

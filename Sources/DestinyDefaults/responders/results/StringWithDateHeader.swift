@@ -37,29 +37,12 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
 
     @inlinable
     public var count: Int {
-        value.count
+        preDateValue.count + HTTPDateFormat.InlineArrayResult.count + postDateValue.count + value.count
     }
     
     @inlinable
     public func string() -> String {
-        String(value)
-    }
-
-    @inlinable
-    func temporaryBuffer<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
-        try value.span.withUnsafeBufferPointer { valuePointer in
-            try withUnsafeTemporaryAllocation(of: UInt8.self, capacity: valuePointer.count, { buffer in
-                buffer.copyBuffer(valuePointer, at: 0)
-                // 20 = "HTTP/<v> <c>\r\n".count + "Date: ".count (14 + 6) where `<v>` is the HTTP Version and `<c>` is the HTTP Status Code
-                var i = 20
-                let dateSpan = HTTPDateFormat.nowInlineArray
-                for indice in dateSpan.indices {
-                    buffer[i] = dateSpan[indice]
-                    i += 1
-                }
-                try closure(buffer)
-            })
-        }
+        String(preDateValue) + HTTPDateFormat.placeholder + String(postDateValue) + String(value)
     }
 
     @inlinable public var hasDateHeader: Bool { true }
@@ -79,6 +62,9 @@ extension StringWithDateHeader {
         postDateValue.withContiguousStorageIfAvailable {
             buffer.copyBuffer($0, at: &index)
         }
+        value.withContiguousStorageIfAvailable {
+            buffer.copyBuffer($0, at: &index)
+        }
     }
 }
 
@@ -92,10 +78,12 @@ extension StringWithDateHeader: StaticRouteResponderProtocol {
         preDateValue.withContiguousStorageIfAvailable { preDatePointer in
             HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                 postDateValue.withContiguousStorageIfAvailable { postDatePointer in
-                    do throws(SocketError) {
-                        try socket.socketWriteBuffers([preDatePointer, datePointer, postDatePointer])
-                    } catch {
-                        err = error
+                    value.withContiguousStorageIfAvailable { valuePointer in
+                        do throws(SocketError) {
+                            try socket.socketWriteBuffers([preDatePointer, datePointer, postDatePointer, valuePointer])
+                        } catch {
+                            err = error
+                        }
                     }
                 }
             }

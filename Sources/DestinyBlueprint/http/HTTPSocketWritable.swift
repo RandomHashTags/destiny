@@ -1,10 +1,10 @@
 
-/// Types conforming to this protocol can write their contents to an HTTP Socket.
+/// Types conforming to this protocol can write their contents synchronously to an HTTP Socket.
 public protocol HTTPSocketWritable: Sendable, ~Copyable {
     /// Synchronously writes data to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: some noncopyable `HTTPSocketProtocol`.
+    ///   - socket: The socket.
     func write(
         to socket: Int32
     ) throws(SocketError)

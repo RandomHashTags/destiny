@@ -5,7 +5,7 @@ public protocol SocketProtocol: ~Copyable, Sendable {
     
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 
-    /// - Warning: Do not close this file descriptor. It is closed automatically by the server.
+    /// - Warning: Don't forget to close this file descriptor when you're done with it. It is **not** closed automatically.
     var fileDescriptor: Int32 { get }
 
     init(fileDescriptor: Int32)

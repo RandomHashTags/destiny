@@ -39,4 +39,23 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol
     ) throws(ResponderError)
+
+    /// Writes a response, usually a 404, to the socket.
+    /// 
+    /// - Returns: Whether or not a response was sent.
+    func respondWithNotFound(
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        logger: Logger
+    ) throws(ResponderError) -> Bool
+
+    /// Writes an error response to the socket.
+    /// 
+    /// - Returns: Whether or not a response was sent.
+    func respondWithError(
+        socket: Int32,
+        error: some Error,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        logger: Logger
+    ) -> Bool
 }

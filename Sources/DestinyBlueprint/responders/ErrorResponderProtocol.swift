@@ -5,7 +5,7 @@ import Logging
 public protocol ErrorResponderProtocol: RouteResponderProtocol, ~Copyable {
     /// Writes a response to a socket.
     func respond(
-        socket: borrowing some HTTPSocketProtocol & ~Copyable,
+        socket: Int32,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger
