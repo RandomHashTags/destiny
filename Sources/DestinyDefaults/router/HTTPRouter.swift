@@ -11,7 +11,7 @@ public final class HTTPRouter<
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,
         StaticNotFoundResponder: StaticRouteResponderProtocol
-    >: HTTPMutableRouterProtocol {
+    >: DestinyHTTPMutableRouterProtocol {
     public let caseSensitiveResponders:CaseSensitiveRouterResponderStorage
     public let caseInsensitiveResponders:CaseInsensitiveRouterResponderStorage
 

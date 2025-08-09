@@ -10,7 +10,7 @@ public struct ImmutableHTTPRouter<
         ErrorResponder: ErrorResponderProtocol,
         DynamicNotFoundResponder: DynamicRouteResponderProtocol,
         StaticNotFoundResponder: StaticRouteResponderProtocol
-    >: HTTPRouterProtocol {
+    >: DestinyHTTPRouterProtocol {
     public let caseSensitiveResponders:CaseSensitiveRouterResponderStorage
     public let caseInsensitiveResponders:CaseInsensitiveRouterResponderStorage
 

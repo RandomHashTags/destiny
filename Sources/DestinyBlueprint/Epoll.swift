@@ -71,10 +71,10 @@ public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     @inlinable
     public mutating func wait(
         timeout: Int32 = -1,
-        acceptClient: (Int32) throws(SocketError) -> Int32?
+        acceptClient: (Int32) throws(SocketError) -> Int32?,
+        events: inout InlineArray<maxEvents, epoll_event>
     ) throws(EpollError) -> (loaded: Int, clients: InlineArray<maxEvents, Int32>) {
         var loadedClients:Int32 = -1
-        var events = InlineArray<maxEvents, epoll_event>(repeating: .init())
         var err:EpollError? = nil
         events.mutableSpan.withUnsafeBufferPointer { p in
             do throws(EpollError) {

@@ -60,9 +60,10 @@ public struct EpollProcessor<let threads: Int, let maxEvents: Int, ConcreteSocke
         let cancelPipeFD = instance.pipeFileDescriptors[1]
         let logger = instance.logger
         let acceptClient = instance.acceptFunction(noTCPDelay: noTCPDelay)
+        var events = InlineArray<maxEvents, epoll_event>(repeating: .init())
         while !Task.isCancelled {
             do throws(EpollError) {
-                let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient)
+                let (loaded, clients) = try instance.wait(timeout: timeout, acceptClient: acceptClient, events: &events)
                 var i = 0
                 while i < loaded {
                     let client = clients[i]

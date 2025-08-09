@@ -4,9 +4,9 @@ import Logging
 
 /// Default HTTP Router implementation that optimally handles immutable and mutable middleware, routes and route groups.
 public final class CompiledHTTPRouter<
-        ImmutableRouter: HTTPRouterProtocol,
-        MutableRouter: HTTPMutableRouterProtocol
-    >: HTTPMutableRouterProtocol {
+        ImmutableRouter: DestinyHTTPRouterProtocol,
+        MutableRouter: DestinyHTTPMutableRouterProtocol
+    >: DestinyHTTPMutableRouterProtocol {
     public let immutable:ImmutableRouter
     public let mutable:MutableRouter
     
