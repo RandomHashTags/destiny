@@ -230,6 +230,7 @@ List of techniques Destiny wants to incorporate to push performance even further
 Areas that Swift needs more development/support to unlock more performance at the language level.
 
 - `~Copyable` types in parameter packs (current `Copyable` requirement causes retain/release and ARC traffic)
+- `~Copyable` types not being able to be used as a `typealias` or `associatedtype`
 
 ## Getting started
 

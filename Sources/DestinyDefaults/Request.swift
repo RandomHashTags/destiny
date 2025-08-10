@@ -60,6 +60,11 @@ public struct Request: HTTPRequestProtocol {
     public mutating func header(forKey key: String) -> String? {
         headers[key]
     }
+
+    @inlinable
+    public func copy() -> Self {
+        .init(startLine: startLine, newStartLine: newStartLine)
+    }
 }
 
 // MARK: Load

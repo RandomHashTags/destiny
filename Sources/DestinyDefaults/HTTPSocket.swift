@@ -1,22 +1,4 @@
 
-#if canImport(Android)
-import Android
-#elseif canImport(Bionic)
-import Bionic
-#elseif canImport(Darwin)
-import Darwin
-#elseif canImport(Glibc)
-import Glibc
-#elseif canImport(Musl)
-import Musl
-#elseif canImport(WASILibc)
-import WASILibc
-#elseif canImport(Windows)
-import Windows
-#elseif canImport(WinSDK)
-import WinSDK
-#endif
-
 import DestinyBlueprint
 
 /// Default HTTP Socket implementation.
@@ -80,7 +62,7 @@ extension HTTPSocket {
             let toRead = min(Buffer.count, length - bytesRead)
             let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
-                try handleReadError()
+                try fileDescriptor.handleReadError()
                 break
             } else if read == 0 { // end of file
                 break
@@ -103,7 +85,7 @@ extension HTTPSocket {
             let toRead = min(Buffer.count, length - bytesRead)
             let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
-                try handleReadError()
+                try fileDescriptor.handleReadError()
                 break
             } else if read == 0 { // end of file
                 break
@@ -121,22 +103,7 @@ extension HTTPSocket {
         into baseAddress: UnsafeMutableRawPointer,
         length: Int
     ) throws(SocketError) -> Int {
-        if Task.isCancelled { return 0 }
-        let read = fileDescriptor.socketReceive(baseAddress, length, 0)
-        if read < 0 { // error
-            try handleReadError()
-        }
-        return read
-    }
-
-    @inlinable
-    public func handleReadError() throws(SocketError) {
-        #if canImport(Glibc)
-        if errno == EAGAIN || errno == EWOULDBLOCK {
-            return
-        }
-        #endif
-        throw SocketError.readBufferFailed()
+        return try fileDescriptor.socketReadBuffer(into: baseAddress, length: length)
     }
 }
 

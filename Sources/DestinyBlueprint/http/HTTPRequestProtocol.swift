@@ -25,6 +25,9 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     //@inlinable func header<let keyCount: Int, valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 
     mutating func header(forKey key: String) -> String?
+
+    /// - Returns: A copy of self.
+    func copy() -> Self
 }
 
 /*

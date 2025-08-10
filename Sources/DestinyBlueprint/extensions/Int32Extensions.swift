@@ -5,8 +5,8 @@ import Android
 import Bionic
 #elseif canImport(Darwin)
 import Darwin
-#elseif canImport(SwiftGlibc)
-import SwiftGlibc
+#elseif canImport(Glibc)
+import Glibc
 #elseif canImport(Musl)
 import Musl
 #elseif canImport(WASILibc)
@@ -26,6 +26,35 @@ extension Int32 {
     @inlinable
     public func socketReceive(_ baseAddress: UnsafeMutableRawPointer, _ length: Int, _ flags: Int32 = 0) -> Int {
         return recv(self, baseAddress, length, flags)
+    }
+}
+
+// MARK: Read
+extension Int32 {
+    /// Reads multiple bytes and writes them into a buffer.
+    /// 
+    /// - Returns: The number of bytes received.
+    @inlinable
+    public func socketReadBuffer(
+        into baseAddress: UnsafeMutableRawPointer,
+        length: Int
+    ) throws(SocketError) -> Int {
+        if Task.isCancelled { return 0 }
+        let read = socketReceive(baseAddress, length, 0)
+        if read < 0 { // error
+            try handleReadError()
+        }
+        return read
+    }
+
+    @inlinable
+    package func handleReadError() throws(SocketError) {
+        #if canImport(Glibc)
+        if errno == EAGAIN || errno == EWOULDBLOCK {
+            return
+        }
+        #endif
+        throw SocketError.readBufferFailed()
     }
 }
 

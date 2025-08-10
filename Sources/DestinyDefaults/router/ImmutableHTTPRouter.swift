@@ -103,8 +103,9 @@ extension ImmutableHTTPRouter {
         } else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLineLowercased()) {
         } else if try caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) {
         } else if try caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) { // TODO: support
+        } else if try routeGroups.respond(router: self, socket: socket, request: &request) {
         } else {
-            return try routeGroups.respond(router: self, socket: socket, request: &request)
+            return false
         }
         return true
     }

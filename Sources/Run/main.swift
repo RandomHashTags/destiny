@@ -197,7 +197,7 @@ LoggingSystem.bootstrap { label in
         path: ["error2"],
         contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
-            //throw ResponderError.inferred(CustomError.yipyip) // TODO: this breaks compilation | why? | error says the following but doesn't use `any Error`: invalid conversion of thrown error type 'any Error' to 'ResponderError'
+            throw CustomError.yipyip
         }
     ),
     DynamicRoute.get(
@@ -205,6 +205,14 @@ LoggingSystem.bootstrap { label in
         contentType: HTTPMediaTypeText.plain,
         handler: { request, response in
             response.setBody("Host=" + (request.header(forKey: "Host") ?? "nil"))
+        }
+    ),
+    DynamicRoute.get(
+        path: ["asyncDynamic"],
+        contentType: HTTPMediaTypeText.plain,
+        handler: { request, response in
+            response.setBody("asynced")
+            try await Task.sleep(for: .seconds(3))
         }
     ),
     DynamicRoute.get(

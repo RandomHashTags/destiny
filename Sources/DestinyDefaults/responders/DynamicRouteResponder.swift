@@ -6,13 +6,13 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let _defaultResponse:DynamicResponse
-    public let logic:@Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws(ResponderError) -> Void
+    public let logic:@Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
         defaultResponse: DynamicResponse,
-        logic: @Sendable @escaping (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws(ResponderError) -> Void,
+        logic: @Sendable @escaping (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
