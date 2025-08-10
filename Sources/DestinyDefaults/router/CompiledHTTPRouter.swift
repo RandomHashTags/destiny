@@ -77,12 +77,11 @@ extension CompiledHTTPRouter {
         logger: Logger
     ) throws(ResponderError) -> Bool {
         if try immutable.respond(socket: socket, request: &request, logger: logger) {
-            return true
+        } else if try mutable.respond(socket: socket, request: &request, logger: logger) {
+        } else {
+            return false
         }
-        if try mutable.respond(socket: socket, request: &request, logger: logger) {
-            return true
-        }
-        return false
+        return true
     }
 
     @inlinable

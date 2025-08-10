@@ -52,6 +52,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [x] Typed throws where applicable <b>(Aug 3, 2025)</b>
 - [x] Foundation-less <b>(Aug 5, 2025)</b>
 - [x] Swift 6 Language Mode <b>(Aug 5, 2025)</b>
+- [x] Cookies <b>(Aug 9, 2025)</b>
 
 ### WIP
 
@@ -62,7 +63,6 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
 - [ ] Optimal Memory Layout for stored objects
-- [ ] Cookies
 - [ ] Route queries
 - [ ] Embedded support
 

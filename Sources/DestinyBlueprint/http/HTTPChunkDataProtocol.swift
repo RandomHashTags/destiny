@@ -9,5 +9,5 @@ extension String: HTTPChunkDataProtocol {
 }
 
 extension StaticString: HTTPChunkDataProtocol {
-    @inlinable public var chunkDataCount: Int { self.utf8CodeUnitCount }
+    @inlinable public var chunkDataCount: Int { utf8CodeUnitCount }
 }
