@@ -121,7 +121,7 @@ extension HTTPRouter {
     ) throws(ResponderError) -> Bool {
         if let dynamicNotFoundResponder {
             var response = try defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
-            try dynamicNotFoundResponder.respond(to: socket, request: &request, response: &response)
+            try dynamicNotFoundResponder.respond(router: self, socket: socket, request: &request, response: &response)
         } else if let staticNotFoundResponder {
             do throws(SocketError) {
                 try staticNotFoundResponder.write(to: socket)

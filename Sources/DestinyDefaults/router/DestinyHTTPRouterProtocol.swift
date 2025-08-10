@@ -80,6 +80,6 @@ extension DestinyHTTPRouterProtocol {
         } catch {
             throw .middlewareError(error)
         }
-        try responder.respond(to: socket, request: &request, response: &response)
+        try responder.respond(router: self, socket: socket, request: &request, response: &response)
     }
 }

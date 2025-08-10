@@ -149,15 +149,18 @@ extension RouterStorage {
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: """
             @inlinable
             func respond(
-                to socket: Int32,
+                router: some HTTPRouterProtocol,
+                socket: Int32,
                 request: inout some HTTPRequestProtocol & ~Copyable,
                 response: inout some DynamicResponseProtocol
             ) throws(ResponderError) {
                 \(isAsync ? "var request = request.copy()\nvar response = response\nTask {\n" : "")var err:ResponderError? = nil
                 \(responder)
                 if let err {
-                    socket.socketClose()
-                    throw err\(isAsync ? " // TODO: properly handle/log" : "")
+                    if !router.respondWithError(socket: socket, error: err, request: &request, logger: Logger(label: "\(name).destiny")) { // TODO: fix logger
+                        socket.socketClose()
+                    }
+                    return
                 }
                 do throws(SocketError) {
                     try response.write(to: socket)
@@ -166,7 +169,10 @@ extension RouterStorage {
                 }
                 socket.socketClose()
                 if let err {
-                    throw err\(isAsync ? " // TODO: properly handle/log" : "")
+                    if !router.respondWithError(socket: socket, error: err, request: &request, logger: Logger(label: "\(name).destiny")) { // TODO: fix logger
+                        socket.socketClose()
+                    }
+                    return
                 }\(isAsync ? "\n}" : "")
             }
             """)))

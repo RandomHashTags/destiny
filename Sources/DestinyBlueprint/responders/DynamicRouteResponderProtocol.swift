@@ -18,11 +18,13 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     /// Writes a response to a socket.
     /// 
     /// - Parameters:
+    ///   - router: The router this responder is stored in.
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     ///   - response: The http message to send to the socket.
     func respond(
-        to socket: Int32,
+        router: some HTTPRouterProtocol,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
     ) throws(ResponderError)

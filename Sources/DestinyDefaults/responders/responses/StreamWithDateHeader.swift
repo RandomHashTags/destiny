@@ -78,6 +78,7 @@ extension StreamWithDateHeader: StaticRouteResponderProtocol {
             }
         }
         if let err {
+            socket.socketClose()
             throw err
         }
         Task {

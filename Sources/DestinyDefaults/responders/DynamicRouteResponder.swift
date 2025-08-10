@@ -1,18 +1,19 @@
 
 import DestinyBlueprint
+import Logging
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
 public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugStringConvertible {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let _defaultResponse:DynamicResponse
-    public let logic:@Sendable (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void
+    public let logic:@Sendable (inout any HTTPRequestProtocol & ~Copyable, inout any DynamicResponseProtocol) async throws -> Void
     private let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
         defaultResponse: DynamicResponse,
-        logic: @Sendable @escaping (inout any HTTPRequestProtocol, inout any DynamicResponseProtocol) async throws -> Void,
+        logic: @Sendable @escaping (inout any HTTPRequestProtocol & ~Copyable, inout any DynamicResponseProtocol) async throws -> Void,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
@@ -56,21 +57,37 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
 
     @inlinable
     public func respond(
-        to socket: Int32,
+        router: some HTTPRouterProtocol,
+        socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
     ) throws(ResponderError) {
-        // TODO: fix
-        //try await logic(&anyRequest, &anyResponse)
-        var err:ResponderError? = nil
-        do throws(SocketError) {
-            try response.write(to: socket)
-        } catch {
-            err = .socketError(error)
-        }
-        socket.socketClose()
-        if let err {
-            throw err
+        var anyRequest:any HTTPRequestProtocol & ~Copyable = request.copy()
+        var anyResponse:any DynamicResponseProtocol = response
+        Task {
+            var err:ResponderError? = nil
+            do {
+                try await logic(&anyRequest, &anyResponse)
+            } catch {
+                err = ResponderError(identifier: "dynamicRouteResponderError", reason: "while executing dynamic logic: \(error)")
+            }
+            if let err {
+                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, logger: Logger(label: "dynamicRouteResponder.destiny")) { // TODO: fix logger
+                    socket.socketClose()
+                }
+                return
+            }
+            do throws(SocketError) {
+                try anyResponse.write(to: socket)
+            } catch {
+                err = .socketError(error)
+            }
+            if let err {
+                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, logger: Logger(label: "dynamicRouteResponder.destiny")) { // TODO: fix logger
+                    socket.socketClose()
+                }
+                return
+            }
         }
     }
 }
