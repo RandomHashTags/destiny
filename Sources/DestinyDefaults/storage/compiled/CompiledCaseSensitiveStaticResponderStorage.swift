@@ -1,8 +1,8 @@
 
 import DestinyBlueprint
 
-/// Default immutable storage that handles static routes.
-public struct CompiledStaticResponderStorage<each ConcreteRoute: CompiledStaticResponderStorageRouteProtocol>: StaticResponderStorageProtocol {
+/// Default immutable storage that handles case sensitive static routes.
+public struct CompiledCaseSensitiveStaticResponderStorage<each ConcreteRoute: CompiledStaticResponderStorageRouteProtocol>: StaticResponderStorageProtocol {
     public let routes:(repeat each ConcreteRoute)
 
     public init(_ routes: (repeat each ConcreteRoute)) {

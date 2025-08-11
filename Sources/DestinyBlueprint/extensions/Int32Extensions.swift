@@ -39,7 +39,6 @@ extension Int32 {
         into baseAddress: UnsafeMutableRawPointer,
         length: Int
     ) throws(SocketError) -> Int {
-        if Task.isCancelled { return 0 }
         let read = socketReceive(baseAddress, length, 0)
         if read < 0 { // error
             try handleReadError()
@@ -67,10 +66,9 @@ extension Int32 {
     ) throws(SocketError) {
         var sent = 0
         while sent < length {
-            if Task.isCancelled { return }
             let result = socketSendMultiplatform(pointer + sent, length - sent)
             if result <= 0 {
-                throw SocketError.writeFailed()
+                throw .writeFailed()
             }
             sent += result
         }

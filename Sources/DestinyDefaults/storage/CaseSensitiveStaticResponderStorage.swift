@@ -1,25 +1,25 @@
 
 import DestinyBlueprint
 
-/// Default mutable storage that handles static routes.
-public final class StaticResponderStorage: MutableStaticResponderStorageProtocol, @unchecked Sendable {
+/// Default mutable storage that handles case sensitive static routes.
+public final class CaseSensitiveStaticResponderStorage: MutableStaticResponderStorageProtocol, @unchecked Sendable {
 
-    @usableFromInline var macroExpansions:[DestinyRoutePathType:RouteResponses.MacroExpansion]
-    @usableFromInline var macroExpansionsWithDateHeader:[DestinyRoutePathType:MacroExpansionWithDateHeader]
-    @usableFromInline var staticStrings:[DestinyRoutePathType:StaticString]
-    @usableFromInline var staticStringsWithDateHeader:[DestinyRoutePathType:StaticStringWithDateHeader]
-    @usableFromInline var strings:[DestinyRoutePathType:String]
-    @usableFromInline var stringsWithDateHeader:[DestinyRoutePathType:StringWithDateHeader]
-    @usableFromInline var bytes:[DestinyRoutePathType:ResponseBody.Bytes]
+    @usableFromInline var macroExpansions:[SIMD64<UInt8>:RouteResponses.MacroExpansion]
+    @usableFromInline var macroExpansionsWithDateHeader:[SIMD64<UInt8>:MacroExpansionWithDateHeader]
+    @usableFromInline var staticStrings:[SIMD64<UInt8>:StaticString]
+    @usableFromInline var staticStringsWithDateHeader:[SIMD64<UInt8>:StaticStringWithDateHeader]
+    @usableFromInline var strings:[SIMD64<UInt8>:String]
+    @usableFromInline var stringsWithDateHeader:[SIMD64<UInt8>:StringWithDateHeader]
+    @usableFromInline var bytes:[SIMD64<UInt8>:ResponseBody.Bytes]
 
     public init(
-        macroExpansions: [DestinyRoutePathType:RouteResponses.MacroExpansion] = [:],
-        macroExpansionsWithDateHeader: [DestinyRoutePathType:MacroExpansionWithDateHeader] = [:],
-        staticStrings: [DestinyRoutePathType:StaticString] = [:],
-        staticStringsWithDateHeader: [DestinyRoutePathType:StaticStringWithDateHeader] = [:],
-        strings: [DestinyRoutePathType:String] = [:],
-        stringsWithDateHeader: [DestinyRoutePathType:StringWithDateHeader] = [:],
-        bytes: [DestinyRoutePathType:ResponseBody.Bytes] = [:]
+        macroExpansions: [SIMD64<UInt8>:RouteResponses.MacroExpansion] = [:],
+        macroExpansionsWithDateHeader: [SIMD64<UInt8>:MacroExpansionWithDateHeader] = [:],
+        staticStrings: [SIMD64<UInt8>:StaticString] = [:],
+        staticStringsWithDateHeader: [SIMD64<UInt8>:StaticStringWithDateHeader] = [:],
+        strings: [SIMD64<UInt8>:String] = [:],
+        stringsWithDateHeader: [SIMD64<UInt8>:StringWithDateHeader] = [:],
+        bytes: [SIMD64<UInt8>:ResponseBody.Bytes] = [:]
     ) {
         self.macroExpansions = macroExpansions
         self.macroExpansionsWithDateHeader = macroExpansionsWithDateHeader
@@ -32,7 +32,7 @@ public final class StaticResponderStorage: MutableStaticResponderStorageProtocol
 }
 
 // AMRK: Respond
-extension StaticResponderStorage {
+extension CaseSensitiveStaticResponderStorage {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
@@ -63,10 +63,10 @@ extension StaticResponderStorage {
 }
 
 // MARK: Register
-extension StaticResponderStorage {
+extension CaseSensitiveStaticResponderStorage {
     @inlinable
     public func register(
-        path: DestinyRoutePathType,
+        path: SIMD64<UInt8>,
         responder: some StaticRouteResponderProtocol
     ) {
         if let responder = responder as? RouteResponses.MacroExpansion {
@@ -87,31 +87,31 @@ extension StaticResponderStorage {
     }
 
     @inlinable
-    public func register(path: DestinyRoutePathType, _ responder: RouteResponses.MacroExpansion) {
+    public func register(path: SIMD64<UInt8>, _ responder: RouteResponses.MacroExpansion) {
         macroExpansions[path] = responder
     }
     @inlinable
-    public func register(path: DestinyRoutePathType, _ responder: MacroExpansionWithDateHeader) {
+    public func register(path: SIMD64<UInt8>, _ responder: MacroExpansionWithDateHeader) {
         macroExpansionsWithDateHeader[path] = responder
     }
     @inlinable
-    public func register(path: DestinyRoutePathType, _ responder: StaticString) {
+    public func register(path: SIMD64<UInt8>, _ responder: StaticString) {
         staticStrings[path] = responder
     }
     @inlinable
-    public func register(path: DestinyRoutePathType, _ responder: StaticStringWithDateHeader) {
+    public func register(path: SIMD64<UInt8>, _ responder: StaticStringWithDateHeader) {
         staticStringsWithDateHeader[path] = responder
     }
     @inlinable
-    public func register(path: DestinyRoutePathType, _ responder: String) {
+    public func register(path: SIMD64<UInt8>, _ responder: String) {
         strings[path] = responder
     }
     @inlinable
-    public func register(path: DestinyRoutePathType, _ responder: StringWithDateHeader) {
+    public func register(path: SIMD64<UInt8>, _ responder: StringWithDateHeader) {
         stringsWithDateHeader[path] = responder
     }
     @inlinable
-    public func register(path: DestinyRoutePathType, _ responder: ResponseBody.Bytes) {
+    public func register(path: SIMD64<UInt8>, _ responder: ResponseBody.Bytes) {
         bytes[path] = responder
     }
 }

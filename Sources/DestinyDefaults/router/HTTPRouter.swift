@@ -106,7 +106,6 @@ extension HTTPRouter {
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
         if try caseSensitiveResponders.respondStatically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
-        //} else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLineLowercased()) { // TODO: fix
         } else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
         } else if try caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
         } else if try caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request, completionHandler: completionHandler) { // TODO: support

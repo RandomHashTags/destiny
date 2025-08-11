@@ -15,7 +15,7 @@ extension RouterStorage {
         middleware: [CompiledStaticMiddleware],
         routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String {
-        let typeAnnotation = "\(mutable ? "" : "Compiled")StaticResponderStorage"
+        let typeAnnotation = "\(mutable ? "" : "Compiled")Case\(isCaseSensitive ? "S" : "Ins")ensitiveStaticResponderStorage"
         guard !routes.isEmpty else {
             if mutable {
                 return "\(typeAnnotation)()"

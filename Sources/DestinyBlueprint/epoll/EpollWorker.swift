@@ -102,9 +102,9 @@ public final class EpollWorker<let maxEvents: Int>: @unchecked Sendable {
 // MARK: Run
 extension EpollWorker {
     /// - Parameters:
-    ///   - pinToCore: Which core to run this one.
+    ///   - pinToCore: Which core to run this on.
     ///   - timeout: Milliseconds to wait until we time-out.
-    ///   - handleClient: Returns: Whether or not the socket was closed.
+    ///   - handleClient: Handle logic for a socket.
     @inlinable
     public func run(
         pinToCore: Int32? = nil,

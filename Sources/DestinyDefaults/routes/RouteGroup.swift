@@ -7,7 +7,7 @@ public struct RouteGroup: RouteGroupProtocol {
     public let prefixEndpoints:[String]
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]
-    public let staticResponses:StaticResponderStorage
+    public let staticResponses:CaseSensitiveStaticResponderStorage
     public let dynamicResponses:DynamicResponderStorage
 
     public init(
@@ -27,7 +27,7 @@ public struct RouteGroup: RouteGroupProtocol {
         prefixEndpoints: [String],
         staticMiddleware: [any StaticMiddlewareProtocol],
         dynamicMiddleware: [any DynamicMiddlewareProtocol],
-        staticResponses: StaticResponderStorage,
+        staticResponses: CaseSensitiveStaticResponderStorage,
         dynamicResponses: DynamicResponderStorage
     ) {
         self.prefixEndpoints = prefixEndpoints

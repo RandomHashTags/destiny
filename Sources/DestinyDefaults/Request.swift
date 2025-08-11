@@ -78,7 +78,7 @@ extension Request {
             throw SocketError.malformedRequest()
         }
         var startLine = DestinyRoutePathType()
-        let newStartLine = try HTTPStartLine(buffer: buffer)
+        let newStartLine = try HTTPStartLine.init(buffer: buffer)
         for i in 0..<newStartLine.endIndex {
             startLine[i] = buffer.itemAt(index: i)
         }

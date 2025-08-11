@@ -58,7 +58,6 @@ extension HTTPSocket {
     ) throws(SocketError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
-            if Task.isCancelled { return 0 }
             let toRead = min(Buffer.count, length - bytesRead)
             let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
@@ -81,7 +80,6 @@ extension HTTPSocket {
     ) throws(SocketError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
-            if Task.isCancelled { return 0 }
             let toRead = min(Buffer.count, length - bytesRead)
             let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
             if read < 0 { // error
@@ -114,13 +112,11 @@ extension HTTPSocket {
         _ pointer: UnsafeRawPointer,
         length: Int
     ) throws(SocketError) {
-
         var sent = 0
         while sent < length {
-            if Task.isCancelled { return }
             let result = sendMultiplatform(pointer + sent, length - sent)
             if result <= 0 {
-                throw SocketError.writeFailed()
+                throw .writeFailed()
             }
             sent += result
         }
