@@ -44,12 +44,13 @@ extension RouteGroup {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        request: inout some HTTPRequestProtocol & ~Copyable
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        if try staticResponses.respond(router: router, socket: socket, startLine: request.startLine) {
+        if try staticResponses.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
         } else if let responder = dynamicResponses.responder(for: &request) {
-            try router.respondDynamically(socket: socket, request: &request, responder: responder)
+            try router.respondDynamically(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
             return true
         } else {
             return false

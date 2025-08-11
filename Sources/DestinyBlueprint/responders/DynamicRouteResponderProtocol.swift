@@ -26,6 +26,7 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        response: inout some DynamicResponseProtocol
+        response: inout some DynamicResponseProtocol,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
 }

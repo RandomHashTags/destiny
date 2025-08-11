@@ -11,6 +11,7 @@ public protocol StaticResponderStorageProtocol: Sendable, ~Copyable {
     func respond(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        startLine: SIMD64<UInt8>
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 }

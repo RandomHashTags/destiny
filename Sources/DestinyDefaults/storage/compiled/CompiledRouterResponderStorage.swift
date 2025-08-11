@@ -28,12 +28,13 @@ extension CompiledRouterResponderStorage {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        request: inout some HTTPRequestProtocol & ~Copyable
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        if try respondStatically(router: router, socket: socket, startLine: request.startLine) {
+        if try respondStatically(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
         }
-        if try respondDynamically(router: router, socket: socket, request: &request) {
+        if try respondDynamically(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
         }
         if let responder = conditional[request.startLine] {
@@ -46,9 +47,10 @@ extension CompiledRouterResponderStorage {
     public func respondStatically(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        startLine: SIMD64<UInt8>
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        return try `static`.respond(router: router, socket: socket, startLine: startLine)
+        return try `static`.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
     }
 
     @inlinable
@@ -56,7 +58,8 @@ extension CompiledRouterResponderStorage {
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        return try dynamic.respond(router: router, socket: socket, request: &request)
+        return try dynamic.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
     }
 }

@@ -37,22 +37,24 @@ extension StaticResponderStorage {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        startLine: DestinyRoutePathType
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
+        let startLine = request.startLine
         if let r = macroExpansions[startLine] {
-            try router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = macroExpansionsWithDateHeader[startLine] {
-            try router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = staticStrings[startLine] {
-            try router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = staticStringsWithDateHeader[startLine] {
-            try router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = stringsWithDateHeader[startLine] {
-            try router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = strings[startLine] {
-            try router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = bytes[startLine] {
-            try router.respondStatically(socket: socket, responder: r)
+            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else {
             return false
         }

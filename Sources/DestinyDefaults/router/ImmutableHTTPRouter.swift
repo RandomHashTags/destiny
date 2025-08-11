@@ -22,6 +22,8 @@ public struct ImmutableHTTPRouter<
     public let errorResponder:ErrorResponder?
     public let dynamicNotFoundResponder:DynamicNotFoundResponder?
     public let staticNotFoundResponder:StaticNotFoundResponder?
+
+    public let logger:Logger
     
     public init(
         errorResponder: ErrorResponder?,
@@ -39,6 +41,7 @@ public struct ImmutableHTTPRouter<
         self.caseInsensitiveResponders = caseInsensitiveResponders
         self.opaqueDynamicMiddleware = opaqueDynamicMiddleware
         self.routeGroups = routeGroups
+        logger = Logger(label: "immutableHTTPRouter.destinydefaults")
     }
 
     @inlinable
@@ -66,7 +69,7 @@ extension ImmutableHTTPRouter {
     public func handle(
         client: Int32,
         socket: consuming some HTTPSocketProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     ) {
         do throws(SocketError) {
             var request = try socket.loadRequest()
@@ -74,19 +77,19 @@ extension ImmutableHTTPRouter {
             logger.info("\(request.startLine.stringSIMD())")
             #endif
             do throws(ResponderError) {
-                guard !(try respond(socket: client, request: &request, logger: logger)) else { return }
-                if !(try respondWithNotFound(socket: client, request: &request, logger: logger)) {
-                    client.socketClose()
+                guard !(try respond(socket: client, request: &request, completionHandler: completionHandler)) else { return }
+                if !(try respondWithNotFound(socket: client, request: &request, completionHandler: completionHandler)) {
+                    completionHandler()
                 }
             } catch {
                 logger.warning("Encountered error while processing client: \(error)")
-                if !respondWithError(socket: client, error: error, request: &request, logger: logger) {
-                    client.socketClose()
+                if !respondWithError(socket: client, error: error, request: &request, completionHandler: completionHandler) {
+                    completionHandler()
                 }
             }
         } catch {
             logger.warning("Encountered error while loading request: \(error)")
-            client.socketClose()
+            completionHandler()
         }
     }
 }
@@ -97,13 +100,14 @@ extension ImmutableHTTPRouter {
     public func respond(
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        if try caseSensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLine) {
-        } else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLineLowercased()) {
-        } else if try caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) {
-        } else if try caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request) { // TODO: support
-        } else if try routeGroups.respond(router: self, socket: socket, request: &request) {
+        if try caseSensitiveResponders.respondStatically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
+        //} else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, startLine: request.startLineLowercased()) { // TODO: fix
+        } else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
+        } else if try caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
+        } else if try caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request, completionHandler: completionHandler) { // TODO: support
+        } else if try routeGroups.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
         } else {
             return false
         }
@@ -114,14 +118,14 @@ extension ImmutableHTTPRouter {
     public func respondWithNotFound(
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
         if let dynamicNotFoundResponder {
             var response = try defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
-            try dynamicNotFoundResponder.respond(router: self, socket: socket, request: &request, response: &response)
+            try dynamicNotFoundResponder.respond(router: self, socket: socket, request: &request, response: &response, completionHandler: completionHandler)
         } else if let staticNotFoundResponder {
             do throws(SocketError) {
-                try staticNotFoundResponder.write(to: socket)
+                try staticNotFoundResponder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
             } catch {
                 throw .socketError(error)
             }
@@ -136,10 +140,10 @@ extension ImmutableHTTPRouter {
         socket: Int32,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     ) -> Bool {
         guard let errorResponder else { return false }
-        errorResponder.respond(socket: socket, error: error, request: &request, logger: logger)
+        errorResponder.respond(router: self, socket: socket, error: error, request: &request, logger: logger, completionHandler: completionHandler)
         return true
     }
 }

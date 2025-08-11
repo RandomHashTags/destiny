@@ -152,13 +152,14 @@ extension RouterStorage {
                 router: some HTTPRouterProtocol,
                 socket: Int32,
                 request: inout some HTTPRequestProtocol & ~Copyable,
-                response: inout some DynamicResponseProtocol
+                response: inout some DynamicResponseProtocol,
+                completionHandler: @Sendable @escaping () -> Void
             ) throws(ResponderError) {
                 \(isAsync ? "var request = request.copy()\nvar response = response\nTask {\n" : "")var err:ResponderError? = nil
                 \(responder)
                 if let err {
-                    if !router.respondWithError(socket: socket, error: err, request: &request, logger: Logger(label: "\(name).destiny")) { // TODO: fix logger
-                        socket.socketClose()
+                    if !router.respondWithError(socket: socket, error: err, request: &request, completionHandler: completionHandler) {
+                        completionHandler()
                     }
                     return
                 }
@@ -167,13 +168,13 @@ extension RouterStorage {
                 } catch {
                     err = .socketError(error)
                 }
-                socket.socketClose()
                 if let err {
-                    if !router.respondWithError(socket: socket, error: err, request: &request, logger: Logger(label: "\(name).destiny")) { // TODO: fix logger
-                        socket.socketClose()
+                    if !router.respondWithError(socket: socket, error: err, request: &request, completionHandler: completionHandler) {
+                        completionHandler()
                     }
                     return
-                }\(isAsync ? "\n}" : "")
+                }
+                completionHandler()\(isAsync ? "\n}" : "")
             }
             """)))
             let structure = StructDeclSyntax(

@@ -28,10 +28,11 @@ extension DynamicResponderStorage {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        request: inout some HTTPRequestProtocol & ~Copyable
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
         guard let responder = responder(for: &request) else { return false }
-        try router.respondDynamically(socket: socket, request: &request, responder: responder)
+        try router.respondDynamically(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
         return true
     }
 

@@ -1,6 +1,6 @@
 
-#if canImport(SwiftGlibc)
-import SwiftGlibc
+#if canImport(Glibc)
+import Glibc
 #elseif canImport(Foundation)
 import Foundation
 #endif
@@ -59,16 +59,13 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
     // MARK: Run
     public func run() async throws(ServiceError) {
         do throws(ServerError) {
-            let serverFD1 = try bindAndListen()
-            //let serverFD2 = try bindAndListen()
-            //let serverFD3 = try bindAndListen()
             onLoad?()
             do throws(RouterError) {
                 try router.load()
             } catch {
                 throw .routerError(error)
             }
-            await processClients(serverFD: serverFD1)
+            try await processClients()
         } catch {
             throw .serverError(error)
         }
@@ -87,7 +84,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
         let serverFD = socket(AF_INET6, SOCK_STREAM, 0)
         #endif
         if serverFD == -1 {
-            throw ServerError.socketCreationFailed()
+            throw .socketCreationFailed()
         }
         self.serverFD = serverFD
         ClientSocket.noSigPipe(fileDescriptor: serverFD)
@@ -129,12 +126,13 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
         }
         if binded == -1 {
             serverFD.socketClose()
-            throw ServerError.bindFailed()
+            throw .bindFailed()
         }
         if listen(serverFD, backlog) == -1 {
             serverFD.socketClose()
-            throw ServerError.listenFailed()
+            throw .listenFailed()
         }
+        setNonBlocking(socket: serverFD)
         logger.info("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")
         return serverFD
     }
@@ -143,10 +141,23 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
 // MARK: Process clients
 extension HTTPServer where ClientSocket: ~Copyable {
     @inlinable
-    func processClients(serverFD: Int32) async {
+    func setNonBlocking(socket: Int32) {
+        let flags = fcntl(socket, F_GETFL, 0)
+        guard flags != -1 else {
+            fatalError("HTTPServer;setNonBlocking;broken1")
+        }
+        let result = fcntl(socket, F_SETFL, flags | O_NONBLOCK)
+        guard result != -1 else {
+            fatalError("HTTPServer;setNonBlocking;broken2")
+        }
+    }
+
+    @inlinable
+    func processClients() async throws(ServerError) {
         #if os(Linux)
-        let _:InlineArray<1, InlineArray<64, Bool>>? = await processClientsEpoll(serverFD: serverFD, router: router)
+        let _:InlineArray<64, Bool>? = processClientsEpoll(port: port, router: router)
         #else
+        let serverFD1 = try bindAndListen()
         await processClientsOLD(serverFD: serverFD)
         #endif
     }
@@ -161,7 +172,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
                         do throws(SocketError) {
                             guard let client = try acceptClient(serverFD) else { return }
                             let socket = ClientSocket(fileDescriptor: client)
-                            self.router.handle(client: client, socket: socket, logger: self.logger)
+                            self.router.handle(client: client, socket: socket, completionHandler: {
+                                client.socketClose()
+                            })
                         } catch {
                             self.logger.warning("\(#function);\(error)")
                         }
@@ -172,3 +185,26 @@ extension HTTPServer where ClientSocket: ~Copyable {
         }
     }
 }
+
+#if os(Linux)
+extension HTTPServer where ClientSocket: ~Copyable {
+    @discardableResult
+    @inlinable
+    func processClientsEpoll<let maxEvents: Int>(
+        port: UInt16,
+        router: Router
+    ) -> InlineArray<maxEvents, Bool>? {
+        do throws(EpollError) {
+            let processor = try EpollWorker<maxEvents>.create(workerId: 0, backlog: backlog, port: port)
+            try processor.run(timeout: -1, handleClient: { client, handler in
+                let socket = ClientSocket(fileDescriptor: client)
+                router.handle(client: client, socket: socket, completionHandler: handler)
+            })
+            processor.shutdown()
+        } catch {
+            logger.error("HTTPServer;\(#function);error=\(error)")
+        }
+        return nil
+    }
+}
+#endif

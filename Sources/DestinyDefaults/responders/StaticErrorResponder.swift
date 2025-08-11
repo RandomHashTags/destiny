@@ -12,19 +12,20 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
 
     @inlinable
     public func respond(
+        router: some HTTPRouterProtocol,
         socket: Int32,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger
+        logger: Logger,
+        completionHandler: @Sendable @escaping () -> Void
     ) {
         #if DEBUG
         logger.warning("\(error)")
         #endif
         do throws(SocketError) {
-            try logic(error).write(to: socket)
+            try logic(error).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
         } catch {
-            logger.warning("[StaticErrorResponder] Encountered error trying to write response: \(error)")
+            logger.error("[StaticErrorResponder] Encountered error trying to write response: \(error)")
         }
-        socket.socketClose()
     }
 }

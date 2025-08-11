@@ -71,8 +71,11 @@ extension StringWithDateHeader {
 // MARK: Write to socket
 extension StringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write(
-        to socket: Int32
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(SocketError) {
         var err:SocketError? = nil
         preDateValue.withContiguousStorageIfAvailable { preDatePointer in
@@ -88,9 +91,9 @@ extension StringWithDateHeader: StaticRouteResponderProtocol {
                 }
             }
         }
-        socket.socketClose()
         if let err {
             throw err
         }
+        completionHandler()
     }
 }

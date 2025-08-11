@@ -40,18 +40,13 @@ extension ResponseBody {
 
 extension ResponseBody.Bytes: StaticRouteResponderProtocol {
     @inlinable
-    public func write(
-        to socket: Int32
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(SocketError) {
-        var err:SocketError? = nil
-        do throws(SocketError) {
-            try value.write(to: socket)
-        } catch {
-            err = error
-        }
-        socket.socketClose()
-        if let err {
-            throw err
-        }
+        try value.write(to: socket)
+        completionHandler()
     }
 }

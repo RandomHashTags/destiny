@@ -28,8 +28,11 @@ public struct MacroExpansionWithDateHeader {
 // MARK: Write to socket
 extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write(
-        to socket: Int32
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(SocketError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
@@ -57,9 +60,9 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
                 }
             }
         }
-        socket.socketClose()
         if let err {
             throw err
         }
+        completionHandler()
     }
 }

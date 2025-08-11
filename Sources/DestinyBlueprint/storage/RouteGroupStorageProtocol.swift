@@ -7,6 +7,7 @@ public protocol RouteGroupStorageProtocol: Sendable, ~Copyable {
     func respond(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        request: inout some HTTPRequestProtocol & ~Copyable
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 }

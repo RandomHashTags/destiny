@@ -62,7 +62,12 @@ extension StaticStringWithDateHeader {
 // MARK: Write to socket
 extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write(to socket: Int32) throws(SocketError) {
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(SocketError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
             HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
@@ -75,9 +80,9 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
                 }
             }
         }
-        socket.socketClose()
         if let err {
             throw err
         }
+        completionHandler()
     }
 }

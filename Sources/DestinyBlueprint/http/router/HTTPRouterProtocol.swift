@@ -15,7 +15,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     func handle(
         client: Int32,
         socket: consuming some HTTPSocketProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     )
 
     /// Writes a static response to the socket.
@@ -25,7 +25,9 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - responder: The static route responder that will write to the socket.
     func respondStatically(
         socket: Int32,
-        responder: some StaticRouteResponderProtocol
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        responder: some StaticRouteResponderProtocol,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
 
     /// Writes a dynamic response to the socket.
@@ -37,7 +39,8 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     func respondDynamically(
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        responder: some DynamicRouteResponderProtocol
+        responder: some DynamicRouteResponderProtocol,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
 
     /// Writes a response, usually a 404, to the socket.
@@ -46,7 +49,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     func respondWithNotFound(
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 
     /// Writes an error response to the socket.
@@ -56,6 +59,6 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
         socket: Int32,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     ) -> Bool
 }

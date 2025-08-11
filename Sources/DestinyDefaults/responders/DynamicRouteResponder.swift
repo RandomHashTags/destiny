@@ -60,7 +60,8 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
         router: some HTTPRouterProtocol,
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        response: inout some DynamicResponseProtocol
+        response: inout some DynamicResponseProtocol,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var anyRequest:any HTTPRequestProtocol & ~Copyable = request.copy()
         var anyResponse:any DynamicResponseProtocol = response
@@ -72,8 +73,8 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
                 err = ResponderError(identifier: "dynamicRouteResponderError", reason: "while executing dynamic logic: \(error)")
             }
             if let err {
-                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, logger: Logger(label: "dynamicRouteResponder.destiny")) { // TODO: fix logger
-                    socket.socketClose()
+                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, completionHandler: completionHandler) {
+                    completionHandler()
                 }
                 return
             }
@@ -83,11 +84,12 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
                 err = .socketError(error)
             }
             if let err {
-                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, logger: Logger(label: "dynamicRouteResponder.destiny")) { // TODO: fix logger
-                    socket.socketClose()
+                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, completionHandler: completionHandler) {
+                    completionHandler()
                 }
                 return
             }
+            completionHandler()
         }
     }
 }

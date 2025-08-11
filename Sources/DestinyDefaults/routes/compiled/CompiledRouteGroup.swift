@@ -46,15 +46,16 @@ extension CompiledRouteGroup {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: Int32,
-        request: inout some HTTPRequestProtocol & ~Copyable
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        if try immutableStaticResponders.respond(router: router, socket: socket, startLine: request.startLine) {
+        if try immutableStaticResponders.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
-        } else if try mutableStaticResponders.respond(router: router, socket: socket, startLine: request.startLine) {
+        } else if try mutableStaticResponders.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
-        } else if try immutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
+        } else if try immutableDynamicResponders.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
-        } else if try mutableDynamicResponders.respond(router: router, socket: socket, request: &request) {
+        } else if try mutableDynamicResponders.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
         } else {
             return false

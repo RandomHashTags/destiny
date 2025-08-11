@@ -62,8 +62,11 @@ extension StreamWithDateHeader {
 // MARK: Write to socket
 extension StreamWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
-    public func write(
-        to socket: Int32
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: Int32,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(SocketError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
@@ -78,17 +81,17 @@ extension StreamWithDateHeader: StaticRouteResponderProtocol {
             }
         }
         if let err {
-            socket.socketClose()
             throw err
         }
+        var requestCopy = request.copy()
         Task {
-            defer {
-                socket.socketClose()
-            }
             do throws(SocketError) {
                 try await body.write(to: socket)
+                completionHandler()
             } catch {
-                // TODO: log error
+                if !router.respondWithError(socket: socket, error: error, request: &requestCopy, completionHandler: completionHandler) {
+                    completionHandler()
+                }
             }
         }
     }

@@ -20,7 +20,7 @@ public protocol DestinyHTTPRouterProtocol: HTTPRouterProtocol, ~Copyable {
     func respond(
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 }
 
@@ -29,10 +29,12 @@ extension DestinyHTTPRouterProtocol {
     @inlinable
     public func respondStatically(
         socket: Int32,
-        responder: borrowing some StaticRouteResponderProtocol
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        responder: borrowing some StaticRouteResponderProtocol,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         do throws(SocketError) {
-            try responder.write(to: socket)
+            try responder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
         } catch {
             throw .socketError(error)
         }
@@ -72,7 +74,8 @@ extension DestinyHTTPRouterProtocol {
     public func respondDynamically(
         socket: Int32,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        responder: some DynamicRouteResponderProtocol
+        responder: some DynamicRouteResponderProtocol,
+        completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var response = try defaultDynamicResponse(request: &request, responder: responder)
         do throws(MiddlewareError) {
@@ -80,6 +83,6 @@ extension DestinyHTTPRouterProtocol {
         } catch {
             throw .middlewareError(error)
         }
-        try responder.respond(router: self, socket: socket, request: &request, response: &response)
+        try responder.respond(router: self, socket: socket, request: &request, response: &response, completionHandler: completionHandler)
     }
 }

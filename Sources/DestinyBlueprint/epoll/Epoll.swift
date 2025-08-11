@@ -1,0 +1,127 @@
+
+#if os(Linux)
+import CEpoll
+import Glibc
+import Logging
+
+public final class Epoll<let maxEvents: Int>: SocketAcceptor {
+    public let fileDescriptor:Int32
+    public let pipeFileDescriptors:(read: Int32, write: Int32)
+    public let logger:Logger
+
+    public init(label: String) throws(EpollError) {
+        fileDescriptor = epoll_create1(0)
+        if fileDescriptor == -1 {
+            throw .epollCreateFailed()
+        }
+        var pipeFileDescriptors:InlineArray<2, Int32> = [0, 0]
+        var err:EpollError? = nil
+        pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
+            do throws(EpollError) {
+                guard let base = $0.baseAddress else { throw .epollPipeFailed() }
+                pipe(.init(mutating: base))
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            close(fileDescriptor)
+            throw err
+        }
+        self.pipeFileDescriptors = (pipeFileDescriptors[0], pipeFileDescriptors[1])
+        logger = Logger(label: label)
+        setNonBlocking(socket: pipeFileDescriptors[0])
+        setNonBlocking(socket: pipeFileDescriptors[1])
+
+        //try add(client: serverFD, event: EPOLLIN.rawValue)
+        try add(client: pipeFileDescriptors[0], events: EPOLLIN.rawValue)
+        //setNonBlocking(socket: self.fileDescriptor)
+    }
+
+    @inlinable
+    public func setNonBlocking(socket: Int32) {
+        let flags = fcntl(socket, F_GETFL, 0)
+        guard flags != -1 else {
+            fatalError("epoll;setNonBlocking;broken1")
+        }
+        let result = fcntl(socket, F_SETFL, flags | O_NONBLOCK)
+        guard result != -1 else {
+            fatalError("epoll;setNonBlocking;broken2")
+        }
+    }
+
+    @inlinable
+    public func add(client: Int32, events: UInt32) throws(EpollError) {
+        var e = epoll_event()
+        e.events = events
+        e.data.fd = client
+        if epoll_ctl(fileDescriptor, EPOLL_CTL_ADD, client, &e) == -1 {
+            throw .epollCtlFailed()
+        }
+        #if DEBUG
+        logger.info("EPOLL_CTL_ADD \(client): success")
+        #endif
+    }
+
+    @inlinable
+    public func mod(fd: Int32, events: UInt32) throws(EpollError) {
+        var ev = epoll_event()
+        ev.events = events
+        ev.data.fd = fd
+        if epoll_ctl(fileDescriptor, EPOLL_CTL_MOD, fd, &ev) == -1 {
+            throw .epollCtlFailed()
+        }
+        #if DEBUG
+        logger.info("EPOLL_CTL_MOD \(fd): success")
+        #endif
+    }
+
+    @inlinable
+    public func remove(client: Int32) throws(EpollError) {
+        if epoll_ctl(fileDescriptor, EPOLL_CTL_DEL, client, nil) == -1 {
+            throw .epollCtlFailed()
+        }
+        #if DEBUG
+        logger.info("EPOLL_CTL_DEL \(client): success")
+        #endif
+    }
+
+    @inlinable
+    public func wait(
+        timeout: Int32 = -1,
+        events: inout InlineArray<maxEvents, epoll_event>
+    ) throws(EpollError) -> Int32 {
+        var loadedClients:Int32 = -1
+        var err:EpollError? = nil
+        events.mutableSpan.withUnsafeBufferPointer { p in
+            do throws(EpollError) {
+                guard let base = p.baseAddress else { throw .waitFailed() }
+                #if DEBUG
+                logger.info("calling epoll_pwait with timeout: \(timeout)")
+                #endif
+                loadedClients = epoll_pwait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout, nil)
+                #if DEBUG
+                logger.info("epoll_pwait returned \(loadedClients)")
+                #endif
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw err
+        }
+        if loadedClients == -1 {
+            throw .waitFailed()
+        }
+        return loadedClients
+    }
+
+    @inlinable
+    public func closeAll() {
+        close(pipeFileDescriptors.read)
+        close(pipeFileDescriptors.write)
+        close(fileDescriptor)
+    }
+}
+
+#endif
