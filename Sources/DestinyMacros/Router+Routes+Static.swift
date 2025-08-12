@@ -190,7 +190,7 @@ extension RouterStorage {
         }
         """)
         var routeConstantsDecl = try! EnumDeclSyntax.init("""
-        enum StaticRoute {
+        enum StaticRoute: UInt16 {
         }
         """)
         for caseName in routePathCaseNames {
