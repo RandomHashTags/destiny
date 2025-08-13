@@ -95,7 +95,7 @@ extension Router {
             dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
         }
         if staticNotFoundResponder.isEmpty {
-            staticNotFoundResponder = IntermediateResponseBody(type: .staticStringWithDateHeader, "").responderDebugDescription(
+            staticNotFoundResponder = IntermediateResponseBody(type: .staticStringWithDateHeader, "not found").responderDebugDescription(
                 HTTPResponseMessage(
                     version: version,
                     status: HTTPStandardResponseStatus.notFound.code,

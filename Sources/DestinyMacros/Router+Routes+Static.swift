@@ -47,6 +47,9 @@ extension RouterStorage {
                     do throws(AnyError) {
                         let responder = try IntermediateResponseBody(type: .stringWithDateHeader, "").responderDebugDescription(route.response())
                         routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
+
+                        routePaths.append("\(string)")
+                        literalRouteResponders.append(responder)
                     } catch {
                         context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
                     }
@@ -90,9 +93,11 @@ extension RouterStorage {
         }
 
         let random = UInt16.random(in: 0..<UInt16.max)
+
+        let namePrefix = "Case\(isCaseSensitive ? "S" : "Ins")ensitive"
         var enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: OptimalStaticRouteResponder\(random)\n",
-            name: "OptimalStaticRouteResponder\(raw: random)",
+            leadingTrivia: "// MARK: \(namePrefix)StaticRouteResponder\(random)\n",
+            name: "\(raw: namePrefix)StaticRouteResponder\(raw: random)",
             inheritanceClause: .init(
                 inheritedTypes: .init(arrayLiteral:
                     .init(type: TypeSyntax.init(stringLiteral: "StaticResponderStorageProtocol"), trailingComma: ","),
@@ -102,12 +107,13 @@ extension RouterStorage {
             memberBlock: MemberBlockSyntax(members: MemberBlockItemListSyntax())
         )
 
-        staticConstants(context: context, routePaths: routePaths, enumDecl: &enumDecl, literalRouteResponders: literalRouteResponders)
+        staticConstants(context: context, isCaseSensitive: isCaseSensitive, routePaths: routePaths, enumDecl: &enumDecl, literalRouteResponders: literalRouteResponders)
 
-        generatedDecls.append(enumDecl)
+        generatedDecls.append(enumDecl)        
+        return "\(enumDecl.name.text)()"
 
         var string = "\(typeAnnotation)(\n"
-        /*if !mutable {
+        if !mutable {
             string += "(\n"
         }
         for value in routeResponders {
@@ -118,8 +124,7 @@ extension RouterStorage {
         }
         if !mutable {
             string += "\n)"
-        }*/
-        return enumDecl.name.text + "()"
+        }
         return string + "\n)"
     }
     private func responseBodyResponderDebugDescription(
@@ -144,6 +149,7 @@ extension RouterStorage {
 extension RouterStorage {
     private func staticConstants(
         context: some MacroExpansionContext,
+        isCaseSensitive: Bool,
         routePaths: [String],
         enumDecl: inout StructDeclSyntax,
         literalRouteResponders: [String]
@@ -172,7 +178,6 @@ extension RouterStorage {
             """)
             staticSIMDs.append(staticSIMD)
         }
-        enumDecl.memberBlock.members.append(contentsOf: staticSIMDs.map({ MemberBlockItemSyntax.init(decl: $0) }))
 
         let routeResponderDecl = try! FunctionDeclSyntax.init("""
         @inlinable
@@ -202,6 +207,7 @@ extension RouterStorage {
         if let perfectHashDecls = matchRoutePerfectHash(routePaths: routePaths) {
             enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
         } else {
+            enumDecl.memberBlock.members.append(contentsOf: staticSIMDs.map({ MemberBlockItemSyntax.init(decl: $0) }))
             enumDecl.memberBlock.members.append(.init(decl: matchRouteFallback(routePaths: routePaths)))
         }
 
@@ -213,7 +219,7 @@ extension RouterStorage {
             request: inout some HTTPRequestProtocol & ~Copyable,
             completionHandler: @Sendable @escaping () -> Void
         ) throws(ResponderError) -> Bool {
-            guard let route = matchRoute(request.startLine) else { return false }
+            guard let route = matchRoute(request.startLine\(raw: isCaseSensitive ? "" : "Lowercased()")) else { return false }
             do throws(SocketError) {
                 return try route.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
             } catch {
@@ -254,14 +260,14 @@ extension RouterStorage {
         guard let candidate, let hashTable else { return nil }
         let staticRoutesTableString = hashTable.map({
             guard $0 != 255 else { return "nil" }
-            return ".`\(routePaths[Int($0)])`"
-        }).joined(separator: ", ")
+            return ".init(.`\(routePaths[Int($0)])`, \(routePathSIMDs[Int($0)].simd))"
+        }).joined(separator: ",\n")
         let hashTableDecl = VariableDeclSyntax.init(
             modifiers: .init(arrayLiteral: DeclModifierSyntax.init(name: "static")),
             .let,
             name: "hashTable",
-            type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashTable.count), StaticRoute?>")),
-            initializer: .init(leadingTrivia: " ", value: ExprSyntax.init(stringLiteral: "[\(staticRoutesTableString)]"))
+            type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashTable.count), RouteEntry?>")),
+            initializer: .init(leadingTrivia: " ", value: ExprSyntax.init(stringLiteral: "[\n\(staticRoutesTableString)\n]"))
         )
 
         let positions = perfectHashGenerator.positions
@@ -283,14 +289,31 @@ extension RouterStorage {
         }
         """)
 
+        let routeEntryDecl = try! StructDeclSyntax.init("""
+        struct RouteEntry: Sendable {
+            let simd:SIMD64<UInt8>
+            let route:StaticRoute
+            init(_ route: StaticRoute, _ simd: SIMD64<UInt8>) {
+                self.route = route
+                self.simd = simd
+            }
+        }
+        """)
+
+        let additionalCheck = hashTable.count != 1 ? "" : """
+        guard hashIndex < \(hashTable.count) else { return nil }
+        """
+
         let matchRouteDecl = try! FunctionDeclSyntax.init("""
         @inlinable
         func matchRoute(_ simd: SIMD64<UInt8>) -> StaticRoute? {
             let hashIndex = Int(perfectHash(simd))
-            return Self.hashTable[hashIndex]
+            \(raw: additionalCheck)guard let entry = Self.hashTable[hashIndex] else { return nil }
+            return entry.simd == simd ? entry.route : nil
         }
         """)
         return [
+            routeEntryDecl,
             hashTableDecl,
             positionsDecl,
             perfectHashDecl,
