@@ -135,9 +135,12 @@ To maximize multi-core performance and support non-blocking operations
 
 <summary>Macros</summary>
 
-Unlocks compile-time optimizations for middleware, routes and responders
+Unlocks compile-time optimizations for middleware, routes, route groups and responders
 
-<b>Most compile-time optimizations for optimal runtime performance happens here</b>
+<b>Most compile-time optimizations for optimal runtime performance happens here.</b> This includes:
+
+- auto generation of optimized enums and structs for middleware, responders, route groups and route storage
+- perfect hashing for static route storage (if possible)
 
 </details>
 

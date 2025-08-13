@@ -96,8 +96,8 @@ extension RouterStorage {
 
         let namePrefix = "Case\(isCaseSensitive ? "S" : "Ins")ensitive"
         var enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(namePrefix)StaticRouteResponder\(random)\n",
-            name: "\(raw: namePrefix)StaticRouteResponder\(raw: random)",
+            leadingTrivia: "// MARK: \(namePrefix)StaticResponderStorage\(random)\n",
+            name: "\(raw: namePrefix)StaticResponderStorage\(raw: random)",
             inheritanceClause: .init(
                 inheritedTypes: .init(arrayLiteral:
                     .init(type: TypeSyntax.init(stringLiteral: "StaticResponderStorageProtocol"), trailingComma: ","),
