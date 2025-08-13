@@ -102,7 +102,6 @@ extension RouterStorage {
             memberBlock: MemberBlockSyntax(members: MemberBlockItemListSyntax())
         )
 
-        //doHashing(context: context, routePaths: routePaths, enumDecl: &enumDecl, literalRouteResponders: literalRouteResponders)
         staticConstants(context: context, routePaths: routePaths, enumDecl: &enumDecl, literalRouteResponders: literalRouteResponders)
 
         generatedDecls.append(enumDecl)
@@ -200,16 +199,11 @@ extension RouterStorage {
         routeConstantsDecl.memberBlock.members.append(contentsOf: staticResponders.map({ MemberBlockItemSyntax.init(decl: $0) }))
         enumDecl.memberBlock.members.append(.init(decl: routeConstantsDecl))
 
-        let matchRouteDecl = try! FunctionDeclSyntax.init("""
-        @inlinable
-        func matchRoute(_ simd: SIMD64<UInt8>) -> StaticRoute? {
-            switch simd {
-            \(raw: (0..<routePaths.count).map({ "case Self.simd\($0): .`\(routePaths[$0])`" }).joined(separator: "\n"))
-            default: nil
-            }
+        if let perfectHashDecls = matchRoutePerfectHash(routePaths: routePaths) {
+            enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
+        } else {
+            enumDecl.memberBlock.members.append(.init(decl: matchRouteFallback(routePaths: routePaths)))
         }
-        """)
-        enumDecl.memberBlock.members.append(.init(decl: matchRouteDecl))
 
         let responderDecl = try! FunctionDeclSyntax.init("""
         @inlinable
@@ -231,134 +225,90 @@ extension RouterStorage {
     }
 }
 
-// MARK: Hashing
+// MARK: Match route
 extension RouterStorage {
-    private func doHashing(
-        context: some MacroExpansionContext,
-        routePaths: [String],
-        enumDecl: inout StructDeclSyntax,
-        literalRouteResponders: [String]
-    ) {
-        let routePathSIMDs:[SIMD64<UInt8>] = routePaths.compactMap({
+    private func matchRoutePerfectHash(
+        routePaths: [String]
+    ) -> [any DeclSyntaxProtocol]? {
+        let routePathSIMDs:[PerfectHashableItem<SIMD64<UInt8>>] = routePaths.compactMap({
             let utf8 = $0.utf8
             var simd = SIMD64<UInt8>.zero
             guard utf8.count > 0 else { return nil }
             for i in 0..<min(simd.scalarCount, utf8.count) {
                 simd[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
             }
-            return simd
+            return .init($0, simd)
         })
 
-        let hashBytes = 4
-        if !routePathSIMDs.isEmpty, let positions = findPerfectHashPositions(context: context, routes: routePathSIMDs, maxBytes: hashBytes) {
-            let hashTableCount = routePathSIMDs.count * 4
-            var alreadyAssigned = [String](repeating: "nil", count: hashTableCount)
-            var table = ContiguousArray<UInt16?>(repeating: nil, count: hashTableCount)
-            var tableResponders = ContiguousArray<String>(repeating: "nil", count: hashTableCount)
-            for (routePathSIMDIndex, route) in routePathSIMDs.enumerated() {
-                let bytes = positions.map {
-                    let v = UInt8(route[$0])
-                    return v == 0 ? .max : v
-                }
-                let h = mix(bytes)
-                let index = Int(h % UInt32(hashTableCount))
-                if table[index] != nil { // collision
-                    context.diagnose(DiagnosticMsg.unhandled(node: enumDecl, notes: "collision for route: \"\(route.stringSIMD())\" and \"\(alreadyAssigned[index])\""))
-                } else {
-                    table[index] = UInt16(routePathSIMDIndex)
-                    tableResponders[index] = literalRouteResponders[routePathSIMDIndex]
-                    alreadyAssigned[index] = routePaths[routePathSIMDIndex]
-                }
-            }
-
-            let test = VariableDeclSyntax.init(
-                modifiers: .init(arrayLiteral: DeclModifierSyntax.init(name: "static")),
-                .let,
-                name: "table",
-                type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(table.count), UInt8?>")),
-                initializer: .init(leadingTrivia: " ", value: ExprSyntax.init(stringLiteral: "\(table)"))
-            )
-            enumDecl.memberBlock.members.append(.init(decl: test))
-
-            for (offset, v) in table.enumerated() {
-                if let v {
-                    let test = DeclSyntax(stringLiteral: "static let _\(v) = \(tableResponders[offset])")
-                    enumDecl.memberBlock.members.append(.init(decl: test))
-                }
-            }
-
-            let positionsString = positions.map({ "x = (x &* 31) ^ UInt16(simd[\($0)])" }).joined(separator: "\n")
-            let perfectHashDecl = try! FunctionDeclSyntax.init("""
-            @inlinable
-            func perfectHash(
-                _ simd: SIMD64<UInt8>
-            ) -> UInt16 {
-                var x: UInt16 = 0
-                \(raw: positionsString)
-                return UInt16(x % \(raw: hashTableCount))
-            }
-            """)
-            enumDecl.memberBlock.members.append(.init(decl: perfectHashDecl))
-
-            let responderDecl = try! FunctionDeclSyntax.init("""
-            @inlinable
-            func respond(
-                router: some HTTPRouterProtocol,
-                socket: Int32,
-                request: inout some HTTPRequestProtocol & ~Copyable,
-                completionHandler: @Sendable @escaping () -> Void
-            ) throws(ResponderError) -> Bool {
-                let hashIndex = Int(perfectHash(request.startLine))
-                guard let index = Self.table[hashIndex] else { return false }
-                return true
-            }
-            """)
-            enumDecl.memberBlock.members.append(.init(decl: responderDecl))
-        } else {
-            context.diagnose(DiagnosticMsg.unhandled(node: enumDecl, notes: "couldn't find perfect hash positions with \(hashBytes) bytes"))
+        let hashMaxBytes = 8
+        let perfectHashGenerator = PerfectHashGenerator(routes: routePathSIMDs, maxBytes: hashMaxBytes)
+        var candidate:HashCandidate? = nil
+        var hashTable:[UInt8]? = nil
+        if let result = perfectHashGenerator.findMinimalPerfectHash() {
+            candidate = result.candidate
+            hashTable = result.result.hashTable
+        } else if let result = perfectHashGenerator.generatePerfectHash() {
+            candidate = result.candidate
+            hashTable = result.hashTable
         }
-    }
-    private func mix(_ bytes: [UInt8]) -> UInt32 {
-        var x: UInt32 = 2166136261  // FNV offset basis
-        for b in bytes {
-            x = (x ^ UInt32(b)) &* 16777619 // FNV prime
+        guard let candidate, let hashTable else { return nil }
+        let staticRoutesTableString = hashTable.map({
+            guard $0 != 255 else { return "nil" }
+            return ".`\(routePaths[Int($0)])`"
+        }).joined(separator: ", ")
+        let hashTableDecl = VariableDeclSyntax.init(
+            modifiers: .init(arrayLiteral: DeclModifierSyntax.init(name: "static")),
+            .let,
+            name: "hashTable",
+            type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashTable.count), StaticRoute?>")),
+            initializer: .init(leadingTrivia: " ", value: ExprSyntax.init(stringLiteral: "[\(staticRoutesTableString)]"))
+        )
+
+        let positions = perfectHashGenerator.positions
+        let positionsDecl = VariableDeclSyntax.init(
+            modifiers: .init(arrayLiteral: DeclModifierSyntax.init(name: "static")),
+            .let,
+            name: "positions",
+            type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashMaxBytes), Int>")),
+            initializer: .init(leadingTrivia: " ", value: ExprSyntax.init(stringLiteral: "[\((0..<hashMaxBytes).map({ "\(positions[$0])" }).joined(separator: ", "))]"))
+        )
+
+        let perfectHashDecl = try! FunctionDeclSyntax.init("""
+        @inlinable
+        func perfectHash(
+            _ simd: SIMD64<UInt8>
+        ) -> Int {
+            let key = simd.extractKey\(raw: hashMaxBytes)(positions: Self.positions)
+            return Int(((key &* \(raw: candidate.multiplier)) >> \(raw: candidate.shift)) & \(raw: candidate.mask))
         }
-        return x
+        """)
+
+        let matchRouteDecl = try! FunctionDeclSyntax.init("""
+        @inlinable
+        func matchRoute(_ simd: SIMD64<UInt8>) -> StaticRoute? {
+            let hashIndex = Int(perfectHash(simd))
+            return Self.hashTable[hashIndex]
+        }
+        """)
+        return [
+            hashTableDecl,
+            positionsDecl,
+            perfectHashDecl,
+            matchRouteDecl
+        ]
     }
 
-    // Attempt to find a set of byte positions that yield a perfect hash
-    private func findPerfectHashPositions(
-        context: some MacroExpansionContext,
-        routes: [SIMD64<UInt8>],
-        maxBytes: Int
-    ) -> [Int]? {
-        var characterCount = Array(repeating: Set<UInt8>(), count: 64)
-        for route in routes {
-            for i in 0..<route.scalarCount {
-                if route[i] != 0 {
-                    characterCount[i].insert(route[i])
-                }
+    private func matchRouteFallback(
+        routePaths: [String]
+    ) -> FunctionDeclSyntax {
+        return try! FunctionDeclSyntax.init("""
+        @inlinable
+        func matchRoute(_ simd: SIMD64<UInt8>) -> StaticRoute? {
+            switch simd {
+            \(raw: (0..<routePaths.count).map({ "case Self.simd\($0): .`\(routePaths[$0])`" }).joined(separator: "\n"))
+            default: nil
             }
         }
-        var positions:[Int] = []
-        var index = -1
-        var countAtIndex = 0
-        while positions.count < maxBytes {
-            for i in 0..<64 {
-                if index == -1 || characterCount[i].count >= countAtIndex {
-                    index = i
-                    countAtIndex = characterCount[i].count
-                }
-            }
-            if index != -1 {
-                positions.append(index)
-                characterCount[index].removeAll()
-                index = -1
-                countAtIndex = 0
-            } else {
-                break
-            }
-        }
-        return positions
+        """)
     }
 }

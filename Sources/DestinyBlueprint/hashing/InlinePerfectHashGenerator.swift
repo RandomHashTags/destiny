@@ -1,10 +1,8 @@
 
 // TODO: move to own repo?
-public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProtocol {
+public struct InlinePerfectHashGenerator<let entriesCount: Int, T: PerfectHashable>: PerfectHashGeneratorProtocol {
 
-    public let entries:[PerfectHashableEntry]
-    public let entriesCount:Int
-    public let positions:InlineArray<64, Int>
+    public let entries:InlineArray<entriesCount, PerfectHashableEntry>
 
     public let multipliers:InlineArray<_, UInt64> = [
         0x9E3779B97F4A7C15, // Golden ratio
@@ -20,28 +18,36 @@ public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProt
     ]
 
     public init(
-        routes: [PerfectHashableItem<T>],
+        routes: InlineArray<entriesCount, PerfectHashableItem<T>>,
         maxBytes: Int
     ) {
         let positions = Self.findPerfectHashPositions(routes: routes, maxBytes: maxBytes)
         let closure:(T) -> UInt64 = Self.extractKeyClosure(positions: positions, maxBytes: maxBytes)
-        var array = [PerfectHashableEntry]()
-        let entriesCount = routes.count
+        var array = InlineArray<entriesCount, PerfectHashableEntry>(repeating: .init(name: "", key: 0))
         for i in 0..<entriesCount {
             let item = routes[i]
-            array.append(.init(name: item.name, key: closure(item.simd)))
+            array[i] = .init(name: item.name, key: closure(item.simd))
         }
         entries = array
-        self.entriesCount = entriesCount
-        self.positions = positions
+    }
+
+    public init(
+        routes: [PerfectHashableItem<T>],
+        maxBytes: Int
+    ) {
+        var inlineRoutes = InlineArray<entriesCount, PerfectHashableItem<T>>(repeating: .init("", .zero))
+        for i in 0..<min(routes.count, entriesCount) {
+            inlineRoutes[i] = routes[i]
+        }
+        self.init(routes: inlineRoutes, maxBytes: maxBytes)
     }
 }
 
 // MARK: Positions
-extension PerfectHashGenerator {
+extension InlinePerfectHashGenerator {
     @inlinable
     public static func findPerfectHashPositions(
-        routes: [PerfectHashableItem<T>],
+        routes: InlineArray<entriesCount, PerfectHashableItem<T>>,
         maxBytes: Int
     ) -> InlineArray<64, Int> {
         var characterCount = InlineArray<64, Set<UInt8>>(repeating: .init())
@@ -82,9 +88,9 @@ extension PerfectHashGenerator {
 }
 
 // MARK: Perfect
-extension PerfectHashGenerator {
+extension InlinePerfectHashGenerator {
     @inlinable
-    public func findPerfectHashFunction() -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: [UInt64])? {
+    public func findPerfectHashFunction() -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: InlineArray<entriesCount, UInt64>)? {
         // try different table sizes (power of 2)
         for maskBits in 1...9 { // 2, 4, 8, 16, 32, 64, 128, 256, 512 slots
             let tableSize = 1 << maskBits
@@ -111,9 +117,9 @@ extension PerfectHashGenerator {
     @inlinable
     public func tryHashFunction(
         _ candidate: HashCandidate
-    ) -> (hashTable: [UInt8], verificationKeys: [UInt64])? {
+    ) -> (hashTable: [UInt8], verificationKeys: InlineArray<entriesCount, UInt64>)? {
         var hashTable = [UInt8](repeating: 255, count: candidate.tableSize) // 255 = empty slot
-        var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
+        var verificationKeys = InlineArray<entriesCount, UInt64>.init(repeating: 0)
         var usedSlots = Set<Int>()
         usedSlots.reserveCapacity(entriesCount)
 
@@ -142,7 +148,7 @@ extension PerfectHashGenerator {
     public func generatePerfectHash() -> (
         candidate: HashCandidate,
         hashTable: [UInt8],
-        verificationKeys: [UInt64],
+        verificationKeys: InlineArray<entriesCount, UInt64>,
         efficiency: Double
     )? {
         guard let (candidate, hashTable, verificationKeys) = findPerfectHashFunction() else { return nil }
@@ -170,10 +176,10 @@ extension PerfectHashGenerator {
 }
 
 // MARK: Minimal
-extension PerfectHashGenerator {
+extension InlinePerfectHashGenerator {
     // for minimal perfect hash, table size = number of entries
     @inlinable
-    public func findMinimalPerfectHash() -> (candidate: HashCandidate, result: MinimalResult)? {
+    public func findMinimalPerfectHash() -> (candidate: HashCandidate, MinimalResult)? {
         for shift in (64 - entriesCount - 4)...(64 - entriesCount) {
             for indice in multipliers.indices {
                 let candidate = HashCandidate(
@@ -194,12 +200,12 @@ extension PerfectHashGenerator {
     public func tryMinimalHashFunction(
         _ candidate: HashCandidate
     ) -> MinimalResult? {
-        var hashTable = [UInt8](repeating: 255, count: entriesCount)
-        var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
+        var hashTable = InlineArray<entriesCount, UInt8>.init(repeating: 255)
+        var verificationKeys = InlineArray<entriesCount, UInt64>.init(repeating: 0)
         var usedSlots = Set<Int>()
         usedSlots.reserveCapacity(entriesCount)
 
-        //var assigned = [String](repeating: "", count: entriesCount)
+        //var assigned = InlineArray<entriesCount, String>.init(repeating: "")
         //var collisions = Set<String>()
         for i in entries.indices {
             let entry = entries[i]
@@ -225,13 +231,13 @@ extension PerfectHashGenerator {
         return .init(hashTable: hashTable, verificationKeys: verificationKeys)
     }
 
-    public struct MinimalResult {
-        public let hashTable:[UInt8]
-        public let verificationKeys:[UInt64]
+    public struct MinimalResult { // https://github.com/swiftlang/swift/issues/83682
+        public let hashTable:InlineArray<entriesCount, UInt8>
+        public let verificationKeys:InlineArray<entriesCount, UInt64>
 
         public init(
-            hashTable: [UInt8],
-            verificationKeys: [UInt64]
+            hashTable: InlineArray<entriesCount, UInt8>,
+            verificationKeys: InlineArray<entriesCount, UInt64>
         ) {
             self.hashTable = hashTable
             self.verificationKeys = verificationKeys

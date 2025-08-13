@@ -27,7 +27,6 @@ LoggingSystem.bootstrap { label in
 }
 
 // MARK: Router
-/*
 #declareRouter(
     version: .v1_1,
     dynamicNotFoundResponder: nil,
@@ -108,11 +107,6 @@ LoggingSystem.bootstrap { label in
     ),
     StaticRoute.get(
         path: ["expressionMacro"],
-        contentType: HTTPMediaTypeText.plain,
-        body: ResponseBody.macroExpansion(#filePath)
-    ),
-    StaticRoute.get(
-        path: ["expressionMacroWithDate"],
         contentType: HTTPMediaTypeText.plain,
         body: ResponseBody.macroExpansionWithDateHeader(#filePath)
     ),
@@ -340,40 +334,5 @@ func processCommand() async {
     guard !Task.isCancelled else { return }
     Task {
         await processCommand()
-    }
-}*/*/
-
-var generator = PerfectHashGenerator(
-    routes: [
-        .init("GET /redirectto HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 114, 101, 100, 105, 114, 101, 99, 116, 116, 111, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /stream HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 115, 116, 114, 101, 97, 109, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /expressionMacro HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 101, 120, 112, 114, 101, 115, 115, 105, 111, 110, 77, 97, 99, 114, 111, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        //.init("GET /expressionMacroWithDate HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 101, 120, 112, 114, 101, 115, 115, 105, 111, 110, 77, 97, 99, 114, 111, 87, 105, 116, 104, 68, 97, 116, 101, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("POST /post HTTP/1.1", SIMD64<UInt8>(80, 79, 83, 84, 32, 47, 112, 111, 115, 116, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /bro?what=dude HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 98, 114, 111, 63, 119, 104, 97, 116, 61, 100, 117, 100, 101, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /html HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 104, 116, 109, 108, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /html2 HTTP/2.0", SIMD64<UInt8>(71, 69, 84, 32, 47, 104, 116, 109, 108, 50, 32, 72, 84, 84, 80, 47, 50, 46, 48, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /json HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 106, 115, 111, 110, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /txt HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 116, 120, 116, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /inlineBytes HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 105, 110, 108, 105, 110, 101, 66, 121, 116, 101, 115, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /bytes HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 98, 121, 116, 101, 115, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /bytes2 HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 98, 121, 116, 101, 115, 50, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)),
-        .init("GET /bytes3 HTTP/1.1", SIMD64<UInt8>(71, 69, 84, 32, 47, 98, 121, 116, 101, 115, 51, 32, 72, 84, 84, 80, 47, 49, 46, 49, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0))
-    ],
-    maxBytes: 8
-)
-if let (candidate, hashTable, verificationKeys, efficiency) = generator.generatePerfectHash() {
-    print("✅ Perfect hash found! (\(efficiency)% efficient)")
-    print("Candidate: \(candidate)")
-    print("HashTable: \(hashTable)")
-} else {
-    print("❌ No perfect hash found!")
-    print(String(repeating: "=", count: 60))
-    if let (candidate, result) = generator.findMinimalPerfectHash() {
-        print("✅ Minimal perfect hash found! (100% efficiency)")
-        print("Candidate: \(candidate)")
-        print("HashTable: \(result.hashTable)")
-    } else {
-        print("❌ No minimal perfect hash found")
     }
 }
