@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import VariableLengthArray
 
 /// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
 public struct DynamicResponse: DynamicResponseProtocol {
@@ -20,12 +21,12 @@ public struct DynamicResponse: DynamicResponseProtocol {
     }
 
     @inlinable
-    public mutating func setParameter(at index: Int, value: InlineVLArray<UInt8>) {
+    public mutating func setParameter(at index: Int, value: consuming VLArray<UInt8>) {
         parameters[index] = value.string()
     }
 
     @inlinable
-    public mutating func appendParameter(value: InlineVLArray<UInt8>) {
+    public mutating func appendParameter(value: consuming VLArray<UInt8>) {
         parameters.append(value.string())
     }
 

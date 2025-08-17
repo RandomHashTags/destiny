@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import Logging
+import VariableLengthArray
 
 public protocol DestinyHTTPRouterProtocol: HTTPRouterProtocol, ~Copyable {
     /// Handle dynamic middleware for a given request and dynamic response.

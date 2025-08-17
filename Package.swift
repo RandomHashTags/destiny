@@ -34,7 +34,10 @@ pkgDependencies = [
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
     // Epoll
-    .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0")
+    .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"),
+
+    // Variable-length arrays
+    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
 ]
 
 destinyModuleDependencies = [
@@ -53,6 +56,9 @@ pkgDependencies = [
 
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
+
+    // Variable-length arrays
+    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
 ]
 
 destinyModuleDependencies = [
@@ -99,7 +105,8 @@ let package = Package(
             name: "DestinyBlueprint",
             dependencies: [
                 .product(name: "Logging", package: "swift-log"),
-                //.product(name: "Metrics", package: "swift-metrics")
+                //.product(name: "Metrics", package: "swift-metrics"),
+                .product(name: "VariableLengthArray", package: "swift-variablelengtharray")//
             ]
         ),
 

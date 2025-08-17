@@ -18,6 +18,24 @@ import Windows
 import WinSDK
 #endif
 
+import VariableLengthArray
+
+extension VLArray: InlineArrayProtocol {
+    public init(repeating value: Element) {
+        fatalError("not supported")
+    }
+
+    @inlinable
+    public func itemAt(index: Int) -> Element {
+        self[index]
+    }
+
+    @inlinable
+    public mutating func setItemAt(index: Int, element: Element) {
+        self[index] = element
+    }
+}
+
 // MARK: init
 extension InlineArrayProtocol {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
@@ -110,7 +128,7 @@ extension InlineArrayProtocol where Element: Equatable {
     }
 }
 
-// MARK: Split InlineVLArray
+// MARK: Split VLArray
 extension InlineArrayProtocol where Element == UInt8 {
     /// - Parameters:
     ///   - yield: Yields a slice of the result; returns whether or not to continue splitting.
@@ -120,7 +138,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         separator: Element,
         defaultValue: Element,
         offset: Index = 0,
-        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
+        yield: (inout VLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let separatorSIMD = SIMD64<UInt8>(repeating: separator)
         let noSeparatorFoundMask = SIMDMask<SIMD64<UInt8>.MaskStorage>.init(repeating: false)
@@ -193,7 +211,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
+        yield: (inout VLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let buffer = simd64(startIndex: index)
         if (buffer .== separatorSIMD) == noSeparatorFoundMask {
@@ -209,7 +227,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
+        yield: (inout VLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD32<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD32<UInt8>.MaskStorage>.self, capacity: 32).pointee })
         let buffer = simd32(startIndex: index)
@@ -226,7 +244,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
+        yield: (inout VLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD16<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD16<UInt8>.MaskStorage>.self, capacity: 16).pointee })
         let buffer = simd16(startIndex: index)
@@ -243,7 +261,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
+        yield: (inout VLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD8<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD8<UInt8>.MaskStorage>.self, capacity: 8).pointee })
         let buffer = simd8(startIndex: index)
@@ -260,7 +278,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         noSeparatorFoundMask: SIMDMask<SIMD64<UInt8>.MaskStorage>,
         beginning: inout Index,
         index: inout Index,
-        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
+        yield: (inout VLArray<Element>) throws(AnyError) -> Bool
     ) rethrows {
         let mask:SIMDMask<SIMD4<UInt8>.MaskStorage> = withUnsafeBytes(of: noSeparatorFoundMask, { $0.baseAddress!.bindMemory(to: SIMDMask<SIMD4<UInt8>.MaskStorage>.self, capacity: 4).pointee })
         let buffer = simd4(startIndex: index)
@@ -285,14 +303,15 @@ extension InlineArrayProtocol where Element == UInt8 {
         beginning: inout Index,
         index: inout Index,
         defaultValue: Element,
-        yield: (inout InlineVLArray<Element>) throws(AnyError) -> Bool
+        yield: (inout VLArray<Element>) throws(AnyError) -> Bool
     ) rethrows -> Bool {
         var continueYielding = true
-        try InlineVLArray<Element>.create(amount: capacity, default: defaultValue, { array in
+        try VLArray<Element>.create(amount: capacity, default: defaultValue, {
+            var array = $0
             var arrayIndex = 0
             var i = beginning
             while i < index {
-                array.setItemAt(index: arrayIndex, element: self.itemAt(index: i))
+                array[arrayIndex] = self.itemAt(index: i)
                 arrayIndex += 1
                 i += 1
             }
@@ -351,14 +370,15 @@ extension InlineArrayProtocol where Element: Equatable {
         separator: Element,
         defaultValue: Element,
         offset: Index = 0,
-        _ closure: (_ slice: InlineVLArray<Element>, _ index: Index) -> Void
+        _ closure: (_ slice: borrowing VLArray<Element>, _ index: Index) -> Void
     ) {
         let index = firstIndex(of: separator, offset: offset) ?? endIndex
-        InlineVLArray<Element>.create(amount: offset.distance(to: index), default: defaultValue) { array in
+        VLArray<Element>.create(amount: offset.distance(to: index), default: defaultValue) {
+            var array = $0
             var targetIndex = offset
             var i = 0
             while targetIndex < index {
-                array.setItemAt(index: i, element: self.itemAt(index: targetIndex))
+                array[i] = self.itemAt(index: targetIndex)
                 targetIndex += 1
                 i += 1
             }
@@ -390,7 +410,7 @@ extension InlineArrayProtocol {
 }
 
 // MARK: string
-extension InlineArrayProtocol where Element == UInt8 {
+extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
     @inlinable
     public func string(offset: Index = 0) -> String {
         var s = ""

@@ -1,4 +1,6 @@
 
+import VariableLengthArray
+
 extension String {
     @inlinable
     public mutating func append<let count: Int>(_ array: InlineArray<count, UInt8>) {
@@ -12,7 +14,7 @@ extension String {
     }
 
     @inlinable
-    public func inlineVLArray<E: Error>(_ closure: (inout InlineVLArray<UInt8>) throws(E) -> Void) rethrows {
-        try InlineVLArray<UInt8>.create(string: self, closure)
+    public func inlineVLArray<E: Error>(_ closure: (consuming VLArray<UInt8>) throws(E) -> Void) rethrows {
+        try VLArray<UInt8>.create(string: self, closure)
     }
 }
