@@ -62,15 +62,7 @@ extension RouteGroup {
         let prefixEndpoints = endpoint.split(separator: "/").map({ String($0) })
         let pathComponents = prefixEndpoints.map({ PathComponent.literal($0) })
 
-        let staticMiddlewareString = staticMiddleware.map({ "\($0)" }).joined(separator: ",\n")
         let dynamicMiddlewareString = storage.dynamicMiddleware.map({ "\($0)" }).joined(separator: ",\n")
-
-        let immutableStaticMiddlewareSyntax:String
-        if staticMiddleware.isEmpty {
-            immutableStaticMiddlewareSyntax = "Optional<CompiledStaticMiddlewareStorage<StaticMiddleware>>.none"
-        } else {
-            immutableStaticMiddlewareSyntax = "CompiledStaticMiddlewareStorage((\n\(staticMiddlewareString)\n))"
-        }
 
         let immutableDynamicMiddlewareSyntax:String
         if storage.dynamicMiddleware.isEmpty {
@@ -108,7 +100,6 @@ extension RouteGroup {
         let compiled = """
         CompiledRouteGroup(
             prefixEndpoints: \(prefixEndpoints),
-            immutableStaticMiddleware: \(immutableStaticMiddlewareSyntax),
             immutableDynamicMiddleware: \(immutableDynamicMiddlewareSyntax),
             immutableStaticResponders: \(staticRespondersSyntax),
             immutableDynamicResponders: \(dynamicRespondersSyntax),

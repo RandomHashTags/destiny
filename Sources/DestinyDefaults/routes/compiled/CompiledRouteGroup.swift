@@ -4,7 +4,6 @@ import DestinyBlueprint
 /// Default immutable Route Group implementation that handles grouped routes.
 public struct CompiledRouteGroup<
         let prefixEndpointsCount: Int,
-        ImmutableStaticMiddlewareStorage: StaticMiddlewareStorageProtocol,
         ImmutableDynamicMiddlewareStorage: DynamicMiddlewareStorageProtocol,
         ImmutableStaticResponders: StaticResponderStorageProtocol,
         ImmutableDynamicResponders: DynamicResponderStorageProtocol,
@@ -12,7 +11,6 @@ public struct CompiledRouteGroup<
         MutableDynamicResponders: MutableDynamicResponderStorageProtocol
     >: RouteGroupProtocol {
     public let prefixEndpoints:InlineArray<prefixEndpointsCount, String>
-    public let immutableStaticMiddleware:ImmutableStaticMiddlewareStorage?
     public let immutableDynamicMiddleware:ImmutableDynamicMiddlewareStorage?
 
     public let immutableStaticResponders:ImmutableStaticResponders
@@ -23,7 +21,6 @@ public struct CompiledRouteGroup<
 
     public init(
         prefixEndpoints: InlineArray<prefixEndpointsCount, String>,
-        immutableStaticMiddleware: ImmutableStaticMiddlewareStorage?,
         immutableDynamicMiddleware: ImmutableDynamicMiddlewareStorage?,
         immutableStaticResponders: ImmutableStaticResponders,
         immutableDynamicResponders: ImmutableDynamicResponders,
@@ -31,7 +28,6 @@ public struct CompiledRouteGroup<
         mutableDynamicResponders: MutableDynamicResponders
     ) {
         self.prefixEndpoints = prefixEndpoints
-        self.immutableStaticMiddleware = immutableStaticMiddleware
         self.immutableDynamicMiddleware = immutableDynamicMiddleware
         self.immutableStaticResponders = immutableStaticResponders
         self.immutableDynamicResponders = immutableDynamicResponders
