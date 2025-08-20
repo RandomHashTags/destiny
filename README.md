@@ -227,6 +227,7 @@ List of techniques Destiny wants to incorporate to push performance even further
 - connection pool
 - optionally batch responses
 - kqueue support
+- io_uring support
 
 ### Limitations
 
