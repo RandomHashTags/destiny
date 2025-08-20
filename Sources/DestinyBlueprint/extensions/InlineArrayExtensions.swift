@@ -34,6 +34,11 @@ extension VLArray: InlineArrayProtocol {
     public mutating func setItemAt(index: Int, element: Element) {
         self[index] = element
     }
+
+    @inlinable
+    public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
+        return try body(UnsafeBufferPointer.init(storage))
+    }
 }
 
 // MARK: init
@@ -424,6 +429,12 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
             i += 1
         }
         return s
+    }
+    @inlinable
+    public func stringLiteral() -> String {
+        return self.withUnsafeBufferPointer {
+            return String.init(decoding: $0, as: UTF8.self)
+        }
     }
 }
 

@@ -2,6 +2,8 @@
 /// Types conforming to this protocol indicate they're stored as an inline array.
 public protocol InlineArrayProtocol: InlineCollectionProtocol, ~Copyable where Index == Int {
     init(repeating value: Element)
+
+    func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R
 }
 
 // MARK Conformances
@@ -14,6 +16,23 @@ extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
     @inlinable
     public mutating func setItemAt(index: Int, element: Element) {
         self[index] = element
+    }
+
+    @inlinable
+    public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
+        var result:Result<R, E>! = nil
+        span.withUnsafeBufferPointer {
+            do throws(E) {
+                result = .success(try body($0))
+            } catch {
+                result = .failure(error)
+            }
+        }
+        switch result {
+        case .success(let r): return r
+        case .failure(let e): throw e
+        case .none: fatalError("something went wrong")
+        }
     }
 
     @inlinable

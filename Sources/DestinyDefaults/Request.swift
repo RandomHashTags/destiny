@@ -4,14 +4,17 @@ import DestinyBlueprint
 /// Default storage for request data.
 public struct Request: HTTPRequestProtocol {
     public let startLine:DestinyRoutePathType
-    public let newStartLine:HTTPStartLine
+    public let methodString:String
+    public let pathString:String
 
     public init(
         startLine: DestinyRoutePathType,
-        newStartLine: HTTPStartLine
+        methodString: String,
+        pathString: String
     ) {
         self.startLine = startLine
-        self.newStartLine = newStartLine
+        self.methodString = methodString
+        self.pathString = pathString
     }
 
     public lazy var headers: HTTPRequestHeaders = {
@@ -29,7 +32,7 @@ public struct Request: HTTPRequestProtocol {
     }
 
     public lazy var path: [String] = {
-        return newStartLine.path.string().split(separator: "/").map { String($0) }
+        return pathString.split(separator: "/").map { String($0) }
     }()
 
     @inlinable
@@ -53,7 +56,7 @@ public struct Request: HTTPRequestProtocol {
 
     @inlinable
     public func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
-        method.rawNameString() == newStartLine.method.string()
+        method.rawNameString() == methodString
     }
 
     @inlinable
@@ -63,7 +66,7 @@ public struct Request: HTTPRequestProtocol {
 
     @inlinable
     public func copy() -> Self {
-        .init(startLine: startLine, newStartLine: newStartLine)
+        .init(startLine: startLine, methodString: methodString, pathString: pathString)
     }
 }
 
@@ -78,11 +81,15 @@ extension Request {
             throw SocketError.malformedRequest()
         }
         var startLine = DestinyRoutePathType()
-        let newStartLine = try HTTPStartLine.init(buffer: buffer)
-        for i in 0..<newStartLine.endIndex {
-            startLine[i] = buffer.itemAt(index: i)
-        }
-
+        var methodString = ""
+        var pathString = ""
+        try HTTPStartLine.load(buffer: buffer, { sl in
+            for i in 0..<min(64, sl.endIndex) {
+                startLine[i] = buffer.itemAt(index: i)
+            }
+            methodString = sl.method.stringLiteral()
+            pathString = sl.path.stringLiteral()
+        })
         /*
         // performance falls off a cliff parsing headers; should we
         // just retain the buffer and record the start and end indexes
@@ -101,7 +108,8 @@ extension Request {
         }*/
         return Request(
             startLine: startLine,
-            newStartLine: newStartLine
+            methodString: methodString,
+            pathString: pathString
         )
     }
 }

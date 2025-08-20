@@ -30,6 +30,11 @@ public struct InlineByteArray<let count: Int>: InlineByteArrayProtocol {
     public var indices: Range<Int> { _storage.indices }
 
     @inlinable
+    public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
+        return try _storage.span.withUnsafeBufferPointer(body)
+    }
+
+    @inlinable
     public func index(after i: Int) -> Int {
         _storage.index(after: i)
     }

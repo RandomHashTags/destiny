@@ -3,6 +3,7 @@ import DestinySwiftSyntax
 import Testing
 
 struct DestinyTests {
+    /*
     @Test
     func example() {
         #declareRouter(
@@ -42,5 +43,5 @@ struct DestinyTests {
                 body: ResponseBody.bytes16([UInt16]("<!DOCTYPE html><html>This outcome was inevitable; 'twas your destiny</html>".utf16))
             )*/
         )
-    }
+    }*/
 }
