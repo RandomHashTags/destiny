@@ -3,93 +3,24 @@ import DestinyBlueprint
 
 /// Default storage for request data.
 public struct Request: HTTPRequestProtocol {
-    public let startLine:DestinyRoutePathType
-    public let methodString:String
-    public let pathString:String
+    public typealias Buffer = InlineArray<1024, UInt8>
 
+    @usableFromInline
+    let fileDescriptor:Int32
+
+    @usableFromInline
+    var _storage:Storage
+
+    @inlinable
     public init(
-        startLine: DestinyRoutePathType,
-        methodString: String,
-        pathString: String
+        fileDescriptor: Int32,
+        _storage: Storage = .init()
     ) {
-        self.startLine = startLine
-        self.methodString = methodString
-        self.pathString = pathString
+        self.fileDescriptor = fileDescriptor
+        self._storage = _storage
     }
 
     public lazy var headers: HTTPRequestHeaders = {
-        return .init([:])
-    }()
-
-    @usableFromInline
-    lazy var _startLineLowercased: SIMD64<UInt8> = {
-        return startLine.lowercased()
-    }()
-
-    @inlinable
-    public mutating func startLineLowercased() -> SIMD64<UInt8> {
-        return _startLineLowercased
-    }
-
-    public lazy var path: [String] = {
-        return pathString.split(separator: "/").map { String($0) }
-    }()
-
-    @inlinable
-    public mutating func forEachPath(offset: Int = 0, _ yield: (String) -> Void) {
-        var i = offset
-        while i < path.count {
-            yield(path[i])
-            i += 1
-        }
-    }
-
-    @inlinable
-    public mutating func path(at index: Int) -> String {
-        path[index]
-    }
-
-    @inlinable
-    public mutating func pathCount() -> Int {
-        path.count
-    }
-
-    @inlinable
-    public func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
-        method.rawNameString() == methodString
-    }
-
-    @inlinable
-    public mutating func header(forKey key: String) -> String? {
-        headers[key]
-    }
-
-    @inlinable
-    public func copy() -> Self {
-        .init(startLine: startLine, methodString: methodString, pathString: pathString)
-    }
-}
-
-// MARK: Load
-extension Request {
-    @inlinable
-    public static func load(
-        socket: borrowing some HTTPSocketProtocol & ~Copyable
-    ) throws(SocketError) -> Request {
-        let (buffer, read) = try socket.readBuffer()
-        if read <= 0 {
-            throw SocketError.malformedRequest()
-        }
-        var startLine = DestinyRoutePathType()
-        var methodString = ""
-        var pathString = ""
-        try HTTPStartLine.load(buffer: buffer, { sl in
-            for i in 0..<min(64, sl.endIndex) {
-                startLine[i] = buffer.itemAt(index: i)
-            }
-            methodString = sl.method.stringLiteral()
-            pathString = sl.path.stringLiteral()
-        })
         /*
         // performance falls off a cliff parsing headers; should we
         // just retain the buffer and record the start and end indexes
@@ -106,11 +37,146 @@ extension Request {
                 break
             }
         }*/
-        return Request(
-            startLine: startLine,
-            methodString: methodString,
-            pathString: pathString
-        )
+        return .init([:])
+    }()
+
+    @inlinable
+    public mutating func forEachPath(
+        offset: Int = 0,
+        _ yield: (String) -> Void
+    ) throws(SocketError) {
+        var i = offset
+        if _storage._path == nil {
+            try _loadStorage()
+        }
+        let path = _storage._path!
+        while i < path.count {
+            yield(path[i])
+            i += 1
+        }
+    }
+
+    @inlinable
+    public mutating func path(at index: Int) throws(SocketError) -> String {
+        if _storage._path == nil {
+            try _loadStorage()
+        }
+        return _storage._path![index]
+    }
+
+    @inlinable
+    public mutating func pathCount() throws(SocketError) -> Int {
+        if _storage._path == nil {
+            try _loadStorage()
+        }
+        return _storage._path!.count
+    }
+
+    @inlinable
+    public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+        if _storage._methodString == nil {
+            try _loadStorage()
+        }
+        return method.rawNameString() == _storage._methodString
+    }
+
+    @inlinable
+    public mutating func header(forKey key: String) -> String? {
+        headers[key]
+    }
+
+    @inlinable
+    public func copy() -> Self {
+        var c = Self(fileDescriptor: fileDescriptor)
+        c._storage = _storage
+        return c
+    }
+}
+
+// MARK: Start line
+extension Request {
+    @inlinable
+    public mutating func startLine() throws(SocketError) -> DestinyRoutePathType {
+        if _storage._startLine == nil {
+            try _loadStorage()
+        }
+        return _storage._startLine!
+    }
+
+    @inlinable
+    public mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
+        if _storage._startLine == nil {
+            try _loadStorage()
+        }
+        return _storage._startLine!.lowercased() // TODO: store?
+    }
+}
+
+// MARK: Storage
+extension Request {
+    @usableFromInline
+    mutating func _loadStorage() throws(SocketError) {
+        let (buffer, read) = try readBuffer()
+        if read <= 0 {
+            throw .malformedRequest()
+        }
+        var startLine = SIMD64<UInt8>()
+        try HTTPStartLine.load(buffer: buffer, { sl in
+            for i in 0..<min(64, sl.endIndex) {
+                startLine[i] = buffer.itemAt(index: i)
+            }
+            _storage._startLine = startLine
+            _storage._methodString = sl.method.unsafeString()
+            _storage._path = sl.path.unsafeString().split(separator: "/").map({ String($0) })
+        })
+    }
+
+    public struct Storage: Sendable {
+        //@usableFromInline
+        //var _buffer:Buffer? = nil
+
+        @usableFromInline
+        var _startLine:DestinyRoutePathType? = nil
+
+        @usableFromInline
+        var _methodString:String? = nil
+
+        @usableFromInline
+        var _path:[String]? = nil
+
+        @usableFromInline
+        init(
+            //_buffer: Buffer? = nil,
+            _startLine: DestinyRoutePathType? = nil,
+            _methodString: String? = nil,
+            _path: [String]? = nil
+        ) {
+            self._startLine = _startLine
+            self._methodString = _methodString
+            self._path = _path
+        }
+    }
+}
+
+// MARK: Read buffer
+extension Request {
+    @inlinable
+    func readBuffer() throws(SocketError) -> (Buffer, Int) {
+        var buffer = Buffer.init(repeating: 0)
+        var mutableSpan = buffer.mutableSpan
+        var err:SocketError? = nil
+        let read = mutableSpan.withUnsafeMutableBufferPointer { p in
+            do throws(SocketError) {
+                return try fileDescriptor.socketReadBuffer(into: p.baseAddress!, length: Buffer.count, flags: 0)
+            } catch {
+                err = error
+                return -1
+            }
+        }
+        if let err {
+            throw err
+        }
+        return (buffer, read)
     }
 }
 

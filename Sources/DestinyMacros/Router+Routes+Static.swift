@@ -219,7 +219,13 @@ extension RouterStorage {
             request: inout some HTTPRequestProtocol & ~Copyable,
             completionHandler: @Sendable @escaping () -> Void
         ) throws(ResponderError) -> Bool {
-            guard let route = matchRoute(request.startLine\(raw: isCaseSensitive ? "" : "Lowercased()")) else { return false }
+            let startLine:SIMD64<UInt8>
+            do throws(SocketError) {
+                startLine = try request.startLine\(raw: isCaseSensitive ? "" : "Lowercased")()
+            } catch {
+                throw .socketError(error)
+            }
+            guard let route = matchRoute(startLine) else { return false }
             do throws(SocketError) {
                 return try route.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
             } catch {

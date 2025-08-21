@@ -1,8 +1,6 @@
 
 /// Core Socket protocol that handles incoming network requests.
 public protocol SocketProtocol: ~Copyable, Sendable {
-    associatedtype Buffer:InlineByteArrayProtocol
-    
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 
     /// - Warning: Don't forget to close this file descriptor when you're done with it. It is **not** closed automatically.
@@ -16,8 +14,6 @@ public protocol SocketProtocol: ~Copyable, Sendable {
         length: Int,
         flags: Int32
     ) throws(SocketError) -> Int
-
-    func readBuffer() throws(SocketError) -> (Buffer, Int)
 
     /// Writes a buffer to the socket.
     func writeBuffer(

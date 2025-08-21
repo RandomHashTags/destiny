@@ -31,32 +31,51 @@ extension DynamicResponderStorage {
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        guard let responder = responder(for: &request) else { return false }
+        guard let responder = try responder(for: &request) else { return false }
         try router.respondDynamically(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
         return true
     }
 
     @inlinable
-    package func responder(for request: inout some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
-        if let responder = parameterless[request.startLine] {
+    package func responder(for request: inout some HTTPRequestProtocol & ~Copyable) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
+        let requestStartLine:SIMD64<UInt8>
+        do throws(SocketError) {
+            requestStartLine = try request.startLine()
+        } catch {
+            throw .socketError(error)
+        }
+        if let responder = parameterless[requestStartLine] {
             return responder
         }
-        let pathCount = request.pathCount()
-        guard let responders = parameterized.getPositive(pathCount) else { return catchallResponder(for: &request) }
+        let pathCount:Int
+        do throws(SocketError) {
+            pathCount = try request.pathCount()
+        } catch {
+            throw .socketError(error)
+        }
+        guard let responders = parameterized.getPositive(pathCount) else { return try catchallResponder(for: &request) }
         loop: for responder in responders {
             for i in 0..<pathCount {
                 let path = responder.pathComponent(at: i)
-                if !path.isParameter && path.value != request.path(at: i) {
-                    continue loop
+                if !path.isParameter {
+                    let pathAtIndex:String
+                    do throws(SocketError) {
+                        pathAtIndex = try request.path(at: i)
+                    } catch {
+                        throw .socketError(error)
+                    }
+                    if path.value != pathAtIndex {
+                        continue loop
+                    }
                 }
             }
             return responder
         }
-        return catchallResponder(for: &request)
+        return try catchallResponder(for: &request)
     }
 
     @inlinable
-    func catchallResponder(for request: inout some HTTPRequestProtocol & ~Copyable) -> (any DynamicRouteResponderProtocol)? {
+    func catchallResponder(for request: inout some HTTPRequestProtocol & ~Copyable) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
         var responderIndex = 0
         loop: while responderIndex < catchall.count {
             let responder = catchall[responderIndex]
@@ -66,9 +85,17 @@ extension DynamicResponderStorage {
                 let component = responder.pathComponent(at: componentIndex)
                 if component == .catchall {
                     return responder
-                } else if !component.isParameter && component.value != request.path(at: componentIndex) {
-                    responderIndex += 1
-                    continue loop
+                } else if !component.isParameter {
+                    let pathAtIndex:String
+                    do throws(SocketError) {
+                        pathAtIndex = try request.path(at: componentIndex)
+                    } catch {
+                        throw .socketError(error)
+                    }
+                    if component.value != pathAtIndex {
+                        responderIndex += 1
+                        continue loop
+                    }
                 }
                 componentIndex += 1
             }

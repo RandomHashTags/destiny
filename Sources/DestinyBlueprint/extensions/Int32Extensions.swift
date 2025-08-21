@@ -37,9 +37,10 @@ extension Int32 {
     @inlinable
     public func socketReadBuffer(
         into baseAddress: UnsafeMutableRawPointer,
-        length: Int
+        length: Int,
+        flags: Int32
     ) throws(SocketError) -> Int {
-        let read = socketReceive(baseAddress, length, 0)
+        let read = socketReceive(baseAddress, length, flags)
         if read < 0 { // error
             try handleReadError()
         }

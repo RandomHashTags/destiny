@@ -40,7 +40,12 @@ extension CaseInsensitiveStaticResponderStorage {
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        let startLine = request.startLineLowercased()
+        let startLine:SIMD64<UInt8>
+        do throws(SocketError) {
+            startLine = try request.startLineLowercased()
+        } catch {
+            throw .socketError(error)
+        }
         if let r = macroExpansions[startLine] {
             try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = macroExpansionsWithDateHeader[startLine] {

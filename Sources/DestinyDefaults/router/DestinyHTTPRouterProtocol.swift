@@ -49,24 +49,41 @@ extension DestinyHTTPRouterProtocol {
         var response = responder.defaultResponse()
         var index = 0
         let maximumParameters = responder.pathComponentsCount
+        var err:SocketError? = nil
         responder.forEachPathComponentParameterIndex { parameterIndex in
-            request.path(at: parameterIndex).inlineVLArray {
+            let pathAtIndex:String
+            do throws(SocketError) {
+                pathAtIndex = try request.path(at: parameterIndex)
+            } catch {
+                err = error
+                return
+            }
+            pathAtIndex.inlineVLArray {
                 response.setParameter(at: index, value: $0)
             }
             if responder.pathComponent(at: parameterIndex) == .catchall {
-                var i = parameterIndex+1
-                request.forEachPath(offset: i) { path in
-                    path.inlineVLArray {
-                        if i < maximumParameters {
-                            response.setParameter(at: i, value: $0)
-                        } else {
-                            response.appendParameter(value: $0)
+                do throws(SocketError) {
+                    var i = parameterIndex+1
+                    try request.forEachPath(offset: i) { path in
+                        path.inlineVLArray {
+                            if i < maximumParameters {
+                                response.setParameter(at: i, value: $0)
+                            } else {
+                                response.appendParameter(value: $0)
+                            }
                         }
+                        i += 1
                     }
-                    i += 1
+                } catch {
+                    err = error
+                    return
                 }
+                
             }
             index += 1
+        }
+        if let err {
+            throw .socketError(err)
         }
         return response
     }

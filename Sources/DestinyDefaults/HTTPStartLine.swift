@@ -1,23 +1,4 @@
 
-// memcpy
-#if canImport(Android)
-import Android
-#elseif canImport(Bionic)
-import Bionic
-#elseif canImport(Darwin)
-import Darwin
-#elseif canImport(SwiftGlibc)
-import Glibc
-#elseif canImport(Musl)
-import Musl
-#elseif canImport(WASILibc)
-import WASILibc
-#elseif canImport(Windows)
-import Windows
-#elseif canImport(WinSDK)
-import WinSDK
-#endif
-
 import DestinyBlueprint
 import VariableLengthArray
 
@@ -45,40 +26,45 @@ public struct HTTPStartLine: HTTPStartLineProtocol, ~Copyable {
 // MARK: Load
 extension HTTPStartLine {
     @inlinable
-    public static func load(
-        buffer: some InlineByteArrayProtocol,
+    public static func load<T: InlineArrayProtocol>(
+        buffer: T,
         _ body: (consuming Self) throws(SocketError) -> Void
-    ) throws(SocketError) {
-        var offset = 0
-        var methodEndIndex = 0
-        while offset < buffer.count, methodEndIndex == 0 {
-            if buffer.itemAt(index: offset) == .space {
-                methodEndIndex = offset
-                break
-            }
-            offset += 1
-        }
-        guard methodEndIndex != 0 else {
-            throw .malformedRequest()
-        }
-        offset += 1
-
+    ) throws(SocketError) where T.Element == UInt8 {
         var err:SocketError? = nil
         buffer.withUnsafeBufferPointer { bufferPointer in
+            guard let base = bufferPointer.baseAddress else {
+                err = .malformedRequest("bufferPointer.baseAddress == nil")
+                return
+            }
+            var offset = 0
+            var methodEndIndex = 0
+            while offset < bufferPointer.count, methodEndIndex == 0 {
+                if bufferPointer[offset] == .space {
+                    methodEndIndex = offset
+                    break
+                }
+                offset += 1
+            }
+            guard methodEndIndex != 0 else {
+                err = .malformedRequest("methodEndIndex == 0")
+                return
+            }
+            offset += 1
+        
             var targetPathEndIndex = 0
-            for i in offset..<buffer.count {
+            for i in offset..<bufferPointer.count {
                 if bufferPointer[i] == .space {
                     targetPathEndIndex = i
                     break
                 }
             }
             guard targetPathEndIndex != 0 else {
-                err = .malformedRequest()
+                err = .malformedRequest("targetPathEndIndex == 0")
                 return
             }
             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: methodEndIndex, { methodBuffer in
                 for i in 0..<methodEndIndex {
-                    methodBuffer[i] = buffer.itemAt(index: i)
+                    methodBuffer[i] = bufferPointer[i]
                 }
                 offset = methodEndIndex + 1
                 let pathCount = targetPathEndIndex - methodEndIndex - 1
@@ -90,37 +76,97 @@ extension HTTPStartLine {
                         }
                         offset += 1
                     } else {
-                        memcpy(pathBuffer.baseAddress!, bufferPointer.baseAddress! + offset, pathCount)
+                        copyMemory(pathBuffer.baseAddress!, bufferPointer.baseAddress! + offset, pathCount)
                         offset += pathCount + 1
                     }
-                    var versionArray = InlineArray<8, UInt8>(repeating: 0)
-                    for i in 0..<8 {
-                        versionArray[i] = bufferPointer[offset]
-                        offset += 1
+                    guard offset + 8 < bufferPointer.count else {
+                        err = .malformedRequest("not enough bytes for the HTTP Version")
+                        return
                     }
-                    if let version = HTTPVersion(token: versionArray) {
-                        let methodArray = VLArray<UInt8>(_storage: methodBuffer)
-                        let pathArray = VLArray<UInt8>(_storage: pathBuffer)
-                        let startLine = HTTPStartLine.init(
-                            method: methodArray,
-                            path: pathArray,
-                            version: version,
-                            endIndex: targetPathEndIndex + 9
-                        )
-                        do throws(SocketError) {
-                            try body(startLine)
-                            return
-                        } catch {
-                            err = error
-                        }
-                    } else {
-                        err = .malformedRequest()
+                    var versionUInt64:UInt64 = 0
+                    copyMemory(&versionUInt64, base + offset, 8)
+                    guard let version = HTTPVersion.init(token: versionUInt64.bigEndian) else {
+                        err = .malformedRequest("unrecognized HTTPVersion: (bigEndian: \(versionUInt64.bigEndian), littleEndian: \(versionUInt64.littleEndian))")
+                        return
+                    }
+                    let methodArray = VLArray<UInt8>(_storage: methodBuffer)
+                    let pathArray = VLArray<UInt8>(_storage: pathBuffer)
+                    let startLine = HTTPStartLine.init(
+                        method: methodArray,
+                        path: pathArray,
+                        version: version,
+                        endIndex: targetPathEndIndex + 9
+                    )
+                    do throws(SocketError) {
+                        try body(startLine)
+                        return
+                    } catch {
+                        err = error
                     }
                 })
             })
         }
         if let err {
             throw err
+        }
+    }
+}
+
+// MARK: Load minimal
+extension HTTPStartLine {
+    @inlinable
+    public static func loadMinimal<T: InlineArrayProtocol>(
+        buffer: T
+    ) throws(SocketError) -> (methodEndIndex: Int, pathEndIndex: Int, httpVersion: HTTPVersion) where T.Element == UInt8 {
+        var methodEndIndex = 0
+        var pathEndIndex = 0
+        var version = HTTPVersion.v0_9
+        var err:SocketError? = nil
+        buffer.withUnsafeBufferPointer { bufferPointer in
+            guard let base = bufferPointer.baseAddress else {
+                err = .malformedRequest("bufferPointer.baseAddress == nil")
+                return
+            }
+            var offset = 0
+            while offset < bufferPointer.count, methodEndIndex == 0 {
+                if bufferPointer[offset] == .space {
+                    methodEndIndex = offset
+                    break
+                }
+                offset += 1
+            }
+            guard methodEndIndex != 0 else {
+                err = .malformedRequest("methodEndIndex == 0")
+                return
+            }
+            offset += 1
+        
+            for i in offset..<bufferPointer.count {
+                if bufferPointer[i] == .space {
+                    pathEndIndex = i
+                    break
+                }
+            }
+            guard pathEndIndex != 0 else {
+                err = .malformedRequest("targetPathEndIndex == 0")
+                return
+            }
+            guard pathEndIndex + 9 < bufferPointer.count else {
+                err = .malformedRequest("not enough bytes for the HTTP Version")
+                return
+            }
+            var versionUInt64:UInt64 = 0
+            copyMemory(&versionUInt64, base + pathEndIndex + 1, 8)
+            guard let httpVersion = HTTPVersion.init(token: versionUInt64.bigEndian) else {
+                err = .malformedRequest("unrecognized HTTPVersion: \(versionUInt64.bigEndian)")
+                return
+            }
+            version = httpVersion
+        }
+        if let err {
+            throw err
+        } else {
+            return (methodEndIndex, pathEndIndex, version)
         }
     }
 }

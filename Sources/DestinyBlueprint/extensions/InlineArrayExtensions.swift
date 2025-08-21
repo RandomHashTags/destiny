@@ -1,23 +1,4 @@
 
-// `ceil` and `memcpy`
-#if canImport(Android)
-import Android
-#elseif canImport(Bionic)
-import Bionic
-#elseif canImport(Darwin)
-import Darwin
-#elseif canImport(SwiftGlibc)
-import Glibc
-#elseif canImport(Musl)
-import Musl
-#elseif canImport(WASILibc)
-import WASILibc
-#elseif canImport(Windows)
-import Windows
-#elseif canImport(WinSDK)
-import WinSDK
-#endif
-
 import VariableLengthArray
 
 extension VLArray: InlineArrayProtocol {
@@ -431,35 +412,10 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
         return s
     }
     @inlinable
-    public func stringLiteral() -> String {
+    public func unsafeString() -> String {
         return self.withUnsafeBufferPointer {
             return String.init(decoding: $0, as: UTF8.self)
         }
-    }
-}
-
-// MARK: lowercased
-extension InlineArrayProtocol where Element == UInt8 {
-    /// - Complexity: O(*n* * 2) where _n_ is the length of the collection.
-    @inlinable
-    public func lowercased() -> Self {
-        var value = self
-        let simds:Int
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-        simds = Int(ceil(Double(count) / 64))
-        #else
-        simds = Int(ceil(Double(count) / 64)) // TODO: fix
-        #endif
-        var startIndex = startIndex
-        for _ in 0..<simds {
-            let simd = simd64(startIndex: startIndex).lowercased()
-            let filled = min(64, endIndex - startIndex)
-            for i in 0..<filled {
-                value.setItemAt(index: startIndex + i, element: simd[i])
-            }
-            startIndex += 64
-        }
-        return value
     }
 }
 
@@ -504,9 +460,9 @@ extension InlineArrayProtocol where Element: SIMDScalar {
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
         var result = T()
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-        _ = withUnsafeBytes(of: self, { this in 
+        withUnsafeBytes(of: self, { this in 
             withUnsafeBytes(of: &result, {
-                memcpy(.init(mutating: $0.baseAddress!), this.baseAddress! + startIndex, T.scalarCount)
+                copyMemory(.init(mutating: $0.baseAddress!), this.baseAddress! + startIndex, T.scalarCount)
             })
         })
         #else

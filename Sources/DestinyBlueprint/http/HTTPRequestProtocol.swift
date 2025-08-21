@@ -4,23 +4,28 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     typealias ConcretePathType = String // TODO: allow custom
 
     /// The HTTP start-line.
-    var startLine: SIMD64<UInt8> { get }
+    mutating func startLine() throws(SocketError) -> SIMD64<UInt8>
 
-    mutating func startLineLowercased() -> SIMD64<UInt8>
+    mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8>
 
     /// Yields the endpoint the request wants to reach, separated by the forward slash character.
-    mutating func forEachPath(offset: Int, _ yield: (ConcretePathType) -> Void)
+    mutating func forEachPath(
+        offset: Int,
+        _ yield: (ConcretePathType) -> Void
+    ) throws(SocketError)
 
     /// - Parameters:
     ///   - index: Index of a path component.
     /// - Returns: The path component at the given index.
-    mutating func path(at index: Int) -> ConcretePathType
+    mutating func path(
+        at index: Int
+    ) throws(SocketError) -> ConcretePathType
 
     /// The number of path components the request contains.
-    mutating func pathCount() -> Int
+    mutating func pathCount() throws(SocketError) -> Int
 
     /// - Returns: Whether or not the request's method matches the given one.
-    func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool
+    mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool
 
     //@inlinable func header<let keyCount: Int, valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 

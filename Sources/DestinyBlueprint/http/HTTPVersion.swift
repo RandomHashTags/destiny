@@ -35,6 +35,19 @@ public enum HTTPVersion: String, Hashable, Sendable {
     }
 
     @inlinable
+    public init?(token: UInt64) {
+        switch token {
+        case 5211883372140310073: self = .v0_9
+        case 5211883372140375600: self = .v1_0
+        case 5211883372140375601: self = .v1_1
+        case 5211883372140375602: self = .v1_2
+        case 5211883372140441136: self = .v2_0
+        case 5211883372140506672: self = .v3_0
+        default: return nil
+        }
+    }
+
+    @inlinable
     public init?(_ path: SIMD64<UInt8>) {
         self.init(token: path.lowHalf.lowHalf.lowHalf)
     }

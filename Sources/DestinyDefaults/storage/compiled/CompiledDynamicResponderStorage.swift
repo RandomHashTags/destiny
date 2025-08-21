@@ -16,9 +16,16 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        let requestPathCount = request.pathCount()
+        let requestPathCount:Int
+        let requestStartLine:SIMD64<UInt8>
+        do throws(SocketError) {
+            requestPathCount = try request.pathCount()
+            requestStartLine = try request.startLine()
+        } catch {
+            throw .socketError(error)
+        }
         for route in repeat each routes {
-            if route.path == request.startLine { // parameterless
+            if route.path == requestStartLine { // parameterless
                 try router.respondDynamically(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
                 return true
             } else { // parameterized and catchall
@@ -36,9 +43,19 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
                     case .literal(let l):
                         lastIsCatchall = false
                         lastIsParameter = false
-                        if requestPathCount <= i || l != request.path(at: i) {
+                        if requestPathCount <= i {
                             found = false
                             break loop
+                        } else {
+                            do throws(SocketError) {
+                                let pathAtIndex = try request.path(at: i)
+                                if l != pathAtIndex {
+                                    found = false
+                                    break loop
+                                }
+                            } catch {
+                                throw .socketError(error)
+                            }
                         }
                     case .parameter:
                         lastIsCatchall = false

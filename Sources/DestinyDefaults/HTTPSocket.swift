@@ -13,31 +13,13 @@ public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
     }
 
     @inlinable
-    public func loadRequest() throws(SocketError) -> Request {
-        return try Request.load(socket: self)
+    public func loadRequest() -> Request {
+        return Request(fileDescriptor: fileDescriptor)
     }
 }
 
 // MARK: Reading
 extension HTTPSocket {
-    @inlinable
-    public func readBuffer() throws(SocketError) -> (Buffer, Int) {
-        var buffer = Buffer.init(repeating: 0)
-        var err:SocketError? = nil
-        let read = withUnsafeMutableBytes(of: &buffer) { p in
-            do throws(SocketError) {
-                return try readBuffer(into: p.baseAddress!, length: Buffer.count)
-            } catch {
-                err = error
-                return -1
-            }
-        }
-        if let err {
-            throw err
-        }
-        return (buffer, read)
-    }
-
     /// Reads multiple bytes and writes them into a buffer
     @inlinable
     public func readBuffer(
@@ -101,7 +83,7 @@ extension HTTPSocket {
         into baseAddress: UnsafeMutableRawPointer,
         length: Int
     ) throws(SocketError) -> Int {
-        return try fileDescriptor.socketReadBuffer(into: baseAddress, length: length)
+        return try fileDescriptor.socketReadBuffer(into: baseAddress, length: length, flags: 0)
     }
 }
 

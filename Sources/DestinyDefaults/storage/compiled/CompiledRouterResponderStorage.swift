@@ -37,7 +37,13 @@ extension CompiledRouterResponderStorage {
         if try respondDynamically(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
         }
-        if let responder = conditional[request.startLine] {
+        let requestStartLine:SIMD64<UInt8>
+        do throws(SocketError) {
+            requestStartLine = try request.startLine()
+        } catch {
+            throw .socketError(error)
+        }
+        if let responder = conditional[requestStartLine] {
             return try responder.respond(router: router, socket: socket, request: &request)
         }
         return false

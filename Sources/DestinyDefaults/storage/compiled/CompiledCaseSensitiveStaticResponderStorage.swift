@@ -16,7 +16,12 @@ public struct CompiledCaseSensitiveStaticResponderStorage<each ConcreteRoute: Co
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        let startLine = request.startLine
+        let startLine:SIMD64<UInt8>
+        do throws(SocketError) {
+            startLine = try request.startLine()
+        } catch {
+            throw .socketError(error)
+        }
         for route in repeat each routes {
             if route.path == startLine {
                 try router.respondStatically(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
