@@ -99,7 +99,7 @@ extension HTTPStartLine {
                         }
                         let methodArray = VLArray<UInt8>(_storage: methodBuffer)
                         let pathArray = VLArray<UInt8>(_storage: pathBuffer)
-                        var versionArray:InlineArray<8, UInt8> = .init(repeating: 0)
+                        var versionArray = InlineArray<8, UInt8>(repeating: 0)
                         for i in 0..<8 {
                             versionArray[i] = bufferPointer[offset]
                             offset += 1
