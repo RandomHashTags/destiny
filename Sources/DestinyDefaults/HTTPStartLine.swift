@@ -72,57 +72,52 @@ extension HTTPStartLine {
                     break
                 }
             }
-            do throws(SocketError) {
-                guard targetPathEndIndex != 0 else {
-                    throw .malformedRequest()
-                }
-            } catch {
-                err = error
+            guard targetPathEndIndex != 0 else {
+                err = .malformedRequest()
+                return
             }
-            if err == nil {
-                withUnsafeTemporaryAllocation(of: UInt8.self, capacity: methodEndIndex, { methodBuffer in
-                    for i in 0..<methodEndIndex {
-                        methodBuffer[i] = buffer.itemAt(index: i)
-                    }
-                    offset = methodEndIndex + 1
-                    let pathCount = targetPathEndIndex - methodEndIndex - 1
-                    withUnsafeTemporaryAllocation(of: UInt8.self, capacity: pathCount, { pathBuffer in
-                        if pathCount <= 128 {
-                            for i in 0..<pathCount {
-                                pathBuffer[i] = bufferPointer[offset]
-                                offset += 1
-                            }
+            withUnsafeTemporaryAllocation(of: UInt8.self, capacity: methodEndIndex, { methodBuffer in
+                for i in 0..<methodEndIndex {
+                    methodBuffer[i] = buffer.itemAt(index: i)
+                }
+                offset = methodEndIndex + 1
+                let pathCount = targetPathEndIndex - methodEndIndex - 1
+                withUnsafeTemporaryAllocation(of: UInt8.self, capacity: pathCount, { pathBuffer in
+                    if pathCount <= 128 {
+                        for i in 0..<pathCount {
+                            pathBuffer[i] = bufferPointer[offset]
                             offset += 1
-                        } else {
-                            memcpy(pathBuffer.baseAddress!, bufferPointer.baseAddress! + offset, pathCount)
-                            offset += pathCount + 1
                         }
+                        offset += 1
+                    } else {
+                        memcpy(pathBuffer.baseAddress!, bufferPointer.baseAddress! + offset, pathCount)
+                        offset += pathCount + 1
+                    }
+                    var versionArray = InlineArray<8, UInt8>(repeating: 0)
+                    for i in 0..<8 {
+                        versionArray[i] = bufferPointer[offset]
+                        offset += 1
+                    }
+                    if let version = HTTPVersion(token: versionArray) {
                         let methodArray = VLArray<UInt8>(_storage: methodBuffer)
                         let pathArray = VLArray<UInt8>(_storage: pathBuffer)
-                        var versionArray = InlineArray<8, UInt8>(repeating: 0)
-                        for i in 0..<8 {
-                            versionArray[i] = bufferPointer[offset]
-                            offset += 1
+                        let startLine = HTTPStartLine.init(
+                            method: methodArray,
+                            path: pathArray,
+                            version: version,
+                            endIndex: targetPathEndIndex + 9
+                        )
+                        do throws(SocketError) {
+                            try body(startLine)
+                            return
+                        } catch {
+                            err = error
                         }
-                        if let version = HTTPVersion(token: versionArray) {
-                            let startLine = HTTPStartLine.init(
-                                method: methodArray,
-                                path: pathArray,
-                                version: version,
-                                endIndex: targetPathEndIndex + 9
-                            )
-                            do throws(SocketError) {
-                                try body(startLine)
-                                return
-                            } catch {
-                                err = error
-                            }
-                        } else {
-                            err = .malformedRequest()
-                        }
-                    })
+                    } else {
+                        err = .malformedRequest()
+                    }
                 })
-            }
+            })
         }
         if let err {
             throw err
