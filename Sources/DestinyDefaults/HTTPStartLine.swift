@@ -50,7 +50,6 @@ extension HTTPStartLine {
                 return
             }
             offset += 1
-        
             var targetPathEndIndex = 0
             for i in offset..<bufferPointer.count {
                 if bufferPointer[i] == .space {
@@ -140,7 +139,6 @@ extension HTTPStartLine {
                 return
             }
             offset += 1
-        
             for i in offset..<bufferPointer.count {
                 if bufferPointer[i] == .space {
                     pathEndIndex = i

@@ -4,7 +4,7 @@ import CEpoll
 import Glibc
 import Logging
 
-public final class Epoll<let maxEvents: Int>: SocketAcceptor {
+public struct Epoll<let maxEvents: Int>: SocketAcceptor {
     public let fileDescriptor:Int32
     public let pipeFileDescriptors:(read: Int32, write: Int32)
     public let logger:Logger

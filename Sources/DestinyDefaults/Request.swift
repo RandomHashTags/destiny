@@ -46,10 +46,10 @@ public struct Request: HTTPRequestProtocol {
         _ yield: (String) -> Void
     ) throws(SocketError) {
         var i = offset
-        if _storage._path == nil {
+        if _storage._pathString == nil {
             try _loadStorage()
         }
-        let path = _storage._path!
+        let path = _storage._path
         while i < path.count {
             yield(path[i])
             i += 1
@@ -58,18 +58,18 @@ public struct Request: HTTPRequestProtocol {
 
     @inlinable
     public mutating func path(at index: Int) throws(SocketError) -> String {
-        if _storage._path == nil {
+        if _storage._pathString == nil {
             try _loadStorage()
         }
-        return _storage._path![index]
+        return _storage._path[index]
     }
 
     @inlinable
     public mutating func pathCount() throws(SocketError) -> Int {
-        if _storage._path == nil {
+        if _storage._pathString == nil {
             try _loadStorage()
         }
-        return _storage._path!.count
+        return _storage._path.count
     }
 
     @inlinable
@@ -127,7 +127,7 @@ extension Request {
             }
             _storage._startLine = startLine
             _storage._methodString = sl.method.unsafeString()
-            _storage._path = sl.path.unsafeString().split(separator: "/").map({ String($0) })
+            _storage._pathString = sl.path.unsafeString()
         })
     }
 
@@ -136,25 +136,30 @@ extension Request {
         //var _buffer:Buffer? = nil
 
         @usableFromInline
-        var _startLine:DestinyRoutePathType? = nil
+        var _startLine:SIMD64<UInt8>? = nil
 
         @usableFromInline
         var _methodString:String? = nil
 
         @usableFromInline
-        var _path:[String]? = nil
+        var _pathString:String? = nil
 
         @usableFromInline
         init(
             //_buffer: Buffer? = nil,
-            _startLine: DestinyRoutePathType? = nil,
+            _startLine: SIMD64<UInt8>? = nil,
             _methodString: String? = nil,
-            _path: [String]? = nil
+            _pathString: String? = nil
         ) {
             self._startLine = _startLine
             self._methodString = _methodString
-            self._path = _path
+            self._pathString = _pathString
         }
+
+        @usableFromInline
+        lazy var _path: [String] = {
+            _pathString?.split(separator: "/").map({ String($0) }) ?? []
+        }()
     }
 }
 
