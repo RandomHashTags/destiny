@@ -413,8 +413,10 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
     }
     @inlinable
     public func unsafeString() -> String {
-        return self.withUnsafeBufferPointer {
-            return String.init(decoding: $0, as: UTF8.self)
+        return self.withUnsafeBufferPointer { pointer in
+            return String.init(unsafeUninitializedCapacity: pointer.count, initializingUTF8With: {
+                return $0.initialize(from: pointer).index
+            })
         }
     }
 }
