@@ -35,7 +35,7 @@ public struct HTTPDateFormat: Sendable {
 
     @inlinable
     public static var nowInlineArray: InlineArrayResult {
-        _nowInlineArray
+        _read { yield _nowInlineArray }
     }
 
     /// Begins the auto-updating of the current date in the HTTP Format.
