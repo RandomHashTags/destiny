@@ -9,15 +9,18 @@ public struct Request: HTTPRequestProtocol {
     let fileDescriptor:Int32
 
     @usableFromInline
-    var _storage:Storage
+    var _storage:_Storage
+
+    public var storage:Storage
 
     @inlinable
     public init(
         fileDescriptor: Int32,
-        _storage: Storage = .init()
+        storage: Storage = .init([:])
     ) {
         self.fileDescriptor = fileDescriptor
-        self._storage = _storage
+        self._storage = .init()
+        self.storage = storage
     }
 
     public lazy var headers: HTTPRequestHeaders = {
@@ -38,6 +41,11 @@ public struct Request: HTTPRequestProtocol {
             }
         }*/
         return .init([:])
+    }()
+
+    @usableFromInline
+    lazy var __startLineLowercase: SIMD64<UInt8> = {
+        return _storage._startLine!.lowercased()
     }()
 
     @inlinable
@@ -108,11 +116,11 @@ extension Request {
         if _storage._startLine == nil {
             try _loadStorage()
         }
-        return _storage._startLine!.lowercased() // TODO: store?
+        return __startLineLowercase
     }
 }
 
-// MARK: Storage
+// MARK: _Storage
 extension Request {
     @usableFromInline
     mutating func _loadStorage() throws(SocketError) {
@@ -131,7 +139,8 @@ extension Request {
         })
     }
 
-    public struct Storage: Sendable {
+    @usableFromInline
+    struct _Storage: Sendable {
         //@usableFromInline
         //var _buffer:Buffer? = nil
 

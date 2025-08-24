@@ -38,7 +38,8 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyP
         self.body = body
     }
 
-    @inlinable public var count: Int {
+    @inlinable
+    public var count: Int {
         preDateValue.count + HTTPDateFormat.InlineArrayResult.count + postDateValue.count
     }
     
