@@ -13,7 +13,7 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
         logger: Logger,

@@ -11,7 +11,7 @@ enum Router: ExpressionMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> ExprSyntax {
-        return "\(raw: compute(mutable: true, arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
+        return "\(raw: compute(visibility: .internal, mutable: true, arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
     }
 }
 
@@ -21,11 +21,22 @@ extension Router: DeclarationMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> [DeclSyntax] {
+        let arguments:LabeledExprListSyntax
+        if let args = node.as(MacroExpansionExprSyntax.self)?.arguments {
+            arguments = args
+        } else if let args = node.as(MacroExpansionDeclSyntax.self)?.arguments {
+            arguments = args
+        } else {
+            fatalError("node=\(node.debugDescription)")
+        }
+
+        var visibility = RouterVisibility.internal
         var mutable = true
         var typeAnnotation:String? = nil
-        let arguments = node.as(ExprSyntax.self)!.macroExpansion!.arguments
         for arg in arguments.prefix(2) {
             switch arg.label?.text {
+            case "visibility":
+                visibility = .init(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "internal") ?? .internal
             case "mutable":
                 mutable = arg.expression.booleanIsTrue
             case "typeAnnotation":
@@ -34,13 +45,14 @@ extension Router: DeclarationMacro {
                 break
             }
         }
-        let (router, structs) = compute(mutable: mutable, arguments: arguments, context: context)
-        var declaredRouter = try! StructDeclSyntax("struct DeclaredRouter {}")
+        let (router, structs) = compute(visibility: visibility, mutable: mutable, arguments: arguments, context: context)
+        var declaredRouter = try! StructDeclSyntax("\(raw: visibility)struct DeclaredRouter {}")
         for s in structs {
             declaredRouter.memberBlock.members.append(MemberBlockItemSyntax(decl: s))
         }
+        
         let routerDecl = VariableDeclSyntax(
-            leadingTrivia: .init(stringLiteral: "// MARK: compiled router\n"),
+            leadingTrivia: .init(stringLiteral: "// MARK: compiled router\n\(visibility)"),
             modifiers: [DeclModifierSyntax(name: "static")],
             .let,
             name: "router",

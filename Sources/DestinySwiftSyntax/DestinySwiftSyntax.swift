@@ -40,6 +40,7 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
 /// Declares a struct named `DeclaredRouter` where a compiled router and its optimized data is stored.
 @freestanding(declaration, names: named(DeclaredRouter))
 public macro declareRouter(
+    visibility: RouterVisibility = .internal,
     mutable: Bool = false,
     typeAnnotation: String? = nil,
 

@@ -10,7 +10,7 @@ public protocol ConditionalRouteResponderProtocol: CustomDebugStringConvertible,
     /// - Returns: Whether or not a route responder responded to the request.
     func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable
     ) throws(ResponderError) -> Bool
 }

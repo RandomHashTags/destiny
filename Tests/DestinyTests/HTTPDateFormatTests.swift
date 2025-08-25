@@ -2,6 +2,7 @@
 import Destiny
 import Testing
 
+@Suite
 struct HTTPDateFormatTests {
     @Test
     func httpDateFormat() {

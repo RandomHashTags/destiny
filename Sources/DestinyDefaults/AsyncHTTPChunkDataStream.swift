@@ -37,7 +37,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: AsyncHTTPSocke
 
     @inlinable
     public func write(
-        to socket: Int32
+        to socket: some FileDescriptor
     ) async throws(SocketError) {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)

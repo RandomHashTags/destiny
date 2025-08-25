@@ -24,7 +24,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not a response was sent.
     func respondStatically(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
@@ -38,7 +38,7 @@ public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not a response was sent.
     func respondDynamically(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool

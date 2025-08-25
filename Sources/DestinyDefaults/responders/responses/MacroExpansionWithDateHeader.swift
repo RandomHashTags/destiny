@@ -30,7 +30,7 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(SocketError) {
@@ -43,7 +43,7 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
                         bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
                             body.withContiguousStorageIfAvailable { bodyPointer in
                                 do throws(SocketError) {
-                                    try socket.socketWriteBuffers([
+                                    try socket.writeBuffers([
                                         preDatePointer,
                                         datePointer,
                                         postDatePointer,

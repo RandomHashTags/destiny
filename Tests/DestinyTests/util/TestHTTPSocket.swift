@@ -1,0 +1,34 @@
+
+import DestinyBlueprint
+import DestinyDefaults
+
+struct TestHTTPSocket: HTTPSocketProtocol, ~Copyable {
+    func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int {
+        _fileDescriptor.readBuffer(into: baseAddress, length: length, flags: flags)
+    }
+
+    func writeBuffer(_ pointer: UnsafeRawPointer, length: Int) {
+        _fileDescriptor.writeBuffer(pointer, length: length)
+    }
+
+    func writeBuffers<let count: Int>(_ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>) throws(SocketError) {
+        _fileDescriptor.writeBuffers(buffers)
+    }
+
+    var fileDescriptor:Int32
+    var _fileDescriptor:TestFileDescriptor
+
+    init(fileDescriptor: Int32) {
+        self.fileDescriptor = fileDescriptor
+        _fileDescriptor = .init(fileDescriptor: fileDescriptor)
+    }
+
+    init(_fileDescriptor: TestFileDescriptor) {
+        self.fileDescriptor = _fileDescriptor.fileDescriptor
+        self._fileDescriptor = _fileDescriptor
+    }
+
+    func loadRequest() -> TestRequest {
+        .init(fileDescriptor: _fileDescriptor)
+    }
+}

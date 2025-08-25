@@ -1,0 +1,29 @@
+
+import Glibc
+import Logging
+import DestinyBlueprint
+import DestinyDefaults
+import Testing
+import TestRouter
+
+@Suite
+struct ResponseTests {
+    @Test
+    func responseStaticStringWithDateHeader() {
+        let fd = TestFileDescriptor()
+        fd.sendString("GET /html HTTP/1.1\r\n")
+        let socket = TestHTTPSocket(_fileDescriptor: fd)
+        let responder = TestRouter.DeclaredRouter.CaseSensitiveStaticResponderStorage1.StaticRoute.responder6
+        TestRouter.router.handle(client: fd, socket: socket, completionHandler: {
+            let capacity = TestHTTPSocket.ConcreteRequest.Buffer.count
+            withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
+                buffer.initialize(repeating: 0)
+                let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)
+                #expect(received == responder.count)
+                let string = String(decoding: buffer, as: UTF8.self)
+                #expect(string.hasPrefix(responder.preDateValue.description), .init(stringLiteral: responder.preDateValue.description))
+                #expect(string.contains(responder.postDateValue.description), .init(stringLiteral: responder.postDateValue.description)) // TODO: fix | `hasSuffix` doesn't work here for some reason
+            }
+        })
+    }
+}

@@ -83,7 +83,7 @@ extension HTTPSocket {
         into baseAddress: UnsafeMutableRawPointer,
         length: Int
     ) throws(SocketError) -> Int {
-        return try fileDescriptor.socketReadBuffer(into: baseAddress, length: length, flags: 0)
+        return try fileDescriptor.readBuffer(into: baseAddress, length: length, flags: 0)
     }
 }
 
@@ -108,7 +108,7 @@ extension HTTPSocket {
     public func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
     ) throws(SocketError) {
-        try fileDescriptor.socketWriteBuffers(buffers)
+        try fileDescriptor.writeBuffers(buffers)
     }
 }
 

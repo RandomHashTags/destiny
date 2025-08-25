@@ -13,7 +13,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket.
     ///   - logger: Logger of the socket acceptor that called this function.
     func handle(
-        client: Int32,
+        client: some FileDescriptor,
         socket: consuming some HTTPSocketProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     )
@@ -24,7 +24,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - responder: The static route responder that will write to the socket.
     func respondStatically(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some StaticRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
@@ -37,7 +37,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - request: The socket's request.
     ///   - responder: The dynamic route responder that will write to the socket.
     func respondDynamically(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
@@ -47,7 +47,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// 
     /// - Returns: Whether or not a response was sent.
     func respondWithNotFound(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
@@ -56,7 +56,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// 
     /// - Returns: Whether or not a response was sent.
     func respondWithError(
-        socket: Int32,
+        socket: some FileDescriptor,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void

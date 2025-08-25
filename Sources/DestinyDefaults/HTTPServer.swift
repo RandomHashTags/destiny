@@ -81,7 +81,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
         #if canImport(SwiftGlibc)
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #else
-        let serverFD = socket(AF_INET6, SOCK_STREAM, 0)
+        let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #endif
         if serverFD == -1 {
             throw .socketCreationFailed()

@@ -19,7 +19,7 @@ public protocol DestinyHTTPRouterProtocol: HTTPRouterProtocol, ~Copyable {
     /// 
     /// - Returns: Whether or not a response was sent.
     func respond(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
@@ -29,7 +29,7 @@ public protocol DestinyHTTPRouterProtocol: HTTPRouterProtocol, ~Copyable {
 extension DestinyHTTPRouterProtocol {
     @inlinable
     public func respondStatically(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: borrowing some StaticRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
@@ -90,7 +90,7 @@ extension DestinyHTTPRouterProtocol {
 
     @inlinable
     public func respondDynamically(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void

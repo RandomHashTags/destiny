@@ -126,11 +126,27 @@ let package = Package(
             ]
         ),
 
-        .executableTarget(name: "Run", dependencies: ["DestinySwiftSyntax"]),
+        .target(
+            name: "TestRouter",
+            dependencies: [
+                "DestinySwiftSyntax"
+            ]
+        ),
+
+        .executableTarget(
+            name: "Run",
+            dependencies: [
+                "DestinySwiftSyntax",
+                "TestRouter"
+            ]
+        ),
 
         .testTarget(
             name: "DestinyTests",
-            dependencies: ["DestinySwiftSyntax"]
+            dependencies: [
+                "DestinySwiftSyntax",
+                "TestRouter"
+            ]
         ),
     ]
 )

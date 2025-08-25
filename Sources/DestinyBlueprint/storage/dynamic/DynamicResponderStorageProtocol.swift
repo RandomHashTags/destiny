@@ -10,7 +10,7 @@ public protocol DynamicResponderStorageProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not a response was sent.
     func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool

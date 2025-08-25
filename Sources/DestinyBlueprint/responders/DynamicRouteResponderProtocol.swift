@@ -24,7 +24,7 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     ///   - response: The http message to send to the socket.
     func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol,
         completionHandler: @Sendable @escaping () -> Void

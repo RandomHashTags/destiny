@@ -1,6 +1,6 @@
 
-@testable import DestinyBlueprint
-@testable import DestinyDefaults
+import DestinyBlueprint
+import DestinyDefaults
 import Testing
 
 @Suite

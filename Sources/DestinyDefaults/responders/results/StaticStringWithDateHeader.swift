@@ -64,7 +64,7 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(SocketError) {
@@ -73,7 +73,7 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
             HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                 postDateValue.withUTF8Buffer { postDatePointer in
                     do throws(SocketError) {
-                        try socket.socketWriteBuffers([preDatePointer, datePointer, postDatePointer])
+                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
                     } catch {
                         err = error
                     }

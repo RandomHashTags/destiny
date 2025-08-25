@@ -6,13 +6,13 @@ public protocol HTTPSocketWritable: Sendable, ~Copyable {
     /// - Parameters:
     ///   - socket: The socket.
     func write(
-        to socket: Int32
+        to socket: some FileDescriptor
     ) throws(SocketError)
 }
 
 extension HTTPSocketWritable {
     @inlinable
-    public func write(to socket: borrowing some HTTPSocketProtocol & ~Copyable) throws(SocketError) {
+    public func write(to socket: some FileDescriptor) throws(SocketError) {
         try write(to: socket.fileDescriptor)
     }
 }
@@ -21,7 +21,7 @@ extension HTTPSocketWritable {
 extension String: HTTPSocketWritable {
     @inlinable
     public func write(
-        to socket: Int32
+        to socket: some FileDescriptor
     ) throws(SocketError) {
         try socket.socketWriteString(self)
     }
@@ -30,7 +30,7 @@ extension String: HTTPSocketWritable {
 extension StaticString: HTTPSocketWritable {
     @inlinable
     public func write(
-        to socket: Int32
+        to socket: some FileDescriptor
     ) throws(SocketError) {
         var err:SocketError? = nil
         withUTF8Buffer {
@@ -49,7 +49,7 @@ extension StaticString: HTTPSocketWritable {
 extension [UInt8]: HTTPSocketWritable {
     @inlinable
     public func write(
-        to socket: Int32
+        to socket: some FileDescriptor
     ) throws(SocketError) {
         var err:SocketError? = nil
         self.withUnsafeBufferPointer {

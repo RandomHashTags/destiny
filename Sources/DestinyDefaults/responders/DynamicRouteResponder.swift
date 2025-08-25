@@ -58,7 +58,7 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol,
         completionHandler: @Sendable @escaping () -> Void

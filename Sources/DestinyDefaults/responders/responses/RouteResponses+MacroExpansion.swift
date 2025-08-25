@@ -16,7 +16,7 @@ extension RouteResponses {
         @inlinable
         public func respond(
             router: some HTTPRouterProtocol,
-            socket: Int32,
+            socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
             completionHandler: @Sendable @escaping () -> Void
         ) throws(SocketError) {
@@ -27,7 +27,7 @@ extension RouteResponses {
                         let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
                         bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
                             do throws(SocketError) {
-                                try socket.socketWriteBuffers([
+                                try socket.writeBuffers([
                                     valuePointer,
                                     bodyCountPointer,
                                     bodyCountSuffixPointer,

@@ -181,7 +181,7 @@ extension Request {
         var err:SocketError? = nil
         let read = mutableSpan.withUnsafeMutableBufferPointer { p in
             do throws(SocketError) {
-                return try fileDescriptor.socketReadBuffer(into: p.baseAddress!, length: Buffer.count, flags: 0)
+                return try fileDescriptor.readBuffer(into: p.baseAddress!, length: Buffer.count, flags: 0)
             } catch {
                 err = error
                 return -1

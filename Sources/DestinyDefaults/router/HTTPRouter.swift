@@ -71,7 +71,7 @@ extension HTTPRouter {
 extension HTTPRouter {
     @inlinable
     public func handle(
-        client: Int32,
+        client: some FileDescriptor,
         socket: consuming some HTTPSocketProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) {
@@ -102,7 +102,7 @@ extension HTTPRouter {
 extension HTTPRouter {
     @inlinable
     public func respond(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
@@ -119,7 +119,7 @@ extension HTTPRouter {
 
     @inlinable
     public func respondWithNotFound(
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
@@ -140,7 +140,7 @@ extension HTTPRouter {
 
     @inlinable
     public func respondWithError(
-        socket: Int32,
+        socket: some FileDescriptor,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void

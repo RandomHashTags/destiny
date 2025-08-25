@@ -73,7 +73,7 @@ extension StringWithDateHeader: StaticRouteResponderProtocol {
     @inlinable
     public func respond(
         router: some HTTPRouterProtocol,
-        socket: Int32,
+        socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(SocketError) {
@@ -83,7 +83,7 @@ extension StringWithDateHeader: StaticRouteResponderProtocol {
                 postDateValue.withContiguousStorageIfAvailable { postDatePointer in
                     value.withContiguousStorageIfAvailable { valuePointer in
                         do throws(SocketError) {
-                            try socket.socketWriteBuffers([preDatePointer, datePointer, postDatePointer, valuePointer])
+                            try socket.writeBuffers([preDatePointer, datePointer, postDatePointer, valuePointer])
                         } catch {
                             err = error
                         }

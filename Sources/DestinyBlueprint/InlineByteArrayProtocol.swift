@@ -88,7 +88,7 @@ public struct InlineByteArray<let count: Int>: InlineByteArrayProtocol {
     }
 
     @inlinable @inline(__always)
-    public func write(to socket: Int32) throws(SocketError) {
+    public func write(to socket: some FileDescriptor) throws(SocketError) {
         try _storage.write(to: socket)
     }
 }
