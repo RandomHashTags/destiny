@@ -4,7 +4,6 @@ import PackageDescription
 import CompilerPluginSupport
 
 let pkgDependencies:[Package.Dependency]
-let destinyModuleDependencies:[Target.Dependency]
 
 let swiftSyntaxPackageName: String
 let swiftSyntax: (packageName: String, dependency: Package.Dependency)
@@ -36,13 +35,11 @@ pkgDependencies = [
     // Epoll
     .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"),
 
+    // Liburing
+    .package(url: "https://github.com/RandomHashTags/swift-liburing", branch: "main"),
+
     // Variable-length arrays
     .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
-]
-
-destinyModuleDependencies = [
-    "DestinyDefaults",
-    .product(name: "CEpoll", package: "CEpoll")
 ]
 
 #else
@@ -61,10 +58,6 @@ pkgDependencies = [
     .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
 ]
 
-destinyModuleDependencies = [
-    "DestinyDefaults"
-]
-
 #endif
 
 let package = Package(
@@ -76,26 +69,9 @@ let package = Package(
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"])
     ],
     traits: [
-        .default(enabledTraits: ["Destiny"]),
-        .trait(
-            name: "DestinyDefaults",
-            description: "Default DestinyBlueprint implementations."
-        ),
-        .trait(
-            name: "Destiny",
-            description: "Destiny (without Swift Macros)",
-            enabledTraits: ["DestinyDefaults"]
-        ),
-        .trait(
-            name: "DestinySwiftSyntax",
-            description: "Destiny (with Swift Macros)",
-            enabledTraits: ["Destiny"]
-        ),
-
         .trait(
             name: "DestinyDefaultsFoundation",
-            description: "Foundation extensions to DestinyDefaults.",
-            enabledTraits: ["DestinyDefaults"]
+            description: "Foundation extensions to DestinyDefaults."
         )
     ],
     dependencies: pkgDependencies,
@@ -104,9 +80,10 @@ let package = Package(
         .target(
             name: "DestinyBlueprint",
             dependencies: [
+                .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "VariableLengthArray", package: "swift-variablelengtharray")//
+                .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
             ]
         ),
 
@@ -123,7 +100,10 @@ let package = Package(
         // MARK: Destiny
         .target(
             name: "Destiny",
-            dependencies: destinyModuleDependencies
+            dependencies: [
+                "DestinyBlueprint",
+                "DestinyDefaults"
+            ]
         ),
 
         // MARK: DestinySwiftSyntax
