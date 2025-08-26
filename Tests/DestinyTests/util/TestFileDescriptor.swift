@@ -57,4 +57,11 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
     func sendString(_ string: String) {
         sent.append(.init(string.utf8))
     }
+
+    func getLocalSocketAddress() -> String? {
+        return nil
+    }
+    func getPeerSocketAddress() -> String? {
+        return nil
+    }
 }

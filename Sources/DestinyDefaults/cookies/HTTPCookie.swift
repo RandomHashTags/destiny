@@ -121,7 +121,7 @@ extension HTTPCookie {
 extension HTTPCookie {
     @inlinable
     public static func validateValue(_ value: String) throws(HTTPCookieError) {
-        if let illegalChar = value.first(where: {
+        guard let illegalChar = value.first(where: {
             guard let ascii = $0.asciiValue else { return true }
             return ascii <= 31
                 || ascii == 127
@@ -130,9 +130,8 @@ extension HTTPCookie {
                 || $0 == ";"
                 || $0 == "\""
                 || $0 == "\\"
-        }) {
-            throw .illegalCharacter(value: value, illegalChar: illegalChar)
-        }
+        }) else { return }
+        throw .illegalCharacter(value: value, illegalChar: illegalChar)
     }
 }
 

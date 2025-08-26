@@ -29,14 +29,22 @@ public protocol FileDescriptor: Sendable {
         flags: Int32
     ) throws(SocketError) -> Int
 
+    /// Writes a single buffer to the file descriptor.
     func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
     ) throws(SocketError)
 
+    /// Efficiently writes multiple buffers to the file descriptor.
     func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
     ) throws(SocketError)
+
+    /// - Returns: The local socket address of this file descriptor.
+    func getLocalSocketAddress() -> String?
+
+    /// - Returns: The peer socket address of this file descriptor.
+    func getPeerSocketAddress() -> String?
 }
 
 // MARK: Int32
@@ -92,6 +100,62 @@ extension Int32: FileDescriptor {
         if let err {
             throw err
         }
+    }
+}
+
+// MARK: Address
+extension Int32 {
+    @inlinable
+    public func getLocalSocketAddress() -> String? {
+        var addr = sockaddr_storage()
+        var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
+        let result = withUnsafeMutablePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { sa in
+                return getsockname(self, sa, &len)
+            }
+        }
+        return getSocketAddress(addr: &addr, result: result)
+    }
+
+    @inlinable
+    public func getPeerSocketAddress() -> String? {
+        var addr = sockaddr_storage()
+        var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
+        let result = withUnsafeMutablePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { sa in
+                return getpeername(self, sa, &len)
+            }
+        }
+        return getSocketAddress(addr: &addr, result: result)
+    }
+
+    @inlinable
+    func getSocketAddress(addr: inout sockaddr_storage, result: Int32) -> String? {
+        if result != 0 {
+            return nil
+        }
+        if addr.ss_family == sa_family_t(AF_INET) { // IPv4
+            return withUnsafePointer(to: &addr) {
+                $0.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { sa in
+                    return withUnsafeTemporaryAllocation(of: UInt8.self, capacity: Int(INET_ADDRSTRLEN), { buffer in
+                        var addr = sa.pointee.sin_addr
+                        inet_ntop(AF_INET, &addr, buffer.baseAddress, socklen_t(INET_ADDRSTRLEN))
+                        return String(decoding: buffer, as: UTF8.self)
+                    })
+                }
+            }
+        } else if addr.ss_family == sa_family_t(AF_INET6) { // IPv6
+            return withUnsafePointer(to: &addr) {
+                $0.withMemoryRebound(to: sockaddr_in6.self, capacity: 1) { sa in
+                    return withUnsafeTemporaryAllocation(of: UInt8.self, capacity: Int(INET6_ADDRSTRLEN), { buffer in
+                        var addr = sa.pointee.sin6_addr
+                        inet_ntop(AF_INET6, &addr, buffer.baseAddress, socklen_t(INET6_ADDRSTRLEN))
+                        return String(decoding: buffer, as: UTF8.self)
+                    })
+                }
+            }
+        }
+        return nil
     }
 }
 
