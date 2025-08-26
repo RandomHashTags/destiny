@@ -25,9 +25,8 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
     /// Called when the server terminates.
     public let onShutdown:(@Sendable () -> Void)?
 
-    public let reuseAddress:Bool
-    public let reusePort:Bool
-    public let noTCPDelay:Bool
+    @usableFromInline
+    let flags:Flag.RawValue
 
     @usableFromInline
     nonisolated(unsafe) private(set) var serverFD:Int32? = nil
@@ -47,9 +46,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
         self.address = address
         self.port = port
         self.backlog = min(SOMAXCONN, backlog)
-        self.reuseAddress = reuseAddress
-        self.reusePort = reusePort
-        self.noTCPDelay = noTCPDelay
+        flags = Flag.pack(noTCPDelay: noTCPDelay, reuseAddress: reuseAddress, reusePort: reusePort)
         self.router = router
         self.logger = logger
         self.onLoad = onLoad
@@ -78,7 +75,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
 
     /// - Returns: The file descriptor of the created socket.
     func bindAndListen() throws(ServerError) -> Int32 {
-        #if canImport(SwiftGlibc)
+        #if canImport(Glibc)
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #else
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
@@ -88,7 +85,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
         }
         self.serverFD = serverFD
         ClientSocket.noSigPipe(fileDescriptor: serverFD)
-        #if canImport(SwiftGlibc)
+        #if canImport(Glibc)
         var addr = sockaddr_in6(
             sin6_family: sa_family_t(AF_INET6),
             sin6_port: port.bigEndian,
@@ -114,7 +111,7 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
             var r:Int32 = 1
             setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &r, socklen_t(MemoryLayout<Int32>.size))
         }
-        #if canImport(SwiftGlibc)
+        #if canImport(Glibc)
         if reusePort {
             var r:Int32 = 1
             setsockopt(serverFD, SOL_SOCKET, SO_REUSEPORT, &r, socklen_t(MemoryLayout<Int32>.size))
@@ -136,6 +133,38 @@ public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSock
         logger.info("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")
         return serverFD
     }
+}
+
+// MARK: Flags
+extension HTTPServer where ClientSocket: ~Copyable {
+    @usableFromInline
+    enum Flag: UInt8 {
+        case noTCPDelay   = 1
+        case reuseAddress = 2
+        case reusePort    = 4
+
+        @inlinable
+        static func pack(
+            noTCPDelay: Bool,
+            reuseAddress: Bool,
+            reusePort: Bool
+        ) -> Flag.RawValue {
+            return (noTCPDelay ? Flag.noTCPDelay.rawValue : 0)
+                | (reuseAddress ? Flag.reuseAddress.rawValue : 0)
+                | (reusePort ? Flag.reusePort.rawValue : 0)
+        }
+    }
+
+    @inlinable
+    func isFlag(_ flag: Flag) -> Bool {
+        flags & flag.rawValue != 0
+    }
+
+    @inlinable public var noTCPDelay: Bool { isFlag(.noTCPDelay) }
+
+    @inlinable public var reuseAddress: Bool { isFlag(.reuseAddress) }
+
+    @inlinable public var reusePort: Bool { isFlag(.reusePort) }
 }
 
 // MARK: Process clients
@@ -187,6 +216,7 @@ extension HTTPServer where ClientSocket: ~Copyable {
 }
 
 #if os(Linux)
+// MARK: Epoll
 extension HTTPServer where ClientSocket: ~Copyable {
     @discardableResult
     @inlinable
