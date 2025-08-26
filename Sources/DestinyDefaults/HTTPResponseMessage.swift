@@ -295,6 +295,49 @@ extension HTTPResponseMessage {
     }
 }
 
+// MARK: Redirect
+extension HTTPResponseMessage {
+    /// - Parameters:
+    ///   - to: Redirection target.
+    ///   - version: The HTTP version of the message.
+    ///   - status: The HTTP response status of the message.
+    /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
+    @inlinable
+    public static func redirect(
+        to target: String,
+        version: HTTPVersion = .v1_1,
+        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.temporaryRedirect.code
+    ) -> Self {
+        var headers = HTTPHeaders()
+        return .redirect(to: target, version: version, status: status, headers: &headers)
+    }
+
+    /// - Parameters:
+    ///   - to: Redirection target.
+    ///   - version: HTTP version of the message.
+    ///   - status: HTTP response status of the message.
+    ///   - headers: HTTP headers of the message.
+    /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
+    @inlinable
+    public static func redirect(
+        to target: String,
+        version: HTTPVersion = .v1_1,
+        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.temporaryRedirect.code,
+        headers: inout HTTPHeaders
+    ) -> Self {
+        headers["Location"] = "/\(target)"
+        return Self(
+            version: version, 
+            status: status,
+            headers: headers,
+            cookies: [],
+            body: nil,
+            contentType: nil,
+            charset: nil
+        )
+    }
+}
+
 // MARK: Convenience
 extension HTTPResponseMessage {
     @inlinable

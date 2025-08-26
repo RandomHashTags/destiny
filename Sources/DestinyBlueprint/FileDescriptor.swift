@@ -41,10 +41,10 @@ public protocol FileDescriptor: Sendable {
     ) throws(SocketError)
 
     /// - Returns: The local socket address of this file descriptor.
-    func localSocketAddress() -> String?
+    func socketLocalAddress() -> String?
 
     /// - Returns: The peer socket address of this file descriptor.
-    func peerSocketAddress() -> String?
+    func socketPeerAddress() -> String?
 }
 
 // MARK: Int32
@@ -106,7 +106,7 @@ extension Int32: FileDescriptor {
 // MARK: Address
 extension Int32 {
     @inlinable
-    public func localSocketAddress() -> String? {
+    public func socketLocalAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
         let result = withUnsafeMutablePointer(to: &addr) {
@@ -114,11 +114,11 @@ extension Int32 {
                 return getsockname(self, sa, &len)
             }
         }
-        return getSocketAddress(addr: &addr, result: result)
+        return socketAddress(addr: &addr, result: result)
     }
 
     @inlinable
-    public func peerSocketAddress() -> String? {
+    public func socketPeerAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
         let result = withUnsafeMutablePointer(to: &addr) {
@@ -126,11 +126,11 @@ extension Int32 {
                 return getpeername(self, sa, &len)
             }
         }
-        return getSocketAddress(addr: &addr, result: result)
+        return socketAddress(addr: &addr, result: result)
     }
 
     @inlinable
-    func getSocketAddress(addr: inout sockaddr_storage, result: Int32) -> String? {
+    func socketAddress(addr: inout sockaddr_storage, result: Int32) -> String? {
         if result != 0 {
             return nil
         }

@@ -58,10 +58,10 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
         sent.append(.init(string.utf8))
     }
 
-    func localSocketAddress() -> String? {
+    func socketLocalAddress() -> String? {
         return nil
     }
-    func peerSocketAddress() -> String? {
+    func socketPeerAddress() -> String? {
         return nil
     }
 }

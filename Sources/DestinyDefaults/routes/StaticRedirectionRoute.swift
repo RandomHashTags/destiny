@@ -43,7 +43,6 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     public func response() -> HTTPResponseMessage {
         var headers = HTTPHeaders()
         headers["Date"] = HTTPDateFormat.placeholder
-        headers["Location"] = "/" + to.joined(separator: "/")
-        return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: [], body: nil, contentType: nil, charset: nil)
+        return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
     }
 }
