@@ -60,13 +60,6 @@ HTTPDateFormat.load(logger: application.logger)
 
 application.run()
 
-struct StaticJSONResponse: Encodable {
-    let this_outcome_was_inevitable_and_was_your_destiny:Bool
-}
-enum CustomError: Error {
-    case yipyip
-}
-
 // MARK: On load
 @Sendable
 func serverOnLoad() {

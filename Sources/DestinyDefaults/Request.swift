@@ -23,7 +23,7 @@ public struct Request: HTTPRequestProtocol {
         self.storage = storage
     }
 
-    public lazy var headers: HTTPRequestHeaders = {
+    public lazy var headers: HTTPHeaders = {
         /*
         // performance falls off a cliff parsing headers; should we
         // just retain the buffer and record the start and end indexes
@@ -40,7 +40,7 @@ public struct Request: HTTPRequestProtocol {
                 break
             }
         }*/
-        return .init([:])
+        return .init()
     }()
 
     @usableFromInline

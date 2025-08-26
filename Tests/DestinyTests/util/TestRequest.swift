@@ -21,8 +21,8 @@ struct TestRequest: HTTPRequestProtocol {
         self.storage = storage
     }
 
-    lazy var headers: HTTPRequestHeaders = {
-        return .init([:])
+    lazy var headers: HTTPHeaders = {
+        return .init()
     }()
 
     lazy var __startLineLowercase: SIMD64<UInt8> = {
