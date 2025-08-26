@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 
-// MARK: StaticRedirectionRoute
 /// Default Redirection Route implementation that handles redirects for static routes.
 public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     /// The endpoint that has been moved.
