@@ -41,10 +41,10 @@ public protocol FileDescriptor: Sendable {
     ) throws(SocketError)
 
     /// - Returns: The local socket address of this file descriptor.
-    func getLocalSocketAddress() -> String?
+    func localSocketAddress() -> String?
 
     /// - Returns: The peer socket address of this file descriptor.
-    func getPeerSocketAddress() -> String?
+    func peerSocketAddress() -> String?
 }
 
 // MARK: Int32
@@ -106,7 +106,7 @@ extension Int32: FileDescriptor {
 // MARK: Address
 extension Int32 {
     @inlinable
-    public func getLocalSocketAddress() -> String? {
+    public func localSocketAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
         let result = withUnsafeMutablePointer(to: &addr) {
@@ -118,7 +118,7 @@ extension Int32 {
     }
 
     @inlinable
-    public func getPeerSocketAddress() -> String? {
+    public func peerSocketAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
         let result = withUnsafeMutablePointer(to: &addr) {
