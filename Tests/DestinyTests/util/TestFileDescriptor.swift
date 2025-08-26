@@ -45,6 +45,7 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
         for i in 0..<length {
             buffer[i] = pointer.advanced(by: i).load(as: UInt8.self)
         }
+        received.append(buffer)
     }
 
     func writeBuffers<let count: Int>(_ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>) {

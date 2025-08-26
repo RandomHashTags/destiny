@@ -17,7 +17,7 @@ import Windows
 import WinSDK
 #endif
 
-public protocol DestinyErrorProtocol: Error {
+public protocol DestinyErrorProtocol: Equatable, Error {
     var identifier: String { get }
     var reason: String { get }
 

@@ -2,10 +2,15 @@
 import DestinyBlueprint
 
 public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
-    public var name:CookieName
-    public var value:CookieValue
+    @usableFromInline
+    var _name:CookieName
+
+    @usableFromInline
+    var _value:CookieValue
 
     public var maxAge:UInt64 = 0
+
+    @usableFromInline
     package var flags:Flag.RawValue = 0
 
     public var expiresString:String?
@@ -14,6 +19,56 @@ public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     public var path:String?
     public var sameSite:HTTPCookieFlag.SameSite?
 
+    @inlinable
+    public func name() -> CookieName {
+        _name
+    }
+
+    @inlinable
+    public mutating func setName(_ name: CookieName) {
+        _name = name
+    }
+
+    @inlinable
+    public func value() -> CookieValue {
+        _value
+    }
+
+    @inlinable
+    public mutating func setValue(_ value: CookieValue) throws(HTTPCookieError) {
+        try Self.validateValue(value)
+        _value = value
+    }
+}
+
+// MARK: Init
+extension HTTPCookie {
+    @inlinable
+    public init(
+        name: CookieName,
+        encoding: CookieValue,
+        maxAge: UInt64 = 0,
+        expires: String? = nil,
+        domain: String? = nil,
+        path: String? = nil,
+        isSecure: Bool = false,
+        isHTTPOnly: Bool = false,
+        sameSite: HTTPCookieFlag.SameSite? = nil
+    ) throws(HTTPCookieError) {
+        try self.init(
+            name: name,
+            value: encoding.httpCookiePercentEncoded(),
+            maxAge: maxAge,
+            expires: expires,
+            domain: domain,
+            path: path,
+            isSecure: isSecure,
+            isHTTPOnly: isHTTPOnly,
+            sameSite: sameSite
+        )
+    }
+
+    @inlinable
     public init(
         name: CookieName,
         value: CookieValue,
@@ -24,9 +79,35 @@ public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
         isSecure: Bool = false,
         isHTTPOnly: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
+    ) throws(HTTPCookieError) {
+        try Self.validateValue(value)
+        self.init(
+            name: name,
+            uncheckedValue: value,
+            maxAge: maxAge,
+            expires: expires,
+            domain: domain,
+            path: path,
+            isSecure: isSecure,
+            isHTTPOnly: isHTTPOnly,
+            sameSite: sameSite
+        )
+    }
+
+    @inlinable
+    public init(
+        name: CookieName,
+        uncheckedValue: CookieValue,
+        maxAge: UInt64 = 0,
+        expires: String? = nil,
+        domain: String? = nil,
+        path: String? = nil,
+        isSecure: Bool = false,
+        isHTTPOnly: Bool = false,
+        sameSite: HTTPCookieFlag.SameSite? = nil
     ) {
-        self.name = name
-        self.value = value
+        self._name = name
+        self._value = uncheckedValue
         self.maxAge = maxAge
         self.expiresString = expires
         self.domain = domain
@@ -36,11 +117,29 @@ public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     }
 }
 
+// MARK: Validate
+extension HTTPCookie {
+    @inlinable
+    public static func validateValue(_ value: String) throws(HTTPCookieError) {
+        if let illegalChar = value.first(where: {
+            guard let ascii = $0.asciiValue else { return true }
+            return ascii <= 31
+                || ascii == 127
+                || $0.isWhitespace
+                || $0 == ","
+                || $0 == ";"
+                || $0 == "\""
+                || $0 == "\\"
+        }) {
+            throw .illegalCharacter(value: value, illegalChar: illegalChar)
+        }
+    }
+}
+
 // MARK: CustomDebugStringConvertible
 extension HTTPCookie {
     public var debugDescription: String {
-        var string:String = "HTTPCookie("
-        string += "name: \"\(name)\", value: \"\(value)\""
+        var string = "HTTPCookie(name: \"\(_name)\", uncheckedValue: \"\(_value)\""
         if maxAge > 0 {
             string += ", maxAge: \(maxAge)"
         }
@@ -65,7 +164,7 @@ extension HTTPCookie {
 extension HTTPCookie {
     @inlinable
     public var description: String {
-        var string = "\(name)=\(value)"
+        var string = "\(_name)=\(_value)"
         if maxAge > 0 {
             string += "; Max-Age=\(maxAge)"
         }
@@ -99,7 +198,10 @@ extension HTTPCookie {
         case httpOnly = 2
     }
 
-    @usableFromInline func isFlag(_ flag: Flag) -> Bool { flags & flag.rawValue != 0 }
+    @usableFromInline
+    func isFlag(_ flag: Flag) -> Bool {
+        flags & flag.rawValue != 0
+    }
 
     @usableFromInline
     mutating func setFlag(_ flag: Flag, _ value: Bool) {

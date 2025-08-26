@@ -15,6 +15,7 @@ extension HTTPCookie {
     ) -> Self? {
         var name:CookieName? = nil
         var value:CookieValue? = nil
+        var initializer = Initializer.value
         var maxAge:UInt64 = 0
         var expires:String? = nil
         var domain:String? = nil
@@ -27,7 +28,8 @@ extension HTTPCookie {
                 switch arg.label?.text {
                 case "name":
                     name = arg.expression.stringLiteralString(context: context)
-                case "value":
+                case "encoding", "value", "uncheckedValue":
+                    initializer = .init(rawValue: arg.label!.text)!
                     value = arg.expression.stringLiteralString(context: context)
                 case "maxAge":
                     if let s = arg.expression.integerLiteral?.literal.text, let i = UInt64(s) {
@@ -51,16 +53,54 @@ extension HTTPCookie {
             }
         }
         guard let name, let value else { return nil }
-        return Self(
-            name: name,
-            value: value,
-            maxAge: maxAge,
-            expires: expires,
-            domain: domain,
-            path: path,
-            isSecure: isSecure,
-            isHTTPOnly: isHTTPOnly,
-            sameSite: sameSite
-        )
+        do throws(HTTPCookieError) {
+            switch initializer {
+            case .encoding:
+                return try Self(
+                    name: name,
+                    encoding: value,
+                    maxAge: maxAge,
+                    expires: expires,
+                    domain: domain,
+                    path: path,
+                    isSecure: isSecure,
+                    isHTTPOnly: isHTTPOnly,
+                    sameSite: sameSite
+                )
+            case .value:
+                return try Self(
+                    name: name,
+                    value: value,
+                    maxAge: maxAge,
+                    expires: expires,
+                    domain: domain,
+                    path: path,
+                    isSecure: isSecure,
+                    isHTTPOnly: isHTTPOnly,
+                    sameSite: sameSite
+                )
+            case .uncheckedValue:
+                return Self(
+                    name: name,
+                    uncheckedValue: value,
+                    maxAge: maxAge,
+                    expires: expires,
+                    domain: domain,
+                    path: path,
+                    isSecure: isSecure,
+                    isHTTPOnly: isHTTPOnly,
+                    sameSite: sameSite
+                )
+            }
+        } catch {
+            context.diagnose(DiagnosticMsg.httpCookieError(node: expr, error: error))
+            return nil
+        }
+    }
+
+    enum Initializer: String {
+        case encoding
+        case value
+        case uncheckedValue
     }
 }

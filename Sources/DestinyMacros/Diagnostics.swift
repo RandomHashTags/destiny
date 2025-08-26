@@ -1,4 +1,5 @@
 
+import DestinyBlueprint
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -22,32 +23,35 @@ extension DiagnosticMsg: FixItMessage {
 // MARK: General
 extension DiagnosticMsg {
     static func unhandled(node: some SyntaxProtocol, notes: String = "") -> Diagnostic {
-        Diagnostic(node: node, message: DiagnosticMsg(id: "unhandled", message: "Unhandled\(notes.isEmpty ? "" : "; \(notes)")", severity: .warning))
+        .init(node: node, message: DiagnosticMsg(id: "unhandled", message: "Unhandled\(notes.isEmpty ? "" : "; \(notes)")", severity: .warning))
+    }
+    static func httpCookieError(node: some SyntaxProtocol, error: HTTPCookieError) -> Diagnostic {
+        .init(node: node, message: DiagnosticMsg(id: "httpCookieError", message: "\(error)"))
     }
 }
 
 // MARK: Expectations
 extension DiagnosticMsg {
     static func expectedArrayExpr(expr: some ExprSyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: expr, message: DiagnosticMsg(id: "expectedArrayExpr", message: "Expected array expression; got \(expr.kind)"))
+        .init(node: expr, message: DiagnosticMsg(id: "expectedArrayExpr", message: "Expected array expression; got \(expr.kind)"))
     }
     static func expectedFunctionCallExpr(expr: some ExprSyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: expr, message: DiagnosticMsg(id: "expectedFunctionCallExpr", message: "Expected function call expression; got \(expr.kind)"))
+        .init(node: expr, message: DiagnosticMsg(id: "expectedFunctionCallExpr", message: "Expected function call expression; got \(expr.kind)"))
     }
     static func expectedMemberAccessExpr(expr: some ExprSyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: expr, message: DiagnosticMsg(id: "expectedMemberAccessExpr", message: "Expected member access expression; got \(expr.kind)"))
+        .init(node: expr, message: DiagnosticMsg(id: "expectedMemberAccessExpr", message: "Expected member access expression; got \(expr.kind)"))
     }
     static func expectedFunctionCallOrMemberAccessExpr(expr: some ExprSyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: expr, message: DiagnosticMsg(id: "expectedFunctionCallOrMemberAccessExpr", message: "Expected function call or member access expression; got \(expr.kind)"))
+        .init(node: expr, message: DiagnosticMsg(id: "expectedFunctionCallOrMemberAccessExpr", message: "Expected function call or member access expression; got \(expr.kind)"))
     }
     static func expectedStringLiteral(expr: some ExprSyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: expr, message: DiagnosticMsg(id: "expectedStringLiteral", message: "Expected string literal; got \(expr.kind)"))
+        .init(node: expr, message: DiagnosticMsg(id: "expectedStringLiteral", message: "Expected string literal; got \(expr.kind)"))
     }
     static func expectedStringLiteralOrMemberAccess(expr: some ExprSyntaxProtocol) -> Diagnostic {
-        Diagnostic(node: expr, message: DiagnosticMsg(id: "expectedStringLiteralOrMemberAccess", message: "Expected string literal or member access; got \(expr.kind)"))
+        .init(node: expr, message: DiagnosticMsg(id: "expectedStringLiteralOrMemberAccess", message: "Expected string literal or member access; got \(expr.kind)"))
     }
     static func stringLiteralContainsIllegalCharacter(expr: some ExprSyntaxProtocol, char: String) -> Diagnostic {
-        Diagnostic(node: expr, message: DiagnosticMsg(id: "stringLiteralContainsIllegalCharacter", message: "String literal contains illegal character: \"\(char)\""))
+        .init(node: expr, message: DiagnosticMsg(id: "stringLiteralContainsIllegalCharacter", message: "String literal contains illegal character: \"\(char)\""))
     }
 }
 

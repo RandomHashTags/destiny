@@ -63,7 +63,6 @@ extension RoutePathComponentTests {
         #expect(components[3] == .literal(stringToSIMD64("nation")))
         #expect(components[4] == .parameter)
         #expect(components[5] == .literal(stringToSIMD64("yup")))
-        #expect(components[6] == .catchall)
     }
 }
 

@@ -3,8 +3,11 @@ public protocol HTTPCookieProtocol: CustomStringConvertible, Sendable {
     associatedtype CookieName = String
     associatedtype CookieValue = String
 
-    var name: CookieName { get set }
-    var value: CookieValue { get set }
+    func name() -> CookieName
+    mutating func setName(_ name: String) throws(HTTPCookieError)
+
+    func value() -> CookieValue
+    mutating func setValue(_ value: String) throws(HTTPCookieError)
 
     var maxAge: UInt64 { get set }
 

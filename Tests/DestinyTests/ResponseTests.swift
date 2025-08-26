@@ -1,5 +1,4 @@
 
-import Glibc
 import Logging
 import DestinyBlueprint
 import DestinyDefaults
@@ -20,9 +19,14 @@ struct ResponseTests {
                 buffer.initialize(repeating: 0)
                 let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)
                 #expect(received == responder.count)
-                let string = String(decoding: buffer, as: UTF8.self)
+                let array = Array(buffer[0..<received])
+                let string = String(decoding: array, as: UTF8.self)
+                #expect(string.count == responder.count)
+
                 #expect(string.hasPrefix(responder.preDateValue.description), .init(stringLiteral: responder.preDateValue.description))
-                #expect(string.contains(responder.postDateValue.description), .init(stringLiteral: responder.postDateValue.description)) // TODO: fix | `hasSuffix` doesn't work here for some reason
+
+                // TODO: fix | `hasSuffix` doesn't work here for some reason
+                #expect(string.contains(responder.postDateValue.description), .init(stringLiteral: responder.postDateValue.description))
             }
         })
     }

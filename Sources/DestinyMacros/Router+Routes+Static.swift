@@ -174,6 +174,7 @@ extension RouterStorage {
         var staticSIMDs = [VariableDeclSyntax]()
         for index in 0..<routePaths.count {
             let staticResponder = try! VariableDeclSyntax.init("""
+            /// Request: `\(raw: routePaths[index])`
             \(raw: visibility)static let responder\(raw: index) = \(raw: literalRouteResponders[index])
             """)
             staticResponders.append(staticResponder)
