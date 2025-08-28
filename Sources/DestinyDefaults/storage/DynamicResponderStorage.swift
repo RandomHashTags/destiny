@@ -4,7 +4,7 @@ import DestinyBlueprint
 /// Default mutable storage that handles dynamic routes.
 public final class DynamicResponderStorage: MutableDynamicResponderStorageProtocol, @unchecked Sendable {
     /// The dynamic routes without parameters.
-    public var parameterless:[DestinyRoutePathType:any DynamicRouteResponderProtocol]
+    public var parameterless:[SIMD64<UInt8>:any DynamicRouteResponderProtocol]
 
     /// The dynamic routes with parameters.
     public var parameterized:[[any DynamicRouteResponderProtocol]]
@@ -12,7 +12,7 @@ public final class DynamicResponderStorage: MutableDynamicResponderStorageProtoc
     public var catchall:[any DynamicRouteResponderProtocol]
 
     public init(
-        parameterless: [DestinyRoutePathType:any DynamicRouteResponderProtocol] = [:],
+        parameterless: [SIMD64<UInt8>:any DynamicRouteResponderProtocol] = [:],
         parameterized: [[any DynamicRouteResponderProtocol]] = [],
         catchall: [any DynamicRouteResponderProtocol] = []
     ) {
@@ -115,7 +115,7 @@ extension DynamicResponderStorage {
     ) {
         if route.pathContainsParameters {
             var string = route.startLine()
-            let buffer = DestinyRoutePathType(&string)
+            let buffer = SIMD64<UInt8>(&string)
             if override || parameterless[buffer] == nil {
                 parameterless[buffer] = responder
             } else {

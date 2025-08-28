@@ -63,7 +63,7 @@ extension RouterStorage {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
                 } else {
                     registeredPaths.insert(string)
-                    let buffer = DestinyRoutePathType(&string)
+                    let buffer = SIMD64<UInt8>(&string)
                     let httpResponse = route.response(context: context, function: function, middleware: middleware) as! HTTPResponseMessage // TODO: fix
                     if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                         if let responder = try responseBodyResponderDebugDescription(body: route.body, response: httpResponse) {

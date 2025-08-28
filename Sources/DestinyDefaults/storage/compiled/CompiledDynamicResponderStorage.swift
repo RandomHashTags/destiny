@@ -75,14 +75,14 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
 public protocol CompiledDynamicResponderStorageRouteProtocol: Sendable, ~Copyable {
     associatedtype ConcreteResponder:DynamicRouteResponderProtocol
 
-    var path: DestinyRoutePathType { get }
+    var path: SIMD64<UInt8> { get }
     var responder: ConcreteResponder { get }
 }
 public struct CompiledDynamicResponderStorageRoute<ConcreteResponder: DynamicRouteResponderProtocol>: CompiledDynamicResponderStorageRouteProtocol {
-    public let path:DestinyRoutePathType
+    public let path:SIMD64<UInt8>
     public let responder:ConcreteResponder
 
-    public init(path: DestinyRoutePathType, responder: ConcreteResponder) {
+    public init(path: SIMD64<UInt8>, responder: ConcreteResponder) {
         self.path = path
         self.responder = responder
     }

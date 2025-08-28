@@ -29,7 +29,7 @@ extension RouteGroup {
         routeGroupStorage.staticMiddleware = staticMiddleware
 
         var endpoint = ""
-        var conditionalResponders = [DestinyRoutePathType:any ConditionalRouteResponderProtocol]()
+        var conditionalResponders = [SIMD64<UInt8>:any ConditionalRouteResponderProtocol]()
         for f in dynamicMiddleware {
             Router.parseDynamicMiddleware(context: context, function: f, storage: &routeGroupStorage)
         }

@@ -8,13 +8,13 @@ public final class RouterResponderStorage<
     >: MutableRouterResponderStorageProtocol {
     public let `static`:StaticResponderStorage
     public let dynamic:DynamicResponderStorage
-    public let conditional:[DestinyRoutePathType:any ConditionalRouteResponderProtocol]
+    public let conditional:[SIMD64<UInt8>:any ConditionalRouteResponderProtocol]
 
     @inlinable
     public init(
         static: StaticResponderStorage,
         dynamic: DynamicResponderStorage,
-        conditional: [DestinyRoutePathType:any ConditionalRouteResponderProtocol]
+        conditional: [SIMD64<UInt8>:any ConditionalRouteResponderProtocol]
     ) {
         self.static = `static`
         self.dynamic = dynamic

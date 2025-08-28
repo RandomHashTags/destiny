@@ -11,7 +11,7 @@ extension Router {
         route: any RouteProtocol,
         function: FunctionCallExprSyntax,
         string: String,
-        buffer: DestinyRoutePathType,
+        buffer: SIMD64<UInt8>,
         httpResponse: DestinyDefaults.HTTPResponseMessage
     ) {
         // TODO: refactor

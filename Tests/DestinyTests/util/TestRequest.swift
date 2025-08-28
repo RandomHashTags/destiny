@@ -78,7 +78,7 @@ struct TestRequest: HTTPRequestProtocol {
 
 // MARK: Start line
 extension TestRequest {
-    mutating func startLine() throws(SocketError) -> DestinyRoutePathType {
+    mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
         if _storage._startLine == nil {
             try _loadStorage()
         }

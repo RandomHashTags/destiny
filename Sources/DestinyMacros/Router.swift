@@ -103,5 +103,5 @@ extension Router {
 // MARK: RoutePath
 struct RoutePath: Hashable {
     let comment:String
-    let path:DestinyRoutePathType
+    let path:SIMD64<UInt8>
 }

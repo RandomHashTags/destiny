@@ -104,7 +104,7 @@ public struct Request: HTTPRequestProtocol {
 // MARK: Start line
 extension Request {
     @inlinable
-    public mutating func startLine() throws(SocketError) -> DestinyRoutePathType {
+    public mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
         if _storage._startLine == nil {
             try _loadStorage()
         }

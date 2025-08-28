@@ -35,14 +35,14 @@ public struct CompiledCaseSensitiveStaticResponderStorage<each ConcreteRoute: Co
 public protocol CompiledStaticResponderStorageRouteProtocol: Sendable, ~Copyable {
     associatedtype ConcreteResponder:StaticRouteResponderProtocol
 
-    var path: DestinyRoutePathType { get }
+    var path: SIMD64<UInt8> { get }
     var responder: ConcreteResponder { get }
 }
 public struct CompiledStaticResponderStorageRoute<ConcreteResponder: StaticRouteResponderProtocol>: CompiledStaticResponderStorageRouteProtocol {
-    public let path:DestinyRoutePathType
+    public let path:SIMD64<UInt8>
     public let responder:ConcreteResponder
 
-    public init(path: DestinyRoutePathType, responder: ConcreteResponder) {
+    public init(path: SIMD64<UInt8>, responder: ConcreteResponder) {
         self.path = path
         self.responder = responder
     }

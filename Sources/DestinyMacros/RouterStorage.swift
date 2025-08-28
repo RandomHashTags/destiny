@@ -138,7 +138,7 @@ public struct RouterStorage {
 extension RouterStorage {
     struct Route {
         let startLine:String
-        let buffer:DestinyRoutePathType
+        let buffer:SIMD64<UInt8>
         let responder:String
 
         var path: Substring {
