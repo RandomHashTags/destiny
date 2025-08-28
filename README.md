@@ -73,6 +73,8 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] Request body streaming
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
+- [ ] OpenAPI support
+- [ ] Tracing support
 - [ ] TLS/SSL
 - [ ] Web Sockets
 - [ ] Native load balancing & clustering
