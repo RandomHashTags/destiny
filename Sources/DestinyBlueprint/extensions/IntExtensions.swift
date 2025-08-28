@@ -7,6 +7,7 @@ extension UInt8 {
     @inlinable public static var comma: Self { 44 }
     @inlinable public static var subtract: Self { 45 }
     @inlinable public static var colon: Self { 58 }
+    @inlinable public static var questionMark: Self { 63 }
 
     // letters
     @inlinable public static var A: Self { 65 }

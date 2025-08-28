@@ -6,20 +6,28 @@ import VariableLengthArray
 public struct HTTPStartLine: HTTPStartLineProtocol, ~Copyable {
     public let method:VLArray<UInt8>
     public let path:VLArray<UInt8>
-    public let version:HTTPVersion
+    public let pathQueryStartIndex:Int?
     public let endIndex:Int
+    public let version:HTTPVersion
 
     @inlinable
     public init(
         method: consuming VLArray<UInt8>,
+        pathQueryStartIndex: Int?,
         path: consuming VLArray<UInt8>,
         version: HTTPVersion,
         endIndex: Int
     ) {
         self.method = method
+        self.pathQueryStartIndex = pathQueryStartIndex
         self.path = path
         self.version = version
         self.endIndex = endIndex
+    }
+
+    @inlinable
+    public var pathEndIndex: Int {
+        endIndex - 9
     }
 }
 
@@ -50,14 +58,24 @@ extension HTTPStartLine {
                 return
             }
             offset += 1
-            var targetPathEndIndex = 0
-            for i in offset..<bufferPointer.count {
-                if bufferPointer[i] == .space {
-                    targetPathEndIndex = i
-                    break
+            var pathQueryStartIndex:Int? = nil
+            var pathEndIndex = 0
+            var i = offset
+            loop: while i < bufferPointer.count {
+                switch bufferPointer[i] {
+                case .space:
+                    pathEndIndex = i
+                    break loop
+                case .questionMark:
+                    i += 1
+                    if i < bufferPointer.count {
+                        pathQueryStartIndex = i
+                    }
+                default:
+                    i += 1
                 }
             }
-            guard targetPathEndIndex != 0 else {
+            guard pathEndIndex != 0 else {
                 err = .malformedRequest("targetPathEndIndex == 0")
                 return
             }
@@ -66,7 +84,7 @@ extension HTTPStartLine {
                     methodBuffer[i] = bufferPointer[i]
                 }
                 offset = methodEndIndex + 1
-                let pathCount = targetPathEndIndex - methodEndIndex - 1
+                let pathCount = pathEndIndex - methodEndIndex - 1
                 withUnsafeTemporaryAllocation(of: UInt8.self, capacity: pathCount, { pathBuffer in
                     if pathCount <= 128 {
                         for i in 0..<pathCount {
@@ -92,9 +110,10 @@ extension HTTPStartLine {
                     let pathArray = VLArray<UInt8>(_storage: pathBuffer)
                     let startLine = HTTPStartLine.init(
                         method: methodArray,
+                        pathQueryStartIndex: pathQueryStartIndex,
                         path: pathArray,
                         version: version,
-                        endIndex: targetPathEndIndex + 9
+                        endIndex: pathEndIndex + 9
                     )
                     do throws(SocketError) {
                         try body(startLine)

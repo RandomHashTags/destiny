@@ -128,14 +128,20 @@ extension Request {
         if read <= 0 {
             throw .malformedRequest()
         }
-        var startLine = SIMD64<UInt8>()
-        try HTTPStartLine.load(buffer: buffer, { sl in
-            for i in 0..<min(64, sl.endIndex) {
-                startLine[i] = buffer.itemAt(index: i)
+        var simdStartLine = SIMD64<UInt8>()
+        try HTTPStartLine.load(buffer: buffer, { startLine in
+            /*if let queryStartIndex = startLine.pathQueryStartIndex {
+                print("Request;\(#function);queryStartIndex=\(queryStartIndex);query=")
+                for i in queryStartIndex..<startLine.pathEndIndex {
+                    print("\(Character(UnicodeScalar(buffer[i])))")
+                }
+            }*/
+            for i in 0..<min(64, startLine.endIndex) {
+                simdStartLine[i] = buffer.itemAt(index: i)
             }
-            _storage._startLine = startLine
-            _storage._methodString = sl.method.unsafeString()
-            _storage._pathString = sl.path.unsafeString()
+            _storage._startLine = simdStartLine
+            _storage._methodString = startLine.method.unsafeString()
+            _storage._pathString = startLine.path.unsafeString()
         })
     }
 

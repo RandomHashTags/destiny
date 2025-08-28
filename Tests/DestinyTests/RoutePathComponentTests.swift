@@ -30,7 +30,7 @@ extension RoutePathComponentTests {
         #expect(component == .parameter)
 
         component = .init(stringLiteral: "brother?")
-        #expect(component == .queryable(stringToSIMD64("brother")))
+        #expect(component == .query([stringToSIMD64("brother")]))
     }
 }
 
@@ -68,6 +68,20 @@ extension RoutePathComponentTests {
 
 extension RoutePathComponentTests {
     @Test
+    func routePathComponentParseQuery() throws {
+        let path = "what/in/tar/nation?test=yup"
+        let components = RoutePathComponent.parse(path)
+        try #require(components.count == 5, "\(components)")
+        #expect(components[0] == .literal(stringToSIMD64("what")))
+        #expect(components[1] == .literal(stringToSIMD64("in")))
+        #expect(components[2] == .literal(stringToSIMD64("tar")))
+        #expect(components[3] == .literal(stringToSIMD64("nation")))
+        #expect(components[4] == .query([stringToSIMD64("test=yup")]))
+    }
+}
+
+extension RoutePathComponentTests {
+    @Test
     func routePathComponentParseCatchall() throws {
         let path = "what/in/**/nation/:test/yup"
         let components = RoutePathComponent.parse(path)
@@ -80,17 +94,18 @@ extension RoutePathComponentTests {
 
 extension RoutePathComponentTests {
     @Test
-    func routePathComponentParseQueryable() throws {
+    func routePathComponentParseParameterAndQuery() throws {
         let path = "what/in/tar/nation/:test/yuppers?/bruh"
         let components = RoutePathComponent.parse(path)
-        try #require(components.count == 7, "\(components)")
+        try #require(components.count == 8, "\(components)")
         #expect(components[0] == .literal(stringToSIMD64("what")))
         #expect(components[1] == .literal(stringToSIMD64("in")))
         #expect(components[2] == .literal(stringToSIMD64("tar")))
         #expect(components[3] == .literal(stringToSIMD64("nation")))
         #expect(components[4] == .parameter)
-        #expect(components[5] == .queryable(stringToSIMD64("yuppers")))
-        #expect(components[6] == .literal(stringToSIMD64("bruh")))
+        #expect(components[5] == .literal(stringToSIMD64("yuppers")))
+        #expect(components[6] == .query([]))
+        #expect(components[7] == .literal(stringToSIMD64("bruh")))
     }
 }
 

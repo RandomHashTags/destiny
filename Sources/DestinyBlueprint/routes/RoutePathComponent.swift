@@ -3,11 +3,17 @@ public enum RoutePathComponent: RoutePathComponentProtocol {
     case catchall
     case literal(SIMD64<UInt8>)
     case parameter
-    case queryable(SIMD64<UInt8>)
+    case query([SIMD64<UInt8>])
 
     @inlinable
     public var isCatchall: Bool {
         self == .catchall
+    }
+
+    @inlinable
+    public var isLiteral: Bool {
+        guard case .literal = self else { return false }
+        return true
     }
 
     @inlinable
@@ -16,11 +22,9 @@ public enum RoutePathComponent: RoutePathComponentProtocol {
     }
 
     @inlinable
-    public var isQueryable: Bool {
-        switch self {
-        case .queryable: true
-        default: false
-        }
+    public var isQuery: Bool {
+        guard case .query = self else { return false }
+        return true
     }
 }
 
@@ -33,13 +37,29 @@ extension RoutePathComponent: ExpressibleByStringLiteral {
             self = .parameter
         } else if let questionMarkIndex = value.firstIndex(of: "?") {
             var prefix = value[value.startIndex..<questionMarkIndex]
-            var simd = SIMD64<UInt8>()
-            prefix.withUTF8 {
-                for i in 0..<$0.count {
-                    simd[i] = $0[i]
+            var simds = [SIMD64<UInt8>]()
+            prefix.withUTF8 { prefixPointer in
+                var i = 0
+                if prefixPointer.count > 64 {
+                    let simdsCount = prefixPointer.count / 64
+                    simds.reserveCapacity(simdsCount + 1)
+                    for i in 0..<simdsCount {
+                        var simd = SIMD64<UInt8>()
+                        withUnsafeMutablePointer(to: &simd, {
+                            copyMemory($0, prefixPointer.baseAddress! + (i * 64), 64)
+                        })
+                        simds.append(simd)
+                    }
+                    i = simdsCount * 64
                 }
+                var simd = SIMD64<UInt8>()
+                while i < prefixPointer.count {
+                    simd[i] = prefixPointer[i]
+                    i += 1
+                }
+                simds.append(simd)
             }
-            self = .queryable(simd)
+            self = .query(simds)
         } else if value.hasSuffix("SIMD64<UInt8>(") {
             let bytes = value.split(separator: "(")[1].split(separator: ")")[0].split(separator: ", ").compactMap({ UInt8($0) })
             self = .literal(.init(bytes))
@@ -98,16 +118,14 @@ extension RoutePathComponent {
         } else if let index = slice.firstIndex(of: "?") {
             if slice.startIndex < index {
                 let pre = slice[slice.startIndex..<index]
-                var parsed = parse(String(pre))
-                var last = parsed.removeLast()
-                switch last {
-                case .literal(let literal):
-                    last = .queryable(literal)
-                default:
-                    break
-                }
-                paths.append(contentsOf: parsed)
-                paths.append(last)
+                paths.append(.init(stringLiteral: String(pre)))
+
+                let post = slice[slice.index(after: index)...]
+                let postParsed = parse(String(post))
+                paths.append(.query(postParsed.compactMap({
+                    guard case let .literal(queryValue) = $0 else { return nil }
+                    return queryValue
+                })))
             }
         } else {
             paths.append(.init(stringLiteral: String(slice)))
@@ -138,7 +156,7 @@ extension RoutePathComponent {
                 }
             }
             switch component {
-            case .catchall, .parameter, .queryable:
+            case .catchall, .parameter, .query:
                 if simdIndex != 0 {
                     simd[simdIndex] = 47 // forward slash
                     paths.append(.literal(simd))
