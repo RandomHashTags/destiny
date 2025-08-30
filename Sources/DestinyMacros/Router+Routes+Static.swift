@@ -332,9 +332,15 @@ extension RouterStorage {
         let routeEntryDecl = try! StructDeclSyntax.init("""
         struct RouteEntry: Sendable { // found perfect hash with \(raw: hashMaxBytes) bytes
             let key:UInt64
+            //let simd:SIMD64<UInt8>
             let route:StaticRoute
-            init(_ route: StaticRoute, _ key: UInt64) {
+            init(
+                _ route: StaticRoute,
+                //_ simd: SIMD64<UInt8>,
+                _ key: UInt64
+            ) {
                 self.route = route
+                //self.simd = simd
                 self.key = key
             }
         }
@@ -352,6 +358,7 @@ extension RouterStorage {
             if entry.key != key { // hash collision
                 return nil
             }
+            //return entry.simd == simd ? entry.route : nil
             return entry.route
         }
         """)
