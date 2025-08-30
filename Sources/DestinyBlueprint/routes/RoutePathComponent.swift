@@ -60,7 +60,7 @@ extension RoutePathComponent: ExpressibleByStringLiteral {
                 simds.append(simd)
             }
             self = .query(simds)
-        } else if value.hasSuffix("SIMD64<UInt8>(") {
+        } else if value.hasPrefix("SIMD64<UInt8>(") {
             let bytes = value.split(separator: "(")[1].split(separator: ")")[0].split(separator: ", ").compactMap({ UInt8($0) })
             self = .literal(.init(bytes))
         } else {
@@ -147,7 +147,7 @@ extension RoutePathComponent {
         loop: while !components.isEmpty {
             let component = components.removeFirst()
             if simdIndex != 0 {
-                simd[simdIndex] = 47 // forward slash
+                simd[simdIndex] = .forwardSlash
                 simdIndex += 1
                 if simdIndex == 64 {
                     paths.append(.literal(simd))
@@ -158,7 +158,7 @@ extension RoutePathComponent {
             switch component {
             case .catchall, .parameter, .query:
                 if simdIndex != 0 {
-                    simd[simdIndex] = 47 // forward slash
+                    simd[simdIndex] = .forwardSlash
                     paths.append(.literal(simd))
                     simd = .zero
                     simdIndex = 0

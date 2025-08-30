@@ -28,7 +28,7 @@ public protocol DestinyHTTPRouterProtocol: HTTPRouterProtocol, ~Copyable {
 // MARK: Defaults
 extension DestinyHTTPRouterProtocol {
     @inlinable
-    public func respondStatically(
+    public func respond(
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: borrowing some StaticRouteResponderProtocol,
@@ -89,7 +89,7 @@ extension DestinyHTTPRouterProtocol {
     }
 
     @inlinable
-    public func respondDynamically(
+    public func respond(
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol,

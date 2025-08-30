@@ -24,7 +24,7 @@ public struct CompiledCaseInsensitiveStaticResponderStorage<each ConcreteRoute: 
         }
         for route in repeat each routes {
             if route.path == startLine {
-                try router.respondStatically(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
+                try router.respond(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
                 return true
             }
         }

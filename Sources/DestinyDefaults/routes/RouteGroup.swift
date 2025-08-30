@@ -50,7 +50,7 @@ extension RouteGroup {
         if try staticResponses.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
             return true
         } else if let responder = try dynamicResponses.responder(for: &request) {
-            try router.respondDynamically(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
             return true
         } else {
             return false

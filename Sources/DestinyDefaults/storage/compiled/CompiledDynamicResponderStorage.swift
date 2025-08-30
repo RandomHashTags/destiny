@@ -26,7 +26,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
         }
         for route in repeat each routes {
             if route.path == requestStartLine { // parameterless
-                try router.respondDynamically(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
+                try router.respond(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
                 return true
             } else { // parameterized and catchall
                 let pathComponentsCount = route.responder.pathComponentsCount
@@ -63,7 +63,7 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
                     }
                 }
                 if found && (lastIsCatchall || lastIsParameter && requestPathCount == pathComponentsCount) {
-                    try router.respondDynamically(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
+                    try router.respond(socket: socket, request: &request, responder: route.responder, completionHandler: completionHandler)
                     return true
                 }
             }

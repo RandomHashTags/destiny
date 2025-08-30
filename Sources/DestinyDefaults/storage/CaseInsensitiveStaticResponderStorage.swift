@@ -47,19 +47,19 @@ extension CaseInsensitiveStaticResponderStorage {
             throw .socketError(error)
         }
         if let r = macroExpansions[startLine] {
-            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = macroExpansionsWithDateHeader[startLine] {
-            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = staticStrings[startLine] {
-            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = staticStringsWithDateHeader[startLine] {
-            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = stringsWithDateHeader[startLine] {
-            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = strings[startLine] {
-            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else if let r = bytes[startLine] {
-            try router.respondStatically(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
         } else {
             return false
         }

@@ -23,7 +23,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - socket: The socket to write to.
     ///   - responder: The static route responder that will write to the socket.
-    func respondStatically(
+    func respond(
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some StaticRouteResponderProtocol,
@@ -36,7 +36,7 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     ///   - responder: The dynamic route responder that will write to the socket.
-    func respondDynamically(
+    func respond(
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         responder: some DynamicRouteResponderProtocol,

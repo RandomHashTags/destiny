@@ -32,7 +32,7 @@ extension DynamicResponderStorage {
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
         guard let responder = try responder(for: &request) else { return false }
-        try router.respondDynamically(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
+        try router.respond(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
         return true
     }
 

@@ -72,6 +72,10 @@ let package = Package(
         .trait(
             name: "DestinyDefaultsFoundation",
             description: "Foundation extensions to DestinyDefaults."
+        ),
+        .trait(
+            name: "OpenAPI",
+            description: "Destiny conformances that enable OpenAPI support."
         )
     ],
     dependencies: pkgDependencies,
