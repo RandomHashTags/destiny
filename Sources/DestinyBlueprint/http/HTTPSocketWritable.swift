@@ -10,13 +10,6 @@ public protocol HTTPSocketWritable: Sendable, ~Copyable {
     ) throws(SocketError)
 }
 
-extension HTTPSocketWritable {
-    @inlinable
-    public func write(to socket: some FileDescriptor) throws(SocketError) {
-        try write(to: socket.fileDescriptor)
-    }
-}
-
 // MARK: Default conformances
 extension String: HTTPSocketWritable {
     @inlinable

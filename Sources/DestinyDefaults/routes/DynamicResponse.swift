@@ -66,7 +66,7 @@ extension DynamicResponse {
 
     @inlinable
     public func write(
-        to socket: Int32
+        to socket: some FileDescriptor
     ) throws(SocketError) {
         try message.write(to: socket)
     }

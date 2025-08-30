@@ -279,12 +279,12 @@ extension HTTPResponseMessage {
 extension HTTPResponseMessage {
     @inlinable
     public func write(
-        to socket: Int32
+        to socket: some FileDescriptor
     ) throws(SocketError) {
         var err:SocketError? = nil
         self.temporaryAllocation {
             do throws(SocketError) {
-                try socket.socketWriteBuffer($0.baseAddress!, length: $0.count)
+                try socket.writeBuffer($0.baseAddress!, length: $0.count)
             } catch {
                 err = error
             }

@@ -73,18 +73,22 @@ extension ImmutableHTTPRouter {
     ) {
         do throws(SocketError) {
             var request = try socket.loadRequest()
+
             #if DEBUG
             let requestStartLine = try request.startLine().stringSIMD()
             logger.info("\(requestStartLine)")
             #endif
+
             do throws(ResponderError) {
                 guard !(try respond(socket: client, request: &request, completionHandler: completionHandler)) else { return }
                 if !(try respondWithNotFound(socket: client, request: &request, completionHandler: completionHandler)) {
+                    logger.error("failed to send response to client")
                     completionHandler()
                 }
             } catch {
                 logger.warning("Encountered error while processing client: \(error)")
                 if !respondWithError(socket: client, error: error, request: &request, completionHandler: completionHandler) {
+                    logger.error("failed to send response to client")
                     completionHandler()
                 }
             }

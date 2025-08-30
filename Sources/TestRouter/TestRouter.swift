@@ -138,22 +138,32 @@ extension TestRouter {
         StaticRoute.get(
             path: ["inlineBytes"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.inlineBytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+            body: ResponseBody.inlineBytes([
+                .H, .T, .T, .P, .forwardSlash, 49, 46, 49, .space, 50, 48, 48, .carriageReturn, .lineFeed,
+                .C, .o, .n, .t, .e, .n, .t, 45, .T, .y, .p, .e, .colon, .space, .t, .e, .x, .t, .forwardSlash, .p, .l, .a, .i, .n, .carriageReturn, .lineFeed,
+                .C, .o, .n, .t, .e, .n, .t, 45, .L, .e, .n, .g, .t, .h, .colon, .space, 49, 48, .carriageReturn, .lineFeed, .carriageReturn, .lineFeed,
+                33, 34, 35, 36, 37, 38, 39, 40, 41, 42
+            ])
         ),
         StaticRoute.get(
             path: ["bytes"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.bytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
+            body: ResponseBody.bytes([
+                .H, .T, .T, .P, .forwardSlash, 49, 46, 49, .space, 50, 48, 48, .carriageReturn, .lineFeed,
+                .C, .o, .n, .t, .e, .n, .t, 45, .T, .y, .p, .e, .colon, .space, .t, .e, .x, .t, .forwardSlash, .p, .l, .a, .i, .n, .carriageReturn, .lineFeed,
+                .C, .o, .n, .t, .e, .n, .t, 45, .L, .e, .n, .g, .t, .h, .colon, .space, 49, 48, .carriageReturn, .lineFeed, .carriageReturn, .lineFeed,
+                33, 34, 35, 36, 37, 38, 39, 40, 41, 42
+            ])
         ),
         StaticRoute.get(
             path: ["bytes2"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.bytes([UInt8]("bruh".utf8))
+            body: ResponseBody.bytes([UInt8]("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
         ),
         StaticRoute.get(
             path: ["bytes3"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.bytes(Array<UInt8>("bruh".utf8))
+            body: ResponseBody.bytes(Array<UInt8>("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
         ),
         /*StaticRoute.get(
             path: ["error"],

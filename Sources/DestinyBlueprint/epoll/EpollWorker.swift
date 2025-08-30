@@ -73,20 +73,22 @@ public final class EpollWorker<let maxEvents: Int>: @unchecked Sendable {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
         #if DEBUG
-        logger.info("acceptNewConnection calling accept4_fd")
+        logger.info("\(#function); calling accept4_fd")
         #endif
         let fd = withUnsafeMutablePointer(to: &addr) {
-            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { saPtr in
-                accept4_fd(listenFD, saPtr, &len, Int32(SOCK_NONBLOCK.rawValue | SOCK_CLOEXEC.rawValue))
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                accept4_fd(listenFD, $0, &len, Int32(SOCK_NONBLOCK.rawValue | SOCK_CLOEXEC.rawValue))
             }
         }
         if fd == -1 {
-            if errno == EAGAIN || errno == EWOULDBLOCK { return nil }
-            logger.warning("accept4 failed (errno=\(errno))")
+            if errno == EAGAIN || errno == EWOULDBLOCK {
+                return nil
+            }
+            logger.warning("\(#function); accept4 failed (errno=\(errno))")
             return nil
         }
         #if DEBUG
-        logger.info("acceptNewConnection returned \(fd)")
+        logger.info("\(#function); returned \(fd)")
         #endif
         return fd
     }
@@ -121,7 +123,6 @@ extension EpollWorker {
             do throws(EpollError) {
                 let loadedClients = try ep.wait(timeout: timeout, events: &events)
                 guard loadedClients > 0 else { continue }
-
                 for i in 0..<loadedClients {
                     let event = events[Int(i)]
                     let eventFD = event.data.fd
@@ -129,14 +130,17 @@ extension EpollWorker {
                     // cancel pipe
                     if eventFD == ep.pipeFileDescriptors.read {
                         // drain pipe
+                        #if DEBUG
+                        logger.info("draining...")
+                        #endif
+
                         var tmp = UInt8(0)
                         _ = read(eventFD, &tmp, 1)
                         running = false
                         break
                     }
-
-                    // if it's the listen socket, accept as many as possible
                     if eventFD == listenFD {
+                        // accept as many as possible
                         while true {
                             guard let client = acceptNewConnection() else { break }
                             let flags = UInt32(EPOLLIN.rawValue) | UInt32(EPOLLET.rawValue)
@@ -144,19 +148,12 @@ extension EpollWorker {
                         }
                         continue
                     }
-
-                    // client read/write
-                    if event.events & UInt32(EPOLLIN.rawValue) != 0 {
+                    if event.events & UInt32(EPOLLHUP.rawValue) != 0 || event.events & UInt32(EPOLLERR.rawValue) != 0 {
+                        close(eventFD)
+                    } else if event.events & UInt32(EPOLLIN.rawValue) != 0 { // client read/write
                         handleClient(eventFD, {
-                            try? self.ep.remove(client: eventFD)
                             close(eventFD)
                         })
-                    }
-                    if event.events & UInt32(EPOLLHUP.rawValue) != 0 || event.events & UInt32(EPOLLERR.rawValue) != 0 {
-                        defer {
-                            close(eventFD)
-                        }
-                        try ep.remove(client: eventFD)
                     }
                 }
             } catch {

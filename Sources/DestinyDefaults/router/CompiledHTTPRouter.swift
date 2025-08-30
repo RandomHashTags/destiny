@@ -50,10 +50,12 @@ extension CompiledHTTPRouter {
     ) {
         do throws(SocketError) {
             var request = try socket.loadRequest()
+
             #if DEBUG
             let requestStartLine = try request.startLine().stringSIMD()
             logger.info("\(requestStartLine)")
             #endif
+
             do throws(ResponderError) {
                 guard !(try respond(socket: client, request: &request, completionHandler: completionHandler)) else { return }
                 if !(try respondWithNotFound(socket: client, request: &request, completionHandler: completionHandler)) {

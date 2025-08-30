@@ -24,7 +24,7 @@ extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
     }
 
     @inlinable @inline(__always)
-    public func write(to socket: Int32) throws(SocketError) {
+    public func write(to socket: some FileDescriptor) throws(SocketError) {
         var err:SocketError? = nil
         withUnsafePointer(to: self, {
             do throws(SocketError) {
