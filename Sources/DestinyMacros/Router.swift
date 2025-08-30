@@ -11,7 +11,7 @@ enum Router: ExpressionMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> ExprSyntax {
-        return "\(raw: compute(visibility: .internal, mutable: true, arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
+        return "\(raw: compute(visibility: .internal, mutable: true, perfectHashMaxBytes: [2, 4, 8, 16, 32, 64], arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
     }
 }
 
@@ -33,6 +33,7 @@ extension Router: DeclarationMacro {
         var visibility = RouterVisibility.internal
         var mutable = true
         var typeAnnotation:String? = nil
+        var perfectHashMaxBytes = [2, 4, 8, 16, 32, 64]
         for arg in arguments.prefix(2) {
             switch arg.label?.text {
             case "visibility":
@@ -41,11 +42,22 @@ extension Router: DeclarationMacro {
                 mutable = arg.expression.booleanIsTrue
             case "typeAnnotation":
                 typeAnnotation = arg.expression.stringLiteralString(context: context)
+            case "perfectHashMaxBytes":
+                perfectHashMaxBytes = arg.expression.array?.elements.compactMap({
+                    guard let i = $0.expression.integerLiteral?.literal.text else { return nil }
+                    return Int(i)
+                }) ?? []
             default:
                 break
             }
         }
-        let (router, structs) = compute(visibility: visibility, mutable: mutable, arguments: arguments, context: context)
+        let (router, structs) = compute(
+            visibility: visibility,
+            mutable: mutable,
+            perfectHashMaxBytes: perfectHashMaxBytes,
+            arguments: arguments,
+            context: context
+        )
         var declaredRouter = try! StructDeclSyntax("\(raw: visibility)struct DeclaredRouter {}")
         for s in structs {
             declaredRouter.memberBlock.members.append(MemberBlockItemSyntax(decl: s))

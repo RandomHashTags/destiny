@@ -10,6 +10,7 @@ extension RouterStorage {
     mutating func staticRoutesSyntax(
         mutable: Bool,
         context: some MacroExpansionContext,
+        perfectHashMaxBytes: [Int],
         isCaseSensitive: Bool,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [CompiledStaticMiddleware],
@@ -107,7 +108,14 @@ extension RouterStorage {
             memberBlock: MemberBlockSyntax(members: MemberBlockItemListSyntax())
         )
 
-        staticConstants(context: context, isCaseSensitive: isCaseSensitive, routePaths: routePaths, enumDecl: &enumDecl, literalRouteResponders: literalRouteResponders)
+        staticConstants(
+            context: context,
+            perfectHashMaxBytes: perfectHashMaxBytes,
+            isCaseSensitive: isCaseSensitive,
+            routePaths: routePaths,
+            enumDecl: &enumDecl,
+            literalRouteResponders: literalRouteResponders
+        )
 
         generatedDecls.append(enumDecl)    
         if isCaseSensitive {
@@ -154,6 +162,7 @@ extension RouterStorage {
 extension RouterStorage {
     private func staticConstants(
         context: some MacroExpansionContext,
+        perfectHashMaxBytes: [Int],
         isCaseSensitive: Bool,
         routePaths: [String],
         enumDecl: inout StructDeclSyntax,
@@ -210,9 +219,15 @@ extension RouterStorage {
         routeConstantsDecl.memberBlock.members.append(contentsOf: staticResponders.map({ MemberBlockItemSyntax.init(decl: $0) }))
         enumDecl.memberBlock.members.append(.init(decl: routeConstantsDecl))
 
-        if let perfectHashDecls = matchRoutePerfectHash(routePaths: routePaths, hashMaxBytes: 8) {
-            enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
-        } else {
+        var foundPerfectHash = false
+        for i in perfectHashMaxBytes {
+            if let perfectHashDecls = matchRoutePerfectHash(routePaths: routePaths, hashMaxBytes: i) {
+                enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
+                foundPerfectHash = true
+                break
+            }
+        }
+        if !foundPerfectHash {
             enumDecl.memberBlock.members.append(contentsOf: staticSIMDs.map({ MemberBlockItemSyntax.init(decl: $0) }))
             enumDecl.memberBlock.members.append(.init(decl: matchRouteFallback(routePaths: routePaths)))
         }
@@ -315,7 +330,7 @@ extension RouterStorage {
         """)
 
         let routeEntryDecl = try! StructDeclSyntax.init("""
-        struct RouteEntry: Sendable {
+        struct RouteEntry: Sendable { // found perfect hash with \(raw: hashMaxBytes) bytes
             let key:UInt64
             let route:StaticRoute
             init(_ route: StaticRoute, _ key: UInt64) {

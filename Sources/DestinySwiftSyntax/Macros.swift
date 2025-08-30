@@ -44,6 +44,7 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
 ///   - visibility: The access visibility of the expanded router and its data.
 ///   - mutable: Whether or not the expanded router should also be mutable.
 ///   - typeAnnotation: Custom type annotation of the generated router.
+///   - perfectHashMaxBytes: Number of route path bytes to try generating perfect hashes from. Needs to be a power of 2 (2, 4, 8, 16, 32, 64).
 ///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
 ///   - errorResponder: The error responder when an error is thrown from a route.
 ///   - dynamicNotFoundResponder: The dynamic responder for requests to unregistered endpoints.
@@ -57,6 +58,7 @@ public macro declareRouter(
     visibility: RouterVisibility = .internal,
     mutable: Bool = false,
     typeAnnotation: String? = nil,
+    perfectHashMaxBytes: [Int] = [2, 4, 8, 16, 32, 64],
 
     version: HTTPVersion,
     errorResponder: (any ErrorResponderProtocol)? = nil,
