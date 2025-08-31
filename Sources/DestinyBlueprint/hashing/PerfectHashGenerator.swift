@@ -6,27 +6,22 @@ public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProt
     public let entriesCount:Int
     public let positions:InlineArray<64, Int>
 
-    public let multipliers:InlineArray<_, UInt64> = [
-        0x9E3779B97F4A7C15, // Golden ratio
-        0xC6A4A7935BD1E995, // MurmurHash2
-        0xD6E8FEB86659FD93, // Custom multiplier
-        0xBF58476D1CE4E5B9, // Another good one
-        0x94D049BB133111EB, // FNV-like
-        0x517CC1B727220A95, // Random large odd
-        0x5851F42D4C957F2D, // Another option
-        0x2127599BF4325C37, // More options
-        0x3C6EF372FE94F82A,
-        0x87C37B91114253D5
-    ]
-
     public init(
         routes: [PerfectHashableItem<T>],
         maxBytes: Int
     ) {
         let positions = Self.findPerfectHashPositions(routes: routes, maxBytes: maxBytes)
+        self.init(routes: routes, maxBytes: maxBytes, positions: positions)
+    }
+    public init(
+        routes: [PerfectHashableItem<T>],
+        maxBytes: Int,
+        positions: InlineArray<64, Int>
+    ) {
+        let entriesCount = routes.count
         let closure:(T) -> UInt64 = Self.extractKeyClosure(positions: positions, maxBytes: maxBytes)
         var array = [PerfectHashableEntry]()
-        let entriesCount = routes.count
+        array.reserveCapacity(entriesCount)
         for i in 0..<entriesCount {
             let item = routes[i]
             array.append(.init(name: item.name, key: closure(item.simd)))
@@ -39,6 +34,7 @@ public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProt
 
 // MARK: Positions
 extension PerfectHashGenerator {
+    /// - Returns: Route indexes that have the most unique characters.
     @inlinable
     public static func findPerfectHashPositions(
         routes: [PerfectHashableItem<T>],
@@ -84,16 +80,17 @@ extension PerfectHashGenerator {
 // MARK: Perfect
 extension PerfectHashGenerator {
     @inlinable
-    public func findPerfectHashFunction() -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: [UInt64])? {
-        // try different table sizes (power of 2)
+    public func findPerfectHashFunction<let count: Int>(
+        seeds: InlineArray<count, UInt64>
+    ) -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: [UInt64])? {
         for maskBits in 1...9 { // 2, 4, 8, 16, 32, 64, 128, 256, 512 slots
-            let tableSize = 1 << maskBits
+            let tableSize:UInt64 = 1 << maskBits
             if tableSize >= entriesCount {
                 // try different shift amounts
                 for shift in (64 - maskBits - 4)...(64 - maskBits) {
-                    for indice in multipliers.indices {
+                    for indice in seeds.indices {
                         let candidate = HashCandidate(
-                            multiplier: multipliers[indice],
+                            seed: seeds[indice],
                             shift: shift,
                             maskBits: maskBits,
                             tableSize: tableSize
@@ -112,7 +109,7 @@ extension PerfectHashGenerator {
     public func tryHashFunction(
         _ candidate: HashCandidate
     ) -> (hashTable: [UInt8], verificationKeys: [UInt64])? {
-        var hashTable = [UInt8](repeating: 255, count: candidate.tableSize) // 255 = empty slot
+        var hashTable = [UInt8](repeating: 255, count: Int(candidate.tableSize)) // 255 = empty slot
         var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
         var usedSlots = Set<Int>()
         usedSlots.reserveCapacity(entriesCount)
@@ -139,13 +136,13 @@ extension PerfectHashGenerator {
 
     @discardableResult
     @inlinable
-    public func generatePerfectHash() -> (
+    public func generatePerfectHash<let count: Int>(seeds: InlineArray<count, UInt64>) -> (
         candidate: HashCandidate,
         hashTable: [UInt8],
         verificationKeys: [UInt64],
         efficiency: Double
     )? {
-        guard let (candidate, hashTable, verificationKeys) = findPerfectHashFunction() else { return nil }
+        guard let (candidate, hashTable, verificationKeys) = findPerfectHashFunction(seeds: seeds) else { return nil }
         // verify it works
         var allPassed = true
         for i in entries.indices {
@@ -173,14 +170,14 @@ extension PerfectHashGenerator {
 extension PerfectHashGenerator {
     // for minimal perfect hash, table size = number of entries
     @inlinable
-    public func findMinimalPerfectHash() -> (candidate: HashCandidate, result: MinimalResult)? {
+    public func findMinimalPerfectHash<let count: Int>(seeds: InlineArray<count, UInt64>) -> (candidate: HashCandidate, result: MinimalResult)? {
         for shift in (64 - entriesCount - 4)...(64 - entriesCount) {
-            for indice in multipliers.indices {
+            for indice in seeds.indices {
                 let candidate = HashCandidate(
-                    multiplier: multipliers[indice],
+                    seed: seeds[indice],
                     shift: shift,
                     maskBits: entriesCount,
-                    tableSize: entriesCount
+                    tableSize: UInt64(entriesCount)
                 )
                 if let result = tryMinimalHashFunction(candidate) {
                     return (candidate, result)

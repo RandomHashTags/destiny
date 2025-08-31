@@ -1,18 +1,34 @@
 
 public protocol PerfectHashable: Sendable, SIMD where Scalar == UInt8 {
+    func extractKey1(positions: InlineArray<1, Int>) -> UInt64
     func extractKey2(positions: InlineArray<2, Int>) -> UInt64
+    func extractKey3(positions: InlineArray<3, Int>) -> UInt64
     func extractKey4(positions: InlineArray<4, Int>) -> UInt64
+    func extractKey5(positions: InlineArray<5, Int>) -> UInt64
+    func extractKey6(positions: InlineArray<6, Int>) -> UInt64
+    func extractKey7(positions: InlineArray<7, Int>) -> UInt64
     func extractKey8(positions: InlineArray<8, Int>) -> UInt64
-    func extractKey16(positions: InlineArray<16, Int>) -> UInt64
-    func extractKey32(positions: InlineArray<32, Int>) -> UInt64
-    func extractKey64(positions: InlineArray<64, Int>) -> UInt64
 }
 
 // MARK: SIMD64 extension
 extension SIMD64<UInt8>: PerfectHashable {
     @inlinable
+    public func extractKey1(positions: InlineArray<1, Int>) -> UInt64 {
+        return withUnsafeBytes(of: (0, 0, 0, 0, 0, 0, 0, self[positions[0]])) {
+            $0.load(as: UInt64.self)
+        }
+    }
+
+    @inlinable
     public func extractKey2(positions: InlineArray<2, Int>) -> UInt64 {
         return withUnsafeBytes(of: (0, 0, 0, 0, 0, 0, self[positions[0]], self[positions[1]])) {
+            $0.load(as: UInt64.self)
+        }
+    }
+
+    @inlinable
+    public func extractKey3(positions: InlineArray<3, Int>) -> UInt64 {
+        return withUnsafeBytes(of: (0, 0, 0, 0, 0, self[positions[0]], self[positions[1]], self[positions[2]])) {
             $0.load(as: UInt64.self)
         }
     }
@@ -25,154 +41,74 @@ extension SIMD64<UInt8>: PerfectHashable {
     }
 
     @inlinable
+    public func extractKey5(positions: InlineArray<5, Int>) -> UInt64 {
+        return withUnsafeBytes(of: self, { b in
+            return withUnsafeBytes(of: (
+                0,
+                0,
+                0,
+                b[positions[0]],
+                b[positions[1]],
+                b[positions[2]],
+                b[positions[3]],
+                b[positions[4]]
+            )) {
+                $0.load(as: UInt64.self)
+            }
+        })
+    }
+
+    @inlinable
+    public func extractKey6(positions: InlineArray<6, Int>) -> UInt64 {
+        return withUnsafeBytes(of: self, { b in
+            return withUnsafeBytes(of: (
+                0,
+                0,
+                b[positions[0]],
+                b[positions[1]],
+                b[positions[2]],
+                b[positions[3]],
+                b[positions[4]],
+                b[positions[5]]
+            )) {
+                $0.load(as: UInt64.self)
+            }
+        })
+    }
+
+    @inlinable
+    public func extractKey7(positions: InlineArray<7, Int>) -> UInt64 {
+        return withUnsafeBytes(of: self, { b in
+            return withUnsafeBytes(of: (
+                0,
+                b[positions[0]],
+                b[positions[1]],
+                b[positions[2]],
+                b[positions[3]],
+                b[positions[4]],
+                b[positions[5]],
+                b[positions[6]]
+            )) {
+                $0.load(as: UInt64.self)
+            }
+        })
+    }
+
+    @inlinable
     public func extractKey8(positions: InlineArray<8, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (
-            self[positions[0]],
-            self[positions[1]],
-            self[positions[2]],
-            self[positions[3]],
-            self[positions[4]],
-            self[positions[5]],
-            self[positions[6]],
-            self[positions[7]]
-        )) {
-            $0.load(as: UInt64.self)
-        }
-    }
-
-    @inlinable
-    public func extractKey16(positions: InlineArray<16, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (
-            self[positions[0]],
-            self[positions[1]],
-            self[positions[2]],
-            self[positions[3]],
-            self[positions[4]],
-            self[positions[5]],
-            self[positions[6]],
-            self[positions[7]],
-            self[positions[8]],
-            self[positions[9]],
-            self[positions[10]],
-            self[positions[11]],
-            self[positions[12]],
-            self[positions[13]],
-            self[positions[14]],
-            self[positions[15]]
-        )) {
-            $0.load(as: UInt64.self)
-        }
-    }
-
-    @inlinable
-    public func extractKey32(positions: InlineArray<32, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (
-            self[positions[0]],
-            self[positions[1]],
-            self[positions[2]],
-            self[positions[3]],
-            self[positions[4]],
-            self[positions[5]],
-            self[positions[6]],
-            self[positions[7]],
-            self[positions[8]],
-            self[positions[9]],
-            self[positions[10]],
-            self[positions[11]],
-            self[positions[12]],
-            self[positions[13]],
-            self[positions[14]],
-            self[positions[15]],
-            self[positions[16]],
-            self[positions[17]],
-            self[positions[18]],
-            self[positions[19]],
-            self[positions[20]],
-            self[positions[21]],
-            self[positions[22]],
-            self[positions[23]],
-            self[positions[24]],
-            self[positions[25]],
-            self[positions[26]],
-            self[positions[27]],
-            self[positions[28]],
-            self[positions[29]],
-            self[positions[30]],
-            self[positions[31]]
-        )) {
-            $0.load(as: UInt64.self)
-        }
-    }
-
-    @inlinable
-    public func extractKey64(positions: InlineArray<64, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (
-            self[positions[0]],
-            self[positions[1]],
-            self[positions[2]],
-            self[positions[3]],
-            self[positions[4]],
-            self[positions[5]],
-            self[positions[6]],
-            self[positions[7]],
-            self[positions[8]],
-            self[positions[9]],
-            self[positions[10]],
-            self[positions[11]],
-            self[positions[12]],
-            self[positions[13]],
-            self[positions[14]],
-            self[positions[15]],
-            self[positions[16]],
-            self[positions[17]],
-            self[positions[18]],
-            self[positions[19]],
-            self[positions[20]],
-            self[positions[21]],
-            self[positions[22]],
-            self[positions[23]],
-            self[positions[24]],
-            self[positions[25]],
-            self[positions[26]],
-            self[positions[27]],
-            self[positions[28]],
-            self[positions[29]],
-            self[positions[30]],
-            self[positions[31]],
-            self[positions[32]],
-            self[positions[33]],
-            self[positions[34]],
-            self[positions[35]],
-            self[positions[36]],
-            self[positions[37]],
-            self[positions[38]],
-            self[positions[39]],
-            self[positions[40]],
-            self[positions[41]],
-            self[positions[42]],
-            self[positions[43]],
-            self[positions[44]],
-            self[positions[45]],
-            self[positions[46]],
-            self[positions[47]],
-            self[positions[48]],
-            self[positions[49]],
-            self[positions[50]],
-            self[positions[51]],
-            self[positions[52]],
-            self[positions[53]],
-            self[positions[54]],
-            self[positions[55]],
-            self[positions[56]],
-            self[positions[57]],
-            self[positions[58]],
-            self[positions[59]],
-            self[positions[60]],
-            self[positions[61]],
-            self[positions[62]],
-            self[positions[63]]
-        )) {
-            $0.load(as: UInt64.self)
-        }
+        return withUnsafeBytes(of: self, { b in
+            return withUnsafeBytes(of: (
+                b[positions[0]],
+                b[positions[1]],
+                b[positions[2]],
+                b[positions[3]],
+                b[positions[4]],
+                b[positions[5]],
+                b[positions[6]],
+                b[positions[7]]
+            )) {
+                $0.load(as: UInt64.self)
+            }
+        })
     }
 }

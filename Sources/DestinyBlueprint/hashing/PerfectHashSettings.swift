@@ -2,8 +2,6 @@
 /// Configurable settings that change how perfect hashing behaves.
 public struct PerfectHashSettings {
     /// Number of route path characters to try generating perfect hashes from.
-    /// 
-    /// - Warning: Needs to be a power of 2 (2, 4, 8, 16, 32, 64).
     public let maxBytes:[Int]
 
     /// Route paths that don't require exact matching to respond.
@@ -23,7 +21,7 @@ public struct PerfectHashSettings {
 
     public init(
         enabled: Bool = true,
-        maxBytes: [Int] = [2, 4, 8, 16, 32, 64],
+        maxBytes: [Int] = [1, 2, 3, 4, 5, 6, 7, 8],
         requireExactPaths: Bool = true,
         relaxedRoutePaths: Set<String> = []
     ) {

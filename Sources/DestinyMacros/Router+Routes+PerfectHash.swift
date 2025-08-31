@@ -39,16 +39,20 @@ extension RouterStorage {
             memberBlock: .init(members: .init())
         )
 
+        let reservedCapacity = staticRoutes.count + dynamicRoutes.count
         var routePaths = [String]()
         var routeResponders = [String]()
         var literalRouteResponders = [String]()
+        routePaths.reserveCapacity(reservedCapacity)
+        routeResponders.reserveCapacity(reservedCapacity)
+        literalRouteResponders.reserveCapacity(reservedCapacity)
 
         appendStaticRoutes(
             context: context,
             middleware: staticMiddleware,
             isCaseSensitive: caseSensitive,
             routes: staticRoutes,
-            routePaths: &routePaths,
+            literalRoutePaths: &routePaths,
             routeResponders: &routeResponders,
             literalRouteResponders: &literalRouteResponders
         )
@@ -56,7 +60,7 @@ extension RouterStorage {
             context: context,
             isCaseSensitive: caseSensitive,
             routes: dynamicRoutes,
-            routePaths: &routePaths,
+            literalRoutePaths: &routePaths,
             routeResponders: &routeResponders,
             literalRouteResponders: &literalRouteResponders
         )
@@ -86,29 +90,29 @@ extension RouterStorage {
         middleware: [CompiledStaticMiddleware],
         isCaseSensitive: Bool,
         routes: [(StaticRoute, FunctionCallExprSyntax)],
-        routePaths: inout [String],
+        literalRoutePaths: inout [String],
         routeResponders: inout [String],
         literalRouteResponders: inout [String]
     ) {
-        let getRouteStartLine:(StaticRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
+        let routeStartLine:(StaticRoute) -> String = isCaseSensitive ? { $0.startLine } : { $0.startLine.lowercased() }
         let getResponderValue:(RouterStorage.Route) -> String = {
             let responder = $0.responder
             return "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \(responder)\n)"
         }
         for (route, function) in routes {
             do throws(HTTPMessageError) {
-                var string = getRouteStartLine(route)
-                if registeredPaths.contains(string) {
-                    Router.routePathAlreadyRegistered(context: context, node: function, string)
+                var startLine = routeStartLine(route)
+                if registeredPaths.contains(startLine) {
+                    Router.routePathAlreadyRegistered(context: context, node: function, startLine)
                 } else {
-                    registeredPaths.insert(string)
-                    let buffer = SIMD64<UInt8>(&string)
+                    registeredPaths.insert(startLine)
+                    let buffer = SIMD64<UInt8>(&startLine)
                     let httpResponse = route.response(context: context, function: function, middleware: middleware) as! HTTPResponseMessage // TODO: fix
                     if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                         if let responder = try responseBodyResponderDebugDescription(body: route.body, response: httpResponse) {
-                            routePaths.append("\(string)")
+                            literalRoutePaths.append("\(startLine)")
                             literalRouteResponders.append(responder)
-                            routeResponders.append(getResponderValue(.init(startLine: string, buffer: buffer, responder: responder)))
+                            routeResponders.append(getResponderValue(.init(startLine: startLine, buffer: buffer, responder: responder)))
                             if isCaseSensitive {
                                 if let index = staticCaseSensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
                                     staticCaseSensitiveRoutes.remove(at: index)
@@ -127,7 +131,7 @@ extension RouterStorage {
                             conditionalResponders: &conditionalResponders,
                             route: route,
                             function: function,
-                            string: string,
+                            string: startLine,
                             buffer: buffer,
                             httpResponse: httpResponse
                         )
@@ -148,26 +152,22 @@ extension RouterStorage {
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         routes: [(DynamicRoute, FunctionCallExprSyntax)],
-        routePaths: inout [String],
+        literalRoutePaths: inout [String],
         routeResponders: inout [String],
         literalRouteResponders: inout [String]
     ) {
-        let getRouteStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
+        let routeStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
         for (route, function) in routes {
-            var paths = route.path
-            guard paths.first(where: { !$0.isLiteral }) == nil else { continue }
-
-            paths.insert(.literal(route.method.rawNameString() + " "), at: 0)
-            let routePath = "\(paths.map({ $0.value }).joined(separator: "/")) \(route.version.string)"
-            let string = getRouteStartLine(route)
-            if registeredPaths.contains(string) {
-                Router.routePathAlreadyRegistered(context: context, node: function, string)
+            guard route.path.firstIndex(where: { !$0.isLiteral }) == nil else { continue }
+            let startLine = routeStartLine(route)
+            if registeredPaths.contains(startLine) {
+                Router.routePathAlreadyRegistered(context: context, node: function, startLine)
             } else {
-                registeredPaths.insert(string)
+                registeredPaths.insert(startLine)
                 let (responder, _) = getResponderValue(
-                    route: .init(startLine: string, buffer: .init(string), responder: route.responderDebugDescription)
+                    route: .init(startLine: startLine, buffer: .init(startLine), responder: route.responderDebugDescription)
                 )
-                routePaths.append(routePath)
+                literalRoutePaths.append(route.startLine())
                 literalRouteResponders.append(responder)
 
                 if isCaseSensitive {
@@ -193,28 +193,36 @@ extension RouterStorage {
         enumDecl: inout StructDeclSyntax,
         literalRouteResponders: [String]
     ) {
-        let routePathSIMDs:[SIMD64<UInt8>] = routePaths.compactMap({
-            let utf8 = $0.utf8
-            var simd = SIMD64<UInt8>.zero
-            guard utf8.count > 0 else { return nil }
-            for i in 0..<min(simd.scalarCount, utf8.count) {
-                simd[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
-            }
-            return simd
-        })
-        let routePathCaseNames = routePaths.map({ "`\($0)`" })
-
+        var routePathCaseNames = [String]()
+        var routePathSIMDs = [SIMD64<UInt8>]()
         var staticResponders = [VariableDeclSyntax]()
         var staticSIMDs = [VariableDeclSyntax]()
-        for index in 0..<routePaths.count {
+
+        routePathCaseNames.reserveCapacity(routePaths.count)
+        routePathSIMDs.reserveCapacity(routePaths.count)
+        staticResponders.reserveCapacity(routePaths.count)
+        staticSIMDs.reserveCapacity(routePaths.count)
+        for (index, routePath) in routePaths.enumerated() {
+            routePathCaseNames.append("`\(routePath)`")
+
+            let utf8 = routePath.utf8
+            var simd = SIMD64<UInt8>.zero
+            let utf8Count = utf8.count
+            if utf8Count > 0 {
+                for i in 0..<min(simd.scalarCount, utf8Count) {
+                    simd[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
+                }
+            }
+            routePathSIMDs.append(simd)
+
             let staticResponder = try! VariableDeclSyntax.init("""
-            /// Request: `\(raw: routePaths[index])`
+            /// Request: `\(raw: routePath)`
             \(raw: visibility)static let responder\(raw: index) = \(raw: literalRouteResponders[index])
             """)
             staticResponders.append(staticResponder)
 
             let staticSIMD = try! VariableDeclSyntax.init("""
-            \(raw: visibility)static let simd\(raw: index) = \(raw: routePathSIMDs[index])
+            \(raw: visibility)static let simd\(raw: index) = \(raw: simd)
             """)
             staticSIMDs.append(staticSIMD)
         }
@@ -234,23 +242,82 @@ extension RouterStorage {
         }
         """)
         var routeConstantsDecl = try! EnumDeclSyntax.init("""
-        \(raw: visibility)enum Route: UInt16 {
+        \(raw: visibility)enum Route: UInt16 { // \(raw: routePaths.count)
         }
         """)
         for caseName in routePathCaseNames {
             routeConstantsDecl.memberBlock.members.append(.init(decl: try! EnumCaseDeclSyntax.init("case \(raw: caseName)")))
         }
         routeConstantsDecl.memberBlock.members.append(.init(decl: routeResponderDecl))
-        routeConstantsDecl.memberBlock.members.append(contentsOf: staticResponders.map({ MemberBlockItemSyntax.init(decl: $0) }))
+        routeConstantsDecl.memberBlock.members.append(contentsOf: staticResponders.map({ .init(decl: $0) }))
         enumDecl.memberBlock.members.append(.init(decl: routeConstantsDecl))
 
         var foundPerfectHash = false
         if perfectHashSettings.enabled {
             //let relaxedRoutePaths = routePaths.filter({ perfectHashSettings.relaxedRoutePaths.contains($0) }) // TODO: support
-            for i in perfectHashSettings.maxBytes {
+            let perfectHashableItems:[PerfectHashableItem<SIMD64<UInt8>>] = routePaths.enumerated().map({
+                return .init($1, routePathSIMDs[$0])
+            })
+            let perfectHashPositions = PerfectHashGenerator.findPerfectHashPositions(routes: perfectHashableItems, maxBytes: perfectHashSettings.maxBytes.max()!)
+            let hashSeeds:InlineArray<_, UInt64> = [
+                0x9E3779B97F4A7C15,
+                0xC6A4A7935D83A9C3,
+                0x5555555555555555,
+                0x1234567812345678,
+                0x1F1F1F1F1F1F1F1F,
+                0xFFFFFFFFFFFFFFFF,
+                0x3141592653589793,
+                0xDEADBEEFDEADBEEF,
+                0xBADC0FFEBADC0FFE,
+                0xCAFEBABECAFEBABE,
+                0x0A0A0A0A0A0A0A0A,
+                0x8000000080000000,
+                0x1BADB0021BADB002,
+                0xF00DF00DF00DF00D,
+                0xBEAFBEAFBEAFBEAF,
+                0x5A5A5A5A5A5A5A5A,
+                0x8BADF00D8BADF00D,
+                0xDEADD00DDEADD00D,
+                0x1234ABCD1234ABCD,
+                0x7F7F7F7F7F7F7F7F,
+                0x2B2B2B2B2B2B2B2B,
+                0x1E1E1E1E1E1E1E1E,
+                0xA5A5A5A5A5A5A5A5,
+                0x6C6C6C6C6C6C6C6C,
+                0xF1F1F1F1F1F1F1F1,
+                0x3C3C3C3C3C3C3C3C,
+                0x8C8C8C8C8C8C8C8C,
+                0xFEEDFACEFEEDFACE,
+                0x1234123412341234,
+                0x4567456745674567,
+                0x9988776655443322,
+                0xCDCDCDCDCDCDCDCD,
+                0x1111111111111111,
+                0x9999999999999999,
+                0xDEEDDEEDDEEDDEED,
+                0xFEEDBEEFFEEDBEEF,
+                0xABCDEABCABCDEAB,
+                0x5B5B5B5B5B5B5B5B,
+                0x8001C8001C8001C8,
+                0xD9D9D9D9D9D9D9D9,
+                0x1112222333445555,
+                0x9C9C9C9C9C9C9C9C,
+                0xA8A8A8A8A8A8A8A8,
+                0xE1E1E1E1E1E1E1E1,
+                0x5D5D5D5D5D5D5D5D,
+                0x4F4F4F4F4F4F4F4F,
+                0xBABABABABABABABA,
+                0x6E6E6E6E6E6E6E6E,
+                0x7D7D7D7D7D7D7D7D,
+                0x9F9F9F9F9F9F9F9F
+            ]
+            for hashBytes in perfectHashSettings.maxBytes {
                 if let perfectHashDecls = matchRoutePerfectHash(
                     routePaths: routePaths,
-                    hashMaxBytes: i,
+                    routePathSIMDs: perfectHashableItems,
+                    perfectHashPositions: perfectHashPositions,
+                    seeds: hashSeeds,
+                    hashMaxBytes: hashBytes,
                     requireExactPaths: perfectHashSettings.requireExactPaths
                 ) {
                     enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
@@ -288,32 +355,29 @@ extension RouterStorage {
 
 // MARK: Match route
 extension RouterStorage {
-    private func matchRoutePerfectHash(
+    private func matchRoutePerfectHash<let count: Int>(
         routePaths: [String],
+        routePathSIMDs: [PerfectHashableItem<SIMD64<UInt8>>],
+        perfectHashPositions: InlineArray<64, Int>,
+        seeds: InlineArray<count, UInt64>,
         hashMaxBytes: Int,
         requireExactPaths: Bool
     ) -> [any DeclSyntaxProtocol]? {
-        let routePathSIMDs:[PerfectHashableItem<SIMD64<UInt8>>] = routePaths.compactMap({
-            let utf8 = $0.utf8
-            var simd = SIMD64<UInt8>.zero
-            guard utf8.count > 0 else { return nil }
-            for i in 0..<min(simd.scalarCount, utf8.count) {
-                simd[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
-            }
-            return .init($0, simd)
-        })
-
-        let perfectHashGenerator = PerfectHashGenerator(routes: routePathSIMDs, maxBytes: hashMaxBytes)
+        let perfectHashGenerator = PerfectHashGenerator(
+            routes: routePathSIMDs,
+            maxBytes: hashMaxBytes,
+            positions: perfectHashPositions
+        )
         var candidate:HashCandidate? = nil
         var hashTable:[UInt8]? = nil
         var verificationKeys:[UInt64]? = nil
         var efficiency:Double = 0
-        if let result = perfectHashGenerator.findMinimalPerfectHash() {
+        if let result = perfectHashGenerator.findMinimalPerfectHash(seeds: seeds) {
             candidate = result.candidate
             hashTable = result.result.hashTable
             verificationKeys = result.result.verificationKeys
             efficiency = 100
-        } else if let result = perfectHashGenerator.generatePerfectHash() {
+        } else if let result = perfectHashGenerator.generatePerfectHash(seeds: seeds) {
             candidate = result.candidate
             hashTable = result.hashTable
             verificationKeys = result.verificationKeys
@@ -367,7 +431,7 @@ extension RouterStorage {
             _ simd: SIMD64<UInt8>
         ) -> (key: UInt64, hash: Int) {
             let key = extractKey(simd)
-            return (key, Int(((key &* \(raw: candidate.multiplier)) >> \(raw: candidate.shift)) & \(raw: candidate.mask)))
+            return (key, Int(((key &* \(raw: candidate.seed)) >> \(raw: candidate.shift)) & \(raw: candidate.mask)))
         }
         """)
 

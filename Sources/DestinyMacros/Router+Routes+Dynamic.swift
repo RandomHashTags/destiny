@@ -56,7 +56,7 @@ extension RouterStorage {
                     let (_, responder) = getResponderValue(
                         route: .init(startLine: string, buffer: .init(string), responder: route.responderDebugDescription)
                     )
-                    parameterizedByPathCount[route.path.count].append("\n// \(string)\n" + responder)
+                    parameterizedByPathCount[route.path.count].append("\n// \(string)\n\(responder)")
                 } else {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
                 }
@@ -135,7 +135,7 @@ extension RouterStorage {
                 """
             }
 
-            var memberBlock = MemberBlockSyntax(members: MemberBlockItemListSyntax())
+            var memberBlock = MemberBlockSyntax(members: .init())
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "let path:InlineArray<\(paths.count), PathComponent> = \(paths)")))
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "let _defaultResponse = \(defaultResponse)")))
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "@inlinable \(visibility)var pathComponentsCount: Int { \(paths.count) }")))

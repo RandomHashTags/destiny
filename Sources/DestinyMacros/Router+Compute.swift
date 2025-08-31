@@ -113,22 +113,10 @@ extension Router {
 
         let perfectHashCaseSensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, caseSensitive: true)
         let perfectHashCaseInsensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, caseSensitive: false)
-        var caseSensitiveResponders:String? = nil
-        var caseInsensitiveResponders:String? = nil
-        var dynamicCaseSensitiveResponder:String? = nil
-        var dynamicCaseInsensitiveResponder:String? = nil
-        if let s = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: true) {
-            caseSensitiveResponders = s
-        }
-        if let s = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: false) {
-            caseInsensitiveResponders = s
-        }
-        if let s = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: true) {
-            dynamicCaseSensitiveResponder = s
-        }
-        if let s = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: false) {
-            dynamicCaseInsensitiveResponder = s
-        }
+        let caseSensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: true)
+        let caseInsensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: false)
+        let dynamicCaseSensitiveResponder = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: true)
+        let dynamicCaseInsensitiveResponder = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: false)
 
         let dynamicMiddlewareArray = storage.dynamicMiddlewareArray(mutable: false)
         let compiled = CompiledRouterStorage(

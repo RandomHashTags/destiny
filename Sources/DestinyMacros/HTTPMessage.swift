@@ -17,23 +17,21 @@ enum HTTPMessage: DeclarationMacro {
         var charset:Charset? = nil
         var cookies = [any HTTPCookieProtocol]() // TODO: fix
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
-            if let key = child.label?.text {
-                switch key {
-                case "version":
-                    version = HTTPVersion.parse(context: context, expr: child.expression) ?? version
-                case "status":
-                    status = HTTPResponseStatus.parseCode(expr: child.expression) ?? status
-                case "headers":
-                    headers = HTTPRequestHeader.parse(context: context, child.expression)
-                case "body":
-                    body = ResponseBody.parse(context: context, expr: child.expression)
-                case "contentType":
-                    contentType = HTTPMediaType.parse(context: context, expr: child.expression) ?? contentType
-                case "charset":
-                    charset = Charset(expr: child.expression)
-                default:
-                    context.diagnose(DiagnosticMsg.unhandled(node: child))
-                }
+            switch child.label?.text {
+            case "version":
+                version = HTTPVersion.parse(context: context, expr: child.expression) ?? version
+            case "status":
+                status = HTTPResponseStatus.parseCode(expr: child.expression) ?? status
+            case "headers":
+                headers = HTTPRequestHeader.parse(context: context, child.expression)
+            case "body":
+                body = ResponseBody.parse(context: context, expr: child.expression)
+            case "contentType":
+                contentType = HTTPMediaType.parse(context: context, expr: child.expression) ?? contentType
+            case "charset":
+                charset = Charset(expr: child.expression)
+            default:
+                context.diagnose(DiagnosticMsg.unhandled(node: child))
             }
         }
         var response = DestinyDefaults.HTTPResponseMessage(

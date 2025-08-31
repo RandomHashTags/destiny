@@ -1,4 +1,5 @@
 
+/*
 // TODO: move to own repo?
 public struct InlinePerfectHashGenerator<let entriesCount: Int, T: PerfectHashable>: PerfectHashGeneratorProtocol {
 
@@ -93,7 +94,7 @@ extension InlinePerfectHashGenerator {
     public func findPerfectHashFunction() -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: InlineArray<entriesCount, UInt64>)? {
         // try different table sizes (power of 2)
         for maskBits in 1...9 { // 2, 4, 8, 16, 32, 64, 128, 256, 512 slots
-            let tableSize = 1 << maskBits
+            let tableSize:UInt64 = 1 << maskBits
             if tableSize >= entriesCount {
                 // try different shift amounts
                 for shift in (64 - maskBits - 4)...(64 - maskBits) {
@@ -118,7 +119,7 @@ extension InlinePerfectHashGenerator {
     public func tryHashFunction(
         _ candidate: HashCandidate
     ) -> (hashTable: [UInt8], verificationKeys: InlineArray<entriesCount, UInt64>)? {
-        var hashTable = [UInt8](repeating: 255, count: candidate.tableSize) // 255 = empty slot
+        var hashTable = [UInt8](repeating: 255, count: Int(candidate.tableSize)) // 255 = empty slot
         var verificationKeys = InlineArray<entriesCount, UInt64>.init(repeating: 0)
         var usedSlots = Set<Int>()
         usedSlots.reserveCapacity(entriesCount)
@@ -186,7 +187,7 @@ extension InlinePerfectHashGenerator {
                     multiplier: multipliers[indice],
                     shift: shift,
                     maskBits: entriesCount,
-                    tableSize: entriesCount
+                    tableSize: UInt64(entriesCount)
                 )
                 if let result = tryMinimalHashFunction(candidate) {
                     return (candidate, result)
@@ -243,4 +244,4 @@ extension InlinePerfectHashGenerator {
             self.verificationKeys = verificationKeys
         }
     }
-}
+}*/

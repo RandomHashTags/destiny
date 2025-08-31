@@ -41,7 +41,7 @@ extension Router: DeclarationMacro {
         var mutable = true
         var typeAnnotation:String? = nil
         var perfectHashSettings = PerfectHashSettings()
-        for arg in arguments.prefix(2) {
+        for arg in arguments {
             switch arg.label?.text {
             case "visibility":
                 visibility = .init(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "internal") ?? .internal

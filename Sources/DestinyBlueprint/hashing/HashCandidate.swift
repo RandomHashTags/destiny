@@ -1,17 +1,17 @@
 
 public struct HashCandidate: Sendable {
-    public let multiplier:UInt64
+    public let seed:UInt64
     public let shift:Int
     public let maskBits:Int
-    public let tableSize:Int
+    public let tableSize:UInt64
 
     public init(
-        multiplier: UInt64,
+        seed: UInt64,
         shift: Int,
         maskBits: Int,
-        tableSize: Int
+        tableSize: UInt64
     ) {
-        self.multiplier = multiplier
+        self.seed = seed
         self.shift = shift
         self.maskBits = maskBits
         self.tableSize = tableSize
@@ -26,6 +26,6 @@ public struct HashCandidate: Sendable {
     /// - Complexity: O(1).
     @inlinable
     public func hash(_ key: UInt64) -> Int {
-        Int(((key &* multiplier) >> shift) & mask)
+        Int(((key &* seed) >> shift) & mask)
     }
 }
