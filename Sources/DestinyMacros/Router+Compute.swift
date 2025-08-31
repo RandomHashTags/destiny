@@ -8,7 +8,7 @@ extension Router {
     static func compute(
         visibility: RouterVisibility,
         mutable: Bool,
-        perfectHashMaxBytes: [Int],
+        perfectHashSettings: PerfectHashSettings,
         arguments: LabeledExprListSyntax,
         context: some MacroExpansionContext
     ) -> (router: String, structs: [any DeclSyntaxProtocol]) {
@@ -16,7 +16,7 @@ extension Router {
         var errorResponder = ""
         var dynamicNotFoundResponder = "nil"
         var staticNotFoundResponder = ""
-        var storage = RouterStorage(visibility: visibility, perfectHashMaxBytes: perfectHashMaxBytes)
+        var storage = RouterStorage(visibility: visibility, perfectHashSettings: perfectHashSettings)
         for child in arguments {
             if let label = child.label {
                 switch label.text {
@@ -53,7 +53,7 @@ extension Router {
                                 let (decl, groupStorage) = RouteGroup.parse(
                                     context: context,
                                     visibility: visibility,
-                                    perfectHashMaxBytes: perfectHashMaxBytes,
+                                    perfectHashSettings: perfectHashSettings,
                                     version: version,
                                     staticMiddleware: storage.staticMiddleware,
                                     dynamicMiddleware: storage.dynamicMiddleware,
@@ -121,7 +121,7 @@ extension Router {
         )
         var string:String
         if mutable {
-            var mutableStorage = RouterStorage(visibility: visibility, perfectHashMaxBytes: perfectHashMaxBytes)
+            var mutableStorage = RouterStorage(visibility: visibility, perfectHashSettings: perfectHashSettings)
             let mutableRouter = httpRouter(
                 mutable: true,
                 context: context,

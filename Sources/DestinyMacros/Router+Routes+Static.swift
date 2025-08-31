@@ -10,7 +10,6 @@ extension RouterStorage {
     mutating func staticRoutesSyntax(
         mutable: Bool,
         context: some MacroExpansionContext,
-        perfectHashMaxBytes: [Int],
         isCaseSensitive: Bool,
         redirects: [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [CompiledStaticMiddleware],
@@ -110,7 +109,6 @@ extension RouterStorage {
 
         staticConstants(
             context: context,
-            perfectHashMaxBytes: perfectHashMaxBytes,
             isCaseSensitive: isCaseSensitive,
             routePaths: routePaths,
             enumDecl: &enumDecl,
@@ -162,7 +160,6 @@ extension RouterStorage {
 extension RouterStorage {
     private func staticConstants(
         context: some MacroExpansionContext,
-        perfectHashMaxBytes: [Int],
         isCaseSensitive: Bool,
         routePaths: [String],
         enumDecl: inout StructDeclSyntax,
@@ -220,15 +217,22 @@ extension RouterStorage {
         enumDecl.memberBlock.members.append(.init(decl: routeConstantsDecl))
 
         var foundPerfectHash = false
-        for i in perfectHashMaxBytes {
-            if let perfectHashDecls = matchRoutePerfectHash(routePaths: routePaths, hashMaxBytes: i) {
-                enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
-                foundPerfectHash = true
-                break
+        if perfectHashSettings.enabled {
+            //let relaxedRoutePaths = routePaths.filter({ perfectHashSettings.relaxedRoutePaths.contains($0) }) // TODO: support
+            for i in perfectHashSettings.maxBytes {
+                if let perfectHashDecls = matchRoutePerfectHash(
+                    routePaths: routePaths,
+                    hashMaxBytes: i,
+                    requireExactPaths: perfectHashSettings.requireExactPaths
+                ) {
+                    enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
+                    foundPerfectHash = true
+                    break
+                }
             }
         }
         if !foundPerfectHash {
-            enumDecl.memberBlock.members.append(contentsOf: staticSIMDs.map({ MemberBlockItemSyntax.init(decl: $0) }))
+            enumDecl.memberBlock.members.append(contentsOf: staticSIMDs.map({ .init(decl: $0) }))
             enumDecl.memberBlock.members.append(.init(decl: matchRouteFallback(routePaths: routePaths)))
         }
 
@@ -262,7 +266,8 @@ extension RouterStorage {
 extension RouterStorage {
     private func matchRoutePerfectHash(
         routePaths: [String],
-        hashMaxBytes: Int
+        hashMaxBytes: Int,
+        requireExactPaths: Bool
     ) -> [any DeclSyntaxProtocol]? {
         let routePathSIMDs:[PerfectHashableItem<SIMD64<UInt8>>] = routePaths.compactMap({
             let utf8 = $0.utf8
@@ -288,10 +293,21 @@ extension RouterStorage {
             verificationKeys = result.verificationKeys
         }
         guard let candidate, let hashTable, let verificationKeys else { return nil }
+
+        let routeEntryInitializeLogic:(Int, UInt64) -> String
+        if perfectHashSettings.requireExactPaths {
+            routeEntryInitializeLogic = { index, key in
+                return "\(routePathSIMDs[index].simd), \(key)"
+            }
+        } else {
+            routeEntryInitializeLogic = { index, key in
+                return "\(key)"
+            }
+        }
         let staticRoutesTableString = hashTable.map({
             guard $0 != 255 else { return "nil" }
             let key = verificationKeys[Int($0)]
-            return ".init(.`\(routePaths[Int($0)])`, \(key))"
+            return ".init(.`\(routePaths[Int($0)])`, \(routeEntryInitializeLogic(Int($0), key)))"
         }).joined(separator: ",\n")
         let hashTableDecl = VariableDeclSyntax.init(
             modifiers: .init(arrayLiteral: DeclModifierSyntax.init(name: "static")),
@@ -302,7 +318,6 @@ extension RouterStorage {
         )
 
         let positions = perfectHashGenerator.positions
-
         var extractKeyLiteral = ""
         for offset in 0..<hashMaxBytes {
             var s = "UInt64(simd[\(positions[offset])])"
@@ -329,39 +344,8 @@ extension RouterStorage {
         }
         """)
 
-        let routeEntryDecl = try! StructDeclSyntax.init("""
-        struct RouteEntry: Sendable { // found perfect hash with \(raw: hashMaxBytes) bytes
-            let key:UInt64
-            //let simd:SIMD64<UInt8>
-            let route:StaticRoute
-            init(
-                _ route: StaticRoute,
-                //_ simd: SIMD64<UInt8>,
-                _ key: UInt64
-            ) {
-                self.route = route
-                //self.simd = simd
-                self.key = key
-            }
-        }
-        """)
-
-        let additionalCheck = hashTable.count != 1 ? "" : """
-        guard hashIndex < \(hashTable.count) else { return nil }
-        """
-
-        let matchRouteDecl = try! FunctionDeclSyntax.init("""
-        @inlinable @inline(__always)
-        \(raw: visibility)func matchRoute(_ simd: SIMD64<UInt8>) -> StaticRoute? {
-            let (key, hashIndex) = perfectHash(simd)
-            \(raw: additionalCheck)guard let entry = Self.hashTable[hashIndex] else { return nil }
-            if entry.key != key { // hash collision
-                return nil
-            }
-            //return entry.simd == simd ? entry.route : nil
-            return entry.route
-        }
-        """)
+        let routeEntryDecl = matchRoutePerfectHashEntry(hashMaxBytes: hashMaxBytes, requireExactPaths: requireExactPaths)
+        let matchRouteDecl = matchRoutePerfectHashDecl(hashTable: hashTable, hashMaxBytes: hashMaxBytes, requireExactPaths: requireExactPaths)
         return [
             routeEntryDecl,
             hashTableDecl,
@@ -369,6 +353,60 @@ extension RouterStorage {
             perfectHashDecl,
             matchRouteDecl
         ]
+    }
+    private func matchRoutePerfectHashEntry(
+        hashMaxBytes: Int,
+        requireExactPaths: Bool
+    ) -> StructDeclSyntax {
+        let simd:(variable: String, initializer: String, assignment: String)
+        if requireExactPaths {
+            simd = (
+                "let simd:SIMD64<UInt8>\n",
+                "_ simd: SIMD64<UInt8>,\n",
+                "self.simd = simd\n"
+            )
+        } else {
+            simd = ("", "", "")
+        }
+        return try! StructDeclSyntax.init("""
+        struct RouteEntry: Sendable { // found perfect hash with \(raw: hashMaxBytes) bytes
+            let key:UInt64
+            \(raw: simd.variable)let route:StaticRoute
+            init(
+                _ route: StaticRoute,
+                \(raw: simd.initializer)_ key: UInt64
+            ) {
+                self.route = route
+                \(raw: simd.assignment)self.key = key
+            }
+        }
+        """)
+    }
+    private func matchRoutePerfectHashDecl(
+        hashTable: [UInt8],
+        hashMaxBytes: Int,
+        requireExactPaths: Bool
+    ) -> FunctionDeclSyntax {
+        let additionalCheck = hashTable.count != 1 ? "" : """
+        guard hashIndex < \(hashTable.count) else { return nil }
+        """
+        let returnLogic:String
+        if requireExactPaths {
+            returnLogic = "entry.simd == simd ? entry.route : nil"
+        } else {
+            returnLogic = "entry.route"
+        }
+        return try! FunctionDeclSyntax.init("""
+        @inlinable @inline(__always)
+        \(raw: visibility)func matchRoute(_ simd: SIMD64<UInt8>) -> StaticRoute? {
+            let (key, hashIndex) = perfectHash(simd)
+            \(raw: additionalCheck)guard let entry = Self.hashTable[hashIndex] else { return nil }
+            if entry.key != key { // hash collision
+                return nil
+            }
+            return \(raw: returnLogic)
+        }
+        """)
     }
 
     private func matchRouteFallback(

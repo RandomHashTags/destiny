@@ -11,7 +11,14 @@ enum Router: ExpressionMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) throws -> ExprSyntax {
-        return "\(raw: compute(visibility: .internal, mutable: true, perfectHashMaxBytes: [2, 4, 8, 16, 32, 64], arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments, context: context).router)"
+        let computed = compute(
+            visibility: .internal,
+            mutable: true,
+            perfectHashSettings: .init(),
+            arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments,
+            context: context
+        )
+        return "\(raw: computed.router)"
     }
 }
 
@@ -33,7 +40,7 @@ extension Router: DeclarationMacro {
         var visibility = RouterVisibility.internal
         var mutable = true
         var typeAnnotation:String? = nil
-        var perfectHashMaxBytes = [2, 4, 8, 16, 32, 64]
+        var perfectHashSettings = PerfectHashSettings()
         for arg in arguments.prefix(2) {
             switch arg.label?.text {
             case "visibility":
@@ -42,11 +49,8 @@ extension Router: DeclarationMacro {
                 mutable = arg.expression.booleanIsTrue
             case "typeAnnotation":
                 typeAnnotation = arg.expression.stringLiteralString(context: context)
-            case "perfectHashMaxBytes":
-                perfectHashMaxBytes = arg.expression.array?.elements.compactMap({
-                    guard let i = $0.expression.integerLiteral?.literal.text else { return nil }
-                    return Int(i)
-                }) ?? []
+            case "perfectHashSettings":
+                perfectHashSettings = .parse(context: context, expr: arg.expression)
             default:
                 break
             }
@@ -54,7 +58,7 @@ extension Router: DeclarationMacro {
         let (router, structs) = compute(
             visibility: visibility,
             mutable: mutable,
-            perfectHashMaxBytes: perfectHashMaxBytes,
+            perfectHashSettings: perfectHashSettings,
             arguments: arguments,
             context: context
         )
