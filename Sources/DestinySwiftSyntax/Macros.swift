@@ -1,6 +1,6 @@
 
 // MARK: #router
-/// Default macro to create a `HTTPRouter`.
+/// Default macro to create a `HTTPRouterProtocol`.
 ///
 /// - Parameters:
 ///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
