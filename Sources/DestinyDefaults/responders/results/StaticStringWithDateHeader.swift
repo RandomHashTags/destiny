@@ -67,7 +67,7 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
-    ) throws(SocketError) {
+    ) throws(ResponderError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
             HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
@@ -81,7 +81,7 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
             }
         }
         if let err {
-            throw err
+            throw .socketError(err)
         }
         completionHandler()
     }

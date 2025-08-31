@@ -30,6 +30,7 @@ extension PerfectHashSettings {
                 guard let elements = arg.expression.arrayElements(context: context) else { break }
                 relaxedRoutePaths = Set(elements.compactMap({ $0.expression.stringLiteralString(context: context) }))
             default:
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
                 break
             }
         }

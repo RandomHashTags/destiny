@@ -2,7 +2,7 @@
 import Logging
 
 /// Core Error Middleware protocol that handles errors thrown from requests.
-public protocol ErrorResponderProtocol: RouteResponderProtocol, ~Copyable {
+public protocol ErrorResponderProtocol: Sendable, ~Copyable {
     /// Writes a response to a socket.
     func respond(
         router: some HTTPRouterProtocol,

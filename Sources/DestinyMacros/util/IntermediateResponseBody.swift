@@ -45,7 +45,7 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         case .streamWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues(responseString)
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
-            return "StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
+            return "StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
         case .stringWithDateHeader:
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
             return "StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"

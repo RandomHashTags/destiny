@@ -27,13 +27,21 @@ extension Router {
             if let method = targetMethod {
                 route.method = method
             }
-            storage.dynamicRoutes.append((route, function))
+            if route.isCaseSensitive {
+                storage.dynamicCaseSensitiveRoutes.append((route, function))
+            } else {
+                storage.dynamicCaseInsensitiveRoutes.append((route, function))
+            }
         case "StaticRoute":
             var route = StaticRoute.parse(context: context, version: version, function)
             if let method = targetMethod {
                 route.method = method
             }
-            storage.staticRoutes.append((route, function))
+            if route.isCaseSensitive {
+                storage.staticCaseSensitiveRoutes.append((route, function))
+            } else {
+                storage.staticCaseInsensitiveRoutes.append((route, function))
+            }
         case "StaticRedirectionRoute":
             let route = StaticRedirectionRoute.parse(context: context, version: version, function)
             storage.staticRedirects.append((route, function))

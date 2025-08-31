@@ -11,11 +11,11 @@ extension Router {
         perfectHashSettings: PerfectHashSettings,
         arguments: LabeledExprListSyntax,
         context: some MacroExpansionContext
-    ) -> (router: String, structs: [any DeclSyntaxProtocol]) {
+    ) -> (router: CompiledRouterStorage, structs: [any DeclSyntaxProtocol]) {
         var version = HTTPVersion.v1_1
         var errorResponder = ""
-        var dynamicNotFoundResponder = "nil"
-        var staticNotFoundResponder = ""
+        var dynamicNotFoundResponder:String? = nil
+        var staticNotFoundResponder:String? = nil
         var storage = RouterStorage(visibility: visibility, perfectHashSettings: perfectHashSettings)
         for child in arguments {
             if let label = child.label {
@@ -95,10 +95,7 @@ extension Router {
             })
             """
         }
-        if dynamicNotFoundResponder == "nil" {
-            dynamicNotFoundResponder = "Optional<DynamicRouteResponder>.none"
-        }
-        if staticNotFoundResponder.isEmpty {
+        if staticNotFoundResponder == nil || staticNotFoundResponder!.isEmpty {
             staticNotFoundResponder = IntermediateResponseBody(type: .staticStringWithDateHeader, "not found").responderDebugDescription(
                 HTTPResponseMessage(
                     version: version,
@@ -111,88 +108,42 @@ extension Router {
                 )
             )
         }
-        let immutableRouter = httpRouter(
-            mutable: false,
-            context: context,
+
+        let conditionalRespondersString = storage.conditionalRespondersString()
+
+        let perfectHashCaseSensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, caseSensitive: true)
+        let perfectHashCaseInsensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, caseSensitive: false)
+        var caseSensitiveResponders:String? = nil
+        var caseInsensitiveResponders:String? = nil
+        var dynamicCaseSensitiveResponder:String? = nil
+        var dynamicCaseInsensitiveResponder:String? = nil
+        if let s = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: true) {
+            caseSensitiveResponders = s
+        }
+        if let s = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: false) {
+            caseInsensitiveResponders = s
+        }
+        if let s = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: true) {
+            dynamicCaseSensitiveResponder = s
+        }
+        if let s = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: false) {
+            dynamicCaseInsensitiveResponder = s
+        }
+
+        let dynamicMiddlewareArray = storage.dynamicMiddlewareArray(mutable: false)
+        let compiled = CompiledRouterStorage(
+            visibility: visibility,
+            perfectHashCaseSensitiveResponder: perfectHashCaseSensitiveResponders,
+            perfectHashCaseInsensitiveResponder: perfectHashCaseInsensitiveResponders,
+            caseSensitiveResponder: caseSensitiveResponders,
+            caseInsensitiveResponder: caseInsensitiveResponders,
+            dynamicCaseSensitiveResponder: dynamicCaseSensitiveResponder,
+            dynamicCaseInsensitiveResponder: dynamicCaseInsensitiveResponder,
+            dynamicMiddlewareArray: dynamicMiddlewareArray,
             errorResponder: errorResponder,
             dynamicNotFoundResponder: dynamicNotFoundResponder,
-            staticNotFoundResponder: staticNotFoundResponder,
-            storage: &storage
+            staticNotFoundResponder: staticNotFoundResponder
         )
-        var string:String
-        if mutable {
-            var mutableStorage = RouterStorage(visibility: visibility, perfectHashSettings: perfectHashSettings)
-            let mutableRouter = httpRouter(
-                mutable: true,
-                context: context,
-                errorResponder: errorResponder,
-                dynamicNotFoundResponder: dynamicNotFoundResponder,
-                staticNotFoundResponder: staticNotFoundResponder,
-                storage: &mutableStorage
-            )
-            string = "CompiledHTTPRouter("
-            string += "\nimmutable: \(immutableRouter),"
-            string += "\nmutable: \(mutableRouter)"
-            string += "\n)"
-        } else {
-            string = immutableRouter
-        }
-        return (string, storage.generatedDecls)
-    }
-
-    private static func httpRouter(
-        mutable: Bool,
-        context: some MacroExpansionContext,
-        errorResponder: String,
-        dynamicNotFoundResponder: String,
-        staticNotFoundResponder: String,
-        storage: inout RouterStorage
-    ) -> String {
-        var routeGroupsString = storage.routeGroupsString(context: context)
-        let conditionalRespondersString = storage.conditionalRespondersString()
-        var string = "HTTPRouter("
-        string += "\nerrorResponder: \(errorResponder),"
-        string += "\ndynamicNotFoundResponder: \(dynamicNotFoundResponder),"
-        string += "\nstaticNotFoundResponder: \(staticNotFoundResponder),"
-
-        let caseSensitiveResponders = routeResponderStorage(
-            mutable: mutable,
-            staticResponses: storage.staticResponsesSyntax(mutable: mutable, context: context, caseSensitive: true),
-            dynamicResponses: storage.dynamicResponsesString(mutable: mutable, context: context, caseSensitive: true),
-            conditionalResponses: ":"
-        )
-        let caseInsensitiveResponders = routeResponderStorage(
-            mutable: mutable,
-            staticResponses: storage.staticResponsesSyntax(mutable: mutable, context: context, caseSensitive: false),
-            dynamicResponses: storage.dynamicResponsesString(mutable: mutable, context: context, caseSensitive: false),
-            conditionalResponses: conditionalRespondersString
-        )
-        string += "\ncaseSensitiveResponders: \(caseSensitiveResponders),"
-        string += "\ncaseInsensitiveResponders: \(caseInsensitiveResponders),"
-        if mutable {
-            routeGroupsString = "RouteGroupStorage(\n[\(routeGroupsString)]\n)"
-            string += "\nstaticMiddleware: StaticMiddlewareStorage([\(storage.staticMiddlewareString())]),"
-        } else {
-            string.insert(contentsOf: "Immutable", at: string.startIndex)
-            routeGroupsString = "CompiledRouteGroupStorage(\(routeGroupsString.isEmpty ? "()" : routeGroupsString))"
-        }
-        string += "\nopaqueDynamicMiddleware: \(storage.dynamicMiddlewareString(mutable: mutable)),"
-        string += "\nrouteGroups: \(routeGroupsString)"
-        string += "\n)"
-        return string
-    }
-
-    private static func routeResponderStorage(
-        mutable: Bool,
-        staticResponses: String,
-        dynamicResponses: String,
-        conditionalResponses: String
-    ) -> String {
-        var string = "\(mutable ? "" : "Compiled")RouterResponderStorage("
-        string += "\nstatic: \(staticResponses),"
-        string += "\ndynamic: \(dynamicResponses),"
-        string += "\nconditional: [\(conditionalResponses)]"
-        string += "\n)"
-        return string
+        return (compiled, storage.generatedDecls)
     }
 }

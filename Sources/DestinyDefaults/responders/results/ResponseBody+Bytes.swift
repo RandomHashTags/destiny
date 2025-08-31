@@ -45,8 +45,12 @@ extension ResponseBody.Bytes: StaticRouteResponderProtocol {
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
-    ) throws(SocketError) {
-        try value.write(to: socket)
+    ) throws(ResponderError) {
+        do throws(SocketError) {
+            try value.write(to: socket)
+        } catch {
+            throw .socketError(error)
+        }
         completionHandler()
     }
 }

@@ -75,10 +75,12 @@ extension RouteGroup {
             immutableDynamicMiddlewareSyntax = "CompiledDynamicMiddlewareStorage((\n\(dynamicMiddlewareString)\n))"
         }
 
-        for i in routeGroupStorage.staticRoutes.indices {
-            var (route, function) = routeGroupStorage.staticRoutes[i]
+        // TODO: fix
+
+        for i in routeGroupStorage.staticCaseInsensitiveRoutes.indices {
+            var (route, function) = routeGroupStorage.staticCaseInsensitiveRoutes[i]
             route.insertPath(contentsOf: prefixEndpoints, at: 0)
-            routeGroupStorage.staticRoutes[i] = (route, function)
+            routeGroupStorage.staticCaseInsensitiveRoutes[i] = (route, function)
         }
         let staticRespondersSyntax = routeGroupStorage.staticRoutesSyntax(
             mutable: false,
@@ -86,20 +88,20 @@ extension RouteGroup {
             isCaseSensitive: true,
             redirects: routeGroupStorage.staticRedirects,
             middleware: routeGroupStorage.staticMiddleware,
-            routes: routeGroupStorage.staticRoutes
-        )
+            routes: routeGroupStorage.staticCaseInsensitiveRoutes
+        ) ?? "nil"
 
-        for i in routeGroupStorage.dynamicRoutes.indices {
-            var (route, function) = routeGroupStorage.dynamicRoutes[i]
+        for i in routeGroupStorage.dynamicCaseInsensitiveRoutes.indices {
+            var (route, function) = routeGroupStorage.dynamicCaseInsensitiveRoutes[i]
             route.insertPath(contentsOf: pathComponents, at: 0)
-            routeGroupStorage.dynamicRoutes[i] = (route, function)
+            routeGroupStorage.dynamicCaseInsensitiveRoutes[i] = (route, function)
         }
         let dynamicRespondersSyntax = routeGroupStorage.dynamicRoutesSyntax(
             mutable: false,
             context: context,
             isCaseSensitive: true,
-            routes: routeGroupStorage.dynamicRoutes
-        )
+            routes: routeGroupStorage.dynamicCaseInsensitiveRoutes
+        ) ?? "nil"
 
         let compiled = """
         CompiledRouteGroup(

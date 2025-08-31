@@ -40,8 +40,9 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable
-    ) throws(ResponderError) -> Bool {
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
         // TODO: fix
         /*
         var request:any HTTPRequestProtocol = request
@@ -60,6 +61,5 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
                 return true
             }
         }*/
-        return false
     }
 }

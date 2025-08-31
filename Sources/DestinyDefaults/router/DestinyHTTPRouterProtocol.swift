@@ -34,11 +34,7 @@ extension DestinyHTTPRouterProtocol {
         responder: borrowing some StaticRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
-        do throws(SocketError) {
-            try responder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
-        } catch {
-            throw .socketError(error)
-        }
+        try responder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
     }
 
     @inlinable

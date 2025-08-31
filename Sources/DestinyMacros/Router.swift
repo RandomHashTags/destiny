@@ -62,20 +62,25 @@ extension Router: DeclarationMacro {
             arguments: arguments,
             context: context
         )
-        var declaredRouter = try! StructDeclSyntax("\(raw: visibility)struct DeclaredRouter {}")
+        var declaredRouter = StructDeclSyntax(
+            leadingTrivia: "\(visibility)",
+            name: "DeclaredRouter",
+            memberBlock: .init(members: .init())
+        )
         for s in structs {
-            declaredRouter.memberBlock.members.append(MemberBlockItemSyntax(decl: s))
+            declaredRouter.memberBlock.members.append(.init(decl: s))
         }
         
         let routerDecl = VariableDeclSyntax(
-            leadingTrivia: .init(stringLiteral: "// MARK: compiled router\n\(visibility)"),
+            leadingTrivia: .init(stringLiteral: "\(visibility)"),
             modifiers: [DeclModifierSyntax(name: "static")],
             .let,
             name: "router",
             type: typeAnnotation == nil ? nil : .init(type: TypeSyntax.init(stringLiteral: typeAnnotation!)),
-            initializer: .init(value: ExprSyntax(stringLiteral: router))
+            initializer: .init(value: ExprSyntax(stringLiteral: "CompiledHTTPRouter()"))
         )
-        declaredRouter.memberBlock.members.append(MemberBlockItemSyntax(decl: routerDecl))
+        declaredRouter.memberBlock.members.append(.init(decl: routerDecl))
+        declaredRouter.memberBlock.members.append(.init(decl: router.build()))
         return [.init(declaredRouter)]
     }
 }

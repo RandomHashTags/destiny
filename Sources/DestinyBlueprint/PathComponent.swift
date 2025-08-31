@@ -37,6 +37,12 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
         "\"\(slug)\""
     }
 
+    @inlinable
+    public var isLiteral: Bool {
+        guard case .literal = self else { return false }
+        return true
+    }
+
     /// - Returns: Whether or not this component is a parameter.
     @inlinable
     public var isParameter: Bool {

@@ -106,10 +106,8 @@ extension HTTPRouter {
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
-        if try caseSensitiveResponders.respondStatically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
-        } else if try caseInsensitiveResponders.respondStatically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
-        } else if try caseSensitiveResponders.respondDynamically(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
-        } else if try caseInsensitiveResponders.respondDynamically(router: self, socket: socket, request: &request, completionHandler: completionHandler) { // TODO: support
+        if try caseSensitiveResponders.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
+        } else if try caseInsensitiveResponders.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
         } else if try routeGroups.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler) {
         } else {
             return false
@@ -127,11 +125,7 @@ extension HTTPRouter {
             var response = try defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
             try dynamicNotFoundResponder.respond(router: self, socket: socket, request: &request, response: &response, completionHandler: completionHandler)
         } else if let staticNotFoundResponder {
-            do throws(SocketError) {
-                try staticNotFoundResponder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
-            } catch {
-                throw .socketError(error)
-            }
+            try staticNotFoundResponder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
         } else {
             return false
         }

@@ -22,7 +22,7 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
         #if DEBUG
         logger.warning("\(error)")
         #endif
-        do throws(SocketError) {
+        do throws(ResponderError) {
             try logic(error).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
         } catch {
             logger.error("[StaticErrorResponder] Encountered error trying to write response: \(error)")

@@ -1,6 +1,7 @@
 
-import FoundationEssentials
 import DestinySwiftSyntax
+import FoundationEssentials
+import Logging
 
 package final class TestRouter {
     package static let router = DeclaredRouter.router
@@ -50,14 +51,14 @@ extension TestRouter {
             //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
             DynamicCORSMiddleware(),
             DynamicDateMiddleware(),
-            /*DynamicMiddleware({ request, response in
-                guard request.isMethod(HTTPStandardRequestMethod.get) else { return }
+            DynamicMiddleware({ request, response in
+                guard try request.isMethod(HTTPStandardRequestMethod.get) else { return }
                 #if canImport(FoundationEssentials) || canImport(Foundation)
                 response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
                 #else
                 response.setHeader(key: "Womp-Womp", value: String(UInt64.random(in: 0..<UInt64.max)))
                 #endif
-            })*/
+            })
         ],
         redirects: [
             StaticRedirectionRoute(method: HTTPStandardRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])

@@ -78,7 +78,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: AsyncHTTPSocke
                 buffer[4] = .lineFeed
                 try socket.socketWriteBuffer(buffer.baseAddress!, length: 5)
             } catch {
-                print("AsyncHTTPChunkDataStream;\(#function);error trying to send final chunk to stream") // TODO: use logger
+                print("AsyncHTTPChunkDataStream;\(#function);error trying to send final chunk to stream: \(error)") // TODO: use logger
                 err = error
             }
         } catch {

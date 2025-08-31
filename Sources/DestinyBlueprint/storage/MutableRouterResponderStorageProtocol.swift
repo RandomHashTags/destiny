@@ -14,5 +14,4 @@ public protocol MutableRouterResponderStorageProtocol: AnyObject, RouterResponde
         responder: some DynamicRouteResponderProtocol,
         override: Bool
     )
-
 }
