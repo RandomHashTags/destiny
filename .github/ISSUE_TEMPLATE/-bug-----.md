@@ -2,7 +2,7 @@
 name: "[BUG] ..."
 about: Create a bug report to help us fix unintended behavior
 title: "[BUG] ..."
-labels: bug, enhancement
+labels: bug
 assignees: RandomHashTags
 
 ---
