@@ -296,7 +296,7 @@ extension RouterStorage {
                 0x9999999999999999,
                 0xDEEDDEEDDEEDDEED,
                 0xFEEDBEEFFEEDBEEF,
-                0xABCDEABCABCDEAB,
+                0xABCDEABCABCDEABC,
                 0x5B5B5B5B5B5B5B5B,
                 0x8001C8001C8001C8,
                 0xD9D9D9D9D9D9D9D9,
@@ -368,10 +368,10 @@ extension RouterStorage {
             maxBytes: hashMaxBytes,
             positions: perfectHashPositions
         )
-        var candidate:HashCandidate? = nil
-        var hashTable:[UInt8]? = nil
-        var verificationKeys:[UInt64]? = nil
-        var efficiency:Double = 0
+        let candidate:HashCandidate
+        let hashTable:[UInt8]
+        let verificationKeys:[UInt64]
+        let efficiency:Double
         if let result = perfectHashGenerator.findMinimalPerfectHash(seeds: seeds) {
             candidate = result.candidate
             hashTable = result.result.hashTable
@@ -382,8 +382,9 @@ extension RouterStorage {
             hashTable = result.hashTable
             verificationKeys = result.verificationKeys
             efficiency = result.efficiency
+        } else {
+            return nil
         }
-        guard let candidate, let hashTable, let verificationKeys else { return nil }
 
         let routeEntryInitializeLogic:(Int, UInt64) -> String
         if perfectHashSettings.requireExactPaths {
@@ -431,7 +432,7 @@ extension RouterStorage {
             _ simd: SIMD64<UInt8>
         ) -> (key: UInt64, hash: Int) {
             let key = extractKey(simd)
-            return (key, Int(((key &* \(raw: candidate.seed)) >> \(raw: candidate.shift)) & \(raw: candidate.mask)))
+            return (key, Int(((key &* \(raw: candidate.seed)) >> \(raw: candidate.shift)) & \(raw: candidate.mask)) - \(raw: candidate.finalHashSubtraction))
         }
         """)
 
@@ -479,9 +480,6 @@ extension RouterStorage {
         hashMaxBytes: Int,
         requireExactPaths: Bool
     ) -> FunctionDeclSyntax {
-        let additionalCheck = hashTable.count != 1 ? "" : """
-        guard hashIndex < \(hashTable.count) else { return nil }
-        """
         let returnLogic:String
         if requireExactPaths {
             returnLogic = "entry.simd == simd ? entry.route : nil"
@@ -492,7 +490,7 @@ extension RouterStorage {
         @inlinable @inline(__always)
         \(raw: visibility)func matchRoute(_ simd: SIMD64<UInt8>) -> Route? {
             let (key, hashIndex) = perfectHash(simd)
-            \(raw: additionalCheck)guard let entry = Self.hashTable[hashIndex] else { return nil }
+            guard hashIndex < Self.hashTable.count, let entry = Self.hashTable[hashIndex] else { return nil }
             if entry.key != key { // hash collision
                 return nil
             }

@@ -83,23 +83,46 @@ extension PerfectHashGenerator {
     public func findPerfectHashFunction<let count: Int>(
         seeds: InlineArray<count, UInt64>
     ) -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: [UInt64])? {
-        for maskBits in 1...9 { // 2, 4, 8, 16, 32, 64, 128, 256, 512 slots
-            let tableSize:UInt64 = 1 << maskBits
-            if tableSize >= entriesCount {
-                // try different shift amounts
-                for shift in (64 - maskBits - 4)...(64 - maskBits) {
-                    for indice in seeds.indices {
-                        let candidate = HashCandidate(
-                            seed: seeds[indice],
-                            shift: shift,
-                            maskBits: maskBits,
-                            tableSize: tableSize
-                        )
-                        if let (hashTable, verificationKeys) = tryHashFunction(candidate) {
-                            return (candidate, hashTable, verificationKeys)
-                        }
+        var candidate = HashCandidate(
+            seed: .max,
+            shift: .max,
+            mask: .max,
+            tableSize: .max
+        )
+        var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
+        for tableSize in entriesCount...64 {
+            candidate.tableSize = tableSize
+            switch tableSize {
+            case 1, 2:        candidate.mask = UInt64(tableSize)
+            case 3:           candidate.mask = (1 << 2) - 1
+            case 4...7:       candidate.mask = (1 << 3) - 1
+            case 8...15:      candidate.mask = (1 << 4) - 1
+            case 16...31:     candidate.mask = (1 << 5) - 1
+            case 32...63:     candidate.mask = (1 << 6) - 1
+            case 64...127:    candidate.mask = (1 << 7) - 1
+            case 127...254:   candidate.mask = (1 << 8) - 1
+            case 255...511:   candidate.mask = (1 << 9) - 1
+            case 512...1023:  candidate.mask = (1 << 10) - 1
+            case 1024...2047: candidate.mask = (1 << 11) - 1
+            default:          candidate.mask = (1 << 12) - 1
+            }
+            var hashTable = [UInt8](repeating: 255, count: Int(tableSize)) // 255 = empty slot
+            var found = [(HashCandidate, [UInt8], [UInt64])]()
+            for shift in 0...60 {
+                candidate.shift = shift
+                for indice in seeds.indices {
+                    candidate.seed = seeds[indice]
+                    if tryHashFunction(candidate: candidate, hashTable: &hashTable, verificationKeys: &verificationKeys) {
+                        found.append((candidate, [UInt8](hashTable), [UInt64](verificationKeys)))
+                    }
+                    hashTable.withUnsafeMutableBufferPointer {
+                        $0.update(repeating: 255)
                     }
                 }
+            }
+            if !found.isEmpty {
+                //print("PerfectHashGenerator;\(#function);found \(found.count) perfect hash(es) of tableSize \(tableSize)")
+                return found.min(by: { $0.0.tableSize < $1.0.tableSize }) ?? found.randomElement()
             }
         }
         return nil
@@ -107,31 +130,32 @@ extension PerfectHashGenerator {
 
     @inlinable
     public func tryHashFunction(
-        _ candidate: HashCandidate
-    ) -> (hashTable: [UInt8], verificationKeys: [UInt64])? {
-        var hashTable = [UInt8](repeating: 255, count: Int(candidate.tableSize)) // 255 = empty slot
-        var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
-        var usedSlots = Set<Int>()
-        usedSlots.reserveCapacity(entriesCount)
-
+        candidate: HashCandidate,
+        hashTable: inout [UInt8],
+        verificationKeys: inout [UInt64]
+    ) -> Bool {
+        var usedSlots = Set<Int>(minimumCapacity: entriesCount)
         //var assigned = [String](repeating: "", count: candidate.tableSize)
         for i in entries.indices {
             let entry = entries[i]
             let key = entry.key
             let hashSlot = candidate.hash(key)
+            if hashSlot >= candidate.tableSize {
+                return false
+            }
 
             if usedSlots.contains(hashSlot) { // collision
                 #if DEBUG
                 //print("\(#function);collision;candidate=\(candidate);\"\(entry.name)\" collides with \"\(assigned[hashSlot])\"")
                 #endif
-                return nil
+                return false
             }
             hashTable[hashSlot] = UInt8(i)
             verificationKeys[i] = key
             usedSlots.insert(hashSlot)
             //assigned[hashSlot] = entry.name
         }
-        return (hashTable, verificationKeys)
+        return true
     }
 
     @discardableResult
@@ -142,9 +166,8 @@ extension PerfectHashGenerator {
         verificationKeys: [UInt64],
         efficiency: Double
     )? {
-        guard let (candidate, hashTable, verificationKeys) = findPerfectHashFunction(seeds: seeds) else { return nil }
+        guard var (candidate, hashTable, verificationKeys) = findPerfectHashFunction(seeds: seeds) else { return nil }
         // verify it works
-        var allPassed = true
         for i in entries.indices {
             let key = entries[i].key
             let hash = candidate.hash(key)
@@ -153,16 +176,21 @@ extension PerfectHashGenerator {
             if storedIndex == UInt8(i) && storedKey == key {
                 // passed
             } else {
-                allPassed = false
                 return nil
             }
         }
-        if allPassed {
-            let usedSlots = hashTable.count(where: { $0 != 255 })
-            let efficiency = Double(usedSlots) / Double(candidate.tableSize) * 100
-            return (candidate, hashTable, verificationKeys, efficiency)
+        while hashTable.first == 255 {
+            hashTable.removeFirst()
+            candidate.finalHashSubtraction += 1
+            candidate.tableSize -= 1
         }
-        return nil
+        while hashTable.last == 255 {
+            hashTable.removeLast()
+            candidate.tableSize -= 1
+        }
+        let usedSlots = hashTable.count(where: { $0 != 255 })
+        let efficiency = Double(usedSlots) / Double(candidate.tableSize) * 100
+        return (candidate, hashTable, verificationKeys, efficiency)
     }
 }
 
@@ -176,8 +204,8 @@ extension PerfectHashGenerator {
                 let candidate = HashCandidate(
                     seed: seeds[indice],
                     shift: shift,
-                    maskBits: entriesCount,
-                    tableSize: UInt64(entriesCount)
+                    mask: UInt64(1 << entriesCount) - 1,
+                    tableSize: entriesCount
                 )
                 if let result = tryMinimalHashFunction(candidate) {
                     return (candidate, result)

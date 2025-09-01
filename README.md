@@ -97,7 +97,7 @@ To avoid heap allocation and pointer indirection
 
 <summary>Noncopyable types</summary>
 
-To avoid retain/release and ARC traffic
+For better memory management and to avoid retain/release/ARC traffic
 
 </details>
 
@@ -137,12 +137,12 @@ To maximize multi-core performance and support non-blocking operations
 
 <summary>Macros</summary>
 
-Unlocks compile-time optimizations for middleware, routes, route groups and responders
+Unlocks compile-time optimizations for the router, routes, route groups responders, and middleware.
 
-<b>Most compile-time optimizations for optimal runtime performance happens here.</b> This includes:
+<b>Most runtime optimizations come from here.</b> This includes:
 
-- auto generation of optimized enums and structs for middleware, responders, route groups and route storage
-- perfect hashing for static route storage (if possible)
+- auto generation of optimized enums, structs and functions (avoiding classes and existentials)
+- perfect hashing for routes (if enabled & possible)
 
 </details>
 
@@ -198,7 +198,7 @@ For tedious work and easier development
 
 <summary>Minimal Dependencies</summary>
 
-To reduce binary size and simplify development
+To reduce binary size, simplify development and give full control over implementation details to the developer
 
 - no Foundation
 - no SwiftNIO
@@ -259,15 +259,15 @@ coming soon...
 
 ### Static
 
-Initial testing of a basic HTML response shows that this library has the lowest server latency, highest throughput and most consistent timings **when serving the same content**.
+Initial testing of a basic HTML response shows this library has the lowest server latency, highest throughput and most consistent timings **when serving the same content**.
 
 ### Dynamic
 
-Depends on how much dynamic content you add, but initial testing compared to a Static response performs about the same, but usually costs a few microseconds more (~10-50). I am actively researching and testing improvements.
+Depends on how much dynamic content you add; initial testing compared to a Static response performs about the same but usually costs a few microseconds more (~10-50). I am actively researching and testing improvements.
 
 ### Conclusion
 
-This library is the clear leader in reliability, performance and efficiency. Static content offer the best performance, while dynamic content still tops the charts.
+This library is a clear leader in reliability, performance and efficiency. Performance metrics for static **and** dynamic content are better than or comparable to the best networking libraries available (regardless of programming language).
 
 ## Contributing
 

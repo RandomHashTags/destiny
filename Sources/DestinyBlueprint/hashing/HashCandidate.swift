@@ -1,26 +1,22 @@
 
 public struct HashCandidate: Sendable {
-    public let seed:UInt64
-    public let shift:Int
-    public let maskBits:Int
-    public let tableSize:UInt64
+    public var seed:UInt64
+    public var shift:Int
+    public var mask:UInt64
+    public var tableSize:Int
+
+    public var finalHashSubtraction = 0
 
     public init(
         seed: UInt64,
         shift: Int,
-        maskBits: Int,
-        tableSize: UInt64
+        mask: UInt64,
+        tableSize: Int
     ) {
         self.seed = seed
         self.shift = shift
-        self.maskBits = maskBits
+        self.mask = mask
         self.tableSize = tableSize
-    }
-
-    /// - Complexity: O(1).
-    @inlinable
-    public var mask: UInt64 {
-        UInt64((1 << maskBits) - 1)
     }
 
     /// - Complexity: O(1).
