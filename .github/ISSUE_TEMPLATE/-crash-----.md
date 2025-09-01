@@ -2,7 +2,7 @@
 name: "[CRASH] ..."
 about: Create a crash report to help us fix unintended crashes
 title: "[CRASH] ..."
-labels: ''
+labels: crash
 assignees: RandomHashTags
 
 ---
