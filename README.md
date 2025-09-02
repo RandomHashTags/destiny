@@ -59,11 +59,11 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] Metric Middleware
 - [ ] DocC Documentation
 - [ ] Unit testing
-- [ ] SIMD processing for better performance
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
-- [ ] Optimal Memory Layout for stored objects
 - [ ] Route queries
+- [ ] Header parsing
+- [ ] HTTP Pipelining
 - [ ] Embedded support
 
 ### TODO
@@ -78,8 +78,8 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] TLS/SSL
 - [ ] Web Sockets
 - [ ] Native load balancing & clustering
-- [ ] Support custom middleware & routes in default `#router`
-- [ ] Support third-party macro expansions in `#router`
+- [ ] Support custom middleware & routes in the macro
+- [ ] Support third-party macro expansions in the macro
 
 ## Techniques
 
