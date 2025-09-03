@@ -10,14 +10,19 @@ public struct RouterSettings: Sendable {
     /// Access control for the router.
     public var visibility:RouterVisibility
 
+    /// The type used as the request storage. Must conform to `HTTPRequestProtocol`.
+    public var requestType:String
+
     public init(
         copyable: Bool = false,
         mutable: Bool = false,
         visibility: RouterVisibility = .internal,
-        name: String? = "CompiledHTTPRouter"
+        name: String? = "CompiledHTTPRouter",
+        requestType: String = "Request"
     ) {
         self.visibility = visibility
         self.name = name ?? "CompiledHTTPRouter"
+        self.requestType = requestType
         flags = Flags.pack(copyable: copyable, mutable: mutable)
     }
 

@@ -3,7 +3,7 @@ import DestinyBlueprint
 import DestinyDefaults
 
 /// Default storage for request data.
-struct TestRequest: HTTPRequestProtocol {
+struct TestRequest: HTTPRequestProtocol, ~Copyable {
     typealias Buffer = InlineArray<1024, UInt8>
 
     let fileDescriptor:TestFileDescriptor
@@ -14,7 +14,7 @@ struct TestRequest: HTTPRequestProtocol {
 
     init(
         fileDescriptor: TestFileDescriptor,
-        storage: Request.Storage = .init([:])
+        storage: consuming Request.Storage = .init([:])
     ) {
         self.fileDescriptor = fileDescriptor
         self._storage = .init()
@@ -25,19 +25,15 @@ struct TestRequest: HTTPRequestProtocol {
         return .init()
     }()
 
-    lazy var __startLineLowercase: SIMD64<UInt8> = {
-        return _storage._startLine!.lowercased()
-    }()
-
     mutating func forEachPath(
         offset: Int = 0,
         _ yield: (String) -> Void
     ) throws(SocketError) {
         var i = offset
-        if _storage._pathString == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        let path = _storage._path
+        let path = _storage.path()
         while i < path.count {
             yield(path[i])
             i += 1
@@ -45,17 +41,17 @@ struct TestRequest: HTTPRequestProtocol {
     }
 
     mutating func path(at index: Int) throws(SocketError) -> String {
-        if _storage._pathString == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return _storage._path[index]
+        return _storage.path()[index]
     }
 
     mutating func pathCount() throws(SocketError) -> Int {
-        if _storage._pathString == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return _storage._path.count
+        return _storage.path().count
     }
 
     mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
@@ -69,9 +65,14 @@ struct TestRequest: HTTPRequestProtocol {
         headers[key]
     }
 
+    static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> TestRequest {
+        .init(fileDescriptor: .init(fileDescriptor: socket.fileDescriptor))
+    }
+
     func copy() -> Self {
         var c = Self(fileDescriptor: fileDescriptor)
-        c._storage = _storage
+        c._storage = _storage.copy()
+        c.storage = storage.copy()
         return c
     }
 }
@@ -79,59 +80,145 @@ struct TestRequest: HTTPRequestProtocol {
 // MARK: Start line
 extension TestRequest {
     mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage._startLine == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return _storage._startLine!
+        return _storage.startLineSIMD()
     }
 
     mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage._startLine == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return __startLineLowercase
+        return _storage.startLineSIMDLowercased()
     }
 }
 
-// MARK: _Storage
+// MARK: Storage
 extension TestRequest {
+    #if Inlinable
+    @inlinable
+    #endif
     mutating func _loadStorage() throws(SocketError) {
         let (buffer, read) = readBuffer()
         if read <= 0 {
-            throw .malformedRequest("\(#function);read=\(read)")
+            throw .malformedRequest()
         }
-        var startLine = SIMD64<UInt8>()
-        try HTTPStartLine.load(buffer: buffer, { sl in
-            for i in 0..<min(64, sl.endIndex) {
-                startLine[i] = buffer.itemAt(index: i)
+        _storage.startLine = try HTTPStartLine<1024>.load(buffer: buffer)
+
+        /*if let queryStartIndex = startLine.pathQueryStartIndex {
+            print("Request;\(#function);queryStartIndex=\(queryStartIndex);query=")
+            for i in queryStartIndex..<startLine.pathEndIndex {
+                print("\(Character(UnicodeScalar(buffer[i])))")
             }
-            _storage._startLine = startLine
-            _storage._methodString = sl.method.unsafeString()
-            _storage._pathString = sl.path.unsafeString()
-        })
+        }
+        for i in 0..<min(64, startLine.endIndex) {
+            simdStartLine[i] = buffer.itemAt(index: i)
+        }
+        _storage._startLineSIMD = simdStartLine
+        _storage._methodString = startLine.method.unsafeString()
+        _storage._pathString = startLine.path.unsafeString()*/
     }
 
-    struct _Storage: Sendable {
-        var _startLine:SIMD64<UInt8>? = nil
+    @usableFromInline
+    struct _Storage: Sendable, ~Copyable {
+        @usableFromInline
+        var startLine:HTTPStartLine<1024>?
 
-        var _methodString:String? = nil
+        @usableFromInline
+        var _startLineSIMD:SIMD64<UInt8>?
 
-        var _pathString:String? = nil
+        @usableFromInline
+        var _startLineSIMDLowercased:SIMD64<UInt8>?
 
+        @usableFromInline
+        var _methodString:String?
+
+        @usableFromInline
+        var _path:[String]?
+
+        @usableFromInline
         init(
-            //_buffer: Buffer? = nil,
-            _startLine: SIMD64<UInt8>? = nil,
+            startLine: HTTPStartLine<1024>? = nil,
+            _startLineSIMD: SIMD64<UInt8>? = nil,
+            _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
             _methodString: String? = nil,
-            _pathString: String? = nil
+            _path: [String]? = nil
         ) {
-            self._startLine = _startLine
+            self.startLine = startLine
+            self._startLineSIMD = _startLineSIMD
+            self._startLineSIMDLowercased = _startLineSIMDLowercased
             self._methodString = _methodString
-            self._pathString = _pathString
+            self._path = _path
         }
 
-        lazy var _path: [String] = {
-            _pathString?.split(separator: "/").map({ String($0) }) ?? []
-        }()
+        #if Inlinable
+        @inlinable
+        #endif
+        mutating func startLineSIMDLowercased() -> SIMD64<UInt8> {
+            if let _startLineSIMDLowercased {
+                return _startLineSIMDLowercased
+            }
+            let simd = startLineSIMD().lowercased()
+            _startLineSIMDLowercased = simd
+            return simd
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        mutating func startLineSIMD() -> SIMD64<UInt8> {
+            if let _startLineSIMD {
+                return _startLineSIMD
+            }
+            var simdStartLine = SIMD64<UInt8>()
+            startLine!.buffer.withUnsafeBufferPointer {
+                for i in 0..<min(64, startLine!.endIndex) {
+                    simdStartLine[i] = $0[i]
+                }
+            }
+            _startLineSIMD = simdStartLine
+            return simdStartLine
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        mutating func methodString() -> String {
+            if let _methodString {
+                return _methodString
+            }
+            startLine!.method {
+                _methodString = $0.unsafeString()
+            }
+            return _methodString!
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        mutating func path() -> [String] {
+            if let _path {
+                return _path
+            }
+            startLine!.path({
+                _path = $0.unsafeString().split(separator: "/").map({ String($0) })
+            })
+            return _path!
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        func copy() -> Self {
+            Self(
+                startLine: startLine,
+                _startLineSIMD: _startLineSIMD,
+                _startLineSIMDLowercased: _startLineSIMDLowercased,
+                _methodString: _methodString,
+                _path: _path
+            )
+        }
     }
 }
 

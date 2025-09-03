@@ -1,8 +1,9 @@
 
 import DestinyBlueprint
+import VariableLengthArray
 
 /// Default storage for request data.
-public struct Request: HTTPRequestProtocol {
+public struct Request: HTTPRequestProtocol, ~Copyable {
     public typealias Buffer = InlineArray<1024, UInt8>
 
     @usableFromInline
@@ -18,7 +19,7 @@ public struct Request: HTTPRequestProtocol {
     #endif
     public init(
         fileDescriptor: Int32,
-        storage: Storage = .init([:])
+        storage: consuming Storage = .init([:])
     ) {
         self.fileDescriptor = fileDescriptor
         self._storage = .init()
@@ -105,9 +106,19 @@ public struct Request: HTTPRequestProtocol {
     #endif
     public func copy() -> Self {
         var c = Self(fileDescriptor: fileDescriptor)
-        c._storage = _storage
-        c.storage = storage
+        c._storage = _storage.copy()
+        c.storage = storage.copy()
         return c
+    }
+}
+
+// MARK: Load
+extension Request {
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> Self {
+        Self(fileDescriptor: socket.fileDescriptor)
     }
 }
 
@@ -130,13 +141,15 @@ extension Request {
         if _storage.startLine == nil {
             try _loadStorage()
         }
-        return _storage._startLineLowercase
+        return _storage.startLineSIMDLowercased()
     }
 }
 
 // MARK: _Storage
 extension Request {
-    @usableFromInline
+    #if Inlinable
+    @inlinable
+    #endif
     mutating func _loadStorage() throws(SocketError) {
         let (buffer, read) = try readBuffer()
         if read <= 0 {
@@ -159,40 +172,69 @@ extension Request {
     }
 
     @usableFromInline
-    struct _Storage: Sendable {
+    struct _Storage: Sendable, ~Copyable {
         @usableFromInline
-        var startLine:HTTPStartLine<1024>? = nil
+        var startLine:HTTPStartLine<1024>?
 
-        private var _startLineSIMD:SIMD64<UInt8>? = nil
-        private var _methodString:String? = nil
-        private var _path:[String]? = nil
+        @usableFromInline
+        var _startLineSIMD:SIMD64<UInt8>?
+
+        @usableFromInline
+        var _startLineSIMDLowercased:SIMD64<UInt8>?
+
+        @usableFromInline
+        var _methodString:String?
+
+        @usableFromInline
+        var _path:[String]?
 
         @usableFromInline
         init(
-            startLine: HTTPStartLine<1024>? = nil
+            startLine: HTTPStartLine<1024>? = nil,
+            _startLineSIMD: SIMD64<UInt8>? = nil,
+            _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
+            _methodString: String? = nil,
+            _path: [String]? = nil
         ) {
             self.startLine = startLine
+            self._startLineSIMD = _startLineSIMD
+            self._startLineSIMDLowercased = _startLineSIMDLowercased
+            self._methodString = _methodString
+            self._path = _path
         }
 
-        @usableFromInline
-        lazy var _startLineLowercase: SIMD64<UInt8> = {
-            return startLineSIMD().lowercased()
-        }()
+        #if Inlinable
+        @inlinable
+        #endif
+        mutating func startLineSIMDLowercased() -> SIMD64<UInt8> {
+            if let _startLineSIMDLowercased {
+                return _startLineSIMDLowercased
+            }
+            let simd = startLineSIMD().lowercased()
+            _startLineSIMDLowercased = simd
+            return simd
+        }
 
-        @usableFromInline
+        #if Inlinable
+        @inlinable
+        #endif
         mutating func startLineSIMD() -> SIMD64<UInt8> {
             if let _startLineSIMD {
                 return _startLineSIMD
             }
             var simdStartLine = SIMD64<UInt8>()
-            for i in 0..<min(64, startLine!.endIndex) {
-                simdStartLine[i] = startLine!.buffer.itemAt(index: i)
+            startLine!.buffer.withUnsafeBufferPointer {
+                for i in 0..<min(64, startLine!.endIndex) {
+                    simdStartLine[i] = $0[i]
+                }
             }
             _startLineSIMD = simdStartLine
             return simdStartLine
         }
 
-        @usableFromInline
+        #if Inlinable
+        @inlinable
+        #endif
         mutating func methodString() -> String {
             if let _methodString {
                 return _methodString
@@ -203,7 +245,9 @@ extension Request {
             return _methodString!
         }
 
-        @usableFromInline
+        #if Inlinable
+        @inlinable
+        #endif
         mutating func path() -> [String] {
             if let _path {
                 return _path
@@ -212,6 +256,19 @@ extension Request {
                 _path = $0.unsafeString().split(separator: "/").map({ String($0) })
             })
             return _path!
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        func copy() -> Self {
+            Self(
+                startLine: startLine,
+                _startLineSIMD: _startLineSIMD,
+                _startLineSIMDLowercased: _startLineSIMDLowercased,
+                _methodString: _methodString,
+                _path: _path
+            )
         }
     }
 }

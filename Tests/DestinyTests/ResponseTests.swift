@@ -12,9 +12,9 @@ struct ResponseTests {
         let fd = TestFileDescriptor()
         fd.sendString("GET /html HTTP/1.1\r\n")
         let socket = TestHTTPSocket(_fileDescriptor: fd)
-        let responder = TestRouter.DeclaredRouter.CaseSensitiveStaticResponderStorage1.StaticRoute.responder6
-        TestRouter.router.handle(client: fd, socket: socket, completionHandler: {
-            let capacity = TestHTTPSocket.ConcreteRequest.Buffer.count
+        let responder = TestRouter.DeclaredRouter.CaseSensitiveResponderStorage0.Route.responder6
+        TestRouter.DeclaredRouter.router.handle(client: fd, socket: socket, completionHandler: {
+            let capacity = Request.Buffer.count
             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
                 buffer.initialize(repeating: 0)
                 let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)

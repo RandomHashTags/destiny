@@ -198,7 +198,7 @@ extension CompiledRouterStorage {
             completionHandler: @Sendable @escaping () -> Void
         ) {
             do throws(SocketError) {
-                var request = try socket.loadRequest()
+                var request = try \(raw: settings.requestType).load(from: socket)
 
                 #if DEBUG
                 let requestStartLine = try request.startLine().stringSIMD()

@@ -11,13 +11,6 @@ public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
         self.fileDescriptor = fileDescriptor
         Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func loadRequest() -> Request {
-        return Request(fileDescriptor: fileDescriptor)
-    }
 }
 
 // MARK: Reading

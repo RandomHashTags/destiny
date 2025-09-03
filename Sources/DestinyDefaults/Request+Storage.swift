@@ -1,6 +1,6 @@
 
 extension Request {
-    public struct Storage: Sendable {
+    public struct Storage: Sendable, ~Copyable {
         @usableFromInline
         var storage:[ObjectIdentifier:Sendable]
 
@@ -43,6 +43,15 @@ extension Request {
         #endif
         public func contains<Key>(_ key: Key.Type) -> Bool {
             storage.keys.contains(ObjectIdentifier(Key.self))
+        }
+
+        /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
+        /// - Returns: A copy of self.
+        #if Inlinable
+        @inlinable
+        #endif
+        public func copy() -> Self {
+            Self(storage)
         }
     }
 }

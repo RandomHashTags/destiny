@@ -31,8 +31,14 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
 
     mutating func header(forKey key: String) -> String?
 
+    /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
     /// - Returns: A copy of self.
     func copy() -> Self
+
+    /// Loads this request from a socket.
+    static func load(
+        from socket: consuming some HTTPSocketProtocol & ~Copyable
+    ) throws(SocketError) -> Self
 }
 
 /*
