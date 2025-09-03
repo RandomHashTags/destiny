@@ -6,17 +6,23 @@ extension VLArray: InlineArrayProtocol {
         fatalError("not supported")
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func itemAt(index: Int) -> Element {
         self[index]
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func setItemAt(index: Int, element: Element) {
         self[index] = element
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
         return try body(UnsafeBufferPointer.init(storage))
     }
@@ -25,7 +31,9 @@ extension VLArray: InlineArrayProtocol {
 // MARK: init
 extension InlineArrayProtocol {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public init(_ array: some Collection<Element>) {
         self = .init(repeating: array[array.startIndex])
         for i in self.indices {
@@ -35,7 +43,9 @@ extension InlineArrayProtocol {
 }
 extension InlineArrayProtocol where Element == UInt8 {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public init(_ utf8: String.UTF8View) {
         self = .init(repeating: 0)
         for i in self.indices {
@@ -44,7 +54,9 @@ extension InlineArrayProtocol where Element == UInt8 {
     }
 
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public init(_ simd: some SIMD<Element>) {
         self = .init(repeating: 0)
         for i in simd.indices {
@@ -56,7 +68,9 @@ extension InlineArrayProtocol where Element == UInt8 {
 // MARK: split
 extension InlineArrayProtocol where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public func split<let sliceLength: Int>(
         separator: Element,
         defaultValue: Element,
@@ -79,7 +93,9 @@ extension InlineArrayProtocol where Element: Equatable {
         return nil
     }
     @discardableResult
+    #if Inlinable
     @inlinable
+    #endif
     public func split<let sliceLength: Int>(
         separators: Element...,
         defaultValue: Element,
@@ -119,7 +135,9 @@ extension InlineArrayProtocol where Element == UInt8 {
     /// - Parameters:
     ///   - yield: Yields a slice of the result; returns whether or not to continue splitting.
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func split(
         separator: Element,
         defaultValue: Element,
@@ -190,7 +208,10 @@ extension InlineArrayProtocol where Element == UInt8 {
             }
         }
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func splitSIMD64(
         separator: Element,
         separatorSIMD: SIMD64<UInt8>,
@@ -206,7 +227,10 @@ extension InlineArrayProtocol where Element == UInt8 {
             try splitSIMD32(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
         }
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func splitSIMD32(
         separator: Element,
         separatorSIMD: SIMD64<UInt8>,
@@ -223,7 +247,10 @@ extension InlineArrayProtocol where Element == UInt8 {
             try splitSIMD16(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
         }
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func splitSIMD16(
         separator: Element,
         separatorSIMD: SIMD64<UInt8>,
@@ -240,7 +267,10 @@ extension InlineArrayProtocol where Element == UInt8 {
             try splitSIMD8(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
         }
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func splitSIMD8(
         separator: Element,
         separatorSIMD: SIMD64<UInt8>,
@@ -257,7 +287,10 @@ extension InlineArrayProtocol where Element == UInt8 {
             try splitSIMD4(separator: separator, separatorSIMD: separatorSIMD, noSeparatorFoundMask: noSeparatorFoundMask, beginning: &beginning, index: &index, yield: yield)
         }
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func splitSIMD4(
         separator: Element,
         separatorSIMD: SIMD64<UInt8>,
@@ -283,7 +316,10 @@ extension InlineArrayProtocol where Element == UInt8 {
             }
         }
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func yieldInlineVLArray(
         capacity: Int,
         beginning: inout Index,
@@ -315,7 +351,9 @@ extension InlineArrayProtocol where Element == UInt8 {
 // MARK: first index
 extension InlineArrayProtocol where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public func firstIndex(of element: Element, offset: Index = 0) -> Index? {
         var i = startIndex + offset
         while i < endIndex {
@@ -331,7 +369,9 @@ extension InlineArrayProtocol where Element: Equatable {
 // MARK: first slice
 extension InlineArrayProtocol where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public func firstSlice<let sliceLength: Int>(
         separator: Element,
         defaultValue: Element,
@@ -351,7 +391,9 @@ extension InlineArrayProtocol where Element: Equatable {
     }
 
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public func firstSlice(
         separator: Element,
         defaultValue: Element,
@@ -376,7 +418,9 @@ extension InlineArrayProtocol where Element: Equatable {
 // MARK: slice
 extension InlineArrayProtocol {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public func slice<let sliceLength: Int>(
         startIndex: Index,
         endIndex: Index,
@@ -397,7 +441,9 @@ extension InlineArrayProtocol {
 
 // MARK: string
 extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
+    #if Inlinable
     @inlinable
+    #endif
     public func string(offset: Index = 0) -> String {
         var s = ""
         var i = offset
@@ -411,7 +457,10 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
         }
         return s
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public func unsafeString() -> String {
         return self.withUnsafeBufferPointer { pointer in
             return String.init(unsafeUninitializedCapacity: pointer.count, initializingUTF8With: {
@@ -424,31 +473,41 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
 // MARK: SIMD
 extension InlineArrayProtocol where Element: SIMDScalar {
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func simd4(startIndex: Index = 0) -> SIMD4<Element> {
         simd(startIndex: startIndex)
     }
 
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func simd8(startIndex: Index = 0) -> SIMD8<Element> {
         simd(startIndex: startIndex)
     }
 
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func simd16(startIndex: Index = 0) -> SIMD16<Element> {
         simd(startIndex: startIndex)
     }
 
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func simd32(startIndex: Index = 0) -> SIMD32<Element> {
         simd(startIndex: startIndex)
     }
 
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func simd64(startIndex: Index = 0) -> SIMD64<Element> {
         simd(startIndex: startIndex)
     }
@@ -458,7 +517,9 @@ extension InlineArrayProtocol where Element: SIMDScalar {
     /// - Parameters:
     ///   - startIndex: Where the first element is located.
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func simd<T: SIMD>(startIndex: Index = 0) -> T where T.Scalar == Element {
         var result = T()
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
@@ -481,21 +542,27 @@ extension InlineArrayProtocol where Element: SIMDScalar {
 // MARK: Equatable
 extension InlineArrayProtocol where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public static func == (lhs: Self?, rhs: Self) -> Bool {
         guard let lhs else { return false }
         return lhs == rhs
     }
 
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public static func == (lhs: Self, rhs: Self?) -> Bool {
         guard let rhs else { return false }
         return lhs == rhs
     }
 
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in lhs.indices {
             if lhs.itemAt(index: i) != rhs.itemAt(index: i) {
@@ -506,7 +573,9 @@ extension InlineArrayProtocol where Element: Equatable {
     }
 
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public func equals<T: InlineArrayProtocol>(_ array: T) -> Bool where Element == T.Element {
         guard count == array.count else { return false }
         for i in indices {
@@ -519,7 +588,9 @@ extension InlineArrayProtocol where Element: Equatable {
 }
 
 extension InlineArrayProtocol where Element == UInt8 {
+    #if Inlinable
     @inlinable
+    #endif
     public static func == (lhs: Self, rhs: some StringProtocol) -> Bool {
         let stringCount = rhs.count
         if lhs.count == rhs.count {
@@ -543,7 +614,9 @@ extension InlineArrayProtocol where Element == UInt8 {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func stringRepresentationsAreEqual<T: InlineArrayProtocol>(_ array: T) -> Bool where T.Element == Element {
         let minCount = min(count, array.count)
         var i = startIndex
@@ -563,7 +636,9 @@ extension InlineArrayProtocol where Element == UInt8 {
 // MARK: Pattern matching
 extension InlineArrayProtocol where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
+    #if Inlinable
     @inlinable
+    #endif
     public static func ~= (lhs: Self, rhs: Self) -> Bool {
         return lhs == rhs
     }

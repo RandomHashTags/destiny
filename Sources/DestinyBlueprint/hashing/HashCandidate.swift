@@ -20,7 +20,9 @@ public struct HashCandidate: Sendable {
     }
 
     /// - Complexity: O(1).
+    #if Inlinable
     @inlinable
+    #endif
     public func hash(_ key: UInt64) -> Int {
         Int(((key &* seed) >> shift) & mask)
     }

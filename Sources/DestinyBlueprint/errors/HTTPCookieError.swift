@@ -10,7 +10,9 @@ public struct HTTPCookieError: DestinyErrorProtocol {
 }
 
 extension HTTPCookieError {
+    #if Inlinable
     @inlinable
+    #endif
     public static func illegalCharacter(value: String, illegalChar: Character) -> HTTPCookieError {
         .init(identifier: "illegalCharacter", reason: "Cookie value (\"\(value)\") contains an illegal character (\"\(illegalChar)\" aka \(illegalChar.asciiValue ?? 0))")
     }

@@ -48,7 +48,7 @@ let server = HTTPServer<TestRouter.DeclaredRouter.CompiledHTTPRouter, HTTPSocket
     reuseAddress: reuseAddress,
     reusePort: reusePort,
     noTCPDelay: noTCPDelay,
-    router: TestRouter.router,
+    router: TestRouter.DeclaredRouter.router,
     logger: Logger(label: "destiny.http.server"),
     onLoad: serverOnLoad
 )

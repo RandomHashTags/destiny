@@ -7,7 +7,9 @@ public enum HTTPMediaTypeAudio: String, HTTPMediaTypeProtocol {
     case mpeg
     case ogg
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
         case "aac": self = .aac
@@ -18,12 +20,16 @@ public enum HTTPMediaTypeAudio: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "audio"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case .aac: rawValue

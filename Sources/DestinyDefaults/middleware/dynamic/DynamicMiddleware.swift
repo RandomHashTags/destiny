@@ -12,7 +12,9 @@ public struct DynamicMiddleware: ExistentialDynamicMiddlewareProtocol {
         self.handleLogic = handleLogic
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func handle(
         request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol

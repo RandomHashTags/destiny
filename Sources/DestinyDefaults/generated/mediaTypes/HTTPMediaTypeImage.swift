@@ -82,7 +82,9 @@ public enum HTTPMediaTypeImage: String, HTTPMediaTypeProtocol {
     case webp
     case wmf
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
         case "gif": self = .gif
@@ -92,12 +94,16 @@ public enum HTTPMediaTypeImage: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "image"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case .aces: rawValue

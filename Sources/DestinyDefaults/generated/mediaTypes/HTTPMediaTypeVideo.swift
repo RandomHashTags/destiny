@@ -94,7 +94,9 @@ public enum HTTPMediaTypeVideo: String, HTTPMediaTypeProtocol {
     case vp8
     case vp9
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
         case "av1": self = .av1
@@ -104,12 +106,16 @@ public enum HTTPMediaTypeVideo: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "video"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case ._1dInterleavedParityfec: "1d-interleaved-parityfec"

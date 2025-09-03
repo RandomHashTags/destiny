@@ -48,22 +48,30 @@ public struct DynamicRoute: DynamicRouteProtocol {
         self.handler = handler
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var pathCount: Int {
         path.count
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var pathContainsParameters: Bool {
         path.firstIndex(where: { $0.isParameter }) == nil
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func responder() -> DynamicRouteResponder {
         DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func applyStaticMiddleware(_ middleware: [some StaticMiddlewareProtocol]) {
         let path = path.map({ $0.slug }).joined(separator: "/")
         for middleware in middleware {
@@ -79,12 +87,16 @@ public struct DynamicRoute: DynamicRouteProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func startLine() -> String {
         return "\(method.rawNameString()) /\(path.map({ $0.slug }).joined(separator: "/")) \(version.string)" 
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func insertPath(contentsOf newElements: some Collection<PathComponent>, at i: Int) {
         path.insert(contentsOf: newElements, at: i)
     }
@@ -92,7 +104,9 @@ public struct DynamicRoute: DynamicRouteProtocol {
 
 // MARK: Convenience inits
 extension DynamicRoute {
+    #if Inlinable
     @inlinable
+    #endif
     public static func on(
         version: HTTPVersion = .v1_1,
         method: some HTTPRequestMethodProtocol,
@@ -106,7 +120,10 @@ extension DynamicRoute {
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public static func on(
         version: HTTPVersion = .v1_1,
         method: some HTTPRequestMethodProtocol,
@@ -127,7 +144,9 @@ extension DynamicRoute {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: mediaType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func get(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -141,7 +160,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func get(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -155,7 +176,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func head(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -169,7 +192,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func post(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -183,7 +208,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func put(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -197,7 +224,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func delete(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -211,7 +240,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func connect(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -225,7 +256,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func options(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -239,7 +272,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func trace(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
@@ -253,7 +288,9 @@ extension DynamicRoute {
         return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, headers: headers, body: body, handler: handler)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func patch(
         version: HTTPVersion = .v1_1,
         path: [PathComponent],

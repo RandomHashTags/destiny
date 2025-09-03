@@ -1,0 +1,86 @@
+
+/// Configurable settings that change how the auto-generated router behaves.
+public struct RouterSettings: Sendable {
+    /// The name of the router's `struct`.
+    public var name:String
+
+    @usableFromInline
+    var flags:Flags.RawValue
+
+    /// Access control for the router.
+    public var visibility:RouterVisibility
+
+    public init(
+        copyable: Bool = false,
+        mutable: Bool = false,
+        visibility: RouterVisibility = .internal,
+        name: String? = "CompiledHTTPRouter"
+    ) {
+        self.visibility = visibility
+        self.name = name ?? "CompiledHTTPRouter"
+        flags = Flags.pack(copyable: copyable, mutable: mutable)
+    }
+
+    /// Whether or not this router should conform to `Copyable`.
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isCopyable: Bool {
+        get {
+            isFlag(.copyable)
+        }
+        set {
+            setFlag(.copyable, newValue)
+        }
+    }
+
+    /// Whether or not this router is mutable.
+    /// 
+    /// If `true`: you can register middleware, routes, route groups, and route responders during runtime.
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isMutable: Bool {
+        get {
+            isFlag(.mutable)
+        }
+        set {
+            setFlag(.mutable, newValue)
+        }
+    }
+}
+
+// MARK: Flags
+extension RouterSettings {
+    @usableFromInline
+    enum Flags: UInt8 {
+        case copyable = 1
+        case mutable  = 2
+
+        static func pack(
+            copyable: Bool,
+            mutable: Bool
+        ) -> RawValue {
+            (copyable ? Self.copyable.rawValue : 0)
+            | (mutable ? Self.mutable.rawValue : 0)
+        }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    func isFlag(_ flag: Flags) -> Bool {
+        flags & flag.rawValue != 0
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    mutating func setFlag(_ flag: Flags, _ value: Bool) {
+        if value {
+            flags |= flag.rawValue
+        } else {
+            flags &= ~flag.rawValue
+        }
+    }
+}

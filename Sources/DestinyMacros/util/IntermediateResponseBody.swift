@@ -7,7 +7,9 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     public let type:IntermediateResponseBodyType
     public let value:String
 
+    #if Inlinable
     @inlinable
+    #endif
     public init(
         type: IntermediateResponseBodyType,
         _ value: String
@@ -16,44 +18,56 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         self.value = value
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var count: Int {
         value.count
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func string() -> String {
         value
     }
 
-    @inlinable public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {}
+    #if Inlinable
+    @inlinable
+    #endif
+    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
+    }
 
-    public func responderDebugDescription(_ response: some HTTPMessageProtocol) -> String {
+    public func responderDebugDescription(
+        settings: RouterSettings,
+        response: some HTTPMessageProtocol
+    ) -> String {
+        let prefix = settings.isCopyable ? "" : "NonCopyable"
         var responseString = response.intermediateString(escapeLineBreak: true)
         switch type {
         case .bytes:
-            return "ResponseBody.Bytes(\(value))"
+            return "ResponseBody.\(prefix)Bytes(\(value))"
         case .inlineBytes:
-            return "ResponseBody.InlineBytes(\(value))"
+            return "ResponseBody.\(prefix)InlineBytes(\(value))"
         case .macroExpansion:
             responseString.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
-            return "RouteResponses.MacroExpansion(\"\(responseString)\", body: \(value))"
+            return "RouteResponses.\(prefix)MacroExpansion(\"\(responseString)\", body: \(value))"
         case .macroExpansionWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
             postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
-            return "MacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
+            return "\(prefix)MacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
         case .streamWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues(responseString)
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
             return "StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
         case .stringWithDateHeader:
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
-            return "StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"
+            return "\(prefix)StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"
         case .staticString:
-            return "StaticString(\"\(responseString)\(escapedValue())\")"
+            return "\(prefix)StaticString(\"\(responseString)\(escapedValue())\")"
         case .staticStringWithDateHeader:
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
-            return "StaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
+            return "\(prefix)StaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
         }
     }
     func escapedValue() -> String {
@@ -68,7 +82,9 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         return (preDate, postDate)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var hasDateHeader: Bool {
         switch type {
         case .macroExpansionWithDateHeader,
@@ -81,7 +97,9 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var hasContentLength: Bool {
         return type != .streamWithDateHeader
     }

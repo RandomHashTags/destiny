@@ -41,9 +41,7 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
 /// Declares a struct named `DeclaredRouter` where a compiled router and its optimized data is stored.
 /// 
 /// - Parameters:
-///   - visibility: The access visibility of the expanded router and its data.
-///   - mutable: Whether or not the expanded router should also be mutable.
-///   - typeAnnotation: Custom type annotation of the generated router.
+///   - routerSettings: The settings for the router.
 ///   - perfectHashSettings: Perfect Hash settings to use.
 ///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
 ///   - errorResponder: The error responder when an error is thrown from a route.
@@ -55,9 +53,7 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
 ///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(declaration, names: named(DeclaredRouter))
 public macro declareRouter(
-    visibility: RouterVisibility = .internal,
-    mutable: Bool = false,
-    typeAnnotation: String? = nil,
+    routerSettings: RouterSettings = .init(),
     perfectHashSettings: PerfectHashSettings = .init(),
 
     version: HTTPVersion,

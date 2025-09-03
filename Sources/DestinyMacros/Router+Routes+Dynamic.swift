@@ -10,8 +10,9 @@ extension RouterStorage {
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         routes: [(DynamicRoute, FunctionCallExprSyntax)]
-    ) -> String? {
+    ) -> [(path: SIMD64<UInt8>, responder: String)]? {
         guard !routes.isEmpty else { return nil }
+        var literalResponders = [(path: SIMD64<UInt8>, responder: String)]()
         let getRouteStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
         var parameterized = [(DynamicRoute, FunctionCallExprSyntax)]()
         var parameterless = [(DynamicRoute, FunctionCallExprSyntax)]()
@@ -34,9 +35,11 @@ extension RouterStorage {
                 return nil
             } else {
                 registeredPaths.insert(string)
-                let responder = getResponderValue(
-                    route: .init(startLine: string, buffer: .init(string), responder: route.responderDebugDescription)
+                let buffer = SIMD64<UInt8>(string)
+                let (literalResponder, responder) = getResponderValue(
+                    route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription)
                 )
+                literalResponders.append((buffer, literalResponder))
                 return "// \(string)\n\(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
@@ -53,9 +56,11 @@ extension RouterStorage {
                 if !registeredPaths.contains(string) {
                     registeredPaths.insert(string)
                     string = getRouteStartLine(route)
-                    let (_, responder) = getResponderValue(
-                        route: .init(startLine: string, buffer: .init(string), responder: route.responderDebugDescription)
+                    let buffer = SIMD64<UInt8>(string)
+                    let (literalResponder, responder) = getResponderValue(
+                        route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription)
                     )
+                    literalResponders.append((buffer, literalResponder))
                     parameterizedByPathCount[route.path.count].append("\n// \(string)\n\(responder)")
                 } else {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
@@ -70,24 +75,15 @@ extension RouterStorage {
                 return nil
             } else {
                 registeredPaths.insert(string)
-                let (_, responder) = getResponderValue(
-                    route: .init(startLine: string, buffer: .init(string), responder: route.responderDebugDescription)
+                let buffer = SIMD64<UInt8>(string)
+                let (literalResponder, responder) = getResponderValue(
+                    route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription)
                 )
+                literalResponders.append((buffer, literalResponder))
                 return "// \(string)\n\(responder)"
             }
         }).joined(separator: ",\n\n") + "\n"
-
-        var string = "\(mutable ? "" : "Compiled")DynamicResponderStorage(\n"
-        if !mutable {
-            string += "(\n"
-        }
-        string += parameterlessString + (parameterlessString.isEmpty ? "" : ",\n")
-        string += parameterizedString + (parameterizedString.isEmpty ? "" : ",\n")
-        string += catchallString
-        if !mutable {
-            string += "\n)"
-        }
-        return string + "\n)"
+        return literalResponders
     }
 
     mutating func getResponderValue(
@@ -138,16 +134,16 @@ extension RouterStorage {
             var memberBlock = MemberBlockSyntax(members: .init())
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "let path:InlineArray<\(paths.count), PathComponent> = \(paths)")))
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "let _defaultResponse = \(defaultResponse)")))
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "@inlinable \(visibility)var pathComponentsCount: Int { \(paths.count) }")))
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "@inlinable \(visibility)func pathComponent(at index: Int) -> PathComponent { path[index] }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)var pathComponentsCount: Int { \(paths.count) }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)func pathComponent(at index: Int) -> PathComponent { path[index] }")))
             
             let yieldPathComponentParameters = parameterPathIndexes.isEmpty ? "" : "\n" + parameterPathIndexes.map({ "yield(\($0))" }).joined(separator: "\n")
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "@inlinable \(visibility)func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {\(yieldPathComponentParameters) }")))
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "@inlinable \(visibility)func defaultResponse() -> \(dynamicResponseTypeAnnotation) { _defaultResponse }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {\(yieldPathComponentParameters) }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)func defaultResponse() -> \(dynamicResponseTypeAnnotation) { _defaultResponse }")))
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: """
-            @inlinable
+            \(inlinableAnnotation)
             \(visibility)func respond(
-                router: some HTTPRouterProtocol,
+                router: \(routerParameter),
                 socket: some FileDescriptor,
                 request: inout some HTTPRequestProtocol & ~Copyable,
                 response: inout some DynamicResponseProtocol,
@@ -170,7 +166,10 @@ extension RouterStorage {
             let structure = StructDeclSyntax(
                 leadingTrivia: .init(stringLiteral: "// MARK: \(name)\n\(visibility)"),
                 name: .init(stringLiteral: name),
-                inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: .init(type: TypeSyntax(stringLiteral: "DynamicRouteResponderProtocol")))),
+                inheritanceClause: .init(inheritedTypes: .init(arrayLiteral:
+                    .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "NonCopyable")DynamicRouteResponderProtocol"), trailingComma: ","),
+                    .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "~")Copyable"))
+                )),
                 memberBlock: memberBlock
             )
             generatedDecls.append(structure)

@@ -6,8 +6,7 @@ import SwiftSyntaxMacros
 
 extension Router {
     static func compute(
-        visibility: RouterVisibility,
-        mutable: Bool,
+        routerSettings: RouterSettings,
         perfectHashSettings: PerfectHashSettings,
         arguments: LabeledExprListSyntax,
         context: some MacroExpansionContext
@@ -16,7 +15,7 @@ extension Router {
         var errorResponder = ""
         var dynamicNotFoundResponder:String? = nil
         var staticNotFoundResponder:String? = nil
-        var storage = RouterStorage(visibility: visibility, perfectHashSettings: perfectHashSettings)
+        var storage = RouterStorage(settings: routerSettings, perfectHashSettings: perfectHashSettings)
         for child in arguments {
             if let label = child.label {
                 switch label.text {
@@ -52,7 +51,7 @@ extension Router {
                             case "RouteGroup":
                                 let (decl, groupStorage) = RouteGroup.parse(
                                     context: context,
-                                    visibility: visibility,
+                                    settings: routerSettings,
                                     perfectHashSettings: perfectHashSettings,
                                     version: version,
                                     staticMiddleware: storage.staticMiddleware,
@@ -90,14 +89,15 @@ extension Router {
                 charset: nil
             ).string(escapeLineBreak: true)
             errorResponder = """
-            StaticErrorResponder({ error in
+            \(routerSettings.isCopyable ? "" : "NonCopyable")StaticErrorResponder({ error in
                 \"\(defaultStaticErrorResponse)\"
             })
             """
         }
         if staticNotFoundResponder == nil || staticNotFoundResponder!.isEmpty {
             staticNotFoundResponder = IntermediateResponseBody(type: .staticStringWithDateHeader, "not found").responderDebugDescription(
-                HTTPResponseMessage(
+                settings: routerSettings,
+                response: HTTPResponseMessage(
                     version: version,
                     status: HTTPStandardResponseStatus.notFound.code,
                     headers: ["Date":HTTPDateFormat.placeholder],
@@ -115,18 +115,18 @@ extension Router {
         let perfectHashCaseInsensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, caseSensitive: false)
         let caseSensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: true)
         let caseInsensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: false)
-        let dynamicCaseSensitiveResponder = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: true)
-        let dynamicCaseInsensitiveResponder = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: false)
+        let dynamicCaseSensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: true)
+        let dynamicCaseInsensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: false)
 
         let dynamicMiddlewareArray = storage.dynamicMiddlewareArray(mutable: false)
         let compiled = CompiledRouterStorage(
-            visibility: visibility,
+            settings: routerSettings,
             perfectHashCaseSensitiveResponder: perfectHashCaseSensitiveResponders,
             perfectHashCaseInsensitiveResponder: perfectHashCaseInsensitiveResponders,
             caseSensitiveResponder: caseSensitiveResponders,
             caseInsensitiveResponder: caseInsensitiveResponders,
-            dynamicCaseSensitiveResponder: dynamicCaseSensitiveResponder,
-            dynamicCaseInsensitiveResponder: dynamicCaseInsensitiveResponder,
+            dynamicCaseSensitiveResponder: dynamicCaseSensitiveResponders,
+            dynamicCaseInsensitiveResponder: dynamicCaseInsensitiveResponders,
             dynamicMiddlewareArray: dynamicMiddlewareArray,
             errorResponder: errorResponder,
             dynamicNotFoundResponder: dynamicNotFoundResponder,

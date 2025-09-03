@@ -6,7 +6,9 @@ public enum HTTPMediaTypeHaptics: String, HTTPMediaTypeProtocol {
     case hjif
     case hmpg
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
 
@@ -14,12 +16,16 @@ public enum HTTPMediaTypeHaptics: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "haptics"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case .ivs: rawValue

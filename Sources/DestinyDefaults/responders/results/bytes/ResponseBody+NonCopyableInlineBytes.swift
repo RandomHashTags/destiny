@@ -2,20 +2,26 @@
 import DestinyBlueprint
 
 extension ResponseBody {
+    #if Inlinable
     @inlinable
-    public static func inlineBytes<let count: Int>(_ value: InlineArray<count, UInt8>) -> Self.InlineBytes<count> {
-        Self.InlineBytes(.init(value))
+    #endif
+    public static func inlineBytes<let count: Int>(_ value: InlineArray<count, UInt8>) -> Self.NonCopyableInlineBytes<count> {
+        .init(.init(value))
     }
 
-    public struct InlineBytes<let count: Int>: ResponseBodyProtocol, CustomStringConvertible {
+    public struct NonCopyableInlineBytes<let count: Int>: ResponseBodyProtocol, ~Copyable {
         public let value:InlineByteArray<count>
 
+        #if Inlinable
         @inlinable
+        #endif
         public init(_ value: InlineArray<count, UInt8>) {
             self.value = .init(value)
         }
 
+        #if Inlinable
         @inlinable
+        #endif
         public init(_ value: InlineByteArray<count>) {
             self.value = value
         }
@@ -24,17 +30,23 @@ extension ResponseBody {
             "ResponseBody.InlineBytes(\(value))"
         }
 
+        #if Inlinable
         @inlinable
+        #endif
         public var count: Int {
             value.count
         }
         
+        #if Inlinable
         @inlinable
+        #endif
         public func string() -> String {
             value.string()
         }
 
+        #if Inlinable
         @inlinable
+        #endif
         public func write(
             to buffer: UnsafeMutableBufferPointer<UInt8>,
             at index: inout Int
@@ -44,10 +56,12 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {
+extension ResponseBody.NonCopyableInlineBytes: NonCopyableStaticRouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
-        router: some HTTPRouterProtocol,
+        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void

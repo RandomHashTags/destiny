@@ -94,7 +94,9 @@ public enum HTTPMediaTypeText: String, HTTPMediaTypeProtocol {
     case xml
     case xmlExternalParsedEntity
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
         case "ics": self = .calendar
@@ -109,12 +111,16 @@ public enum HTTPMediaTypeText: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "text"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case ._1dInterleavedParityfec: "1d-interleaved-parityfec"

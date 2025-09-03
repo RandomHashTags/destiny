@@ -33,7 +33,9 @@ public protocol SocketProtocol: ~Copyable, Sendable {
 }
 
 extension SocketProtocol where Self: ~Copyable {
+    #if Inlinable
     @inlinable
+    #endif
     public static func noSigPipe(fileDescriptor: Int32) {
         #if canImport(Darwin)
         var no_sig_pipe:Int32 = 0
@@ -42,7 +44,9 @@ extension SocketProtocol where Self: ~Copyable {
     }
 
     /// Writes 2 bytes (carriage return and line feed) to the socket.
+    #if Inlinable
     @inlinable
+    #endif
     public func writeCRLF(
         count: Int = 1
     ) throws(SocketError) {
@@ -66,7 +70,9 @@ extension SocketProtocol where Self: ~Copyable {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func writeString(
         _ string: String
     ) throws(SocketError) {

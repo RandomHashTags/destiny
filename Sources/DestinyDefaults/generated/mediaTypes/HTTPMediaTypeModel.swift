@@ -44,7 +44,9 @@ public enum HTTPMediaTypeModel: String, HTTPMediaTypeProtocol {
     case x3dv
     case x3db
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
 
@@ -52,12 +54,16 @@ public enum HTTPMediaTypeModel: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "model"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case ._3mf: "3mf"

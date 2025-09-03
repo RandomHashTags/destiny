@@ -16,7 +16,9 @@ public enum Charset: String, Sendable {
     case utf32
 
     // MARK: Raw name
+    #if Inlinable
     @inlinable
+    #endif
     public var rawName: String {
         switch self {
         case .any: "*"

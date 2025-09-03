@@ -40,7 +40,9 @@ public struct RouteGroup: RouteGroupProtocol {
 
 // MARK: Respond
 extension RouteGroup {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

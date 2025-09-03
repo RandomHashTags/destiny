@@ -105,7 +105,9 @@ public enum HTTPNonStandardRequestMethod: String, HTTPRequestMethodProtocol {
     case validate
     case verify
 
+    #if Inlinable
     @inlinable
+    #endif
     public func rawNameString() -> String {
         switch self {
         case .announce: "ANNOUNCE"

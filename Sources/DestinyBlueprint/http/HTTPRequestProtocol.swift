@@ -27,7 +27,7 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     /// - Returns: Whether or not the request's method matches the given one.
     mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool
 
-    //@inlinable func header<let keyCount: Int, valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
+    //func header<let keyCount: Int, let valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 
     mutating func header(forKey key: String) -> String?
 
@@ -37,7 +37,9 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
 
 /*
 extension HTTPRequestProtocol where Self: ~Copyable {
+    #if Inlinable
     @inlinable
+    #endif
     public func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
         isMethod(method.rawName)
     }

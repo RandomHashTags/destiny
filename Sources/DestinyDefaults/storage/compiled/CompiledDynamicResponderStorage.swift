@@ -9,7 +9,9 @@ public struct CompiledDynamicResponderStorage<each ConcreteRoute: CompiledDynami
         self.routes = routes
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

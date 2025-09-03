@@ -35,22 +35,33 @@ public struct StringWithDateHeader: ResponseBodyProtocol {
         self.value = value.utf8
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var count: Int {
         preDateValue.count + HTTPDateFormat.InlineArrayResult.count + postDateValue.count + value.count
     }
     
+    #if Inlinable
     @inlinable
+    #endif
     public func string() -> String {
         String(preDateValue) + HTTPDateFormat.placeholder + String(postDateValue) + String(value)
     }
 
-    @inlinable public var hasDateHeader: Bool { true }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasDateHeader: Bool {
+        true
+    }
 }
 
 // MARK: Write to buffer
 extension StringWithDateHeader {
+    #if Inlinable
     @inlinable
+    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
         preDateValue.withContiguousStorageIfAvailable {
@@ -70,7 +81,9 @@ extension StringWithDateHeader {
 
 // MARK: Write to socket
 extension StringWithDateHeader: StaticRouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

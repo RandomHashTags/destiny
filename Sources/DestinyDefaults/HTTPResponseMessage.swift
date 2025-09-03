@@ -67,18 +67,24 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         self.charset = charset
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var version: HTTPVersion {
         get { head.version }
         set { head.version = newValue }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {
         head.status = code
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func string(
         escapeLineBreak: Bool
     ) -> String {
@@ -100,7 +106,9 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         return string
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func intermediateString(escapeLineBreak: Bool) -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
         var string = head.string(suffix: suffix)
@@ -116,17 +124,23 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         return string
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func setHeader(key: String, value: String) {
         head.headers[key] = value
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) {
         head.cookies.append(cookie)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func setBody(_ body: some ResponseBodyProtocol) {
         self.body = body
     }
@@ -134,7 +148,9 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
 
 // MARK: Temp allocation
 extension HTTPResponseMessage {
+    #if Inlinable
     @inlinable
+    #endif
     public func temporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
         for (key, value) in head.headers {
@@ -189,7 +205,9 @@ extension HTTPResponseMessage {
         })
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     func writeString(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, string: String) {
         string.utf8Span.span.withUnsafeBufferPointer {
             $0.forEach {
@@ -200,14 +218,19 @@ extension HTTPResponseMessage {
     }
 
     /// Writes `\r` and `\n` to the buffer.
+    #if Inlinable
     @inlinable
+    #endif
     func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         buffer[i] = .carriageReturn
         i += 1
         buffer[i] = .lineFeed
         i += 1
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         writeInlineArray(to: buffer, index: &i, array: head.version.inlineByteArray)
         buffer[i] = .space
@@ -217,7 +240,10 @@ extension HTTPResponseMessage {
         writeString(to: buffer, index: &i, string: statusString)
         writeCRLF(to: buffer, index: &i)
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: String, value: String) {
         writeString(to: buffer, index: &i, string: key)
         buffer[i] = .colon
@@ -228,7 +254,10 @@ extension HTTPResponseMessage {
         writeString(to: buffer, index: &i, string: value)
         writeCRLF(to: buffer, index: &i)
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: String) {
         let headerKey:InlineByteArray<12> = .init([83, 101, 116, 45, 67, 111, 111, 107, 105, 101, 58, 32]) // "Set-Cookie: "
         writeInlineArray(to: buffer, index: &i, array: headerKey)
@@ -236,7 +265,10 @@ extension HTTPResponseMessage {
         writeString(to: buffer, index: &i, string: cookie)
         writeCRLF(to: buffer, index: &i)
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func writeResult(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         index i: inout Int,
@@ -266,7 +298,10 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, index: &i)
         try body.write(to: buffer, at: &i)
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     func writeInlineArray(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, array: some InlineByteArrayProtocol) {
         for indice in array.indices {
             buffer[i] = array.itemAt(index: indice)
@@ -277,7 +312,9 @@ extension HTTPResponseMessage {
 
 // MARK: Write
 extension HTTPResponseMessage {
+    #if Inlinable
     @inlinable
+    #endif
     public func write(
         to socket: some FileDescriptor
     ) throws(SocketError) {
@@ -302,7 +339,9 @@ extension HTTPResponseMessage {
     ///   - version: The HTTP version of the message.
     ///   - status: The HTTP response status of the message.
     /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
+    #if Inlinable
     @inlinable
+    #endif
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
@@ -318,7 +357,9 @@ extension HTTPResponseMessage {
     ///   - status: HTTP response status of the message.
     ///   - headers: HTTP headers of the message.
     /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
+    #if Inlinable
     @inlinable
+    #endif
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
@@ -340,7 +381,9 @@ extension HTTPResponseMessage {
 
 // MARK: Convenience
 extension HTTPResponseMessage {
+    #if Inlinable
     @inlinable
+    #endif
     public static func create(
         escapeLineBreak: Bool,
         version: HTTPVersion,
@@ -354,7 +397,9 @@ extension HTTPResponseMessage {
         return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func create(
         escapeLineBreak: Bool,
         version: HTTPVersion,
@@ -368,7 +413,9 @@ extension HTTPResponseMessage {
         return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func create(
         suffix: String,
         version: HTTPVersion,
@@ -391,7 +438,9 @@ extension HTTPResponseMessage {
     }
 
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func headers(
         suffix: String,
         headers: some HTTPHeadersProtocol

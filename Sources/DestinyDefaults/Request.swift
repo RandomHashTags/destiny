@@ -13,7 +13,9 @@ public struct Request: HTTPRequestProtocol {
 
     public var storage:Storage
 
+    #if Inlinable
     @inlinable
+    #endif
     public init(
         fileDescriptor: Int32,
         storage: Storage = .init([:])
@@ -43,80 +45,92 @@ public struct Request: HTTPRequestProtocol {
         return .init()
     }()
 
-    @usableFromInline
-    lazy var __startLineLowercase: SIMD64<UInt8> = {
-        return _storage._startLine!.lowercased()
-    }()
-
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func forEachPath(
         offset: Int = 0,
         _ yield: (String) -> Void
     ) throws(SocketError) {
-        var i = offset
-        if _storage._pathString == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        let path = _storage._path
+        let path = _storage.path()
+        var i = offset
         while i < path.count {
             yield(path[i])
             i += 1
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func path(at index: Int) throws(SocketError) -> String {
-        if _storage._pathString == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return _storage._path[index]
+        return _storage.path()[index]
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func pathCount() throws(SocketError) -> Int {
-        if _storage._pathString == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return _storage._path.count
+        return _storage.path().count
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
-        if _storage._methodString == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return method.rawNameString() == _storage._methodString
+        return method.rawNameString() == _storage.methodString()
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func header(forKey key: String) -> String? {
         headers[key]
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func copy() -> Self {
         var c = Self(fileDescriptor: fileDescriptor)
         c._storage = _storage
+        c.storage = storage
         return c
     }
 }
 
 // MARK: Start line
 extension Request {
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage._startLine == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return _storage._startLine!
+        return _storage.startLineSIMD()
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage._startLine == nil {
+        if _storage.startLine == nil {
             try _loadStorage()
         }
-        return __startLineLowercase
+        return _storage._startLineLowercase
     }
 }
 
@@ -128,59 +142,85 @@ extension Request {
         if read <= 0 {
             throw .malformedRequest()
         }
-        var simdStartLine = SIMD64<UInt8>()
-        try HTTPStartLine.load(buffer: buffer, { startLine in
-            /*if let queryStartIndex = startLine.pathQueryStartIndex {
-                print("Request;\(#function);queryStartIndex=\(queryStartIndex);query=")
-                for i in queryStartIndex..<startLine.pathEndIndex {
-                    print("\(Character(UnicodeScalar(buffer[i])))")
-                }
-            }*/
-            for i in 0..<min(64, startLine.endIndex) {
-                simdStartLine[i] = buffer.itemAt(index: i)
+        _storage.startLine = try HTTPStartLine<1024>.load(buffer: buffer)
+
+        /*if let queryStartIndex = startLine.pathQueryStartIndex {
+            print("Request;\(#function);queryStartIndex=\(queryStartIndex);query=")
+            for i in queryStartIndex..<startLine.pathEndIndex {
+                print("\(Character(UnicodeScalar(buffer[i])))")
             }
-            _storage._startLine = simdStartLine
-            _storage._methodString = startLine.method.unsafeString()
-            _storage._pathString = startLine.path.unsafeString()
-        })
+        }
+        for i in 0..<min(64, startLine.endIndex) {
+            simdStartLine[i] = buffer.itemAt(index: i)
+        }
+        _storage._startLineSIMD = simdStartLine
+        _storage._methodString = startLine.method.unsafeString()
+        _storage._pathString = startLine.path.unsafeString()*/
     }
 
     @usableFromInline
     struct _Storage: Sendable {
-        //@usableFromInline
-        //var _buffer:Buffer? = nil
-
         @usableFromInline
-        var _startLine:SIMD64<UInt8>? = nil
+        var startLine:HTTPStartLine<1024>? = nil
 
-        @usableFromInline
-        var _methodString:String? = nil
-
-        @usableFromInline
-        var _pathString:String? = nil
+        private var _startLineSIMD:SIMD64<UInt8>? = nil
+        private var _methodString:String? = nil
+        private var _path:[String]? = nil
 
         @usableFromInline
         init(
-            //_buffer: Buffer? = nil,
-            _startLine: SIMD64<UInt8>? = nil,
-            _methodString: String? = nil,
-            _pathString: String? = nil
+            startLine: HTTPStartLine<1024>? = nil
         ) {
-            self._startLine = _startLine
-            self._methodString = _methodString
-            self._pathString = _pathString
+            self.startLine = startLine
         }
 
         @usableFromInline
-        lazy var _path: [String] = {
-            _pathString?.split(separator: "/").map({ String($0) }) ?? []
+        lazy var _startLineLowercase: SIMD64<UInt8> = {
+            return startLineSIMD().lowercased()
         }()
+
+        @usableFromInline
+        mutating func startLineSIMD() -> SIMD64<UInt8> {
+            if let _startLineSIMD {
+                return _startLineSIMD
+            }
+            var simdStartLine = SIMD64<UInt8>()
+            for i in 0..<min(64, startLine!.endIndex) {
+                simdStartLine[i] = startLine!.buffer.itemAt(index: i)
+            }
+            _startLineSIMD = simdStartLine
+            return simdStartLine
+        }
+
+        @usableFromInline
+        mutating func methodString() -> String {
+            if let _methodString {
+                return _methodString
+            }
+            startLine!.method {
+                _methodString = $0.unsafeString()
+            }
+            return _methodString!
+        }
+
+        @usableFromInline
+        mutating func path() -> [String] {
+            if let _path {
+                return _path
+            }
+            startLine!.path({
+                _path = $0.unsafeString().split(separator: "/").map({ String($0) })
+            })
+            return _path!
+        }
     }
 }
 
 // MARK: Read buffer
 extension Request {
+    #if Inlinable
     @inlinable
+    #endif
     func readBuffer() throws(SocketError) -> (Buffer, Int) {
         var buffer = Buffer.init(repeating: 0)
         var mutableSpan = buffer.mutableSpan
@@ -202,7 +242,9 @@ extension Request {
 
 // MARK: Parse Headers
 extension Request {
+    #if Inlinable
     @inlinable
+    #endif
     public static func parseHeaders(
         buffer: some InlineByteArrayProtocol,
         offset: Int,
@@ -229,7 +271,9 @@ extension Request {
     }
 }
 extension Request {
+    #if Inlinable
     @inlinable
+    #endif
     public static func parseHeaders2(
         buffer: some InlineByteArrayProtocol,
         offset: Int,
@@ -265,7 +309,10 @@ extension Request {
             i += simdCount
         }
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     static func parseHeaders<let maxHeadersCount: Int>(
         carriageReturnSIMD: SIMD64<UInt8>,
         simd: SIMD64<UInt8>,
@@ -294,12 +341,16 @@ extension Request {
             self.values = .init(repeating: .init(startIndex: 0, endIndex: 0))
         }
 
+        #if Inlinable
         @inlinable
+        #endif
         public var indices: Range<Int> {
             0..<count
         }
 
+        #if Inlinable
         @inlinable
+        #endif
         public mutating func append(_ index: HeaderIndex) {
             //guard index.startIndex < index.endIndex, count < maxHeadersCount else { return }
             values[count] = index

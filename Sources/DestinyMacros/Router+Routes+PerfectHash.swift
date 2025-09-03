@@ -32,8 +32,8 @@ extension RouterStorage {
             name: "\(raw: namePrefix)ResponderStorage\(raw: random)",
             inheritanceClause: .init(
                 inheritedTypes: .init(arrayLiteral:
-                    .init(type: TypeSyntax.init(stringLiteral: "ResponderStorageProtocol"), trailingComma: ","),
-                    .init(type: TypeSyntax.init(stringLiteral: "Copyable"))
+                    .init(type: TypeSyntax.init(stringLiteral: "\(settings.isCopyable ? "" : "NonCopyable")ResponderStorageProtocol"), trailingComma: ","),
+                    .init(type: TypeSyntax.init(stringLiteral: "\(settings.isCopyable ? "" : "~")Copyable"))
                 )
             ),
             memberBlock: .init(members: .init())
@@ -228,9 +228,9 @@ extension RouterStorage {
         }
 
         let routeResponderDecl = try! FunctionDeclSyntax.init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
-            router: some HTTPRouterProtocol,
+            router: \(raw: routerParameter),
             socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
             completionHandler: @Sendable @escaping () -> Void
@@ -332,9 +332,9 @@ extension RouterStorage {
         }
 
         let responderDecl = try! FunctionDeclSyntax.init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
-            router: some HTTPRouterProtocol,
+            router: \(raw: routerParameter),
             socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
             completionHandler: @Sendable @escaping () -> Void
@@ -420,14 +420,16 @@ extension RouterStorage {
         }
 
         let extractKeyDecl = try! FunctionDeclSyntax.init("""
-        @inlinable @inline(__always)
+        \(raw: inlinableAnnotation)
+        \(raw: inlineAlwaysAnnotation)
         \(raw: visibility)func extractKey(_ simd: SIMD64<UInt8>) -> UInt64 {
             return \(raw: extractKeyLiteral)
         }
         """)
 
         let perfectHashDecl = try! FunctionDeclSyntax.init("""
-        @inlinable @inline(__always)
+        \(raw: inlinableAnnotation)
+        \(raw: inlineAlwaysAnnotation)
         \(raw: visibility)func perfectHash(
             _ simd: SIMD64<UInt8>
         ) -> (key: UInt64, hash: Int) {
@@ -487,7 +489,8 @@ extension RouterStorage {
             returnLogic = "entry.route"
         }
         return try! FunctionDeclSyntax.init("""
-        @inlinable @inline(__always)
+        \(raw: inlinableAnnotation)
+        \(raw: inlineAlwaysAnnotation)
         \(raw: visibility)func matchRoute(_ simd: SIMD64<UInt8>) -> Route? {
             let (key, hashIndex) = perfectHash(simd)
             guard hashIndex < Self.hashTable.count, let entry = Self.hashTable[hashIndex] else { return nil }
@@ -503,7 +506,7 @@ extension RouterStorage {
         routePaths: [String]
     ) -> FunctionDeclSyntax {
         return try! FunctionDeclSyntax.init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func matchRoute(_ simd: SIMD64<UInt8>) -> Route? {
             switch simd {
             \(raw: (0..<routePaths.count).map({ "case Self.simd\($0): .`\(routePaths[$0])`" }).joined(separator: "\n"))

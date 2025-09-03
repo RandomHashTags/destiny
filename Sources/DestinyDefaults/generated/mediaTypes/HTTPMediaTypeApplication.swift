@@ -70,7 +70,9 @@ public enum HTTPMediaTypeApplication: String, HTTPMediaTypeProtocol {
     case zlib
     case zstd
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
         case "geojson": self = .geoJSON
@@ -102,12 +104,16 @@ public enum HTTPMediaTypeApplication: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "application"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case .calendarJSON: "calendar+json"

@@ -10,5 +10,10 @@ public struct ServiceError: DestinyErrorProtocol {
 }
 
 extension ServiceError {
-    @inlinable public static func serverError(_ error: ServerError) -> Self { Self(identifier: "serverError", reason: "\(error)") }
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func serverError(_ error: ServerError) -> Self {
+        Self(identifier: "serverError", reason: "\(error)")
+    }
 }

@@ -46,7 +46,9 @@ public struct InlinePerfectHashGenerator<let entriesCount: Int, T: PerfectHashab
 
 // MARK: Positions
 extension InlinePerfectHashGenerator {
+    #if Inlinable
     @inlinable
+    #endif
     public static func findPerfectHashPositions(
         routes: InlineArray<entriesCount, PerfectHashableItem<T>>,
         maxBytes: Int
@@ -90,7 +92,9 @@ extension InlinePerfectHashGenerator {
 
 // MARK: Perfect
 extension InlinePerfectHashGenerator {
+    #if Inlinable
     @inlinable
+    #endif
     public func findPerfectHashFunction() -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: InlineArray<entriesCount, UInt64>)? {
         // try different table sizes (power of 2)
         for maskBits in 1...9 { // 2, 4, 8, 16, 32, 64, 128, 256, 512 slots
@@ -115,7 +119,9 @@ extension InlinePerfectHashGenerator {
         return nil
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func tryHashFunction(
         _ candidate: HashCandidate
     ) -> (hashTable: [UInt8], verificationKeys: InlineArray<entriesCount, UInt64>)? {
@@ -145,7 +151,9 @@ extension InlinePerfectHashGenerator {
     }
 
     @discardableResult
+    #if Inlinable
     @inlinable
+    #endif
     public func generatePerfectHash() -> (
         candidate: HashCandidate,
         hashTable: [UInt8],
@@ -179,7 +187,9 @@ extension InlinePerfectHashGenerator {
 // MARK: Minimal
 extension InlinePerfectHashGenerator {
     // for minimal perfect hash, table size = number of entries
+    #if Inlinable
     @inlinable
+    #endif
     public func findMinimalPerfectHash() -> (candidate: HashCandidate, MinimalResult)? {
         for shift in (64 - entriesCount - 4)...(64 - entriesCount) {
             for indice in multipliers.indices {
@@ -197,7 +207,9 @@ extension InlinePerfectHashGenerator {
         return nil
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func tryMinimalHashFunction(
         _ candidate: HashCandidate
     ) -> MinimalResult? {

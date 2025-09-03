@@ -6,7 +6,9 @@ public protocol DynamicMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
 }
 
 extension DynamicMiddlewareProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func load() {
     }
 }

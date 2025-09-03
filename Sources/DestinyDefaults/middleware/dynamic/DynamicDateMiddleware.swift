@@ -6,7 +6,9 @@ public struct DynamicDateMiddleware: OpaqueDynamicMiddlewareProtocol {
     public init() {
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func handle(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol

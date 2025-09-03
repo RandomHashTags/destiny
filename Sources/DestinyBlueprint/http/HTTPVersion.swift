@@ -8,7 +8,9 @@ public enum HTTPVersion: String, Hashable, Sendable {
     case v2_0
     case v3_0
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(token: SIMD8<UInt8>) {
         switch token {
         case SIMD8(72, 84, 84, 80, 47, 48, 46, 57): self = .v0_9 // HTTP/0.9
@@ -21,7 +23,9 @@ public enum HTTPVersion: String, Hashable, Sendable {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(token: InlineArray<8, UInt8>) {
         switch token {
         case [72, 84, 84, 80, 47, 48, 46, 57]: self = .v0_9 // HTTP/0.9
@@ -34,7 +38,9 @@ public enum HTTPVersion: String, Hashable, Sendable {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(token: UInt64) {
         switch token {
         case 5211883372140310073: self = .v0_9
@@ -47,13 +53,17 @@ public enum HTTPVersion: String, Hashable, Sendable {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(_ path: SIMD64<UInt8>) {
         self.init(token: path.lowHalf.lowHalf.lowHalf)
     }
 
     /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
+    #if Inlinable
     @inlinable
+    #endif
     public var string: String {
         switch self {
         case .v0_9: "HTTP/0.9"
@@ -66,7 +76,9 @@ public enum HTTPVersion: String, Hashable, Sendable {
     }
 
     /// `SIMD8<UInt8>` representation of this HTTP Version.
+    #if Inlinable
     @inlinable
+    #endif
     public var simd: SIMD8<UInt8> {
         switch self {
         case .v0_9: SIMD8(72, 84, 84, 80, 47, 48, 46, 57) // HTTP/0.9
@@ -79,7 +91,9 @@ public enum HTTPVersion: String, Hashable, Sendable {
     }
 
     /// `InlineByteArray<8>` representation of this HTTP Version.
+    #if Inlinable
     @inlinable
+    #endif
     public var inlineByteArray: InlineByteArray<8> {
         switch self {
         case .v0_9: .init([72, 84, 84, 80, 47, 48, 46, 57]) // HTTP/0.9

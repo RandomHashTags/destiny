@@ -2,11 +2,16 @@
 import DestinyBlueprint
 
 extension ResponseBody {
+    #if Inlinable
     @inlinable
+    #endif
     public static func streamWithDateHeader<Body: AsyncHTTPSocketWritable>(_ body: Body) -> StreamWithDateHeader<Body> {
         .init(body)
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public static func streamWithDateHeader<Body: HTTPSocketWritable>(
         preDateValue: StaticString,
         postDateValue: StaticString,
@@ -38,31 +43,49 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyP
         self.body = body
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var count: Int {
         preDateValue.count + HTTPDateFormat.InlineArrayResult.count + postDateValue.count
     }
     
+    #if Inlinable
     @inlinable
+    #endif
     public func string() -> String {
         "\(preDateValue)\(HTTPDateFormat.placeholder)\(postDateValue)"
     }
 
-    @inlinable public var hasDateHeader: Bool { true }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasDateHeader: Bool {
+        true
+    }
 
-    @inlinable public var hasContentLength: Bool { false }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasContentLength: Bool {
+        false
+    }
 }
 
 // MARK: Write to buffer
 extension StreamWithDateHeader {
+    #if Inlinable
     @inlinable
+    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
     }
 }
 
 // MARK: Write to socket
 extension StreamWithDateHeader: StaticRouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

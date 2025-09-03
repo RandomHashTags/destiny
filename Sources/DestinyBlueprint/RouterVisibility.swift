@@ -1,5 +1,5 @@
 
-public enum RouterVisibility: String, CustomStringConvertible {
+public enum RouterVisibility: String, CustomStringConvertible, Sendable {
     case `public`
     case `package`
     case `internal`

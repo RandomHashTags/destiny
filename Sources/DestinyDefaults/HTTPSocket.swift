@@ -12,7 +12,9 @@ public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
         Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func loadRequest() -> Request {
         return Request(fileDescriptor: fileDescriptor)
     }
@@ -21,7 +23,9 @@ public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
 // MARK: Reading
 extension HTTPSocket {
     /// Reads multiple bytes and writes them into a buffer
+    #if Inlinable
     @inlinable
+    #endif
     public func readBuffer(
         into buffer: UnsafeMutableBufferPointer<UInt8>,
         length: Int,
@@ -32,7 +36,9 @@ extension HTTPSocket {
     }
 
     /// Reads multiple bytes and writes them into a buffer
+    #if Inlinable
     @inlinable
+    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutablePointer<UInt8>,
         length: Int,
@@ -54,7 +60,9 @@ extension HTTPSocket {
     }
 
     /// Reads multiple bytes and writes them into a buffer
+    #if Inlinable
     @inlinable
+    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
@@ -78,7 +86,9 @@ extension HTTPSocket {
     /// Reads multiple bytes and writes them into a buffer.
     /// 
     /// - Returns: The number of bytes received.
+    #if Inlinable
     @inlinable
+    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int
@@ -89,7 +99,9 @@ extension HTTPSocket {
 
 // MARK: Writing
 extension HTTPSocket {
+    #if Inlinable
     @inlinable
+    #endif
     public func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
@@ -104,7 +116,9 @@ extension HTTPSocket {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
     ) throws(SocketError) {

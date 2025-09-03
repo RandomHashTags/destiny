@@ -9,3 +9,10 @@ struct DestinyMacros: CompilerPlugin {
         HTTPMessage.self
     ]
 }
+
+var inlinableAnnotation: String {
+    "#if Inlinable\n@inlinable\n#endif\n"
+}
+var inlineAlwaysAnnotation: String {
+    "#if InlineAlways\n@inline(__always)\n#endif\n"
+}

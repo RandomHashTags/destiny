@@ -6,7 +6,9 @@ public protocol HTTPMediaTypeProtocol: CustomStringConvertible, Sendable {
 }
 
 extension HTTPMediaTypeProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public var description: String {
         "\(type)/\(subType)"
     }

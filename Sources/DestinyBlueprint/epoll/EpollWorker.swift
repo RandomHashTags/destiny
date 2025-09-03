@@ -5,7 +5,9 @@ import Glibc
 import Logging
 
 @_silgen_name("accept4")
+#if Inlinable
 @inlinable
+#endif
 func accept4_fd(
     _ sockfd: Int32,
     _ addr: UnsafeMutablePointer<sockaddr>?,
@@ -58,7 +60,9 @@ public final class EpollWorker<let maxEvents: Int>: @unchecked Sendable {
     }
 
     // Pin this worker to a core to improve cache locality.
+    #if Inlinable
     @inlinable
+    #endif
     public func pinToCore(_ core: Int32) {
         /*var cpuset = cpu_set_t()
         CPU_ZERO(&cpuset)
@@ -68,7 +72,9 @@ public final class EpollWorker<let maxEvents: Int>: @unchecked Sendable {
     }
 
     /// - Returns: accepted nonblocking file descriptor
+    #if Inlinable
     @inlinable
+    #endif
     func acceptNewConnection() -> Int32? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
@@ -93,7 +99,9 @@ public final class EpollWorker<let maxEvents: Int>: @unchecked Sendable {
         return fd
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func shutdown() {
         running = false
         var c:UInt8 = 1
@@ -107,7 +115,9 @@ extension EpollWorker {
     ///   - pinToCore: Which core to run this on.
     ///   - timeout: Milliseconds to wait until we time-out.
     ///   - handleClient: Handle logic for a socket.
+    #if Inlinable
     @inlinable
+    #endif
     public func run(
         pinToCore: Int32? = nil,
         timeout: Int32 = -1,
@@ -166,7 +176,9 @@ extension EpollWorker {
 // MARK: Bind and listen
 extension EpollWorker {
     /// makeReusePortListeningSocket
+    #if Inlinable
     @inlinable
+    #endif
     static func bindAndListen(
         port: UInt16,
         backlog: Int32,
@@ -215,7 +227,9 @@ extension EpollWorker {
         return fd
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func setNonBlockingFD(_ fd: Int32) {
         let flags = fcntl(fd, F_GETFL, 0)
         guard flags != -1 else { fatalError("fcntl F_GETFL failed") }

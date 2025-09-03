@@ -35,7 +35,9 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: AsyncHTTPSocke
         self.stream = ReusableAsyncThrowingStream { stream }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func write(
         to socket: some FileDescriptor
     ) async throws(SocketError) {

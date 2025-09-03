@@ -6,7 +6,9 @@ public enum CORSMiddlewareAllowedOrigin: Sendable {
     case none
     case originBased
 
+    #if Inlinable
     @inlinable
+    #endif
     public func apply(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
@@ -27,14 +29,18 @@ public enum CORSMiddlewareAllowedOrigin: Sendable {
 }
 
 extension CORSMiddlewareAllowedOrigin {
+    #if Inlinable
     @inlinable
+    #endif
     static func applyAll(
         response: inout some DynamicResponseProtocol
     ) {
         response.setHeader(key: "Access-Control-Allow-Origin", value: "*")
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func applyAny(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol,
@@ -45,7 +51,9 @@ extension CORSMiddlewareAllowedOrigin {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func applyCustom(
         response: inout some DynamicResponseProtocol,
         string: String
@@ -53,7 +61,9 @@ extension CORSMiddlewareAllowedOrigin {
         response.setHeader(key: "Access-Control-Allow-Origin", value: string)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func applyOriginBased(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol

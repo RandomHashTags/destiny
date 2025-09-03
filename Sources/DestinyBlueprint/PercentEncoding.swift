@@ -86,7 +86,9 @@ public enum PercentEncoding {
 // MARK: URL
 extension String {
     /// - Complexity: O(_n_)
+    #if Inlinable
     @inlinable
+    #endif
     public func urlPercentEncoded() -> String {
         var string = ""
         string.reserveCapacity(utf8Span.count)
@@ -107,7 +109,9 @@ extension String {
 // MARK: Cookie
 extension String {
     /// - Complexity: O(_n_)
+    #if Inlinable
     @inlinable
+    #endif
     public func httpCookiePercentEncoded() -> String {
         var string = ""
         string.reserveCapacity(utf8Span.count)

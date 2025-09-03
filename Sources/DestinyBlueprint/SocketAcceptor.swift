@@ -26,12 +26,16 @@ public protocol SocketAcceptor: Sendable, ~Copyable {
 }
 
 extension SocketAcceptor {
+    #if Inlinable
     @inlinable
+    #endif
     public func acceptFunction(noTCPDelay: Bool) -> @Sendable (Int32?) throws(SocketError) -> Int32? {
         noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     @Sendable
     static func acceptClient(server: Int32?) throws(SocketError) -> Int32? {
         guard let serverFD = server else { return nil }
@@ -46,7 +50,9 @@ extension SocketAcceptor {
         return client
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     @Sendable
     static func acceptClientNoTCPDelay(server: Int32?) throws(SocketError) -> Int32? {
         guard let serverFD = server else { return nil }

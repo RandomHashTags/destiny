@@ -10,7 +10,9 @@ public enum SocketIOHandler {
 // MARK: isSupported
 extension SocketIOHandler {
     /// Whether or not this handler is supported on your machine.
+    #if Inlinable
     @inlinable
+    #endif
     public var isSupported: Bool {
         switch self {
         case .epoll:

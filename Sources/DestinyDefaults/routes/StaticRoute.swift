@@ -84,12 +84,16 @@ public struct StaticRoute: StaticRouteProtocol {
         self.body = body
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var startLine: String {
         return "\(method.rawNameString()) /\(path.joined(separator: "/")) \(version.string)" 
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func insertPath(contentsOf newElements: some Collection<String>, at i: Int) {
         path.insert(contentsOf: newElements, at: i)
     }
@@ -131,7 +135,9 @@ extension StaticRoute {
 
 // MARK: Convenience inits
 extension StaticRoute {
+    #if Inlinable
     @inlinable
+    #endif
     public static func on(
         version: HTTPVersion = .v1_1,
         method: any HTTPRequestMethodProtocol,
@@ -144,7 +150,10 @@ extension StaticRoute {
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public static func on(
         version: HTTPVersion = .v1_1,
         method: any HTTPRequestMethodProtocol,
@@ -164,7 +173,9 @@ extension StaticRoute {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: mediaType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func get(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -177,7 +188,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func get(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -190,7 +203,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func head(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -203,7 +218,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func post(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -216,7 +233,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func post(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -229,7 +248,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func put(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -242,7 +263,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func delete(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -255,7 +278,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func connect(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -268,7 +293,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func options(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -281,7 +308,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func trace(
         version: HTTPVersion = .v1_1,
         path: [String],
@@ -294,7 +323,9 @@ extension StaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func patch(
         version: HTTPVersion = .v1_1,
         path: [String],

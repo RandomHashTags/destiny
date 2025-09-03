@@ -27,12 +27,16 @@ extension HTTPResponseStatuses {
         public enum HTTP\(type)ResponseStatus: String, HTTPResponseStatus.StorageProtocol {
         \(cases)
 
+            #if Inlinable
             @inlinable
+            #endif
             public func hash(into hasher: inout Hasher) {
                 hasher.combine(code)
             }
 
+            #if Inlinable
             @inlinable
+            #endif
             public var code: UInt16 {
                 switch self {
         \(codes)

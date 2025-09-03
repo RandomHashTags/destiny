@@ -21,7 +21,9 @@ extension HTTPRequestHeaders {
         \(comment)public enum HTTP\(type)RequestHeader: String, Hashable {
         \(cases)
 
+            #if Inlinable
             @inlinable
+            #endif
             public var rawName: String {
                 switch self {
         \(rawNames)

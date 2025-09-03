@@ -10,7 +10,9 @@ public struct StaticErrorResponder: ErrorResponderProtocol {
         self.logic = logic
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

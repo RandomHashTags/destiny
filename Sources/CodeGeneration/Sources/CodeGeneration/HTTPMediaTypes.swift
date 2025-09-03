@@ -40,7 +40,9 @@ struct HTTPMediaTypes {
         public enum HTTPMediaType\(type): String, HTTPMediaTypeProtocol {
         \(enumCases)
 
+            #if Inlinable
             @inlinable
+            #endif
             public init?(fileExtension: some StringProtocol) {
                 switch fileExtension {
         \(fileExtensions)
@@ -48,12 +50,16 @@ struct HTTPMediaTypes {
                 }
             }
 
+            #if Inlinable
             @inlinable
+            #endif
             public var type: String {
                 "\(type.lowercased())"
             }
 
+            #if Inlinable
             @inlinable
+            #endif
             public var subType: String {
                 switch self {
         \(subtypeValues)

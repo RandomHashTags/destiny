@@ -10,25 +10,56 @@ public protocol ResponseBodyProtocol: BufferWritable, ~Copyable {
 }
 
 extension ResponseBodyProtocol {
-    @inlinable public var hasDateHeader: Bool { false }
-    @inlinable public var hasContentLength: Bool { true }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasDateHeader: Bool {
+        false
+    }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasContentLength: Bool {
+        true
+    }
+}
+
+extension ResponseBodyProtocol where Self: ~Copyable {
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasDateHeader: Bool {
+        false
+    }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasContentLength: Bool {
+        true
+    }
 }
 
 // MARK: Default conformances
 extension String: ResponseBodyProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func string() -> String {
         self
     }
 }
 
 extension StaticString: ResponseBodyProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public var count: Int {
         utf8CodeUnitCount
     }
     
+    #if Inlinable
     @inlinable
+    #endif
     public func string() -> String {
         description
     }

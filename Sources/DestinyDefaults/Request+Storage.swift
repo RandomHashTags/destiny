@@ -4,18 +4,24 @@ extension Request {
         @usableFromInline
         var storage:[ObjectIdentifier:Sendable]
 
+        #if Inlinable
         @inlinable
+        #endif
         public init(_ storage: [ObjectIdentifier:Sendable]) {
             self.storage = storage
         }
 
         /// Removes all values from the storage.
+        #if Inlinable
         @inlinable
+        #endif
         public mutating func clear() {
             storage = [:]
         }
 
+        #if Inlinable
         @inlinable
+        #endif
         public subscript<Key: StorageKey>(_ key: Key) -> Key.Value? {
             get {
                 guard let v = storage[ObjectIdentifier(Key.self)] as? Value<Key.Value> else { return nil }
@@ -32,7 +38,9 @@ extension Request {
         }
 
         /// - Returns: Whether the key exists in the storage.
+        #if Inlinable
         @inlinable
+        #endif
         public func contains<Key>(_ key: Key.Type) -> Bool {
             storage.keys.contains(ObjectIdentifier(Key.self))
         }

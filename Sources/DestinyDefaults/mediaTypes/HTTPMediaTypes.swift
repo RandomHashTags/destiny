@@ -3,7 +3,9 @@ import DestinyBlueprint
 
 // MARK: Parse
 extension HTTPMediaType {
+    #if Inlinable
     @inlinable
+    #endif
     public static func parse(memberName: String) -> Self? {
         if let v = HTTPMediaTypeApplication(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
         if let v = HTTPMediaTypeFont(rawValue: memberName) { return .init(type: v.type, subType: v.subType) }
@@ -17,7 +19,9 @@ extension HTTPMediaType {
         return nil
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public static func parse(fileExtension: String) -> Self? {
         if let v = HTTPMediaTypeApplication(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }
         if let v = HTTPMediaTypeFont(fileExtension: fileExtension) { return .init(type: v.type, subType: v.subType) }

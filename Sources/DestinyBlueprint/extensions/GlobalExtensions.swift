@@ -18,7 +18,12 @@ import WinSDK
 #endif
 
 // MARK: copy memory
-@inlinable @inline(__always)
+#if Inlinable
+@inlinable
+#endif
+#if InlineAlways
+@inline(__always)
+#endif
 package func copyMemory(
     _ __dest: UnsafeMutableRawPointer,
     _ __src: UnsafeRawPointer,

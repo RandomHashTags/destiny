@@ -22,7 +22,9 @@ public struct HTTPMediaType: CustomDebugStringConvertible, Hashable, HTTPMediaTy
         return "HTTPMediaType(type: \"\(type)\", subType: \"\(subType)\")"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     package static func get(_ type: String, _ subType: String) -> HTTPMediaType {
         return HTTPMediaType(type: type, subType: subType)
     }
@@ -43,16 +45,80 @@ extension HTTPMediaType {
         case video
     }
 
-    @inlinable public func isType(_ category: Category) -> Bool { self.type == category.rawValue }
+    #if Inlinable
+    @inlinable
+    #endif
+    public func isType(_ category: Category) -> Bool {
+        self.type == category.rawValue
+    }
 
-    @inlinable public var isApplication: Bool { isType(.application) }
-    @inlinable public var isAudio: Bool { isType(.audio) }
-    @inlinable public var isFont: Bool { isType(.font) }
-    @inlinable public var isHaptics: Bool { isType(.haptics) }
-    @inlinable public var isImage: Bool { isType(.image) }
-    @inlinable public var isMessage: Bool { isType(.message) }
-    @inlinable public var isModel: Bool { isType(.model) }
-    @inlinable public var isMultipart: Bool { isType(.multipart) }
-    @inlinable public var isText: Bool { isType(.text) }
-    @inlinable public var isVideo: Bool { isType(.video) }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isApplication: Bool {
+        isType(.application)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isAudio: Bool {
+        isType(.audio)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isFont: Bool {
+        isType(.font)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isHaptics: Bool {
+        isType(.haptics)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isImage: Bool {
+        isType(.image)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isMessage: Bool {
+        isType(.message)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isModel: Bool {
+        isType(.model)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isMultipart: Bool {
+        isType(.multipart)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isText: Bool {
+        isType(.text)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isVideo: Bool {
+        isType(.video)
+    }
 }

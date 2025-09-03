@@ -38,7 +38,9 @@ public struct Epoll<let maxEvents: Int> {
         //setNonBlocking(socket: self.fileDescriptor)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func setNonBlocking(socket: Int32) {
         let flags = fcntl(socket, F_GETFL, 0)
         guard flags != -1 else {
@@ -50,7 +52,9 @@ public struct Epoll<let maxEvents: Int> {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func add(client: Int32, events: UInt32) throws(EpollError) {
         var e = epoll_event()
         e.events = events
@@ -63,7 +67,9 @@ public struct Epoll<let maxEvents: Int> {
         #endif
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func mod(fd: Int32, events: UInt32) throws(EpollError) {
         var ev = epoll_event()
         ev.events = events
@@ -76,7 +82,9 @@ public struct Epoll<let maxEvents: Int> {
         #endif
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func remove(client: Int32) throws(EpollError) {
         if epoll_ctl(fileDescriptor, EPOLL_CTL_DEL, client, nil) == -1 {
             throw .epollCtlFailed()
@@ -86,7 +94,9 @@ public struct Epoll<let maxEvents: Int> {
         #endif
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func wait(
         timeout: Int32 = -1,
         events: inout InlineArray<maxEvents, epoll_event>
@@ -116,7 +126,9 @@ public struct Epoll<let maxEvents: Int> {
         return loadedClients
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func closeAll() {
         close(pipeFileDescriptors.read)
         close(pipeFileDescriptors.write)

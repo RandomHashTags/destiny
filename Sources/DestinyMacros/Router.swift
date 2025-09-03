@@ -12,8 +12,7 @@ enum Router: ExpressionMacro {
         in context: some MacroExpansionContext
     ) throws -> ExprSyntax {
         let computed = compute(
-            visibility: .internal,
-            mutable: true,
+            routerSettings: .init(),
             perfectHashSettings: .init(),
             arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments,
             context: context
@@ -37,18 +36,12 @@ extension Router: DeclarationMacro {
             fatalError("node=\(node.debugDescription)")
         }
 
-        var visibility = RouterVisibility.internal
-        var mutable = true
-        var typeAnnotation:String? = nil
+        var settings = RouterSettings()
         var perfectHashSettings = PerfectHashSettings()
         for arg in arguments {
             switch arg.label?.text {
-            case "visibility":
-                visibility = .init(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "internal") ?? .internal
-            case "mutable":
-                mutable = arg.expression.booleanIsTrue
-            case "typeAnnotation":
-                typeAnnotation = arg.expression.stringLiteralString(context: context)
+            case "routerSettings":
+                settings = .parse(context: context, expr: arg.expression)
             case "perfectHashSettings":
                 perfectHashSettings = .parse(context: context, expr: arg.expression)
             default:
@@ -56,14 +49,13 @@ extension Router: DeclarationMacro {
             }
         }
         let (router, structs) = compute(
-            visibility: visibility,
-            mutable: mutable,
+            routerSettings: settings,
             perfectHashSettings: perfectHashSettings,
             arguments: arguments,
             context: context
         )
         var declaredRouter = StructDeclSyntax(
-            leadingTrivia: "\(visibility)",
+            leadingTrivia: "\(settings.visibility)",
             name: "DeclaredRouter",
             memberBlock: .init(members: .init())
         )
@@ -71,14 +63,25 @@ extension Router: DeclarationMacro {
             declaredRouter.memberBlock.members.append(.init(decl: s))
         }
         
-        let routerDecl = VariableDeclSyntax(
-            leadingTrivia: .init(stringLiteral: "\(visibility)"),
-            modifiers: [DeclModifierSyntax(name: "static")],
-            .let,
-            name: "router",
-            type: typeAnnotation == nil ? nil : .init(type: TypeSyntax.init(stringLiteral: typeAnnotation!)),
-            initializer: .init(value: ExprSyntax(stringLiteral: "CompiledHTTPRouter()"))
-        )
+        let routerDecl:VariableDeclSyntax
+        if settings.isCopyable {
+            routerDecl = VariableDeclSyntax(
+                leadingTrivia: .init(stringLiteral: "\(settings.visibility)"),
+                modifiers: [DeclModifierSyntax(name: "static")],
+                .let,
+                name: "router",
+                initializer: .init(value: ExprSyntax("\(raw: settings.name)()"))
+            )
+        } else {
+            routerDecl = VariableDeclSyntax(
+                leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\(settings.visibility)"),
+                modifiers: [DeclModifierSyntax(name: "static")],
+                .var,
+                name: "router",
+                type: TypeAnnotationSyntax(type: TypeSyntax(stringLiteral: "\(settings.name)")),
+                accessorBlock: .init(stringLiteral: "{ \(settings.name)() }")
+            )
+        }
         declaredRouter.memberBlock.members.append(.init(decl: routerDecl))
         declaredRouter.memberBlock.members.append(.init(decl: router.build()))
         return [.init(declaredRouter)]

@@ -25,7 +25,9 @@ extension HTTPRequestMethods {
         public enum HTTP\(type)RequestMethod: String, HTTPRequestMethodProtocol {
         \(cases)
 
+            #if Inlinable
             @inlinable
+            #endif
             public func rawNameString() -> String {
                 switch self {
         \(rawNameStringValues)

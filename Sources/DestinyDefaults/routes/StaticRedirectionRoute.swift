@@ -34,7 +34,9 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
         self.to = to.map({ $0.description })
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func fromStartLine() -> String {
         return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
     }

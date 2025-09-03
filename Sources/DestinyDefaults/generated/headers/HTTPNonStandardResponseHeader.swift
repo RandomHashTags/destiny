@@ -18,7 +18,9 @@ public enum HTTPNonStandardResponseHeader: String, Hashable {
     case xWebKitCSP
     case xXSSProtection
 
+    #if Inlinable
     @inlinable
+    #endif
     public var rawName: String {
         switch self {
         case .contentSecurityPolicy: "Content-Security-Policy"

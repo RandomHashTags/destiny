@@ -1,10 +1,10 @@
 
-import DestinyDefaults
+import DestinyBlueprint
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 struct CompiledRouterStorage {
-    let visibility:RouterVisibility
+    let settings:RouterSettings
     let perfectHashCaseSensitiveResponder:String?
     let perfectHashCaseInsensitiveResponder:String?
 
@@ -21,7 +21,7 @@ struct CompiledRouterStorage {
     let staticNotFoundResponder:String?
 
     init(
-        visibility: RouterVisibility,
+        settings: RouterSettings,
         perfectHashCaseSensitiveResponder: String?,
         perfectHashCaseInsensitiveResponder: String?,
 
@@ -36,7 +36,7 @@ struct CompiledRouterStorage {
         dynamicNotFoundResponder: String?,
         staticNotFoundResponder: String?
     ) {
-        self.visibility = visibility
+        self.settings = settings
         self.perfectHashCaseSensitiveResponder = perfectHashCaseSensitiveResponder
         self.perfectHashCaseInsensitiveResponder = perfectHashCaseInsensitiveResponder
 
@@ -51,6 +51,10 @@ struct CompiledRouterStorage {
         self.dynamicNotFoundResponder = dynamicNotFoundResponder == "nil" ? nil : dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder == "nil" ? nil : staticNotFoundResponder
     }
+    
+    var visibility: RouterVisibility {
+        settings.visibility
+    }
 }
 
 // MARK: x
@@ -59,10 +63,11 @@ struct CompiledRouterStorage {
 extension CompiledRouterStorage {
     func build() -> StructDeclSyntax {
         var decl = StructDeclSyntax(
-            leadingTrivia: "// MARK: CompiledHTTPRouter\n\(visibility)",
-            name: "CompiledHTTPRouter",
+            leadingTrivia: "// MARK: \(settings.name)\n\(visibility)",
+            name: "\(raw: settings.name)",
             inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
-                .init(type: TypeSyntax(stringLiteral: "HTTPRouterProtocol"))
+                .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "NonCopyable")HTTPRouterProtocol"), trailingComma: ","),
+                .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "~")Copyable"))
             )),
             memberBlock: .init(members: .init())
         )
@@ -153,7 +158,7 @@ extension CompiledRouterStorage {
             "dynamicMiddleware.\($0.offset).load()"
         }).joined(separator: "\n")
         return try! .init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func load() {
             // TODO: fix?
             /*
@@ -171,7 +176,7 @@ extension CompiledRouterStorage {
             "guard try dynamicMiddleware.\($0.offset).handle(request: &request, response: &response) else { return }"
         }).joined(separator: "\n")
         return try! .init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func handleDynamicMiddleware(
             for request: inout some HTTPRequestProtocol & ~Copyable,
             with response: inout some DynamicResponseProtocol
@@ -186,7 +191,7 @@ extension CompiledRouterStorage {
 extension CompiledRouterStorage {
     private func handleDecl() -> FunctionDeclSyntax {
         try! .init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func handle(
             client: some FileDescriptor,
             socket: consuming some HTTPSocketProtocol & ~Copyable,
@@ -248,7 +253,7 @@ extension CompiledRouterStorage {
             "try \($0).respond(router: self, socket: socket, request: &request, completionHandler: completionHandler) {"
         }).joined(separator: "\n} else if ") + "\n} else {\nreturn false\n}"
         return try! .init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
             socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
@@ -264,12 +269,13 @@ extension CompiledRouterStorage {
 // MARK: Respond with static responder decl
 extension CompiledRouterStorage {
     private func respondWithStaticResponderDecl() -> FunctionDeclSyntax {
-        try! .init("""
-        @inlinable
+        let responderParameter = RouterStorage.responderParameter(copyable: settings.isCopyable, dynamic: false)
+        return try! .init("""
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
             socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
-            responder: borrowing some StaticRouteResponderProtocol,
+            responder: \(raw: responderParameter),
             completionHandler: @Sendable @escaping () -> Void
         ) throws(ResponderError) {
             try responder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
@@ -281,11 +287,12 @@ extension CompiledRouterStorage {
 // MARK: Default dynamic response decl
 extension CompiledRouterStorage {
     private func defaultDynamicResponseDecl() -> FunctionDeclSyntax {
-        try! .init("""
-        @inlinable
+        let responderParameter = RouterStorage.responderParameter(copyable: settings.isCopyable, dynamic: true)
+        return try! .init("""
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func defaultDynamicResponse(
             request: inout some HTTPRequestProtocol & ~Copyable,
-            responder: some DynamicRouteResponderProtocol
+            responder: \(raw: responderParameter)
         ) throws(ResponderError) -> some DynamicResponseProtocol {
             var response = responder.defaultResponse()
             var index = 0
@@ -335,12 +342,13 @@ extension CompiledRouterStorage {
 // MARK: Respond with dynamic responder decl
 extension CompiledRouterStorage {
     private func respondWithDynamicResponderDecl() -> FunctionDeclSyntax {
-        try! .init("""
-        @inlinable
+        let responderParameter = RouterStorage.responderParameter(copyable: settings.isCopyable, dynamic: true)
+        return try! .init("""
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
             socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
-            responder: some DynamicRouteResponderProtocol,
+            responder: \(raw: responderParameter),
             completionHandler: @Sendable @escaping () -> Void
         ) throws(ResponderError) {
             var response = try defaultDynamicResponse(request: &request, responder: responder)
@@ -372,7 +380,7 @@ extension CompiledRouterStorage {
             """
         }
         return try! .init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func respondWithNotFound(
             socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
@@ -397,7 +405,7 @@ extension CompiledRouterStorage {
             logic = "return false"
         }
         return try! .init("""
-        @inlinable
+        \(raw: inlinableAnnotation)
         \(raw: visibility)func respondWithError(
             socket: some FileDescriptor,
             error: some Error,

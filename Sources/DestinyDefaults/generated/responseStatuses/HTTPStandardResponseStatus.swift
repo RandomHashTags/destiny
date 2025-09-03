@@ -127,12 +127,16 @@ public enum HTTPStandardResponseStatus: String, HTTPResponseStatus.StorageProtoc
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.511
     case networkAuthenticationRequired
 
+    #if Inlinable
     @inlinable
+    #endif
     public func hash(into hasher: inout Hasher) {
         hasher.combine(code)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var code: UInt16 {
         switch self {
         case .`continue`: 100

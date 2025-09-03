@@ -48,7 +48,10 @@ extension RouterStorage {
                 } else {
                     registeredPaths.insert(string)
                     do throws(AnyError) {
-                        let responder = try IntermediateResponseBody(type: .stringWithDateHeader, "").responderDebugDescription(route.response())
+                        let responder = try IntermediateResponseBody(
+                            type: .stringWithDateHeader,
+                            ""
+                        ).responderDebugDescription(settings: settings, response: route.response())
                         routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
                         routePaths.append("\(string)")
                         literalRouteResponders.append(responder)
@@ -97,7 +100,7 @@ extension RouterStorage {
         if let v = body as? String {
             s = try v.responderDebugDescription(response)
         } else if let v = body as? IntermediateResponseBody {
-            s = v.responderDebugDescription(response)
+            s = v.responderDebugDescription(settings: settings, response: response)
 
         } else {
             s = nil

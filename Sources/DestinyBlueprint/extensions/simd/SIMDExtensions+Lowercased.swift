@@ -1,7 +1,9 @@
 
 extension SIMD where Scalar: FixedWidthInteger {
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func lowercased() -> Self {
         var upperCase = self .>= 65
         upperCase .&= self .<= 90

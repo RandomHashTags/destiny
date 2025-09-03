@@ -20,7 +20,9 @@ public enum HTTPMediaTypeMultipart: String, HTTPMediaTypeProtocol {
     case voiceMessage
     case xMixedReplace
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
 
@@ -28,12 +30,16 @@ public enum HTTPMediaTypeMultipart: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "multipart"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case .alternative: rawValue

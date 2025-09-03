@@ -19,12 +19,16 @@ public struct HTTPResponseMessageHead: Sendable {
         self.version = version
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func string(escapeLineBreak: Bool) -> String {
         return string(suffix: escapeLineBreak ? "\\r\\n" : "\r\n")
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func string(suffix: String) -> String {
         var string = "\(version.string) \(status)\(suffix)"
         for (header, value) in headers {
@@ -36,7 +40,9 @@ public struct HTTPResponseMessageHead: Sendable {
         return string
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func cookieDescriptions() -> [String] {
         var array = [String]()
         array.reserveCapacity(cookies.count)

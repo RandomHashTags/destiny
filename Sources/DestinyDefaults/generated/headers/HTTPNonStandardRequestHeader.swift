@@ -19,7 +19,9 @@ public enum HTTPNonStandardRequestHeader: String, Hashable {
     case xUIDH
     case xWapProfile
 
+    #if Inlinable
     @inlinable
+    #endif
     public var rawName: String {
         switch self {
         case .correlationID: "Correlation-ID"

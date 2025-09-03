@@ -8,7 +8,9 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
     ///   - socket: The socket to write to.
     ///   - request: The socket's request.
     ///   - completionHandler: Call when you're done successfully responding.
+    #if Inlinable
     @inlinable
+    #endif
     func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -19,7 +21,9 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
 
 // MARK: Default conformances
 extension String: RouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -36,7 +40,9 @@ extension String: RouteResponderProtocol {
 }
 
 extension StaticString: RouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -53,7 +59,9 @@ extension StaticString: RouteResponderProtocol {
 }
 
 extension [UInt8]: RouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

@@ -12,16 +12,54 @@ public struct ServerError: DestinyErrorProtocol {
 
 // MARK: Errors
 extension ServerError {
-    @inlinable public static func socketCreationFailed() -> Self { cError("socketCreationFailed") }
-    @inlinable public static func socketCreationFailed(_ reason: String) -> Self { Self(identifier: "socketCreationFailed", reason: reason) }
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func socketCreationFailed() -> Self {
+        cError("socketCreationFailed")
+    }
 
-    @inlinable public static func bindFailed() -> Self { cError("bindFailed") }
-    @inlinable public static func bindFailed(_ reason: String) -> Self { Self(identifier: "bindFailed", reason: reason) }
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func socketCreationFailed(_ reason: String) -> Self {
+        Self(identifier: "socketCreationFailed", reason: reason)
+    }
 
-    @inlinable public static func listenFailed() -> Self { cError("listenFailed") }
-    @inlinable public static func listenFailed(_ reason: String) -> Self { Self(identifier: "listenFailed", reason: reason) }
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func bindFailed() -> Self {
+        cError("bindFailed")
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func bindFailed(_ reason: String) -> Self {
+        Self(identifier: "bindFailed", reason: reason)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func listenFailed() -> Self {
+        cError("listenFailed")
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func listenFailed(_ reason: String) -> Self {
+        Self(identifier: "listenFailed", reason: reason)
+    }
 }
 
 extension ServerError {
-    @inlinable public static func routerError(_ error: RouterError) -> Self { Self(identifier: "routerError", reason: "\(error)") }
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func routerError(_ error: RouterError) -> Self {
+        Self(identifier: "routerError", reason: "\(error)")
+    }
 }

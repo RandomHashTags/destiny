@@ -69,6 +69,17 @@ let package = Package(
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"])
     ],
     traits: [
+        .default(enabledTraits: ["Inlinable", "InlineAlways"]),
+
+        .trait( // useful when benchmarking/profiling raw performance
+            name: "Inlinable",
+            description: "Enables the `@inlinable` annotation for better performance."
+        ),
+        .trait( // useful when benchmarking/profiling raw performance
+            name: "InlineAlways",
+            description: "Enables the `@inline(__always)` annotation for better performance."
+        ),
+
         .trait(
             name: "DestinyDefaultsFoundation",
             description: "Foundation extensions to DestinyDefaults."
@@ -76,7 +87,7 @@ let package = Package(
         .trait(
             name: "OpenAPI",
             description: "Destiny conformances that enable OpenAPI support."
-        )
+        ),
     ],
     dependencies: pkgDependencies,
     targets: [

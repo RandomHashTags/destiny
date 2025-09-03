@@ -21,7 +21,9 @@ extension HTTPResponseHeaders {
         \(comment)public enum HTTP\(type)ResponseHeader: String, Hashable {
         \(cases)
 
+            #if Inlinable
             @inlinable
+            #endif
             public var rawName: String {
                 switch self {
         \(rawNames)

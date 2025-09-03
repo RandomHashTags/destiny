@@ -41,7 +41,9 @@ public enum HTTPStandardRequestMethod: String, HTTPRequestMethodProtocol {
     case updateredirectref
     case versionControl
 
+    #if Inlinable
     @inlinable
+    #endif
     public func rawNameString() -> String {
         switch self {
         case .connect: "CONNECT"

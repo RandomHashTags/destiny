@@ -11,7 +11,9 @@ public struct ReusableAsyncThrowingStream<Element, E: Error>: AsyncSequence, Sen
         self.source = source
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func makeAsyncIterator() -> AsyncIterator {
         source().makeAsyncIterator()
     }

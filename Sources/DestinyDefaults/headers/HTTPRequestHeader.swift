@@ -21,7 +21,9 @@ extension HTTPRequestHeader {
     public enum XRequestedWith: String, Sendable {
         case xmlHttpRequest
 
+        #if Inlinable
         @inlinable
+        #endif
         public var rawName: String {
             switch self {
             case .xmlHttpRequest: "XMLHttpRequest"

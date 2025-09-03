@@ -143,7 +143,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
         case reuseAddress = 2
         case reusePort    = 4
 
+        #if Inlinable
         @inlinable
+        #endif
         static func pack(
             noTCPDelay: Bool,
             reuseAddress: Bool,
@@ -155,21 +157,40 @@ extension HTTPServer where ClientSocket: ~Copyable {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     func isFlag(_ flag: Flag) -> Bool {
         flags & flag.rawValue != 0
     }
 
-    @inlinable public var noTCPDelay: Bool { isFlag(.noTCPDelay) }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var noTCPDelay: Bool {
+        isFlag(.noTCPDelay)
+    }
 
-    @inlinable public var reuseAddress: Bool { isFlag(.reuseAddress) }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var reuseAddress: Bool {
+        isFlag(.reuseAddress)
+    }
 
-    @inlinable public var reusePort: Bool { isFlag(.reusePort) }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var reusePort: Bool {
+        isFlag(.reusePort)
+    }
 }
 
 // MARK: Process clients
 extension HTTPServer where ClientSocket: ~Copyable {
+    #if Inlinable
     @inlinable
+    #endif
     func setNonBlocking(socket: Int32) {
         let flags = fcntl(socket, F_GETFL, 0)
         guard flags != -1 else {
@@ -181,7 +202,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     func processClients() async throws(ServerError) {
         #if os(Linux)
         let _:InlineArray<64, Bool>? = processClientsEpoll(port: port, router: router)
@@ -191,7 +214,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
         #endif
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     func processClientsOLD(serverFD: Int32) async {
         let acceptClient = acceptFunction(noTCPDelay: noTCPDelay)
         while !Task.isCancelled {
@@ -219,7 +244,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
 // MARK: Epoll
 extension HTTPServer where ClientSocket: ~Copyable {
     @discardableResult
+    #if Inlinable
     @inlinable
+    #endif
     func processClientsEpoll<let maxEvents: Int>(
         port: UInt16,
         router: Router

@@ -46,7 +46,9 @@ public enum HTTPStandardResponseHeader: String, Hashable {
     case via
     case wwwAuthenticate
 
+    #if Inlinable
     @inlinable
+    #endif
     public var rawName: String {
         switch self {
         case .acceptPatch: "Accept-Patch"

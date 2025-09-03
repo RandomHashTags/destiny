@@ -15,7 +15,9 @@ extension AsyncHTTPSocketWritable {
     /// 
     /// - Parameters:
     ///   - socket: some noncopyable `HTTPSocketProtocol`.
+    #if Inlinable
     @inlinable
+    #endif
     public func write(
         to socket: borrowing some HTTPSocketProtocol & ~Copyable
     ) async throws(SocketError) {
@@ -25,7 +27,9 @@ extension AsyncHTTPSocketWritable {
 
 // MARK: Default conformances
 extension String: AsyncHTTPSocketWritable {
+    #if Inlinable
     @inlinable
+    #endif
     public func write(
         to socket: some FileDescriptor
     ) async throws(SocketError) {
@@ -34,7 +38,9 @@ extension String: AsyncHTTPSocketWritable {
 }
 
 extension StaticString: AsyncHTTPSocketWritable {
+    #if Inlinable
     @inlinable
+    #endif
     public func write(
         to socket: some FileDescriptor
     ) async throws(SocketError) {
@@ -53,7 +59,9 @@ extension StaticString: AsyncHTTPSocketWritable {
 }
 
 extension [UInt8]: AsyncHTTPSocketWritable {
+    #if Inlinable
     @inlinable
+    #endif
     public func write(
         to socket: some FileDescriptor
     ) async throws(SocketError) {

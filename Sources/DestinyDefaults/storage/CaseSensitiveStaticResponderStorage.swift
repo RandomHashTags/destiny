@@ -33,7 +33,9 @@ public final class CaseSensitiveStaticResponderStorage: MutableStaticResponderSt
 
 // AMRK: Respond
 extension CaseSensitiveStaticResponderStorage {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -69,7 +71,9 @@ extension CaseSensitiveStaticResponderStorage {
 
 // MARK: Register
 extension CaseSensitiveStaticResponderStorage {
+    #if Inlinable
     @inlinable
+    #endif
     public func register(
         path: SIMD64<UInt8>,
         responder: some StaticRouteResponderProtocol
@@ -91,31 +95,51 @@ extension CaseSensitiveStaticResponderStorage {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func register(path: SIMD64<UInt8>, _ responder: RouteResponses.MacroExpansion) {
         macroExpansions[path] = responder
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public func register(path: SIMD64<UInt8>, _ responder: MacroExpansionWithDateHeader) {
         macroExpansionsWithDateHeader[path] = responder
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public func register(path: SIMD64<UInt8>, _ responder: StaticString) {
         staticStrings[path] = responder
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public func register(path: SIMD64<UInt8>, _ responder: StaticStringWithDateHeader) {
         staticStringsWithDateHeader[path] = responder
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public func register(path: SIMD64<UInt8>, _ responder: String) {
         strings[path] = responder
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public func register(path: SIMD64<UInt8>, _ responder: StringWithDateHeader) {
         stringsWithDateHeader[path] = responder
     }
+
+    #if Inlinable
     @inlinable
+    #endif
     public func register(path: SIMD64<UInt8>, _ responder: ResponseBody.Bytes) {
         bytes[path] = responder
     }

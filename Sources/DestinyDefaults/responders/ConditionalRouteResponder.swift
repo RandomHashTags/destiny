@@ -36,7 +36,9 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol {
         """
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

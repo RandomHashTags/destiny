@@ -8,22 +8,42 @@ public protocol InlineArrayProtocol: InlineCollectionProtocol, ~Copyable where I
 
 // MARK Conformances
 extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
-    @inlinable @inline(__always)
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
     public func itemAt(index: Index) -> Element {
         self[index]
     }
 
-    @inlinable @inline(__always)
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
     public mutating func setItemAt(index: Int, element: Element) {
         self[index] = element
     }
 
-    @inlinable @inline(__always)
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
     public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
         return try span.withUnsafeBufferPointer(body)
     }
 
-    @inlinable @inline(__always)
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
     public func write(to socket: some FileDescriptor) throws(SocketError) {
         var err:SocketError? = nil
         withUnsafePointer(to: self, {

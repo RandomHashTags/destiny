@@ -25,7 +25,9 @@ public enum HTTPMediaTypeMessage: String, HTTPMediaTypeProtocol {
     case trackingStatus
     case wsc
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
 
@@ -33,12 +35,16 @@ public enum HTTPMediaTypeMessage: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "message"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case .bhttp: rawValue

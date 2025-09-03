@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public struct MacroExpansionWithDateHeader {
+public struct MacroExpansionWithDateHeader: Sendable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
     public let bodyCount:String.UTF8View
@@ -27,7 +27,9 @@ public struct MacroExpansionWithDateHeader {
 
 // MARK: Write to socket
 extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

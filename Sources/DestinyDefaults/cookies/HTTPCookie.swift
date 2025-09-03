@@ -19,22 +19,30 @@ public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     public var path:String?
     public var sameSite:HTTPCookieFlag.SameSite?
 
+    #if Inlinable
     @inlinable
+    #endif
     public func name() -> CookieName {
         _name
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func setName(_ name: CookieName) {
         _name = name
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func value() -> CookieValue {
         _value
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public mutating func setValue(_ value: CookieValue) throws(HTTPCookieError) {
         try Self.validateValue(value)
         _value = value
@@ -43,7 +51,9 @@ public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
 
 // MARK: Init
 extension HTTPCookie {
+    #if Inlinable
     @inlinable
+    #endif
     public init(
         name: CookieName,
         encoding: CookieValue,
@@ -68,7 +78,9 @@ extension HTTPCookie {
         )
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public init(
         name: CookieName,
         value: CookieValue,
@@ -94,7 +106,9 @@ extension HTTPCookie {
         )
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public init(
         name: CookieName,
         uncheckedValue: CookieValue,
@@ -119,7 +133,9 @@ extension HTTPCookie {
 
 // MARK: Validate
 extension HTTPCookie {
+    #if Inlinable
     @inlinable
+    #endif
     public static func validateValue(_ value: String) throws(HTTPCookieError) {
         guard let illegalChar = value.first(where: {
             guard let ascii = $0.asciiValue else { return true }
@@ -161,7 +177,9 @@ extension HTTPCookie {
 
 // MARK: CustomStringConvertible
 extension HTTPCookie {
+    #if Inlinable
     @inlinable
+    #endif
     public var description: String {
         var string = "\(_name)=\(_value)"
         if maxAge > 0 {
@@ -211,13 +229,17 @@ extension HTTPCookie {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var isSecure: Bool {
         get { isFlag(.secure) }
         set { setFlag(.secure, newValue) }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var isHTTPOnly: Bool {
         get { isFlag(.httpOnly) }
         set { setFlag(.httpOnly, newValue) }

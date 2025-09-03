@@ -40,7 +40,9 @@ public enum HTTPStandardRequestHeader: String, Hashable {
     case userAgent
     case via
 
+    #if Inlinable
     @inlinable
+    #endif
     public var rawName: String {
         switch self {
         case .aim: "A-IM"

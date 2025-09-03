@@ -11,7 +11,9 @@ public enum DynamicCORSLogic: Sendable {
     case maxAge(allowedHeaders: String, allowedMethods: String, maxAge: String)
     case minimum(allowedHeaders: String, allowedMethods: String)
 
+    #if Inlinable
     @inlinable
+    #endif
     public func apply(
         to response: inout some DynamicResponseProtocol
     ) {

@@ -12,7 +12,9 @@ public final class RouteGroupStorage: MutableRouteGroupStorageProtocol, @uncheck
 
 // MARK: Respond
 extension RouteGroupStorage {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

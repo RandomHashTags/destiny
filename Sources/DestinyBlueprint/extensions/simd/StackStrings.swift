@@ -1,7 +1,9 @@
 
 extension SIMD where Scalar: BinaryInteger {
     /// - Complexity: O(*n*) if `string` is non-contiguous, O(1) if already contiguous.
+    #if Inlinable
     @inlinable
+    #endif
     public init(_ string: inout String) {
         var item = Self()
         string.withUTF8 { p in
@@ -13,14 +15,18 @@ extension SIMD where Scalar: BinaryInteger {
     }
 
     /// - Complexity: O(*n*) if `string` is non-contiguous, O(1) if already contiguous.
+    #if Inlinable
     @inlinable
+    #endif
     public init(_ string: String) {
         var s = string
         self = .init(&s)
     }
 
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public var leadingNonzeroByteCountSIMD: Int {
         for i in 0..<scalarCount {
             if self[i] == 0 {
@@ -32,7 +38,9 @@ extension SIMD where Scalar: BinaryInteger {
 }
 extension SIMD where Scalar == UInt8 {
     /// - Complexity: O(1)
+    #if Inlinable
     @inlinable
+    #endif
     public func stringSIMD() -> String {
         let amount = leadingNonzeroByteCountSIMD
         var characters = [Character](repeating: Character(Unicode.Scalar(0)), count: amount)

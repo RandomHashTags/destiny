@@ -61,13 +61,17 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func maxAgeString(_ input: Int?) -> String? {
         guard let input else { return nil }
         return "\(input)"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func handle(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
@@ -81,7 +85,9 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
 
 // MARK: Logic variants
 extension DynamicCORSMiddleware {
+    #if Inlinable
     @inlinable
+    #endif
     static func handleSharedLogic(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -93,7 +99,9 @@ extension DynamicCORSMiddleware {
 }
 
 extension DynamicCORSMiddleware {
+    #if Inlinable
     @inlinable
+    #endif
     static func logic_allowCredentials_exposedHeaders_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -105,7 +113,9 @@ extension DynamicCORSMiddleware {
         response.setHeader(key: "Access-Control-Allow-Credentials", value: "true")
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func logic_allowCredentials_exposedHeaders(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -116,7 +126,9 @@ extension DynamicCORSMiddleware {
         response.setHeader(key: "Access-Control-Allow-Credentials", value: "true")
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func logic_allowCredentials_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -127,7 +139,9 @@ extension DynamicCORSMiddleware {
         response.setHeader(key: "Access-Control-Max-Age", value: maxAgeString)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func logic_allowCredentials(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -139,7 +153,9 @@ extension DynamicCORSMiddleware {
 }
 
 extension DynamicCORSMiddleware {
+    #if Inlinable
     @inlinable
+    #endif
     static func logic_exposedHeaders_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -151,7 +167,9 @@ extension DynamicCORSMiddleware {
         response.setHeader(key: "Access-Control-Max-Age", value: maxAgeString)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     static func logic_exposedHeaders(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -164,7 +182,9 @@ extension DynamicCORSMiddleware {
 }
 
 extension DynamicCORSMiddleware {
+    #if Inlinable
     @inlinable
+    #endif
     static func logic_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,

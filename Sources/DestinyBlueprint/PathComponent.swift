@@ -32,19 +32,25 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var description: String {
         "\"\(slug)\""
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var isLiteral: Bool {
         guard case .literal = self else { return false }
         return true
     }
 
     /// - Returns: Whether or not this component is a parameter.
+    #if Inlinable
     @inlinable
+    #endif
     public var isParameter: Bool {
         switch self {
         case .literal:   false
@@ -55,7 +61,9 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
 
     /// String representation of this component including the delimiter, if it is a parameter.
     /// Used to determine where parameters are located in a route's path at compile time.
+    #if Inlinable
     @inlinable
+    #endif
     public var slug: String {
         switch self {
         case .literal(let value):   value
@@ -65,7 +73,9 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
     }
 
     /// - Returns: A string representation of this component where the delimiter is omitted (only the name of the path is present).
+    #if Inlinable
     @inlinable
+    #endif
     public var value: String {
         switch self {
         case .literal(let value):   value

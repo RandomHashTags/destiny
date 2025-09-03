@@ -49,12 +49,16 @@ public protocol FileDescriptor: Sendable {
 
 // MARK: Int32
 extension Int32: FileDescriptor {
+    #if Inlinable
     @inlinable
+    #endif
     public var fileDescriptor: Int32 {
         self
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
@@ -67,7 +71,9 @@ extension Int32: FileDescriptor {
         return read
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
@@ -82,7 +88,9 @@ extension Int32: FileDescriptor {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
     ) throws(SocketError) {
@@ -105,7 +113,9 @@ extension Int32: FileDescriptor {
 
 // MARK: Address
 extension Int32 {
+    #if Inlinable
     @inlinable
+    #endif
     public func socketLocalAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
@@ -117,7 +127,9 @@ extension Int32 {
         return socketAddress(addr: &addr, result: result)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func socketPeerAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
@@ -129,7 +141,9 @@ extension Int32 {
         return socketAddress(addr: &addr, result: result)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     func socketAddress(addr: inout sockaddr_storage, result: Int32) -> String? {
         if result != 0 {
             return nil
@@ -163,11 +177,15 @@ extension Int32 {
 
 // MARK: Receive
 extension FileDescriptor {
+    #if Inlinable
     @inlinable
+    #endif
     public func socketReceive(_ baseAddress: UnsafeMutablePointer<UInt8>, _ length: Int, _ flags: Int32 = 0) -> Int {
         return recv(fileDescriptor, baseAddress, length, flags)
     }
+    #if Inlinable
     @inlinable
+    #endif
     public func socketReceive(_ baseAddress: UnsafeMutableRawPointer, _ length: Int, _ flags: Int32 = 0) -> Int {
         return recv(fileDescriptor, baseAddress, length, flags)
     }
@@ -175,7 +193,9 @@ extension FileDescriptor {
 
 // MARK: Read
 extension FileDescriptor {
+    #if Inlinable
     @inlinable
+    #endif
     package func handleReadError() throws(SocketError) {
         #if canImport(Glibc)
         if errno == EAGAIN || errno == EWOULDBLOCK {
@@ -188,7 +208,9 @@ extension FileDescriptor {
 
 // MARK: Write
 extension FileDescriptor {
+    #if Inlinable
     @inlinable
+    #endif
     public func socketWriteBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
@@ -203,7 +225,9 @@ extension FileDescriptor {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func socketWriteString(
         _ string: String
     ) throws(SocketError) {
@@ -223,7 +247,9 @@ extension FileDescriptor {
 
 // MARK: Send
 extension FileDescriptor {
+    #if Inlinable
     @inlinable
+    #endif
     package func socketSendMultiplatform(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         return send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))
@@ -235,7 +261,9 @@ extension FileDescriptor {
 
 // MARK: Close
 extension FileDescriptor {
+    #if Inlinable
     @inlinable
+    #endif
     package func socketClose() {
         #if canImport(SwiftGlibc) || canImport(Foundation)
         shutdown(fileDescriptor, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)

@@ -2,17 +2,22 @@
 import DestinyBlueprint
 
 extension ResponseBody {
+    #if Inlinable
     @inlinable
-    public static func staticStringWithDateHeader(_ value: StaticString) -> StaticStringWithDateHeader {
-        StaticStringWithDateHeader(preDateValue: "", postDateValue: value)
+    #endif
+    public static func nonCopyableStaticStringWithDateHeader(_ value: StaticString) -> NonCopyableStaticStringWithDateHeader {
+        .init(preDateValue: "", postDateValue: value)
     }
+
+    #if Inlinable
     @inlinable
-    public static func staticStringWithDateHeader(preDateValue: StaticString, postDateValue: StaticString) -> StaticStringWithDateHeader {
-        StaticStringWithDateHeader(preDateValue: preDateValue, postDateValue: postDateValue)
+    #endif
+    public static func nonCopyableStaticStringWithDateHeader(preDateValue: StaticString, postDateValue: StaticString) -> NonCopyableStaticStringWithDateHeader {
+        .init(preDateValue: preDateValue, postDateValue: postDateValue)
     }
 }
 
-public struct StaticStringWithDateHeader: ResponseBodyProtocol {
+public struct NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol, ~Copyable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
 
@@ -29,22 +34,33 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
         self.postDateValue = postDateValue
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var count: Int {
         preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.count
     }
     
+    #if Inlinable
     @inlinable
+    #endif
     public func string() -> String {
         "\(preDateValue)\(HTTPDateFormat.placeholder)\(postDateValue)"
     }
 
-    @inlinable public var hasDateHeader: Bool { true }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasDateHeader: Bool {
+        true
+    }
 }
 
 // MARK: Write to buffer
-extension StaticStringWithDateHeader {
+extension NonCopyableStaticStringWithDateHeader {
+    #if Inlinable
     @inlinable
+    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
         preDateValue.withUTF8Buffer {
@@ -60,17 +76,19 @@ extension StaticStringWithDateHeader {
 }
 
 // MARK: Write to socket
-extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
+extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+    #if Inlinable
     @inlinable
+    #endif
     public func respond(
-        router: some HTTPRouterProtocol,
+        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
-            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
+            HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
                 postDateValue.withUTF8Buffer { postDatePointer in
                     do throws(SocketError) {
                         try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])

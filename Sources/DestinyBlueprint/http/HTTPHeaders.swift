@@ -25,7 +25,9 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
 
 extension HTTPHeaders {
     /// - Complexity: Reading or writing a header value that already exists is O(_n_), while removing a header (writing `nil`) is O(*2n*) if it exists and O(_n_) on average if it doesn't.
+    #if Inlinable
     @inlinable
+    #endif
     public subscript(header: String) -> String? {
         get {
             _storage.first(where: { $0.key == header })?.value
@@ -44,14 +46,18 @@ extension HTTPHeaders {
     }
 
     /// - Complexity: O(_n_).
+    #if Inlinable
     @inlinable
+    #endif
     public func has(_ header: String) -> Bool {
         _storage.firstIndex(where: { $0.key == header }) != nil
     }
 }
 
 extension HTTPHeaders {
+    #if Inlinable
     @inlinable
+    #endif
     public func makeIterator() -> HTTPHeadersProtocolIterator {
         HTTPHeadersProtocolIterator(headers: _storage)
     }

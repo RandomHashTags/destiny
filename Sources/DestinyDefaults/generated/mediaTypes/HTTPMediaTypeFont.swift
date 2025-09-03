@@ -9,7 +9,9 @@ public enum HTTPMediaTypeFont: String, HTTPMediaTypeProtocol {
     case woff
     case woff2
 
+    #if Inlinable
     @inlinable
+    #endif
     public init?(fileExtension: some StringProtocol) {
         switch fileExtension {
 
@@ -17,12 +19,16 @@ public enum HTTPMediaTypeFont: String, HTTPMediaTypeProtocol {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var type: String {
         "font"
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public var subType: String {
         switch self {
         case .collection: rawValue

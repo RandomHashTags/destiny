@@ -9,7 +9,9 @@ public struct CompiledDynamicMiddlewareStorage<each ConcreteMiddleware: DynamicM
         self.middleware = middleware
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func forEach(_ closure: (any DynamicMiddlewareProtocol) -> Void) {
         for middleware in repeat each middleware {
             closure(middleware)

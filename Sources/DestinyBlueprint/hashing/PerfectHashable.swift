@@ -12,35 +12,45 @@ public protocol PerfectHashable: Sendable, SIMD where Scalar == UInt8 {
 
 // MARK: SIMD64 extension
 extension SIMD64<UInt8>: PerfectHashable {
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey1(positions: InlineArray<1, Int>) -> UInt64 {
         return withUnsafeBytes(of: (0, 0, 0, 0, 0, 0, 0, self[positions[0]])) {
             $0.load(as: UInt64.self)
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey2(positions: InlineArray<2, Int>) -> UInt64 {
         return withUnsafeBytes(of: (0, 0, 0, 0, 0, 0, self[positions[0]], self[positions[1]])) {
             $0.load(as: UInt64.self)
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey3(positions: InlineArray<3, Int>) -> UInt64 {
         return withUnsafeBytes(of: (0, 0, 0, 0, 0, self[positions[0]], self[positions[1]], self[positions[2]])) {
             $0.load(as: UInt64.self)
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey4(positions: InlineArray<4, Int>) -> UInt64 {
         return withUnsafeBytes(of: (0, 0, 0, 0, self[positions[0]], self[positions[1]], self[positions[2]], self[positions[3]])) {
             $0.load(as: UInt64.self)
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey5(positions: InlineArray<5, Int>) -> UInt64 {
         return withUnsafeBytes(of: self, { b in
             return withUnsafeBytes(of: (
@@ -58,7 +68,9 @@ extension SIMD64<UInt8>: PerfectHashable {
         })
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey6(positions: InlineArray<6, Int>) -> UInt64 {
         return withUnsafeBytes(of: self, { b in
             return withUnsafeBytes(of: (
@@ -76,7 +88,9 @@ extension SIMD64<UInt8>: PerfectHashable {
         })
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey7(positions: InlineArray<7, Int>) -> UInt64 {
         return withUnsafeBytes(of: self, { b in
             return withUnsafeBytes(of: (
@@ -94,7 +108,9 @@ extension SIMD64<UInt8>: PerfectHashable {
         })
     }
 
+    #if Inlinable
     @inlinable
+    #endif
     public func extractKey8(positions: InlineArray<8, Int>) -> UInt64 {
         return withUnsafeBytes(of: self, { b in
             return withUnsafeBytes(of: (

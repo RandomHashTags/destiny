@@ -5,9 +5,19 @@ public protocol HTTPChunkDataProtocol: BufferWritable, HTTPSocketWritable, ~Copy
 
 // MARK: Default conformances
 extension String: HTTPChunkDataProtocol {
-    @inlinable public var chunkDataCount: Int { count }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var chunkDataCount: Int {
+        count
+    }
 }
 
 extension StaticString: HTTPChunkDataProtocol {
-    @inlinable public var chunkDataCount: Int { utf8CodeUnitCount }
+    #if Inlinable
+    @inlinable
+    #endif
+    public var chunkDataCount: Int {
+        utf8CodeUnitCount
+    }
 }

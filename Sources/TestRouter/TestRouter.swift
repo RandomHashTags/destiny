@@ -4,8 +4,6 @@ import FoundationEssentials
 import Logging
 
 package final class TestRouter {
-    package static let router = DeclaredRouter.router
-
     enum CustomError: Error {
         case yipyip
     }
@@ -14,7 +12,7 @@ package final class TestRouter {
 // MARK: Router
 extension TestRouter {
     #declareRouter(
-        visibility: .package,
+        routerSettings: .init(copyable: true, visibility: .package),
 
         version: .v1_1,
         dynamicNotFoundResponder: nil,
