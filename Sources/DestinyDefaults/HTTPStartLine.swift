@@ -3,7 +3,7 @@ import DestinyBlueprint
 import VariableLengthArray
 
 /// Default HTTP Start Line implementation.
-public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copyable {
+public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol {
     public let buffer:InlineArray<bufferCount, UInt8>
     public let methodEndIndex:Int
     public let pathQueryStartIndex:Int?
