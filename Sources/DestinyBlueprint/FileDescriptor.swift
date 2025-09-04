@@ -102,7 +102,7 @@ extension Int32: FileDescriptor {
             }
             let result = writev(fileDescriptor, iovecs.baseAddress, Int32(count))
             if result <= 0 {
-                err = SocketError.writeFailed()
+                err = .writeFailed()
             }
         })
         if let err {

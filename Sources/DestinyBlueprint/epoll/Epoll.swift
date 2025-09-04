@@ -4,7 +4,7 @@ import CEpoll
 import Glibc
 import Logging
 
-public struct Epoll<let maxEvents: Int> {
+public struct Epoll<let maxEvents: Int>: Sendable {
     public let fileDescriptor:Int32
     public let pipeFileDescriptors:(read: Int32, write: Int32)
     public let logger:Logger

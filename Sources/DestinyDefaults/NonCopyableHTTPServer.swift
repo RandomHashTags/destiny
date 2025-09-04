@@ -255,7 +255,7 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         router: borrowing Router
     ) -> InlineArray<maxEvents, Bool>? {
         do throws(EpollError) {
-            let processor = try EpollWorker<maxEvents>.create(workerId: 0, backlog: backlog, port: port)
+            var processor = try EpollWorker<maxEvents>.create(workerId: 0, backlog: backlog, port: port)
             try processor.run(timeout: -1, handleClient: { client, handler in
                 let socket = ClientSocket(fileDescriptor: client)
                 router.handle(client: client, socket: socket, completionHandler: handler)

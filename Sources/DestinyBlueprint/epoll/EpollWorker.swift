@@ -16,7 +16,7 @@ func accept4_fd(
 ) -> Int32
 
 // MARK: EpollWorker
-public final class EpollWorker<let maxEvents: Int>: @unchecked Sendable {
+public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
     @usableFromInline
     let listenFD:Int32
 
@@ -102,7 +102,7 @@ public final class EpollWorker<let maxEvents: Int>: @unchecked Sendable {
     #if Inlinable
     @inlinable
     #endif
-    public func shutdown() {
+    public mutating func shutdown() {
         running = false
         var c:UInt8 = 1
         _ = write(ep.pipeFileDescriptors.write, &c, 1)
@@ -118,7 +118,7 @@ extension EpollWorker {
     #if Inlinable
     @inlinable
     #endif
-    public func run(
+    public mutating func run(
         pinToCore: Int32? = nil,
         timeout: Int32 = -1,
         handleClient: (_ socket: Int32, _ completionHandler: @Sendable @escaping () -> Void) -> Void
