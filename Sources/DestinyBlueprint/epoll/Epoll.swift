@@ -97,22 +97,28 @@ public struct Epoll<let maxEvents: Int>: Sendable {
     #if Inlinable
     @inlinable
     #endif
+    public func closeAll() {
+        close(pipeFileDescriptors.read)
+        close(pipeFileDescriptors.write)
+        close(fileDescriptor)
+    }
+}
+
+// MARK: Wait
+extension Epoll {
+    #if Inlinable
+    @inlinable
+    #endif
     public func wait(
         timeout: Int32 = -1,
         events: inout InlineArray<maxEvents, epoll_event>
     ) throws(EpollError) -> Int32 {
         var loadedClients:Int32 = -1
         var err:EpollError? = nil
-        events.mutableSpan.withUnsafeBufferPointer { p in
+        var mutableSpan = events.mutableSpan
+        mutableSpan.withUnsafeMutableBufferPointer { p in
             do throws(EpollError) {
-                guard let base = p.baseAddress else { throw .waitFailed() }
-                #if DEBUG
-                logger.info("calling epoll_pwait with timeout: \(timeout)")
-                #endif
-                loadedClients = epoll_pwait(fileDescriptor, .init(mutating: base), Int32(maxEvents), timeout, nil)
-                #if DEBUG
-                logger.info("epoll_pwait returned \(loadedClients)")
-                #endif
+                loadedClients = try wait(events: p)
             } catch {
                 err = error
             }
@@ -129,10 +135,25 @@ public struct Epoll<let maxEvents: Int>: Sendable {
     #if Inlinable
     @inlinable
     #endif
-    public func closeAll() {
-        close(pipeFileDescriptors.read)
-        close(pipeFileDescriptors.write)
-        close(fileDescriptor)
+    public func wait(
+        timeout: Int32 = -1,
+        events: UnsafeMutableBufferPointer<epoll_event>
+    ) throws(EpollError) -> Int32 {
+        guard let base = events.baseAddress else { throw .waitFailed() }
+
+        #if DEBUG
+        logger.info("calling epoll_pwait with timeout: \(timeout)")
+        #endif
+
+        let loadedClients = epoll_pwait(fileDescriptor, base, Int32(maxEvents), timeout, nil)
+
+        #if DEBUG
+        logger.info("epoll_pwait returned \(loadedClients)")
+        #endif
+        if loadedClients == -1 {
+            throw .waitFailed()
+        }
+        return loadedClients
     }
 }
 

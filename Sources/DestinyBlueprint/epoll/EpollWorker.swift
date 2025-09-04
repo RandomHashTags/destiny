@@ -129,45 +129,48 @@ extension EpollWorker {
         #endif
 
         var events = InlineArray<maxEvents, epoll_event>(repeating: epoll_event())
-        while running {
-            do throws(EpollError) {
-                let loadedClients = try ep.wait(timeout: timeout, events: &events)
-                guard loadedClients > 0 else { continue }
-                for i in 0..<loadedClients {
-                    let event = events[Int(i)]
-                    let eventFD = event.data.fd
+        var mutableSpan = events.mutableSpan
+        mutableSpan.withUnsafeMutableBufferPointer { buffer in
+            while running {
+                do throws(EpollError) {
+                    let loadedClients = try ep.wait(timeout: timeout, events: buffer)
+                    guard loadedClients > 0 else { continue }
+                    for i in 0..<loadedClients {
+                        let event = buffer[Int(i)]
+                        let eventFD = event.data.fd
 
-                    // cancel pipe
-                    if eventFD == ep.pipeFileDescriptors.read {
-                        // drain pipe
-                        #if DEBUG
-                        logger.info("draining...")
-                        #endif
+                        // cancel pipe
+                        if eventFD == ep.pipeFileDescriptors.read {
+                            // drain pipe
+                            #if DEBUG
+                            logger.info("draining...")
+                            #endif
 
-                        var tmp = UInt8(0)
-                        _ = read(eventFD, &tmp, 1)
-                        running = false
-                        break
-                    }
-                    if eventFD == listenFD {
-                        // accept as many as possible
-                        while true {
-                            guard let client = acceptNewConnection() else { break }
-                            let flags = UInt32(EPOLLIN.rawValue) | UInt32(EPOLLET.rawValue)
-                            try ep.add(client: client, events: flags)
+                            var tmp = UInt8(0)
+                            _ = read(eventFD, &tmp, 1)
+                            running = false
+                            break
                         }
-                        continue
-                    }
-                    if event.events & UInt32(EPOLLHUP.rawValue) != 0 || event.events & UInt32(EPOLLERR.rawValue) != 0 {
-                        close(eventFD)
-                    } else if event.events & UInt32(EPOLLIN.rawValue) != 0 { // client read/write
-                        handleClient(eventFD, {
+                        if eventFD == listenFD {
+                            // accept as many as possible
+                            while true {
+                                guard let client = acceptNewConnection() else { break }
+                                let flags = UInt32(EPOLLIN.rawValue) | UInt32(EPOLLET.rawValue)
+                                try ep.add(client: client, events: flags)
+                            }
+                            continue
+                        }
+                        if event.events & UInt32(EPOLLHUP.rawValue) != 0 || event.events & UInt32(EPOLLERR.rawValue) != 0 {
                             close(eventFD)
-                        })
+                        } else if event.events & UInt32(EPOLLIN.rawValue) != 0 { // client read/write
+                            handleClient(eventFD, {
+                                close(eventFD)
+                            })
+                        }
                     }
+                } catch {
+                    logger.error("epoll wait failed: \(error)")
                 }
-            } catch {
-                logger.error("epoll wait failed: \(error)")
             }
         }
     }
