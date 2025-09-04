@@ -21,9 +21,18 @@ public struct NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol, ~Copy
     public let preDateValue:StaticString
     public let postDateValue:StaticString
 
+    @usableFromInline
+    let payload:Payload
+
     public init(_ value: StaticString) {
         self.preDateValue = ""
         self.postDateValue = value
+        payload = .init(
+            preDatePointer: preDateValue.utf8Start,
+            preDatePointerCount: preDateValue.utf8CodeUnitCount,
+            postDatePointer: postDateValue.utf8Start,
+            postDatePointerCount: postDateValue.utf8CodeUnitCount
+        )
     }
 
     public init(
@@ -32,6 +41,12 @@ public struct NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol, ~Copy
     ) {
         self.preDateValue = preDateValue
         self.postDateValue = postDateValue
+        payload = .init(
+            preDatePointer: preDateValue.utf8Start,
+            preDatePointerCount: preDateValue.utf8CodeUnitCount,
+            postDatePointer: postDateValue.utf8Start,
+            postDatePointerCount: postDateValue.utf8CodeUnitCount
+        )
     }
 
     #if Inlinable
@@ -75,10 +90,13 @@ extension NonCopyableStaticStringWithDateHeader {
     }
 }
 
-// MARK: Write to socket
+// MARK: Respond
 extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
     #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
@@ -86,21 +104,42 @@ extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponder
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
-        var err:SocketError? = nil
-        preDateValue.withUTF8Buffer { preDatePointer in
+        try payload.write(socket: socket)
+        completionHandler()
+    }
+}
+
+// MARK: Payload
+extension NonCopyableStaticStringWithDateHeader {
+    @usableFromInline
+    struct Payload: @unchecked Sendable, ~Copyable {
+        @usableFromInline let preDatePointer:UnsafePointer<UInt8>
+        @usableFromInline let preDatePointerCount:Int
+        @usableFromInline let postDatePointer:UnsafePointer<UInt8>
+        @usableFromInline let postDatePointerCount:Int
+
+        #if Inlinable
+        @inlinable
+        #endif
+        #if InlineAlways
+        @inline(__always)
+        #endif
+        func write(socket: some FileDescriptor) throws(ResponderError) {
+            var err:SocketError? = nil
             HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
-                postDateValue.withUTF8Buffer { postDatePointer in
-                    do throws(SocketError) {
-                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
-                    } catch {
-                        err = error
-                    }
+                do throws(SocketError) {
+                    try socket.writeBuffers([
+                        (preDatePointer, preDatePointerCount),
+                        (datePointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
+                        (postDatePointer, postDatePointerCount)
+                    ])
+                } catch {
+                    err = error
                 }
             }
+            if let err {
+                throw .socketError(err)
+            }
         }
-        if let err {
-            throw .socketError(err)
-        }
-        completionHandler()
     }
 }

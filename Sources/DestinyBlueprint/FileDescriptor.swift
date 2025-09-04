@@ -40,6 +40,11 @@ public protocol FileDescriptor: Sendable {
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
     ) throws(SocketError)
 
+    /// Efficiently writes multiple buffers to the file descriptor.
+    func writeBuffers<let count: Int>(
+        _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
+    ) throws(SocketError)
+
     /// - Returns: The local socket address of this file descriptor.
     func socketLocalAddress() -> String?
 
@@ -99,6 +104,28 @@ extension Int32: FileDescriptor {
             for i in buffers.indices {
                 let buffer = buffers[i]
                 iovecs[i] = .init(iov_base: .init(mutating: buffer.baseAddress), iov_len: buffer.count)
+            }
+            let result = writev(fileDescriptor, iovecs.baseAddress, Int32(count))
+            if result <= 0 {
+                err = .writeFailed()
+            }
+        })
+        if let err {
+            throw err
+        }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers<let count: Int>(
+        _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
+    ) throws(SocketError) {
+        var err:SocketError? = nil
+        withUnsafeTemporaryAllocation(of: iovec.self, capacity: count, { iovecs in
+            for i in buffers.indices {
+                let (buffer, bufferCount) = buffers[i]
+                iovecs[i] = .init(iov_base: .init(mutating: buffer), iov_len: bufferCount)
             }
             let result = writev(fileDescriptor, iovecs.baseAddress, Int32(count))
             if result <= 0 {
