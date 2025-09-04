@@ -1,6 +1,6 @@
 
 extension SIMD where Scalar: FixedWidthInteger {
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif

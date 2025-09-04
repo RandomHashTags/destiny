@@ -3,7 +3,7 @@ import DestinyBlueprint
 import VariableLengthArray
 
 /// Default HTTP Start Line implementation.
-public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol {
+public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copyable {
     public let buffer:InlineArray<bufferCount, UInt8>
     public let methodEndIndex:Int
     public let pathQueryStartIndex:Int?
@@ -56,7 +56,7 @@ public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol {
                     offset += 1
                 }
             } else {
-                buffer.span.withUnsafeBufferPointer {
+                buffer.withUnsafeBufferPointer {
                     copyMemory(pathBuffer.baseAddress!, $0.baseAddress! + offset, pathCount)
                 }
             }
@@ -75,6 +75,32 @@ public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol {
             buffer[$0]
         }, closure)
     }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func simd() -> SIMD64<UInt8> {
+        var simd = SIMD64<UInt8>()
+        buffer.withUnsafeBufferPointer {
+            for i in 0..<min(64, endIndex) {
+                simd[i] = $0[i]
+            }
+        }
+        // TODO: optimize?
+        /*withUnsafePointer(to: buffer, { bufferPointer in
+            withUnsafeMutablePointer(to: &simd, {
+                copyMemory(.init($0), bufferPointer, endIndex)
+            })
+        })*/
+        return simd
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func copy() -> Self {
+        Self(buffer: buffer, methodEndIndex: methodEndIndex, pathQueryStartIndex: pathQueryStartIndex, version: version, endIndex: endIndex)
+    }
 }
 
 // MARK: Load
@@ -83,7 +109,7 @@ extension HTTPStartLine {
     @inlinable
     #endif
     public static func load(
-        buffer: InlineArray<bufferCount, UInt8>
+        buffer: consuming InlineArray<bufferCount, UInt8>
     ) throws(SocketError) -> Self {
         var err:SocketError? = nil
         var methodEndIndex = 0

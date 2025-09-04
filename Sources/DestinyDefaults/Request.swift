@@ -190,7 +190,7 @@ extension Request {
 
         @usableFromInline
         init(
-            startLine: HTTPStartLine<1024>? = nil,
+            startLine: consuming HTTPStartLine<1024>? = nil,
             _startLineSIMD: SIMD64<UInt8>? = nil,
             _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
             _methodString: String? = nil,
@@ -222,14 +222,8 @@ extension Request {
             if let _startLineSIMD {
                 return _startLineSIMD
             }
-            var simdStartLine = SIMD64<UInt8>()
-            startLine!.buffer.withUnsafeBufferPointer {
-                for i in 0..<min(64, startLine!.endIndex) {
-                    simdStartLine[i] = $0[i]
-                }
-            }
-            _startLineSIMD = simdStartLine
-            return simdStartLine
+            _startLineSIMD = startLine!.simd()
+            return _startLineSIMD!
         }
 
         #if Inlinable
@@ -263,7 +257,7 @@ extension Request {
         #endif
         func copy() -> Self {
             Self(
-                startLine: startLine,
+                startLine: startLine?.copy(),
                 _startLineSIMD: _startLineSIMD,
                 _startLineSIMDLowercased: _startLineSIMDLowercased,
                 _methodString: _methodString,
