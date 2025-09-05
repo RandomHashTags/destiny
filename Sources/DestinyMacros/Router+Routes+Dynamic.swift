@@ -9,6 +9,7 @@ extension RouterStorage {
         mutable: Bool,
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
+        isCopyable: Bool,
         routes: [(DynamicRoute, FunctionCallExprSyntax)]
     ) -> [(path: SIMD64<UInt8>, responder: String)]? {
         guard !routes.isEmpty else { return nil }
@@ -28,68 +29,61 @@ extension RouterStorage {
                 parameterless.append(route)
             }
         }
-        let parameterlessString = parameterless.isEmpty ? "" : parameterless.compactMap({ route, function in
+        for (route, function) in parameterless {
             let string = getRouteStartLine(route)
-            if registeredPaths.contains(string) {
+            let buffer = SIMD64<UInt8>(string)
+            guard let literalResponder = getResponderValue(
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription),
+                isCopyable: isCopyable
+            ) else { continue }
+            guard !registeredPaths.contains(string) else {
                 Router.routePathAlreadyRegistered(context: context, node: function, string)
-                return nil
-            } else {
-                registeredPaths.insert(string)
-                let buffer = SIMD64<UInt8>(string)
-                let (literalResponder, responder) = getResponderValue(
-                    route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription)
-                )
-                literalResponders.append((buffer, literalResponder))
-                return "// \(string)\n\(responder)"
+                continue
             }
-        }).joined(separator: ",\n\n") + "\n"
-        var parameterizedByPathCount = [String]()
-        var parameterizedString = ""
+            registeredPaths.insert(string)
+            literalResponders.append((buffer, literalResponder))
+        }
         if !parameterized.isEmpty {
             for (route, function) in parameterized {
-                if parameterizedByPathCount.count <= route.path.count {
-                    for _ in 0...(route.path.count - parameterizedByPathCount.count) {
-                        parameterizedByPathCount.append("")
-                    }
-                }
                 var string = "\(route.method.rawNameString()) /\(route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/")) \(route.version.string)"
-                if !registeredPaths.contains(string) {
-                    registeredPaths.insert(string)
-                    string = getRouteStartLine(route)
-                    let buffer = SIMD64<UInt8>(string)
-                    let (literalResponder, responder) = getResponderValue(
-                        route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription)
-                    )
-                    literalResponders.append((buffer, literalResponder))
-                    parameterizedByPathCount[route.path.count].append("\n// \(string)\n\(responder)")
-                } else {
+                let pathLiteral = string
+                string = getRouteStartLine(route)
+                let buffer = SIMD64<UInt8>(pathLiteral)
+                guard let literalResponder = getResponderValue(
+                    route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription),
+                    isCopyable: isCopyable
+                ) else { continue }
+                guard !registeredPaths.contains(string) else {
                     Router.routePathAlreadyRegistered(context: context, node: function, string)
+                    continue
                 }
-            }
-            parameterizedString += "\n" + parameterizedByPathCount.compactMap({ $0.isEmpty ? nil : $0 }).joined(separator: ",\n") + "\n"
-        }
-        let catchallString = catchall.isEmpty ? "" : catchall.compactMap({ route, function in
-            let string = getRouteStartLine(route)
-            if registeredPaths.contains(string) {
-                Router.routePathAlreadyRegistered(context: context, node: function, string)
-                return nil
-            } else {
                 registeredPaths.insert(string)
-                let buffer = SIMD64<UInt8>(string)
-                let (literalResponder, responder) = getResponderValue(
-                    route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription)
-                )
                 literalResponders.append((buffer, literalResponder))
-                return "// \(string)\n\(responder)"
             }
-        }).joined(separator: ",\n\n") + "\n"
-        return literalResponders
+        }
+        for (route, function) in catchall {
+            let string = getRouteStartLine(route)
+            let buffer = SIMD64<UInt8>(string)
+            guard let literalResponder = getResponderValue(
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription),
+                isCopyable: isCopyable
+            ) else { continue }
+            guard !registeredPaths.contains(string) else {
+                Router.routePathAlreadyRegistered(context: context, node: function, string)
+                continue
+            }
+            registeredPaths.insert(string)
+            literalResponders.append((buffer, literalResponder))
+        }
+        return literalResponders.isEmpty ? nil : literalResponders
     }
-
+    
     mutating func getResponderValue(
-        route: RouterStorage.Route
-    ) -> (responder: String, responderValue: String) {
+        route: RouterStorage.Route,
+        isCopyable: Bool
+    ) -> String? {
         var responder = route.responder
+        var isAsync = responder.contains(" await ")
         let logicSplit = responder.split(separator: "logic: {")
         if let responderBody = logicSplit.getPositive(1), let parameters = responderBody.firstIndex(of: "\n") {
             var responderBodyArguments = responderBody[responderBody.index(after: parameters)...]
@@ -115,7 +109,8 @@ extension RouterStorage {
             let paths = route.paths
             let parameterPathIndexes = paths.enumerated().compactMap({ $0.element.first == ":" || $0.element.first == "*" ? $0.offset : nil })
 
-            let isAsync = responder.contains(" await ")
+            isAsync = responder.contains(" await ")
+            guard isCopyable == isAsync else { return nil }
             let responderThrows = responder.contains(" try ") || responder.contains(" throw ")
             if responderThrows {
                 responder = """
@@ -134,16 +129,16 @@ extension RouterStorage {
             var memberBlock = MemberBlockSyntax(members: .init())
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "let path:InlineArray<\(paths.count), PathComponent> = \(paths)")))
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "let _defaultResponse = \(defaultResponse)")))
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)var pathComponentsCount: Int { \(paths.count) }")))
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)func pathComponent(at index: Int) -> PathComponent { path[index] }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)var pathComponentsCount: Int { \(paths.count) }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)func pathComponent(at index: Int) -> PathComponent { path[index] }")))
             
             let yieldPathComponentParameters = parameterPathIndexes.isEmpty ? "" : "\n" + parameterPathIndexes.map({ "yield(\($0))" }).joined(separator: "\n")
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {\(yieldPathComponentParameters) }")))
-            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\(visibility)func defaultResponse() -> \(dynamicResponseTypeAnnotation) { _defaultResponse }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {\(yieldPathComponentParameters) }")))
+            memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)func defaultResponse() -> \(dynamicResponseTypeAnnotation) { _defaultResponse }")))
             memberBlock.members.append(.init(decl: DeclSyntax.init(stringLiteral: """
             \(inlinableAnnotation)
             \(visibility)func respond(
-                router: \(routerParameter),
+                router: \(routerParameter(isCopyable: isCopyable)),
                 socket: some FileDescriptor,
                 request: inout some HTTPRequestProtocol & ~Copyable,
                 response: inout some DynamicResponseProtocol,
@@ -167,15 +162,17 @@ extension RouterStorage {
                 leadingTrivia: .init(stringLiteral: "// MARK: \(name)\n\(visibility)"),
                 name: .init(stringLiteral: name),
                 inheritanceClause: .init(inheritedTypes: .init(arrayLiteral:
-                    .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "NonCopyable")DynamicRouteResponderProtocol"), trailingComma: ","),
-                    .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "~")Copyable"))
+                    .init(type: TypeSyntax(stringLiteral: "\(isCopyable ? "" : "NonCopyable")DynamicRouteResponderProtocol"), trailingComma: ","),
+                    .init(type: TypeSyntax(stringLiteral: "\(isCopyable ? "" : "~")Copyable"))
                 )),
                 memberBlock: memberBlock
             )
             generatedDecls.append(structure)
             responder = "DynamicResponder\(autoGeneratedDynamicRespondersIndex)()"
             autoGeneratedDynamicRespondersIndex += 1
+        } else {
+            guard isCopyable == isAsync else { return nil }
         }
-        return (responder, "CompiledDynamicResponderStorageRoute(\npath: \(route.buffer),\nresponder: \(responder)\n)")
+        return responder
     }
 }

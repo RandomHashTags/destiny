@@ -82,14 +82,15 @@ extension RouteGroup {
             route.insertPath(contentsOf: prefixEndpoints, at: 0)
             routeGroupStorage.staticCaseInsensitiveRoutes[i] = (route, function)
         }
+        var staticRedirects = routeGroupStorage.staticRedirects
         let staticRespondersSyntax = routeGroupStorage.staticRoutesSyntax(
             mutable: false,
             context: context,
             isCaseSensitive: true,
-            redirects: routeGroupStorage.staticRedirects,
+            redirects: &staticRedirects,
             middleware: routeGroupStorage.staticMiddleware,
             routes: routeGroupStorage.staticCaseInsensitiveRoutes
-        ) ?? "nil"
+        )
 
         for i in routeGroupStorage.dynamicCaseInsensitiveRoutes.indices {
             var (route, function) = routeGroupStorage.dynamicCaseInsensitiveRoutes[i]
@@ -100,6 +101,7 @@ extension RouteGroup {
             mutable: false,
             context: context,
             isCaseSensitive: true,
+            isCopyable: settings.isCopyable,
             routes: routeGroupStorage.dynamicCaseInsensitiveRoutes
         ) ?? []
 

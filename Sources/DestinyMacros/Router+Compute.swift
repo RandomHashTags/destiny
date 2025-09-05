@@ -12,9 +12,9 @@ extension Router {
         context: some MacroExpansionContext
     ) -> (router: CompiledRouterStorage, structs: [any DeclSyntaxProtocol]) {
         var version = HTTPVersion.v1_1
-        var errorResponder = ""
-        var dynamicNotFoundResponder:String? = nil
-        var staticNotFoundResponder:String? = nil
+        var customErrorResponder = ""
+        var customDynamicNotFoundResponder = ""
+        var customStaticNotFoundResponder = ""
         var storage = RouterStorage(settings: routerSettings, perfectHashSettings: perfectHashSettings)
         for child in arguments {
             if let label = child.label {
@@ -22,11 +22,11 @@ extension Router {
                 case "version":
                     version = HTTPVersion.parse(context: context, expr: child.expression) ?? version
                 case "errorResponder":
-                    errorResponder = "\(child.expression)"
+                    customErrorResponder = "\(child.expression)"
                 case "dynamicNotFoundResponder":
-                    dynamicNotFoundResponder = "\(child.expression)"
+                    customDynamicNotFoundResponder = "\(child.expression)"
                 case "staticNotFoundResponder":
-                    staticNotFoundResponder = "\(child.expression)"
+                    customStaticNotFoundResponder = "\(child.expression)"
                 case "redirects":
                     guard let array = child.expression.arrayElements(context: context) else { break }
                     parseRedirects(context: context, version: version, array: array, staticRedirects: &storage.staticRedirects, dynamicRedirects: &storage.dynamicRedirects)
@@ -78,7 +78,9 @@ extension Router {
                 // TODO: support custom routes
             }
         }
-        if errorResponder.isEmpty {
+
+        let errorResponder:(copyable: String?, noncopyable: String?)?
+        if customErrorResponder.isEmpty || customErrorResponder.isEmpty || customErrorResponder == "nil" {
             let defaultStaticErrorResponse = HTTPResponseMessage(
                 version: version,
                 status: HTTPStandardResponseStatus.ok.code,
@@ -88,50 +90,90 @@ extension Router {
                 contentType: HTTPMediaTypeApplication.json,
                 charset: nil
             ).string(escapeLineBreak: true)
-            errorResponder = """
-            \(routerSettings.isCopyable ? "" : "NonCopyable")StaticErrorResponder({ error in
-                \"\(defaultStaticErrorResponse)\"
-            })
-            """
+            errorResponder = (
+                defaultErrorResponder(isCopyable: true, response: defaultStaticErrorResponse),
+                defaultErrorResponder(isCopyable: false, response: defaultStaticErrorResponse)
+            )
+        } else {
+            errorResponder = (
+                customErrorResponder,
+                customErrorResponder
+            )
         }
-        if staticNotFoundResponder == nil || staticNotFoundResponder!.isEmpty {
-            staticNotFoundResponder = IntermediateResponseBody(type: .staticStringWithDateHeader, "not found").responderDebugDescription(
-                settings: routerSettings,
-                response: HTTPResponseMessage(
-                    version: version,
-                    status: HTTPStandardResponseStatus.notFound.code,
-                    headers: ["Date":HTTPDateFormat.placeholder],
-                    cookies: [],
-                    body: "not found",
-                    contentType: HTTPMediaType(HTTPMediaTypeText.plain),
-                    charset: Charset.utf8
-                )
+
+        let dynamicNotFoundResponder:(copyable: String?, noncopyable: String?)?
+        if customDynamicNotFoundResponder.isEmpty || customDynamicNotFoundResponder == "nil" {
+            dynamicNotFoundResponder = nil
+        } else {
+            dynamicNotFoundResponder = (
+                customDynamicNotFoundResponder,
+                customDynamicNotFoundResponder
+            )
+        }
+
+        let staticNotFoundResponder:(copyable: String?, noncopyable: String?)?
+        if customStaticNotFoundResponder.isEmpty || customStaticNotFoundResponder == "nil" {
+            staticNotFoundResponder = (
+                defaultStaticNotFoundResponder(version: version, isCopyable: true),
+                defaultStaticNotFoundResponder(version: version, isCopyable: false)
+            )
+        } else {
+            staticNotFoundResponder = (
+                customStaticNotFoundResponder,
+                customStaticNotFoundResponder
             )
         }
 
         let conditionalRespondersString = storage.conditionalRespondersString()
 
-        let perfectHashCaseSensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, caseSensitive: true)
-        let perfectHashCaseInsensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, caseSensitive: false)
-        let caseSensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: true)
-        let caseInsensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, caseSensitive: false)
-        let dynamicCaseSensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: true)
-        let dynamicCaseInsensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, caseSensitive: false)
+        let perfectHashCaseSensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, isCaseSensitive: true)
+        let perfectHashCaseInsensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, isCaseSensitive: false)
+        let caseSensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, isCaseSensitive: true)
+        let caseInsensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, isCaseSensitive: false)
+        let dynamicCaseSensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, isCaseSensitive: true)
+        let dynamicCaseInsensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, isCaseSensitive: false)
 
         let dynamicMiddlewareArray = storage.dynamicMiddlewareArray(mutable: false)
         let compiled = CompiledRouterStorage(
             settings: routerSettings,
-            perfectHashCaseSensitiveResponder: perfectHashCaseSensitiveResponders,
-            perfectHashCaseInsensitiveResponder: perfectHashCaseInsensitiveResponders,
-            caseSensitiveResponder: caseSensitiveResponders,
-            caseInsensitiveResponder: caseInsensitiveResponders,
-            dynamicCaseSensitiveResponder: dynamicCaseSensitiveResponders,
-            dynamicCaseInsensitiveResponder: dynamicCaseInsensitiveResponders,
+            perfectHashCaseSensitiveResponder: .get(perfectHashCaseSensitiveResponders),
+            perfectHashCaseInsensitiveResponder: .get(perfectHashCaseInsensitiveResponders),
+            caseSensitiveResponder: .get(caseSensitiveResponders),
+            caseInsensitiveResponder: .get(caseInsensitiveResponders),
+            dynamicCaseSensitiveResponder: .get(dynamicCaseSensitiveResponders),
+            dynamicCaseInsensitiveResponder: .get(dynamicCaseInsensitiveResponders),
             dynamicMiddlewareArray: dynamicMiddlewareArray,
-            errorResponder: errorResponder,
-            dynamicNotFoundResponder: dynamicNotFoundResponder,
-            staticNotFoundResponder: staticNotFoundResponder
+            errorResponder: .get(errorResponder),
+            dynamicNotFoundResponder: .get(dynamicNotFoundResponder),
+            staticNotFoundResponder: .get(staticNotFoundResponder)
         )
         return (compiled, storage.generatedDecls)
+    }
+    private static func defaultErrorResponder(
+        isCopyable: Bool,
+        response: String
+    ) -> String {
+        """
+        \(isCopyable ? "" : "NonCopyable")StaticErrorResponder({ error in
+            \"\(response)\"
+        })
+        """
+    }
+    private static func defaultStaticNotFoundResponder(
+        version: HTTPVersion,
+        isCopyable: Bool
+    ) -> String? {
+        return IntermediateResponseBody(type: .staticStringWithDateHeader, "not found").responderDebugDescription(
+            isCopyable: isCopyable,
+            response: HTTPResponseMessage(
+                version: version,
+                status: HTTPStandardResponseStatus.notFound.code,
+                headers: ["Date":HTTPDateFormat.placeholder],
+                cookies: [],
+                body: "not found",
+                contentType: HTTPMediaType(HTTPMediaTypeText.plain),
+                charset: Charset.utf8
+            )
+        )
     }
 }

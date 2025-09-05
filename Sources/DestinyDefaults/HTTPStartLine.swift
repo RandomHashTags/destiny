@@ -159,7 +159,7 @@ extension HTTPStartLine {
                 err = .malformedRequest("not enough bytes for the HTTP Version")
                 return
             }
-            versionUInt64 = UnsafeRawPointer(base).load(fromByteOffset: offset, as: UInt64.self)
+            versionUInt64 = UnsafeRawPointer(base).loadUnaligned(fromByteOffset: offset, as: UInt64.self)
         }
         if let err {
             throw err

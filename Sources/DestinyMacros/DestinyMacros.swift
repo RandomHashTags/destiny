@@ -11,8 +11,8 @@ struct DestinyMacros: CompilerPlugin {
 }
 
 var inlinableAnnotation: String {
-    "#if Inlinable\n@inlinable\n#endif\n"
+    "#if Inlinable\n@inlinable\n#endif"
 }
 var inlineAlwaysAnnotation: String {
-    "#if InlineAlways\n@inline(__always)\n#endif\n"
+    "#if InlineAlways\n@inline(__always)\n#endif"
 }

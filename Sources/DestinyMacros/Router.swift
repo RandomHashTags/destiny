@@ -74,7 +74,7 @@ extension Router: DeclarationMacro {
             )
         } else {
             routerDecl = VariableDeclSyntax(
-                leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\(settings.visibility)"),
+                leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\n\(settings.visibility)"),
                 modifiers: [DeclModifierSyntax(name: "static")],
                 .var,
                 name: "router",

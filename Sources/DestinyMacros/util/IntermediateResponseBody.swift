@@ -39,10 +39,10 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     }
 
     public func responderDebugDescription(
-        settings: RouterSettings,
+        isCopyable: Bool,
         response: some HTTPMessageProtocol
     ) -> String {
-        let prefix = settings.isCopyable ? "" : "NonCopyable"
+        let prefix = isCopyable ? "" : "NonCopyable"
         var responseString = response.intermediateString(escapeLineBreak: true)
         switch type {
         case .bytes:
@@ -80,6 +80,15 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         let preDate = string[string.startIndex..<string.index(string.startIndex, offsetBy: 22)]
         let postDate = string[string.index(string.startIndex, offsetBy: 51)...]
         return (preDate, postDate)
+    }
+
+    var isNoncopyable: Bool {
+        switch type {
+        case .bytes, .inlineBytes, .macroExpansion, .macroExpansionWithDateHeader, .stringWithDateHeader, .staticString, .staticStringWithDateHeader:
+            true
+        default:
+            false
+        }
     }
 
     #if Inlinable
