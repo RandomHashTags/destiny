@@ -167,73 +167,12 @@ extension HTTPStartLine {
         guard let version = HTTPVersion.init(token: versionUInt64.bigEndian) else {
             throw .malformedRequest("unrecognized HTTPVersion: (bigEndian: \(versionUInt64.bigEndian), littleEndian: \(versionUInt64.littleEndian))")
         }
-        let startLine = HTTPStartLine.init(
+        return HTTPStartLine.init(
             buffer: buffer,
             methodEndIndex: methodEndIndex,
             pathQueryStartIndex: pathQueryStartIndex,
             version: version,
             endIndex: pathEndIndex + 9
         )
-        return startLine
-    }
-}
-
-// MARK: Load minimal
-extension HTTPStartLine {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func loadMinimal<T: InlineArrayProtocol>(
-        buffer: T
-    ) throws(SocketError) -> (methodEndIndex: Int, pathEndIndex: Int, httpVersion: HTTPVersion) where T.Element == UInt8 {
-        var methodEndIndex = 0
-        var pathEndIndex = 0
-        var version = HTTPVersion.v0_9
-        var err:SocketError? = nil
-        buffer.withUnsafeBufferPointer { bufferPointer in
-            guard let base = bufferPointer.baseAddress else {
-                err = .malformedRequest("bufferPointer.baseAddress == nil")
-                return
-            }
-            var offset = 0
-            while offset < bufferPointer.count, methodEndIndex == 0 {
-                if bufferPointer[offset] == .space {
-                    methodEndIndex = offset
-                    break
-                }
-                offset += 1
-            }
-            guard methodEndIndex != 0 else {
-                err = .malformedRequest("methodEndIndex == 0")
-                return
-            }
-            offset += 1
-            for i in offset..<bufferPointer.count {
-                if bufferPointer[i] == .space {
-                    pathEndIndex = i
-                    break
-                }
-            }
-            guard pathEndIndex != 0 else {
-                err = .malformedRequest("targetPathEndIndex == 0")
-                return
-            }
-            guard pathEndIndex + 9 < bufferPointer.count else {
-                err = .malformedRequest("not enough bytes for the HTTP Version")
-                return
-            }
-            var versionUInt64:UInt64 = 0
-            copyMemory(&versionUInt64, base + pathEndIndex + 1, 8)
-            guard let httpVersion = HTTPVersion.init(token: versionUInt64.bigEndian) else {
-                err = .malformedRequest("unrecognized HTTPVersion: \(versionUInt64.bigEndian)")
-                return
-            }
-            version = httpVersion
-        }
-        if let err {
-            throw err
-        } else {
-            return (methodEndIndex, pathEndIndex, version)
-        }
     }
 }

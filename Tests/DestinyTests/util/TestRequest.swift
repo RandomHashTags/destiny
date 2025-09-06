@@ -5,7 +5,7 @@ import DestinyDefaults
 /// Default storage for request data.
 struct TestRequest: HTTPRequestProtocol, ~Copyable {
     let fileDescriptor:TestFileDescriptor
-    var _storage:Request._Storage
+    var _storage:Request._Storage<TestFileDescriptor>
     var storage:Request.Storage
 
     init(
@@ -100,20 +100,7 @@ extension TestRequest {
         if read <= 0 {
             throw .malformedRequest()
         }
-        _storage.startLine = try HTTPStartLine<1024>.load(buffer: buffer)
-
-        /*if let queryStartIndex = startLine.pathQueryStartIndex {
-            print("Request;\(#function);queryStartIndex=\(queryStartIndex);query=")
-            for i in queryStartIndex..<startLine.pathEndIndex {
-                print("\(Character(UnicodeScalar(buffer[i])))")
-            }
-        }
-        for i in 0..<min(64, startLine.endIndex) {
-            simdStartLine[i] = buffer.itemAt(index: i)
-        }
-        _storage._startLineSIMD = simdStartLine
-        _storage._methodString = startLine.method.unsafeString()
-        _storage._pathString = startLine.path.unsafeString()*/
+        try _storage.load(fileDescriptor: fileDescriptor, buffer: buffer)
     }
 }
 

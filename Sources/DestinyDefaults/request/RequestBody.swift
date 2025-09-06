@@ -8,11 +8,14 @@ public struct RequestBody<FD: FileDescriptor>: Sendable, ~Copyable {
     let fileDescriptor:FD
 
     @usableFromInline
-    var _totalRead = 0
+    var _totalRead:UInt64
 
+    #if Inlinable
+    @inlinable
+    #endif
     package init(
         fileDescriptor: FD,
-        totalRead: Int = 0
+        totalRead: UInt64 = 0
     ) {
         self.fileDescriptor = fileDescriptor
         self._totalRead = totalRead
@@ -21,11 +24,69 @@ public struct RequestBody<FD: FileDescriptor>: Sendable, ~Copyable {
     #if Inlinable
     @inlinable
     #endif
-    public var totalRead: Int {
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    public var totalRead: UInt64 {
         _totalRead
     }
 }
 
+// MARK: Read
+extension RequestBody {
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    mutating func read<let count: Int>(
+        into buffer: inout InlineArray<count, UInt8>
+    ) throws(SocketError) -> Int {
+        var err:SocketError? = nil
+        var read = 0
+        var mutableSpan = buffer.mutableSpan
+        mutableSpan.withUnsafeMutableBufferPointer { p in
+            do throws(SocketError) {
+                guard let base = p.baseAddress else {
+                    throw .readBufferFailed("baseAddress == nil")
+                }
+                read = try fileDescriptor.readBuffer(into: base, length: count, flags: 0)
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw err
+        }
+        if read <= 0 {
+            throw .readBufferFailed()
+        }
+        _totalRead += UInt64(read)
+        return read
+    }
+}
+
+// MARK: Collect
+extension RequestBody {
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func collect() throws(SocketError) -> (buffer: Buffer, read: Int) {
+        var buffer = Buffer(repeating: 0)
+        let read = try read(into: &buffer)
+        return (buffer, read)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func collect<let count: Int>() throws(SocketError) -> (buffer: InlineArray<count, UInt8>, read: Int) {
+        var buffer = InlineArray<count, UInt8>(repeating: 0)
+        let read = try read(into: &buffer)
+        return (buffer, read)
+    }
+}
 
 // MARK: Stream, default size
 extension RequestBody {
@@ -39,10 +100,7 @@ extension RequestBody {
         var buffer = Buffer(repeating: 0)
         try await stream(buffer: &buffer, yield)
     }
-}
 
-// MARK: Stream, custom size
-extension RequestBody {
     #if Inlinable
     @inlinable
     #endif
@@ -65,32 +123,17 @@ extension RequestBody {
         _ yield: (InlineArray<chunkSize, UInt8>) async throws -> Void
     ) async throws {
         let asyncStream = AsyncThrowingStream<InlineArray<chunkSize, UInt8>, Error> { continuation in
-            var err:SocketError? = nil
             while true {
                 var read = 0
-                var mutableSpan = buffer.mutableSpan
-                mutableSpan.withUnsafeMutableBufferPointer { p in
-                    do throws(SocketError) {
-                        guard let base = p.baseAddress else {
-                            throw SocketError.readBufferFailed("baseAddress == nil")
-                        }
-                        read = try fileDescriptor.readBuffer(into: base, length: chunkSize, flags: 0)
-                    } catch {
-                        err = error
-                    }
-                }
-                if let err {
-                    continuation.finish(throwing: err)
+                do throws(SocketError) {
+                    read = try self.read(into: &buffer)
+                } catch {
+                    continuation.finish(throwing: error)
                     break
                 }
-                if read <= 0 {
-                    continuation.finish(throwing: SocketError.readBufferFailed())
-                    break
-                }
-                _totalRead += read
                 if read != chunkSize {
                     for i in stride(from: chunkSize-1, to: read-1, by: -1) {
-                        mutableSpan[i] = 0
+                        buffer[i] = 0
                     }
                     continuation.yield(buffer)
                     continuation.finish()
@@ -109,7 +152,7 @@ extension RequestBody {
 // MARK: YieldResult
 extension RequestBody {
     // TODO: can't yet use this: https://github.com/swiftlang/swift/issues/84141
-    public enum StreamYieldResult<let count: Int>: Sendable {
+    enum StreamYieldResult<let count: Int>: Sendable {
         case literal(buffer: InlineArray<count, UInt8>)
         case end(buffer: InlineArray<count, UInt8>, endIndex: Int)
 

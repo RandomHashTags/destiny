@@ -1,6 +1,5 @@
 
 import DestinyBlueprint
-import VariableLengthArray
 
 /// Default storage for request data.
 public struct Request: HTTPRequestProtocol, ~Copyable {
@@ -10,7 +9,7 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
     let fileDescriptor:Int32
 
     @usableFromInline
-    var _storage:_Storage
+    var _storage:_Storage<Int32>
 
     public var storage:Storage
 
@@ -45,7 +44,9 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
         }*/
         return .init()
     }()
+}
 
+extension Request {
     #if Inlinable
     @inlinable
     #endif
@@ -54,7 +55,7 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
         _ yield: (String) -> Void
     ) throws(SocketError) {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
         let path = _storage.path()
         var i = offset
@@ -69,7 +70,7 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
     #endif
     public mutating func path(at index: Int) throws(SocketError) -> String {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
         return _storage.path()[index]
     }
@@ -79,7 +80,7 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
     #endif
     public mutating func pathCount() throws(SocketError) -> Int {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
         return _storage.path().count
     }
@@ -89,7 +90,7 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
     #endif
     public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
         return method.rawNameString() == _storage.methodString()
     }
@@ -122,6 +123,23 @@ extension Request {
     }
 }
 
+// MARK: Load storage
+extension Request {
+    #if Inlinable
+    @inlinable
+    #endif
+    mutating func loadStorage() throws(SocketError) {
+        let (initialBuffer, read) = try readBuffer()
+        if read <= 0 {
+            throw .malformedRequest()
+        }
+        try _storage.load(
+            fileDescriptor: fileDescriptor,
+            buffer: initialBuffer
+        )
+    }
+}
+
 // MARK: Start line
 extension Request {
     #if Inlinable
@@ -129,7 +147,7 @@ extension Request {
     #endif
     public mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
         return _storage.startLineSIMD()
     }
@@ -139,136 +157,15 @@ extension Request {
     #endif
     public mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
         return _storage.startLineSIMDLowercased()
     }
 }
 
-// MARK: _Storage
-extension Request {
-    #if Inlinable
-    @inlinable
-    #endif
-    mutating func _loadStorage() throws(SocketError) {
-        let (buffer, read) = try readBuffer()
-        if read <= 0 {
-            throw .malformedRequest()
-        }
-        _storage.startLine = try HTTPStartLine<1024>.load(buffer: buffer)
-
-        /*if let queryStartIndex = startLine.pathQueryStartIndex {
-            print("Request;\(#function);queryStartIndex=\(queryStartIndex);query=")
-            for i in queryStartIndex..<startLine.pathEndIndex {
-                print("\(Character(UnicodeScalar(buffer[i])))")
-            }
-        }
-        for i in 0..<min(64, startLine.endIndex) {
-            simdStartLine[i] = buffer.itemAt(index: i)
-        }
-        _storage._startLineSIMD = simdStartLine
-        _storage._methodString = startLine.method.unsafeString()
-        _storage._pathString = startLine.path.unsafeString()*/
-    }
-
-    @usableFromInline
-    package struct _Storage: Sendable, ~Copyable {
-        @usableFromInline
-        package var startLine:HTTPStartLine<1024>?
-
-        @usableFromInline
-        package var _startLineSIMD:SIMD64<UInt8>?
-
-        @usableFromInline
-        package var _startLineSIMDLowercased:SIMD64<UInt8>?
-
-        @usableFromInline
-        package var _methodString:String?
-
-        @usableFromInline
-        package var _path:[String]?
-
-        @usableFromInline
-        package init(
-            startLine: consuming HTTPStartLine<1024>? = nil,
-            _startLineSIMD: SIMD64<UInt8>? = nil,
-            _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
-            _methodString: String? = nil,
-            _path: [String]? = nil
-        ) {
-            self.startLine = startLine
-            self._startLineSIMD = _startLineSIMD
-            self._startLineSIMDLowercased = _startLineSIMDLowercased
-            self._methodString = _methodString
-            self._path = _path
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        package mutating func startLineSIMDLowercased() -> SIMD64<UInt8> {
-            if let _startLineSIMDLowercased {
-                return _startLineSIMDLowercased
-            }
-            let simd = startLineSIMD().lowercased()
-            _startLineSIMDLowercased = simd
-            return simd
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        package mutating func startLineSIMD() -> SIMD64<UInt8> {
-            if let _startLineSIMD {
-                return _startLineSIMD
-            }
-            _startLineSIMD = startLine!.simd()
-            return _startLineSIMD!
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        package mutating func methodString() -> String {
-            if let _methodString {
-                return _methodString
-            }
-            startLine!.method {
-                _methodString = $0.unsafeString()
-            }
-            return _methodString!
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        package mutating func path() -> [String] {
-            if let _path {
-                return _path
-            }
-            startLine!.path({
-                _path = $0.unsafeString().split(separator: "/").map({ String($0) })
-            })
-            return _path!
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        package func copy() -> Self {
-            Self(
-                startLine: startLine?.copy(),
-                _startLineSIMD: _startLineSIMD,
-                _startLineSIMDLowercased: _startLineSIMDLowercased,
-                _methodString: _methodString,
-                _path: _path
-            )
-        }
-    }
-}
-
 // MARK: Read buffer
 extension Request {
+    /// - Warning: **DOESN'T** check if the read bytes are >= 0!
     #if Inlinable
     @inlinable
     #endif
