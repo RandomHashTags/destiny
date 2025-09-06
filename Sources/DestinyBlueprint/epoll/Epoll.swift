@@ -17,12 +17,11 @@ public struct Epoll<let maxEvents: Int>: Sendable {
         var pipeFileDescriptors:InlineArray<2, Int32> = [0, 0]
         var err:EpollError? = nil
         pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
-            do throws(EpollError) {
-                guard let base = $0.baseAddress else { throw .epollPipeFailed() }
-                pipe(.init(mutating: base))
-            } catch {
-                err = error
+            guard let base = $0.baseAddress else {
+                err = .epollPipeFailed()
+                return
             }
+            pipe(.init(mutating: base))
         }
         if let err {
             close(fileDescriptor)

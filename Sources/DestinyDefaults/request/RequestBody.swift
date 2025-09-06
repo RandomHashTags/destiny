@@ -47,20 +47,21 @@ extension RequestBody {
         var read = 0
         var mutableSpan = buffer.mutableSpan
         mutableSpan.withUnsafeMutableBufferPointer { p in
+            guard let base = p.baseAddress else {
+                err = .readBufferFailed("baseAddress == nil")
+                return
+            }
             do throws(SocketError) {
-                guard let base = p.baseAddress else {
-                    throw .readBufferFailed("baseAddress == nil")
-                }
                 read = try fileDescriptor.readBuffer(into: base, length: count, flags: 0)
+                if read <= 0 {
+                    err = .readBufferFailed()
+                }
             } catch {
                 err = error
             }
         }
         if let err {
             throw err
-        }
-        if read <= 0 {
-            throw .readBufferFailed()
         }
         _totalRead += UInt64(read)
         return read

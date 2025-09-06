@@ -58,13 +58,13 @@ public final class NonCopyableHTTPServer<
     
     // MARK: Run
     public func run() async throws(ServiceError) {
+        onLoad?()
+        do throws(RouterError) {
+            try router.load()
+        } catch {
+            throw .serverError(.routerError(error))
+        }
         do throws(ServerError) {
-            onLoad?()
-            do throws(RouterError) {
-                try router.load()
-            } catch {
-                throw .routerError(error)
-            }
             try await processClients()
         } catch {
             throw .serverError(error)

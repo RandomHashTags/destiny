@@ -72,12 +72,12 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: AsyncHTTPSocke
                 i += 1
                 try socket.socketWriteBuffer(buffer.baseAddress!, length: i)
             }
+            buffer[0] = 48
+            buffer[1] = .carriageReturn
+            buffer[2] = .lineFeed
+            buffer[3] = .carriageReturn
+            buffer[4] = .lineFeed
             do throws(SocketError) {
-                buffer[0] = 48
-                buffer[1] = .carriageReturn
-                buffer[2] = .lineFeed
-                buffer[3] = .carriageReturn
-                buffer[4] = .lineFeed
                 try socket.socketWriteBuffer(buffer.baseAddress!, length: 5)
             } catch {
                 print("AsyncHTTPChunkDataStream;\(#function);error trying to send final chunk to stream: \(error)") // TODO: use logger
