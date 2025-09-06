@@ -59,6 +59,25 @@ extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
     }
 }
 
+// MARK: BufferWritable
+extension InlineArray where Element == UInt8 { 
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    public func write(
+        to buffer: UnsafeMutableBufferPointer<UInt8>,
+        at index: inout Int
+    ) {
+        for i in indices {
+            buffer[index] = self[i]
+            index += 1
+        }
+    }
+}
+
 // MARK: Extensions
 extension Array where Element: BinaryInteger {
     public init<T: InlineArrayProtocol>(_ inlineArray: T) where T.Index == Index, Element == T.Element {

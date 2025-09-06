@@ -232,7 +232,7 @@ extension HTTPResponseMessage {
     @inlinable
     #endif
     func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
-        writeInlineArray(to: buffer, index: &i, array: head.version.inlineByteArray)
+        writeInlineArray(to: buffer, index: &i, array: head.version.inlineArray)
         buffer[i] = .space
         i += 1
 
@@ -259,7 +259,7 @@ extension HTTPResponseMessage {
     @inlinable
     #endif
     func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: String) {
-        let headerKey:InlineByteArray<12> = .init([83, 101, 116, 45, 67, 111, 111, 107, 105, 101, 58, 32]) // "Set-Cookie: "
+        let headerKey:InlineArray<_, UInt8> = [83, 101, 116, 45, 67, 111, 111, 107, 105, 101, 58, 32] // "Set-Cookie: "
         writeInlineArray(to: buffer, index: &i, array: headerKey)
 
         writeString(to: buffer, index: &i, string: cookie)
@@ -278,18 +278,18 @@ extension HTTPResponseMessage {
     ) throws(BufferWriteError) {
         guard var body else { return }
         if contentType != nil {
-            let contentTypeHeader:InlineByteArray<14> = .init([67, 111, 110, 116, 101, 110, 116, 45, 84, 121, 112, 101, 58, 32]) // "Content-Type: "
+            let contentTypeHeader:InlineArray<_, UInt8> = [67, 111, 110, 116, 101, 110, 116, 45, 84, 121, 112, 101, 58, 32] // "Content-Type: "
             writeInlineArray(to: buffer, index: &i, array: contentTypeHeader)
 
             writeString(to: buffer, index: &i, string: contentTypeDescription)
             if charset != nil {
-                let charsetSpan:InlineByteArray<10> = .init([59, 32, 99, 104, 97, 114, 115, 101, 116, 61]) // "; charset="
+                let charsetSpan:InlineArray<_, UInt8> = [59, 32, 99, 104, 97, 114, 115, 101, 116, 61] // "; charset="
                 writeInlineArray(to: buffer, index: &i, array: charsetSpan)
                 writeString(to: buffer, index: &i, string: charsetRawName)
             }
             writeCRLF(to: buffer, index: &i)
         }
-        let contentLengthHeader:InlineByteArray<16> = .init([67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32]) // "Content-Length: "
+        let contentLengthHeader:InlineArray<_, UInt8> = [67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32] // "Content-Length: "
         writeInlineArray(to: buffer, index: &i, array: contentLengthHeader)
 
         writeString(to: buffer, index: &i, string: contentLengthString)
@@ -302,7 +302,7 @@ extension HTTPResponseMessage {
     #if Inlinable
     @inlinable
     #endif
-    func writeInlineArray(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, array: some InlineByteArrayProtocol) {
+    func writeInlineArray<let count: Int>(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, array: InlineArray<count, UInt8>) {
         for indice in array.indices {
             buffer[i] = array.itemAt(index: indice)
             i += 1

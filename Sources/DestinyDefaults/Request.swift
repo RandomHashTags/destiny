@@ -172,24 +172,24 @@ extension Request {
     }
 
     @usableFromInline
-    struct _Storage: Sendable, ~Copyable {
+    package struct _Storage: Sendable, ~Copyable {
         @usableFromInline
-        var startLine:HTTPStartLine<1024>?
+        package var startLine:HTTPStartLine<1024>?
 
         @usableFromInline
-        var _startLineSIMD:SIMD64<UInt8>?
+        package var _startLineSIMD:SIMD64<UInt8>?
 
         @usableFromInline
-        var _startLineSIMDLowercased:SIMD64<UInt8>?
+        package var _startLineSIMDLowercased:SIMD64<UInt8>?
 
         @usableFromInline
-        var _methodString:String?
+        package var _methodString:String?
 
         @usableFromInline
-        var _path:[String]?
+        package var _path:[String]?
 
         @usableFromInline
-        init(
+        package init(
             startLine: consuming HTTPStartLine<1024>? = nil,
             _startLineSIMD: SIMD64<UInt8>? = nil,
             _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
@@ -206,7 +206,7 @@ extension Request {
         #if Inlinable
         @inlinable
         #endif
-        mutating func startLineSIMDLowercased() -> SIMD64<UInt8> {
+        package mutating func startLineSIMDLowercased() -> SIMD64<UInt8> {
             if let _startLineSIMDLowercased {
                 return _startLineSIMDLowercased
             }
@@ -218,7 +218,7 @@ extension Request {
         #if Inlinable
         @inlinable
         #endif
-        mutating func startLineSIMD() -> SIMD64<UInt8> {
+        package mutating func startLineSIMD() -> SIMD64<UInt8> {
             if let _startLineSIMD {
                 return _startLineSIMD
             }
@@ -229,7 +229,7 @@ extension Request {
         #if Inlinable
         @inlinable
         #endif
-        mutating func methodString() -> String {
+        package mutating func methodString() -> String {
             if let _methodString {
                 return _methodString
             }
@@ -242,7 +242,7 @@ extension Request {
         #if Inlinable
         @inlinable
         #endif
-        mutating func path() -> [String] {
+        package mutating func path() -> [String] {
             if let _path {
                 return _path
             }
@@ -255,7 +255,7 @@ extension Request {
         #if Inlinable
         @inlinable
         #endif
-        func copy() -> Self {
+        package func copy() -> Self {
             Self(
                 startLine: startLine?.copy(),
                 _startLineSIMD: _startLineSIMD,
@@ -296,8 +296,8 @@ extension Request {
     #if Inlinable
     @inlinable
     #endif
-    public static func parseHeaders(
-        buffer: some InlineByteArrayProtocol,
+    public static func parseHeaders<let count: Int>(
+        buffer: InlineArray<count, UInt8>,
         offset: Int,
         headers: inout [String:String]
     ) {
@@ -325,8 +325,8 @@ extension Request {
     #if Inlinable
     @inlinable
     #endif
-    public static func parseHeaders2(
-        buffer: some InlineByteArrayProtocol,
+    public static func parseHeaders2<let count: Int>(
+        buffer: InlineArray<count, UInt8>,
         offset: Int,
         headers: inout [String:String]
     ) {

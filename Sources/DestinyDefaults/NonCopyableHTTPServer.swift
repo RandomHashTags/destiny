@@ -262,7 +262,7 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
             })
             processor.shutdown()
         } catch {
-            logger.error("HTTPServer;\(#function);error=\(error)")
+            logger.error("NonCopyableHTTPServer;\(#function);error=\(error)")
         }
         return nil
     }

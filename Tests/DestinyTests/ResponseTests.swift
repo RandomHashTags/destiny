@@ -12,7 +12,7 @@ struct ResponseTests {
         let fd = TestFileDescriptor()
         fd.sendString("GET /html HTTP/1.1\r\n")
         let socket = TestHTTPSocket(_fileDescriptor: fd)
-        let responder = TestRouter.DeclaredRouter.CaseSensitiveResponderStorage0.Route.responder6
+        let responder = TestRouter.DeclaredRouter.CaseSensitiveResponderStorage1.Route.responder4.copy()
         TestRouter.DeclaredRouter.router.handle(client: fd, socket: socket, completionHandler: {
             let capacity = Request.Buffer.count
             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
@@ -29,5 +29,11 @@ struct ResponseTests {
                 #expect(string.contains(responder.postDateValue.description), .init(stringLiteral: responder.postDateValue.description))
             }
         })
+    }
+}
+
+fileprivate extension NonCopyableStaticStringWithDateHeader {
+    func copy() -> Self {
+        Self(preDateValue: preDateValue, postDateValue: postDateValue)
     }
 }

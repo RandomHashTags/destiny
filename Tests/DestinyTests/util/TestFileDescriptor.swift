@@ -54,6 +54,18 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
         }
     }
 
+    func writeBuffers<let count: Int>(_ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>) throws(SocketError) {
+        for indice in buffers.indices {
+            let item = buffers[indice]
+            let buffer = item.buffer
+            var array = Array(repeating: UInt8(0), count: item.bufferCount)
+            for i in 0..<item.bufferCount {
+                array[i] = buffer[i]
+            }
+            received.append(array)
+        }
+    }
+
     func sendString(_ string: String) {
         sent.append(.init(string.utf8))
     }

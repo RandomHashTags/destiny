@@ -6,28 +6,21 @@ extension ResponseBody {
     @inlinable
     #endif
     public static func inlineBytes<let count: Int>(_ value: InlineArray<count, UInt8>) -> Self.InlineBytes<count> {
-        Self.InlineBytes(.init(value))
+        Self.InlineBytes(value)
     }
 
     public struct InlineBytes<let count: Int>: ResponseBodyProtocol, CustomStringConvertible {
-        public let value:InlineByteArray<count>
+        public let value:InlineArray<count, UInt8>
 
         #if Inlinable
         @inlinable
         #endif
         public init(_ value: InlineArray<count, UInt8>) {
-            self.value = .init(value)
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        public init(_ value: InlineByteArray<count>) {
             self.value = value
         }
 
         public var description: String {
-            "ResponseBody.InlineBytes(\(value))"
+            "ResponseBody.InlineBytes(\(value))" // TODO: fix
         }
 
         #if Inlinable

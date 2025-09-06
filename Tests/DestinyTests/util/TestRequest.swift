@@ -4,12 +4,8 @@ import DestinyDefaults
 
 /// Default storage for request data.
 struct TestRequest: HTTPRequestProtocol, ~Copyable {
-    typealias Buffer = InlineArray<1024, UInt8>
-
     let fileDescriptor:TestFileDescriptor
-
-    var _storage:_Storage
-
+    var _storage:Request._Storage
     var storage:Request.Storage
 
     init(
@@ -119,116 +115,15 @@ extension TestRequest {
         _storage._methodString = startLine.method.unsafeString()
         _storage._pathString = startLine.path.unsafeString()*/
     }
-
-    @usableFromInline
-    struct _Storage: Sendable, ~Copyable {
-        @usableFromInline
-        var startLine:HTTPStartLine<1024>?
-
-        @usableFromInline
-        var _startLineSIMD:SIMD64<UInt8>?
-
-        @usableFromInline
-        var _startLineSIMDLowercased:SIMD64<UInt8>?
-
-        @usableFromInline
-        var _methodString:String?
-
-        @usableFromInline
-        var _path:[String]?
-
-        @usableFromInline
-        init(
-            startLine: HTTPStartLine<1024>? = nil,
-            _startLineSIMD: SIMD64<UInt8>? = nil,
-            _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
-            _methodString: String? = nil,
-            _path: [String]? = nil
-        ) {
-            self.startLine = startLine
-            self._startLineSIMD = _startLineSIMD
-            self._startLineSIMDLowercased = _startLineSIMDLowercased
-            self._methodString = _methodString
-            self._path = _path
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        mutating func startLineSIMDLowercased() -> SIMD64<UInt8> {
-            if let _startLineSIMDLowercased {
-                return _startLineSIMDLowercased
-            }
-            let simd = startLineSIMD().lowercased()
-            _startLineSIMDLowercased = simd
-            return simd
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        mutating func startLineSIMD() -> SIMD64<UInt8> {
-            if let _startLineSIMD {
-                return _startLineSIMD
-            }
-            var simdStartLine = SIMD64<UInt8>()
-            startLine!.buffer.withUnsafeBufferPointer {
-                for i in 0..<min(64, startLine!.endIndex) {
-                    simdStartLine[i] = $0[i]
-                }
-            }
-            _startLineSIMD = simdStartLine
-            return simdStartLine
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        mutating func methodString() -> String {
-            if let _methodString {
-                return _methodString
-            }
-            startLine!.method {
-                _methodString = $0.unsafeString()
-            }
-            return _methodString!
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        mutating func path() -> [String] {
-            if let _path {
-                return _path
-            }
-            startLine!.path({
-                _path = $0.unsafeString().split(separator: "/").map({ String($0) })
-            })
-            return _path!
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        func copy() -> Self {
-            Self(
-                startLine: startLine,
-                _startLineSIMD: _startLineSIMD,
-                _startLineSIMDLowercased: _startLineSIMDLowercased,
-                _methodString: _methodString,
-                _path: _path
-            )
-        }
-    }
 }
 
 // MARK: Read buffer
 extension TestRequest {
-    func readBuffer() -> (Buffer, Int) {
-        var buffer = Buffer.init(repeating: 0)
+    func readBuffer() -> (Request.Buffer, Int) {
+        var buffer = Request.Buffer.init(repeating: 0)
         var mutableSpan = buffer.mutableSpan
         let read = mutableSpan.withUnsafeMutableBufferPointer { p in
-            return fileDescriptor.readBuffer(into: p.baseAddress!, length: Buffer.count, flags: 0)
+            return fileDescriptor.readBuffer(into: p.baseAddress!, length: Request.Buffer.count, flags: 0)
         }
         return (buffer, read)
     }

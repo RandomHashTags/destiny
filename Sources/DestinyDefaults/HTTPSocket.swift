@@ -3,7 +3,7 @@ import DestinyBlueprint
 
 /// Default HTTP Socket implementation.
 public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
-    public typealias Buffer = InlineByteArray<1024>
+    public typealias Buffer = InlineArray<1024, UInt8>
 
     public let fileDescriptor:Int32
 

@@ -1,6 +1,6 @@
 
 /// Core Socket protocol that handles incoming network requests.
-public protocol SocketProtocol: ~Copyable, Sendable {
+public protocol SocketProtocol: Sendable, ~Copyable {
     /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
     /// 
     /// - Warning: Don't forget to close this file descriptor when you're done with it. It is **not** closed automatically.
