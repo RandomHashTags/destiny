@@ -195,7 +195,7 @@ extension TestRouter {
             path: ["dynamic"],
             contentType: HTTPMediaTypeText.plain,
             handler: { request, response in
-                response.setBody("Host=" + (request.header(forKey: "Host") ?? "nil"))
+                try response.setBody("Host=" + (request.header(forKey: "Host") ?? "nil"))
             }
         ),
         DynamicRoute.get(

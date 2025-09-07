@@ -1,4 +1,6 @@
 
+#if !hasFeature(Embedded)
+
 /// Core Dynamic Middleware protocol that handles dynamic requests and its response as existential types.
 public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Copyable {
     /// The handler.
@@ -12,3 +14,5 @@ public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol,
         response: inout any DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool
 }
+
+#endif

@@ -302,10 +302,16 @@ extension HTTPResponseMessage {
     #if Inlinable
     @inlinable
     #endif
-    func writeInlineArray<let count: Int>(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, array: InlineArray<count, UInt8>) {
-        for indice in array.indices {
-            buffer[i] = array.itemAt(index: indice)
-            i += 1
+    func writeInlineArray<let count: Int>(
+        to buffer: UnsafeMutableBufferPointer<UInt8>,
+        index i: inout Int,
+        array: InlineArray<count, UInt8>
+    ) {
+        array.withUnsafeBufferPointer { arrayBuffer in
+            for byte in arrayBuffer {
+                buffer[i] = byte
+                i += 1
+            }
         }
     }
 }

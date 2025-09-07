@@ -76,10 +76,14 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
-        guard request.header(forKey: "Origin") != nil else { return true }
-        allowedOrigin.apply(request: &request, response: &response)
-        logicKind.apply(to: &response)
-        return true
+        do throws(SocketError) {
+            guard try request.header(forKey: "Origin") != nil else { return true }
+            try allowedOrigin.apply(request: &request, response: &response)
+            logicKind.apply(to: &response)
+            return true
+        } catch {
+            throw .socketError(error)
+        }
     }
 }
 

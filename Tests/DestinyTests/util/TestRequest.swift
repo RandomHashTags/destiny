@@ -5,6 +5,8 @@ import DestinyDefaults
 /// Default storage for request data.
 struct TestRequest: HTTPRequestProtocol, ~Copyable {
     let fileDescriptor:TestFileDescriptor
+
+    var initialBuffer:Request.Buffer? = nil
     var _storage:Request._Storage<TestFileDescriptor>
     var storage:Request.Storage
 
@@ -27,9 +29,9 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
     ) throws(SocketError) {
         var i = offset
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
-        let path = _storage.path()
+        let path = _storage.path(buffer: initialBuffer!)
         while i < path.count {
             yield(path[i])
             i += 1
@@ -38,21 +40,21 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
 
     mutating func path(at index: Int) throws(SocketError) -> String {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
-        return _storage.path()[index]
+        return _storage.path(buffer: initialBuffer!)[index]
     }
 
     mutating func pathCount() throws(SocketError) -> Int {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
-        return _storage.path().count
+        return _storage.path(buffer: initialBuffer!).count
     }
 
     mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
         if _storage._methodString == nil {
-            try _loadStorage()
+            try loadStorage()
         }
         return method.rawNameString() == _storage._methodString
     }
@@ -77,16 +79,16 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
 extension TestRequest {
     mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
-        return _storage.startLineSIMD()
+        return _storage.startLineSIMD(buffer: initialBuffer!)
     }
 
     mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
         if _storage.startLine == nil {
-            try _loadStorage()
+            try loadStorage()
         }
-        return _storage.startLineSIMDLowercased()
+        return _storage.startLineSIMDLowercased(buffer: initialBuffer!)
     }
 }
 
@@ -95,11 +97,12 @@ extension TestRequest {
     #if Inlinable
     @inlinable
     #endif
-    mutating func _loadStorage() throws(SocketError) {
+    mutating func loadStorage() throws(SocketError) {
         let (buffer, read) = readBuffer()
         if read <= 0 {
             throw .malformedRequest()
         }
+        initialBuffer = buffer
         try _storage.load(fileDescriptor: fileDescriptor, buffer: buffer)
     }
 }

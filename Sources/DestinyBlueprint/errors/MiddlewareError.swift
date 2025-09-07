@@ -8,3 +8,12 @@ public struct MiddlewareError: DestinyErrorProtocol {
         self.reason = reason
     }
 }
+
+extension MiddlewareError {
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func socketError(_ error: SocketError) -> Self {
+        Self(identifier: "socketError", reason: "\(error)")
+    }
+}

@@ -2,9 +2,8 @@
 import DestinyBlueprint
 import VariableLengthArray
 
-/// Default HTTP Start Line implementation.
-public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copyable {
-    public let buffer:InlineArray<bufferCount, UInt8>
+/// Default HTTP Request Line implementation.
+public struct HTTPRequestLine: HTTPRequestLineProtocol, ~Copyable {
     public let methodEndIndex:Int
     public let pathQueryStartIndex:Int?
     public let endIndex:Int
@@ -14,13 +13,11 @@ public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copya
     @inlinable
     #endif
     public init(
-        buffer: InlineArray<bufferCount, UInt8>,
         methodEndIndex: Int,
         pathQueryStartIndex: Int?,
         version: HTTPVersion,
         endIndex: Int
     ) {
-        self.buffer = buffer
         self.methodEndIndex = methodEndIndex
         self.pathQueryStartIndex = pathQueryStartIndex
         self.version = version
@@ -44,9 +41,10 @@ public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copya
     #if Inlinable
     @inlinable
     #endif
-    public func path(
-        _ closure: (consuming VLArray<UInt8>) -> Void)
-     {
+    public func path<let count: Int>(
+        buffer: InlineArray<count, UInt8>,
+        _ closure: (consuming VLArray<UInt8>) -> Void
+    ) {
         let pathCount = pathCount
         withUnsafeTemporaryAllocation(of: UInt8.self, capacity: pathCount, { pathBuffer in
             var offset = methodEndIndex + 1
@@ -68,7 +66,8 @@ public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copya
     #if Inlinable
     @inlinable
     #endif
-    public func method(
+    public func method<let count: Int>(
+        buffer: InlineArray<count, UInt8>,
         _ closure: (consuming VLArray<UInt8>) -> Void
     ) {
         VLArray.create(amount: methodEndIndex, initialize: {
@@ -79,7 +78,9 @@ public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copya
     #if Inlinable
     @inlinable
     #endif
-    public func simd() -> SIMD64<UInt8> {
+    public func simd<let count: Int>(
+        buffer: InlineArray<count, UInt8>,
+    ) -> SIMD64<UInt8> {
         var simd = SIMD64<UInt8>()
         buffer.withUnsafeBufferPointer {
             for i in 0..<min(64, endIndex) {
@@ -99,17 +100,22 @@ public struct HTTPStartLine<let bufferCount: Int>: HTTPStartLineProtocol, ~Copya
     @inlinable
     #endif
     public func copy() -> Self {
-        Self(buffer: buffer, methodEndIndex: methodEndIndex, pathQueryStartIndex: pathQueryStartIndex, version: version, endIndex: endIndex)
+        Self(
+            methodEndIndex: methodEndIndex,
+            pathQueryStartIndex: pathQueryStartIndex,
+            version: version,
+            endIndex: endIndex
+        )
     }
 }
 
 // MARK: Load
-extension HTTPStartLine {
+extension HTTPRequestLine {
     #if Inlinable
     @inlinable
     #endif
-    public static func load(
-        buffer: consuming InlineArray<bufferCount, UInt8>
+    public static func load<let count: Int>(
+        buffer: InlineArray<count, UInt8>
     ) throws(SocketError) -> Self {
         var err:SocketError? = nil
         var methodEndIndex = 0
@@ -167,8 +173,7 @@ extension HTTPStartLine {
         guard let version = HTTPVersion.init(token: versionUInt64.bigEndian) else {
             throw .malformedRequest("unrecognized HTTPVersion: (bigEndian: \(versionUInt64.bigEndian), littleEndian: \(versionUInt64.littleEndian))")
         }
-        return HTTPStartLine.init(
-            buffer: buffer,
+        return HTTPRequestLine.init(
             methodEndIndex: methodEndIndex,
             pathQueryStartIndex: pathQueryStartIndex,
             version: version,

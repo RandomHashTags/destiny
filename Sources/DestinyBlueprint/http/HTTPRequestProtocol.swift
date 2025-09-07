@@ -29,7 +29,7 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
 
     //func header<let keyCount: Int, let valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 
-    mutating func header(forKey key: String) -> String?
+    mutating func header(forKey key: String) throws(SocketError) -> String?
 
     /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
     /// - Returns: A copy of self.

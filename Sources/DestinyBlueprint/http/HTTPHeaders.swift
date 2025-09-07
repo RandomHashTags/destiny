@@ -6,10 +6,28 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
     @usableFromInline
     var _storage:[(key: String, value: String)]
 
-    public init(_storage: [(key: String, value: String)] = []) {
+    #if Inlinable
+    @inlinable
+    #endif
+    package init(_storage: [(String, String)] = []) {
         self._storage = _storage
     }
 
+    #if Inlinable
+    @inlinable
+    #endif
+    package init(_storage: [String:String]) {
+        var array = [(String, String)]()
+        array.reserveCapacity(_storage.count)
+        for (key, value) in _storage {
+            array.append((key, value))
+        }
+        self._storage = array
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
     public init(dictionaryLiteral elements: (Key, Value)...) {
         _storage = []
         _storage.reserveCapacity(elements.count)
@@ -18,6 +36,9 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
         }
     }
 
+    #if Inlinable
+    @inlinable
+    #endif
     public mutating func reserveCapacity(_ minimumCapacity: Int) {
         _storage.reserveCapacity(minimumCapacity)
     }

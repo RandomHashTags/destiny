@@ -8,7 +8,12 @@ public struct CompiledDynamicMiddlewareStorage<each ConcreteMiddleware: DynamicM
     public init(_ middleware: (repeat each ConcreteMiddleware)) {
         self.middleware = middleware
     }
+}
 
+#if !hasFeature(Embedded)
+
+// MARK: Non-embedded
+extension CompiledDynamicMiddlewareStorage {
     #if Inlinable
     @inlinable
     #endif
@@ -18,3 +23,5 @@ public struct CompiledDynamicMiddlewareStorage<each ConcreteMiddleware: DynamicM
         }
     }
 }
+
+#endif

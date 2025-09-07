@@ -3,13 +3,16 @@ import DestinyBlueprint
 
 /// Default storage for request data.
 public struct Request: HTTPRequestProtocol, ~Copyable {
-    public typealias Buffer = InlineArray<1024, UInt8>
+    public typealias Buffer = InlineArray<2048, UInt8>
 
     @usableFromInline
     let fileDescriptor:Int32
 
     @usableFromInline
     var _storage:_Storage<Int32>
+
+    @usableFromInline
+    var initialBuffer:Buffer? = nil
 
     public var storage:Storage
 
@@ -25,25 +28,15 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
         self.storage = storage
     }
 
-    public lazy var headers: HTTPHeaders = {
-        /*
-        // performance falls off a cliff parsing headers; should we
-        // just retain the buffer and record the start and end indexes
-        // of things, with computed properties when and where necessary?
-        var headers:[String:String] = [:]
-        //let _ = Self.parseHeaders(buffer: buffer, offset: newStartLine.endIndex + 2, headers: &headers)
-
-        while true {
-            if read < buffer.count {
-                break
-            }
-            (buffer, read) = try socket.readBuffer()
-            if read <= 0 {
-                break
-            }
-        }*/
-        return .init()
-    }()
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func headers() throws(SocketError) -> [String:String] {
+        if _storage.startLine == nil {
+            try loadStorage()
+        }
+        return _storage._headers!.headers
+    }
 }
 
 extension Request {
@@ -57,7 +50,7 @@ extension Request {
         if _storage.startLine == nil {
             try loadStorage()
         }
-        let path = _storage.path()
+        let path = _storage.path(buffer: initialBuffer!)
         var i = offset
         while i < path.count {
             yield(path[i])
@@ -72,7 +65,7 @@ extension Request {
         if _storage.startLine == nil {
             try loadStorage()
         }
-        return _storage.path()[index]
+        return _storage.path(buffer: initialBuffer!)[index]
     }
 
     #if Inlinable
@@ -82,7 +75,7 @@ extension Request {
         if _storage.startLine == nil {
             try loadStorage()
         }
-        return _storage.path().count
+        return _storage.path(buffer: initialBuffer!).count
     }
 
     #if Inlinable
@@ -92,14 +85,14 @@ extension Request {
         if _storage.startLine == nil {
             try loadStorage()
         }
-        return method.rawNameString() == _storage.methodString()
+        return method.rawNameString() == _storage.methodString(buffer: initialBuffer!)
     }
 
     #if Inlinable
     @inlinable
     #endif
-    public mutating func header(forKey key: String) -> String? {
-        headers[key]
+    public mutating func header(forKey key: String) throws(SocketError) -> String? {
+        return try headers()[key]
     }
 
     #if Inlinable
@@ -125,6 +118,7 @@ extension Request {
 
 // MARK: Load storage
 extension Request {
+    /// Loads `initialBuffer` and `_storage`.
     #if Inlinable
     @inlinable
     #endif
@@ -133,6 +127,7 @@ extension Request {
         if read <= 0 {
             throw .malformedRequest()
         }
+        self.initialBuffer = initialBuffer
         try _storage.load(
             fileDescriptor: fileDescriptor,
             buffer: initialBuffer
@@ -149,7 +144,7 @@ extension Request {
         if _storage.startLine == nil {
             try loadStorage()
         }
-        return _storage.startLineSIMD()
+        return _storage.startLineSIMD(buffer: initialBuffer!)
     }
 
     #if Inlinable
@@ -159,7 +154,7 @@ extension Request {
         if _storage.startLine == nil {
             try loadStorage()
         }
-        return _storage.startLineSIMDLowercased()
+        return _storage.startLineSIMDLowercased(buffer: initialBuffer!)
     }
 }
 
@@ -185,133 +180,5 @@ extension Request {
             throw err
         }
         return (buffer, read)
-    }
-}
-
-// MARK: Parse Headers
-extension Request {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func parseHeaders<let count: Int>(
-        buffer: InlineArray<count, UInt8>,
-        offset: Int,
-        headers: inout [String:String]
-    ) {
-        var skip:UInt8 = 0
-        let nextLine = InlineArray<256, UInt8>(repeating: 0)
-        let _:InlineArray<256, UInt8>? = buffer.split(
-            separators: .carriageReturn, .lineFeed,
-            defaultValue: 0,
-            offset: offset,
-            yield: { slice in
-                if skip == 2 { // content
-                } else if slice == nextLine {
-                    skip += 1
-                } else { // header
-                    let (key, colonIndex):(InlineArray<256, UInt8>, Int) = slice.firstSlice(separator: .colon, defaultValue: 0)
-                    let value:InlineArray<256, UInt8> = slice.slice(startIndex: colonIndex+2, endIndex: slice.endIndex, defaultValue: 0) //  skip the colon & adjacent space
-                    headers[key.string()] = value.string()
-                }
-                //print("slice=\(slice.string())")
-            }
-        )
-    }
-}
-extension Request {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func parseHeaders2<let count: Int>(
-        buffer: InlineArray<count, UInt8>,
-        offset: Int,
-        headers: inout [String:String]
-    ) {
-        let bufferCount = buffer.count
-        let carriageReturnSIMD = SIMD64<UInt8>(repeating: .carriageReturn)
-        var startIndex = offset
-        var slice = SIMD64<UInt8>.zero
-        var storage = Headers<128>()
-        var i = offset
-        while i < bufferCount {
-            let remaining = bufferCount - i
-            let simdCount:Int
-            if remaining >= 64 {
-                simdCount = 64
-                slice = buffer.simd64(startIndex: i)
-            } else {
-                simdCount = remaining
-                slice = .zero
-                for j in 0..<simdCount {
-                    slice[j] = buffer.itemAt(index: i + j)
-                }
-            }
-            parseHeaders(
-                carriageReturnSIMD: carriageReturnSIMD,
-                simd: slice,
-                simdCount: simdCount,
-                storage: &storage,
-                offset: i,
-                startIndex: &startIndex
-            )
-            i += simdCount
-        }
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    static func parseHeaders<let maxHeadersCount: Int>(
-        carriageReturnSIMD: SIMD64<UInt8>,
-        simd: SIMD64<UInt8>,
-        simdCount: Int,
-        storage: inout Headers<maxHeadersCount>,
-        offset: Int,
-        startIndex: inout Int
-    ) {
-        guard (simd .== carriageReturnSIMD) != .init(repeating: false) else { return }
-        for i in 0..<simdCount {
-            if simd[i] == .carriageReturn {
-                storage.append(.init(startIndex: startIndex, endIndex: offset + i))
-                startIndex = offset + i + 2
-            }
-        }
-    }
-}
-
-extension Request {
-    public struct Headers<let maxHeadersCount: Int>: Sendable {
-        public var count:Int = 0
-        public var values:InlineArray<maxHeadersCount, HeaderIndex>
-
-        public init() {
-            self.count = 0
-            self.values = .init(repeating: .init(startIndex: 0, endIndex: 0))
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        public var indices: Range<Int> {
-            0..<count
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        public mutating func append(_ index: HeaderIndex) {
-            //guard index.startIndex < index.endIndex, count < maxHeadersCount else { return }
-            values[count] = index
-            count += 1
-        }
-    }
-    public struct HeaderIndex: Sendable {
-        let startIndex:Int
-        let endIndex:Int
-
-        public init(startIndex: Int, endIndex: Int) {
-            self.startIndex = startIndex
-            self.endIndex = endIndex
-        }
     }
 }

@@ -15,11 +15,11 @@ struct HTTPStartLineTests {
         for i in 0..<request.count {
             buffer.setItemAt(index: i, element: request[request.index(request.startIndex, offsetBy: i)].asciiValue ?? 0)
         }
-        let startLine = try HTTPStartLine<1024>.load(buffer: buffer)
-        startLine.method {
+        let requestLine = try HTTPRequestLine.load(buffer: buffer)
+        requestLine.method(buffer: buffer) {
             #expect($0.unsafeString() == method)
         }
-        startLine.path {
+        requestLine.path(buffer: buffer) {
             #expect($0.unsafeString() == path)
         }
     }

@@ -12,18 +12,18 @@ public enum CORSMiddlewareAllowedOrigin: Sendable {
     public func apply(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
-    ) {
+    ) throws(SocketError) {
         switch self {
         case .all:
             Self.applyAll(response: &response)
         case .any(let origins):
-            Self.applyAny(request: &request, response: &response, origins: origins)
+            try Self.applyAny(request: &request, response: &response, origins: origins)
         case .custom(let s):
             Self.applyCustom(response: &response, string: s)
         case .none:
             break
         case .originBased:
-            Self.applyOriginBased(request: &request, response: &response)
+            try Self.applyOriginBased(request: &request, response: &response)
         }
     }
 }
@@ -45,8 +45,8 @@ extension CORSMiddlewareAllowedOrigin {
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol,
         origins: Set<String>
-    ) {
-        if let origin = request.header(forKey: "Origin"), origins.contains(origin) {
+    ) throws(SocketError) {
+        if let origin = try request.header(forKey: "Origin"), origins.contains(origin) {
             response.setHeader(key: "Access-Control-Allow-Origin", value: origin)
         }
     }
@@ -67,9 +67,9 @@ extension CORSMiddlewareAllowedOrigin {
     static func applyOriginBased(
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
-    ) {
+    ) throws(SocketError) {
         response.setHeader(key: "Vary", value: "origin")
-        if let origin = request.header(forKey: "Origin") {
+        if let origin = try request.header(forKey: "Origin") {
             response.setHeader(key: "Access-Control-Allow-Origin", value: origin)
         }
     }
