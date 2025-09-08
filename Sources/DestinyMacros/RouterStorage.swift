@@ -118,29 +118,13 @@ extension RouterStorage {
         context: some MacroExpansionContext,
         isCaseSensitive: Bool
     ) -> (copyable: String?, noncopyable: String?)? {
-        var possibleRemovedRedirects = Set<String>() // TODO: fix
-        let targetRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = staticRedirects.enumerated().compactMap({
-            guard $0.element.0.isCaseSensitive == isCaseSensitive else { return nil }
-            possibleRemovedRedirects.insert($0.element.0.fromStartLine())
-            return $0.element
-        })
-        var redirects = targetRedirects
-        let result = staticRoutesSyntax(
+        return staticRoutesSyntax(
             mutable: mutable,
             context: context,
             isCaseSensitive: isCaseSensitive,
-            redirects: &redirects,
             middleware: staticMiddleware,
             routes: isCaseSensitive ? staticCaseSensitiveRoutes : staticCaseInsensitiveRoutes
         )
-        if targetRedirects.count != redirects.count {
-            for i in stride(from: targetRedirects.count-1, through: 0, by: -1) {
-                if possibleRemovedRedirects.contains(targetRedirects[i].0.fromStartLine()) {
-                    staticRedirects.remove(at: i)
-                }
-            }
-        }
-        return result
     }
 }
 

@@ -176,3 +176,46 @@ extension RouterStorage {
         return responder
     }
 }
+
+// MARK: Append routes
+extension RouterStorage {
+    mutating func appendDynamicRoutes(
+        context: some MacroExpansionContext,
+        isCaseSensitive: Bool,
+        isCopyable: Bool,
+        routes: [(DynamicRoute, FunctionCallExprSyntax)],
+        literalRoutePaths: inout [String],
+        routeResponders: inout [String],
+        literalRouteResponders: inout [String]
+    ) {
+        let routeStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
+        for (route, function) in routes {
+            guard route.path.firstIndex(where: { !$0.isLiteral }) == nil else {
+                continue
+            }
+            let startLine = routeStartLine(route)
+            guard let responder = getResponderValue(
+                route: .init(startLine: startLine, buffer: .init(startLine), responder: route.responderDebugDescription),
+                isCopyable: isCopyable
+            ) else { continue }
+            guard !registeredPaths.contains(startLine) else {
+                Router.routePathAlreadyRegistered(context: context, node: function, startLine)
+                continue
+            }
+
+            registeredPaths.insert(startLine)
+            literalRoutePaths.append(route.startLine())
+            literalRouteResponders.append(responder)
+
+            if isCaseSensitive {
+                if let index = dynamicCaseSensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
+                    dynamicCaseSensitiveRoutes.remove(at: index)
+                }
+            } else {
+                if let index = dynamicCaseInsensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
+                    dynamicCaseInsensitiveRoutes.remove(at: index)
+                }
+            }
+        }
+    }
+}

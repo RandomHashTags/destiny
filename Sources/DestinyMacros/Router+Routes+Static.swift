@@ -11,11 +11,10 @@ extension RouterStorage {
         mutable: Bool,
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
-        redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [CompiledStaticMiddleware],
         routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> (copyable: String?, noncopyable: String?)? {
-        guard !routes.isEmpty else { return nil }
+        guard !routes.isEmpty || !staticRedirects.isEmpty else { return nil }
 
         let random:Int
         let namePrefix:String
@@ -39,7 +38,6 @@ extension RouterStorage {
             random: random,
             namePrefix: namePrefix,
             getRedirectRouteStartLine: getRedirectRouteStartLine,
-            redirects: &redirects,
             middleware: middleware,
             routes: routes
         ) {
@@ -54,7 +52,6 @@ extension RouterStorage {
             random: random,
             namePrefix: namePrefix,
             getRedirectRouteStartLine: getRedirectRouteStartLine,
-            redirects: &redirects,
             middleware: middleware,
             routes: routes
         ) {
@@ -72,43 +69,15 @@ extension RouterStorage {
         random: Int,
         namePrefix: String,
         getRedirectRouteStartLine: (any RedirectionRouteProtocol) -> String,
-        redirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
         middleware: [CompiledStaticMiddleware],
         routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> StructDeclSyntax? {
-        let getResponderValue:(RouterStorage.Route) -> String = {
-            let responder = $0.responder
-            return "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \(responder)\n)"
-        }
-
         var routePaths = [String]()
         var literalRouteResponders = [String]()
         var routeResponders = [String]()
         routePaths.reserveCapacity(routes.count)
         literalRouteResponders.reserveCapacity(routes.count)
         routeResponders.reserveCapacity(routes.count)
-        if !redirects.isEmpty && !isCopyable { // always make redirects noncopyable
-            for (route, function) in redirects {
-                var string = getRedirectRouteStartLine(route)
-                guard !registeredPaths.contains(string) else {
-                    Router.routePathAlreadyRegistered(context: context, node: function, string)
-                    continue
-                }
-                registeredPaths.insert(string)
-                do throws(AnyError) {
-                    let responder = try IntermediateResponseBody(
-                        type: .staticStringWithDateHeader,
-                        ""
-                    ).responderDebugDescription(isCopyable: isCopyable, response: route.response())
-                    routePaths.append("\(string)")
-                    routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
-                    literalRouteResponders.append(responder)
-                } catch {
-                    context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
-                }
-            }
-            redirects = []
-        }
         appendStaticRoutes(
             context: context,
             middleware: middleware,
@@ -119,13 +88,14 @@ extension RouterStorage {
             routeResponders: &routeResponders,
             literalRouteResponders: &literalRouteResponders
         )
+        guard !routePaths.isEmpty else { return nil }
 
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(namePrefix)StaticResponderStorage\(random)\n\(visibility)",
-            name: "\(raw: namePrefix)StaticResponderStorage\(raw: random)",
+            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n\(visibility)",
+            name: "\(raw: namePrefix)ResponderStorage\(raw: random)",
             inheritanceClause: .init(
                 inheritedTypes: .init(arrayLiteral:
-                    .init(type: TypeSyntax.init(stringLiteral: "\(isCopyable ? "" : "NonCopyable")StaticResponderStorageProtocol"), trailingComma: ","),
+                    .init(type: TypeSyntax.init(stringLiteral: "\(isCopyable ? "" : "NonCopyable")ResponderStorageProtocol"), trailingComma: ","),
                     .init(type: TypeSyntax.init(stringLiteral: "\(isCopyable ? "" : "~")Copyable"))
                 )
             ),
@@ -157,5 +127,119 @@ extension RouterStorage {
             s = nil
         }
         return s
+    }
+}
+
+// MARK: Append routes
+extension RouterStorage {
+    mutating func appendStaticRoutes(
+        context: some MacroExpansionContext,
+        middleware: [CompiledStaticMiddleware],
+        isCaseSensitive: Bool,
+        isCopyable: Bool,
+        routes: [(StaticRoute, FunctionCallExprSyntax)],
+        literalRoutePaths: inout [String],
+        routeResponders: inout [String],
+        literalRouteResponders: inout [String]
+    ) {
+        let getResponderValue:(RouterStorage.Route) -> String = {
+            let responder = $0.responder
+            return "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \(responder)\n)"
+        }
+        let routeStartLine:(StaticRoute) -> String
+        let getRedirectRouteStartLine:(any RedirectionRouteProtocol) -> String
+        if isCaseSensitive {
+            routeStartLine = { $0.startLine }
+            getRedirectRouteStartLine = { $0.fromStartLine() }
+        } else {
+            routeStartLine = { $0.startLine.lowercased() }
+            getRedirectRouteStartLine = { $0.fromStartLine().lowercased() }
+        }
+
+        if !isCopyable { // always make redirects noncopyable
+            var removedRedirects = [Int]()
+            let redirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = staticRedirects.enumerated().compactMap({
+                guard $0.element.0.isCaseSensitive == isCaseSensitive else { return nil }
+                removedRedirects.append($0.offset)
+                return $0.element
+            })
+            for (route, function) in redirects {
+                var string = getRedirectRouteStartLine(route)
+                guard !registeredPaths.contains(string) else {
+                    Router.routePathAlreadyRegistered(context: context, node: function, string)
+                    continue
+                }
+                registeredPaths.insert(string)
+                do throws(AnyError) {
+                    let responder = try IntermediateResponseBody(
+                        type: .staticStringWithDateHeader,
+                        ""
+                    ).responderDebugDescription(isCopyable: isCopyable, response: route.response())
+                    literalRoutePaths.append("\(string)")
+                    routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
+                    literalRouteResponders.append(responder)
+                } catch {
+                    context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
+                }
+            }
+            for i in removedRedirects.reversed() {
+                staticRedirects.remove(at: i)
+            }
+        }
+
+        for (route, function) in routes {
+            var startLine = routeStartLine(route)
+            let buffer = SIMD64<UInt8>(&startLine)
+            let httpResponse = route.response(context: context, function: function, middleware: middleware) as! HTTPResponseMessage // TODO: fix
+            if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
+                if let b = route.body as? IntermediateResponseBody {
+                    guard isCopyable != b.isNoncopyable else { continue }
+                }
+                guard !registeredPaths.contains(startLine) else {
+                    Router.routePathAlreadyRegistered(context: context, node: function, startLine)
+                    continue
+                }
+                do throws(HTTPMessageError) {
+                    if let responder = try responseBodyResponderDebugDescription(isCopyable: isCopyable, body: route.body, response: httpResponse) {
+                        registeredPaths.insert(startLine)
+                        literalRoutePaths.append("\(startLine)")
+                        literalRouteResponders.append(responder)
+                        routeResponders.append(getResponderValue(.init(startLine: startLine, buffer: buffer, responder: responder)))
+                        if isCaseSensitive {
+                            if let index = staticCaseSensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
+                                staticCaseSensitiveRoutes.remove(at: index)
+                            }
+                        } else {
+                            if let index = staticCaseInsensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
+                                staticCaseInsensitiveRoutes.remove(at: index)
+                            }
+                        }
+                    } else {
+                        context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
+                    }
+                } catch {
+                    context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
+                }
+            } else {
+                guard !registeredPaths.contains(startLine) else {
+                    Router.routePathAlreadyRegistered(context: context, node: function, startLine)
+                    continue
+                }
+                if let httpResponse = httpResponse as? HTTPResponseMessage {
+                    registeredPaths.insert(startLine)
+                    Router.conditionalRoute(
+                        context: context,
+                        conditionalResponders: &conditionalResponders,
+                        route: route,
+                        function: function,
+                        string: startLine,
+                        buffer: buffer,
+                        httpResponse: httpResponse
+                    )
+                } else {
+                    context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "unexpectedHTTPResponseMessage", message: "Router.Storage;appendStaticRoutes;conditionalRoute;httpResponse variable is not a HTTPResponseMessage")))
+                }
+            }
+        }
     }
 }

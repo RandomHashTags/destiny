@@ -16,22 +16,28 @@ extension Router {
         var customDynamicNotFoundResponder = ""
         var customStaticNotFoundResponder = ""
         var storage = RouterStorage(settings: routerSettings, perfectHashSettings: perfectHashSettings)
-        for child in arguments {
-            if let label = child.label {
+        for arg in arguments {
+            if let label = arg.label {
                 switch label.text {
                 case "version":
-                    version = HTTPVersion.parse(context: context, expr: child.expression) ?? version
+                    version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
                 case "errorResponder":
-                    customErrorResponder = "\(child.expression)"
+                    customErrorResponder = "\(arg.expression)"
                 case "dynamicNotFoundResponder":
-                    customDynamicNotFoundResponder = "\(child.expression)"
+                    customDynamicNotFoundResponder = "\(arg.expression)"
                 case "staticNotFoundResponder":
-                    customStaticNotFoundResponder = "\(child.expression)"
+                    customStaticNotFoundResponder = "\(arg.expression)"
                 case "redirects":
-                    guard let array = child.expression.arrayElements(context: context) else { break }
-                    parseRedirects(context: context, version: version, array: array, staticRedirects: &storage.staticRedirects, dynamicRedirects: &storage.dynamicRedirects)
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
+                    parseRedirects(
+                        context: context,
+                        version: version,
+                        array: array,
+                        staticRedirects: &storage.staticRedirects,
+                        dynamicRedirects: &storage.dynamicRedirects
+                    )
                 case "middleware":
-                    guard let array = child.expression.arrayElements(context: context) else { break }
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
                     for element in array {
                         //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
                         if let function = element.expression.functionCall {
@@ -44,7 +50,7 @@ extension Router {
                         }
                     }
                 case "routeGroups":
-                    guard let array = child.expression.arrayElements(context: context) else { break }
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
                     for element in array {
                         if let function = element.expression.functionCall {
                             switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
@@ -72,7 +78,7 @@ extension Router {
                 default:
                     break
                 }
-            } else if let function = child.expression.functionCall { // route
+            } else if let function = arg.expression.functionCall { // route
                 parseRoute(context: context, version: version, function: function, storage: &storage)
             } else {
                 // TODO: support custom routes
