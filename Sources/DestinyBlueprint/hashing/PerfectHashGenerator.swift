@@ -90,43 +90,31 @@ extension PerfectHashGenerator {
         var candidate = HashCandidate(
             seed: .max,
             shift: .max,
-            mask: .max,
-            tableSize: .max
+            maskBits: .max
         )
         var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
-        for tableSize in entriesCount...64 {
-            candidate.tableSize = tableSize
-            switch tableSize {
-            case 1, 2:        candidate.mask = UInt64(tableSize)
-            case 3:           candidate.mask = (1 << 2) - 1
-            case 4...7:       candidate.mask = (1 << 3) - 1
-            case 8...15:      candidate.mask = (1 << 4) - 1
-            case 16...31:     candidate.mask = (1 << 5) - 1
-            case 32...63:     candidate.mask = (1 << 6) - 1
-            case 64...127:    candidate.mask = (1 << 7) - 1
-            case 127...254:   candidate.mask = (1 << 8) - 1
-            case 255...511:   candidate.mask = (1 << 9) - 1
-            case 512...1023:  candidate.mask = (1 << 10) - 1
-            case 1024...2047: candidate.mask = (1 << 11) - 1
-            default:          candidate.mask = (1 << 12) - 1
-            }
-            var hashTable = [UInt8](repeating: 255, count: Int(tableSize)) // 255 = empty slot
-            var found = [(HashCandidate, [UInt8], [UInt64])]()
-            for shift in 0...60 {
-                candidate.shift = shift
-                for indice in seeds.indices {
-                    candidate.seed = seeds[indice]
-                    if tryHashFunction(candidate: candidate, hashTable: &hashTable, verificationKeys: &verificationKeys) {
-                        found.append((candidate, [UInt8](hashTable), [UInt64](verificationKeys)))
-                    }
-                    hashTable.withUnsafeMutableBufferPointer {
-                        $0.update(repeating: 255)
+        for maskBits in 1...10 { // 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 slots
+            let tableSize:UInt64 = 1 << maskBits
+            if tableSize >= entriesCount {
+                candidate.maskBits = maskBits
+                var hashTable = [UInt8](repeating: 255, count: Int(tableSize)) // 255 = empty slot
+                var found = [(HashCandidate, [UInt8], [UInt64])]()
+                for shift in 0...60 {
+                    candidate.shift = shift
+                    for indice in seeds.indices {
+                        candidate.seed = seeds[indice]
+                        if tryHashFunction(candidate: candidate, hashTable: &hashTable, verificationKeys: &verificationKeys) {
+                            found.append((candidate, [UInt8](hashTable), [UInt64](verificationKeys)))
+                        }
+                        hashTable.withUnsafeMutableBufferPointer {
+                            $0.update(repeating: 255)
+                        }
                     }
                 }
-            }
-            if !found.isEmpty {
-                //print("PerfectHashGenerator;\(#function);found \(found.count) perfect hash(es) of tableSize \(tableSize)")
-                return found.min(by: { $0.0.tableSize < $1.0.tableSize }) ?? found.randomElement()
+                if !found.isEmpty {
+                    //print("PerfectHashGenerator;\(#function);found \(found.count) perfect hash(es) of tableSize \(tableSize)")
+                    return found.min(by: { $0.0.tableSize < $1.0.tableSize }) ?? found.randomElement()
+                }
             }
         }
         return nil
@@ -209,14 +197,16 @@ extension PerfectHashGenerator {
     @inlinable
     #endif
     public func findMinimalPerfectHash<let count: Int>(seeds: InlineArray<count, UInt64>) -> (candidate: HashCandidate, result: MinimalResult)? {
+        var candidate = HashCandidate(
+            seed: .max,
+            shift: .max,
+            maskBits: entriesCount,
+            _mask: UInt64(entriesCount)
+        )
         for shift in (64 - entriesCount - 4)...(64 - entriesCount) {
+            candidate.shift = shift
             for indice in seeds.indices {
-                let candidate = HashCandidate(
-                    seed: seeds[indice],
-                    shift: shift,
-                    mask: UInt64(1 << entriesCount) - 1,
-                    tableSize: entriesCount
-                )
+                candidate.seed = seeds[indice]
                 if let result = tryMinimalHashFunction(candidate) {
                     return (candidate, result)
                 }

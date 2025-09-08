@@ -100,8 +100,8 @@ extension RouterStorage {
                         type: .staticStringWithDateHeader,
                         ""
                     ).responderDebugDescription(isCopyable: isCopyable, response: route.response())
-                    routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
                     routePaths.append("\(string)")
+                    routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
                     literalRouteResponders.append(responder)
                 } catch {
                     context.diagnose(Diagnostic(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
