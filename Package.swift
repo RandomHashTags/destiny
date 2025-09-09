@@ -3,28 +3,9 @@
 import PackageDescription
 import CompilerPluginSupport
 
-let pkgDependencies:[Package.Dependency]
-
-let swiftSyntaxPackageName: String
-let swiftSyntax: (packageName: String, dependency: Package.Dependency)
-if false {
-    swiftSyntaxPackageName = "fork-swift-syntax"
-    swiftSyntax = (
-        packageName: swiftSyntaxPackageName,
-        dependency: .package(url: "https://github.com/RandomHashTags/\(swiftSyntaxPackageName)", branch: "optimize-codegen-for-ChildNameForKeyPath")
-    )
-} else {
-    swiftSyntaxPackageName = "swift-syntax"
-    swiftSyntax = (
-        packageName: swiftSyntaxPackageName,
-        dependency: .package(url: "https://github.com/swiftlang/\(swiftSyntaxPackageName)", from: "601.0.1")
-    )
-}
-
-#if os(Linux)
-pkgDependencies = [
+var pkgDependencies:[Package.Dependency] = [
     // Macros
-    swiftSyntax.dependency,
+    .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
 
     // Logging
     .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
@@ -32,32 +13,18 @@ pkgDependencies = [
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
+    // Variable-length arrays
+    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
+]
+
+#if os(Linux)
+pkgDependencies.append(contentsOf: [
     // Epoll
     .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"),
 
     // Liburing
-    .package(url: "https://github.com/RandomHashTags/swift-liburing", branch: "main"),
-
-    // Variable-length arrays
-    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
-]
-
-#else
-
-pkgDependencies = [
-    // Macros
-    swiftSyntax.dependency,
-
-    // Logging
-    .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
-
-    // Metrics
-    //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
-
-    // Variable-length arrays
-    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
-]
-
+    //.package(url: "https://github.com/RandomHashTags/swift-liburing", branch: "main"),
+])
 #endif
 
 let package = Package(
@@ -134,10 +101,10 @@ let package = Package(
             name: "DestinyMacros",
             dependencies: [
                 "DestinyDefaults",
-                .product(name: "SwiftSyntax", package: swiftSyntax.packageName),
-                .product(name: "SwiftSyntaxMacros", package: swiftSyntax.packageName),
-                .product(name: "SwiftCompilerPlugin", package: swiftSyntax.packageName),
-                .product(name: "SwiftDiagnostics", package: swiftSyntax.packageName)
+                .product(name: "SwiftSyntax", package: "swift-syntax"),
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+                .product(name: "SwiftDiagnostics", package: "swift-syntax")
             ]
         ),
 
