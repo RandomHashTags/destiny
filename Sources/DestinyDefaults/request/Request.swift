@@ -39,6 +39,7 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
     }
 }
 
+// MARK: Protocol conformance
 extension Request {
     #if Inlinable
     @inlinable
@@ -135,6 +136,31 @@ extension Request {
     }
 }
 
+// MARK: Read buffer
+extension Request {
+    /// - Warning: **DOESN'T** check if the read bytes are >= 0!
+    #if Inlinable
+    @inlinable
+    #endif
+    func readBuffer() throws(SocketError) -> (Buffer, Int) {
+        var buffer = Buffer.init(repeating: 0)
+        var mutableSpan = buffer.mutableSpan
+        var err:SocketError? = nil
+        let read = mutableSpan.withUnsafeMutableBufferPointer { p in
+            do throws(SocketError) {
+                return try fileDescriptor.readBuffer(into: p.baseAddress!, length: Buffer.count, flags: 0)
+            } catch {
+                err = error
+                return -1
+            }
+        }
+        if let err {
+            throw err
+        }
+        return (buffer, read)
+    }
+}
+
 // MARK: Start line
 extension Request {
     #if Inlinable
@@ -158,27 +184,49 @@ extension Request {
     }
 }
 
-// MARK: Read buffer
+// MARK: Body
 extension Request {
-    /// - Warning: **DOESN'T** check if the read bytes are >= 0!
     #if Inlinable
     @inlinable
     #endif
-    func readBuffer() throws(SocketError) -> (Buffer, Int) {
-        var buffer = Buffer.init(repeating: 0)
-        var mutableSpan = buffer.mutableSpan
-        var err:SocketError? = nil
-        let read = mutableSpan.withUnsafeMutableBufferPointer { p in
-            do throws(SocketError) {
-                return try fileDescriptor.readBuffer(into: p.baseAddress!, length: Buffer.count, flags: 0)
-            } catch {
-                err = error
-                return -1
-            }
+    public mutating func bodyCollect() throws -> (buffer: Buffer, read: Int) {
+        if _storage.requestLine == nil {
+            try loadStorage()
         }
-        if let err {
-            throw err
+        return try _storage._body!.collect(fileDescriptor: fileDescriptor)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func bodyCollect<let bufferCount: Int>() throws -> (buffer: InlineArray<bufferCount, UInt8>, read: Int) {
+        if _storage.requestLine == nil {
+            try loadStorage()
         }
-        return (buffer, read)
+        return try _storage._body!.collect(fileDescriptor: fileDescriptor)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func bodyStream(
+        _ yield: (Buffer) async throws -> Void
+    ) async throws {
+        if _storage.requestLine == nil {
+            try loadStorage()
+        }
+        try await _storage._body!.stream(fileDescriptor: fileDescriptor, yield)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func bodyStream<let bufferCount: Int>(
+        _ yield: (InlineArray<bufferCount, UInt8>) async throws -> Void
+    ) async throws {
+        if _storage.requestLine == nil {
+            try loadStorage()
+        }
+        try await _storage._body!.stream(fileDescriptor: fileDescriptor, yield)
     }
 }
