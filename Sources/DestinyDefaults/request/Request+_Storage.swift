@@ -4,27 +4,27 @@ import VariableLengthArray
 
 extension Request {
     @usableFromInline
-    package struct _Storage<FD: FileDescriptor>: Sendable, ~Copyable {
-        @usableFromInline package fileprivate(set) var startLine:HTTPRequestLine?
+    package struct _Storage: Sendable, ~Copyable {
+        @usableFromInline package fileprivate(set) var requestLine:HTTPRequestLine?
         @usableFromInline package fileprivate(set) var _startLineSIMD:SIMD64<UInt8>?
         @usableFromInline package fileprivate(set) var _startLineSIMDLowercased:SIMD64<UInt8>?
         @usableFromInline package fileprivate(set) var _methodString:String?
         @usableFromInline package fileprivate(set) var _path:[String]?
 
         @usableFromInline var _headers:RequestHeaders?
-        @usableFromInline var _body:RequestBody<FD>?
+        @usableFromInline var _body:RequestBody?
 
         @usableFromInline
         package init(
-            startLine: consuming HTTPRequestLine? = nil,
+            requestLine: consuming HTTPRequestLine? = nil,
             headers: consuming RequestHeaders? = nil,
-            body: consuming RequestBody<FD>? = nil,
+            body: consuming RequestBody? = nil,
             _startLineSIMD: SIMD64<UInt8>? = nil,
             _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
             _methodString: String? = nil,
             _path: [String]? = nil
         ) {
-            self.startLine = startLine
+            self.requestLine = requestLine
             self._headers = headers
             self._body = body
             self._startLineSIMD = _startLineSIMD
@@ -37,7 +37,7 @@ extension Request {
 
 // MARK: Load
 extension Request._Storage {
-    /// Lodas `startLine`, `_headers` and `_body`.
+    /// Loads `requestLine`, `_headers` and `_body`.
     #if Inlinable
     @inlinable
     #endif
@@ -45,19 +45,19 @@ extension Request._Storage {
     @inline(__always)
     #endif
     package mutating func load<let count: Int>(
-        fileDescriptor: FD,
+        fileDescriptor: some FileDescriptor,
         buffer: InlineArray<count, UInt8>
     ) throws(SocketError) {
         let requestLine = try HTTPRequestLine.load(buffer: buffer)
         _headers = RequestHeaders(startIndex: requestLine.endIndex + 2)
-        startLine = consume requestLine
-        _body = .init(fileDescriptor: fileDescriptor)
+        self.requestLine = consume requestLine
+        _body = .init()
     }
 }
 
 // MARK: Start Line SIMD
 extension Request._Storage {
-    /// - Warning: `startLine` **MUST NOT** be `nil`!
+    /// - Warning: `requestLine` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
     #endif
@@ -68,11 +68,11 @@ extension Request._Storage {
         if let _startLineSIMD {
             return _startLineSIMD
         }
-        _startLineSIMD = startLine!.simd(buffer: buffer)
+        _startLineSIMD = requestLine!.simd(buffer: buffer)
         return _startLineSIMD!
     }
 
-    /// - Warning: `startLine` **MUST NOT** be `nil`!
+    /// - Warning: `requestLine` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
     #endif
@@ -91,7 +91,7 @@ extension Request._Storage {
 
 // MARK: Method
 extension Request._Storage {
-    /// - Warning: `startLine` **MUST NOT** be `nil`!
+    /// - Warning: `requestLine` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
     #endif
@@ -102,7 +102,7 @@ extension Request._Storage {
         if let _methodString {
             return _methodString
         }
-        startLine!.method(buffer: buffer) {
+        requestLine!.method(buffer: buffer) {
             _methodString = $0.unsafeString()
         }
         return _methodString!
@@ -111,7 +111,7 @@ extension Request._Storage {
 
 // MARK: Path
 extension Request._Storage {
-    /// - Warning: `startLine` **MUST NOT** be `nil`!
+    /// - Warning: `requestLine` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
     #endif
@@ -122,7 +122,7 @@ extension Request._Storage {
         if let _path {
             return _path
         }
-        startLine!.path(buffer: buffer, {
+        requestLine!.path(buffer: buffer, {
             _path = $0.unsafeString().split(separator: "/").map({ String($0) })
         })
         return _path!
@@ -139,7 +139,7 @@ extension Request._Storage {
     #endif
     package func copy() -> Self {
         Self(
-            startLine: startLine?.copy(),
+            requestLine: requestLine?.copy(),
             _startLineSIMD: _startLineSIMD,
             _startLineSIMDLowercased: _startLineSIMDLowercased,
             _methodString: _methodString,

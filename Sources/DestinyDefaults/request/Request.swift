@@ -3,13 +3,13 @@ import DestinyBlueprint
 
 /// Default storage for request data.
 public struct Request: HTTPRequestProtocol, ~Copyable {
-    public typealias Buffer = InlineArray<2048, UInt8>
+    public typealias Buffer = InlineArray<1024, UInt8>
 
     @usableFromInline
     let fileDescriptor:Int32
 
     @usableFromInline
-    var _storage:_Storage<Int32>
+    var _storage:_Storage
 
     @usableFromInline
     var initialBuffer:Buffer? = nil
@@ -32,7 +32,7 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
     @inlinable
     #endif
     public mutating func headers() throws(SocketError) -> [String:String] {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage._headers!.headers
@@ -47,7 +47,7 @@ extension Request {
         offset: Int = 0,
         _ yield: (String) -> Void
     ) throws(SocketError) {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         let path = _storage.path(buffer: initialBuffer!)
@@ -62,7 +62,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func path(at index: Int) throws(SocketError) -> String {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.path(buffer: initialBuffer!)[index]
@@ -72,7 +72,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func pathCount() throws(SocketError) -> Int {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.path(buffer: initialBuffer!).count
@@ -82,7 +82,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return method.rawNameString() == _storage.methodString(buffer: initialBuffer!)
@@ -141,7 +141,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.startLineSIMD(buffer: initialBuffer!)
@@ -151,7 +151,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.startLineSIMDLowercased(buffer: initialBuffer!)

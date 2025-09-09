@@ -85,7 +85,7 @@ public enum PercentEncoding {
 
 // MARK: URL
 extension String {
-    /// - Complexity: O(_n_)
+    /// - Complexity: O(_n_).
     #if Inlinable
     @inlinable
     #endif
@@ -108,7 +108,7 @@ extension String {
 
 // MARK: Cookie
 extension String {
-    /// - Complexity: O(_n_)
+    /// - Complexity: O(_n_).
     #if Inlinable
     @inlinable
     #endif

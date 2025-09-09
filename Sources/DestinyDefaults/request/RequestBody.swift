@@ -1,11 +1,8 @@
 
 import DestinyBlueprint
 
-public struct RequestBody<FD: FileDescriptor>: Sendable, ~Copyable {
+public struct RequestBody: Sendable, ~Copyable {
     public typealias Buffer = InlineArray<16_384, UInt8> // 16 KB
-
-    @usableFromInline
-    let fileDescriptor:FD
 
     @usableFromInline
     var _totalRead:UInt64
@@ -14,10 +11,8 @@ public struct RequestBody<FD: FileDescriptor>: Sendable, ~Copyable {
     @inlinable
     #endif
     package init(
-        fileDescriptor: FD,
         totalRead: UInt64 = 0
     ) {
-        self.fileDescriptor = fileDescriptor
         self._totalRead = totalRead
     }
 
@@ -41,6 +36,7 @@ extension RequestBody {
     @inline(__always)
     #endif
     mutating func read<let count: Int>(
+        fileDescriptor: some FileDescriptor,
         into buffer: inout InlineArray<count, UInt8>
     ) throws(SocketError) -> Int {
         var err:SocketError? = nil
@@ -73,18 +69,22 @@ extension RequestBody {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func collect() throws(SocketError) -> (buffer: Buffer, read: Int) {
+    public mutating func collect(
+        fileDescriptor: some FileDescriptor
+    ) throws(SocketError) -> (buffer: Buffer, read: Int) {
         var buffer = Buffer(repeating: 0)
-        let read = try read(into: &buffer)
+        let read = try read(fileDescriptor: fileDescriptor, into: &buffer)
         return (buffer, read)
     }
 
     #if Inlinable
     @inlinable
     #endif
-    public mutating func collect<let count: Int>() throws(SocketError) -> (buffer: InlineArray<count, UInt8>, read: Int) {
+    public mutating func collect<let count: Int>(
+        fileDescriptor: some FileDescriptor
+    ) throws(SocketError) -> (buffer: InlineArray<count, UInt8>, read: Int) {
         var buffer = InlineArray<count, UInt8>(repeating: 0)
-        let read = try read(into: &buffer)
+        let read = try read(fileDescriptor: fileDescriptor, into: &buffer)
         return (buffer, read)
     }
 }
@@ -95,22 +95,24 @@ extension RequestBody {
     @inlinable
     #endif
     public mutating func stream(
+        fileDescriptor: some FileDescriptor,
         //maximumSize: Int = 500_000,
         _ yield: (Buffer) async throws -> Void
     ) async throws {
         var buffer = Buffer(repeating: 0)
-        try await stream(buffer: &buffer, yield)
+        try await stream(fileDescriptor: fileDescriptor, buffer: &buffer, yield)
     }
 
     #if Inlinable
     @inlinable
     #endif
     public mutating func stream<let chunkSize: Int>(
+        fileDescriptor: some FileDescriptor,
         //maximumSize: Int = 500_000,
         _ yield: (InlineArray<chunkSize, UInt8>) async throws -> Void
     ) async throws {
         var buffer = InlineArray<chunkSize, UInt8>(repeating: 0)
-        try await stream(buffer: &buffer, yield)
+        try await stream(fileDescriptor: fileDescriptor,buffer: &buffer, yield)
     }
 }
 
@@ -120,6 +122,7 @@ extension RequestBody {
     @inlinable
     #endif
     public mutating func stream<let chunkSize: Int>(
+        fileDescriptor: some FileDescriptor,
         buffer: inout InlineArray<chunkSize, UInt8>,
         _ yield: (InlineArray<chunkSize, UInt8>) async throws -> Void
     ) async throws {
@@ -127,7 +130,7 @@ extension RequestBody {
             while true {
                 var read = 0
                 do throws(SocketError) {
-                    read = try self.read(into: &buffer)
+                    read = try self.read(fileDescriptor: fileDescriptor, into: &buffer)
                 } catch {
                     continuation.finish(throwing: error)
                     break

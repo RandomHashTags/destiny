@@ -13,8 +13,8 @@ extension RequestBodyTests {
     func requestBodyStreamExactCustomSize() async throws {
         let fd = TestFileDescriptor()
         fd.sendString("\((0..<10).map({ "\($0)" }).joined())")
-        var body = RequestBody(fileDescriptor: fd)
-        try await body.stream { (buffer: InlineArray<11, UInt8>) in
+        var body = RequestBody()
+        try await body.stream(fileDescriptor: fd) { (buffer: InlineArray<11, UInt8>) in
             for i in 0..<buffer.count {
                 let byte = buffer[i]
                 if byte == 0 {
@@ -30,8 +30,8 @@ extension RequestBodyTests {
     func requestBodyStreamExactDefaultSize() async throws {
         let fd = TestFileDescriptor()
         fd.sendString("\((0..<10).map({ "\($0)" }).joined())")
-        var body = RequestBody(fileDescriptor: fd)
-        try await body.stream { buffer in
+        var body = RequestBody()
+        try await body.stream(fileDescriptor: fd) { buffer in
             for i in 0..<buffer.count {
                 let byte = buffer[i]
                 if byte == 0 {
@@ -49,9 +49,9 @@ extension RequestBodyTests {
     func requestBodyStreamHalfCustomSize() async throws {
         let fd = TestFileDescriptor()
         fd.sendString("\((0..<10).map({ "\($0)" }).joined())")
-        var body = RequestBody(fileDescriptor: fd)
+        var body = RequestBody()
         var bufferIndex = 0
-        try await body.stream { (buffer: InlineArray<6, UInt8>) in
+        try await body.stream(fileDescriptor: fd) { (buffer: InlineArray<6, UInt8>) in
             for i in 0..<buffer.count {
                 let byte = buffer[i]
                 if byte == 0 {

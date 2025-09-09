@@ -7,7 +7,7 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
     let fileDescriptor:TestFileDescriptor
 
     var initialBuffer:Request.Buffer? = nil
-    var _storage:Request._Storage<TestFileDescriptor>
+    var _storage:Request._Storage
     var storage:Request.Storage
 
     init(
@@ -28,7 +28,7 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
         _ yield: (String) -> Void
     ) throws(SocketError) {
         var i = offset
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         let path = _storage.path(buffer: initialBuffer!)
@@ -39,14 +39,14 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
     }
 
     mutating func path(at index: Int) throws(SocketError) -> String {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.path(buffer: initialBuffer!)[index]
     }
 
     mutating func pathCount() throws(SocketError) -> Int {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.path(buffer: initialBuffer!).count
@@ -78,14 +78,14 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
 // MARK: Start line
 extension TestRequest {
     mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.startLineSIMD(buffer: initialBuffer!)
     }
 
     mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.startLine == nil {
+        if _storage.requestLine == nil {
             try loadStorage()
         }
         return _storage.startLineSIMDLowercased(buffer: initialBuffer!)
