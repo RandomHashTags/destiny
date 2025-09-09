@@ -134,7 +134,7 @@ extension InlineArrayProtocol where Element: Equatable {
 extension InlineArrayProtocol where Element == UInt8 {
     /// - Parameters:
     ///   - yield: Yields a slice of the result; returns whether or not to continue splitting.
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif
@@ -468,11 +468,24 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
             })
         }
     }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func unsafeString(offset: Int) -> String {
+        return self.withUnsafeBufferPointer {
+            let count = $0.count - offset
+            let slice = $0[offset...]
+            return String.init(unsafeUninitializedCapacity: count - offset, initializingUTF8With: {
+                return $0.initialize(from: slice).index
+            })
+        }
+    }
 }
 
 // MARK: SIMD
 extension InlineArrayProtocol where Element: SIMDScalar {
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif
@@ -480,7 +493,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif
@@ -488,7 +501,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif
@@ -496,7 +509,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif
@@ -504,7 +517,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
         simd(startIndex: startIndex)
     }
 
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif
@@ -516,7 +529,7 @@ extension InlineArrayProtocol where Element: SIMDScalar {
     /// 
     /// - Parameters:
     ///   - startIndex: Where the first element is located.
-    /// - Complexity: O(1)
+    /// - Complexity: O(1).
     #if Inlinable
     @inlinable
     #endif

@@ -10,7 +10,7 @@ package struct RequestHeaders: Sendable, ~Copyable {
     var _endIndex:Int? = nil
 
     @usableFromInline
-    var headers:[String:String] = [:]
+    var headers:[Substring:Substring] = [:]
 
     #if Inlinable
     @inlinable
@@ -22,22 +22,12 @@ package struct RequestHeaders: Sendable, ~Copyable {
     #if Inlinable
     @inlinable
     #endif
-    mutating func endIndex<let count: Int>(buffer: InlineArray<count, UInt8>) -> Int {
-        if _endIndex == nil {
-            load(buffer: buffer)
-        }
-        return _endIndex!
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
     #if InlineAlways
     @inline(__always)
     #endif
-    subscript(key: String) -> String? {
-        get { headers[key] }
-        set { headers[key] = newValue }
+    subscript(key: Substring) -> Substring? {
+        _read { yield headers[key] }
+        _modify { yield &headers[key] }
     }
 }
 
@@ -47,13 +37,23 @@ extension RequestHeaders {
     @inlinable
     #endif
     package mutating func load<let count: Int>(
-        buffer: InlineArray<count, UInt8>
+        fileDescriptor: some FileDescriptor,
+        initialBuffer: InlineArray<count, UInt8>
     ) {
-        // performance falls off a cliff parsing headers; should we
-        // just retain the buffer and record the start and end indexes
-        // of things, with computed properties when and where necessary?
-        Self.parseHeaders(buffer: buffer, offset: startIndex, headers: &headers)
+        // TODO: optimize?
         _endIndex = startIndex
+        let string = initialBuffer.unsafeString(offset: startIndex)
+        let slices = string.split(separator: "\r\n", omittingEmptySubsequences: false)
+        for slice in slices {
+            if slice.isEmpty { // request body starts
+                _endIndex! += 2
+                break
+            }
+            if let i = slice.firstIndex(of: ":") {
+                headers[slice[slice.startIndex..<i]] = slice[slice.index(i, offsetBy: 2)...]
+            }
+            _endIndex! += slice.utf8Span.count + 2
+        }
     }
 }
 

@@ -129,6 +129,38 @@ extension Request._Storage {
     }
 }
 
+// MARK: Body
+extension Request._Storage {
+    /// - Warning: `_headers` **MUST NOT** be `nil`!
+    #if Inlinable
+    @inlinable
+    #endif
+    package mutating func bodyCollect<let initialBufferCount: Int, let bufferCount: Int>(
+        fileDescriptor: some FileDescriptor,
+        initialBuffer: InlineArray<initialBufferCount, UInt8>
+    ) throws -> (buffer: InlineArray<bufferCount, UInt8>, read: Int) {
+        if _headers!._endIndex == nil {
+            _headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer)
+        }
+        return try _body!.collect(fileDescriptor: fileDescriptor)
+    }
+
+    /// - Warning: `_headers` **MUST NOT** be `nil`!
+    #if Inlinable
+    @inlinable
+    #endif
+    package mutating func bodyStream<let initialBufferCount: Int, let bufferCount: Int>(
+        fileDescriptor: some FileDescriptor,
+        initialBuffer: InlineArray<initialBufferCount, UInt8>,
+        _ yield: (InlineArray<bufferCount, UInt8>) async throws -> Void
+    ) async throws {
+        if _headers!._endIndex == nil {
+            _headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer)
+        }
+        try await _body!.stream(fileDescriptor: fileDescriptor, yield)
+    }
+}
+
 // MARK: Copy
 extension Request._Storage {
     #if Inlinable

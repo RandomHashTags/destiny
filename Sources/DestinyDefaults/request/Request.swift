@@ -31,9 +31,12 @@ public struct Request: HTTPRequestProtocol, ~Copyable {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func headers() throws(SocketError) -> [String:String] {
-        if _storage.requestLine == nil {
+    public mutating func headers() throws(SocketError) -> [Substring:Substring] {
+        if initialBuffer == nil {
             try loadStorage()
+        }
+        if _storage._headers!._endIndex == nil {
+            _storage._headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
         }
         return _storage._headers!.headers
     }
@@ -48,7 +51,7 @@ extension Request {
         offset: Int = 0,
         _ yield: (String) -> Void
     ) throws(SocketError) {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         let path = _storage.path(buffer: initialBuffer!)
@@ -63,7 +66,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func path(at index: Int) throws(SocketError) -> String {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         return _storage.path(buffer: initialBuffer!)[index]
@@ -73,7 +76,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func pathCount() throws(SocketError) -> Int {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         return _storage.path(buffer: initialBuffer!).count
@@ -83,7 +86,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         return method.rawNameString() == _storage.methodString(buffer: initialBuffer!)
@@ -93,7 +96,8 @@ extension Request {
     @inlinable
     #endif
     public mutating func header(forKey key: String) throws(SocketError) -> String? {
-        return try headers()[key]
+        guard let value = try headers()[Substring(key)] else { return nil }
+        return String(value)
     }
 
     #if Inlinable
@@ -167,7 +171,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         return _storage.startLineSIMD(buffer: initialBuffer!)
@@ -177,7 +181,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         return _storage.startLineSIMDLowercased(buffer: initialBuffer!)
@@ -190,7 +194,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func bodyCollect() throws -> (buffer: Buffer, read: Int) {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         return try _storage._body!.collect(fileDescriptor: fileDescriptor)
@@ -200,7 +204,7 @@ extension Request {
     @inlinable
     #endif
     public mutating func bodyCollect<let bufferCount: Int>() throws -> (buffer: InlineArray<bufferCount, UInt8>, read: Int) {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
         return try _storage._body!.collect(fileDescriptor: fileDescriptor)
@@ -212,10 +216,10 @@ extension Request {
     public mutating func bodyStream(
         _ yield: (Buffer) async throws -> Void
     ) async throws {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
-        try await _storage._body!.stream(fileDescriptor: fileDescriptor, yield)
+        try await _storage.bodyStream(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!, yield)
     }
 
     #if Inlinable
@@ -224,9 +228,9 @@ extension Request {
     public mutating func bodyStream<let bufferCount: Int>(
         _ yield: (InlineArray<bufferCount, UInt8>) async throws -> Void
     ) async throws {
-        if _storage.requestLine == nil {
+        if initialBuffer == nil {
             try loadStorage()
         }
-        try await _storage._body!.stream(fileDescriptor: fileDescriptor, yield)
+        try await _storage.bodyStream(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!, yield)
     }
 }
