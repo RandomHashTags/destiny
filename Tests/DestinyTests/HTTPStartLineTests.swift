@@ -1,6 +1,6 @@
 
 import DestinyBlueprint
-import DestinyDefaults
+@testable import DestinyDefaults
 import Testing
 
 @Suite
@@ -11,11 +11,13 @@ struct HTTPStartLineTests {
         let method = "GET"
         let path = "/0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
         let request = "\(method) \(path) HTTP/1.1"
+
         var buffer = InlineArray<1024, UInt8>(repeating: 0)
         for i in 0..<request.count {
             buffer.setItemAt(index: i, element: request[request.index(request.startIndex, offsetBy: i)].asciiValue ?? 0)
         }
-        let requestLine = try HTTPRequestLine.load(buffer: buffer)
+        let initialBuffer = InlineByteBuffer<1024>(buffer: buffer, endIndex: request.count)
+        let requestLine = try HTTPRequestLine.load(buffer: initialBuffer)
         requestLine.method(buffer: buffer) {
             #expect($0.unsafeString() == method)
         }

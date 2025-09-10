@@ -36,17 +36,16 @@ extension RequestHeaders {
     #if Inlinable
     @inlinable
     #endif
-    package mutating func load<let count: Int>(
+    mutating func load<let count: Int>(
         fileDescriptor: some FileDescriptor,
-        initialBuffer: InlineArray<count, UInt8>
+        initialBuffer: borrowing InlineByteBuffer<count>
     ) {
         // TODO: optimize?
         _endIndex = startIndex
-        let string = initialBuffer.unsafeString(offset: startIndex)
+        let string = initialBuffer.buffer.unsafeString(offset: startIndex)
         let slices = string.split(separator: "\r\n", omittingEmptySubsequences: false)
         for slice in slices {
             if slice.isEmpty { // request body starts
-                _endIndex! += 2
                 break
             }
             if let i = slice.firstIndex(of: ":") {

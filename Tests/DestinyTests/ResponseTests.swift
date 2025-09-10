@@ -14,7 +14,7 @@ struct ResponseTests {
         let socket = TestHTTPSocket(_fileDescriptor: fd)
         let responder = TestRouter.DeclaredRouter.CaseSensitiveResponderStorage1.Route.responder4.copy()
         TestRouter.DeclaredRouter.router.handle(client: fd, socket: socket, completionHandler: {
-            let capacity = Request.Buffer.count
+            let capacity = Request.InitialBuffer.count
             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
                 buffer.initialize(repeating: 0)
                 let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)

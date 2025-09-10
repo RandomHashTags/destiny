@@ -28,14 +28,41 @@ extension InlineArray: InlineArrayProtocol, HTTPSocketWritable {
         self[index] = element
     }
 
+    /// Calls a closure with a pointer to the viewed contiguous storage.
+    ///
+    /// The buffer pointer passed as an argument to `body` is valid only
+    /// during the execution of `withUnsafeBufferPointer(_:)`.
+    /// Do not store or return the pointer for later use.
+    ///
+    /// Note: For an empty `Span`, the closure always receives a `nil` pointer.
+    ///
+    /// - Parameter body: A closure with an `UnsafeBufferPointer` parameter
+    ///   that points to the viewed contiguous storage. If `body` has
+    ///   a return value, that value is also used as the return value
+    ///   for the `withUnsafeBufferPointer(_:)` method. The closure's
+    ///   parameter is valid only for the duration of its execution.
+    /// - Returns: The return value of the `body` closure parameter.
     #if Inlinable
     @inlinable
     #endif
     #if InlineAlways
     @inline(__always)
     #endif
+    @discardableResult
     public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
         return try span.withUnsafeBufferPointer(body)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    @discardableResult
+    public mutating func withUnsafeMutableBufferPointer<E: Error, R>(_ body: (UnsafeMutableBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
+        var ms = mutableSpan
+        return try ms.withUnsafeMutableBufferPointer(body)
     }
 
     #if Inlinable

@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+@testable import DestinyDefaults
 
 final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
     let fileDescriptor:Int32
@@ -17,6 +18,18 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
 
     func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int {
         return readMutating(into: baseAddress, length: length, array: &sent)
+    }
+    func readBuffer(into buffer: UnsafeMutableBufferPointer<UInt8>, length: Int, flags: Int32) -> Int {
+        return readMutating(into: buffer.baseAddress!, length: length, array: &sent)
+    }
+    func readBuffer() -> InlineByteBuffer<1024> {
+        var buffer = InlineArray<1024, UInt8>(repeating: 0)
+        var endIndex = 0
+        let bufferCount = buffer.count
+        buffer.withUnsafeMutableBufferPointer {
+            endIndex = readBuffer(into: $0, length: bufferCount, flags: 0)
+        }
+        return .init(buffer: buffer, endIndex: endIndex)
     }
 
     func readMutating(into baseAddress: UnsafeMutableRawPointer, length: Int, array: inout [[UInt8]]) -> Int {

@@ -115,14 +115,14 @@ extension HTTPRequestLine {
     @inlinable
     #endif
     public static func load<let count: Int>(
-        buffer: InlineArray<count, UInt8>
+        buffer: borrowing InlineByteBuffer<count>
     ) throws(SocketError) -> Self {
         var err:SocketError? = nil
         var methodEndIndex = 0
         var pathQueryStartIndex:Int? = nil
         var pathEndIndex = 0
         var versionUInt64:UInt64 = 0
-        buffer.withUnsafeBufferPointer { bufferPointer in
+        buffer.buffer.withUnsafeBufferPointer { bufferPointer in
             guard let base = bufferPointer.baseAddress else {
                 err = .malformedRequest("bufferPointer.baseAddress == nil")
                 return

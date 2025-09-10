@@ -4,18 +4,18 @@ import VariableLengthArray
 
 extension Request {
     @usableFromInline
-    package struct _Storage: Sendable, ~Copyable {
-        @usableFromInline package fileprivate(set) var requestLine:HTTPRequestLine?
-        @usableFromInline package fileprivate(set) var _startLineSIMD:SIMD64<UInt8>?
-        @usableFromInline package fileprivate(set) var _startLineSIMDLowercased:SIMD64<UInt8>?
-        @usableFromInline package fileprivate(set) var _methodString:String?
-        @usableFromInline package fileprivate(set) var _path:[String]?
+    struct _Storage: Sendable, ~Copyable {
+        @usableFromInline fileprivate(set) var requestLine:HTTPRequestLine?
+        @usableFromInline fileprivate(set) var _startLineSIMD:SIMD64<UInt8>?
+        @usableFromInline fileprivate(set) var _startLineSIMDLowercased:SIMD64<UInt8>?
+        @usableFromInline fileprivate(set) var _methodString:String?
+        @usableFromInline fileprivate(set) var _path:[String]?
 
         @usableFromInline var _headers:RequestHeaders?
         @usableFromInline var _body:RequestBody?
 
         @usableFromInline
-        package init(
+        init(
             requestLine: consuming HTTPRequestLine? = nil,
             headers: consuming RequestHeaders? = nil,
             body: consuming RequestBody? = nil,
@@ -44,9 +44,8 @@ extension Request._Storage {
     #if InlineAlways
     @inline(__always)
     #endif
-    package mutating func load<let count: Int>(
-        fileDescriptor: some FileDescriptor,
-        buffer: InlineArray<count, UInt8>
+    mutating func load<let count: Int>(
+        buffer: borrowing InlineByteBuffer<count>
     ) throws(SocketError) {
         let requestLine = try HTTPRequestLine.load(buffer: buffer)
         _headers = RequestHeaders(startIndex: requestLine.endIndex + 2)
@@ -64,11 +63,11 @@ extension Request._Storage {
     #if InlineAlways
     @inline(__always)
     #endif
-    package mutating func startLineSIMD<let count: Int>(buffer: InlineArray<count, UInt8>) -> SIMD64<UInt8> {
+    mutating func startLineSIMD<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> SIMD64<UInt8> {
         if let _startLineSIMD {
             return _startLineSIMD
         }
-        _startLineSIMD = requestLine!.simd(buffer: buffer)
+        _startLineSIMD = requestLine!.simd(buffer: buffer.buffer)
         return _startLineSIMD!
     }
 
@@ -79,7 +78,7 @@ extension Request._Storage {
     #if InlineAlways
     @inline(__always)
     #endif
-    package mutating func startLineSIMDLowercased<let count: Int>(buffer: InlineArray<count, UInt8>) -> SIMD64<UInt8> {
+    mutating func startLineSIMDLowercased<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> SIMD64<UInt8> {
         if let _startLineSIMDLowercased {
             return _startLineSIMDLowercased
         }
@@ -98,11 +97,11 @@ extension Request._Storage {
     #if InlineAlways
     @inline(__always)
     #endif
-    package mutating func methodString<let count: Int>(buffer: InlineArray<count, UInt8>) -> String {
+    mutating func methodString<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> String {
         if let _methodString {
             return _methodString
         }
-        requestLine!.method(buffer: buffer) {
+        requestLine!.method(buffer: buffer.buffer) {
             _methodString = $0.unsafeString()
         }
         return _methodString!
@@ -118,11 +117,11 @@ extension Request._Storage {
     #if InlineAlways
     @inline(__always)
     #endif
-    package mutating func path<let count: Int>(buffer: InlineArray<count, UInt8>) -> [String] {
+    mutating func path<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> [String] {
         if let _path {
             return _path
         }
-        requestLine!.path(buffer: buffer, {
+        requestLine!.path(buffer: buffer.buffer, {
             _path = $0.unsafeString().split(separator: "/").map({ String($0) })
         })
         return _path!
@@ -135,10 +134,10 @@ extension Request._Storage {
     #if Inlinable
     @inlinable
     #endif
-    package mutating func bodyCollect<let initialBufferCount: Int, let bufferCount: Int>(
+    mutating func bodyCollect<let initialBufferCount: Int, let bufferCount: Int>(
         fileDescriptor: some FileDescriptor,
-        initialBuffer: InlineArray<initialBufferCount, UInt8>
-    ) throws -> (buffer: InlineArray<bufferCount, UInt8>, read: Int) {
+        initialBuffer: borrowing InlineByteBuffer<initialBufferCount>
+    ) throws -> InlineByteBuffer<bufferCount> {
         if _headers!._endIndex == nil {
             _headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer)
         }
@@ -149,15 +148,79 @@ extension Request._Storage {
     #if Inlinable
     @inlinable
     #endif
-    package mutating func bodyStream<let initialBufferCount: Int, let bufferCount: Int>(
+    mutating func bodyStream<let initialBufferCount: Int, let bufferCount: Int>(
         fileDescriptor: some FileDescriptor,
-        initialBuffer: InlineArray<initialBufferCount, UInt8>,
-        _ yield: (InlineArray<bufferCount, UInt8>) async throws -> Void
+        initialBuffer: borrowing InlineByteBuffer<initialBufferCount>,
+        _ yield: (consuming InlineByteBuffer<bufferCount>) async throws -> Void
     ) async throws {
         if _headers!._endIndex == nil {
             _headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer)
+            var startIndex = _headers!._endIndex! + 2
+            if startIndex < initialBufferCount {
+                // part of the request body is contained in the initial buffer
+                var buffer = InlineArray<bufferCount, UInt8>(repeating: 0)
+                var startCount = initialBuffer.endIndex - startIndex
+                var initialRequestBodyCount = startCount
+                initialBuffer.buffer.withUnsafeBufferPointer { initialBufferPointer in
+                    buffer.withUnsafeMutableBufferPointer {
+                        var bufferPointer = $0
+                        loadBufferSlice(
+                            initialBufferPointer: initialBufferPointer,
+                            bufferPointer: &bufferPointer,
+                            index: &startIndex,
+                            initialRequestBodyCount: &initialRequestBodyCount
+                        )
+                    }
+                }
+                try await yield(.init(buffer: buffer, endIndex: startCount - initialRequestBodyCount))
+                guard initialRequestBodyCount > 0 else {
+                    // request body was completely within the initial buffer
+                    return
+                }
+                while initialRequestBodyCount > 0 {
+                    startCount = initialRequestBodyCount
+                    initialBuffer.buffer.withUnsafeBufferPointer { initialBufferPointer in
+                        buffer.withUnsafeMutableBufferPointer {
+                            var bufferPointer = $0
+                            bufferPointer.update(repeating: 0)
+                            loadBufferSlice(
+                                initialBufferPointer: initialBufferPointer,
+                                bufferPointer: &bufferPointer,
+                                index: &startIndex,
+                                initialRequestBodyCount: &initialRequestBodyCount
+                            )
+                        }
+                    }
+                    try await yield(.init(buffer: buffer, endIndex: startCount - initialRequestBodyCount))
+                }
+                guard initialRequestBodyCount > 0 else {
+                    // request body was completely within the initial buffer
+                    return
+                }
+            }
         }
         try await _body!.stream(fileDescriptor: fileDescriptor, yield)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    mutating func loadBufferSlice(
+        initialBufferPointer: UnsafeBufferPointer<UInt8>,
+        bufferPointer: inout UnsafeMutableBufferPointer<UInt8>,
+        index: inout Int,
+        initialRequestBodyCount: inout Int
+    ) {
+        let bufferCount = bufferPointer.count
+        let copied = min(bufferCount, initialRequestBodyCount)
+        var i = 0
+        while i < copied {
+            bufferPointer[i] = initialBufferPointer[index]
+            i += 1
+            index += 1
+        }
+        initialRequestBodyCount -= copied
+        _body!._totalRead += UInt64(copied)
     }
 }
 
@@ -169,7 +232,7 @@ extension Request._Storage {
     #if InlineAlways
     @inline(__always)
     #endif
-    package func copy() -> Self {
+    func copy() -> Self {
         Self(
             requestLine: requestLine?.copy(),
             _startLineSIMD: _startLineSIMD,

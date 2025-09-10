@@ -1,6 +1,6 @@
 
 import DestinyBlueprint
-import DestinyDefaults
+@testable import DestinyDefaults
 import Testing
 
 @Suite
@@ -12,35 +12,42 @@ extension RequestBodyTests {
     @Test
     func requestBodyStreamExactCustomSize() async throws {
         let fd = TestFileDescriptor()
-        fd.sendString("\((0..<10).map({ "\($0)" }).joined())")
-        var body = RequestBody()
-        try await body.stream(fileDescriptor: fd) { (buffer: InlineArray<11, UInt8>) in
-            for i in 0..<buffer.count {
-                let byte = buffer[i]
+        let msg = "GET /html HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n\r\n\((0..<10).map({ "\($0)" }).joined())"
+        fd.sendString(msg)
+        var storage = Request._Storage()
+        let initialBuffer = fd.readBuffer()
+        try storage.load(buffer: initialBuffer)
+        try await storage.bodyStream(fileDescriptor: fd, initialBuffer: initialBuffer) { (buffer: consuming InlineByteBuffer<10>) in
+            for i in 0..<buffer.endIndex {
+                let byte = buffer.buffer[i]
                 if byte == 0 {
                     break
                 }
                 #expect(byte == 48 + i)
             }
         }
-        #expect(body.totalRead == 10)
+        #expect(storage._body?.totalRead == 10)
     }
 
     @Test
     func requestBodyStreamExactDefaultSize() async throws {
         let fd = TestFileDescriptor()
-        fd.sendString("\((0..<10).map({ "\($0)" }).joined())")
-        var body = RequestBody()
-        try await body.stream(fileDescriptor: fd) { buffer in
-            for i in 0..<buffer.count {
-                let byte = buffer[i]
+        let msg = "GET /html HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n\r\n\((0..<10).map({ "\($0)" }).joined())"
+        fd.sendString(msg)
+        var storage = Request._Storage()
+        let initialBuffer = fd.readBuffer()
+        try storage.load(buffer: initialBuffer)
+
+        try await storage.bodyStream(fileDescriptor: fd, initialBuffer: initialBuffer) { (buffer: consuming Request.InitialBuffer) in
+            for i in 0..<buffer.endIndex {
+                let byte = buffer.buffer[i]
                 if byte == 0 {
                     break
                 }
                 #expect(byte == 48 + i)
             }
         }
-        #expect(body.totalRead == 10)
+        #expect(storage._body?.totalRead == 10)
     }
 }
 
@@ -48,12 +55,16 @@ extension RequestBodyTests {
     @Test
     func requestBodyStreamHalfCustomSize() async throws {
         let fd = TestFileDescriptor()
-        fd.sendString("\((0..<10).map({ "\($0)" }).joined())")
-        var body = RequestBody()
+        let msg = "GET /html HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n\r\n\((0..<10).map({ "\($0)" }).joined())"
+        fd.sendString(msg)
+        var storage = Request._Storage()
+        let initialBuffer = fd.readBuffer()
+        try storage.load(buffer: initialBuffer)
+
         var bufferIndex = 0
-        try await body.stream(fileDescriptor: fd) { (buffer: InlineArray<6, UInt8>) in
-            for i in 0..<buffer.count {
-                let byte = buffer[i]
+        try await storage.bodyStream(fileDescriptor: fd, initialBuffer: initialBuffer) { (buffer: consuming InlineByteBuffer<6>) in
+            for i in 0..<buffer.endIndex {
+                let byte = buffer.buffer[i]
                 if byte == 0 {
                     break
                 }
@@ -63,6 +74,6 @@ extension RequestBodyTests {
             bufferIndex += 1
         }
         #expect(bufferIndex == 2)
-        #expect(body.totalRead == 10)
+        #expect(storage._body?.totalRead == 10)
     }
 }

@@ -1,94 +1,63 @@
 
 import DestinyBlueprint
-import DestinyDefaults
+@testable import DestinyDefaults
 
 /// Default storage for request data.
 struct TestRequest: HTTPRequestProtocol, ~Copyable {
     let fileDescriptor:TestFileDescriptor
-
-    var initialBuffer:Request.Buffer? = nil
-    var _storage:Request._Storage
-    var storage:Request.Storage
+    var _request:_Request<1024>
 
     init(
         fileDescriptor: TestFileDescriptor,
-        storage: consuming Request.Storage = .init([:])
+        _request: consuming _Request<1024>
     ) {
         self.fileDescriptor = fileDescriptor
-        self._storage = .init()
-        self.storage = storage
+        self._request = _request
     }
-
-    lazy var headers: HTTPHeaders = {
-        return .init()
-    }()
 
     mutating func forEachPath(
         offset: Int = 0,
         _ yield: (String) -> Void
     ) throws(SocketError) {
-        var i = offset
-        if _storage.requestLine == nil {
-            try loadStorage()
-        }
-        let path = _storage.path(buffer: initialBuffer!)
-        while i < path.count {
-            yield(path[i])
-            i += 1
-        }
+        try _request.forEachPath(fileDescriptor: fileDescriptor, yield)
     }
 
     mutating func path(at index: Int) throws(SocketError) -> String {
-        if _storage.requestLine == nil {
-            try loadStorage()
-        }
-        return _storage.path(buffer: initialBuffer!)[index]
+        try _request.path(fileDescriptor: fileDescriptor, at: index)
     }
 
     mutating func pathCount() throws(SocketError) -> Int {
-        if _storage.requestLine == nil {
-            try loadStorage()
-        }
-        return _storage.path(buffer: initialBuffer!).count
+        try _request.pathCount(fileDescriptor: fileDescriptor)
     }
 
     mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
-        if _storage._methodString == nil {
-            try loadStorage()
-        }
-        return method.rawNameString() == _storage._methodString
+        try _request.isMethod(fileDescriptor: fileDescriptor, method)
     }
 
-    mutating func header(forKey key: String) -> String? {
-        headers[key]
+    mutating func headers() throws(SocketError) -> [Substring:Substring] {
+        try _request.headers(fileDescriptor: fileDescriptor)
+    }
+    mutating func header(forKey key: String) throws(SocketError) -> String? {
+        try _request.header(fileDescriptor: fileDescriptor, forKey: key)
     }
 
     static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> TestRequest {
-        .init(fileDescriptor: .init(fileDescriptor: socket.fileDescriptor))
+        .init(fileDescriptor: .init(fileDescriptor: socket.fileDescriptor), _request: .init())
     }
 
     func copy() -> Self {
-        var c = Self(fileDescriptor: fileDescriptor)
-        c._storage = _storage.copy()
-        c.storage = storage.copy()
-        return c
+        return Self(fileDescriptor: fileDescriptor, _request: _request.copy())
     }
 }
 
 // MARK: Start line
 extension TestRequest {
     mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.requestLine == nil {
-            try loadStorage()
-        }
-        return _storage.startLineSIMD(buffer: initialBuffer!)
+        try _request.startLine(fileDescriptor: fileDescriptor)
     }
 
     mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
-        if _storage.requestLine == nil {
-            try loadStorage()
-        }
-        return _storage.startLineSIMDLowercased(buffer: initialBuffer!)
+        try _request.startLineLowercased(fileDescriptor: fileDescriptor)
     }
 }
 
@@ -98,23 +67,6 @@ extension TestRequest {
     @inlinable
     #endif
     mutating func loadStorage() throws(SocketError) {
-        let (buffer, read) = readBuffer()
-        if read <= 0 {
-            throw .malformedRequest()
-        }
-        initialBuffer = buffer
-        try _storage.load(fileDescriptor: fileDescriptor, buffer: buffer)
-    }
-}
-
-// MARK: Read buffer
-extension TestRequest {
-    func readBuffer() -> (Request.Buffer, Int) {
-        var buffer = Request.Buffer.init(repeating: 0)
-        var mutableSpan = buffer.mutableSpan
-        let read = mutableSpan.withUnsafeMutableBufferPointer { p in
-            return fileDescriptor.readBuffer(into: p.baseAddress!, length: Request.Buffer.count, flags: 0)
-        }
-        return (buffer, read)
+        try _request.loadStorage(fileDescriptor: fileDescriptor)
     }
 }

@@ -1,6 +1,6 @@
 
 import DestinyBlueprint
-import DestinyDefaults
+@testable import DestinyDefaults
 
 struct TestHTTPSocket: HTTPSocketProtocol, ~Copyable {
     func readBuffer(into baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int {
@@ -29,6 +29,6 @@ struct TestHTTPSocket: HTTPSocketProtocol, ~Copyable {
     }
 
     func loadRequest() -> TestRequest {
-        .init(fileDescriptor: _fileDescriptor)
+        .init(fileDescriptor: _fileDescriptor, _request: .init())
     }
 }

@@ -2,8 +2,6 @@
 import DestinyBlueprint
 
 public struct RequestBody: Sendable, ~Copyable {
-    public typealias Buffer = InlineArray<16_384, UInt8> // 16 KB
-
     @usableFromInline
     var _totalRead:UInt64
 
@@ -69,50 +67,12 @@ extension RequestBody {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func collect(
-        fileDescriptor: some FileDescriptor
-    ) throws(SocketError) -> (buffer: Buffer, read: Int) {
-        var buffer = Buffer(repeating: 0)
-        let read = try read(fileDescriptor: fileDescriptor, into: &buffer)
-        return (buffer, read)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func collect<let count: Int>(
         fileDescriptor: some FileDescriptor
-    ) throws(SocketError) -> (buffer: InlineArray<count, UInt8>, read: Int) {
+    ) throws(SocketError) -> InlineByteBuffer<count> {
         var buffer = InlineArray<count, UInt8>(repeating: 0)
         let read = try read(fileDescriptor: fileDescriptor, into: &buffer)
-        return (buffer, read)
-    }
-}
-
-// MARK: Stream, default size
-extension RequestBody {
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func stream(
-        fileDescriptor: some FileDescriptor,
-        //maximumSize: Int = 500_000,
-        _ yield: (Buffer) async throws -> Void
-    ) async throws {
-        var buffer = Buffer(repeating: 0)
-        try await stream(fileDescriptor: fileDescriptor, buffer: &buffer, yield)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func stream<let chunkSize: Int>(
-        fileDescriptor: some FileDescriptor,
-        //maximumSize: Int = 500_000,
-        _ yield: (InlineArray<chunkSize, UInt8>) async throws -> Void
-    ) async throws {
-        var buffer = InlineArray<chunkSize, UInt8>(repeating: 0)
-        try await stream(fileDescriptor: fileDescriptor,buffer: &buffer, yield)
+        return .init(buffer: buffer, endIndex: read)
     }
 }
 
@@ -123,10 +83,22 @@ extension RequestBody {
     #endif
     public mutating func stream<let chunkSize: Int>(
         fileDescriptor: some FileDescriptor,
-        buffer: inout InlineArray<chunkSize, UInt8>,
-        _ yield: (InlineArray<chunkSize, UInt8>) async throws -> Void
+        //maximumSize: Int = 500_000,
+        _ yield: (consuming InlineByteBuffer<chunkSize>) async throws -> Void
     ) async throws {
-        let asyncStream = AsyncThrowingStream<InlineArray<chunkSize, UInt8>, Error> { continuation in
+        var buffer = InlineArray<chunkSize, UInt8>(repeating: 0)
+        try await stream(fileDescriptor: fileDescriptor,buffer: &buffer, yield)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func stream<let chunkSize: Int>(
+        fileDescriptor: some FileDescriptor,
+        buffer: inout InlineArray<chunkSize, UInt8>,
+        _ yield: (consuming InlineByteBuffer<chunkSize>) async throws -> Void
+    ) async throws {
+        let asyncStream = AsyncThrowingStream<CopyableInlineBuffer<chunkSize>, Error> { continuation in
             while true {
                 var read = 0
                 do throws(SocketError) {
@@ -139,16 +111,16 @@ extension RequestBody {
                     for i in stride(from: chunkSize-1, to: read-1, by: -1) {
                         buffer[i] = 0
                     }
-                    continuation.yield(buffer)
+                    continuation.yield(.init(buffer: buffer, endIndex: read))
                     continuation.finish()
                     break
                 } else {
-                    continuation.yield(buffer)
+                    continuation.yield(.init(buffer: buffer, endIndex: read))
                 }
             }
         }
         for try await b in asyncStream {
-            try await yield(b)
+            try await yield(b.noncopyable())
         }
     }
 }
