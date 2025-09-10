@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-/// Shared request storage that works for different `FileDescriptor` implementations.
+/// Universal request storage that works for different `FileDescriptor` implementations.
 @usableFromInline
 struct _Request<let initalBufferCount: Int>: Sendable, ~Copyable {
 

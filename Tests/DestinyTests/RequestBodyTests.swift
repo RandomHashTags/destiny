@@ -14,10 +14,9 @@ extension RequestBodyTests {
         let fd = TestFileDescriptor()
         let msg = "GET /html HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n\r\n\((0..<10).map({ "\($0)" }).joined())"
         fd.sendString(msg)
-        var storage = Request._Storage()
-        let initialBuffer = fd.readBuffer()
-        try storage.load(buffer: initialBuffer)
-        try await storage.bodyStream(fileDescriptor: fd, initialBuffer: initialBuffer) { (buffer: consuming InlineByteBuffer<10>) in
+        var request = _Request<1024>()
+        try request.loadStorage(fileDescriptor: fd)
+        try await request.bodyStream(fileDescriptor: fd) { (buffer: consuming InlineByteBuffer<10>) in
             for i in 0..<buffer.endIndex {
                 let byte = buffer.buffer[i]
                 if byte == 0 {
@@ -26,7 +25,7 @@ extension RequestBodyTests {
                 #expect(byte == 48 + i)
             }
         }
-        #expect(storage._body?.totalRead == 10)
+        #expect(request._storage._body?.totalRead == 10)
     }
 
     @Test
@@ -34,11 +33,9 @@ extension RequestBodyTests {
         let fd = TestFileDescriptor()
         let msg = "GET /html HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n\r\n\((0..<10).map({ "\($0)" }).joined())"
         fd.sendString(msg)
-        var storage = Request._Storage()
-        let initialBuffer = fd.readBuffer()
-        try storage.load(buffer: initialBuffer)
-
-        try await storage.bodyStream(fileDescriptor: fd, initialBuffer: initialBuffer) { (buffer: consuming Request.InitialBuffer) in
+        var request = _Request<1024>()
+        try request.loadStorage(fileDescriptor: fd)
+        try await request.bodyStream(fileDescriptor: fd) { (buffer: consuming Request.InitialBuffer) in
             for i in 0..<buffer.endIndex {
                 let byte = buffer.buffer[i]
                 if byte == 0 {
@@ -47,7 +44,7 @@ extension RequestBodyTests {
                 #expect(byte == 48 + i)
             }
         }
-        #expect(storage._body?.totalRead == 10)
+        #expect(request._storage._body?.totalRead == 10)
     }
 }
 
@@ -57,12 +54,11 @@ extension RequestBodyTests {
         let fd = TestFileDescriptor()
         let msg = "GET /html HTTP/1.1\r\nContent-Type: text/plain\r\nContent-Length: 10\r\n\r\n\((0..<10).map({ "\($0)" }).joined())"
         fd.sendString(msg)
-        var storage = Request._Storage()
-        let initialBuffer = fd.readBuffer()
-        try storage.load(buffer: initialBuffer)
+        var request = _Request<1024>()
+        try request.loadStorage(fileDescriptor: fd)
 
         var bufferIndex = 0
-        try await storage.bodyStream(fileDescriptor: fd, initialBuffer: initialBuffer) { (buffer: consuming InlineByteBuffer<6>) in
+        try await request.bodyStream(fileDescriptor: fd) { (buffer: consuming InlineByteBuffer<6>) in
             for i in 0..<buffer.endIndex {
                 let byte = buffer.buffer[i]
                 if byte == 0 {
@@ -74,6 +70,6 @@ extension RequestBodyTests {
             bufferIndex += 1
         }
         #expect(bufferIndex == 2)
-        #expect(storage._body?.totalRead == 10)
+        #expect(request._storage._body?.totalRead == 10)
     }
 }

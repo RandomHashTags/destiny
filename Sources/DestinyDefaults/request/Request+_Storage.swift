@@ -159,8 +159,8 @@ extension Request._Storage {
             if startIndex < initialBufferCount {
                 // part of the request body is contained in the initial buffer
                 var buffer = InlineArray<bufferCount, UInt8>(repeating: 0)
-                var startCount = initialBuffer.endIndex - startIndex
-                var initialRequestBodyCount = startCount
+                var initialRequestBodyCount = initialBuffer.endIndex - startIndex
+                var remainingRequestBodyCount = initialRequestBodyCount
                 initialBuffer.buffer.withUnsafeBufferPointer { initialBufferPointer in
                     buffer.withUnsafeMutableBufferPointer {
                         var bufferPointer = $0
@@ -168,17 +168,13 @@ extension Request._Storage {
                             initialBufferPointer: initialBufferPointer,
                             bufferPointer: &bufferPointer,
                             index: &startIndex,
-                            initialRequestBodyCount: &initialRequestBodyCount
+                            initialRequestBodyCount: &remainingRequestBodyCount
                         )
                     }
                 }
-                try await yield(.init(buffer: buffer, endIndex: startCount - initialRequestBodyCount))
-                guard initialRequestBodyCount > 0 else {
-                    // request body was completely within the initial buffer
-                    return
-                }
-                while initialRequestBodyCount > 0 {
-                    startCount = initialRequestBodyCount
+                try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount - remainingRequestBodyCount))
+                while remainingRequestBodyCount > 0 {
+                    initialRequestBodyCount = remainingRequestBodyCount
                     initialBuffer.buffer.withUnsafeBufferPointer { initialBufferPointer in
                         buffer.withUnsafeMutableBufferPointer {
                             var bufferPointer = $0
@@ -187,13 +183,13 @@ extension Request._Storage {
                                 initialBufferPointer: initialBufferPointer,
                                 bufferPointer: &bufferPointer,
                                 index: &startIndex,
-                                initialRequestBodyCount: &initialRequestBodyCount
+                                initialRequestBodyCount: &remainingRequestBodyCount
                             )
                         }
                     }
-                    try await yield(.init(buffer: buffer, endIndex: startCount - initialRequestBodyCount))
+                    try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount - remainingRequestBodyCount))
                 }
-                guard initialRequestBodyCount > 0 else {
+                if initialBuffer.endIndex != initialBufferCount {
                     // request body was completely within the initial buffer
                     return
                 }
