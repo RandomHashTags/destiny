@@ -95,7 +95,7 @@ extension Router {
         node: some SyntaxProtocol,
         _ string: String
     ) {
-        context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "routePathAlreadyRegistered", message: "Route path (\(string)) already registered.")))
+        context.diagnose(.init(node: node, message: DiagnosticMsg(id: "routePathAlreadyRegistered", message: "Route path (\(string)) already registered.")))
     }
 }
 

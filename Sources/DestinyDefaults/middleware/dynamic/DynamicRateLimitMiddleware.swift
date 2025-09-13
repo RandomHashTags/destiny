@@ -2,7 +2,8 @@
 import DestinyBlueprint
 
 // MARK: DynamicRateLimitMiddleware
-public final class DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol, OpaqueDynamicMiddlewareProtocol, @unchecked Sendable { // TODO: finish (need a way to identify requests, preferably by IP address or persistent UUID)
+public final class DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol, OpaqueDynamicMiddlewareProtocol, @unchecked Sendable {
+    // TODO: finish (need a way to identify requests, preferably by IP address or persistent UUID)
     private var limits:[String:Int]
 
     public init() {

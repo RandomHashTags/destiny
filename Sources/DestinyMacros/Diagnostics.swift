@@ -57,10 +57,10 @@ extension DiagnosticMsg {
 
 extension Diagnostic {
     package static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: SyntaxProtocol) {
-        context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "spacesNotAllowedInRoutePath", message: "Spaces aren't allowed in route paths.")))
+        context.diagnose(.init(node: node, message: DiagnosticMsg(id: "spacesNotAllowedInRoutePath", message: "Spaces aren't allowed in route paths.")))
     }
     package static func routeResponseStatusNotImplemented(context: some MacroExpansionContext, node: SyntaxProtocol) {
-        context.diagnose(Diagnostic(node: node, message: DiagnosticMsg(id: "routeResponseStatusNotImplemented", message: "Route's response status is \".notImplemented\".", severity: .warning)))
+        context.diagnose(.init(node: node, message: DiagnosticMsg(id: "routeResponseStatusNotImplemented", message: "Route's response status is \".notImplemented\".", severity: .warning)))
     }
 }
 

@@ -73,13 +73,14 @@ extension CompiledRouterStorage {
 // MARK: Build
 extension CompiledRouterStorage {
     func build() -> StructDeclSyntax {
+        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: settings.isCopyable)
         let name = settings.name
         var decl = StructDeclSyntax(
             leadingTrivia: "// MARK: \(name)\n\(visibility)",
             name: "\(raw: name)",
             inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
-                .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "NonCopyable")HTTPRouterProtocol"), trailingComma: ","),
-                .init(type: TypeSyntax(stringLiteral: "\(settings.isCopyable ? "" : "~")Copyable"))
+                .init(type: TypeSyntax(stringLiteral: "\(copyableText)HTTPRouterProtocol"), trailingComma: ","),
+                .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
             )),
             memberBlock: .init(members: .init())
         )
@@ -97,28 +98,38 @@ extension CompiledRouterStorage {
         return decl
     }
 
-    private func buildSubRouter(isCopyable: Bool) -> StructDeclSyntax? {
-        var decl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(isCopyable ? "Copyable" : "NonCopyable")\n\(visibility)",
-            name: "\(raw: "_\(isCopyable ? "Copyable" : "NonCopyable")")",
-            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
-                .init(type: TypeSyntax(stringLiteral: "\(isCopyable ? "" : "NonCopyable")HTTPRouterProtocol"), trailingComma: ","),
-                .init(type: TypeSyntax(stringLiteral: "\(isCopyable ? "" : "~")Copyable"))
-            )),
-            memberBlock: .init(members: .init())
-        )
-
+    private func buildSubRouter(
+        isCopyable: Bool
+    ) -> StructDeclSyntax? {
         guard let variableDecls = variableDecls(isCopyable: isCopyable) else { return nil }
-        decl.memberBlock.members.append(contentsOf: variableDecls.map({ .init(decl: $0) }))
-        decl.memberBlock.members.append(.init(decl: loadDecl()))
-        decl.memberBlock.members.append(.init(decl: handleDynamicMiddlewareDecl()))
-        decl.memberBlock.members.append(.init(decl: handleDecl()))
-        decl.memberBlock.members.append(.init(decl: respondDecl(isCopyable: isCopyable)))
-        decl.memberBlock.members.append(.init(decl: respondWithStaticResponderDecl(isCopyable: isCopyable)))
-        decl.memberBlock.members.append(.init(decl: defaultDynamicResponseDecl(isCopyable: isCopyable)))
-        decl.memberBlock.members.append(.init(decl: respondWithDynamicResponderDecl(isCopyable: isCopyable)))
-        decl.memberBlock.members.append(.init(decl: respondWithNotFoundDecl()))
-        decl.memberBlock.members.append(.init(decl: respondWithErrorDecl()))
+        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
+        var members = MemberBlockItemListSyntax()
+        members.append(contentsOf: variableDecls.map({ .init(decl: $0) }))
+        members.append(.init(decl: loadDecl()))
+        members.append(.init(decl: handleDynamicMiddlewareDecl()))
+        members.append(.init(decl: handleDecl()))
+        members.append(.init(decl: respondDecl(isCopyable: isCopyable)))
+        members.append(.init(decl: respondWithStaticResponderDecl(isCopyable: isCopyable)))
+        members.append(.init(decl: defaultDynamicResponseDecl(isCopyable: isCopyable)))
+        members.append(.init(decl: respondWithDynamicResponderDecl(isCopyable: isCopyable)))
+        members.append(.init(decl: respondWithNotFoundDecl()))
+        members.append(.init(decl: respondWithErrorDecl()))
+
+        let name:String
+        if isCopyable {
+            name = "Copyable"
+        } else {
+            name = "NonCopyable"
+        }
+        let decl = StructDeclSyntax(
+            leadingTrivia: "// MARK: \(name)\n\(visibility)",
+            name: "\(raw: "_\(name)")",
+            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
+                .init(type: TypeSyntax(stringLiteral: "\(copyableText)HTTPRouterProtocol"), trailingComma: ","),
+                .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
+            )),
+            memberBlock: .init(members: members)
+        )
         return decl
     }
 }
@@ -270,11 +281,7 @@ extension CompiledRouterStorage {
 // MARK: Load decl
 extension CompiledRouterStorage {
     private func loadDecl() -> FunctionDeclSyntax {
-        var loadString = dynamicMiddlewareArray.enumerated().map({
-            "dynamicMiddleware.\($0.offset).load()"
-        }).joined(separator: "\n")
-        loadString = "// TODO: fix?\n/*\n\(loadString)\n*/"
-        return loadDecl(loadString: loadString)
+        return loadDecl(loadString: "")
     }
     private func loadDecl(loadString: String) -> FunctionDeclSyntax {
         return try! .init("""

@@ -7,11 +7,9 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension RouterStorage {
-    mutating func perfectHashStorage(
-        mutable: Bool,
-        context: some MacroExpansionContext,
+    mutating func perfectHashResponder(
         isCaseSensitive: Bool
-    ) -> (copyable: String?, noncopyable: String?)? {
+    ) -> CompiledRouterStorage.Responder? {
         let namePrefix:String
         let staticRoutes:[(StaticRoute, FunctionCallExprSyntax)]
         let dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)]
@@ -26,8 +24,7 @@ extension RouterStorage {
         }
         let copyable:String?
         var noncopyable:String? = nil
-        if let decl = decl(
-            context: context,
+        if let declName = perfectHashDeclName(
             namePrefix: namePrefix,
             random: getRandom(isCaseSensitive: isCaseSensitive),
             staticRoutes: staticRoutes,
@@ -35,12 +32,11 @@ extension RouterStorage {
             isCaseSensitive: isCaseSensitive,
             isCopyable: true
         ) {
-            copyable = "\(decl.name.text)()"
+            copyable = "\(declName)()"
         } else {
             copyable = nil
         }
-        if let decl = decl(
-            context: context,
+        if let declName = perfectHashDeclName(
             namePrefix: namePrefix,
             random: getRandom(isCaseSensitive: isCaseSensitive),
             staticRoutes: staticRoutes,
@@ -48,11 +44,11 @@ extension RouterStorage {
             isCaseSensitive: isCaseSensitive,
             isCopyable: false
         ) {
-            noncopyable = "\(decl.name.text)()"
+            noncopyable = "\(declName)()"
         } else {
             noncopyable = nil
         }
-        return copyable != nil || noncopyable != nil ? (copyable, noncopyable) : nil
+        return .get((copyable, noncopyable))
     }
     private func getRandom(isCaseSensitive: Bool) -> Int {
         if isCaseSensitive {
@@ -65,27 +61,14 @@ extension RouterStorage {
 
 // MARK: Decl
 extension RouterStorage {
-    private mutating func decl(
-        context: some MacroExpansionContext,
+    private mutating func perfectHashDeclName(
         namePrefix: String,
         random: Int,
         staticRoutes: [(StaticRoute, FunctionCallExprSyntax)],
         dynamicRoutes: [(DynamicRoute, FunctionCallExprSyntax)],
         isCaseSensitive: Bool,
         isCopyable: Bool
-    ) -> StructDeclSyntax? {
-        var enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n\(visibility)",
-            name: "\(raw: namePrefix)ResponderStorage\(raw: random)",
-            inheritanceClause: .init(
-                inheritedTypes: .init(arrayLiteral:
-                    .init(type: TypeSyntax.init(stringLiteral: "\(isCopyable ? "" : "NonCopyable")ResponderStorageProtocol"), trailingComma: ","),
-                    .init(type: TypeSyntax.init(stringLiteral: "\(isCopyable ? "" : "~")Copyable"))
-                )
-            ),
-            memberBlock: .init(members: .init())
-        )
-
+    ) -> String? {
         let reservedCapacity = staticRoutes.count + dynamicRoutes.count
         var routePaths = [String]()
         var routeResponders = [String]()
@@ -93,19 +76,15 @@ extension RouterStorage {
         routePaths.reserveCapacity(reservedCapacity)
         routeResponders.reserveCapacity(reservedCapacity)
         literalRouteResponders.reserveCapacity(reservedCapacity)
-
         appendStaticRoutes(
-            context: context,
-            middleware: staticMiddleware,
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: staticRoutes,
-            literalRoutePaths: &routePaths,
+            routePaths: &routePaths,
             routeResponders: &routeResponders,
             literalRouteResponders: &literalRouteResponders
         )
         appendDynamicRoutes(
-            context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: dynamicRoutes,
@@ -114,47 +93,60 @@ extension RouterStorage {
             literalRouteResponders: &literalRouteResponders
         )
         guard !routePaths.isEmpty else { return nil }
-
+        var members = MemberBlockItemListSyntax()
         staticConstants(
-            context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routePaths: routePaths,
-            enumDecl: &enumDecl,
-            literalRouteResponders: literalRouteResponders
+            members: &members,
+            routeResponders: literalRouteResponders
         )
-
+        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
+        let name = "\(namePrefix)ResponderStorage\(random)"
+        let enumDecl = StructDeclSyntax(
+            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n\(visibility)",
+            name: "\(raw: name)",
+            inheritanceClause: .init(
+                inheritedTypes: .init(arrayLiteral:
+                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: ","),
+                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableSymbol)Copyable"))
+                )
+            ),
+            memberBlock: .init(members: members)
+        )
         generatedDecls.append(enumDecl)
         if isCaseSensitive {
             autoGeneratedCaseSensitiveRespondersIndex += 1
         } else {
             autoGeneratedCaseInsensitiveRespondersIndex += 1
         }
-        return enumDecl
+        return name
     }
 }
 
 // MARK: Static constants
 extension RouterStorage {
     private func staticConstants(
-        context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         isCopyable: Bool,
         routePaths: [String],
-        enumDecl: inout StructDeclSyntax,
-        literalRouteResponders: [String]
+        members: inout MemberBlockItemListSyntax,
+        routeResponders: [String]
     ) {
-        var routePathCaseNames = [String]()
+        let routerParameter = routerParameter(isCopyable: isCopyable)
+        var routePathCaseConditions = ""
         var routePathSIMDs = [SIMD64<UInt8>]()
         var staticResponders = [VariableDeclSyntax]()
         var staticSIMDs = [VariableDeclSyntax]()
-
-        routePathCaseNames.reserveCapacity(routePaths.count)
         routePathSIMDs.reserveCapacity(routePaths.count)
         staticResponders.reserveCapacity(routePaths.count)
         staticSIMDs.reserveCapacity(routePaths.count)
+
+        var routeMembers = MemberBlockItemListSyntax()
         for (index, routePath) in routePaths.enumerated() {
-            routePathCaseNames.append("`\(routePath)`")
+            let caseName = "`\(routePath)`"
+            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)"
+            routeMembers.append(.init(decl: try! EnumCaseDeclSyntax.init("case \(raw: caseName)")))
 
             let utf8 = routePath.utf8
             var simd = SIMD64<UInt8>.zero
@@ -168,7 +160,7 @@ extension RouterStorage {
 
             let staticResponder = try! VariableDeclSyntax.init("""
             /// Request: `\(raw: routePath)`
-            \(raw: visibility)static let responder\(raw: index) = \(raw: literalRouteResponders[index])
+            \(raw: visibility)static let responder\(raw: index) = \(raw: routeResponders[index])
             """)
             staticResponders.append(staticResponder)
 
@@ -181,29 +173,72 @@ extension RouterStorage {
         let routeResponderDecl = try! FunctionDeclSyntax.init("""
         \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
-            router: \(raw: routerParameter(isCopyable: isCopyable)),
+            router: \(raw: routerParameter),
             socket: some FileDescriptor,
             request: inout some HTTPRequestProtocol & ~Copyable,
             completionHandler: @Sendable @escaping () -> Void
         ) throws(ResponderError) -> Bool {
             switch self {
-            \(raw: routePathCaseNames.enumerated().map({ "case .\($0.element):\ntry Self.responder\($0.offset).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)" }).joined(separator: "\n"))
+            \(raw: routePathCaseConditions)
             }
             return true
         }
         """)
-        var routeConstantsDecl = try! EnumDeclSyntax.init("""
-        \(raw: visibility)enum Route: UInt16 { // \(raw: routePaths.count)
+        routeMembers.append(.init(decl: routeResponderDecl))
+        routeMembers.append(contentsOf: staticResponders.map({ .init(decl: $0) }))
+        let routeConstantsDecl = EnumDeclSyntax(
+            leadingTrivia: .init(stringLiteral: "\(visibility)"),
+            name: "Route",
+            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral:
+                .init(type: TypeSyntax("UInt16"))
+            )),
+            memberBlock: .init(members: routeMembers),
+            trailingTrivia: .init(stringLiteral: "// \(routePaths.count)")
+        )
+        members.append(.init(decl: routeConstantsDecl))
+        appendMatchRouteDecl(
+            routePaths: routePaths,
+            routePathSIMDs: routePathSIMDs,
+            staticSIMDs: staticSIMDs,
+            members: &members
+        )
+        appendRespondDecl(
+            isCaseSensitive: isCaseSensitive,
+            routerParameter: routerParameter,
+            members: &members
+        )
+    }
+    private func appendRespondDecl(
+        isCaseSensitive: Bool,
+        routerParameter: String,
+        members: inout MemberBlockItemListSyntax
+    ) {
+        let decl = try! FunctionDeclSyntax.init("""
+        \(raw: inlinableAnnotation)
+        \(raw: visibility)func respond(
+            router: \(raw: routerParameter),
+            socket: some FileDescriptor,
+            request: inout some HTTPRequestProtocol & ~Copyable,
+            completionHandler: @Sendable @escaping () -> Void
+        ) throws(ResponderError) -> Bool {
+            let startLine:SIMD64<UInt8>
+            do throws(SocketError) {
+                startLine = try request.startLine\(raw: isCaseSensitive ? "" : "Lowercased")()
+            } catch {
+                throw .socketError(error)
+            }
+            guard let route = matchRoute(startLine) else { return false }
+            return try route.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
         }
         """)
-        for caseName in routePathCaseNames {
-            routeConstantsDecl.memberBlock.members.append(.init(decl: try! EnumCaseDeclSyntax.init("case \(raw: caseName)")))
-        }
-        routeConstantsDecl.memberBlock.members.append(.init(decl: routeResponderDecl))
-        routeConstantsDecl.memberBlock.members.append(contentsOf: staticResponders.map({ .init(decl: $0) }))
-        enumDecl.memberBlock.members.append(.init(decl: routeConstantsDecl))
-
-        var foundPerfectHash = false
+        members.append(.init(decl: decl))
+    }
+    private func appendMatchRouteDecl(
+        routePaths: [String],
+        routePathSIMDs: [SIMD64<UInt8>],
+        staticSIMDs: [VariableDeclSyntax],
+        members: inout MemberBlockItemListSyntax
+    ) {
         if perfectHashSettings.enabled {
             //let relaxedRoutePaths = routePaths.filter({ perfectHashSettings.relaxedRoutePaths.contains($0) }) // TODO: support
             let perfectHashableItems:[PerfectHashableItem<SIMD64<UInt8>>] = routePaths.enumerated().map({
@@ -263,7 +298,7 @@ extension RouterStorage {
                 0x9F9F9F9F9F9F9F9F
             ]
             for hashBytes in perfectHashSettings.maxBytes {
-                if let perfectHashDecls = matchRoutePerfectHash(
+                if let perfectHashDecls = matchRoutePerfectHashDecls(
                     routePaths: routePaths,
                     routePathSIMDs: perfectHashableItems,
                     perfectHashPositions: perfectHashPositions,
@@ -271,49 +306,27 @@ extension RouterStorage {
                     hashMaxBytes: hashBytes,
                     requireExactPaths: perfectHashSettings.requireExactPaths
                 ) {
-                    enumDecl.memberBlock.members.append(contentsOf: perfectHashDecls.map({ .init(decl: $0) }))
-                    foundPerfectHash = true
-                    break
+                    members.append(contentsOf: perfectHashDecls)
+                    return
                 }
             }
         }
-        if !foundPerfectHash {
-            enumDecl.memberBlock.members.append(contentsOf: staticSIMDs.map({ .init(decl: $0) }))
-            enumDecl.memberBlock.members.append(.init(decl: matchRouteFallback(routePaths: routePaths)))
-        }
-
-        let responderDecl = try! FunctionDeclSyntax.init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func respond(
-            router: \(raw: routerParameter(isCopyable: isCopyable)),
-            socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) -> Bool {
-            let startLine:SIMD64<UInt8>
-            do throws(SocketError) {
-                startLine = try request.startLine\(raw: isCaseSensitive ? "" : "Lowercased")()
-            } catch {
-                throw .socketError(error)
-            }
-            guard let route = matchRoute(startLine) else { return false }
-            return try route.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
-        }
-        """)
-        enumDecl.memberBlock.members.append(.init(decl: responderDecl))
+        // perfect hash not found; fallback to default impl
+        members.append(contentsOf: staticSIMDs.map({ .init(decl: $0) }))
+        members.append(.init(decl: matchRouteFallbackDecl(routePaths: routePaths)))
     }
 }
 
 // MARK: Match route
 extension RouterStorage {
-    private func matchRoutePerfectHash<let count: Int>(
+    private func matchRoutePerfectHashDecls<let count: Int>(
         routePaths: [String],
         routePathSIMDs: [PerfectHashableItem<SIMD64<UInt8>>],
         perfectHashPositions: InlineArray<64, Int>,
         seeds: InlineArray<count, UInt64>,
         hashMaxBytes: Int,
         requireExactPaths: Bool
-    ) -> [any DeclSyntaxProtocol]? {
+    ) -> [MemberBlockItemSyntax]? {
         let perfectHashGenerator = PerfectHashGenerator(
             routes: routePathSIMDs,
             maxBytes: hashMaxBytes,
@@ -414,7 +427,7 @@ extension RouterStorage {
         }
         """)
 
-        let routeEntryDecl = matchRoutePerfectHashEntry(
+        let routeEntryDecl = perfectHashRouteEntryDecl(
             minimal: minimal,
             hashMaxBytes: hashMaxBytes,
             requireExactPaths: requireExactPaths,
@@ -427,14 +440,14 @@ extension RouterStorage {
             requireExactPaths: requireExactPaths
         )
         return [
-            routeEntryDecl,
-            hashTableDecl,
-            extractKeyDecl,
-            perfectHashDecl,
-            matchRouteDecl
+            .init(decl: routeEntryDecl),
+            .init(decl: hashTableDecl),
+            .init(decl: extractKeyDecl),
+            .init(decl: perfectHashDecl),
+            .init(decl: matchRouteDecl)
         ]
     }
-    private func matchRoutePerfectHashEntry(
+    private func perfectHashRouteEntryDecl(
         minimal: Bool,
         hashMaxBytes: Int,
         requireExactPaths: Bool,
@@ -454,7 +467,12 @@ extension RouterStorage {
         if minimal {
             values = ("minimal ", "", "", "")
         } else {
-            values = ("", "let key:UInt64\n", "_ key: UInt64", "self.key = key")
+            values = (
+                "",
+                "let key:UInt64\n",
+                "_ key: UInt64",
+                "self.key = key"
+            )
         }
         return try! StructDeclSyntax.init("""
         struct RouteEntry: Sendable { // found \(raw: values.comment)perfect hash with \(raw: hashMaxBytes) characters (\(raw: efficiency)% efficiency)
@@ -503,7 +521,7 @@ extension RouterStorage {
         """)
     }
 
-    private func matchRouteFallback(
+    private func matchRouteFallbackDecl(
         routePaths: [String]
     ) -> FunctionDeclSyntax {
         return try! FunctionDeclSyntax.init("""

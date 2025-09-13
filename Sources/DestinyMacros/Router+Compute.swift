@@ -15,7 +15,7 @@ extension Router {
         var customErrorResponder = ""
         var customDynamicNotFoundResponder = ""
         var customStaticNotFoundResponder = ""
-        var storage = RouterStorage(settings: routerSettings, perfectHashSettings: perfectHashSettings)
+        var storage = RouterStorage(context: context, settings: routerSettings, perfectHashSettings: perfectHashSettings)
         for arg in arguments {
             if let label = arg.label {
                 switch label.text {
@@ -52,27 +52,27 @@ extension Router {
                 case "routeGroups":
                     guard let array = arg.expression.arrayElements(context: context) else { break }
                     for element in array {
-                        if let function = element.expression.functionCall {
-                            switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                            case "RouteGroup":
-                                let (decl, groupStorage) = RouteGroup.parse(
-                                    context: context,
-                                    settings: routerSettings,
-                                    perfectHashSettings: perfectHashSettings,
-                                    version: version,
-                                    staticMiddleware: storage.staticMiddleware,
-                                    dynamicMiddleware: storage.dynamicMiddleware,
-                                    storage: &storage,
-                                    function
-                                )
-                                storage.routeGroups.append(decl)
-                                storage.generatedDecls.append(contentsOf: groupStorage.generatedDecls)
-                                storage.upgradeExistentialDynamicMiddleware.append(contentsOf: groupStorage.upgradeExistentialDynamicMiddleware)
-                            default:
-                                context.diagnose(DiagnosticMsg.unhandled(node: function))
-                            }
-                        } else {
+                        guard let function = element.expression.functionCall else {
                             context.diagnose(DiagnosticMsg.unhandled(node: element))
+                            continue
+                        }
+                        switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                        case "RouteGroup":
+                            let (decl, groupStorage) = RouteGroup.parse(
+                                context: context,
+                                settings: routerSettings,
+                                perfectHashSettings: perfectHashSettings,
+                                version: version,
+                                staticMiddleware: storage.staticMiddleware,
+                                dynamicMiddleware: storage.dynamicMiddleware,
+                                storage: &storage,
+                                function
+                            )
+                            storage.routeGroups.append(decl)
+                            storage.generatedDecls.append(contentsOf: groupStorage.generatedDecls)
+                            storage.upgradeExistentialDynamicMiddleware.append(contentsOf: groupStorage.upgradeExistentialDynamicMiddleware)
+                        default:
+                            context.diagnose(DiagnosticMsg.unhandled(node: function))
                         }
                     }
                 default:
@@ -85,7 +85,7 @@ extension Router {
             }
         }
 
-        let errorResponder:(copyable: String?, noncopyable: String?)?
+        let errorResponder:CompiledRouterStorage.Responder?
         if customErrorResponder.isEmpty || customErrorResponder.isEmpty || customErrorResponder == "nil" {
             let defaultStaticErrorResponse = HTTPResponseMessage(
                 version: version,
@@ -96,62 +96,61 @@ extension Router {
                 contentType: HTTPMediaTypeApplication.json,
                 charset: nil
             ).string(escapeLineBreak: true)
-            errorResponder = (
+            errorResponder = .get((
                 defaultErrorResponder(isCopyable: true, response: defaultStaticErrorResponse),
                 defaultErrorResponder(isCopyable: false, response: defaultStaticErrorResponse)
-            )
+            ))
         } else {
-            errorResponder = (
+            errorResponder = .get((
                 customErrorResponder,
                 customErrorResponder
-            )
+            ))
         }
 
-        let dynamicNotFoundResponder:(copyable: String?, noncopyable: String?)?
+        let dynamicNotFoundResponder:CompiledRouterStorage.Responder?
         if customDynamicNotFoundResponder.isEmpty || customDynamicNotFoundResponder == "nil" {
             dynamicNotFoundResponder = nil
         } else {
-            dynamicNotFoundResponder = (
+            dynamicNotFoundResponder = .get((
                 customDynamicNotFoundResponder,
                 customDynamicNotFoundResponder
-            )
+            ))
         }
 
-        let staticNotFoundResponder:(copyable: String?, noncopyable: String?)?
+        let staticNotFoundResponder:CompiledRouterStorage.Responder?
         if customStaticNotFoundResponder.isEmpty || customStaticNotFoundResponder == "nil" {
-            staticNotFoundResponder = (
+            staticNotFoundResponder = .get((
                 defaultStaticNotFoundResponder(version: version, isCopyable: true),
                 defaultStaticNotFoundResponder(version: version, isCopyable: false)
-            )
+            ))
         } else {
-            staticNotFoundResponder = (
+            staticNotFoundResponder = .get((
                 customStaticNotFoundResponder,
                 customStaticNotFoundResponder
-            )
+            ))
         }
 
         let conditionalRespondersString = storage.conditionalRespondersString()
 
-        let perfectHashCaseSensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, isCaseSensitive: true)
-        let perfectHashCaseInsensitiveResponders = storage.perfectHashStorage(mutable: false, context: context, isCaseSensitive: false)
-        let caseSensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, isCaseSensitive: true)
-        let caseInsensitiveResponders = storage.staticResponsesSyntax(mutable: false, context: context, isCaseSensitive: false)
-        let dynamicCaseSensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, isCaseSensitive: true)
-        let dynamicCaseInsensitiveResponders = storage.dynamicResponsesString(mutable: false, context: context, isCaseSensitive: false)
-
-        let dynamicMiddlewareArray = storage.dynamicMiddlewareArray(mutable: false)
+        let perfectHashCaseSensitiveResponder = storage.perfectHashResponder(isCaseSensitive: true)
+        let perfectHashCaseInsensitiveResponder = storage.perfectHashResponder(isCaseSensitive: false)
+        let caseSensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: true)
+        let caseInsensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: false)
+        let dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: true)
+        let dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: false)
+        let dynamicMiddlewareArray = storage.dynamicMiddlewareArray()
         let compiled = CompiledRouterStorage(
             settings: routerSettings,
-            perfectHashCaseSensitiveResponder: .get(perfectHashCaseSensitiveResponders),
-            perfectHashCaseInsensitiveResponder: .get(perfectHashCaseInsensitiveResponders),
-            caseSensitiveResponder: .get(caseSensitiveResponders),
-            caseInsensitiveResponder: .get(caseInsensitiveResponders),
-            dynamicCaseSensitiveResponder: .get(dynamicCaseSensitiveResponders),
-            dynamicCaseInsensitiveResponder: .get(dynamicCaseInsensitiveResponders),
+            perfectHashCaseSensitiveResponder: perfectHashCaseSensitiveResponder,
+            perfectHashCaseInsensitiveResponder: perfectHashCaseInsensitiveResponder,
+            caseSensitiveResponder: caseSensitiveResponder,
+            caseInsensitiveResponder: caseInsensitiveResponder,
+            dynamicCaseSensitiveResponder: dynamicCaseSensitiveResponder,
+            dynamicCaseInsensitiveResponder: dynamicCaseInsensitiveResponder,
             dynamicMiddlewareArray: dynamicMiddlewareArray,
-            errorResponder: .get(errorResponder),
-            dynamicNotFoundResponder: .get(dynamicNotFoundResponder),
-            staticNotFoundResponder: .get(staticNotFoundResponder)
+            errorResponder: errorResponder,
+            dynamicNotFoundResponder: dynamicNotFoundResponder,
+            staticNotFoundResponder: staticNotFoundResponder
         )
         return (compiled, storage.generatedDecls)
     }
@@ -160,7 +159,7 @@ extension Router {
         response: String
     ) -> String {
         """
-        \(isCopyable ? "" : "NonCopyable")StaticErrorResponder({ error in
+        \(responderCopyableValues(isCopyable: isCopyable).text)StaticErrorResponder({ error in
             \"\(response)\"
         })
         """

@@ -10,7 +10,10 @@ import Logging
 
 // MARK: Server
 /// Default HTTP Server implementation.
-public final class HTTPServer<Router: HTTPRouterProtocol, ClientSocket: HTTPSocketProtocol & ~Copyable>: HTTPServerProtocol, SocketAcceptor {
+public final class HTTPServer<
+        Router: HTTPRouterProtocol,
+        ClientSocket: HTTPSocketProtocol & ~Copyable
+    >: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16
     /// The maximum amount of pending connections the Server will queue.

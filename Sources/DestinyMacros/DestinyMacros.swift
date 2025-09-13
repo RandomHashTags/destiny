@@ -16,3 +16,11 @@ var inlinableAnnotation: String {
 var inlineAlwaysAnnotation: String {
     "#if InlineAlways\n@inline(__always)\n#endif"
 }
+
+func responderCopyableValues(isCopyable: Bool) -> (symbol: String, text: String) {
+    if isCopyable {
+        ("", "")
+    } else {
+        ("~", "NonCopyable")
+    }
+}

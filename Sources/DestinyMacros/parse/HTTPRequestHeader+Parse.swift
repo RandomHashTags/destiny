@@ -61,7 +61,7 @@ extension HTTPRequestHeader {
     ) -> String? {
         guard let key = expr.stringLiteralString(context: context) else { return nil }
         guard !key.contains(" ") else {
-            context.diagnose(Diagnostic(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
+            context.diagnose(.init(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
             return nil
         }
         return key
