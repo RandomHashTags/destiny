@@ -1,7 +1,6 @@
 
-/// Core Redirection Route protocol that redirects certain endpoints to other endpoints.
+/// Core protocol that redirects endpoints to other endpoints.
 public protocol RedirectionRouteProtocol: RouteProtocol, ~Copyable {
-
     associatedtype Message:HTTPMessageProtocol
 
     /// The http start line this route redirects from.

@@ -1,8 +1,13 @@
 
 /// Configurable settings that change how the auto-generated router behaves.
 public struct RouterSettings: Sendable {
-    /// The name of the router's `struct`.
+    /// Name of the compiled router's `struct`.
     public var name:String
+
+    /// Type used as the request storage.
+    /// 
+    /// - Warning: Must conform to `HTTPRequestProtocol`.
+    public var requestType:String
 
     @usableFromInline
     var flags:Flags.RawValue
@@ -10,14 +15,11 @@ public struct RouterSettings: Sendable {
     /// Access control for the router.
     public var visibility:RouterVisibility
 
-    /// The type used as the request storage. Must conform to `HTTPRequestProtocol`.
-    public var requestType:String
-
     public init(
         copyable: Bool = false,
         mutable: Bool = false,
         visibility: RouterVisibility = .internal,
-        name: String? = "CompiledHTTPRouter",
+        name: String? = nil,
         requestType: String = "Request"
     ) {
         self.visibility = visibility

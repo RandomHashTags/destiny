@@ -1,11 +1,12 @@
 
-/// Core Request protocol that lays out how a socket's incoming data is parsed.
+/// Core protocol that handles a socket's incoming data.
 public protocol HTTPRequestProtocol: Sendable, ~Copyable {
     typealias ConcretePathType = String // TODO: allow custom
 
     /// The HTTP start-line.
     mutating func startLine() throws(SocketError) -> SIMD64<UInt8>
 
+    /// The HTTP start-line in all lowercase bytes.
     mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8>
 
     /// Yields the endpoint the request wants to reach, separated by the forward slash character.
@@ -21,7 +22,7 @@ public protocol HTTPRequestProtocol: Sendable, ~Copyable {
         at index: Int
     ) throws(SocketError) -> ConcretePathType
 
-    /// The number of path components the request contains.
+    /// Number of path components the request contains.
     mutating func pathCount() throws(SocketError) -> Int
 
     /// - Returns: Whether or not the request's method matches the given one.
@@ -52,7 +53,7 @@ extension HTTPRequestProtocol where Self: ~Copyable {
 }*/
 
 /*
-/// Core Request Storage protocol that lays out how data for a request is stored.
+/// Core protocol that handles data for a request.
 /// 
 /// Some examples of data that is usually stored include:
 /// - Authentication headers

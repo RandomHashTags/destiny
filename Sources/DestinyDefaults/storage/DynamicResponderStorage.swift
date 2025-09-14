@@ -3,12 +3,13 @@ import DestinyBlueprint
 
 /// Default mutable storage that handles dynamic routes.
 public final class DynamicResponderStorage: MutableDynamicResponderStorageProtocol, @unchecked Sendable {
-    /// The dynamic routes without parameters.
+    /// Dynamic routes with no special handling of its path.
     public var parameterless:[SIMD64<UInt8>:any DynamicRouteResponderProtocol]
 
-    /// The dynamic routes with parameters.
+    /// Dynamic routes with at least one parameter wildcard.
     public var parameterized:[[any DynamicRouteResponderProtocol]]
 
+    /// Dynamic routes with at least one catchall wildcard.
     public var catchall:[any DynamicRouteResponderProtocol]
 
     public init(

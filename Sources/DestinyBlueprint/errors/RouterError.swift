@@ -1,4 +1,5 @@
 
+/// An `Error` that indicates failure when handling a Router.
 public struct RouterError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String

@@ -3,14 +3,14 @@
 /// Default macro to create a `HTTPRouterProtocol`.
 ///
 /// - Parameters:
-///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
-///   - errorResponder: The error responder when an error is thrown from a route.
-///   - dynamicNotFoundResponder: The dynamic responder for requests to unregistered endpoints.
-///   - staticNotFoundResponder: The static responder for requests to unregistered endpoints.
-///   - middleware: The middleware this router contains. All middleware is handled in the order they are declared (put your most important middleware first).
-///   - redirects: The redirects this router contains. Dynamic & Static redirects are automatically created based on this input.
-///   - routeGroups: The router groups this router contains.
-///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
+///   - version: `HTTPVersion` the router responds to. All routes not having a version declared adopt this one.
+///   - errorResponder: Error responder when an error is thrown from a route.
+///   - dynamicNotFoundResponder: Dynamic responder for requests to unregistered endpoints.
+///   - staticNotFoundResponder: Static responder for requests to unregistered endpoints.
+///   - middleware: Middleware the router contains. All middleware is handled in the order they are declared (put your most important middleware first).
+///   - redirects: Redirects the router contains. Dynamic & Static redirects are automatically created based on this input.
+///   - routeGroups: Route groups the router contains.
+///   - routes: Routes that the router contains. All routes are subject to the router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(expression)
 public macro router<T: HTTPRouterProtocol>(
     version: HTTPVersion,
@@ -41,16 +41,16 @@ public macro httpMessage<T: ExpressibleByStringLiteral>(
 /// Declares a struct named `DeclaredRouter` where a compiled router and its optimized data is stored.
 /// 
 /// - Parameters:
-///   - routerSettings: The settings for the router.
+///   - routerSettings: Settings for the router.
 ///   - perfectHashSettings: Perfect Hash settings to use.
-///   - version: The `HTTPVersion` this router responds to. All routes not having a version declared adopt this one.
-///   - errorResponder: The error responder when an error is thrown from a route.
-///   - dynamicNotFoundResponder: The dynamic responder for requests to unregistered endpoints.
-///   - staticNotFoundResponder: The static responder for requests to unregistered endpoints.
-///   - middleware: The middleware this router contains. All middleware is handled in the order they are declared (put your most important middleware first).
-///   - redirects: The redirects this router contains. Dynamic & Static redirects are automatically created based on this input.
-///   - routeGroups: The router groups this router contains.
-///   - routes: The routes that this router contains. All routes are subject to this router's static middleware. Only dynamic routes are subject to dynamic middleware.
+///   - version: `HTTPVersion` the router responds to. All routes not having a version declared adopt this one.
+///   - errorResponder: Error responder when an error is thrown from a route.
+///   - dynamicNotFoundResponder: Dynamic responder for requests to unregistered endpoints.
+///   - staticNotFoundResponder: Static responder for requests to unregistered endpoints.
+///   - middleware: Middleware the router contains. All middleware is handled in the order they are declared (put your most important middleware first).
+///   - redirects: Redirects the router contains. Dynamic & Static redirects are automatically created based on this input.
+///   - routeGroups: Route groups the router contains.
+///   - routes: Routes that the router contains. All routes are subject to the router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(declaration, names: named(DeclaredRouter))
 public macro declareRouter(
     routerSettings: RouterSettings = .init(),

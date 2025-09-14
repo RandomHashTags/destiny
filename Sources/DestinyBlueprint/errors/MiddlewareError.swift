@@ -1,4 +1,5 @@
 
+/// An `Error` that indicates failure when handling Middleware.
 public struct MiddlewareError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String

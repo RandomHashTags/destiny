@@ -1,5 +1,5 @@
 
-/// Core Static Route Responder protocol that handles requests to static routes.
+/// Core protocol that handles requests to static routes.
 public protocol NonCopyableStaticRouteResponderProtocol: NonCopyableRouteResponderProtocol, ~Copyable {
 }
 

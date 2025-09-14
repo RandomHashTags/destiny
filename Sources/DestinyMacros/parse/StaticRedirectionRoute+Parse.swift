@@ -5,12 +5,12 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension StaticRedirectionRoute {
-    /// Parsing logic for this route. Computed at compile time.
+    /// Parsing logic for this route.
     /// 
     /// - Parameters:
-    ///   - context: The macro expansion context where this route is being parsed from.
-    ///   - version: The `HTTPVersion` of the `HTTPRouterProtocol` this middleware is assigned to.
-    ///   - function: SwiftSyntax expression that represents this route.
+    ///   - context: Macro expansion context where this route is being parsed from.
+    ///   - version: `HTTPVersion` of the `HTTPRouterProtocol` this middleware is assigned to.
+    ///   - function: `FunctionCallExprSyntax` that represents this route.
     public static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion, 
@@ -24,12 +24,18 @@ extension StaticRedirectionRoute {
         var status = HTTPStandardResponseStatus.movedPermanently.code
         for arg in function.arguments {
             switch arg.label?.text {
-            case "version": version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
-            case "method": method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
-            case "status": status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
-            case "from": from = PathComponent.parseArray(context: context, expr: arg.expression)
-            case "isCaseSensitive", "caseSensitive": isCaseSensitive = arg.expression.booleanIsTrue
-            case "to": to = PathComponent.parseArray(context: context, expr: arg.expression)
+            case "version":
+                version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
+            case "method":
+                method = HTTPRequestMethod.parse(expr: arg.expression) ?? method
+            case "status":
+                status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
+            case "from":
+                from = PathComponent.parseArray(context: context, expr: arg.expression)
+            case "isCaseSensitive", "caseSensitive":
+                isCaseSensitive = arg.expression.booleanIsTrue
+            case "to":
+                to = PathComponent.parseArray(context: context, expr: arg.expression)
             default:
                 context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }

@@ -1,11 +1,11 @@
 
-/// Core Dynamic Middleware protocol that handles dynamic requests and its response as opaque types.
+/// Core protocol that handles dynamic requests and its response as opaque types.
 public protocol OpaqueDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Copyable {
-    /// The handler.
+    /// Handle logic.
     /// 
     /// - Parameters:
-    ///   - request: The incoming network request.
-    ///   - response: The current response for the request.
+    ///   - request: Incoming network request.
+    ///   - response: Current response for the request.
     /// - Returns: Whether or not to continue processing the request.
     func handle(
         request: inout some HTTPRequestProtocol & ~Copyable,

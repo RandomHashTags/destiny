@@ -5,14 +5,14 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension RouteGroup {
-    /// Parsing logic for this router group.
+    /// Parsing logic for this route group.
     /// 
     /// - Parameters:
-    ///   - context: The macro expansion context.
-    ///   - version: The `HTTPVersion` of the router this router group belongs to.
-    ///   - staticMiddleware: The static middleware of the router this router group belongs to.
-    ///   - dynamicMiddleware: The dynamic middleware of the router this router group belongs to.
-    ///   - function: SwiftSyntax expression that represents this router group at compile time.
+    ///   - context: Macro expansion context.
+    ///   - version: `HTTPVersion` of the router this route group belongs to.
+    ///   - staticMiddleware: Static middleware of the router this route group belongs to.
+    ///   - dynamicMiddleware: Dynamic middleware of the router this route group belongs to.
+    ///   - function: `FunctionCallExprSyntax` that represents this route group at compile time.
     public static func parse(
         context: some MacroExpansionContext,
         settings: RouterSettings,

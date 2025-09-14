@@ -18,7 +18,10 @@ import WinSDK
 #endif
 
 public protocol DestinyErrorProtocol: Equatable, Error {
+    /// Unique name that identifies the error.
     var identifier: String { get }
+
+    /// Reason for the error.
     var reason: String { get }
 
     init(identifier: String, reason: String)

@@ -105,7 +105,7 @@ For better memory management and to avoid retain/release/ARC traffic
 
 <summary>Package Traits</summary>
 
-Allows full control over expected behavior and functionality.
+Allows even more control over expected behavior and functionality
 
 </details>
 
@@ -113,7 +113,7 @@ Allows full control over expected behavior and functionality.
 
 <summary>Inline annotations</summary>
 
-Where applicable, to reduce overhead as much as possible. `@inlinable` and `@inline(__always)`) annotations can be disabled by not using the respective package traits (`Inlinable` and `InlineAlways`).
+Where applicable, to reduce overhead as much as possible. `@inlinable` and `@inline(__always)` annotations can be disabled by removing the package traits `Inlinable` and `InlineAlways`.
 
 </details>
 

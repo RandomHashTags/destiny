@@ -1,26 +1,27 @@
 
-/// Core HTTP Message protocol that builds a complete HTTP Message.
+/// Core protocol that builds a complete HTTP Message.
 public protocol HTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
 
+    /// Associated HTTP Version of this message.
     var version: HTTPVersion { get set }
 
     /// Set the message's status code.
     /// 
     /// - Parameters:
-    ///   - code: The new status code to set.
+    ///   - code: New status code to set.
     mutating func setStatusCode(_ code: HTTPResponseStatus.Code)
 
     /// Set the body of the message.
     /// 
     /// - Parameters:
-    ///   - body: The new body to set.
+    ///   - body: New body to set.
     mutating func setBody(_ body: some ResponseBodyProtocol)
 
     /// Set a header to the given value.
     /// 
     /// - Parameters:
-    ///   - key: The header you want to modify.
-    ///   - value: The new header value to set.
+    ///   - key: Header you want to modify.
+    ///   - value: New header value to set.
     mutating func setHeader(key: String, value: String)
 
     mutating func appendCookie(_ cookie: some HTTPCookieProtocol)

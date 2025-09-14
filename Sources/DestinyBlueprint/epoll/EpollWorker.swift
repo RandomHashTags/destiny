@@ -59,7 +59,7 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
         close(listenFD)
     }
 
-    // Pin this worker to a core to improve cache locality.
+    /// Pin this worker to a core to improve cache locality.
     #if Inlinable
     @inlinable
     #endif
@@ -99,6 +99,7 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
         return fd
     }
 
+    /// Shuts down the worker.
     #if Inlinable
     @inlinable
     #endif

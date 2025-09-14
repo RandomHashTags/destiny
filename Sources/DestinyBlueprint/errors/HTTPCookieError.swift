@@ -1,4 +1,5 @@
 
+/// An `Error` that indicates failure when handling an HTTP Cookie.
 public struct HTTPCookieError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String

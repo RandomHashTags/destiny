@@ -1,7 +1,7 @@
 
-/// Types conforming to this protocol can write their contents synchronously to an HTTP Socket.
+/// Types conforming to this protocol can write their contents synchronously to a `FileDescriptor`.
 public protocol HTTPSocketWritable: Sendable, ~Copyable {
-    /// Synchronously writes data to the socket.
+    /// Synchronously writes data to the file descriptor.
     /// 
     /// - Parameters:
     ///   - socket: The socket.

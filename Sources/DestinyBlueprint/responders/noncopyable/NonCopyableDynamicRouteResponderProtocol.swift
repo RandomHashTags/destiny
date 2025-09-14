@@ -1,12 +1,13 @@
 
-/// Core Dynamic Route Responder protocol that handles requests to dynamic routes.
+/// Core protocol that handles requests to dynamic routes.
 public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteResponderProtocol, ~Copyable {
     associatedtype ConcreteDynamicResponse:DynamicResponseProtocol
 
     /// - Returns: The `PathComponent` located at the given index.
+    /// - Warning: **Does no bounds checking**.
     func pathComponent(at index: Int) -> PathComponent
 
-    /// The number of path components this route contains.
+    /// Number of path components this route contains.
     var pathComponentsCount: Int { get }
 
     /// Yields the indexes where a parameter is located in the path.
@@ -18,10 +19,10 @@ public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteRespon
     /// Writes a response to a socket.
     /// 
     /// - Parameters:
-    ///   - router: The router this responder is stored in.
-    ///   - socket: The socket to write to.
-    ///   - request: The socket's request.
-    ///   - response: The http message to send to the socket.
+    ///   - router: Router this responder is stored in.
+    ///   - socket: Socket to write to.
+    ///   - request: Socket's request.
+    ///   - response: HTTP message to send to the socket.
     func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
@@ -31,6 +32,7 @@ public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteRespon
     ) throws(ResponderError)
 }
 
+// MARK: Defaults
 extension NonCopyableDynamicRouteResponderProtocol where Self: ~Copyable {
     #if Inlinable
     @inlinable

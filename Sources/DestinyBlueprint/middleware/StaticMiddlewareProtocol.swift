@@ -1,5 +1,5 @@
 
-/// Core Static Middleware protocol that handles static and dynamic routes at compile time.
+/// Core protocol that handles static and dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
     /// - Returns: Whether or not this middleware handles a route with the given options.
     func handles(

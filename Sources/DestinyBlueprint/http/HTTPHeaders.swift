@@ -1,4 +1,5 @@
 
+/// Default storage for an HTTP Message's headers.
 public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
     public typealias Key = String
     public typealias Value = String
@@ -16,10 +17,10 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
     #if Inlinable
     @inlinable
     #endif
-    package init(_storage: [String:String]) {
+    public init(_ storage: [String:String]) {
         var array = [(String, String)]()
-        array.reserveCapacity(_storage.count)
-        for (key, value) in _storage {
+        array.reserveCapacity(storage.count)
+        for (key, value) in storage {
             array.append((key, value))
         }
         self._storage = array
@@ -66,6 +67,8 @@ extension HTTPHeaders {
         }
     }
 
+    /// Whether or not the given header exists.
+    /// 
     /// - Complexity: O(_n_).
     #if Inlinable
     @inlinable

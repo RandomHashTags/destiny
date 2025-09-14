@@ -1,4 +1,5 @@
 
+/// An `Error` that indicates failure when handling a route responder.
 public struct ResponderError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String

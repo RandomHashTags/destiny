@@ -1,12 +1,12 @@
 
-/// Core immutable Static Responder Storage protocol that stores static responders for static routes.
+/// Core protocol that stores static responders for static routes.
 public protocol StaticResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 
     /// - Parameters:
-    ///   - router: The router this storage belongs to.
-    ///   - socket: The socket to write to.
-    ///   - startLine: The socket's requested endpoint.
+    ///   - router: Router this storage belongs to.
+    ///   - socket: Socket to write to.
+    ///   - startLine: Socket's requested endpoint.
     /// - Returns: Whether or not a response was sent.
     func respond(
         router: some HTTPRouterProtocol,

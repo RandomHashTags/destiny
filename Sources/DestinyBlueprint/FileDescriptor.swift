@@ -17,12 +17,13 @@ import Windows
 import WinSDK
 #endif
 
-public protocol FileDescriptor: Sendable {
+/// Types conforming to this protocol indicate they behave like a file descriptor.
+public protocol FileDescriptor: Sendable, ~Copyable {
     var fileDescriptor: Int32 { get }
 
     /// Reads multiple bytes and writes them into a buffer.
     /// 
-    /// - Returns: The number of bytes received.
+    /// - Returns: Number of bytes received.
     func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
@@ -45,10 +46,10 @@ public protocol FileDescriptor: Sendable {
         _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
     ) throws(SocketError)
 
-    /// - Returns: The local socket address of this file descriptor.
+    /// Local socket address of this file descriptor.
     func socketLocalAddress() -> String?
 
-    /// - Returns: The peer socket address of this file descriptor.
+    /// Peer socket address of this file descriptor.
     func socketPeerAddress() -> String?
 }
 

@@ -4,24 +4,24 @@ import DestinyBlueprint
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 public struct StaticMiddleware: StaticMiddlewareProtocol {
-    /// Route request versions this middleware handles.
+    /// HTTP Versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
     public let handlesVersions:Set<HTTPVersion>?
 
-    /// Route request methods this middleware handles.
+    /// HTTP Request Methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
     public let handlesMethods:[any HTTPRequestMethodProtocol]?
 
-    /// Route response statuses this middleware handles.
+    /// HTTP Response Status codes this middleware handles.
     /// 
-    /// - Warning: `nil` makes it handle all statuses.
+    /// - Warning: `nil` makes it handle all status codes.
     public let handlesStatuses:Set<HTTPResponseStatus.Code>?
 
-    /// The route content types this middleware handles.
+    /// HTTP Media Types this middleware handles.
     /// 
-    /// - Warning: `nil` makes it handle all content types.
+    /// - Warning: `nil` makes it handle all media types.
     public let handlesContentTypes:Set<HTTPMediaType>?
 
     public let appliesVersion:HTTPVersion?

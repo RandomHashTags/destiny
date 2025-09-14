@@ -78,7 +78,7 @@ extension HTTPSocket {
 
     /// Reads multiple bytes and writes them into a buffer.
     /// 
-    /// - Returns: The number of bytes received.
+    /// - Returns: Number of bytes received.
     #if Inlinable
     @inlinable
     #endif

@@ -43,6 +43,9 @@ public struct HTTPDateFormat: Sendable {
     #if Inlinable
     @inlinable
     #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
     public static var nowInlineArray: InlineArrayResult {
         _read { yield _nowInlineArray }
     }
@@ -72,19 +75,17 @@ public struct HTTPDateFormat: Sendable {
         }
     }
 
-    /// - Returns: The HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
+    /// - Returns: HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
     @discardableResult
     #if Inlinable
     @inlinable
     #endif
     public static func now() -> InlineArrayResult? {
-        let result:InlineArrayResult?
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-        result = nowGlibc()
+        return nowGlibc()
         #else
-        result = nil
+        return nil
         #endif
-        return result
     }
 }
 
@@ -246,6 +247,7 @@ extension HTTPDateFormat {
 }
 
 #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+
 // MARK: SwiftGlibc
 extension HTTPDateFormat {
     // https://linux.die.net/man/3/localtime
@@ -273,4 +275,5 @@ extension HTTPDateFormat {
         )
     }
 }
+
 #endif

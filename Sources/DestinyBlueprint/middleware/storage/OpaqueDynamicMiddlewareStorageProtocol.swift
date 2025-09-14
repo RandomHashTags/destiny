@@ -1,5 +1,5 @@
 
-/// Core immutable Dynamic Middleware Storage protocol that handles opaque dynamic middleware.
+/// Core protocol that handles opaque dynamic middleware.
 public protocol OpaqueDynamicMiddlewareStorageProtocol: DynamicMiddlewareStorageProtocol, ~Copyable {
     func handle(
         for request: inout some HTTPRequestProtocol & ~Copyable,

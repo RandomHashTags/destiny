@@ -1,5 +1,6 @@
 
 public protocol HTTPChunkDataProtocol: BufferWritable, HTTPSocketWritable, ~Copyable {
+    /// Size of the chunk in bytes.
     var chunkDataCount: Int { get }
 }
 

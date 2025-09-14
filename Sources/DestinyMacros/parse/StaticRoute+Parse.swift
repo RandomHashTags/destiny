@@ -10,9 +10,9 @@ extension StaticRoute {
     /// Parsing logic for this route.
     /// 
     /// - Parameters:
-    ///   - context: The macro expansion context where this route is being parsed from.
-    ///   - version: The `HTTPVersion` of the `HTTPRouterProtocol` this middleware is assigned to.
-    ///   - function: SwiftSyntax expression that represents this route.
+    ///   - context: Macro expansion context where this route is being parsed from.
+    ///   - version: `HTTPVersion` of the `HTTPRouterProtocol` this middleware is assigned to.
+    ///   - function: `FunctionCallExprSyntax` that represents this route.
     public static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion,
@@ -63,14 +63,12 @@ extension StaticRoute {
 
 // MARK: Response
 extension StaticRoute {
-    /// The HTTP Message of this route.
+    /// Builds the HTTP Message for this route.
     /// 
     /// - Parameters:
-    ///   - context: The macro expansion context where it was called.
-    ///   - function: SwiftSyntax expression that represents this route.
-    ///   - middleware: Static middleware that this route will apply.
-    /// - Returns: An `HTTPResponseMessage`.
-    /// - Warning: You should apply any statuses and headers using the middleware.
+    ///   - context: Macro expansion context where it was called.
+    ///   - function: `FunctionCallExprSyntax` that represents this route.
+    ///   - middleware: Static middleware this route will handle.
     public func response(
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,
@@ -104,10 +102,9 @@ extension StaticRoute {
     /// The `StaticRouteResponderProtocol` responder for this route.
     /// 
     /// - Parameters:
-    ///   - context: The macro expansion context where it was called.
-    ///   - function: SwiftSyntax expression that represents this route.
-    ///   - middleware: Static middleware that this route will apply.
-    /// - Throws: any error.
+    ///   - context: Macro expansion context where it was called.
+    ///   - function: `FunctionCallExprSyntax` that represents this route.
+    ///   - middleware: Static middleware that this route will handle.
     public func responder(
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,

@@ -10,10 +10,10 @@ public protocol HTTPHeadersProtocol: Sequence, Sendable where Element == (key: S
     subscript(_ header: String) -> Value? { get set }
     subscript(_ header: String) -> String? { get set }
 
-    /// Whether or not the target header exists.
+    /// Whether or not the given header exists.
     func has(_ header: Key) -> Bool
 
-    /// Whether or not the target header, as a `String`, exists.
+    /// Whether or not the given header, as a `String`, exists.
     func has(_ header: String) -> Bool
 }
 

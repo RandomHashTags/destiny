@@ -1,7 +1,7 @@
 
 import Logging
 
-/// Core HTTP Router protocol that handles middleware, routes and router groups.
+/// Core protocol that handles middleware, routes and route groups.
 public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// Load logic before this router is ready to handle sockets.
     func load() throws(RouterError)
@@ -21,8 +21,8 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// Writes a static response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: The socket to write to.
-    ///   - responder: The static route responder that will write to the socket.
+    ///   - socket: Socket to write to.
+    ///   - responder: Static route responder that will write to the socket.
     func respond(
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
@@ -33,9 +33,9 @@ public protocol HTTPRouterProtocol: Sendable, ~Copyable {
     /// Writes a dynamic response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: The socket to write to.
-    ///   - request: The socket's request.
-    ///   - responder: The dynamic route responder that will write to the socket.
+    ///   - socket: Socket to write to.
+    ///   - request: Socket's request.
+    ///   - responder: Dynamic route responder that will write to the socket.
     func respond(
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,

@@ -1,13 +1,13 @@
 
 #if !hasFeature(Embedded)
 
-/// Core Dynamic Middleware protocol that handles dynamic requests and its response as existential types.
+/// Core protocol that handles dynamic requests and its response as existential types.
 public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Copyable {
-    /// The handler.
+    /// Handle logic.
     /// 
     /// - Parameters:
-    ///   - request: The incoming network request.
-    ///   - response: The current response for the request.
+    ///   - request: Incoming network request.
+    ///   - response: Current response for the request.
     /// - Returns: Whether or not to continue processing the request.
     func handle(
         request: inout any HTTPRequestProtocol,

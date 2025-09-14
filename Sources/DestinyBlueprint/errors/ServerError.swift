@@ -1,5 +1,6 @@
 
 // MARK: ServerError
+/// An `Error` that indicates failure when handling a Server.
 public struct ServerError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String

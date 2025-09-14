@@ -1,4 +1,5 @@
 
+/// An `Error` that indicates failure when handling anything.
 public struct AnyError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String

@@ -3,10 +3,10 @@ import DestinyBlueprint
 
 /// Default Redirection Route implementation that handles redirects for static routes.
 public struct StaticRedirectionRoute: RedirectionRouteProtocol {
-    /// The endpoint that has been moved.
+    /// Endpoint that has been moved.
     public package(set) var from:[String]
 
-    /// The redirection endpoint.
+    /// Endpoint to redirect to.
     public package(set) var to:[String]
 
     public let method:any HTTPRequestMethodProtocol

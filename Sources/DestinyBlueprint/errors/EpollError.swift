@@ -1,4 +1,7 @@
 
+#if os(Linux)
+
+/// An `Error` that indicates failure when handling an epoll operation.
 public struct EpollError: DestinyErrorProtocol {
     public let identifier:String
     public let reason:String
@@ -67,3 +70,5 @@ extension EpollError {
         Self(identifier: "waitFailed", reason: reason)
     }
 }
+
+#endif

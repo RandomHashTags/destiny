@@ -1,12 +1,12 @@
 
-/// Core immutable Router Responder Storage protocol that stores route responders for routes.
+/// Core protocol that stores route responders for routes.
 public protocol RouterResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 
     /// - Parameters:
-    ///   - router: The router this storage belongs to.
-    ///   - socket: The socket to write to.
-    ///   - request: The socket's request.
+    ///   - router: Router this storage belongs to.
+    ///   - socket: Socket to write to.
+    ///   - request: Socket's request.
     /// - Returns: Whether or not a response was sent.
     func respond(
         router: some HTTPRouterProtocol,

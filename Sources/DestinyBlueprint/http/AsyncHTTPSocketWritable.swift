@@ -1,7 +1,7 @@
 
-/// Types conforming to this protocol can write their contents asynchronously to an HTTP Socket.
+/// Types conforming to this protocol can write their contents asynchronously to a `FileDescriptor`.
 public protocol AsyncHTTPSocketWritable: Sendable, ~Copyable {
-    /// Asynchronously writes data to the socket.
+    /// Asynchronously writes data to the file descriptor.
     /// 
     /// - Parameters:
     ///   - socket: The socket.

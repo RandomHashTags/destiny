@@ -1,27 +1,29 @@
 
-/// Core Socket protocol that handles incoming network requests.
+/// Core protocol that handles incoming network requests.
 public protocol SocketProtocol: Sendable, ~Copyable {
-    /// The unique file descriptor the system assigns to this socket where communication between the server and client are handled.
+    /// Unique file descriptor of this socket where communication between the server and client are handled.
     /// 
-    /// - Warning: Don't forget to close this file descriptor when you're done with it. It is **not** closed automatically.
+    /// - Warning: Don't forget to close when you're done with it. It is **not** closed automatically.
     var fileDescriptor: Int32 { get }
 
     init(fileDescriptor: Int32)
 
     /// Reads a buffer from the socket.
+    /// 
+    /// - Returns: Number of bytes read.
     func readBuffer(
         into baseAddress: UnsafeMutablePointer<UInt8>,
         length: Int,
         flags: Int32
     ) throws(SocketError) -> Int
 
-    /// Writes a buffer to the socket.
+    /// Writes a single buffer to the socket.
     func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
     ) throws(SocketError)
 
-    /// Writes multiple buffers to the socket utilizing `writev`.
+    /// Efficiently writes multiple buffers to the socket.
     func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
     ) throws(SocketError)

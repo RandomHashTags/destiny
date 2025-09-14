@@ -23,11 +23,10 @@ extension DynamicRoute {
     /// Parsing logic for this dynamic route. Computed at compile time.
     /// 
     /// - Parameters:
-    ///   - context: The macro expansion context.
-    ///   - version: The `HTTPVersion` associated with the `HTTPRouterProtocol`.
-    ///   - middleware: The static middleware the associated `HTTPRouterProtocol` uses.
+    ///   - context: Macro expansion context.
+    ///   - version: `HTTPVersion` associated with the `HTTPRouterProtocol`.
+    ///   - middleware: Static middleware the associated `HTTPRouterProtocol` uses.
     ///   - function: SwiftSyntax expression that represents this route at compile time.
-    /// - Warning: You should apply any statuses and headers using the middleware.
     public static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion,

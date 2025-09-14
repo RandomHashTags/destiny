@@ -1,5 +1,5 @@
 
-/// Core Static Route protocol where a complete HTTP Message is computed at compile time.
+/// Core protocol where a complete HTTP Message is computed at compile time for a static route.
 public protocol StaticRouteProtocol: RouteProtocol, ~Copyable {
     var startLine: String { get }
 

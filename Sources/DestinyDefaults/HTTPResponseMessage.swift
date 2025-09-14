@@ -342,8 +342,8 @@ extension HTTPResponseMessage {
 extension HTTPResponseMessage {
     /// - Parameters:
     ///   - to: Redirection target.
-    ///   - version: The HTTP version of the message.
-    ///   - status: The HTTP response status of the message.
+    ///   - version: HTTP Version of the message.
+    ///   - status: HTTP response status of the message.
     /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
     #if Inlinable
     @inlinable

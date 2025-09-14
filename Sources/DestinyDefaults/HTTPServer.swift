@@ -16,7 +16,7 @@ public final class HTTPServer<
     >: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16
-    /// The maximum amount of pending connections the Server will queue.
+    /// Maximum amount of pending connections the Server will queue.
     /// This value is capped at the system's limit.
     public let backlog:Int32
     public let router:Router

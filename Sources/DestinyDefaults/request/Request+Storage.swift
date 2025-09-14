@@ -1,5 +1,6 @@
 
 extension Request {
+    /// Custom request storage.
     public struct Storage: Sendable, ~Copyable {
         @usableFromInline
         var storage:[ObjectIdentifier:Sendable]
@@ -60,7 +61,7 @@ extension Request {
 extension Request {
     /// Core protocol used to identify values by a key in `Storage`.
     public protocol StorageKey {
-        /// The type of the stored value associated with this key.
+        /// Type of the stored value associated with this key.
         associatedtype Value:Sendable
     }
 }
