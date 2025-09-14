@@ -96,38 +96,38 @@ extension Router {
                 contentType: HTTPMediaTypeApplication.json,
                 charset: nil
             ).string(escapeLineBreak: true)
-            errorResponder = .get((
+            errorResponder = .get(
                 defaultErrorResponder(isCopyable: true, response: defaultStaticErrorResponse),
                 defaultErrorResponder(isCopyable: false, response: defaultStaticErrorResponse)
-            ))
+            )
         } else {
-            errorResponder = .get((
+            errorResponder = .get(
                 customErrorResponder,
                 customErrorResponder
-            ))
+            )
         }
 
         let dynamicNotFoundResponder:CompiledRouterStorage.Responder?
         if customDynamicNotFoundResponder.isEmpty || customDynamicNotFoundResponder == "nil" {
             dynamicNotFoundResponder = nil
         } else {
-            dynamicNotFoundResponder = .get((
+            dynamicNotFoundResponder = .get(
                 customDynamicNotFoundResponder,
                 customDynamicNotFoundResponder
-            ))
+            )
         }
 
         let staticNotFoundResponder:CompiledRouterStorage.Responder?
         if customStaticNotFoundResponder.isEmpty || customStaticNotFoundResponder == "nil" {
-            staticNotFoundResponder = .get((
+            staticNotFoundResponder = .get(
                 defaultStaticNotFoundResponder(version: version, isCopyable: true),
                 defaultStaticNotFoundResponder(version: version, isCopyable: false)
-            ))
+            )
         } else {
-            staticNotFoundResponder = .get((
+            staticNotFoundResponder = .get(
                 customStaticNotFoundResponder,
                 customStaticNotFoundResponder
-            ))
+            )
         }
 
         let conditionalRespondersString = storage.conditionalRespondersString()

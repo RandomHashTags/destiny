@@ -41,7 +41,7 @@ public struct RouterSettings: Sendable {
 
     /// Whether or not this router is mutable.
     /// 
-    /// If `true`: you can register middleware, routes, route groups, and route responders during runtime.
+    /// If `true`: you can register middleware, routes, route groups, and route responders at runtime.
     #if Inlinable
     @inlinable
     #endif

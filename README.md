@@ -53,6 +53,8 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [x] Foundation-less <b>(Aug 5, 2025)</b>
 - [x] Swift 6 Language Mode <b>(Aug 5, 2025)</b>
 - [x] Cookies <b>(Aug 9, 2025)</b>
+- [x] Header parsing <b>(Sep 9, 2025)</b>
+- [x] Request body streaming <b>(Sep 10, 2025)</b>
 
 ### WIP
 
@@ -62,7 +64,6 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] File Middleware
 - [ ] Rate Limit Middleware
 - [ ] Route queries
-- [ ] Header parsing
 - [ ] HTTP Pipelining
 - [ ] Embedded support
 
@@ -70,7 +71,6 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 
 - [ ] DocC Tutorials
 - [ ] Cache Middleware
-- [ ] Request body streaming
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
 - [ ] OpenAPI support
@@ -103,9 +103,17 @@ For better memory management and to avoid retain/release/ARC traffic
 
 <details>
 
-<summary>@inlinable annotation</summary>
+<summary>Package Traits</summary>
 
-To make sure we inline hot-paths as much as possible
+Allows full control over expected behavior and functionality.
+
+</details>
+
+<details>
+
+<summary>Inline annotations</summary>
+
+Where applicable, to reduce overhead as much as possible. `@inlinable` and `@inline(__always)`) annotations can be disabled by not using the respective package traits (`Inlinable` and `InlineAlways`).
 
 </details>
 
@@ -137,11 +145,11 @@ To maximize multi-core performance and support non-blocking operations
 
 <summary>Macros</summary>
 
-Unlocks compile-time optimizations for the router, routes, route groups responders, and middleware.
+Unlocks compile-time optimizations for middleware, routers, routes, route groups, and route responders.
 
 <b>Most runtime optimizations come from here.</b> This includes:
 
-- auto generation of optimized enums, structs and functions (avoiding classes and existentials)
+- auto generation of optimal data structures and functions (avoiding classes and existentials)
 - perfect hashing for routes (if enabled & possible)
 
 </details>

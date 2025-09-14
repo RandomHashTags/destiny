@@ -60,9 +60,8 @@ struct CompiledRouterStorage {
 // MARK: Responder
 extension CompiledRouterStorage {
     struct Responder {
-        static func get(_ values: (copyable: String?, noncopyable: String?)?) -> Responder? {
-            guard let values else { return nil }
-            return values.copyable != nil || values.noncopyable != nil ? .init(copyable: values.copyable, noncopyable: values.noncopyable) : nil
+        static func get(_ copyable: String?, _ noncopyable: String?) -> Responder? {
+            return copyable != nil || noncopyable != nil ? .init(copyable: copyable, noncopyable: noncopyable) : nil
         }
 
         let copyable:String?
@@ -72,37 +71,46 @@ extension CompiledRouterStorage {
 
 // MARK: Build
 extension CompiledRouterStorage {
+    /// Builds the compiled router which stores _up-to_ 3 independent routers, each with separate performance and functionality characteristics.
+    /// 
+    /// - Immutable `~Copyable` router (optimal performance)
+    ///   - e.g., when both the route path and its response are known at compile time (doesn't support concurrency)
+    /// - Immutable `Copyable` router (trades some performance for concurrency support)
+    ///   - e.g., when both the route path and its response are known at compile time (supports concurrency)
+    /// - Mutable router (sacrificing performance for runtime functionality)
+    ///   - e.g., registering middleware, routes, route groups, and route responders at runtime
     func build() -> StructDeclSyntax {
+        let copyable = buildSubRouter(isCopyable: true)
+        let noncopyable = buildSubRouter(isCopyable: false)
+        var members = MemberBlockItemListSyntax()
+
+        // merge single router with the compiled router
+        if !settings.isMutable && (copyable == nil && noncopyable != nil || copyable != nil && noncopyable == nil) {
+            if let copyable {
+                members.append(contentsOf: copyable.memberBlock.members)
+            } else if let noncopyable {
+                members.append(contentsOf: noncopyable.memberBlock.members)
+            }
+        } else { // handle multiple routers (2 or more)
+            buildMultiRouter(members: &members, copyable: copyable, noncopyable: noncopyable)
+        }
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: settings.isCopyable)
         let name = settings.name
-        var decl = StructDeclSyntax(
+        return .init(
             leadingTrivia: "// MARK: \(name)\n\(visibility)",
             name: "\(raw: name)",
             inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
                 .init(type: TypeSyntax(stringLiteral: "\(copyableText)HTTPRouterProtocol"), trailingComma: ","),
                 .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
             )),
-            memberBlock: .init(members: .init())
+            memberBlock: .init(members: members)
         )
-        let copyable = buildSubRouter(isCopyable: true)
-        let noncopyable = buildSubRouter(isCopyable: false)
-        if copyable == nil && noncopyable != nil || copyable != nil && noncopyable == nil { // merge single router with the compiled router
-            if let copyable {
-                decl.memberBlock.members.append(contentsOf: copyable.memberBlock.members)
-            } else if let noncopyable {
-                decl.memberBlock.members.append(contentsOf: noncopyable.memberBlock.members)
-            }
-        } else { // handle multiple routers
-            buildMultiRouter(decl: &decl, copyable: copyable, noncopyable: noncopyable)
-        }
-        return decl
     }
 
     private func buildSubRouter(
         isCopyable: Bool
     ) -> StructDeclSyntax? {
         guard let variableDecls = variableDecls(isCopyable: isCopyable) else { return nil }
-        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         var members = MemberBlockItemListSyntax()
         members.append(contentsOf: variableDecls.map({ .init(decl: $0) }))
         members.append(.init(decl: loadDecl()))
@@ -115,13 +123,14 @@ extension CompiledRouterStorage {
         members.append(.init(decl: respondWithNotFoundDecl()))
         members.append(.init(decl: respondWithErrorDecl()))
 
+        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let name:String
         if isCopyable {
             name = "Copyable"
         } else {
             name = "NonCopyable"
         }
-        let decl = StructDeclSyntax(
+        return .init(
             leadingTrivia: "// MARK: \(name)\n\(visibility)",
             name: "\(raw: "_\(name)")",
             inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
@@ -130,14 +139,13 @@ extension CompiledRouterStorage {
             )),
             memberBlock: .init(members: members)
         )
-        return decl
     }
 }
 
 // MARK: Multi-router
 extension CompiledRouterStorage {
     private func buildMultiRouter(
-        decl: inout StructDeclSyntax,
+        members: inout MemberBlockItemListSyntax,
         copyable: StructDeclSyntax?,
         noncopyable: StructDeclSyntax?
     ) {
@@ -151,28 +159,30 @@ extension CompiledRouterStorage {
             name: "noncopyable",
             initializer: .init(value: ExprSyntax("_NonCopyable()"))
         )
-        decl.memberBlock.members.append(.init(decl: copyableDecl))
-        decl.memberBlock.members.append(.init(decl: noncopyableDecl))
+        members.append(.init(decl: copyableDecl))
+        members.append(.init(decl: noncopyableDecl))
+
+        // TOOD: add mutable router
 
         let loggerDecl = VariableDeclSyntax(
             .let,
             name: "logger",
             initializer: .init(value: ExprSyntax("Logger(label: \"compiledHTTPRouter\")"))
         )
-        decl.memberBlock.members.append(.init(decl: loggerDecl))
+        members.append(.init(decl: loggerDecl))
 
-        decl.memberBlock.members.append(.init(decl: loadDecl(loadString: """
+        members.append(.init(decl: loadDecl(loadString: """
         noncopyable.load()
         copyable.load()
         """)))
 
-        decl.memberBlock.members.append(.init(decl: handleDynamicMiddlewareDecl(handleString: """
+        members.append(.init(decl: handleDynamicMiddlewareDecl(handleString: """
         try noncopyable.handleDynamicMiddleware(for: &request, with: &response)
         try copyable.handleDynamicMiddleware(for: &request, with: &response)
         """)))
 
-        decl.memberBlock.members.append(.init(decl: handleDecl()))
-        decl.memberBlock.members.append(.init(decl: respondDecl(respondersString: """
+        members.append(.init(decl: handleDecl()))
+        members.append(.init(decl: respondDecl(respondersString: """
         if try noncopyable.respond(socket: socket, request: &request, completionHandler: completionHandler) {
         } else if try copyable.respond(socket: socket, request: &request, completionHandler: completionHandler) {
         } else {
@@ -180,10 +190,10 @@ extension CompiledRouterStorage {
         }
         """)))
 
-        decl.memberBlock.members.append(.init(decl: respondWithStaticResponderDecl(isCopyable: false, responderString: "completionHandler()")))
-        decl.memberBlock.members.append(.init(decl: respondWithDynamicResponderDecl(isCopyable: false, responderString: "completionHandler()")))
+        members.append(.init(decl: respondWithStaticResponderDecl(isCopyable: false, responderString: "completionHandler()")))
+        members.append(.init(decl: respondWithDynamicResponderDecl(isCopyable: false, responderString: "completionHandler()")))
 
-        decl.memberBlock.members.append(.init(decl: respondWithNotFoundDecl(responderString: """
+        members.append(.init(decl: respondWithNotFoundDecl(responderString: """
         if try noncopyable.respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {
         } else if try copyable.respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {
         } else {
@@ -192,7 +202,7 @@ extension CompiledRouterStorage {
         return true
         """)))
 
-        decl.memberBlock.members.append(.init(decl: respondWithErrorDecl(logic: """
+        members.append(.init(decl: respondWithErrorDecl(logic: """
         if noncopyable.respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {
         } else if copyable.respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {
         } else {
@@ -202,10 +212,10 @@ extension CompiledRouterStorage {
         """)))
 
         if let copyable {
-            decl.memberBlock.members.append(.init(decl: copyable))
+            members.append(.init(decl: copyable))
         }
         if let noncopyable {
-            decl.memberBlock.members.append(.init(decl: noncopyable))
+            members.append(.init(decl: noncopyable))
         }
     }
 }
@@ -214,27 +224,41 @@ extension CompiledRouterStorage {
 extension CompiledRouterStorage {
     private func variableDecls(isCopyable: Bool) -> [VariableDeclSyntax]? {
         var decls = [VariableDeclSyntax]()
+        let appendVariableResponderFunction:(String, Responder) -> Void
+        if isCopyable {
+            appendVariableResponderFunction = { name, responder in 
+                guard let copyable = responder.copyable else { return }
+                try! decls.append(.init("""
+                \(raw: visibility)let \(raw: name) = \(raw: copyable)
+                """))
+            }
+        } else {
+            appendVariableResponderFunction = { name, responder in
+                guard let noncopyable = responder.noncopyable else { return }
+                try! decls.append(.init("""
+                \(raw: visibility)let \(raw: name) = \(raw: noncopyable)
+                """))
+            }
+        }
         if let perfectHashCaseSensitiveResponder {
-            appendVariableResponders(name: "perfectHashCaseSensitiveResponder", isCopyable: isCopyable, decls: &decls, responder: perfectHashCaseSensitiveResponder)
+            appendVariableResponderFunction("perfectHashCaseSensitiveResponder", perfectHashCaseSensitiveResponder)
         }
         if let perfectHashCaseInsensitiveResponder {
-            appendVariableResponders(name: "perfectHashCaseInsensitiveResponder", isCopyable: isCopyable, decls: &decls, responder: perfectHashCaseInsensitiveResponder)
+            appendVariableResponderFunction("perfectHashCaseInsensitiveResponder", perfectHashCaseInsensitiveResponder)
         }
 
         if let caseSensitiveResponder {
-            appendVariableResponders(name: "caseSensitiveResponder", isCopyable: isCopyable, decls: &decls, responder: caseSensitiveResponder)
-
+            appendVariableResponderFunction("caseSensitiveResponder", caseSensitiveResponder)
         }
         if let caseInsensitiveResponder {
-            appendVariableResponders(name: "caseInsensitiveResponder", isCopyable: isCopyable, decls: &decls, responder: caseInsensitiveResponder)
+            appendVariableResponderFunction("caseInsensitiveResponder", caseInsensitiveResponder)
         }
 
         if let dynamicCaseSensitiveResponder {
-            appendVariableResponders(name: "dynamicCaseSensitiveResponder", isCopyable: isCopyable, decls: &decls, responder: dynamicCaseSensitiveResponder)
-
+            appendVariableResponderFunction("dynamicCaseSensitiveResponder", dynamicCaseSensitiveResponder)
         }
         if let dynamicCaseInsensitiveResponder {
-            appendVariableResponders(name: "dynamicCaseInsensitiveResponder", isCopyable: isCopyable, decls: &decls, responder: dynamicCaseInsensitiveResponder)
+            appendVariableResponderFunction("dynamicCaseInsensitiveResponder", dynamicCaseInsensitiveResponder)
         }
         guard !decls.isEmpty else { return nil }
 
@@ -246,35 +270,18 @@ extension CompiledRouterStorage {
         }
 
         if let errorResponder {
-            appendVariableResponders(name: "errorResponder", isCopyable: isCopyable, decls: &decls, responder: errorResponder)
+            appendVariableResponderFunction("errorResponder", errorResponder)
         }
         if let dynamicNotFoundResponder {
-            appendVariableResponders(name: "dynamicNotFoundResponder", isCopyable: isCopyable, decls: &decls, responder: dynamicNotFoundResponder)
+            appendVariableResponderFunction("dynamicNotFoundResponder", dynamicNotFoundResponder)
         }
         if let staticNotFoundResponder {
-            appendVariableResponders(name: "staticNotFoundResponder", isCopyable: isCopyable, decls: &decls, responder: staticNotFoundResponder)
+            appendVariableResponderFunction("staticNotFoundResponder", staticNotFoundResponder)
         }
         try! decls.append(.init("""
         \(raw: visibility)let logger = Logger(label: "compiledHTTPRouter.\(raw: isCopyable ? "copyable" : "noncopyable")HTTPRouter")
         """))
         return decls
-    }
-    private func appendVariableResponders(
-        name: String,
-        isCopyable: Bool,
-        decls: inout [VariableDeclSyntax],
-        responder: Responder
-    ) {
-        if isCopyable, let copyable = responder.copyable {
-            try! decls.append(.init("""
-            \(raw: visibility)let \(raw: name) = \(raw: copyable)
-            """))
-        }
-        if !isCopyable, let noncopyable = responder.noncopyable {
-            try! decls.append(.init("""
-            \(raw: visibility)let \(raw: name) = \(raw: noncopyable)
-            """))
-        }
     }
 }
 
@@ -358,23 +365,35 @@ extension CompiledRouterStorage {
 extension CompiledRouterStorage {
     private func respondDecl(isCopyable: Bool) -> FunctionDeclSyntax {
         var responders = [String]()
+        let appendResponder:(String, Responder) -> Void
+        if isCopyable {
+            appendResponder = { name, responder in
+                guard responder.copyable != nil else { return }
+                responders.append(name)
+            }
+        } else {
+            appendResponder = { name, responder in
+                guard responder.noncopyable != nil else { return }
+                responders.append(name)
+            }
+        }
         if let perfectHashCaseSensitiveResponder {
-            appendResponder(name: "perfectHashCaseSensitiveResponder", isCopyable: isCopyable, responder: perfectHashCaseSensitiveResponder, responders: &responders)
+            appendResponder("perfectHashCaseSensitiveResponder", perfectHashCaseSensitiveResponder)
         }
         if let perfectHashCaseInsensitiveResponder {
-            appendResponder(name: "perfectHashCaseInsensitiveResponder", isCopyable: isCopyable, responder: perfectHashCaseInsensitiveResponder, responders: &responders)
+            appendResponder("perfectHashCaseInsensitiveResponder", perfectHashCaseInsensitiveResponder)
         }
         if let caseSensitiveResponder {
-            appendResponder(name: "caseSensitiveResponder", isCopyable: isCopyable, responder: caseSensitiveResponder, responders: &responders)
+            appendResponder("caseSensitiveResponder", caseSensitiveResponder)
         }
         if let caseInsensitiveResponder {
-            appendResponder(name: "caseInsensitiveResponder", isCopyable: isCopyable, responder: caseInsensitiveResponder, responders: &responders)
+            appendResponder("caseInsensitiveResponder", caseInsensitiveResponder)
         }
         if let dynamicCaseSensitiveResponder {
-            appendResponder(name: "dynamicCaseSensitiveResponder", isCopyable: isCopyable, responder: dynamicCaseSensitiveResponder, responders: &responders)
+            appendResponder("dynamicCaseSensitiveResponder", dynamicCaseSensitiveResponder)
         }
         if let dynamicCaseInsensitiveResponder {
-            appendResponder(name: "dynamicCaseInsensitiveResponder", isCopyable: isCopyable, responder: dynamicCaseInsensitiveResponder, responders: &responders)
+            appendResponder("dynamicCaseInsensitiveResponder", dynamicCaseInsensitiveResponder)
         }
         var respondersString = responders.map({
             "try \($0).respond(router: self, socket: socket, request: &request, completionHandler: completionHandler) {"
@@ -396,19 +415,6 @@ extension CompiledRouterStorage {
             return true
         }
         """)
-    }
-    private func appendResponder(
-        name: String,
-        isCopyable: Bool,
-        responder: Responder,
-        responders: inout [String]
-    ) {
-        if isCopyable, responder.copyable != nil {
-            responders.append(name)
-        }
-        if !isCopyable, responder.noncopyable != nil {
-            responders.append(name)
-        }
     }
 }
 
