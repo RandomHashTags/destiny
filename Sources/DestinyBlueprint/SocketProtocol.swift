@@ -1,37 +1,7 @@
 
 /// Core protocol that handles incoming network requests.
-public protocol SocketProtocol: Sendable, ~Copyable {
-    /// Unique file descriptor of this socket where communication between the server and client are handled.
-    /// 
-    /// - Warning: Don't forget to close when you're done with it. It is **not** closed automatically.
-    var fileDescriptor: Int32 { get }
-
+public protocol SocketProtocol: FileDescriptor, ~Copyable {
     init(fileDescriptor: Int32)
-
-    /// Reads a buffer from the socket.
-    /// 
-    /// - Returns: Number of bytes read.
-    func readBuffer(
-        into baseAddress: UnsafeMutablePointer<UInt8>,
-        length: Int,
-        flags: Int32
-    ) throws(SocketError) -> Int
-
-    /// Writes a single buffer to the socket.
-    func writeBuffer(
-        _ pointer: UnsafeRawPointer,
-        length: Int
-    ) throws(SocketError)
-
-    /// Efficiently writes multiple buffers to the socket.
-    func writeBuffers<let count: Int>(
-        _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
-    ) throws(SocketError)
-
-    /// Writes a `String` to the socket.
-    func writeString(
-        _ string: String
-    ) throws(SocketError)
 }
 
 extension SocketProtocol where Self: ~Copyable {
@@ -43,6 +13,38 @@ extension SocketProtocol where Self: ~Copyable {
         var no_sig_pipe:Int32 = 0
         setsockopt(fileDescriptor, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(MemoryLayout<Int32>.size))
         #endif
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketLocalAddress() -> String? {
+        fileDescriptor.socketLocalAddress()
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketPeerAddress() -> String? {
+        fileDescriptor.socketPeerAddress()
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers<let count: Int>(
+        _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
+    ) throws(SocketError) {
+        try fileDescriptor.writeBuffers(buffers)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers<let count: Int>(
+        _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
+    ) throws(SocketError) {
+        try fileDescriptor.writeBuffers(buffers)
     }
 
     /// Writes 2 bytes (carriage return and line feed) to the socket.

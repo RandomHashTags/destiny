@@ -18,7 +18,10 @@ import WinSDK
 #endif
 
 /// Types conforming to this protocol indicate they behave like a file descriptor.
-public protocol FileDescriptor: Sendable, ~Copyable {
+public protocol FileDescriptor: NetworkAddressable, ~Copyable {
+    /// Unique file descriptor of this socket where communication between the server and client are handled.
+    /// 
+    /// - Warning: Don't forget to close when you're done with it. It is **not** closed automatically.
     var fileDescriptor: Int32 { get }
 
     /// Reads multiple bytes and writes them into a buffer.
@@ -45,12 +48,6 @@ public protocol FileDescriptor: Sendable, ~Copyable {
     func writeBuffers<let count: Int>(
         _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
     ) throws(SocketError)
-
-    /// Local socket address of this file descriptor.
-    func socketLocalAddress() -> String?
-
-    /// Peer socket address of this file descriptor.
-    func socketPeerAddress() -> String?
 }
 
 // MARK: Int32

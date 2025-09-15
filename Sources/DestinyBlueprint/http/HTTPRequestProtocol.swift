@@ -1,6 +1,6 @@
 
 /// Core protocol that handles a socket's incoming data.
-public protocol HTTPRequestProtocol: Sendable, ~Copyable {
+public protocol HTTPRequestProtocol: NetworkAddressable, ~Copyable {
     typealias ConcretePathType = String // TODO: allow custom
 
     /// The HTTP start-line.

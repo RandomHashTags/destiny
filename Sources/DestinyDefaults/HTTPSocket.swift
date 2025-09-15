@@ -108,15 +108,6 @@ extension HTTPSocket {
             sent += result
         }
     }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func writeBuffers<let count: Int>(
-        _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
-    ) throws(SocketError) {
-        try fileDescriptor.writeBuffers(buffers)
-    }
 }
 
 // MARK: Send

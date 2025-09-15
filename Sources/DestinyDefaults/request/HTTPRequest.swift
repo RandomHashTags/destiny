@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-/// Default storage for request data.
+/// Default storage for http request data.
 public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
     public typealias InitialBuffer = InlineByteBuffer<1024>
 
@@ -20,6 +20,20 @@ public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
     ) {
         self.fileDescriptor = fileDescriptor
         abstractRequest = .init(storage: storage)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketLocalAddress() -> String? {
+        fileDescriptor.socketLocalAddress()
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketPeerAddress() -> String? {
+        fileDescriptor.socketPeerAddress()
     }
 
     #if Inlinable
