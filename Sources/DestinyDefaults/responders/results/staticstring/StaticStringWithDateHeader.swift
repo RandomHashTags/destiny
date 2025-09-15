@@ -66,7 +66,7 @@ extension StaticStringWithDateHeader {
         preDateValue.withUTF8Buffer {
             buffer.copyBuffer($0, at: &index)
         }
-        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer {
+        HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer {
             buffer.copyBuffer($0, at: &index)
         }
         postDateValue.withUTF8Buffer {
@@ -88,7 +88,7 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     ) throws(ResponderError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
-            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
+            HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
                 postDateValue.withUTF8Buffer { postDatePointer in
                     do throws(SocketError) {
                         try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])

@@ -39,6 +39,7 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
         "\"\(slug)\""
     }
 
+    /// Whether or not this component is a literal.
     #if Inlinable
     @inlinable
     #endif
@@ -47,7 +48,7 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
         return true
     }
 
-    /// - Returns: Whether or not this component is a parameter.
+    /// Whether or not this component is a parameter.
     #if Inlinable
     @inlinable
     #endif
@@ -72,7 +73,7 @@ public enum PathComponent: CustomStringConvertible, ExpressibleByStringLiteral, 
         }
     }
 
-    /// - Returns: A string representation of this component where the delimiter is omitted (only the name of the path is present).
+    /// String representation of this component where the delimiter is omitted (only the name of the path is present).
     #if Inlinable
     @inlinable
     #endif

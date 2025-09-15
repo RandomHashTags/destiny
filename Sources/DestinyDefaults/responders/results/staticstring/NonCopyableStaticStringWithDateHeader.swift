@@ -81,7 +81,7 @@ extension NonCopyableStaticStringWithDateHeader {
         preDateValue.withUTF8Buffer {
             buffer.copyBuffer($0, at: &index)
         }
-        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer {
+        HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer {
             buffer.copyBuffer($0, at: &index)
         }
         postDateValue.withUTF8Buffer {

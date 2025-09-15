@@ -9,6 +9,7 @@ public protocol ResponseBodyProtocol: BufferWritable, ~Copyable {
     var hasContentLength: Bool { get }
 }
 
+// MARK: Defaults
 extension ResponseBodyProtocol {
     #if Inlinable
     @inlinable
@@ -16,6 +17,7 @@ extension ResponseBodyProtocol {
     public var hasDateHeader: Bool {
         false
     }
+
     #if Inlinable
     @inlinable
     #endif

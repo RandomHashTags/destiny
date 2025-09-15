@@ -94,7 +94,7 @@ extension StreamWithDateHeader: StaticRouteResponderProtocol {
     ) throws(ResponderError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
-            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
+            HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
                 postDateValue.withUTF8Buffer { postDatePointer in
                     do throws(SocketError) {
                         try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
