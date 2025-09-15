@@ -1,6 +1,6 @@
 
 /// Core mutable protocol that stores dynamic responders for dynamic routes.
-public protocol MutableDynamicResponderStorageProtocol: AnyObject, DynamicResponderStorageProtocol {
+public protocol MutableDynamicResponderStorageProtocol: AnyObject, ResponderStorageProtocol {
     /// Registers a dynamic route responder to the given route path.
     func register(
         route: some DynamicRouteProtocol,

@@ -5,8 +5,8 @@ import DestinyBlueprint
 public struct CompiledRouteGroup<
         let prefixEndpointsCount: Int,
         ImmutableDynamicMiddlewareStorage: DynamicMiddlewareStorageProtocol,
-        ImmutableStaticResponders: StaticResponderStorageProtocol,
-        ImmutableDynamicResponders: DynamicResponderStorageProtocol,
+        ImmutableStaticResponders: ResponderStorageProtocol,
+        ImmutableDynamicResponders: ResponderStorageProtocol,
         MutableStaticResponders: MutableStaticResponderStorageProtocol,
         MutableDynamicResponders: MutableDynamicResponderStorageProtocol
     >: RouteGroupProtocol {

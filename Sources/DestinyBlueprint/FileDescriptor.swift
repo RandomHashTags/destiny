@@ -98,7 +98,7 @@ extension Int32: FileDescriptor {
         _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
     ) throws(SocketError) {
         var err:SocketError? = nil
-        withUnsafeTemporaryAllocation(of: iovec.self, capacity: count, { iovecs in
+        withUnsafeTemporaryAllocation(of: iovec.self, capacity: count) { iovecs in
             for i in buffers.indices {
                 let buffer = buffers[i]
                 iovecs[i] = .init(iov_base: .init(mutating: buffer.baseAddress), iov_len: buffer.count)
@@ -107,7 +107,7 @@ extension Int32: FileDescriptor {
             if result <= 0 {
                 err = .writeFailed()
             }
-        })
+        }
         if let err {
             throw err
         }
@@ -120,7 +120,7 @@ extension Int32: FileDescriptor {
         _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
     ) throws(SocketError) {
         var err:SocketError? = nil
-        withUnsafeTemporaryAllocation(of: iovec.self, capacity: count, { iovecs in
+        withUnsafeTemporaryAllocation(of: iovec.self, capacity: count) { iovecs in
             for i in buffers.indices {
                 let (buffer, bufferCount) = buffers[i]
                 iovecs[i] = .init(iov_base: .init(mutating: buffer), iov_len: bufferCount)
@@ -129,7 +129,7 @@ extension Int32: FileDescriptor {
             if result <= 0 {
                 err = .writeFailed()
             }
-        })
+        }
         if let err {
             throw err
         }

@@ -6,7 +6,7 @@ public protocol ResponderStorageProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - router: Router this storage belongs to.
     ///   - socket: Socket to write to.
-    ///   - startLine: Socket's requested endpoint.
+    ///   - request: Socket's request.
     /// - Returns: Whether or not a response was sent.
     func respond(
         router: some HTTPRouterProtocol,
