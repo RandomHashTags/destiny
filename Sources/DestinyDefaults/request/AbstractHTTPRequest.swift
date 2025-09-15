@@ -1,27 +1,27 @@
 
 import DestinyBlueprint
 
-/// Universal request storage that works for different `FileDescriptor` implementations.
+/// Shared request storage that works for different `FileDescriptor` implementations.
 @usableFromInline
-struct _Request<let initalBufferCount: Int>: Sendable, ~Copyable {
+struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copyable {
 
     @usableFromInline
-    var _storage:Request._Storage
+    var storage:_Storage
 
     @usableFromInline
     var initialBuffer:InlineByteBuffer<initalBufferCount>? = nil
 
     @usableFromInline
-    var storage:Request.Storage
+    var customStorage:HTTPRequest.Storage
 
     @inlinable
     @inline(__always)
     init(
-        _storage: consuming Request._Storage = .init(),
-        storage: consuming Request.Storage = .init([:])
+        _storage: consuming _Storage = .init(),
+        storage: consuming HTTPRequest.Storage = .init([:])
     ) {
-        self._storage = _storage
-        self.storage = storage
+        self.storage = _storage
+        self.customStorage = storage
     }
 
     @inlinable
@@ -30,15 +30,15 @@ struct _Request<let initalBufferCount: Int>: Sendable, ~Copyable {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        if _storage._headers!._endIndex == nil {
-            _storage._headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
+        if storage._headers!._endIndex == nil {
+            storage._headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
         }
-        return _storage._headers!.headers
+        return storage._headers!.headers
     }
 }
 
 // MARK: Protocol conformance
-extension _Request {
+extension AbstractHTTPRequest {
     @inlinable
     @inline(__always)
     mutating func forEachPath(
@@ -49,7 +49,7 @@ extension _Request {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        let path = _storage.path(buffer: initialBuffer!)
+        let path = storage.path(buffer: initialBuffer!)
         var i = offset
         while i < path.count {
             yield(path[i])
@@ -63,7 +63,7 @@ extension _Request {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        return _storage.path(buffer: initialBuffer!)[index]
+        return storage.path(buffer: initialBuffer!)[index]
     }
 
     @inlinable
@@ -72,7 +72,7 @@ extension _Request {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        return _storage.path(buffer: initialBuffer!).count
+        return storage.path(buffer: initialBuffer!).count
     }
 
     @inlinable
@@ -81,7 +81,7 @@ extension _Request {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        return method.rawNameString() == _storage.methodString(buffer: initialBuffer!)
+        return method.rawNameString() == storage.methodString(buffer: initialBuffer!)
     }
 
     @inlinable
@@ -95,15 +95,15 @@ extension _Request {
     @inline(__always)
     func copy() -> Self {
         var c = Self()
-        c._storage = _storage.copy()
-        c.initialBuffer = initialBuffer?.copy()
         c.storage = storage.copy()
+        c.initialBuffer = initialBuffer?.copy()
+        c.customStorage = customStorage.copy()
         return c
     }
 }
 
 // MARK: Load
-extension _Request {
+extension AbstractHTTPRequest {
     @inlinable
     @inline(__always)
     static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> Self {
@@ -112,7 +112,7 @@ extension _Request {
 }
 
 // MARK: Load storage
-extension _Request {
+extension AbstractHTTPRequest {
     /// Loads `initialBuffer` and `_storage`.
     @inlinable
     @inline(__always)
@@ -121,7 +121,7 @@ extension _Request {
         if initialBuffer.endIndex <= 0 {
             throw .malformedRequest()
         }
-        try _storage.load(
+        try storage.load(
             buffer: initialBuffer
         )
         self.initialBuffer = consume initialBuffer
@@ -129,7 +129,7 @@ extension _Request {
 }
 
 // MARK: Read buffer
-extension _Request {
+extension AbstractHTTPRequest {
     /// - Warning: **DOESN'T** check if the read bytes are >= 0!
     @inlinable
     @inline(__always)
@@ -153,14 +153,14 @@ extension _Request {
 }
 
 // MARK: Start line
-extension _Request {
+extension AbstractHTTPRequest {
     @inlinable
     @inline(__always)
     mutating func startLine(fileDescriptor: some FileDescriptor) throws(SocketError) -> SIMD64<UInt8> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        return _storage.startLineSIMD(buffer: initialBuffer!)
+        return storage.startLineSIMD(buffer: initialBuffer!)
     }
 
     @inlinable
@@ -169,19 +169,19 @@ extension _Request {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        return _storage.startLineSIMDLowercased(buffer: initialBuffer!)
+        return storage.startLineSIMDLowercased(buffer: initialBuffer!)
     }
 }
 
 // MARK: Body
-extension _Request {
+extension AbstractHTTPRequest {
     @inlinable
     @inline(__always)
     mutating func bodyCollect<let count: Int>(fileDescriptor: some FileDescriptor) throws -> InlineByteBuffer<count> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        return try _storage.bodyCollect(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
+        return try storage.bodyCollect(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
     }
 
     @inlinable
@@ -193,6 +193,6 @@ extension _Request {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
-        try await _storage.bodyStream(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!, yield)
+        try await storage.bodyStream(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!, yield)
     }
 }

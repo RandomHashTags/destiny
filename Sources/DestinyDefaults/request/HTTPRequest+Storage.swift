@@ -1,5 +1,5 @@
 
-extension Request {
+extension HTTPRequest {
     /// Custom request storage.
     public struct Storage: Sendable, ~Copyable {
         @usableFromInline
@@ -58,7 +58,7 @@ extension Request {
 }
 
 // MARK: StorageKey
-extension Request {
+extension HTTPRequest {
     /// Core protocol used to identify values by a key in `Storage`.
     public protocol StorageKey {
         /// Type of the stored value associated with this key.
@@ -71,7 +71,7 @@ protocol AnyStorageValue: Sendable {
 }
 
 // MARK: Storage.Value
-extension Request.Storage {
+extension HTTPRequest.Storage {
     @usableFromInline
     struct Value<T: Sendable>: AnyStorageValue {
         @usableFromInline

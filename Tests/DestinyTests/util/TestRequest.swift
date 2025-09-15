@@ -5,11 +5,11 @@ import DestinyBlueprint
 /// Default storage for request data.
 struct TestRequest: HTTPRequestProtocol, ~Copyable {
     let fileDescriptor:TestFileDescriptor
-    var _request:_Request<1024>
+    var _request:AbstractHTTPRequest<1024>
 
     init(
         fileDescriptor: TestFileDescriptor,
-        _request: consuming _Request<1024>
+        _request: consuming AbstractHTTPRequest<1024>
     ) {
         self.fileDescriptor = fileDescriptor
         self._request = _request

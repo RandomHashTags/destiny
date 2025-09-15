@@ -2,41 +2,42 @@
 import DestinyBlueprint
 import VariableLengthArray
 
-extension Request {
+extension AbstractHTTPRequest {
+    /// Underlying storage for the default request implementation.
     @usableFromInline
     struct _Storage: Sendable, ~Copyable {
         @usableFromInline fileprivate(set) var requestLine:HTTPRequestLine?
-        @usableFromInline fileprivate(set) var _startLineSIMD:SIMD64<UInt8>?
-        @usableFromInline fileprivate(set) var _startLineSIMDLowercased:SIMD64<UInt8>?
-        @usableFromInline fileprivate(set) var _methodString:String?
-        @usableFromInline fileprivate(set) var _path:[String]?
+        @usableFromInline fileprivate(set) var startLineSIMD:SIMD64<UInt8>?
+        @usableFromInline fileprivate(set) var startLineSIMDLowercased:SIMD64<UInt8>?
+        @usableFromInline fileprivate(set) var methodString:String?
+        @usableFromInline fileprivate(set) var path:[String]?
 
-        @usableFromInline var _headers:RequestHeaders?
+        @usableFromInline var _headers:AbstractHTTPRequest.Headers?
         @usableFromInline var _body:RequestBody?
 
         @usableFromInline
         init(
             requestLine: consuming HTTPRequestLine? = nil,
-            headers: consuming RequestHeaders? = nil,
+            headers: consuming AbstractHTTPRequest.Headers? = nil,
             body: consuming RequestBody? = nil,
-            _startLineSIMD: SIMD64<UInt8>? = nil,
-            _startLineSIMDLowercased: SIMD64<UInt8>? = nil,
-            _methodString: String? = nil,
-            _path: [String]? = nil
+            startLineSIMD: SIMD64<UInt8>? = nil,
+            startLineSIMDLowercased: SIMD64<UInt8>? = nil,
+            methodString: String? = nil,
+            path: [String]? = nil
         ) {
             self.requestLine = requestLine
             self._headers = headers
             self._body = body
-            self._startLineSIMD = _startLineSIMD
-            self._startLineSIMDLowercased = _startLineSIMDLowercased
-            self._methodString = _methodString
-            self._path = _path
+            self.startLineSIMD = startLineSIMD
+            self.startLineSIMDLowercased = startLineSIMDLowercased
+            self.methodString = methodString
+            self.path = path
         }
     }
 }
 
 // MARK: Load
-extension Request._Storage {
+extension AbstractHTTPRequest._Storage {
     /// Loads `requestLine`, `_headers` and `_body`.
     #if Inlinable
     @inlinable
@@ -48,14 +49,14 @@ extension Request._Storage {
         buffer: borrowing InlineByteBuffer<count>
     ) throws(SocketError) {
         let requestLine = try HTTPRequestLine.load(buffer: buffer)
-        _headers = RequestHeaders(startIndex: requestLine.endIndex + 2)
+        _headers = AbstractHTTPRequest.Headers(startIndex: requestLine.endIndex + 2)
         self.requestLine = consume requestLine
         _body = .init()
     }
 }
 
 // MARK: Start Line SIMD
-extension Request._Storage {
+extension AbstractHTTPRequest._Storage {
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
@@ -64,11 +65,11 @@ extension Request._Storage {
     @inline(__always)
     #endif
     mutating func startLineSIMD<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> SIMD64<UInt8> {
-        if let _startLineSIMD {
-            return _startLineSIMD
+        if let startLineSIMD {
+            return startLineSIMD
         }
-        _startLineSIMD = requestLine!.simd(buffer: buffer.buffer)
-        return _startLineSIMD!
+        startLineSIMD = requestLine!.simd(buffer: buffer.buffer)
+        return startLineSIMD!
     }
 
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
@@ -79,17 +80,17 @@ extension Request._Storage {
     @inline(__always)
     #endif
     mutating func startLineSIMDLowercased<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> SIMD64<UInt8> {
-        if let _startLineSIMDLowercased {
-            return _startLineSIMDLowercased
+        if let startLineSIMDLowercased {
+            return startLineSIMDLowercased
         }
         let simd = startLineSIMD(buffer: buffer).lowercased()
-        _startLineSIMDLowercased = simd
+        startLineSIMDLowercased = simd
         return simd
     }
 }
 
 // MARK: Method
-extension Request._Storage {
+extension AbstractHTTPRequest._Storage {
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
@@ -98,18 +99,18 @@ extension Request._Storage {
     @inline(__always)
     #endif
     mutating func methodString<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> String {
-        if let _methodString {
-            return _methodString
+        if let methodString {
+            return methodString
         }
         requestLine!.method(buffer: buffer.buffer) {
-            _methodString = $0.unsafeString()
+            methodString = $0.unsafeString()
         }
-        return _methodString!
+        return methodString!
     }
 }
 
 // MARK: Path
-extension Request._Storage {
+extension AbstractHTTPRequest._Storage {
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
@@ -118,18 +119,18 @@ extension Request._Storage {
     @inline(__always)
     #endif
     mutating func path<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> [String] {
-        if let _path {
-            return _path
+        if let path {
+            return path
         }
         requestLine!.path(buffer: buffer.buffer, {
-            _path = $0.unsafeString().split(separator: "/").map({ String($0) })
+            path = $0.unsafeString().split(separator: "/").map({ String($0) })
         })
-        return _path!
+        return path!
     }
 }
 
 // MARK: Body
-extension Request._Storage {
+extension AbstractHTTPRequest._Storage {
     /// - Warning: `_headers` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
@@ -221,7 +222,7 @@ extension Request._Storage {
 }
 
 // MARK: Copy
-extension Request._Storage {
+extension AbstractHTTPRequest._Storage {
     #if Inlinable
     @inlinable
     #endif
@@ -231,10 +232,10 @@ extension Request._Storage {
     func copy() -> Self {
         Self(
             requestLine: requestLine?.copy(),
-            _startLineSIMD: _startLineSIMD,
-            _startLineSIMDLowercased: _startLineSIMDLowercased,
-            _methodString: _methodString,
-            _path: _path
+            startLineSIMD: startLineSIMD,
+            startLineSIMDLowercased: startLineSIMDLowercased,
+            methodString: methodString,
+            path: path
         )
     }
 }

@@ -20,7 +20,7 @@ public struct RouterSettings: Sendable {
         mutable: Bool = false,
         visibility: RouterVisibility = .internal,
         name: String? = nil,
-        requestType: String = "Request"
+        requestType: String = "HTTPRequest"
     ) {
         self.visibility = visibility
         self.name = name ?? "CompiledHTTPRouter"
