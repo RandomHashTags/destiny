@@ -35,7 +35,7 @@ public struct RouterStorage {
         for (i, function) in upgradeExistentialDynamicMiddleware.enumerated() {
             let functionString = "\(function.arguments.first!.expression.as(ClosureExprSyntax.self)!.statements)"
             let name = "OpaqueDynamicMiddleware\(i)"
-            let string = """
+            let decl = try! StructDeclSyntax.init(.init(stringLiteral: """
             // MARK: \(name)
             \(visibility)struct \(name): OpaqueDynamicMiddlewareProtocol {
 
@@ -60,8 +60,8 @@ public struct RouterStorage {
                     return true
                 }
             }
-            """
-            try! generatedDecls.append(StructDeclSyntax(.init(stringLiteral: string)))
+            """))
+            generatedDecls.append(decl)
         }
         return ""
     }()
@@ -69,6 +69,8 @@ public struct RouterStorage {
     var visibility: RouterVisibility {
         settings.visibility
     }
+
+    let visibilityModifier:DeclModifierSyntax
 
     func routerParameter(isCopyable: Bool) -> String {
         if isCopyable {
@@ -87,6 +89,29 @@ public struct RouterStorage {
         }
     }
 }
+
+// MARK: Initializer
+extension RouterStorage {
+    init(
+        context: MacroExpansionContext,
+        settings: RouterSettings,
+        perfectHashSettings: PerfectHashSettings
+    ) {
+        self.context = context
+        self.settings = settings
+        self.perfectHashSettings = perfectHashSettings
+
+        visibilityModifier = switch settings.visibility {
+            case .public: .init(name: .keyword(.public))
+            case .package: .init(name: .keyword(.package))
+            case .internal: .init(name: .keyword(.internal))
+            case .fileprivate: .init(name: .keyword(.fileprivate))
+            case .private: .init(name: .keyword(.private))
+        }
+    }
+}
+
+// MARK: Misc
 
 extension RouterStorage {
     mutating func routeGroupsString() -> String {

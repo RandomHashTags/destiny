@@ -15,6 +15,13 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
         self._request = _request
     }
 
+    func socketLocalAddress() -> String? {
+        nil
+    }
+    func socketPeerAddress() -> String? {
+        nil
+    }
+
     mutating func forEachPath(
         offset: Int = 0,
         _ yield: (String) -> Void

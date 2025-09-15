@@ -20,6 +20,8 @@ struct CompiledRouterStorage {
     let dynamicNotFoundResponder:Responder?
     let staticNotFoundResponder:Responder?
 
+    let visibilityModifier:DeclModifierSyntax
+
     init(
         settings: RouterSettings,
         perfectHashCaseSensitiveResponder: Responder?,
@@ -50,6 +52,14 @@ struct CompiledRouterStorage {
         self.errorResponder = errorResponder
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder
+
+        visibilityModifier = switch settings.visibility {
+            case .public: .init(name: .keyword(.public))
+            case .package: .init(name: .keyword(.package))
+            case .internal: .init(name: .keyword(.internal))
+            case .fileprivate: .init(name: .keyword(.fileprivate))
+            case .private: .init(name: .keyword(.private))
+        }
     }
     
     var visibility: RouterVisibility {
@@ -99,10 +109,10 @@ extension CompiledRouterStorage {
         return .init(
             leadingTrivia: "// MARK: \(name)\n\(visibility)",
             name: "\(raw: name)",
-            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
+            inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax(stringLiteral: "\(copyableText)HTTPRouterProtocol"), trailingComma: ","),
                 .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
-            )),
+            ])),
             memberBlock: .init(members: members)
         )
     }
@@ -133,10 +143,10 @@ extension CompiledRouterStorage {
         return .init(
             leadingTrivia: "// MARK: \(name)\n\(visibility)",
             name: "\(raw: "_\(name)")",
-            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral: 
+            inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax(stringLiteral: "\(copyableText)HTTPRouterProtocol"), trailingComma: ","),
                 .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
-            )),
+            ])),
             memberBlock: .init(members: members)
         )
     }
@@ -225,20 +235,29 @@ extension CompiledRouterStorage {
     private func variableDecls(isCopyable: Bool) -> [VariableDeclSyntax]? {
         var decls = [VariableDeclSyntax]()
         let appendVariableResponderFunction:(String, Responder) -> Void
+        let loggerPrefix:String
         if isCopyable {
             appendVariableResponderFunction = { name, responder in 
                 guard let copyable = responder.copyable else { return }
-                try! decls.append(.init("""
-                \(raw: visibility)let \(raw: name) = \(raw: copyable)
-                """))
+                decls.append(.init(
+                    modifiers: [visibilityModifier],
+                    .let,
+                    name: "\(raw: name)",
+                    initializer: .init(value: ExprSyntax(stringLiteral: copyable)), 
+                ))
             }
+            loggerPrefix = "copyable"
         } else {
             appendVariableResponderFunction = { name, responder in
                 guard let noncopyable = responder.noncopyable else { return }
-                try! decls.append(.init("""
-                \(raw: visibility)let \(raw: name) = \(raw: noncopyable)
-                """))
+                decls.append(.init(
+                    modifiers: [visibilityModifier],
+                    .let,
+                    name: "\(raw: name)",
+                    initializer: .init(value: ExprSyntax(stringLiteral: noncopyable)), 
+                ))
             }
+            loggerPrefix = "noncopyable"
         }
         if let perfectHashCaseSensitiveResponder {
             appendVariableResponderFunction("perfectHashCaseSensitiveResponder", perfectHashCaseSensitiveResponder)
@@ -264,9 +283,12 @@ extension CompiledRouterStorage {
 
         if !dynamicMiddlewareArray.isEmpty {
             let dynamicMiddleware = "(\n\(dynamicMiddlewareArray.joined(separator: ",\n"))\n)"
-            try! decls.append(.init("""
-            \(raw: visibility)let dynamicMiddleware = \(raw: dynamicMiddleware)
-            """))
+            decls.append(.init(
+                modifiers: [visibilityModifier],
+                .let,
+                name: "dynamicMiddleware",
+                initializer: .init(value: ExprSyntax(stringLiteral: dynamicMiddleware))
+            ))
         }
 
         if let errorResponder {
@@ -278,9 +300,12 @@ extension CompiledRouterStorage {
         if let staticNotFoundResponder {
             appendVariableResponderFunction("staticNotFoundResponder", staticNotFoundResponder)
         }
-        try! decls.append(.init("""
-        \(raw: visibility)let logger = Logger(label: "compiledHTTPRouter.\(raw: isCopyable ? "copyable" : "noncopyable")HTTPRouter")
-        """))
+        decls.append(.init(
+            modifiers: [visibilityModifier],
+            .let,
+            name: "logger",
+            initializer: .init(value: ExprSyntax(stringLiteral: "Logger(label: \"compiledHTTPRouter.\(loggerPrefix)HTTPRouter\")"))
+        ))
         return decls
     }
 }
@@ -291,12 +316,13 @@ extension CompiledRouterStorage {
         return loadDecl(loadString: "")
     }
     private func loadDecl(loadString: String) -> FunctionDeclSyntax {
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func load() {
-            \(raw: loadString)
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "load",
+            signature: .init(parameterClause: .init(parameters: .init())),
+            body: .init(statements: .init(stringLiteral: loadString))
+        )
     }
 }
 
@@ -309,55 +335,64 @@ extension CompiledRouterStorage {
         return handleDynamicMiddlewareDecl(handleString: handleString)
     }
     private func handleDynamicMiddlewareDecl(handleString: String) -> FunctionDeclSyntax {
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func handleDynamicMiddleware(
-            for request: inout some HTTPRequestProtocol & ~Copyable,
-            with response: inout some DynamicResponseProtocol
-        ) throws(MiddlewareError) {
-            \(raw: handleString)
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            name: "handleDynamicMiddleware",
+            signature: .init(
+                parameterClause: .init(parameters: .init([
+                    .init(firstName: "for", secondName: "request", type: TypeSyntax(stringLiteral: "inout some HTTPRequestProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "with", secondName: "response", type: TypeSyntax(stringLiteral: "inout some DynamicResponseProtocol"))
+                ])),
+                effectSpecifiers: .init(throwsClause: .init(throwsSpecifier: .keyword(.throws), leftParen: "(", type: TypeSyntax("MiddlewareError"), rightParen: ")"))
+            ),
+            body: .init(statements: .init(stringLiteral: handleString))
+        )
     }
 }
 
 // MARK: Handle decl
 extension CompiledRouterStorage {
     private func handleDecl() -> FunctionDeclSyntax {
-        try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func handle(
-            client: some FileDescriptor,
-            socket: consuming some HTTPSocketProtocol & ~Copyable,
-            completionHandler: @Sendable @escaping () -> Void
-        ) {
-            do throws(SocketError) {
-                var request = try \(raw: settings.requestType).load(from: socket)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "handle",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "client", type: TypeSyntax("some FileDescriptor"), trailingComma: ","),
+                    .init(firstName: "socket", type: TypeSyntax("consuming some HTTPSocketProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"))
+                ])
+            ),
+            body: .init(statements: .init(stringLiteral: """
+                do throws(SocketError) {
+                    var request = try \(settings.requestType).load(from: socket)
 
-                #if DEBUG
-                let requestStartLine = try request.startLine().stringSIMD()
-                logger.info("\\(requestStartLine)")
-                #endif
+                    #if DEBUG
+                    let requestStartLine = try request.startLine().stringSIMD()
+                    logger.info("\\(requestStartLine)")
+                    #endif
 
-                do throws(ResponderError) {
-                    guard !(try respond(socket: client, request: &request, completionHandler: completionHandler)) else { return }
-                    if !(try respondWithNotFound(socket: client, request: &request, completionHandler: completionHandler)) {
-                        logger.error("failed to send response to client")
-                        completionHandler()
+                    do throws(ResponderError) {
+                        guard !(try respond(socket: client, request: &request, completionHandler: completionHandler)) else { return }
+                        if !(try respondWithNotFound(socket: client, request: &request, completionHandler: completionHandler)) {
+                            logger.error("failed to send response to client")
+                            completionHandler()
+                        }
+                    } catch {
+                        logger.warning("Encountered error while processing client: \\(error)")
+                        if !respondWithError(socket: client, error: error, request: &request, completionHandler: completionHandler) {
+                            logger.error("failed to send response to client")
+                            completionHandler()
+                        }
                     }
                 } catch {
-                    logger.warning("Encountered error while processing client: \\(error)")
-                    if !respondWithError(socket: client, error: error, request: &request, completionHandler: completionHandler) {
-                        logger.error("failed to send response to client")
-                        completionHandler()
-                    }
+                    logger.warning("Encountered error while loading request: \\(error)")
+                    completionHandler()
                 }
-            } catch {
-                logger.warning("Encountered error while loading request: \\(error)")
-                completionHandler()
-            }
-        }
-        """)
+                """)
+            )
+        )
     }
 }
 
@@ -404,17 +439,23 @@ extension CompiledRouterStorage {
         return respondDecl(respondersString: respondersString)
     }
     private func respondDecl(respondersString: String) -> FunctionDeclSyntax {
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func respond(
-            socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) -> Bool {
-            \(raw: respondersString)
-            return true
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "respond",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: ","),
+                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                ]),
+                effectSpecifiers: .init(
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                ),
+                returnClause: .init(type: TypeSyntax("Bool"))
+            ),
+            body: .init(statements: .init(stringLiteral: "\(respondersString)\nreturn true"))
+        )
     }
 }
 
@@ -427,17 +468,23 @@ extension CompiledRouterStorage {
     }
     private func respondWithStaticResponderDecl(isCopyable: Bool, responderString: String) -> FunctionDeclSyntax {
         let responderParameter = RouterStorage.responderParameter(copyable: isCopyable, dynamic: false)
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func respond(
-            socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            responder: \(raw: responderParameter),
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) {
-            \(raw: responderString)
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "respond",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: ","),
+                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: ","),
+                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"))
+                ]),
+                effectSpecifiers: .init(
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                )
+            ),
+            body: .init(statements: .init(stringLiteral: responderString))
+        )
     }
 }
 
@@ -445,54 +492,64 @@ extension CompiledRouterStorage {
 extension CompiledRouterStorage {
     private func defaultDynamicResponseDecl(isCopyable: Bool) -> FunctionDeclSyntax {
         let responderParameter = RouterStorage.responderParameter(copyable: isCopyable, dynamic: true)
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func defaultDynamicResponse(
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            responder: \(raw: responderParameter)
-        ) throws(ResponderError) -> some DynamicResponseProtocol {
-            var response = responder.defaultResponse()
-            var index = 0
-            let maximumParameters = responder.pathComponentsCount
-            var err:SocketError? = nil
-            responder.forEachPathComponentParameterIndex { parameterIndex in
-                let pathAtIndex:String
-                do throws(SocketError) {
-                    pathAtIndex = try request.path(at: parameterIndex)
-                } catch {
-                    err = error
-                    return
-                }
-                pathAtIndex.inlineVLArray {
-                    response.setParameter(at: index, value: $0)
-                }
-                if responder.pathComponent(at: parameterIndex) == .catchall {
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "defaultDynamicResponse",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter))
+                ]),
+                effectSpecifiers: .init(
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                ),
+                returnClause: .init(type: TypeSyntax("some DynamicResponseProtocol"))
+            ),
+            body: .init(statements: .init(stringLiteral: """
+                var response = responder.defaultResponse()
+                var index = 0
+                let maximumParameters = responder.pathComponentsCount
+                var err:SocketError? = nil
+                responder.forEachPathComponentParameterIndex { parameterIndex in
+                    let pathAtIndex:String
                     do throws(SocketError) {
-                        var i = parameterIndex+1
-                        try request.forEachPath(offset: i) { path in
-                            path.inlineVLArray {
-                                if i < maximumParameters {
-                                    response.setParameter(at: i, value: $0)
-                                } else {
-                                    response.appendParameter(value: $0)
-                                }
-                            }
-                            i += 1
-                        }
+                        pathAtIndex = try request.path(at: parameterIndex)
                     } catch {
                         err = error
                         return
                     }
-                    
+                    pathAtIndex.inlineVLArray {
+                        response.setParameter(at: index, value: $0)
+                    }
+                    if responder.pathComponent(at: parameterIndex) == .catchall {
+                        do throws(SocketError) {
+                            var i = parameterIndex+1
+                            try request.forEachPath(offset: i) { path in
+                                path.inlineVLArray {
+                                    if i < maximumParameters {
+                                        response.setParameter(at: i, value: $0)
+                                    } else {
+                                        response.appendParameter(value: $0)
+                                    }
+                                }
+                                i += 1
+                            }
+                        } catch {
+                            err = error
+                            return
+                        }
+                        
+                    }
+                    index += 1
                 }
-                index += 1
-            }
-            if let err {
-                throw .socketError(err)
-            }
-            return response
-        }
-        """)
+                if let err {
+                    throw .socketError(err)
+                }
+                return response
+                """)
+            )
+        )
     }
 }
 
@@ -511,17 +568,23 @@ extension CompiledRouterStorage {
     }
     private func respondWithDynamicResponderDecl(isCopyable: Bool, responderString: String) -> FunctionDeclSyntax {
         let responderParameter = RouterStorage.responderParameter(copyable: isCopyable, dynamic: true)
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func respond(
-            socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            responder: \(raw: responderParameter),
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) {
-            \(raw: responderString)
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "respond",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: ","),
+                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: ","),
+                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                ]),
+                effectSpecifiers: .init(
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                )
+            ),
+            body: .init(statements: .init(stringLiteral: responderString))
+        )
     }
 }
 
@@ -546,16 +609,23 @@ extension CompiledRouterStorage {
         """)
     }
     private func respondWithNotFoundDecl(responderString: String) -> FunctionDeclSyntax {
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func respondWithNotFound(
-            socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) -> Bool {
-            \(raw: responderString)
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "respondWithNotFound",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: ","),
+                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                ]),
+                effectSpecifiers: .init(
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                ),
+                returnClause: .init(type: TypeSyntax("Bool"))
+            ),
+            body: .init(statements: .init(stringLiteral: responderString))
+        )
     }
 }
 
@@ -574,16 +644,20 @@ extension CompiledRouterStorage {
         return respondWithErrorDecl(logic: logic)
     }
     private func respondWithErrorDecl(logic: String) -> FunctionDeclSyntax {
-        return try! .init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func respondWithError(
-            socket: some FileDescriptor,
-            error: some Error,
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            completionHandler: @Sendable @escaping () -> Void
-        ) -> Bool {
-            \(raw: logic)
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "respondWithError",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: ","),
+                    .init(firstName: "error", type: TypeSyntax("some Error"), trailingComma: ","),
+                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: ","),
+                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                ]),
+                returnClause: .init(type: TypeSyntax("Bool"))
+            ),
+            body: .init(statements: .init(stringLiteral: logic))
+        )
     }
 }

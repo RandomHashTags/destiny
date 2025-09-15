@@ -1,7 +1,12 @@
 
 import DestinySwiftSyntax
-import FoundationEssentials
 import Logging
+
+#if canImport(FoundationEssentials)
+import FoundationEssentials
+#elseif canImport(Foundation)
+import Foundation
+#endif
 
 package final class TestRouter {
     enum CustomError: Error {
@@ -59,7 +64,7 @@ extension TestRouter {
             })
         ],
         redirects: [
-            StaticRedirectionRoute(method: HTTPStandardRequestMethod.get, from: ["redirectfrom"], to: ["redirectto"])
+            StaticRedirectionRoute(method: HTTPStandardRequestMethod.get, from: ["legacyEndpoint"], to: ["newEndpoint"])
         ],
         routeGroups: [
             RouteGroup(
@@ -82,9 +87,9 @@ extension TestRouter {
             ),
         ],
         StaticRoute.get(
-            path: ["redirectto"],
+            path: ["newEndpoint"],
             contentType: HTTPMediaTypeText.html,
-            body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /redirectfrom to here</h1></body></html>"#)
+            body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /legacyEndpoint to here</h1></body></html>"#)
         ),
         StaticRoute.get(
             path: ["stream"],

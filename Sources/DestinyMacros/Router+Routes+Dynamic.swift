@@ -158,21 +158,51 @@ extension RouterStorage {
             }
             """
         }
-        let paths = route.paths
+        let paths = route.paths.map({ PathComponent.init(stringLiteral: String($0)) })
         var members = MemberBlockItemListSyntax()
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: "let path:InlineArray<\(paths.count), PathComponent> = \(paths)")))
         members.append(.init(decl: DeclSyntax.init(stringLiteral: "let _defaultResponse = \(defaultResponse)")))
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)var pathComponentsCount: Int { \(paths.count) }")))
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)func pathComponent(at index: Int) -> PathComponent { path[index] }")))
+        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        \(inlinableAnnotation)
+        \(inlineAlwaysAnnotation)
+        \(visibility)var pathComponentsCount: Int {
+            \(paths.count)
+        }
+        """)))
+
+        let pathComponentAtIndexValues = """
+        switch index {
+        \((0..<paths.count).map({ "case \($0): \(paths[$0].debugDescription)" }).joined(separator: "\n"))
+        default: fatalError("out-of-bounds")
+        }
+        """
+        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        \(inlinableAnnotation)
+        \(inlineAlwaysAnnotation)
+        \(visibility)func pathComponent(at index: Int) -> PathComponent {
+            \(pathComponentAtIndexValues)
+        }
+        """)))
 
         var yieldPathComponentParameters = ""
         for (index, path) in paths.enumerated() {
-            if path.first == ":" || path.first == "*" {
-                yieldPathComponentParameters += "\nyield(\(index))"
+            if path.isParameter {
+                yieldPathComponentParameters += "yield(\(index))\n"
             }
         }
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {\(yieldPathComponentParameters) }")))
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: "\(inlinableAnnotation)\n\(visibility)func defaultResponse() -> \(dynamicResponseTypeAnnotation) { _defaultResponse }")))
+        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        \(inlinableAnnotation)
+        \(inlineAlwaysAnnotation)
+        \(visibility)func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {
+            \(yieldPathComponentParameters)
+        }
+        """)))
+        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        \(inlinableAnnotation)
+        \(inlineAlwaysAnnotation)
+        \(visibility)func defaultResponse() -> \(dynamicResponseTypeAnnotation) {
+            _defaultResponse
+        }
+        """)))
         
         let asyncTaskValues:(setup: String, suffix: String)
         if isAsync {
@@ -207,10 +237,10 @@ extension RouterStorage {
         let structure = StructDeclSyntax(
             leadingTrivia: .init(stringLiteral: "// MARK: \(name)\n\(visibility)"),
             name: .init(stringLiteral: name),
-            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral:
+            inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax(stringLiteral: "\(copyableText)DynamicRouteResponderProtocol"), trailingComma: ","),
                 .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
-            )),
+            ])),
             memberBlock: .init(members: members)
         )
         generatedDecls.append(structure)
@@ -233,9 +263,12 @@ extension RouterStorage {
         entryMembers.append(.init(decl: VariableDeclSyntax(leadingTrivia: "\n", .let, name: "path", type: .init(type: TypeSyntax("SIMD64<UInt8>")))))
         entryMembers.append(.init(decl: VariableDeclSyntax(leadingTrivia: "\n", .let, name: "responder", type: .init(type: TypeSyntax("ConcreteResponder")))))
         for (index, (path, responder)) in responders.enumerated() {
-            try! responderMembers.append(.init(decl: VariableDeclSyntax.init("""
-            \(raw: visibility)let route\(raw: index) = Entry(path: \(raw: path), responder: \(raw: responder))
-            """)))
+            responderMembers.append(.init(decl: VariableDeclSyntax.init(
+                modifiers: [visibilityModifier],
+                .let,
+                name: "route\(raw: index)",
+                initializer: .init(value: ExprSyntax(stringLiteral: "Entry(path: \(path), responder: \(responder))"))
+            )))
         }
         let respondedDecl = try! FunctionDeclSyntax("""
         \(raw: inlinableAnnotation)
@@ -296,14 +329,14 @@ extension RouterStorage {
 
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let entryDecl = StructDeclSyntax(
-            leadingTrivia: "\(visibility)",
+            modifiers: [visibilityModifier],
             name: "Entry",
-            genericParameterClause: .init(parameters: .init(arrayLiteral:
+            genericParameterClause: .init(parameters: .init([
                 .init(name: "ConcreteResponder", colon: ":", inheritedType: TypeSyntax("\(raw: copyableText)DynamicRouteResponderProtocol\(raw: isCopyable ? "" : " & ~Copyable")"))
-            )),
-            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral:
+            ])),
+            inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax("\(raw: copyableSymbol)Copyable"))
-            )),
+            ])),
             memberBlock: .init(members: entryMembers)
         )
         responderMembers.append(.init(decl: entryDecl))
@@ -345,10 +378,10 @@ extension RouterStorage {
         let responderDecl = StructDeclSyntax.init(
             leadingTrivia: "// MARK: \(name)\n\(visibility)",
             name: "\(raw: name)",
-            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral:
+            inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax("\(raw: copyableText)ResponderStorageProtocol"), trailingComma: ","),
                 .init(type: TypeSyntax("\(raw: copyableSymbol)Copyable"))
-            )),
+            ])),
             memberBlock: .init(members: responderMembers)
         )
         generatedDecls.append(responderDecl)

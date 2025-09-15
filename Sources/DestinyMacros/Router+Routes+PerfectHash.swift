@@ -104,13 +104,14 @@ extension RouterStorage {
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let name = "\(namePrefix)ResponderStorage\(random)"
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n\(visibility)",
+            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n",
+            modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: .init(arrayLiteral:
+                inheritedTypes: .init([
                     .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: ","),
                     .init(type: TypeSyntax.init(stringLiteral: "\(copyableSymbol)Copyable"))
-                )
+                ])
             ),
             memberBlock: .init(members: members)
         )
@@ -158,15 +159,21 @@ extension RouterStorage {
             }
             routePathSIMDs.append(simd)
 
-            let staticResponder = try! VariableDeclSyntax.init("""
-            /// Request: `\(raw: routePath)`
-            \(raw: visibility)static let responder\(raw: index) = \(raw: routeResponders[index])
-            """)
+            let staticResponder = VariableDeclSyntax.init(
+                leadingTrivia: "/// Request: `\(routePath)`\n",
+                modifiers: [visibilityModifier, .init(name: .keyword(.static))],
+                .let,
+                name: "responder\(raw: index)",
+                initializer: .init(value: ExprSyntax(stringLiteral: routeResponders[index]))
+            )
             staticResponders.append(staticResponder)
 
-            let staticSIMD = try! VariableDeclSyntax.init("""
-            \(raw: visibility)static let simd\(raw: index) = \(raw: simd)
-            """)
+            let staticSIMD = VariableDeclSyntax.init(
+                modifiers: [visibilityModifier, .init(name: .keyword(.static))],
+                .let,
+                name: "simd\(raw: index)",
+                initializer: .init(value: ExprSyntax(stringLiteral: "\(simd)"))
+            )
             staticSIMDs.append(staticSIMD)
         }
 
@@ -189,11 +196,10 @@ extension RouterStorage {
         let routeConstantsDecl = EnumDeclSyntax(
             leadingTrivia: .init(stringLiteral: "\(visibility)"),
             name: "Route",
-            inheritanceClause: .init(inheritedTypes: .init(arrayLiteral:
+            inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax("UInt16"))
-            )),
-            memberBlock: .init(members: routeMembers),
-            trailingTrivia: .init(stringLiteral: "// \(routePaths.count)")
+            ])),
+            memberBlock: .init(members: routeMembers)
         )
         members.append(.init(decl: routeConstantsDecl))
         appendMatchRouteDecl(
@@ -208,6 +214,10 @@ extension RouterStorage {
             members: &members
         )
     }
+}
+
+// MARK: Append respond decl
+extension RouterStorage {
     private func appendRespondDecl(
         isCaseSensitive: Bool,
         routerParameter: String,
@@ -233,6 +243,10 @@ extension RouterStorage {
         """)
         members.append(.init(decl: decl))
     }
+}
+
+// MARK: Append match route decl
+extension RouterStorage {
     private func appendMatchRouteDecl(
         routePaths: [String],
         routePathSIMDs: [SIMD64<UInt8>],
@@ -379,7 +393,7 @@ extension RouterStorage {
             return ".init(.`\(routePaths[Int($0)])`\(routeEntryInitializeLogic(Int($0), key)))"
         }).joined(separator: ",\n")
         let hashTableDecl = VariableDeclSyntax.init(
-            modifiers: .init(arrayLiteral: DeclModifierSyntax.init(name: "static")),
+            modifiers: [.init(name: .keyword(.static))],
             .let,
             name: "hashTable",
             type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashTable.count), RouteEntry?>")),
@@ -396,13 +410,20 @@ extension RouterStorage {
             extractKeyLiteral += s
         }
 
-        let extractKeyDecl = try! FunctionDeclSyntax.init("""
-        \(raw: inlinableAnnotation)
-        \(raw: inlineAlwaysAnnotation)
-        \(raw: visibility)func extractKey(_ simd: SIMD64<UInt8>) -> UInt64 {
-            return \(raw: extractKeyLiteral)
-        }
-        """)
+        let extractKeyDecl = FunctionDeclSyntax(
+            leadingTrivia: "\(inlinableAnnotation)\n\(inlineAlwaysAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "extractKey",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"))
+                ]),
+                returnClause: .init(type: TypeSyntax("UInt64")),
+            ),
+            body: .init(statements: .init([
+                .init(stringLiteral: "return \(extractKeyLiteral)")
+            ]))
+        )
 
         let perfectHashReturns:(annotation: String, literal: String)        
         var hashString = "Int(((key &* \(candidate.seed)) >> \(candidate.shift)) & \((candidate.mask)))"
@@ -475,7 +496,7 @@ extension RouterStorage {
             )
         }
         return try! StructDeclSyntax.init("""
-        struct RouteEntry: Sendable { // found \(raw: values.comment)perfect hash with \(raw: hashMaxBytes) characters (\(raw: efficiency)% efficiency)
+        struct RouteEntry: Sendable { // found \(raw: values.comment)perfect hash with \(raw: hashMaxBytes) character\(raw: hashMaxBytes == 1 ? "" : "s") (\(raw: efficiency)% efficiency)
             \(raw: values.keyVariable)\(raw: simd.variable)let route:Route
             init(
                 _ route: Route,
@@ -503,35 +524,49 @@ extension RouterStorage {
         if minimal {
             values = ("hashIndex", "")
         } else {
-            values = ("(key, hashIndex)", """
-            if entry.key != key { // hash collision
-                return nil
-            }
-            """)
+            values = ("(key, hashIndex)", ", entry.key == key")
         }
-        return try! FunctionDeclSyntax.init("""
-        \(raw: inlinableAnnotation)
-        \(raw: inlineAlwaysAnnotation)
-        \(raw: visibility)func matchRoute(_ simd: SIMD64<UInt8>) -> Route? {
-            let \(raw: values.variables) = perfectHash(simd)
-            guard hashIndex < \(raw: hashTable.count), let entry = Self.hashTable[hashIndex] else { return nil }
-            \(raw: values.hashCollectionCheck)
-            return \(raw: returnLogic)
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n\(inlineAlwaysAnnotation)\n",
+            name: "matchRoute",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"))
+                ]),
+                returnClause: .init(type: TypeSyntax("Route?"))
+            ),
+            body: .init(statements: .init(stringLiteral: """
+                let \(values.variables) = perfectHash(simd)
+                guard hashIndex < \(hashTable.count), let entry = Self.hashTable[hashIndex]\(values.hashCollectionCheck) else { return nil }
+                return \(returnLogic)
+                """)
+            ),
+        )
     }
+}
 
+// MARK: Match route fallback decl
+extension RouterStorage {
     private func matchRouteFallbackDecl(
         routePaths: [String]
     ) -> FunctionDeclSyntax {
-        return try! FunctionDeclSyntax.init("""
-        \(raw: inlinableAnnotation)
-        \(raw: visibility)func matchRoute(_ simd: SIMD64<UInt8>) -> Route? {
-            switch simd {
-            \(raw: (0..<routePaths.count).map({ "case Self.simd\($0): .`\(routePaths[$0])`" }).joined(separator: "\n"))
-            default: nil
-            }
-        }
-        """)
+        return .init(
+            leadingTrivia: "\(inlinableAnnotation)\n\(inlineAlwaysAnnotation)\n",
+            modifiers: [visibilityModifier],
+            name: "matchRoute",
+            signature: .init(
+                parameterClause: .init(parameters: [
+                    .init(firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"))
+                ]),
+                returnClause: .init(type: TypeSyntax("Route?"))
+            ),
+            body: .init(statements: .init(stringLiteral: """
+                switch simd {
+                \((0..<routePaths.count).map({ "case Self.simd\($0): .`\(routePaths[$0])`" }).joined(separator: "\n"))
+                default: nil
+                }
+                """)
+            ),
+        )
     }
 }

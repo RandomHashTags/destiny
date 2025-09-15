@@ -84,13 +84,14 @@ extension RouterStorage {
 
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n\(visibility)",
+            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n",
+            modifiers: [visibilityModifier],
             name: "\(raw: namePrefix)ResponderStorage\(raw: random)",
             inheritanceClause: .init(
-                inheritedTypes: .init(arrayLiteral:
+                inheritedTypes: .init([
                     .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: ","),
                     .init(type: TypeSyntax.init(stringLiteral: "\(copyableSymbol)Copyable"))
-                )
+                ])
             ),
             memberBlock: .init(members: .init())
         )

@@ -11,7 +11,7 @@ public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     public var maxAge:UInt64 = 0
 
     @usableFromInline
-    package var flags:Flag.RawValue = 0
+    var flags:Flag.RawValue = 0
 
     public var expiresString:String?
 
@@ -133,6 +133,9 @@ extension HTTPCookie {
 
 // MARK: Validate
 extension HTTPCookie {
+    /// Validates the provided string is a valid HTTP Cookie Value.
+    /// 
+    /// - Throws: `HTTPCookieError` if it contains an illegal character.
     #if Inlinable
     @inlinable
     #endif
@@ -210,17 +213,19 @@ extension HTTPCookie {
 // MARK: Flags
 extension HTTPCookie {
     @usableFromInline
-    package enum Flag: UInt8 {
+    enum Flag: UInt8 {
         case secure   = 1
         case httpOnly = 2
     }
 
-    @usableFromInline
+    @inlinable
+    @inline(__always)
     func isFlag(_ flag: Flag) -> Bool {
         flags & flag.rawValue != 0
     }
 
-    @usableFromInline
+    @inlinable
+    @inline(__always)
     mutating func setFlag(_ flag: Flag, _ value: Bool) {
         if value {
             flags |= flag.rawValue
