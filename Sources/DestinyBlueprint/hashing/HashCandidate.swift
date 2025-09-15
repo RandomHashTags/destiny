@@ -2,7 +2,7 @@
 public struct HashCandidate: Sendable {
     public var seed:UInt64
     public var shift:Int
-    public var maskBits:Int {
+    public var maskBits: Int {
         didSet {
             tableSize = 1 << maskBits
             _mask = UInt64((1 << maskBits) - 1)
