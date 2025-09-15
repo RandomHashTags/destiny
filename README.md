@@ -58,12 +58,12 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 
 ### WIP
 
-- [ ] Metric Middleware
 - [ ] DocC Documentation
 - [ ] Unit testing
-- [ ] File Middleware
-- [ ] Rate Limit Middleware
+- [ ] Rate Limits
 - [ ] Route queries
+- [ ] Metric Middleware
+- [ ] File Middleware
 - [ ] HTTP Pipelining
 - [ ] Embedded support
 
