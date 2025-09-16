@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 import DestinyBlueprint
 
 public final class RouteGroupStorage: MutableRouteGroupStorageProtocol, @unchecked Sendable { // TODO: avoid existentials / support embedded
@@ -29,3 +31,5 @@ extension RouteGroupStorage {
         return false
     }
 }
+
+#endif

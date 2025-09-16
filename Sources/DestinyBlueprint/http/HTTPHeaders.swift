@@ -10,7 +10,7 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
     #if Inlinable
     @inlinable
     #endif
-    package init(_storage: [(String, String)] = []) {
+    public init(_storage: [(String, String)] = []) {
         self._storage = _storage
     }
 

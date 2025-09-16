@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 import DestinyBlueprint
 import DestinyDefaults
 import DestinyDefaultsNonEmbedded // TODO: fix
@@ -113,3 +115,5 @@ extension RouteGroup {
         return (DeclSyntax(stringLiteral: compiled), routeGroupStorage)
     }
 }
+
+#endif

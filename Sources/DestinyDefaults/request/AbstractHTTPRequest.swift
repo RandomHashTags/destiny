@@ -14,8 +14,12 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
     @usableFromInline
     package var customStorage:HTTPRequest.Storage
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     init(
         _storage: consuming _Storage = .init(),
         storage: consuming HTTPRequest.Storage = .init([:])
@@ -24,8 +28,12 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
         self.customStorage = storage
     }
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func headers(fileDescriptor: some FileDescriptor) throws(SocketError) -> [Substring:Substring] {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
@@ -39,8 +47,12 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
 
 // MARK: Protocol conformance
 extension AbstractHTTPRequest {
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func forEachPath(
         fileDescriptor: some FileDescriptor,
         offset: Int = 0,
@@ -57,8 +69,12 @@ extension AbstractHTTPRequest {
         }
     }
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func path(fileDescriptor: some FileDescriptor, at index: Int) throws(SocketError) -> String {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
@@ -66,8 +82,12 @@ extension AbstractHTTPRequest {
         return storage.path(buffer: initialBuffer!)[index]
     }
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func pathCount(fileDescriptor: some FileDescriptor) throws(SocketError) -> Int {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
@@ -75,8 +95,12 @@ extension AbstractHTTPRequest {
         return storage.path(buffer: initialBuffer!).count
     }
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
@@ -84,15 +108,23 @@ extension AbstractHTTPRequest {
         return method.rawNameString() == storage.methodString(buffer: initialBuffer!)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func header(fileDescriptor: some FileDescriptor, forKey key: String) throws(SocketError) -> String? {
         guard let value = try headers(fileDescriptor: fileDescriptor)[Substring(key)] else { return nil }
         return String(value)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     func copy() -> Self {
         var c = Self()
         c.storage = storage.copy()
@@ -104,8 +136,12 @@ extension AbstractHTTPRequest {
 
 // MARK: Load
 extension AbstractHTTPRequest {
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> Self {
         Self()
     }
@@ -114,8 +150,12 @@ extension AbstractHTTPRequest {
 // MARK: Load storage
 extension AbstractHTTPRequest {
     /// Loads `initialBuffer` and `_storage`.
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     package mutating func loadStorage(fileDescriptor: some FileDescriptor) throws(SocketError) {
         let initialBuffer:InlineByteBuffer<initalBufferCount> = try readBuffer(fileDescriptor: fileDescriptor)
         if initialBuffer.endIndex <= 0 {
@@ -131,8 +171,12 @@ extension AbstractHTTPRequest {
 // MARK: Read buffer
 extension AbstractHTTPRequest {
     /// - Warning: **DOESN'T** check if the read bytes are >= 0!
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     func readBuffer<let count: Int>(fileDescriptor: some FileDescriptor) throws(SocketError) -> InlineByteBuffer<count> {
         var buffer = InlineArray<count, UInt8>(repeating: 0)
         var mutableSpan = buffer.mutableSpan
@@ -154,8 +198,12 @@ extension AbstractHTTPRequest {
 
 // MARK: Start line
 extension AbstractHTTPRequest {
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func startLine(fileDescriptor: some FileDescriptor) throws(SocketError) -> SIMD64<UInt8> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
@@ -163,8 +211,12 @@ extension AbstractHTTPRequest {
         return storage.startLineSIMD(buffer: initialBuffer!)
     }
 
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func startLineLowercased(fileDescriptor: some FileDescriptor) throws(SocketError) -> SIMD64<UInt8> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
@@ -175,8 +227,12 @@ extension AbstractHTTPRequest {
 
 // MARK: Body
 extension AbstractHTTPRequest {
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     mutating func bodyCollect<let count: Int>(fileDescriptor: some FileDescriptor) throws(SocketError) -> InlineByteBuffer<count> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)

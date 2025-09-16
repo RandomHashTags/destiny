@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 import DestinyBlueprint
 
 /// Default immutable Route Group implementation that handles grouped routes.
@@ -60,3 +62,5 @@ extension CompiledRouteGroup {
         }
     }
 }
+
+#endif

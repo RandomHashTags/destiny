@@ -47,16 +47,6 @@ public enum HTTPMediaTypeModel: HTTPMediaTypeProtocol {
     #if Inlinable
     @inlinable
     #endif
-    public init?(fileExtension: some StringProtocol) {
-        switch fileExtension {
-
-        default: return nil
-        }
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
     public var type: String {
         "model"
     }

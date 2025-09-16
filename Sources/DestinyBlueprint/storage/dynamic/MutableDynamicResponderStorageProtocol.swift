@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 /// Core mutable protocol that stores dynamic responders for dynamic routes.
 public protocol MutableDynamicResponderStorageProtocol: AnyObject, ResponderStorageProtocol {
     /// Registers a dynamic route responder to the given route path.
@@ -8,3 +10,5 @@ public protocol MutableDynamicResponderStorageProtocol: AnyObject, ResponderStor
         override: Bool
     )
 }
+
+#endif

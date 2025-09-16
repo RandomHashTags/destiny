@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 /// Core mutable protocol that stores static middleware.
 public protocol MutableStaticMiddlewareStorageProtocol: AnyObject, StaticMiddlewareStorageProtocol {
     /// Registers a static middleware.
@@ -6,3 +8,5 @@ public protocol MutableStaticMiddlewareStorageProtocol: AnyObject, StaticMiddlew
         _ middleware: some StaticMiddlewareProtocol
     ) throws(MiddlewareError)
 }
+
+#endif

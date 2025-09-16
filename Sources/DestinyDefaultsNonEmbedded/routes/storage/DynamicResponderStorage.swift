@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -142,3 +144,5 @@ extension DynamicResponderStorage {
         }
     }
 }
+
+#endif

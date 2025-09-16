@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 /// Core protocol that can modify its contents after the server has started.
 public protocol HTTPMutableRouterProtocol: AnyObject, HTTPRouterProtocol {
 
@@ -17,3 +19,5 @@ public protocol HTTPMutableRouterProtocol: AnyObject, HTTPRouterProtocol {
         override: Bool
     )
 }
+
+#endif

@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 /// Core mutable protocol that stores static responders for static routes.
 public protocol MutableStaticResponderStorageProtocol: AnyObject, ResponderStorageProtocol {
     /// Registers a static route responder to the given route path.
@@ -7,3 +9,5 @@ public protocol MutableStaticResponderStorageProtocol: AnyObject, ResponderStora
         responder: some StaticRouteResponderProtocol
     )
 }
+
+#endif

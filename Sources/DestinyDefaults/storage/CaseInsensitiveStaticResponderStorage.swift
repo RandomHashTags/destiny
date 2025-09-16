@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 import DestinyBlueprint
 
 /// Default mutable storage that handles case insensitive static routes.
@@ -38,3 +40,5 @@ public final class CaseInsensitiveStaticResponderStorage: StaticResponderStorage
         return true
     }
 }
+
+#endif

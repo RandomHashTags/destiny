@@ -67,7 +67,7 @@ extension TestRouter {
             StaticRedirectionRoute(method: HTTPStandardRequestMethod.get, from: ["legacyEndpoint"], to: ["newEndpoint"])
         ],
         routeGroups: [
-            RouteGroup(
+            /*RouteGroup(
                 endpoint: "grouped",
                 staticMiddleware: [
                     StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
@@ -84,7 +84,7 @@ extension TestRouter {
                         response.setBody("RLY DUD")
                     }
                 )
-            ),
+            ),*/
         ],
         StaticRoute.get(
             path: ["newEndpoint"],

@@ -9,16 +9,6 @@ public enum HTTPMediaTypeHaptics: HTTPMediaTypeProtocol {
     #if Inlinable
     @inlinable
     #endif
-    public init?(fileExtension: some StringProtocol) {
-        switch fileExtension {
-
-        default: return nil
-        }
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
     public var type: String {
         "haptics"
     }

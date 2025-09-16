@@ -58,6 +58,7 @@ extension Router {
                             continue
                         }
                         switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                        #if MutableRouter
                         case "RouteGroup":
                             let (decl, groupStorage) = RouteGroup.parse(
                                 context: context,
@@ -72,6 +73,8 @@ extension Router {
                             storage.routeGroups.append(decl)
                             storage.generatedDecls.append(contentsOf: groupStorage.generatedDecls)
                             storage.upgradeExistentialDynamicMiddleware.append(contentsOf: groupStorage.upgradeExistentialDynamicMiddleware)
+                        #endif
+
                         default:
                             context.diagnose(DiagnosticMsg.unhandled(node: function))
                         }

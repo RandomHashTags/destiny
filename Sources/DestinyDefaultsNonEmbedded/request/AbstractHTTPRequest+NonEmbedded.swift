@@ -4,8 +4,12 @@ import DestinyDefaults
 
 // MARK: Body
 extension AbstractHTTPRequest {
+    #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
     @inline(__always)
+    #endif
     package mutating func bodyStream<let count: Int>(
         fileDescriptor: some FileDescriptor,
         _ yield: (consuming InlineByteBuffer<count>) async throws -> Void

@@ -1,4 +1,6 @@
 
+#if MutableRouter
+
 import DestinyBlueprint
 
 /// Default mutable storage that handles static routes.
@@ -143,3 +145,5 @@ extension StaticResponderStorage {
         bytes[path] = responder
     }
 }
+
+#endif

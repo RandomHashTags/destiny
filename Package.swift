@@ -38,7 +38,7 @@ destinyDependencies.append("DestinyDefaultsNonEmbedded")
 
 var destinyMacrosDependencies = destinyDependencies
 destinyMacrosDependencies.append(contentsOf: [
-    "HTTPMediaTypeRawValues",
+    "HTTPMediaTypeExtras",
     "PerfectHashing",
     .product(name: "SwiftSyntax", package: "swift-syntax"),
     .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
@@ -55,11 +55,13 @@ let package = Package(
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 
-        .library(name: "HTTPMediaTypeRawValues", targets: ["HTTPMediaTypeRawValues"]),
+        .library(name: "HTTPMediaTypeExtras", targets: ["HTTPMediaTypeExtras"]),
         .library(name: "PerfectHashing", targets: ["PerfectHashing"])
     ],
     traits: [
-        .default(enabledTraits: ["Inlinable", "InlineAlways"]),
+        //.default(enabledTraits: []),
+        //.default(enabledTraits: ["Inlinable", "InlineAlways"]),
+        .default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
 
         .trait( // useful when benchmarking/profiling raw performance
             name: "Inlinable",
@@ -68,6 +70,11 @@ let package = Package(
         .trait( // useful when benchmarking/profiling raw performance
             name: "InlineAlways",
             description: "Enables the `@inline(__always)` annotation for better performance."
+        ),
+
+        .trait(
+            name: "MutableRouter",
+            description: "Enables functionality that allows registering data to a Router at runtime."
         ),
 
         .trait(
@@ -128,9 +135,9 @@ let package = Package(
             ]
         ),
 
-        // MARK: HTTPMediaTypeRawValues
+        // MARK: HTTPMediaTypeExtras
         .target(
-            name: "HTTPMediaTypeRawValues",
+            name: "HTTPMediaTypeExtras",
             dependencies: [
                 "DestinyDefaults"
             ]
