@@ -1,5 +1,5 @@
 
-public enum HTTPNonStandardRequestHeader: String, Hashable {
+public enum HTTPNonStandardRequestHeader: Hashable {
     case correlationID
     case dnt
     case frontEndHttps

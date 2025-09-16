@@ -13,24 +13,55 @@ struct HTTPResponseHeaders {
 
 extension HTTPResponseHeaders {
     private static func generate(type: String, _ values: [(String, String)]) -> String {
-        let cases = values.map({ "    case \($0.0)" }).joined(separator: "\n")
-        let rawNames = values.map({ "        case .\($0.0): \"\($0.1)\"" }).joined(separator: "\n")
+        let name = "HTTP\(type)ResponseHeader"
+        var rawValueInitCases = [String]()
+        var rawValueCases = [String]()
+        var cases = [String]()
+        var rawNames = [String]()
+        for value in values {
+            rawValueInitCases.append("        case \"\(value.0)\": self = .\(value.0)")
+            rawValueCases.append("        case .\(value.0): \"\(value.0)\"")
+            cases.append("    case \(value.0)")
+            rawNames.append("        case .\(value.0): \"\(value.1)\"")
+        }
         let comment = type == "Standard" ? "/// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Response_fields\n" : ""
         return """
         
-        \(comment)public enum HTTP\(type)ResponseHeader: String, Hashable {
-        \(cases)
+        \(comment)public enum \(name): Hashable {
+        \(cases.joined(separator: "\n"))
 
             #if Inlinable
             @inlinable
             #endif
             public var rawName: String {
                 switch self {
-        \(rawNames)
+        \(rawNames.joined(separator: "\n"))
                 }
             }
         }
-        
+
+        extension \(name): RawRepresentable {
+            public typealias RawValue = String
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public init?(rawValue: RawValue) {
+                switch rawValue {
+        \(rawValueInitCases.joined(separator: "\n"))
+                default: return nil
+                }
+            }
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public var rawValue: RawValue {
+                switch self {
+        \(rawValueCases.joined(separator: "\n"))
+                }
+            }
+        }
         """
     }
 }

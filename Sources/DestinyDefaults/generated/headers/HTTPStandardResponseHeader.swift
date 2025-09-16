@@ -1,6 +1,6 @@
 
 /// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Response_fields
-public enum HTTPStandardResponseHeader: String, Hashable {
+public enum HTTPStandardResponseHeader: Hashable {
     case acceptPatch
     case acceptRanges
     case accessControlAllowOrigin

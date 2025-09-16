@@ -38,6 +38,7 @@ destinyDependencies.append("DestinyDefaultsNonEmbedded")
 
 var destinyMacrosDependencies = destinyDependencies
 destinyMacrosDependencies.append(contentsOf: [
+    "HTTPHeaderExtras",
     "HTTPMediaTypeExtras",
     "PerfectHashing",
     .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -55,13 +56,14 @@ let package = Package(
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 
+        .library(name: "HTTPHeaderExtras", targets: ["HTTPHeaderExtras"]),
         .library(name: "HTTPMediaTypeExtras", targets: ["HTTPMediaTypeExtras"]),
         .library(name: "PerfectHashing", targets: ["PerfectHashing"])
     ],
     traits: [
         //.default(enabledTraits: []),
-        //.default(enabledTraits: ["Inlinable", "InlineAlways"]),
-        .default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
+        .default(enabledTraits: ["Inlinable", "InlineAlways"]),
+        //.default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
 
         .trait( // useful when benchmarking/profiling raw performance
             name: "Inlinable",
@@ -132,6 +134,14 @@ let package = Package(
             dependencies: [
                 "Destiny",
                 "DestinyMacros"
+            ]
+        ),
+
+        // MARK: HTTPHeaderExtras
+        .target(
+            name: "HTTPHeaderExtras",
+            dependencies: [
+                "DestinyDefaults"
             ]
         ),
 

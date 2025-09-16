@@ -1,6 +1,6 @@
 
 /// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields
-public enum HTTPStandardRequestHeader: String, Hashable {
+public enum HTTPStandardRequestHeader: Hashable {
     case aim
     case accept
     case acceptCharset

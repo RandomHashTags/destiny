@@ -1,5 +1,5 @@
 
-public enum HTTPNonStandardResponseHeader: String, Hashable {
+public enum HTTPNonStandardResponseHeader: Hashable {
     case contentSecurityPolicy
     case expectCT
     case nel
