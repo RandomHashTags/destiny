@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeVideo: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeVideo: HTTPMediaTypeProtocol {
     case _1dInterleavedParityfec
     case _3gpp
     case _3gpp2
@@ -127,11 +127,11 @@ public enum HTTPMediaTypeVideo: String, HTTPMediaTypeProtocol {
         case .bt656: "BT656"
         case .celB: "CelB"
         case .dv: "DV"
-        case .encaprtp: rawValue
-        case .enc: rawValue
-        case .example: rawValue
+        case .encaprtp: "encaprtp"
+        case .enc: "enc"
+        case .example: "example"
         case .ffv1: "FFV1"
-        case .flexfec: rawValue
+        case .flexfec: "flexfec"
         case .h261: "H261"
         case .h263: "H263"
         case .h263_2000: "H263-2000"
@@ -142,35 +142,35 @@ public enum HTTPMediaTypeVideo: String, HTTPMediaTypeProtocol {
         case .h266: "H266"
         case .isoSegment: "iso.segment"
         case .jpeg: "JPEG"
-        case .jpeg2000: rawValue
-        case .jxsv: rawValue
-        case .matroska: rawValue
+        case .jpeg2000: "jpeg2000"
+        case .jxsv: "jxsv"
+        case .matroska: "matroska"
         case .matroska3d: "matroska-3d"
-        case .mj2: rawValue
+        case .mj2: "mj2"
         case .mp1s: "MP1S"
         case .mp2p: "MP2P"
         case .mp2t: "MP2T"
-        case .mp4: rawValue
+        case .mp4: "mp4"
         case .mp4VES: "MP4V-ES"
         case .mpv: "MPV"
-        case .mpeg: rawValue
+        case .mpeg: "mpeg"
         case .mpeg4Generic: "mpeg4-generic"
-        case .nv: rawValue
-        case .ogg: rawValue
-        case .parityfec: rawValue
-        case .pointer: rawValue
-        case .quicktime: rawValue
-        case .raptorfec: rawValue
-        case .raw: rawValue
+        case .nv: "nv"
+        case .ogg: "ogg"
+        case .parityfec: "parityfec"
+        case .pointer: "pointer"
+        case .quicktime: "quicktime"
+        case .raptorfec: "raptorfec"
+        case .raw: "raw"
         case .rptEncAescm128: "rtp-enc-aescm128"
-        case .rtploopback: rawValue
-        case .rtx: rawValue
-        case .scip: rawValue
-        case .smpte291: rawValue
+        case .rtploopback: "rtploopback"
+        case .rtx: "rtx"
+        case .scip: "scip"
+        case .smpte291: "smpte291"
         case .smpte292m: "SMPTE292M"
-        case .ulpfec: rawValue
-        case .vc1: rawValue
-        case .vc2: rawValue
+        case .ulpfec: "ulpfec"
+        case .vc1: "vc1"
+        case .vc2: "vc2"
         case .cctv: "vnd.CCTV"
         case .deceHD: "vnd.dece.hd"
         case .deceMobile: "vnd.dece.mobile"

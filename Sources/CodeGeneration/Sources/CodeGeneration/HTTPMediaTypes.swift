@@ -24,20 +24,23 @@ struct HTTPMediaTypes {
             guard !$0.fileExtensions.isEmpty else { return nil }
             return "        case \($0.fileExtensions.map({ "\"\($0)\"" }).joined(separator: ", ")): self = .\($0.subType)"
         }).joined(separator: "\n")
-        let subtypeValues = values.map({
+
+        var rawValueInitCases = [String]()
+        var rawValueCases = [String]()
+        let subtypeCases = values.map({
+            rawValueInitCases.append("        case \"\($0.subType)\": self = .\($0.subType)")
+            rawValueCases.append("        case .\($0.subType): \"\($0.subType)\"")
             var value = $0.value
-            if value.isEmpty {
-                value = "rawValue"
-            } else {
-                value = "\"\(value)\""
-            }
+            value = "\"\(value.isEmpty ? $0.subType : value)\""
             return "        case .\($0.subType): \(value)"
         }).joined(separator: "\n")
+
+        let name = "HTTPMediaType\(type)"
         return """
         
         import DestinyBlueprint
 
-        public enum HTTPMediaType\(type): String, HTTPMediaTypeProtocol {
+        public enum \(name): HTTPMediaTypeProtocol {
         \(enumCases)
 
             #if Inlinable
@@ -62,7 +65,30 @@ struct HTTPMediaTypes {
             #endif
             public var subType: String {
                 switch self {
-        \(subtypeValues)
+        \(subtypeCases)
+                }
+            }
+        }
+
+        extension \(name): RawRepresentable {
+            public typealias RawValue = String
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public init?(rawValue: RawValue) {
+                switch rawValue {
+        \(rawValueInitCases.joined(separator: "\n"))
+                default: return nil
+                }
+            }
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public var rawValue: String {
+                switch self {
+        \(rawValueCases.joined(separator: "\n"))
                 }
             }
         }

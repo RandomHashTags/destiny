@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeImage: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeImage: HTTPMediaTypeProtocol {
     case aces
     case apng
     case avci
@@ -106,52 +106,52 @@ public enum HTTPMediaTypeImage: String, HTTPMediaTypeProtocol {
     #endif
     public var subType: String {
         switch self {
-        case .aces: rawValue
-        case .apng: rawValue
-        case .avci: rawValue
-        case .avcs: rawValue
-        case .avif: rawValue
-        case .bmp: rawValue
-        case .cgm: rawValue
+        case .aces: "aces"
+        case .apng: "apng"
+        case .avci: "avci"
+        case .avcs: "avcs"
+        case .avif: "avif"
+        case .bmp: "bmp"
+        case .cgm: "cgm"
         case .dicomRLE: "dicom-rle"
-        case .dpx: rawValue
-        case .emf: rawValue
-        case .example: rawValue
-        case .fits: rawValue
-        case .g3fax: rawValue
-        case .gif: rawValue
-        case .heic: rawValue
+        case .dpx: "dpx"
+        case .emf: "emf"
+        case .example: "example"
+        case .fits: "fits"
+        case .g3fax: "g3fax"
+        case .gif: "gif"
+        case .heic: "heic"
         case .heicSequence: "heic-sequence"
-        case .heif: rawValue
+        case .heif: "heif"
         case .heifSequence: "heif-sequence"
-        case .hej2k: rawValue
-        case .ief: rawValue
-        case .j2c: rawValue
-        case .jls: rawValue
-        case .jp2: rawValue
-        case .jpeg: rawValue
-        case .jph: rawValue
-        case .jphc: rawValue
-        case .jpm: rawValue
-        case .jpx: rawValue
-        case .jxl: rawValue
-        case .jxr: rawValue
-        case .jxrA: rawValue
-        case .jxrS: rawValue
-        case .jxs: rawValue
-        case .jxsc: rawValue
-        case .jxsi: rawValue
-        case .jxss: rawValue
-        case .ktx: rawValue
-        case .ktx2: rawValue
-        case .naplps: rawValue
-        case .png: rawValue
+        case .hej2k: "hej2k"
+        case .ief: "ief"
+        case .j2c: "j2c"
+        case .jls: "jls"
+        case .jp2: "jp2"
+        case .jpeg: "jpeg"
+        case .jph: "jph"
+        case .jphc: "jphc"
+        case .jpm: "jpm"
+        case .jpx: "jpx"
+        case .jxl: "jxl"
+        case .jxr: "jxr"
+        case .jxrA: "jxrA"
+        case .jxrS: "jxrS"
+        case .jxs: "jxs"
+        case .jxsc: "jxsc"
+        case .jxsi: "jxsi"
+        case .jxss: "jxss"
+        case .ktx: "ktx"
+        case .ktx2: "ktx2"
+        case .naplps: "naplps"
+        case .png: "png"
         case .prsBTIF: "prs.btif"
         case .prsPTI: "prs.bti"
         case .pwgRaster: "pwg-raster"
         case .svgXML: "svg+xml"
-        case .t38: rawValue
-        case .tiff: rawValue
+        case .t38: "t38"
+        case .tiff: "tiff"
         case .tiffFX: "tiff-fx"
         case .psd: "vnd.adobe.photoshop"
         case .airzipAcceleratorAZV: "cnd.airzip.accelerator.azv"
@@ -183,8 +183,8 @@ public enum HTTPMediaTypeImage: String, HTTPMediaTypeProtocol {
         case .wapWBMP: "vnd.wap.wbmp"
         case .xiff: "vnd.xiff"
         case .zbrushPCX: "vnd.zbrush.pcx"
-        case .webp: rawValue
-        case .wmf: rawValue
+        case .webp: "webp"
+        case .wmf: "wmf"
         }
     }
 }

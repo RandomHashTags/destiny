@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeHaptics: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeHaptics: HTTPMediaTypeProtocol {
     case ivs
     case hjif
     case hmpg
@@ -28,9 +28,9 @@ public enum HTTPMediaTypeHaptics: String, HTTPMediaTypeProtocol {
     #endif
     public var subType: String {
         switch self {
-        case .ivs: rawValue
-        case .hjif: rawValue
-        case .hmpg: rawValue
+        case .ivs: "ivs"
+        case .hjif: "hjif"
+        case .hmpg: "hmpg"
         }
     }
 }

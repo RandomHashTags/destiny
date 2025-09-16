@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeFont: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeFont: HTTPMediaTypeProtocol {
     case collection
     case otf
     case sfnt
@@ -31,12 +31,12 @@ public enum HTTPMediaTypeFont: String, HTTPMediaTypeProtocol {
     #endif
     public var subType: String {
         switch self {
-        case .collection: rawValue
-        case .otf: rawValue
-        case .sfnt: rawValue
-        case .ttf: rawValue
-        case .woff: rawValue
-        case .woff2: rawValue
+        case .collection: "collection"
+        case .otf: "otf"
+        case .sfnt: "sfnt"
+        case .ttf: "ttf"
+        case .woff: "woff"
+        case .woff2: "woff2"
         }
     }
 }

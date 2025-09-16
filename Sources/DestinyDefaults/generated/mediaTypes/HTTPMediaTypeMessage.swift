@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeMessage: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeMessage: HTTPMediaTypeProtocol {
     case bhttp
     case cpim
     case deliveryStatus
@@ -47,26 +47,26 @@ public enum HTTPMediaTypeMessage: String, HTTPMediaTypeProtocol {
     #endif
     public var subType: String {
         switch self {
-        case .bhttp: rawValue
+        case .bhttp: "bhttp"
         case .cpim: "CPIM"
         case .deliveryStatus: "delivery-status"
         case .dispositionNotification: "disposition-notification"
-        case .example: rawValue
+        case .example: "example"
         case .externalBody: "external-body"
         case .feedbackReport: "feedback-report"
-        case .global: rawValue
+        case .global: "global"
         case .globalDeliveryStatus: "global-delivery-status"
         case .globalDispositionNotification: "global-disposition-notification"
         case .globalHeaders: "global-headers"
-        case .http: rawValue
+        case .http: "http"
         case .imdnXML: "imdn+xml"
-        case .mls: rawValue
+        case .mls: "mls"
         case .ohttpReq: "ohttp-req"
         case .ohttpRes: "ohttp-res"
-        case .partial: rawValue
-        case .rfc822: rawValue
-        case .sip: rawValue
-        case .sipfrag: rawValue
+        case .partial: "partial"
+        case .rfc822: "rfc822"
+        case .sip: "sip"
+        case .sipfrag: "sipfrag"
         case .trackingStatus: "tracking-status"
         case .wsc: "vnd.wfa.wsc"
         }

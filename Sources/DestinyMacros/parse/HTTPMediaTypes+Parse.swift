@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import HTTPMediaTypeRawValues
 import SwiftSyntax
 import SwiftSyntaxMacros
 

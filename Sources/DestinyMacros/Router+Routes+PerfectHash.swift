@@ -3,6 +3,7 @@
 import DestinyBlueprint
 import DestinyDefaults
 import DestinyDefaultsNonEmbedded // TODO: fix
+import PerfectHashing
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros

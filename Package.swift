@@ -38,6 +38,8 @@ destinyDependencies.append("DestinyDefaultsNonEmbedded")
 
 var destinyMacrosDependencies = destinyDependencies
 destinyMacrosDependencies.append(contentsOf: [
+    "HTTPMediaTypeRawValues",
+    "PerfectHashing",
     .product(name: "SwiftSyntax", package: "swift-syntax"),
     .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
     .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
@@ -51,7 +53,10 @@ let package = Package(
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
         .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
-        .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"])
+        .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
+
+        .library(name: "HTTPMediaTypeRawValues", targets: ["HTTPMediaTypeRawValues"]),
+        .library(name: "PerfectHashing", targets: ["PerfectHashing"])
     ],
     traits: [
         .default(enabledTraits: ["Inlinable", "InlineAlways"]),
@@ -122,7 +127,21 @@ let package = Package(
                 "DestinyMacros"
             ]
         ),
-        
+
+        // MARK: HTTPMediaTypeRawValues
+        .target(
+            name: "HTTPMediaTypeRawValues",
+            dependencies: [
+                "DestinyDefaults"
+            ]
+        ),
+
+        // MARK: PerfectHashing
+        .target(
+            name: "PerfectHashing"
+        ),
+
+        // MARK: DestinyMacros
         .macro(
             name: "DestinyMacros",
             dependencies: destinyMacrosDependencies

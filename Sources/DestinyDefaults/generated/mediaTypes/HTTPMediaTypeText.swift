@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeText: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeText: HTTPMediaTypeProtocol {
     case _1dInterleavedParityfec
     case cacheManifest
     case calendar
@@ -125,57 +125,57 @@ public enum HTTPMediaTypeText: String, HTTPMediaTypeProtocol {
         switch self {
         case ._1dInterleavedParityfec: "1d-interleaved-parityfec"
         case .cacheManifest: "cache-manifest"
-        case .calendar: rawValue
-        case .cql: rawValue
+        case .calendar: "calendar"
+        case .cql: "cql"
         case .cqlExpression: "cql-expression"
         case .cqlIdentifier: "cql-identifier"
-        case .css: rawValue
-        case .csv: rawValue
+        case .css: "css"
+        case .csv: "csv"
         case .csvSchema: "csv-schema"
-        case .dns: rawValue
-        case .encaprtp: rawValue
-        case .enriched: rawValue
-        case .example: rawValue
-        case .fhirpath: rawValue
-        case .flexfec: rawValue
-        case .fwdred: rawValue
-        case .gff3: rawValue
+        case .dns: "dns"
+        case .encaprtp: "encaprtp"
+        case .enriched: "enriched"
+        case .example: "example"
+        case .fhirpath: "fhirpath"
+        case .flexfec: "flexfec"
+        case .fwdred: "fwdred"
+        case .gff3: "gff3"
         case .grammarRefList: "grammar-ref-list"
-        case .hl7v2: rawValue
-        case .html: rawValue
-        case .javascript: rawValue
+        case .hl7v2: "hl7v2"
+        case .html: "html"
+        case .javascript: "javascript"
         case .jcrCND: "jcr-cnd"
-        case .markdown: rawValue
-        case .mizar: rawValue
-        case .n3: rawValue
-        case .parameters: rawValue
-        case .parityfec: rawValue
-        case .plain: rawValue
+        case .markdown: "markdown"
+        case .mizar: "mizar"
+        case .n3: "n3"
+        case .parameters: "parameters"
+        case .parityfec: "parityfec"
+        case .plain: "plain"
         case .provenanceNotation: "provenance-notation"
         case .prsFallensteinRST: "prs.fallenstein.rst"
         case .prsLinesTag: "prs.lines.tag"
         case .prsPropLogic: "prs.prop.logic"
         case .prsTexi: "prs.texi"
-        case .raptorfec: rawValue
+        case .raptorfec: "raptorfec"
         case .red: "RED"
         case .rfc822Headers: "rfc822-headers"
-        case .richtext: rawValue
-        case .rtf: rawValue
+        case .richtext: "richtext"
+        case .rtf: "rtf"
         case .rtpEncAescm128: "rtp-enc-aescm128"
-        case .rtploopback: rawValue
-        case .rtx: rawValue
+        case .rtploopback: "rtploopback"
+        case .rtx: "rtx"
         case .sgml: "SGML"
-        case .shaclc: rawValue
-        case .shex: rawValue
-        case .spdx: rawValue
-        case .strings: rawValue
-        case .t140: rawValue
+        case .shaclc: "shaclc"
+        case .shex: "shex"
+        case .spdx: "spdx"
+        case .strings: "strings"
+        case .t140: "t140"
         case .tabSeparatedValues: "tab-separated-values"
-        case .troff: rawValue
-        case .turtle: rawValue
-        case .ulpfec: rawValue
+        case .troff: "troff"
+        case .turtle: "turtle"
+        case .ulpfec: "ulpfec"
         case .uriList: "uri-list"
-        case .vcard: rawValue
+        case .vcard: "vcard"
         case .a: "vnd.a"
         case .abc: "vnd.abc"
         case .asciiArt: "vnd.ascii-art"
@@ -210,9 +210,9 @@ public enum HTTPMediaTypeText: String, HTTPMediaTypeProtocol {
         case .wapSl: "vnd.wap.sl"
         case .wapWmlscript: "vnd.wap.wmlscript"
         case .zooKCL: "vnd.zoo.kcl"
-        case .vtt: rawValue
-        case .wgsl: rawValue
-        case .xml: rawValue
+        case .vtt: "vtt"
+        case .wgsl: "wgsl"
+        case .xml: "xml"
         case .xmlExternalParsedEntity: "xml-external-parsed-entity"
         }
     }

@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeMultipart: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeMultipart: HTTPMediaTypeProtocol {
     case alternative
     case appledouble
     case byteranges
@@ -42,20 +42,20 @@ public enum HTTPMediaTypeMultipart: String, HTTPMediaTypeProtocol {
     #endif
     public var subType: String {
         switch self {
-        case .alternative: rawValue
-        case .appledouble: rawValue
-        case .byteranges: rawValue
-        case .digest: rawValue
-        case .encrypted: rawValue
-        case .example: rawValue
+        case .alternative: "alternative"
+        case .appledouble: "appledouble"
+        case .byteranges: "byteranges"
+        case .digest: "digest"
+        case .encrypted: "encrypted"
+        case .example: "example"
         case .formData: "form-data"
         case .headerSet: "header-set"
-        case .mixed: rawValue
-        case .multilingual: rawValue
-        case .parallel: rawValue
-        case .related: rawValue
-        case .report: rawValue
-        case .signed: rawValue
+        case .mixed: "mixed"
+        case .multilingual: "multilingual"
+        case .parallel: "parallel"
+        case .related: "related"
+        case .report: "report"
+        case .signed: "signed"
         case .medPlus: "vnd.bint.med-plus"
         case .voiceMessage: "voice-message"
         case .xMixedReplace: "x-mixed-replace"

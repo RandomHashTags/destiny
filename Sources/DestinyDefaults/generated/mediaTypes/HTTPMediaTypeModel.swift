@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeModel: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeModel: HTTPMediaTypeProtocol {
     case _3mf
     case e57
     case example
@@ -67,22 +67,22 @@ public enum HTTPMediaTypeModel: String, HTTPMediaTypeProtocol {
     public var subType: String {
         switch self {
         case ._3mf: "3mf"
-        case .e57: rawValue
-        case .example: rawValue
+        case .e57: "e57"
+        case .example: "example"
         case .gltfBinary: "gltf-binary"
         case .gltfJSON: "gltf+json"
         case .jt: "JT"
-        case .iges: rawValue
-        case .mesh: rawValue
-        case .mtl: rawValue
-        case .obj: rawValue
-        case .prc: rawValue
-        case .step: rawValue
+        case .iges: "iges"
+        case .mesh: "mesh"
+        case .mtl: "mtl"
+        case .obj: "obj"
+        case .prc: "prc"
+        case .step: "step"
         case .stepXML: "step+xml"
         case .stepZip: "step+zip"
         case .stepXMLZip: "step-xml+zip"
-        case .stl: rawValue
-        case .u3d: rawValue
+        case .stl: "stl"
+        case .u3d: "u3d"
         case .bary: "vnd.bary"
         case .cld: "vnd.cld"
         case .colladaXML: "vnd.collada+xml"

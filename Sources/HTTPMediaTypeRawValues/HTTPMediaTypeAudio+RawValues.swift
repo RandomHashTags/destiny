@@ -1,17 +1,14 @@
 
-import DestinyBlueprint
+import DestinyDefaults
 
-public enum HTTPMediaTypeAudio: HTTPMediaTypeProtocol {
-    case aac
-    case mp4
-    case mpeg
-    case ogg
+extension HTTPMediaTypeAudio: RawRepresentable {
+    public typealias RawValue = String
 
     #if Inlinable
     @inlinable
     #endif
-    public init?(fileExtension: some StringProtocol) {
-        switch fileExtension {
+    public init?(rawValue: RawValue) {
+        switch rawValue {
         case "aac": self = .aac
         case "mp4": self = .mp4
         case "mpeg": self = .mpeg
@@ -23,14 +20,7 @@ public enum HTTPMediaTypeAudio: HTTPMediaTypeProtocol {
     #if Inlinable
     @inlinable
     #endif
-    public var type: String {
-        "audio"
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public var subType: String {
+    public var rawValue: String {
         switch self {
         case .aac: "aac"
         case .mp4: "mp4"

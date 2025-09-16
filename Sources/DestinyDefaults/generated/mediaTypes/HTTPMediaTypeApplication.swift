@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPMediaTypeApplication: String, HTTPMediaTypeProtocol {
+public enum HTTPMediaTypeApplication: HTTPMediaTypeProtocol {
     case calendarJSON
     case calendarXML
     case dns
@@ -118,33 +118,33 @@ public enum HTTPMediaTypeApplication: String, HTTPMediaTypeProtocol {
         switch self {
         case .calendarJSON: "calendar+json"
         case .calendarXML: "calendar+xml"
-        case .dns: rawValue
+        case .dns: "dns"
         case .dnsJSON: "dns+json"
         case .dnsMessage: "dns-message"
-        case .example: rawValue
+        case .example: "example"
         case .excel: "vnd.ms-excel"
         case .geoJSON: "geo+json"
         case .geoJSONSeq: "geo+json-seq"
-        case .gzip: rawValue
-        case .http: rawValue
-        case .index: rawValue
-        case .json: rawValue
+        case .gzip: "gzip"
+        case .http: "http"
+        case .index: "index"
+        case .json: "json"
         case .jsonPatchJSON: "json-patch+json"
         case .jsonSeq: "json-seq"
-        case .jsonpath: rawValue
+        case .jsonpath: "jsonpath"
         case .jwkJSON: "jwk+json"
         case .jwkSetJSON: "jwk-set+json"
         case .jwkSetJWT: "jwk-set+jwt"
-        case .jwt: rawValue
+        case .jwt: "jwt"
         case .ldJSON: "ld+json"
         case .manifestJSON: "manifest+json"
-        case .mp4: rawValue
-        case .msword: rawValue
-        case .nasdata: rawValue
-        case .node: rawValue
-        case .nss: rawValue
-        case .ogg: rawValue
-        case .pdf: rawValue
+        case .mp4: "mp4"
+        case .msword: "msword"
+        case .nasdata: "nasdata"
+        case .node: "node"
+        case .nss: "nss"
+        case .ogg: "ogg"
+        case .pdf: "pdf"
         case .pdx: "PDX"
         case .pemCertificateChain: "pem-certificate-chain"
         case .pgpEncrypted: "php-encrypted"
@@ -152,11 +152,11 @@ public enum HTTPMediaTypeApplication: String, HTTPMediaTypeProtocol {
         case .pgpSignature: "pgp-signature"
         case .portableExecutable: "vnd.microsoft.portable-executable"
         case .powerpoint: "vnd.ms-powerpoint"
-        case .rtf: rawValue
-        case .rtploopback: rawValue
-        case .rtx: rawValue
-        case .sql: rawValue
-        case .vc: rawValue
+        case .rtf: "rtf"
+        case .rtploopback: "rtploopback"
+        case .rtx: "rtx"
+        case .sql: "sql"
+        case .vc: "vc"
         case .adobeFlashMovie: "vnd.adobe.flash.movie"
         case .appleInstallerXML: "vnd.apple.installer+xml"
         case .appleKeynote: "vnd.apple.keynote"
@@ -170,19 +170,19 @@ public enum HTTPMediaTypeApplication: String, HTTPMediaTypeProtocol {
         case .herokuJSON: "vnd.heroku+json"
         case .kahootz: "vnd.kahootz"
         case .rar: "vnd.rar"
-        case .wasm: rawValue
+        case .wasm: "wasm"
         case .xwwwFormURLEncoded: "x-www-form-urlencoded"
         case .xx509CACert: "x-x509-ca-cert"
         case .xx509CARACert: "x-x509-ca-ra-cert"
         case .xx509NextCACert: "x-x509-next-ca-cert"
-        case .xml: rawValue
+        case .xml: "xml"
         case .xGoogleProtobuf: "x-google-protobuf"
         case .xProtobuf: "x-protobuf"
-        case .yaml: rawValue
-        case .yang: rawValue
-        case .zip: rawValue
-        case .zlib: rawValue
-        case .zstd: rawValue
+        case .yaml: "yaml"
+        case .yang: "yang"
+        case .zip: "zip"
+        case .zlib: "zlib"
+        case .zstd: "zstd"
         }
     }
 }
