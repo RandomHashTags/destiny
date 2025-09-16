@@ -3,7 +3,9 @@
 import Dispatch
 #endif
 
-#if canImport(SwiftGlibc)
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(SwiftGlibc)
 import SwiftGlibc
 #elseif canImport(Foundation)
 import Foundation
