@@ -16,12 +16,12 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
         contentType: inout HTTPMediaType?,
         status: inout HTTPResponseStatus.Code,
         headers: inout some HTTPHeadersProtocol,
-        cookies: inout [any HTTPCookieProtocol] // TODO: avoid existential / support embedded
+        cookies: inout [HTTPCookie]
     )
 
     /// Updates the `response` by applying this middleware.
     func apply(
         contentType: inout HTTPMediaType?,
         to response: inout some DynamicResponseProtocol
-    )
+    ) throws(AnyError)
 }

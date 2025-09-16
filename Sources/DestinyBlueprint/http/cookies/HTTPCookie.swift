@@ -1,12 +1,11 @@
 
-import DestinyBlueprint
-
+/// Default HTTP Cookie storage.
 public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     @usableFromInline
-    var _name:CookieName
+    var _name:String
 
     @usableFromInline
-    var _value:CookieValue
+    var _value:String
 
     public var maxAge:UInt64 = 0
 
@@ -22,28 +21,28 @@ public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
     #if Inlinable
     @inlinable
     #endif
-    public func name() -> CookieName {
+    public func name() -> String {
         _name
     }
 
     #if Inlinable
     @inlinable
     #endif
-    public mutating func setName(_ name: CookieName) {
+    public mutating func setName(_ name: String) {
         _name = name
     }
 
     #if Inlinable
     @inlinable
     #endif
-    public func value() -> CookieValue {
+    public func value() -> String {
         _value
     }
 
     #if Inlinable
     @inlinable
     #endif
-    public mutating func setValue(_ value: CookieValue) throws(HTTPCookieError) {
+    public mutating func setValue(_ value: String) throws(HTTPCookieError) {
         try Self.validateValue(value)
         _value = value
     }
@@ -54,9 +53,43 @@ extension HTTPCookie {
     #if Inlinable
     @inlinable
     #endif
+    public init(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
+        try self.init(
+            name: cookie.name(),
+            value: cookie.value(),
+            maxAge: cookie.maxAge,
+            expires: cookie.expiresString,
+            domain: cookie.domain,
+            path: cookie.path,
+            isSecure: cookie.isSecure,
+            isHTTPOnly: cookie.isHTTPOnly,
+            sameSite: cookie.sameSite
+        )
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public init(unchecked cookie: some HTTPCookieProtocol) {
+        self.init(
+            name: cookie.name(),
+            uncheckedValue: cookie.value(),
+            maxAge: cookie.maxAge,
+            expires: cookie.expiresString,
+            domain: cookie.domain,
+            path: cookie.path,
+            isSecure: cookie.isSecure,
+            isHTTPOnly: cookie.isHTTPOnly,
+            sameSite: cookie.sameSite
+        )
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
     public init(
-        name: CookieName,
-        encoding: CookieValue,
+        name: String,
+        encoding: String,
         maxAge: UInt64 = 0,
         expires: String? = nil,
         domain: String? = nil,
@@ -82,8 +115,8 @@ extension HTTPCookie {
     @inlinable
     #endif
     public init(
-        name: CookieName,
-        value: CookieValue,
+        name: String,
+        value: String,
         maxAge: UInt64 = 0,
         expires: String? = nil,
         domain: String? = nil,
@@ -110,8 +143,8 @@ extension HTTPCookie {
     @inlinable
     #endif
     public init(
-        name: CookieName,
-        uncheckedValue: CookieValue,
+        name: String,
+        uncheckedValue: String,
         maxAge: UInt64 = 0,
         expires: String? = nil,
         domain: String? = nil,

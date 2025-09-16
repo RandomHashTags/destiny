@@ -102,7 +102,7 @@ extension RouteGroup {
             immutableDynamicMiddleware: \(immutableDynamicMiddlewareSyntax),
             immutableStaticResponders: \(staticRespondersString),
             immutableDynamicResponders: \(dynamicRespondersSyntax),
-            mutableStaticResponders: CaseSensitiveStaticResponderStorage(),
+            mutableStaticResponders: StaticResponderStorage(),
             mutableDynamicResponders: DynamicResponderStorage()
         )
         """

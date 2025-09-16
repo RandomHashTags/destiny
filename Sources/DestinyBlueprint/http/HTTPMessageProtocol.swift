@@ -24,7 +24,7 @@ public protocol HTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
     ///   - value: New header value to set.
     mutating func setHeader(key: String, value: String)
 
-    mutating func appendCookie(_ cookie: some HTTPCookieProtocol)
+    mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError)
 
     /// - Parameters:
     ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.

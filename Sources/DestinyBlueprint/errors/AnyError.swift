@@ -9,3 +9,12 @@ public struct AnyError: DestinyErrorProtocol {
         self.reason = reason
     }
 }
+
+extension AnyError {
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func httpCookieError(_ error: HTTPCookieError) -> Self {
+        Self(identifier: "httpCookieError_\(error.identifier)", reason: error.reason)
+    }
+}

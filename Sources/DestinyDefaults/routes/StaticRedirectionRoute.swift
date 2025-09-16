@@ -11,12 +11,12 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
 
     public let method:HTTPRequestMethod
 
-    /// `HTTPVersion` associated with this route.
-    public let version:HTTPVersion
-
     /// Status of this redirection route.
     public let status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
+
+    /// `HTTPVersion` associated with this route.
+    public let version:HTTPVersion
 
     #if Inlinable
     @inlinable

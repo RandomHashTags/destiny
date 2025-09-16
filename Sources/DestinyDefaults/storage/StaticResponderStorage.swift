@@ -1,8 +1,10 @@
 
 import DestinyBlueprint
 
-/// Default mutable storage that handles case sensitive static routes.
-public final class CaseSensitiveStaticResponderStorage: MutableStaticResponderStorageProtocol, @unchecked Sendable {
+/// Default mutable storage that handles static routes.
+/// 
+/// - Warning: Is case-sensitive by default.
+public class StaticResponderStorage: MutableStaticResponderStorageProtocol, @unchecked Sendable {
 
     @usableFromInline var macroExpansions:[SIMD64<UInt8>:RouteResponses.MacroExpansion]
     @usableFromInline var macroExpansionsWithDateHeader:[SIMD64<UInt8>:MacroExpansionWithDateHeader]
@@ -29,10 +31,7 @@ public final class CaseSensitiveStaticResponderStorage: MutableStaticResponderSt
         self.stringsWithDateHeader = stringsWithDateHeader
         self.bytes = bytes
     }
-}
 
-// AMRK: Respond
-extension CaseSensitiveStaticResponderStorage {
     #if Inlinable
     @inlinable
     #endif
@@ -70,7 +69,7 @@ extension CaseSensitiveStaticResponderStorage {
 }
 
 // MARK: Register
-extension CaseSensitiveStaticResponderStorage {
+extension StaticResponderStorage {
     #if Inlinable
     @inlinable
     #endif

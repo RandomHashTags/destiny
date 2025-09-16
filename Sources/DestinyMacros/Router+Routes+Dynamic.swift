@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded // TODO: fix
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -160,14 +161,14 @@ extension RouterStorage {
         }
         let paths = route.paths.map({ PathComponent.init(stringLiteral: String($0)) })
         var members = MemberBlockItemListSyntax()
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: "let _defaultResponse = \(defaultResponse)")))
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        members.append(DeclSyntax.init(stringLiteral: "let _defaultResponse = \(defaultResponse)"))
+        members.append(DeclSyntax.init(stringLiteral: """
         \(inlinableAnnotation)
         \(inlineAlwaysAnnotation)
         \(visibility)var pathComponentsCount: Int {
             \(paths.count)
         }
-        """)))
+        """))
 
         let pathComponentAtIndexValues = """
         switch index {
@@ -175,13 +176,13 @@ extension RouterStorage {
         default: fatalError("out-of-bounds")
         }
         """
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        members.append(DeclSyntax.init(stringLiteral: """
         \(inlinableAnnotation)
         \(inlineAlwaysAnnotation)
         \(visibility)func pathComponent(at index: Int) -> PathComponent {
             \(pathComponentAtIndexValues)
         }
-        """)))
+        """))
 
         var yieldPathComponentParameters = ""
         for (index, path) in paths.enumerated() {
@@ -189,20 +190,20 @@ extension RouterStorage {
                 yieldPathComponentParameters += "yield(\(index))\n"
             }
         }
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        members.append(DeclSyntax.init(stringLiteral: """
         \(inlinableAnnotation)
         \(inlineAlwaysAnnotation)
         \(visibility)func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {
             \(yieldPathComponentParameters)
         }
-        """)))
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        """))
+        members.append(DeclSyntax.init(stringLiteral: """
         \(inlinableAnnotation)
         \(inlineAlwaysAnnotation)
         \(visibility)func defaultResponse() -> \(dynamicResponseTypeAnnotation) {
             _defaultResponse
         }
-        """)))
+        """))
         
         let asyncTaskValues:(setup: String, suffix: String)
         if isAsync {
@@ -210,7 +211,7 @@ extension RouterStorage {
         } else {
             asyncTaskValues = ("", "")
         }
-        members.append(.init(decl: DeclSyntax.init(stringLiteral: """
+        members.append(DeclSyntax.init(stringLiteral: """
         \(inlinableAnnotation)
         \(visibility)func respond(
             router: \(routerParameter(isCopyable: isCopyable)),
@@ -232,7 +233,7 @@ extension RouterStorage {
             }
             completionHandler()\(asyncTaskValues.suffix)
         }
-        """)))
+        """))
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let structure = StructDeclSyntax(
             leadingTrivia: .init(stringLiteral: "// MARK: \(name)\n\(visibility)"),
@@ -260,15 +261,15 @@ extension RouterStorage {
         let routerParameter = routerParameter(isCopyable: isCopyable)
         var responderMembers = MemberBlockItemListSyntax()
         var entryMembers = MemberBlockItemListSyntax()
-        entryMembers.append(.init(decl: VariableDeclSyntax(leadingTrivia: "\n", .let, name: "path", type: .init(type: TypeSyntax("SIMD64<UInt8>")))))
-        entryMembers.append(.init(decl: VariableDeclSyntax(leadingTrivia: "\n", .let, name: "responder", type: .init(type: TypeSyntax("ConcreteResponder")))))
+        entryMembers.append(VariableDeclSyntax(leadingTrivia: "\n", .let, name: "path", type: .init(type: TypeSyntax("SIMD64<UInt8>"))))
+        entryMembers.append(VariableDeclSyntax(leadingTrivia: "\n", .let, name: "responder", type: .init(type: TypeSyntax("ConcreteResponder"))))
         for (index, (path, responder)) in responders.enumerated() {
-            responderMembers.append(.init(decl: VariableDeclSyntax.init(
+            responderMembers.append(VariableDeclSyntax.init(
                 modifiers: [visibilityModifier],
                 .let,
                 name: "route\(raw: index)",
                 initializer: .init(value: ExprSyntax(stringLiteral: "Entry(path: \(path), responder: \(responder))"))
-            )))
+            ))
         }
         let respondedDecl = try! FunctionDeclSyntax("""
         \(raw: inlinableAnnotation)
@@ -325,7 +326,7 @@ extension RouterStorage {
             }
         }
         """)
-        entryMembers.append(.init(decl: respondedDecl))
+        entryMembers.append(respondedDecl)
 
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let entryDecl = StructDeclSyntax(
@@ -339,7 +340,7 @@ extension RouterStorage {
             ])),
             memberBlock: .init(members: entryMembers)
         )
-        responderMembers.append(.init(decl: entryDecl))
+        responderMembers.append(entryDecl)
 
         var respondersString = responders.enumerated().map({ index, _ in
             "if try route\(index).responded(router: router, socket: socket, request: &request, requestPathCount: requestPathCount, requestStartLine: requestStartLine, completionHandler: completionHandler) {\nreturn true\n"
@@ -367,7 +368,7 @@ extension RouterStorage {
             return false
         }
         """)
-        responderMembers.append(.init(decl: respondDecl))
+        responderMembers.append(respondDecl)
 
         let name:String
         if isCaseSensitive {

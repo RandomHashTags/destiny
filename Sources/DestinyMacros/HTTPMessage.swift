@@ -15,7 +15,7 @@ enum HTTPMessage: DeclarationMacro {
         var body:(any ResponseBodyProtocol)? = nil
         var contentType:HTTPMediaType? = nil
         var charset:Charset? = nil
-        var cookies = [any HTTPCookieProtocol]() // TODO: fix
+        var cookies = [HTTPCookie]()
         for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
             switch child.label?.text {
             case "version":

@@ -26,14 +26,14 @@ public struct DynamicResponse: DynamicResponseProtocol {
     @inlinable
     #endif
     public mutating func setParameter(at index: Int, value: consuming VLArray<UInt8>) {
-        parameters[index] = value.string()
+        parameters[index] = value.unsafeString()
     }
 
     #if Inlinable
     @inlinable
     #endif
     public mutating func appendParameter(value: consuming VLArray<UInt8>) {
-        parameters.append(value.string())
+        parameters.append(value.unsafeString())
     }
 
     #if Inlinable
@@ -71,8 +71,8 @@ extension DynamicResponse {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) {
-        message.appendCookie(cookie)
+    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
+        try message.appendCookie(cookie)
     }
 
     #if Inlinable

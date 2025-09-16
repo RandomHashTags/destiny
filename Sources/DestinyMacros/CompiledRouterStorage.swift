@@ -116,15 +116,15 @@ extension CompiledRouterStorage {
         guard let variableDecls = variableDecls(isCopyable: isCopyable) else { return nil }
         var members = MemberBlockItemListSyntax()
         members.append(contentsOf: variableDecls.map({ .init(decl: $0) }))
-        members.append(.init(decl: loadDecl()))
-        members.append(.init(decl: handleDynamicMiddlewareDecl()))
-        members.append(.init(decl: handleDecl()))
-        members.append(.init(decl: respondDecl(isCopyable: isCopyable)))
-        members.append(.init(decl: respondWithStaticResponderDecl(isCopyable: isCopyable)))
-        members.append(.init(decl: defaultDynamicResponseDecl(isCopyable: isCopyable)))
-        members.append(.init(decl: respondWithDynamicResponderDecl(isCopyable: isCopyable)))
-        members.append(.init(decl: respondWithNotFoundDecl()))
-        members.append(.init(decl: respondWithErrorDecl()))
+        members.append(loadDecl())
+        members.append(handleDynamicMiddlewareDecl())
+        members.append(handleDecl())
+        members.append(respondDecl(isCopyable: isCopyable))
+        members.append(respondWithStaticResponderDecl(isCopyable: isCopyable))
+        members.append(defaultDynamicResponseDecl(isCopyable: isCopyable))
+        members.append(respondWithDynamicResponderDecl(isCopyable: isCopyable))
+        members.append(respondWithNotFoundDecl())
+        members.append(respondWithErrorDecl())
 
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let name:String
@@ -162,8 +162,8 @@ extension CompiledRouterStorage {
             name: "noncopyable",
             initializer: .init(value: ExprSyntax("_NonCopyable()"))
         )
-        members.append(.init(decl: copyableDecl))
-        members.append(.init(decl: noncopyableDecl))
+        members.append(copyableDecl)
+        members.append(noncopyableDecl)
 
         // TOOD: add mutable router
 
@@ -172,53 +172,53 @@ extension CompiledRouterStorage {
             name: "logger",
             initializer: .init(value: ExprSyntax("Logger(label: \"compiledHTTPRouter\")"))
         )
-        members.append(.init(decl: loggerDecl))
+        members.append(loggerDecl)
 
-        members.append(.init(decl: loadDecl(loadString: """
+        members.append(loadDecl(loadString: """
         noncopyable.load()
         copyable.load()
-        """)))
+        """))
 
-        members.append(.init(decl: handleDynamicMiddlewareDecl(handleString: """
+        members.append(handleDynamicMiddlewareDecl(handleString: """
         try noncopyable.handleDynamicMiddleware(for: &request, with: &response)
         try copyable.handleDynamicMiddleware(for: &request, with: &response)
-        """)))
+        """))
 
-        members.append(.init(decl: handleDecl()))
-        members.append(.init(decl: respondDecl(respondersString: """
+        members.append(handleDecl())
+        members.append(respondDecl(respondersString: """
         if try noncopyable.respond(socket: socket, request: &request, completionHandler: completionHandler) {
         } else if try copyable.respond(socket: socket, request: &request, completionHandler: completionHandler) {
         } else {
             return false
         }
-        """)))
+        """))
 
-        members.append(.init(decl: respondWithStaticResponderDecl(isCopyable: false, responderString: "completionHandler()")))
-        members.append(.init(decl: respondWithDynamicResponderDecl(isCopyable: false, responderString: "completionHandler()")))
+        members.append(respondWithStaticResponderDecl(isCopyable: false, responderString: "completionHandler()"))
+        members.append(respondWithDynamicResponderDecl(isCopyable: false, responderString: "completionHandler()"))
 
-        members.append(.init(decl: respondWithNotFoundDecl(responderString: """
+        members.append(respondWithNotFoundDecl(responderString: """
         if try noncopyable.respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {
         } else if try copyable.respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {
         } else {
             return false
         }
         return true
-        """)))
+        """))
 
-        members.append(.init(decl: respondWithErrorDecl(logic: """
+        members.append(respondWithErrorDecl(logic: """
         if noncopyable.respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {
         } else if copyable.respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {
         } else {
             return false
         }
         return true
-        """)))
+        """))
 
         if let copyable {
-            members.append(.init(decl: copyable))
+            members.append(copyable)
         }
         if let noncopyable {
-            members.append(.init(decl: noncopyable))
+            members.append(noncopyable)
         }
     }
 }

@@ -36,7 +36,7 @@ public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     ///   - value: New header value to set.
     mutating func setHeader(key: String, value: String)
 
-    mutating func appendCookie(_ cookie: some HTTPCookieProtocol)
+    mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError)
 
     /// Sets the body of the message.
     /// 

@@ -126,7 +126,7 @@ extension CompiledStaticMiddleware {
         contentType: inout HTTPMediaType?,
         status: inout HTTPResponseStatus.Code,
         headers: inout some HTTPHeadersProtocol,
-        cookies: inout [any HTTPCookieProtocol]
+        cookies: inout [HTTPCookie]
     ) {
         if let appliesVersion {
             version = appliesVersion
@@ -149,7 +149,7 @@ extension CompiledStaticMiddleware {
     public func apply(
         contentType: inout HTTPMediaType?,
         to response: inout some DynamicResponseProtocol
-    ) {
+    ) throws(AnyError) {
         if let appliesVersion {
             response.setHTTPVersion(appliesVersion)
         }
@@ -163,8 +163,11 @@ extension CompiledStaticMiddleware {
             response.setHeader(key: header, value: value)
         }
         for cookie in appliesCookies {
-            response.appendCookie(cookie)
+            do throws(HTTPCookieError) {
+                try response.appendCookie(cookie)
+            } catch {
+                throw .httpCookieError(error)
+            }
         }
-        // TODO: fix
     }
 }

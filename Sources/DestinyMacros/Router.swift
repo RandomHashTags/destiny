@@ -59,9 +59,7 @@ extension Router: DeclarationMacro {
             name: "DeclaredRouter",
             memberBlock: .init(members: .init())
         )
-        for s in structs {
-            declaredRouter.memberBlock.members.append(.init(decl: s))
-        }
+        declaredRouter.memberBlock.members.append(contentsOf: structs)
         
         let routerDecl:VariableDeclSyntax
         if settings.isCopyable {
@@ -81,8 +79,8 @@ extension Router: DeclarationMacro {
                 accessorBlock: .init(stringLiteral: "{ \(settings.name)() }")
             )
         }
-        declaredRouter.memberBlock.members.append(.init(decl: routerDecl))
-        declaredRouter.memberBlock.members.append(.init(decl: router.build()))
+        declaredRouter.memberBlock.members.append(routerDecl)
+        declaredRouter.memberBlock.members.append(router.build())
         return [.init(declaredRouter)]
     }
 }
@@ -104,7 +102,7 @@ extension Router {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         array: ArrayElementListSyntax,
-        staticRedirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)],
+        staticRedirects: inout [(StaticRedirectionRoute, SyntaxProtocol)],
         dynamicRedirects: inout [(any RedirectionRouteProtocol, SyntaxProtocol)]
     ) {
         for methodElement in array {

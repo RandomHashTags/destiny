@@ -25,6 +25,16 @@ public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
     #if Inlinable
     @inlinable
     #endif
+    public mutating func headers() throws(SocketError) -> [Substring:Substring] {
+        try abstractRequest.headers(fileDescriptor: fileDescriptor)
+    }
+}
+
+// MARK: Protocol conformance
+extension HTTPRequest {
+    #if Inlinable
+    @inlinable
+    #endif
     public func socketLocalAddress() -> String? {
         fileDescriptor.socketLocalAddress()
     }
@@ -36,16 +46,6 @@ public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
         fileDescriptor.socketPeerAddress()
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func headers() throws(SocketError) -> [Substring:Substring] {
-        try abstractRequest.headers(fileDescriptor: fileDescriptor)
-    }
-}
-
-// MARK: Protocol conformance
-extension HTTPRequest {
     #if Inlinable
     @inlinable
     #endif

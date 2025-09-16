@@ -12,7 +12,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existent
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: HTTPHeaders,
-        cookies: [any HTTPCookieProtocol],
+        cookies: [HTTPCookie],
         body: (any ResponseBodyProtocol)?,
         contentType: HTTPMediaType?,
         charset: Charset?
@@ -26,7 +26,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existent
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: HTTPHeaders,
-        cookies: [any HTTPCookieProtocol],
+        cookies: [HTTPCookie],
         body: (any ResponseBodyProtocol)?,
         contentType: (some HTTPMediaTypeProtocol)?,
         charset: Charset?
@@ -43,7 +43,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existent
 
     public init(
         headers: HTTPHeaders,
-        cookies: [any HTTPCookieProtocol],
+        cookies: [HTTPCookie],
         body: (any ResponseBodyProtocol)?,
         contentType: HTTPMediaType?,
         status: HTTPResponseStatus.Code,
@@ -134,8 +134,8 @@ public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existent
     #if Inlinable
     @inlinable
     #endif
-    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) {
-        head.cookies.append(cookie)
+    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
+        try head.cookies.append(.init(cookie))
     }
 
     #if Inlinable

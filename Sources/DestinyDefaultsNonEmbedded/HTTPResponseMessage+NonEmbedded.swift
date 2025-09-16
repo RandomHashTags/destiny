@@ -1,0 +1,5 @@
+
+import DestinyDefaults
+
+extension HTTPResponseMessage {
+}

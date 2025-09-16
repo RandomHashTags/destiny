@@ -2,6 +2,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded // TODO: fix
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -147,7 +148,7 @@ extension RouterStorage {
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
             routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)"
-            routeMembers.append(.init(decl: try! EnumCaseDeclSyntax.init("case \(raw: caseName)")))
+            routeMembers.append(try! EnumCaseDeclSyntax.init("case \(raw: caseName)"))
 
             let utf8 = routePath.utf8
             var simd = SIMD64<UInt8>.zero
@@ -191,7 +192,7 @@ extension RouterStorage {
             return true
         }
         """)
-        routeMembers.append(.init(decl: routeResponderDecl))
+        routeMembers.append(routeResponderDecl)
         routeMembers.append(contentsOf: staticResponders.map({ .init(decl: $0) }))
         let routeConstantsDecl = EnumDeclSyntax(
             leadingTrivia: .init(stringLiteral: "\(visibility)"),
@@ -201,7 +202,7 @@ extension RouterStorage {
             ])),
             memberBlock: .init(members: routeMembers)
         )
-        members.append(.init(decl: routeConstantsDecl))
+        members.append(routeConstantsDecl)
         appendMatchRouteDecl(
             routePaths: routePaths,
             routePathSIMDs: routePathSIMDs,
@@ -241,7 +242,7 @@ extension RouterStorage {
             return try route.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
         }
         """)
-        members.append(.init(decl: decl))
+        members.append(decl)
     }
 }
 
@@ -327,7 +328,7 @@ extension RouterStorage {
         }
         // perfect hash not found; fallback to default impl
         members.append(contentsOf: staticSIMDs.map({ .init(decl: $0) }))
-        members.append(.init(decl: matchRouteFallbackDecl(routePaths: routePaths)))
+        members.append(matchRouteFallbackDecl(routePaths: routePaths))
     }
 }
 

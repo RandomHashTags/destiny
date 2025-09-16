@@ -60,7 +60,7 @@ extension StaticMiddleware {
                 context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
-        return CompiledStaticMiddleware(
+        return .init(
             handlesVersions: handlesVersions,
             handlesMethods: handlesMethods,
             handlesStatuses: handlesStatuses,

@@ -13,8 +13,8 @@ extension HTTPCookie {
         context: some MacroExpansionContext,
         expr: ExprSyntaxProtocol
     ) -> Self? {
-        var name:CookieName? = nil
-        var value:CookieValue? = nil
+        var name:String? = nil
+        var value:String? = nil
         var initializer = Initializer.value
         var maxAge:UInt64 = 0
         var expires:String? = nil

@@ -1,8 +1,6 @@
 
 /// Core protocol where a complete HTTP Message, computed at compile time, is modified upon requests.
-public protocol DynamicRouteProtocol: RouteProtocol {
-    associatedtype ConcreteResponder:DynamicRouteResponderProtocol
-
+public protocol DynamicRouteProtocol: RouteProtocol, ~Copyable {
     /// Number of path components this route has. 
     var pathCount: Int { get }
 
@@ -17,16 +15,13 @@ public protocol DynamicRouteProtocol: RouteProtocol {
         at i: Int
     )
 
-    /// - Returns: The responder for this route.
-    func responder() -> ConcreteResponder
-
     /// Applies static middleware to this route.
     /// 
     /// - Parameters:
     ///   - middleware: Static middleware to apply to this route.
     mutating func applyStaticMiddleware(
         _ middleware: [some StaticMiddlewareProtocol]
-    )
+    ) throws(AnyError)
 
     func startLine() -> String
 }

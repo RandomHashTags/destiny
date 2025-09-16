@@ -1,6 +1,9 @@
 
+#if canImport(DestinyDefaultsNonEmbedded)
+
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -78,7 +81,7 @@ extension DynamicRoute {
             }
         }
         var headers = HTTPHeaders()
-        var cookies = [any HTTPCookieProtocol]()
+        var cookies = [HTTPCookie]()
         if !isCaseSensitive {
             path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
@@ -108,3 +111,5 @@ extension DynamicRoute {
         return route
     }
 }
+
+#endif

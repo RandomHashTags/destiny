@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
@@ -17,36 +18,11 @@ public struct DynamicRoute: DynamicRouteProtocol { // TODO: avoid existentials /
 
     /// `HTTPVersion` associated with this route.
     public let version:HTTPVersion
-    public var method:any HTTPRequestMethodProtocol
+    public var method:HTTPRequestMethod
 
     /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
     public var status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
-
-    public init(
-        version: HTTPVersion = .v1_1,
-        method: some HTTPRequestMethodProtocol,
-        path: [PathComponent],
-        isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        headers: HTTPHeaders = .init(),
-        cookies: [any HTTPCookieProtocol] = [],
-        body: (any ResponseBodyProtocol)? = nil,
-        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
-    ) {
-        self.version = version
-        self.method = method
-        self.path = path
-        self.isCaseSensitive = isCaseSensitive
-        self.status = status
-        self.contentType = contentType
-        self.defaultResponse = DynamicResponse.init(
-            message: HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: nil, charset: nil),
-            parameters: []
-        )
-        self.handler = handler
-    }
 
     #if Inlinable
     @inlinable
@@ -65,31 +41,6 @@ public struct DynamicRoute: DynamicRouteProtocol { // TODO: avoid existentials /
     #if Inlinable
     @inlinable
     #endif
-    public func responder() -> DynamicRouteResponder {
-        DynamicRouteResponder(path: path, defaultResponse: defaultResponse, logic: handler, logicDebugDescription: handlerDebugDescription)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func applyStaticMiddleware(_ middleware: [some StaticMiddlewareProtocol]) {
-        let path = path.map({ $0.slug }).joined(separator: "/")
-        for middleware in middleware {
-            if middleware.handles(
-                version: defaultResponse.message.version,
-                path: path,
-                method: method,
-                contentType: contentType,
-                status: status
-            ) {
-                middleware.apply(contentType: &contentType, to: &defaultResponse)
-            }
-        }
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
     public func startLine() -> String {
         return "\(method.rawNameString()) /\(path.map({ $0.slug }).joined(separator: "/")) \(version.string)" 
     }
@@ -99,6 +50,81 @@ public struct DynamicRoute: DynamicRouteProtocol { // TODO: avoid existentials /
     #endif
     public mutating func insertPath(contentsOf newElements: some Collection<PathComponent>, at i: Int) {
         path.insert(contentsOf: newElements, at: i)
+    }
+}
+
+// MARK: Init
+extension DynamicRoute {
+    public init(
+        version: HTTPVersion = .v1_1,
+        method: some HTTPRequestMethodProtocol,
+        path: [PathComponent],
+        isCaseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        contentType: HTTPMediaType? = nil,
+        headers: HTTPHeaders = .init(),
+        cookies: [HTTPCookie] = [],
+        body: (any ResponseBodyProtocol)? = nil,
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    ) {
+        self.init(
+            version: version,
+            method: .init(method),
+            path: path,
+            isCaseSensitive: isCaseSensitive,
+            status: status,
+            contentType: contentType,
+            headers: headers,
+            cookies: cookies,
+            body: body,
+            handler: handler
+        )
+    }
+
+    public init(
+        version: HTTPVersion = .v1_1,
+        method: HTTPRequestMethod,
+        path: [PathComponent],
+        isCaseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        contentType: HTTPMediaType? = nil,
+        headers: HTTPHeaders = .init(),
+        cookies: [HTTPCookie] = [],
+        body: (any ResponseBodyProtocol)? = nil,
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    ) {
+        self.version = version
+        self.method = method
+        self.path = path
+        self.isCaseSensitive = isCaseSensitive
+        self.status = status
+        self.contentType = contentType
+        self.defaultResponse = DynamicResponse.init(
+            message: HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: nil, charset: nil),
+            parameters: []
+        )
+        self.handler = handler
+    }
+}
+
+// MARK: Apply static middleware
+extension DynamicRoute {
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func applyStaticMiddleware(_ middleware: [some StaticMiddlewareProtocol]) throws(AnyError) {
+        let path = path.map({ $0.slug }).joined(separator: "/")
+        for middleware in middleware {
+            if middleware.handles(
+                version: defaultResponse.message.version,
+                path: path,
+                method: method,
+                contentType: contentType,
+                status: status
+            ) {
+                try middleware.apply(contentType: &contentType, to: &defaultResponse)
+            }
+        }
     }
 }
 

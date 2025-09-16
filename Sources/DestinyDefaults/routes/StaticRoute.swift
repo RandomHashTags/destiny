@@ -9,7 +9,7 @@ public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / s
     public let body:(any ResponseBodyProtocol)?
 
     public let isCaseSensitive:Bool
-    public var method:any HTTPRequestMethodProtocol
+    public var method:HTTPRequestMethod
     public let status:HTTPResponseStatus.Code
     public let charset:Charset?
     public let version:HTTPVersion
@@ -75,7 +75,7 @@ public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / s
         body: (any ResponseBodyProtocol)? = nil
     ) {
         self.version = version
-        self.method = method
+        self.method = .init(method)
         self.path = path
         self.isCaseSensitive = isCaseSensitive
         self.status = status
@@ -112,7 +112,7 @@ extension StaticRoute {
         if body?.hasDateHeader ?? false {
             headers["Date"] = HTTPDateFormat.placeholder
         }
-        var cookies = [any HTTPCookieProtocol]()
+        var cookies = [HTTPCookie]()
         middleware.forEach { middleware in
             if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
@@ -140,7 +140,7 @@ extension StaticRoute {
     #endif
     public static func on(
         version: HTTPVersion = .v1_1,
-        method: any HTTPRequestMethodProtocol,
+        method: some HTTPRequestMethodProtocol,
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
@@ -156,7 +156,7 @@ extension StaticRoute {
     #endif
     public static func on(
         version: HTTPVersion = .v1_1,
-        method: any HTTPRequestMethodProtocol,
+        method: some HTTPRequestMethodProtocol,
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,

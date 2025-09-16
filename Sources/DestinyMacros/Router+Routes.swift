@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded // TODO: fix
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -14,7 +15,7 @@ extension Router {
     ) {
         //print("Router;expansion;route;function=\(function.debugDescription)")
         let decl:String?
-        var targetMethod:(any HTTPRequestMethodProtocol)? = nil
+        var targetMethod:HTTPRequestMethod? = nil
         if let member = function.calledExpression.memberAccess {
             decl = member.base?.as(DeclReferenceExprSyntax.self)?.baseName.text
             targetMethod = HTTPRequestMethod.parse(expr: member)

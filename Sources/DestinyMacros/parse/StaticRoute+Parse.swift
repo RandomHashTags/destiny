@@ -82,7 +82,7 @@ extension StaticRoute {
         if body?.hasDateHeader ?? false {
             headers["Date"] = HTTPDateFormat.placeholder
         }
-        var cookies = [any HTTPCookieProtocol]()
+        var cookies = [HTTPCookie]()
         for middleware in middleware {
             if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)

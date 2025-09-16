@@ -11,7 +11,7 @@ extension Router {
         perfectHashSettings: PerfectHashSettings,
         arguments: LabeledExprListSyntax,
         context: some MacroExpansionContext
-    ) -> (router: CompiledRouterStorage, structs: [any DeclSyntaxProtocol]) {
+    ) -> (router: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var version = HTTPVersion.v1_1
         var customErrorResponder = ""
         var customDynamicNotFoundResponder = ""
