@@ -90,7 +90,7 @@ public struct RouterStorage {
     }
 }
 
-// MARK: Initializer
+// MARK: Init
 extension RouterStorage {
     init(
         context: MacroExpansionContext,
@@ -100,14 +100,7 @@ extension RouterStorage {
         self.context = context
         self.settings = settings
         self.perfectHashSettings = perfectHashSettings
-
-        visibilityModifier = switch settings.visibility {
-            case .public: .init(name: .keyword(.public))
-            case .package: .init(name: .keyword(.package))
-            case .internal: .init(name: .keyword(.internal))
-            case .fileprivate: .init(name: .keyword(.fileprivate))
-            case .private: .init(name: .keyword(.private))
-        }
+        visibilityModifier = settings.visibility.modifierDecl
     }
 }
 

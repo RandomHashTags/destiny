@@ -1,6 +1,7 @@
 
-import DestinyBlueprint
-import DestinyDefaults
+#if canImport(DestinyDefaultsNonEmbedded)
+
+import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -21,3 +22,5 @@ extension DynamicMiddleware {
         return middleware
     }
 }
+
+#endif

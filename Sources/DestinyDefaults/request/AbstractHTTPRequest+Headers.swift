@@ -8,7 +8,7 @@ extension AbstractHTTPRequest {
         let startIndex:Int
 
         @usableFromInline
-        var _endIndex:Int? = nil
+        package var _endIndex:Int? = nil
 
         @usableFromInline
         var headers:[Substring:Substring] = [:]
@@ -33,12 +33,13 @@ extension AbstractHTTPRequest {
     }
 }
 
+// MARK: Load
 extension AbstractHTTPRequest.Headers {
     /// Loads `headers` and `_endIndex`.
     #if Inlinable
     @inlinable
     #endif
-    mutating func load<let count: Int>(
+    package mutating func load<let count: Int>(
         fileDescriptor: some FileDescriptor,
         initialBuffer: borrowing InlineByteBuffer<count>
     ) {

@@ -1,6 +1,4 @@
 
-#if !hasFeature(Embedded)
-
 import DestinyBlueprint
 
 /// Default Existential Dynamic Middleware implementation which handles requests to dynamic routes.
@@ -29,5 +27,3 @@ public struct ExistentialDynamicMiddleware: ExistentialDynamicMiddlewareProtocol
         "ExistentialDynamicMiddleware \(logic)"
     }
 }
-
-#endif

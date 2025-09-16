@@ -10,7 +10,7 @@ enum Router: ExpressionMacro {
     static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
-    ) throws -> ExprSyntax {
+    ) -> ExprSyntax {
         let computed = compute(
             routerSettings: .init(),
             perfectHashSettings: .init(),
@@ -26,7 +26,7 @@ extension Router: DeclarationMacro {
     static func expansion(
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
-    ) throws -> [DeclSyntax] {
+    ) -> [DeclSyntax] {
         let arguments:LabeledExprListSyntax
         if let args = node.as(MacroExpansionExprSyntax.self)?.arguments {
             arguments = args

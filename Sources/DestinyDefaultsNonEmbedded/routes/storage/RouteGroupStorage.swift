@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public final class RouteGroupStorage: MutableRouteGroupStorageProtocol, @unchecked Sendable {
+public final class RouteGroupStorage: MutableRouteGroupStorageProtocol, @unchecked Sendable { // TODO: avoid existentials / support embedded
     @usableFromInline
     var groups:[any RouteGroupProtocol]
 

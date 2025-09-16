@@ -34,7 +34,10 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: AsyncHTTPSocke
         self.chunkSize = chunkSize
         self.stream = ReusableAsyncThrowingStream { stream }
     }
+}
 
+// MARK: Write
+extension AsyncHTTPChunkDataStream {
     #if Inlinable
     @inlinable
     #endif

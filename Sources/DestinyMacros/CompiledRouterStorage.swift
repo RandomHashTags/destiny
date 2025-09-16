@@ -52,14 +52,7 @@ struct CompiledRouterStorage {
         self.errorResponder = errorResponder
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder
-
-        visibilityModifier = switch settings.visibility {
-            case .public: .init(name: .keyword(.public))
-            case .package: .init(name: .keyword(.package))
-            case .internal: .init(name: .keyword(.internal))
-            case .fileprivate: .init(name: .keyword(.fileprivate))
-            case .private: .init(name: .keyword(.private))
-        }
+        visibilityModifier = settings.visibility.modifierDecl
     }
     
     var visibility: RouterVisibility {

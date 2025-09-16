@@ -27,11 +27,29 @@ pkgDependencies.append(contentsOf: [
 ])
 #endif
 
+var destinyDependencies:[Target.Dependency] = [
+    "DestinyBlueprint",
+    "DestinyDefaults"
+]
+
+#if !hasFeature(Embedded)
+destinyDependencies.append("DestinyDefaultsNonEmbedded")
+#endif
+
+var destinyMacrosDependencies = destinyDependencies
+destinyMacrosDependencies.append(contentsOf: [
+    .product(name: "SwiftSyntax", package: "swift-syntax"),
+    .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+    .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+    .product(name: "SwiftDiagnostics", package: "swift-syntax")
+])
+
 let package = Package(
     name: "destiny",
     products: [
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
+        .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"])
     ],
@@ -79,13 +97,21 @@ let package = Package(
             ]
         ),
 
+        // MARK: DestinyDefaultsNonEmbedded
+        .target(
+            name: "DestinyDefaultsNonEmbedded",
+            dependencies: [
+                "DestinyBlueprint",
+                "DestinyDefaults",
+                .product(name: "Logging", package: "swift-log"),
+                //.product(name: "Metrics", package: "swift-metrics"),
+            ]
+        ),
+
         // MARK: Destiny
         .target(
             name: "Destiny",
-            dependencies: [
-                "DestinyBlueprint",
-                "DestinyDefaults"
-            ]
+            dependencies: destinyDependencies
         ),
 
         // MARK: DestinySwiftSyntax
@@ -99,15 +125,10 @@ let package = Package(
         
         .macro(
             name: "DestinyMacros",
-            dependencies: [
-                "DestinyDefaults",
-                .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-                .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-                .product(name: "SwiftDiagnostics", package: "swift-syntax")
-            ]
+            dependencies: destinyMacrosDependencies
         ),
 
+        // MARK: TestRouter
         .target(
             name: "TestRouter",
             dependencies: [

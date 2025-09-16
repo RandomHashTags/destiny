@@ -3,16 +3,16 @@ import DestinyBlueprint
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
-public struct StaticRoute: StaticRouteProtocol {
+public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / support embedded
     public var path:[String]
     public let contentType:HTTPMediaType?
     public let body:(any ResponseBodyProtocol)?
 
-    public let version:HTTPVersion
+    public let isCaseSensitive:Bool
     public var method:any HTTPRequestMethodProtocol
     public let status:HTTPResponseStatus.Code
     public let charset:Charset?
-    public let isCaseSensitive:Bool
+    public let version:HTTPVersion
 
     public init(
         version: HTTPVersion = .v1_1,

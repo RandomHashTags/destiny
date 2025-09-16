@@ -6,10 +6,10 @@ public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
     public typealias InitialBuffer = InlineByteBuffer<1024>
 
     @usableFromInline
-    let fileDescriptor:Int32
+    package let fileDescriptor:Int32
 
     @usableFromInline
-    var abstractRequest:AbstractHTTPRequest<1024>
+    package var abstractRequest:AbstractHTTPRequest<1024>
 
     #if Inlinable
     @inlinable
@@ -123,32 +123,14 @@ extension HTTPRequest {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func bodyCollect() throws -> InitialBuffer {
+    public mutating func bodyCollect() throws(SocketError) -> InitialBuffer {
         try abstractRequest.bodyCollect(fileDescriptor: fileDescriptor)
     }
 
     #if Inlinable
     @inlinable
     #endif
-    public mutating func bodyCollect<let count: Int>() throws -> InlineByteBuffer<count> {
+    public mutating func bodyCollect<let count: Int>() throws(SocketError) -> InlineByteBuffer<count> {
         try abstractRequest.bodyCollect(fileDescriptor: fileDescriptor)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func bodyStream(
-        _ yield: (consuming InitialBuffer) async throws -> Void
-    ) async throws {
-        try await abstractRequest.bodyStream(fileDescriptor: fileDescriptor, yield)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func bodyStream<let count: Int>(
-        _ yield: (consuming InlineByteBuffer<count>) async throws -> Void
-    ) async throws {
-        try await abstractRequest.bodyStream(fileDescriptor: fileDescriptor, yield)
     }
 }

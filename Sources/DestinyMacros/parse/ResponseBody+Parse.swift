@@ -15,10 +15,10 @@ extension ResponseBody {
     public static func parse(
         context: some MacroExpansionContext,
         expr: some ExprSyntaxProtocol
-    ) -> (any ResponseBodyProtocol)? {
+    ) -> IntermediateResponseBody? {
         guard let function = expr.functionCall else {
             if let string = expr.stringLiteral?.string {
-                return string
+                return .init(type: .string, string)
             }
             return nil
         }
@@ -47,7 +47,7 @@ extension ResponseBody {
         case "streamwithdateheader":
             return IntermediateResponseBody(type: .streamWithDateHeader, firstArg.expression.description)
         case "string":
-            return parseString(firstArg.expression)
+            return .init(type: .string, parseString(firstArg.expression))
         case "stringwithdateheader":
             return IntermediateResponseBody(type: .stringWithDateHeader, parseString(firstArg.expression))
         default:

@@ -5,11 +5,11 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension HTTPRequestMethod {
-    static func parse(expr: some ExprSyntaxProtocol) -> (any HTTPRequestMethodProtocol)? {
+    static func parse(expr: some ExprSyntaxProtocol) -> HTTPRequestMethod? {
         var string:String
-        if let v = expr.as(MemberAccessExprSyntax.self)?.declName.baseName.text {
+        if let v = expr.memberAccess?.declName.baseName.text {
             string = v.lowercased()
-        } else if let v = expr.as(StringLiteralExprSyntax.self) {
+        } else if let v = expr.stringLiteral {
             string = v.string.lowercased()
         } else {
             return nil
@@ -19,10 +19,10 @@ extension HTTPRequestMethod {
             string.removeLast()
         }
         if let m = HTTPStandardRequestMethod(rawValue: string) {
-            return m
+            return .init(m)
         }
         if let m = HTTPNonStandardRequestMethod(rawValue: string) {
-            return m
+            return .init(m)
         }
         return nil
     }

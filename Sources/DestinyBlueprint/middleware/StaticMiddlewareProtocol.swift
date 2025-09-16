@@ -16,7 +16,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
         contentType: inout HTTPMediaType?,
         status: inout HTTPResponseStatus.Code,
         headers: inout some HTTPHeadersProtocol,
-        cookies: inout [any HTTPCookieProtocol]
+        cookies: inout [any HTTPCookieProtocol] // TODO: avoid existential / support embedded
     )
 
     /// Updates the `response` by applying this middleware.

@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default storage for an HTTP Message.
-public struct HTTPResponseMessage: HTTPMessageProtocol {
+public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existentials / support embedded
     public var head:HTTPResponseMessageHead
     public var body:(any ResponseBodyProtocol)?
     public var contentType:HTTPMediaType?

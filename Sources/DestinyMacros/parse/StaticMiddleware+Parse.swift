@@ -15,7 +15,7 @@ extension StaticMiddleware {
         _ function: FunctionCallExprSyntax
     ) -> CompiledStaticMiddleware {
         var handlesVersions:Set<HTTPVersion>? = nil
-        var handlesMethods:[any HTTPRequestMethodProtocol]? = nil
+        var handlesMethods:[HTTPRequestMethod]? = nil
         var handlesStatuses:Set<HTTPResponseStatus.Code>? = nil
         var handlesContentTypes:Set<HTTPMediaType>? = nil
         var appliesVersion:HTTPVersion? = nil

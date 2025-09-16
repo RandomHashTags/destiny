@@ -8,6 +8,39 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
     public let allowedOrigin:CORSMiddlewareAllowedOrigin
     public let logicKind:DynamicCORSLogic
 
+    public init(allowedOrigin: CORSMiddlewareAllowedOrigin, logicKind: DynamicCORSLogic) {
+        self.allowedOrigin = allowedOrigin
+        self.logicKind = logicKind
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    package static func maxAgeString(_ input: Int?) -> String? {
+        guard let input else { return nil }
+        return "\(input)"
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func handle(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        response: inout some DynamicResponseProtocol
+    ) throws(MiddlewareError) -> Bool {
+        do throws(SocketError) {
+            guard try request.header(forKey: "Origin") != nil else { return true }
+            try allowedOrigin.apply(request: &request, response: &response)
+            logicKind.apply(to: &response)
+            return true
+        } catch {
+            throw .socketError(error)
+        }
+    }
+}
+
+// MARK: Init
+extension DynamicCORSMiddleware {
     /// Default initializer to create a `DynamicCORSMiddleware`.
     ///
     /// - Parameters:
@@ -20,19 +53,19 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
     public init(
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
         allowedHeaders: Set<HTTPStandardRequestHeader> = [.accept, .authorization, .contentType, .origin],
-        allowedMethods: [any HTTPRequestMethodProtocol] = [
-            HTTPStandardRequestMethod.get,
-            HTTPStandardRequestMethod.post,
-            HTTPStandardRequestMethod.put,
-            HTTPStandardRequestMethod.options,
-            HTTPStandardRequestMethod.delete,
-            HTTPStandardRequestMethod.patch
+        allowedMethods: [HTTPRequestMethod] = [
+            .init(HTTPStandardRequestMethod.get),
+            .init(HTTPStandardRequestMethod.post),
+            .init(HTTPStandardRequestMethod.put),
+            .init(HTTPStandardRequestMethod.options),
+            .init(HTTPStandardRequestMethod.delete),
+            .init(HTTPStandardRequestMethod.patch)
         ],
         allowCredentials: Bool = false,
         exposedHeaders: Set<HTTPStandardRequestHeader>? = nil,
         maxAge: Int? = 3600 // one hour
     ) {
-        self.allowedOrigin = allowedOrigin
+        let logicKind:DynamicCORSLogic
         let allowedHeaders = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
         let allowedMethods = allowedMethods.map({ "\($0)" }).joined(separator: ",")
         let exposedHeaders = exposedHeaders?.map({ $0.rawName }).joined(separator: ",")
@@ -59,31 +92,7 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
         } else {
             logicKind = .minimum(allowedHeaders: allowedHeaders, allowedMethods: allowedMethods)
         }
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    static func maxAgeString(_ input: Int?) -> String? {
-        guard let input else { return nil }
-        return "\(input)"
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func handle(
-        request: inout some HTTPRequestProtocol & ~Copyable,
-        response: inout some DynamicResponseProtocol
-    ) throws(MiddlewareError) -> Bool {
-        do throws(SocketError) {
-            guard try request.header(forKey: "Origin") != nil else { return true }
-            try allowedOrigin.apply(request: &request, response: &response)
-            logicKind.apply(to: &response)
-            return true
-        } catch {
-            throw .socketError(error)
-        }
+        self.init(allowedOrigin: allowedOrigin, logicKind: logicKind)
     }
 }
 

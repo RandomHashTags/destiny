@@ -56,6 +56,9 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         case .staticStringWithDateHeader:
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
             return "\(prefix)StaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
+
+        case .string:
+            return value
         }
     }
     func escapedValue() -> String {
@@ -105,4 +108,6 @@ public enum IntermediateResponseBodyType: Sendable {
     case staticString
     case staticStringWithDateHeader
     case stringWithDateHeader
+
+    case string
 }

@@ -12,7 +12,7 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     /// HTTP Request Methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
-    public let handlesMethods:[any HTTPRequestMethodProtocol]?
+    public let handlesMethods:[HTTPRequestMethod]?
 
     /// HTTP Response Status codes this middleware handles.
     /// 
@@ -30,12 +30,15 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     public let appliesHeaders:HTTPHeaders
     public let appliesCookies:[HTTPCookie]
     public let excludedRoutes:Set<String>
+}
 
+// MARK: Init
+extension StaticMiddleware {
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
-        handlesMethods: [any HTTPRequestMethodProtocol]? = nil,
+        handlesMethods: [HTTPRequestMethod]? = nil,
         handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
-        handlesContentTypes: [any HTTPMediaTypeProtocol]? = nil,
+        handlesContentTypes: [HTTPMediaType]? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: HTTPMediaType? = nil,

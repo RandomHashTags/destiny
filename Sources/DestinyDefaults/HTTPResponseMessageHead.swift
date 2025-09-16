@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public struct HTTPResponseMessageHead: Sendable {
+public struct HTTPResponseMessageHead: Sendable { // TODO: avoid existentials / support embedded
     public var headers:HTTPHeaders
     public var cookies:[any HTTPCookieProtocol]
     public var status:HTTPResponseStatus.Code

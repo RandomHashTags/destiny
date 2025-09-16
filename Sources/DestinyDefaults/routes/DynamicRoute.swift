@@ -3,7 +3,7 @@ import DestinyBlueprint
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
-public struct DynamicRoute: DynamicRouteProtocol {
+public struct DynamicRoute: DynamicRouteProtocol { // TODO: avoid existentials / support embedded
     /// Path of this route.
     public var path:[PathComponent]
 

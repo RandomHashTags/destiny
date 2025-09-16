@@ -3,16 +3,16 @@ import DestinyBlueprint
 
 /// Shared request storage that works for different `FileDescriptor` implementations.
 @usableFromInline
-struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copyable {
+package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copyable {
 
     @usableFromInline
-    var storage:_Storage
+    package var storage:_Storage
 
     @usableFromInline
-    var initialBuffer:InlineByteBuffer<initalBufferCount>? = nil
+    package var initialBuffer:InlineByteBuffer<initalBufferCount>? = nil
 
     @usableFromInline
-    var customStorage:HTTPRequest.Storage
+    package var customStorage:HTTPRequest.Storage
 
     @inlinable
     @inline(__always)
@@ -116,7 +116,7 @@ extension AbstractHTTPRequest {
     /// Loads `initialBuffer` and `_storage`.
     @inlinable
     @inline(__always)
-    mutating func loadStorage(fileDescriptor: some FileDescriptor) throws(SocketError) {
+    package mutating func loadStorage(fileDescriptor: some FileDescriptor) throws(SocketError) {
         let initialBuffer:InlineByteBuffer<initalBufferCount> = try readBuffer(fileDescriptor: fileDescriptor)
         if initialBuffer.endIndex <= 0 {
             throw .malformedRequest()
@@ -177,22 +177,10 @@ extension AbstractHTTPRequest {
 extension AbstractHTTPRequest {
     @inlinable
     @inline(__always)
-    mutating func bodyCollect<let count: Int>(fileDescriptor: some FileDescriptor) throws -> InlineByteBuffer<count> {
+    mutating func bodyCollect<let count: Int>(fileDescriptor: some FileDescriptor) throws(SocketError) -> InlineByteBuffer<count> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
         return try storage.bodyCollect(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
-    }
-
-    @inlinable
-    @inline(__always)
-    mutating func bodyStream<let count: Int>(
-        fileDescriptor: some FileDescriptor,
-        _ yield: (consuming InlineByteBuffer<count>) async throws -> Void
-    ) async throws {
-        if initialBuffer == nil {
-            try loadStorage(fileDescriptor: fileDescriptor)
-        }
-        try await storage.bodyStream(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!, yield)
     }
 }

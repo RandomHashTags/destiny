@@ -27,7 +27,7 @@ struct HTTPCookieTests {
         }
     }
     @Test
-    func httpCookiePercentEncodeIllegalValue() throws {
+    func httpCookiePercentEncodeIllegalValue() throws(HTTPCookieError) {
         for illegal in Self.illegals {
             let illegalValue = "critters\(illegal); they bite".httpCookiePercentEncoded()
             let _ = try HTTPCookie(name: "name", value: illegalValue)
@@ -35,14 +35,14 @@ struct HTTPCookieTests {
     }
 
     @Test
-    func httpCookieUnreservedValue() throws {
+    func httpCookieUnreservedValue() throws(HTTPCookieError) {
         for char in PercentEncoding.unreserved {
             let _ = try HTTPCookie(name: "name", value: "\(char)")
         }
     }
 
     @Test
-    func httpCookieDescription() throws {
+    func httpCookieDescription() throws(HTTPCookieError) {
         var cookie = try HTTPCookie(name: "bro", value: "sheesh")
         #expect("\(cookie)" == "bro=sheesh")
 

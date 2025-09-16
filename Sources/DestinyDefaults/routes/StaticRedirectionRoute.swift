@@ -9,7 +9,7 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     /// Endpoint to redirect to.
     public package(set) var to:[String]
 
-    public let method:any HTTPRequestMethodProtocol
+    public let method:HTTPRequestMethod
 
     /// `HTTPVersion` associated with this route.
     public let version:HTTPVersion
@@ -18,9 +18,25 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     public let status:HTTPResponseStatus.Code
     public let isCaseSensitive:Bool
 
+    #if Inlinable
+    @inlinable
+    #endif
+    public func fromStartLine() -> String {
+        return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
+    }
+
+    public func response() -> HTTPResponseMessage {
+        var headers = HTTPHeaders()
+        headers["Date"] = HTTPDateFormat.placeholder
+        return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
+    }
+}
+
+// MARK: Init
+extension StaticRedirectionRoute {
     public init(
         version: HTTPVersion = .v1_1,
-        method: any HTTPRequestMethodProtocol,
+        method: HTTPRequestMethod,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.movedPermanently.code,
         from: [StaticString],
         isCaseSensitive: Bool = true,
@@ -34,16 +50,21 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
         self.to = to.map({ $0.description })
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public func fromStartLine() -> String {
-        return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
-    }
-
-    public func response() -> HTTPResponseMessage {
-        var headers = HTTPHeaders()
-        headers["Date"] = HTTPDateFormat.placeholder
-        return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
+    public init(
+        version: HTTPVersion = .v1_1,
+        method: some HTTPRequestMethodProtocol,
+        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.movedPermanently.code,
+        from: [StaticString],
+        isCaseSensitive: Bool = true,
+        to: [StaticString]
+    ) {
+        self.init(
+            version: version,
+            method: .init(method),
+            status: status,
+            from: from,
+            isCaseSensitive: isCaseSensitive,
+            to: to
+        )
     }
 }

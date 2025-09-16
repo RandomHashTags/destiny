@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 // MARK: CompiledStaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
@@ -12,7 +13,7 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
     /// Route request methods this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all methods.
-    public let handlesMethods:[any HTTPRequestMethodProtocol]?
+    public let handlesMethods:[HTTPRequestMethod]?
 
     /// Route response statuses this middleware handles.
     /// 
@@ -33,7 +34,7 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
-        handlesMethods: [any HTTPRequestMethodProtocol]? = nil,
+        handlesMethods: [HTTPRequestMethod]? = nil,
         handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
         handlesContentTypes: Set<HTTPMediaType>? = nil,
         appliesVersion: HTTPVersion? = nil,

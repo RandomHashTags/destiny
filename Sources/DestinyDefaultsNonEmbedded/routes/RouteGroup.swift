@@ -1,9 +1,10 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 // MARK: RouteGroup
 /// Default mutable Route Group implementation that handles grouped routes.
-public struct RouteGroup: RouteGroupProtocol {
+public struct RouteGroup: RouteGroupProtocol { // TODO: avoid existentials / support embedded
     public let prefixEndpoints:[String]
     public let staticMiddleware:[any StaticMiddlewareProtocol]
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]

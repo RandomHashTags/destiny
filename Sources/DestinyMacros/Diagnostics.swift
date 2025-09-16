@@ -56,34 +56,34 @@ extension DiagnosticMsg {
 }
 
 extension Diagnostic {
-    package static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: SyntaxProtocol) {
+    static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: SyntaxProtocol) {
         context.diagnose(.init(node: node, message: DiagnosticMsg(id: "spacesNotAllowedInRoutePath", message: "Spaces aren't allowed in route paths.")))
     }
-    package static func routeResponseStatusNotImplemented(context: some MacroExpansionContext, node: SyntaxProtocol) {
+    static func routeResponseStatusNotImplemented(context: some MacroExpansionContext, node: SyntaxProtocol) {
         context.diagnose(.init(node: node, message: DiagnosticMsg(id: "routeResponseStatusNotImplemented", message: "Route's response status is \".notImplemented\".", severity: .warning)))
     }
 }
 
 // MARK: SwiftSyntax Misc
 extension ExprSyntaxProtocol {
-    package var macroExpansion: MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
-    package var functionCall: FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
-    package var stringLiteral: StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
-    package var booleanLiteral: BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
-    package var integerLiteral: IntegerLiteralExprSyntax? { self.as(IntegerLiteralExprSyntax.self) }
-    package var memberAccess: MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
-    package var array: ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
-    package var dictionary: DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
+    var macroExpansion: MacroExpansionExprSyntax? { self.as(MacroExpansionExprSyntax.self) }
+    var functionCall: FunctionCallExprSyntax? { self.as(FunctionCallExprSyntax.self) }
+    var stringLiteral: StringLiteralExprSyntax? { self.as(StringLiteralExprSyntax.self) }
+    var booleanLiteral: BooleanLiteralExprSyntax? { self.as(BooleanLiteralExprSyntax.self) }
+    var integerLiteral: IntegerLiteralExprSyntax? { self.as(IntegerLiteralExprSyntax.self) }
+    var memberAccess: MemberAccessExprSyntax? { self.as(MemberAccessExprSyntax.self) }
+    var array: ArrayExprSyntax? { self.as(ArrayExprSyntax.self) }
+    var dictionary: DictionaryExprSyntax? { self.as(DictionaryExprSyntax.self) }
 }
 extension ExprSyntaxProtocol {
-    package func arrayElements(context: some MacroExpansionContext) -> ArrayElementListSyntax? {
+    func arrayElements(context: some MacroExpansionContext) -> ArrayElementListSyntax? {
         guard let elements = array?.elements else {
             context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: self))
             return nil
         }
         return elements
     }
-    package func stringLiteralString(context: some MacroExpansionContext) -> String? {
+    func stringLiteralString(context: some MacroExpansionContext) -> String? {
         guard let s = stringLiteral?.string else {
             context.diagnose(DiagnosticMsg.expectedStringLiteral(expr: self))
             return nil
@@ -93,16 +93,16 @@ extension ExprSyntaxProtocol {
 }
 
 extension ExprSyntaxProtocol {
-    package var booleanIsTrue: Bool {
+    var booleanIsTrue: Bool {
         booleanLiteral?.isTrue ?? false
     }
 }
 extension BooleanLiteralExprSyntax {
-    package var isTrue: Bool {
+    var isTrue: Bool {
         literal.text == "true"
     }
 }
 
 extension StringLiteralExprSyntax {
-    package var string: String { "\(segments)" }
+    var string: String { "\(segments)" }
 }
