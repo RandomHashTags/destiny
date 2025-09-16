@@ -7,9 +7,6 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     public let type:IntermediateResponseBodyType
     public let value:String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init(
         type: IntermediateResponseBodyType,
         _ value: String
@@ -18,23 +15,14 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         self.value = value
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         value.count
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         value
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
     }
 
@@ -91,9 +79,6 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasDateHeader: Bool {
         switch type {
         case .macroExpansionWithDateHeader,
@@ -106,9 +91,6 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasContentLength: Bool {
         return type != .streamWithDateHeader
     }

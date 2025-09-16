@@ -70,9 +70,6 @@ extension TestRequest {
 
 // MARK: Storage
 extension TestRequest {
-    #if Inlinable
-    @inlinable
-    #endif
     mutating func loadStorage() throws(SocketError) {
         try _request.loadStorage(fileDescriptor: fileDescriptor)
     }
