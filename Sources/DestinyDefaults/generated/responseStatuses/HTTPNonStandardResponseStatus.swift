@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPNonStandardResponseStatus: String, HTTPResponseStatus.StorageProtocol {
+public enum HTTPNonStandardResponseStatus: HTTPResponseStatus.StorageProtocol {
     case thisIsFine
     case pageExpired
     case methodFailure
@@ -41,13 +41,6 @@ public enum HTTPNonStandardResponseStatus: String, HTTPResponseStatus.StoragePro
     case _463
     case _464
     case _561
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(code)
-    }
 
     #if Inlinable
     @inlinable

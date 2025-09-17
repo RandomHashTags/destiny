@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import HTTPResponseStatusExtras
 import SwiftSyntax
 
 extension HTTPResponseStatus {

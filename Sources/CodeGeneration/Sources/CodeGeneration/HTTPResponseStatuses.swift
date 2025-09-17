@@ -16,30 +16,62 @@ extension HTTPResponseStatuses {
         let comment:(UInt16) -> String = type == "Standard" ? {
             "    /// https://www.rfc-editor.org/rfc/rfc9110.html#status.\($0)\n"
         } : { _ in "" }
-        let cases = values.map({
-            "\(comment($0.code))    case \($0.name)"
-        }).joined(separator: "\n")
-        let codes = values.map({ "        case .\($0.name): \($0.code)" }).joined(separator: "\n")
+        var cases = [String]()
+        var codeCases = [String]()
+        var rawValueInits = [String]()
+        var rawValueCases = [String]()
+        for (name, code) in values {
+            cases.append("\(comment(code))    case \(name)")
+            codeCases.append("        case .\(name): \(code)")
+
+            let rawValue:String
+            var names = ["\"\(name)\""]
+            if name.first == "`" {
+                rawValue = name.replacingOccurrences(of: "`", with: "")
+                names.append("\"\(rawValue)\"")
+            } else {
+                rawValue = name
+            }
+            rawValueInits.append("        case \(names.joined(separator: ", ")): self = .\(name)")
+            rawValueCases.append("        case .\(name): \"\(rawValue)\"")
+        }
+        let name = "HTTP\(type)ResponseStatus"
         return """
 
         import DestinyBlueprint
 
-        public enum HTTP\(type)ResponseStatus: String, HTTPResponseStatus.StorageProtocol {
-        \(cases)
-
-            #if Inlinable
-            @inlinable
-            #endif
-            public func hash(into hasher: inout Hasher) {
-                hasher.combine(code)
-            }
+        public enum \(name): HTTPResponseStatus.StorageProtocol {
+        \(cases.joined(separator: "\n"))
 
             #if Inlinable
             @inlinable
             #endif
             public var code: UInt16 {
                 switch self {
-        \(codes)
+        \(codeCases.joined(separator: "\n"))
+                }
+            }
+        }
+
+        extension \(name): RawRepresentable {
+            public typealias RawValue = String
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public init?(rawValue: RawValue) {
+                switch rawValue {
+        \(rawValueInits.joined(separator: "\n"))
+                default: return nil
+                }
+            }
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public var rawValue: RawValue {
+                switch self {
+        \(rawValueCases.joined(separator: "\n"))
                 }
             }
         }

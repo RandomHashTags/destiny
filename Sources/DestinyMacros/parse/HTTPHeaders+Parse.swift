@@ -33,14 +33,14 @@ extension HTTPNonStandardRequestHeader {
     }
 }
 
-extension HTTPRequestHeader {
+extension HTTPHeaders {
     /// - Returns: The valid headers in a dictionary.
     public static func parse(
         context: some MacroExpansionContext,
         _ expr: some ExprSyntaxProtocol
     ) -> HTTPHeaders {
         guard let dictionary:[(String, String)] = expr.dictionary?.content.as(DictionaryElementListSyntax.self)?.compactMap({
-            guard let key = HTTPRequestHeader.parse(context: context, $0.key) else { return nil }
+            guard let key = parse(context: context, $0.key) else { return nil }
             let value = $0.value.stringLiteral?.string ?? ""
             return (key, value)
         }) else {
@@ -53,10 +53,8 @@ extension HTTPRequestHeader {
         }
         return headers
     }
-}
 
-extension HTTPRequestHeader {
-    public static func parse(
+    private static func parse(
         context: some MacroExpansionContext,
         _ expr: some ExprSyntaxProtocol
     ) -> String? {

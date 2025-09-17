@@ -49,7 +49,7 @@ extension StaticMiddleware {
                 }
                 appliesContentType = HTTPMediaType.parse(memberName: memberName)
             case "appliesHeaders":
-                appliesHeaders = HTTPRequestHeader.parse(context: context, arg.expression)
+                appliesHeaders = HTTPHeaders.parse(context: context, arg.expression)
             case "appliesCookies":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
                 appliesCookies = array.compactMap({ HTTPCookie.parse(context: context, expr: $0.expression) })

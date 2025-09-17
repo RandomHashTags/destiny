@@ -11,7 +11,7 @@ public enum HTTPResponseStatus {
 
 // MARK: Storage
 extension HTTPResponseStatus {
-    public protocol StorageProtocol: Hashable, Sendable {
+    public protocol StorageProtocol: Sendable {
         /// Status code of the HTTP Response Status.
         var code: HTTPResponseStatus.Code { get }
 
@@ -26,13 +26,6 @@ extension HTTPResponseStatus.StorageProtocol {
     #endif
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.code == rhs.code
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(code)
     }
 
     #if Inlinable

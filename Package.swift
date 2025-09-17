@@ -41,6 +41,7 @@ destinyMacrosDependencies.append(contentsOf: [
     "HTTPHeaderExtras",
     "HTTPMediaTypes",
     "HTTPMediaTypeExtras",
+    "HTTPResponseStatusExtras",
     "PerfectHashing",
     .product(name: "SwiftSyntax", package: "swift-syntax"),
     .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
@@ -60,6 +61,7 @@ let package = Package(
         .library(name: "HTTPHeaderExtras", targets: ["HTTPHeaderExtras"]),
         .library(name: "HTTPMediaTypes", targets: ["HTTPMediaTypes"]),
         .library(name: "HTTPMediaTypeExtras", targets: ["HTTPMediaTypeExtras"]),
+        .library(name: "HTTPResponseStatusExtras", targets: ["HTTPResponseStatusExtras"]),
         .library(name: "PerfectHashing", targets: ["PerfectHashing"])
     ],
     traits: [
@@ -160,6 +162,14 @@ let package = Package(
             name: "HTTPMediaTypeExtras",
             dependencies: [
                 "HTTPMediaTypes"
+            ]
+        ),
+
+        // MARK: HTTPResponseStatusExtras
+        .target(
+            name: "HTTPResponseStatusExtras",
+            dependencies: [
+                "DestinyDefaults"
             ]
         ),
 

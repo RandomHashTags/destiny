@@ -23,7 +23,7 @@ enum HTTPMessage: DeclarationMacro {
             case "status":
                 status = HTTPResponseStatus.parseCode(expr: child.expression) ?? status
             case "headers":
-                headers = HTTPRequestHeader.parse(context: context, child.expression)
+                headers = HTTPHeaders.parse(context: context, child.expression)
             case "body":
                 body = ResponseBody.parse(context: context, expr: child.expression)
             case "contentType":

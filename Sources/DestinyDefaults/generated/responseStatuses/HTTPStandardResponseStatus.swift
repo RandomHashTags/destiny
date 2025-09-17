@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPStandardResponseStatus: String, HTTPResponseStatus.StorageProtocol {
+public enum HTTPStandardResponseStatus: HTTPResponseStatus.StorageProtocol {
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.100
     case `continue`
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.101
@@ -126,13 +126,6 @@ public enum HTTPStandardResponseStatus: String, HTTPResponseStatus.StorageProtoc
     case notExtended
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.511
     case networkAuthenticationRequired
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(code)
-    }
 
     #if Inlinable
     @inlinable
