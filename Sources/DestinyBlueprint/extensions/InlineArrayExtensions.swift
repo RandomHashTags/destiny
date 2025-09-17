@@ -1,72 +1,127 @@
 
 import VariableLengthArray
 
-extension VLArray: InlineArrayProtocol {
-    public init(repeating value: Element) {
-        fatalError("not supported")
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func itemAt(index: Int) -> Element {
-        self[index]
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func setItemAt(index: Int, element: Element) {
-        self[index] = element
-    }
-
+// MARK: VLArray
+extension VLArray where Element == UInt8 {
     #if Inlinable
     @inlinable
     #endif
     public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
         return try body(UnsafeBufferPointer.init(storage))
     }
-}
 
-// MARK: init
-extension InlineArrayProtocol {
-    /// - Complexity: O(*n*) where _n_ is the length of the collection.
     #if Inlinable
     @inlinable
     #endif
-    public init(_ array: some Collection<Element>) {
-        self = .init(repeating: array[array.startIndex])
-        for i in self.indices {
-            self.setItemAt(index: i, element: array[array.index(array.startIndex, offsetBy: i)])
+    public func unsafeString() -> String {
+        return String.init(unsafeUninitializedCapacity: storage.count, initializingUTF8With: {
+            return $0.initialize(from: storage).index
+        })
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func unsafeString(offset: Int) -> String {
+        let count = storage.count - offset
+        let slice = storage[offset...]
+        return String.init(unsafeUninitializedCapacity: count - offset, initializingUTF8With: {
+            return $0.initialize(from: slice).index
+        })
+    }
+}
+
+
+
+
+
+// MARK: InlineArray
+
+
+
+
+
+// MARK: HTTPSocketWritable
+extension InlineArray: HTTPSocketWritable {
+    /// Calls a closure with a pointer to the viewed contiguous storage.
+    ///
+    /// The buffer pointer passed as an argument to `body` is valid only
+    /// during the execution of `withUnsafeBufferPointer(_:)`.
+    /// Do not store or return the pointer for later use.
+    ///
+    /// Note: For an empty `Span`, the closure always receives a `nil` pointer.
+    ///
+    /// - Parameter body: A closure with an `UnsafeBufferPointer` parameter
+    ///   that points to the viewed contiguous storage. If `body` has
+    ///   a return value, that value is also used as the return value
+    ///   for the `withUnsafeBufferPointer(_:)` method. The closure's
+    ///   parameter is valid only for the duration of its execution.
+    /// - Returns: The return value of the `body` closure parameter.
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    @discardableResult
+    public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
+        return try span.withUnsafeBufferPointer(body)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    @discardableResult
+    public mutating func withUnsafeMutableBufferPointer<E: Error, R>(_ body: (UnsafeMutableBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
+        var ms = mutableSpan
+        return try ms.withUnsafeMutableBufferPointer(body)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    public func write(to socket: some FileDescriptor) throws(SocketError) {
+        var err:SocketError? = nil
+        withUnsafePointer(to: self, {
+            do throws(SocketError) {
+                try socket.socketWriteBuffer($0, length: count)
+            } catch {
+                err = error
+            }
+        })
+        if let err {
+            throw err
         }
     }
 }
-extension InlineArrayProtocol where Element == UInt8 {
-    /// - Complexity: O(*n*) where _n_ is the length of the collection.
-    #if Inlinable
-    @inlinable
-    #endif
-    public init(_ utf8: String.UTF8View) {
-        self = .init(repeating: 0)
-        for i in self.indices {
-            self.setItemAt(index: i, element: utf8[utf8.index(utf8.startIndex, offsetBy: i)])
-        }
-    }
 
-    /// - Complexity: O(*n*) where _n_ is the length of the collection.
+// MARK: BufferWritable
+extension InlineArray where Element == UInt8 { 
     #if Inlinable
     @inlinable
     #endif
-    public init(_ simd: some SIMD<Element>) {
-        self = .init(repeating: 0)
-        for i in simd.indices {
-            self.setItemAt(index: i, element: simd[i])
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    public func write(
+        to buffer: UnsafeMutableBufferPointer<UInt8>,
+        at index: inout Int
+    ) {
+        for i in indices {
+            buffer[index] = self[i]
+            index += 1
         }
     }
 }
 
 // MARK: string
-extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
+extension InlineArray where Element == UInt8 {
     #if Inlinable
     @inlinable
     #endif
@@ -74,7 +129,7 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
         var s = ""
         var i = offset
         while i < endIndex {
-            let char = self.itemAt(index: i)
+            let char = self[i]
             if char == 0 {
                 break
             }
@@ -110,7 +165,7 @@ extension InlineArrayProtocol where Self: ~Copyable, Element == UInt8 {
 }
 
 // MARK: Equatable
-extension InlineArrayProtocol where Element: Equatable {
+extension InlineArray where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
     #if Inlinable
     @inlinable
@@ -135,7 +190,7 @@ extension InlineArrayProtocol where Element: Equatable {
     #endif
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in lhs.indices {
-            if lhs.itemAt(index: i) != rhs.itemAt(index: i) {
+            if lhs[i] != rhs[i] {
                 return false
             }
         }
@@ -143,7 +198,7 @@ extension InlineArrayProtocol where Element: Equatable {
     }
 }
 
-extension InlineArrayProtocol where Element == UInt8 {
+extension InlineArray where Element == UInt8 {
     #if Inlinable
     @inlinable
     #endif
@@ -151,7 +206,7 @@ extension InlineArrayProtocol where Element == UInt8 {
         let stringCount = rhs.count
         if lhs.count == rhs.count {
             for i in 0..<lhs.count {
-                if lhs.itemAt(index: i) != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
                     return false
                 }
             }
@@ -159,12 +214,12 @@ extension InlineArrayProtocol where Element == UInt8 {
         } else if lhs.count > stringCount {
             var i = 0
             while i < stringCount {
-                if lhs.itemAt(index: i) != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
                     return false
                 }
                 i += 1
             }
-            return lhs.itemAt(index: i) == 0
+            return lhs[i] == 0
         } else {
             return false
         }
@@ -172,7 +227,7 @@ extension InlineArrayProtocol where Element == UInt8 {
 }
 
 // MARK: Pattern matching
-extension InlineArrayProtocol where Element: Equatable {
+extension InlineArray where Element: Equatable {
     /// - Complexity: O(*n*) where _n_ is the length of the collection.
     #if Inlinable
     @inlinable
