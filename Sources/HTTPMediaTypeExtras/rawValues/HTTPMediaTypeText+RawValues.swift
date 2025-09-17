@@ -1,5 +1,5 @@
 
-import DestinyDefaults
+import HTTPMediaTypes
 
 extension HTTPMediaTypeText: RawRepresentable {
     public typealias RawValue = String

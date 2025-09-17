@@ -1,5 +1,5 @@
 
-import DestinyDefaults
+import HTTPMediaTypes
 
 extension HTTPMediaTypeHaptics: RawRepresentable {
     public typealias RawValue = String

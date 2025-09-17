@@ -39,6 +39,7 @@ destinyDependencies.append("DestinyDefaultsNonEmbedded")
 var destinyMacrosDependencies = destinyDependencies
 destinyMacrosDependencies.append(contentsOf: [
     "HTTPHeaderExtras",
+    "HTTPMediaTypes",
     "HTTPMediaTypeExtras",
     "PerfectHashing",
     .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -57,6 +58,7 @@ let package = Package(
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 
         .library(name: "HTTPHeaderExtras", targets: ["HTTPHeaderExtras"]),
+        .library(name: "HTTPMediaTypes", targets: ["HTTPMediaTypes"]),
         .library(name: "HTTPMediaTypeExtras", targets: ["HTTPMediaTypeExtras"]),
         .library(name: "PerfectHashing", targets: ["PerfectHashing"])
     ],
@@ -145,11 +147,19 @@ let package = Package(
             ]
         ),
 
+        // MARK: HTTPMediaTypes
+        .target(
+            name: "HTTPMediaTypes",
+            dependencies: [
+                "DestinyBlueprint"
+            ]
+        ),
+
         // MARK: HTTPMediaTypeExtras
         .target(
             name: "HTTPMediaTypeExtras",
             dependencies: [
-                "DestinyDefaults"
+                "HTTPMediaTypes"
             ]
         ),
 

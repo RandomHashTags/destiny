@@ -1,5 +1,6 @@
 
 import DestinySwiftSyntax
+import HTTPMediaTypes
 import Logging
 
 #if canImport(FoundationEssentials)

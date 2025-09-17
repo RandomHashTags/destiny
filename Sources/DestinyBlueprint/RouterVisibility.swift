@@ -1,15 +1,8 @@
 
-public enum RouterVisibility: String, CustomStringConvertible, Sendable {
+public enum RouterVisibility: Sendable {
     case `public`
     case `package`
     case `internal`
     case `fileprivate`
     case `private`
-
-    public var description: String {
-        switch self {
-        case .internal: ""
-        default: "\(rawValue) "
-        }
-    }
 }
