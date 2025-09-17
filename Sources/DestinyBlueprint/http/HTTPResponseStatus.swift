@@ -43,17 +43,6 @@ extension HTTPResponseStatus.StorageProtocol {
     }
 }
 
-/*
-// MARK: CustomDebugStringConvertible
-extension HTTPResponseStatus: CustomDebugStringConvertible {
-    #if Inlinable
-    @inlinable
-    #endif
-    public var debugDescription: String {
-        "HTTPResponseStatus.\(rawValue)"
-    }
-}*/
-
 // MARK: Category
 extension HTTPResponseStatus {
     /// Category of the HTTP Response Status.

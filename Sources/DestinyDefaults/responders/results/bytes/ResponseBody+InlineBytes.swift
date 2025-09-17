@@ -9,7 +9,7 @@ extension ResponseBody {
         Self.InlineBytes(value)
     }
 
-    public struct InlineBytes<let count: Int>: ResponseBodyProtocol, CustomStringConvertible {
+    public struct InlineBytes<let count: Int>: ResponseBodyProtocol {
         public let value:InlineArray<count, UInt8>
 
         #if Inlinable
@@ -17,10 +17,6 @@ extension ResponseBody {
         #endif
         public init(_ value: InlineArray<count, UInt8>) {
             self.value = value
-        }
-
-        public var description: String {
-            "ResponseBody.InlineBytes(\(value))" // TODO: fix
         }
 
         #if Inlinable

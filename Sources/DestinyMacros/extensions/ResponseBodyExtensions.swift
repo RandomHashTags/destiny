@@ -14,7 +14,11 @@ extension String {
 }
 
 // MARK: Bytes
-extension ResponseBody.Bytes {
+extension ResponseBody.Bytes: CustomStringConvertible {
+    public var description: String {
+        "ResponseBody.Bytes(\(value))"
+    }
+
     var responderDebugDescription: Swift.String {
         description
     }
@@ -25,6 +29,13 @@ extension ResponseBody.Bytes {
 
     func responderDebugDescription(_ input: some HTTPMessageProtocol) throws(HTTPMessageError) -> String {
         try responderDebugDescription(input.string(escapeLineBreak: false))
+    }
+}
+
+// MARK: InlineBytes
+extension ResponseBody.InlineBytes: CustomStringConvertible {
+    public var description: String {
+        "ResponseBody.InlineBytes(\(value))" // TODO: fix
     }
 }
 

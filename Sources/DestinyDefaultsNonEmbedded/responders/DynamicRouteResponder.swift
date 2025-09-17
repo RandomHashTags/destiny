@@ -4,12 +4,12 @@ import DestinyDefaults
 import Logging
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
-public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugStringConvertible { // TODO: avoid existentials / support embedded
+public struct DynamicRouteResponder: DynamicRouteResponderProtocol { // TODO: avoid existentials / support embedded
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let _defaultResponse:DynamicResponse
     public let logic:@Sendable (inout any HTTPRequestProtocol & ~Copyable, inout any DynamicResponseProtocol) async throws -> Void
-    private let logicDebugDescription:String
+    package let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
@@ -22,16 +22,6 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol, CustomDebugS
         self._defaultResponse = defaultResponse
         self.logic = logic
         self.logicDebugDescription = logicDebugDescription
-    }
-
-    public var debugDescription: String {
-        """
-        DynamicRouteResponder(
-            path: \(path),
-            defaultResponse: \(_defaultResponse),
-            logic: \(logicDebugDescription)
-        )
-        """
     }
 
     #if Inlinable

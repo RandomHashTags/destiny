@@ -1,11 +1,11 @@
 
 /// Default HTTP Cookie storage.
-public struct HTTPCookie: HTTPCookieProtocol, CustomDebugStringConvertible {
+public struct HTTPCookie: HTTPCookieProtocol {
     @usableFromInline
-    var _name:String
+    package var _name:String
 
     @usableFromInline
-    var _value:String
+    package var _value:String
 
     public var maxAge:UInt64 = 0
 
@@ -184,30 +184,6 @@ extension HTTPCookie {
                 || $0 == "\\"
         }) else { return }
         throw .illegalCharacter(value: value, illegalChar: illegalChar)
-    }
-}
-
-// MARK: CustomDebugStringConvertible
-extension HTTPCookie {
-    public var debugDescription: String {
-        var string = "HTTPCookie(name: \"\(_name)\", uncheckedValue: \"\(_value)\""
-        if maxAge > 0 {
-            string += ", maxAge: \(maxAge)"
-        }
-        if let expiresString {
-            string += ", expires: \"\(expiresString)\""
-        }
-        if let domain {
-            string += ", domain: \"\(domain)\""
-        }
-        if let path {
-            string += ", path: \"\(path)\""
-        }
-        if let sameSite {
-            string += ", sameSite: .\(sameSite)"
-        }
-        string += ")"
-        return string
     }
 }
 

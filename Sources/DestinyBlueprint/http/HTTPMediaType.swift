@@ -4,7 +4,7 @@
 /// 
 /// Additional Media Types
 /// - xGoogleProtobuf & xProtobuf: Protocol Buffers (https://protobuf.dev/)
-public struct HTTPMediaType: CustomDebugStringConvertible, Hashable, HTTPMediaTypeProtocol {
+public struct HTTPMediaType: Hashable, HTTPMediaTypeProtocol {
     public let type:String
     public let subType:String
 
@@ -16,10 +16,6 @@ public struct HTTPMediaType: CustomDebugStringConvertible, Hashable, HTTPMediaTy
     public init(_ type: some HTTPMediaTypeProtocol) {
         self.type = type.type
         self.subType = type.subType
-    }
-
-    public var debugDescription: String {
-        return "HTTPMediaType(type: \"\(type)\", subType: \"\(subType)\")"
     }
 
     #if Inlinable

@@ -8,7 +8,7 @@ extension ResponseBody {
     public static func bytes(_ value: [UInt8]) -> Self.Bytes {
         Self.Bytes(value)
     }
-    public struct Bytes: ResponseBodyProtocol, CustomStringConvertible {
+    public struct Bytes: ResponseBodyProtocol {
         public let value:[UInt8]
 
         #if Inlinable
@@ -18,9 +18,6 @@ extension ResponseBody {
             self.value = value
         }
 
-        public var description: String {
-            "ResponseBody.Bytes(\(value))"
-        }
 
         #if Inlinable
         @inlinable

@@ -7,7 +7,7 @@ import SwiftSyntaxMacros
 extension Router {
     static func conditionalRoute(
         context: some MacroExpansionContext,
-        conditionalResponders: inout [RoutePath:any ConditionalRouteResponderProtocol],
+        conditionalResponders: inout [RoutePath:ConditionalRouteResponder],
         route: any RouteProtocol,
         function: FunctionCallExprSyntax,
         string: String,
