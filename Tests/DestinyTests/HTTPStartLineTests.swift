@@ -14,7 +14,7 @@ struct HTTPStartLineTests {
 
         var buffer = InlineArray<1024, UInt8>(repeating: 0)
         for i in 0..<request.count {
-            buffer.setItemAt(index: i, element: request[request.index(request.startIndex, offsetBy: i)].asciiValue ?? 0)
+            buffer[i] = request[request.index(request.startIndex, offsetBy: i)].asciiValue ?? 0
         }
         let initialBuffer = InlineByteBuffer<1024>(buffer: buffer, endIndex: request.count)
         let requestLine = try HTTPRequestLine.load(buffer: initialBuffer)

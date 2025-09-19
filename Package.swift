@@ -204,6 +204,7 @@ let package = Package(
             name: "DestinyTests",
             dependencies: [
                 "DestinySwiftSyntax",
+                "DestinyMacros",
                 "TestRouter"
             ]
         ),

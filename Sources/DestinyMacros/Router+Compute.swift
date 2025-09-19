@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded // TODO: fix
 import HTTPMediaTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
