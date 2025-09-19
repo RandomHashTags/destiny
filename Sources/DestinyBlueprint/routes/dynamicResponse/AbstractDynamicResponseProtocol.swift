@@ -2,7 +2,7 @@
 import VariableLengthArray
 
 /// Core protocol that builds a HTTP Message for dynamic routes before sending it to the client.
-public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
+public protocol AbstractDynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     /// - Parameters:
     ///   - index: Index of a path component.
     /// - Returns: The parameter located at the given path component index.
@@ -35,12 +35,4 @@ public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     ///   - key: Header you want to modify.
     ///   - value: New header value to set.
     mutating func setHeader(key: String, value: String)
-
-    mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError)
-
-    /// Sets the body of the message.
-    /// 
-    /// - Parameters:
-    ///   - body: New body to set.
-    mutating func setBody(_ body: some ResponseBodyProtocol)
 }

@@ -1,6 +1,6 @@
 
 /// List of Hypertext Transfer Protocol versions.
-public enum HTTPVersion: String, Hashable, Sendable {
+public enum HTTPVersion: Hashable, Sendable {
     case v0_9
     case v1_0
     case v1_1

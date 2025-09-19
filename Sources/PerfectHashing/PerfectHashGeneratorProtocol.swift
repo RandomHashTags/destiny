@@ -1,4 +1,5 @@
 
+@_marker
 public protocol PerfectHashGeneratorProtocol: Sendable, ~Copyable {
 }
 

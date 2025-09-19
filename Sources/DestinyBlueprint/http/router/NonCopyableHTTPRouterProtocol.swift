@@ -2,22 +2,7 @@
 import Logging
 
 /// Core protocol that handles middleware, routes and route groups.
-public protocol NonCopyableHTTPRouterProtocol: Sendable, ~Copyable {
-    /// Load logic before this router is ready to handle sockets.
-    func load() throws(RouterError)
-
-    /// Handle logic for a given socket.
-    /// 
-    /// - Parameters:
-    ///   - client: File descriptor assigned to the socket.
-    ///   - socket: The socket.
-    ///   - logger: Logger of the socket acceptor that called this function.
-    func handle(
-        client: some FileDescriptor,
-        socket: consuming some HTTPSocketProtocol & ~Copyable,
-        completionHandler: @Sendable @escaping () -> Void
-    )
-
+public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes a static response to the socket.
     /// 
     /// - Parameters:

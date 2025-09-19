@@ -95,11 +95,11 @@ extension Router {
 
         let errorResponder:CompiledRouterStorage.Responder?
         if customErrorResponder.isEmpty || customErrorResponder.isEmpty || customErrorResponder == "nil" {
-            let defaultStaticErrorResponse = HTTPResponseMessage(
+            let defaultStaticErrorResponse = GenericHTTPResponseMessage(
                 version: version,
                 status: HTTPStandardResponseStatus.ok.code,
                 headers: [:],
-                cookies: [],
+                cookies: [HTTPCookie](),
                 body: "{\"error\":true,\"reason\":\"\\(error)\"}",
                 contentType: HTTPMediaTypeApplication.json,
                 charset: nil
@@ -187,11 +187,11 @@ extension Router {
     ) -> String? {
         return IntermediateResponseBody(type: .staticStringWithDateHeader, "not found").responderDebugDescription(
             isCopyable: isCopyable,
-            response: HTTPResponseMessage(
+            response: GenericHTTPResponseMessage(
                 version: version,
                 status: HTTPStandardResponseStatus.notFound.code,
                 headers: ["Date":HTTPDateFormat.placeholder],
-                cookies: [],
+                cookies: [HTTPCookie](),
                 body: "not found",
                 contentType: HTTPMediaType(HTTPMediaTypeText.plain),
                 charset: Charset.utf8

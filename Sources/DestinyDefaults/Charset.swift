@@ -1,7 +1,7 @@
 
 // MARK: Charset
 /// HTTP charset encodings.
-public enum Charset: String, Sendable {
+public enum Charset: Sendable {
     case any
     case basicMultilingualPlane
     case bocu1

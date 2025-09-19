@@ -1,9 +1,10 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 /// Default storage for an HTTP Message.
-public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existentials / support embedded
-    public var head:HTTPResponseMessageHead
+public struct HTTPResponseMessage: HTTPMessageProtocol {
+    public var head:HTTPResponseMessageHead<HTTPCookie>
     public var body:(any ResponseBodyProtocol)?
     public var contentType:HTTPMediaType?
     public var charset:Charset?
@@ -56,7 +57,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existent
         self.charset = charset
     }
     public init(
-        head: HTTPResponseMessageHead,
+        head: HTTPResponseMessageHead<HTTPCookie>,
         body: (any ResponseBodyProtocol)?,
         contentType: HTTPMediaType?,
         charset: Charset?
@@ -135,7 +136,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol { // TODO: avoid existent
     @inlinable
     #endif
     public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
-        try head.cookies.append(.init(cookie))
+        try head.cookies.append(.init(copying: cookie))
     }
 
     #if Inlinable

@@ -1,6 +1,9 @@
 
+#if canImport(DestinyDefaultsNonEmbedded)
+
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -116,13 +119,13 @@ extension RouterStorage {
             "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \($0.responder)\n)"
         }
         let routeStartLine:(StaticRoute) -> String
-        let getRedirectRouteStartLine:(any RedirectionRouteProtocol) -> String
+        let getRedirectRouteStartLine:(StaticRedirectionRoute) -> String
         if isCaseSensitive {
-            routeStartLine = { $0.startLine }
-            getRedirectRouteStartLine = { $0.fromStartLine() }
+            routeStartLine = routeStartLineLiteral
+            getRedirectRouteStartLine = redirectRouteStartLineLiteral
         } else {
-            routeStartLine = { $0.startLine.lowercased() }
-            getRedirectRouteStartLine = { $0.fromStartLine().lowercased() }
+            routeStartLine = routeStartLineLowercased
+            getRedirectRouteStartLine = redirectRouteStartLineLowercased
         }
         if !isCopyable { // always make redirects noncopyable for optimal performance
             appendStaticRedirects(
@@ -205,6 +208,22 @@ extension RouterStorage {
     }
 }
 
+extension RouterStorage {
+    private func routeStartLineLiteral<T: StaticRouteProtocol>(_ route: T) -> String {
+        route.startLine
+    }
+    private func routeStartLineLowercased<T: StaticRouteProtocol>(_ route: T) -> String {
+        route.startLine.lowercased()
+    }
+
+    private func redirectRouteStartLineLiteral<T: RedirectionRouteProtocol>(_ route: T) -> String {
+        route.fromStartLine()
+    }
+    private func redirectRouteStartLineLowercased<T: RedirectionRouteProtocol>(_ route: T) -> String {
+        route.fromStartLine().lowercased()
+    }
+}
+
 // MARK: Append redirects
 extension RouterStorage {
     private mutating func appendStaticRedirects(
@@ -242,3 +261,5 @@ extension RouterStorage {
         }
     }
 }
+
+#endif

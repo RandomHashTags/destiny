@@ -1,5 +1,7 @@
 
-import DestinyDefaults
+#if canImport(DestinyDefaultsNonEmbedded)
+
+import DestinyDefaultsNonEmbedded
 
 extension ConditionalRouteResponder: CustomDebugStringConvertible {
     public var debugDescription: String {
@@ -13,3 +15,5 @@ extension ConditionalRouteResponder: CustomDebugStringConvertible {
         """
     }
 }
+
+#endif

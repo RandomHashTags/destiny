@@ -1,15 +1,18 @@
 
 import DestinyBlueprint
 
-public struct HTTPResponseMessageHead: Sendable {
+public struct HTTPResponseMessageHead<
+        Cookie: HTTPCookieProtocol
+    >: Sendable {
+
     public var headers:HTTPHeaders
-    public var cookies:[HTTPCookie]
+    public var cookies:[Cookie]
     public var status:HTTPResponseStatus.Code
     public var version:HTTPVersion
 
     public init(
         headers: HTTPHeaders,
-        cookies: [HTTPCookie],
+        cookies: [Cookie],
         status: HTTPResponseStatus.Code,
         version: HTTPVersion
     ) {

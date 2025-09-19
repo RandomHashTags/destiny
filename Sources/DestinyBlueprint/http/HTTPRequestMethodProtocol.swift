@@ -1,4 +1,4 @@
 
-public protocol HTTPRequestMethodProtocol: Equatable, Sendable {
+public protocol HTTPRequestMethodProtocol: Sendable {
     func rawNameString() -> String
 }

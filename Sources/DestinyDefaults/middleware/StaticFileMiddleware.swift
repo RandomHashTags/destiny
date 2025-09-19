@@ -1,4 +1,4 @@
-
+/*
 import DestinyBlueprint
 
 // MARK: StaticFileMiddleware
@@ -24,3 +24,4 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol { // TODO: finish
         return []
     }
 }
+*/

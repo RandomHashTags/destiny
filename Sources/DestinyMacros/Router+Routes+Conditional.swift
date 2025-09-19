@@ -1,6 +1,9 @@
 
+#if canImport(DestinyDefaultsNonEmbedded)
+
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -62,3 +65,5 @@ extension Router {
         conditionalResponders[RoutePath(comment: "// \(string)", path: buffer)] = responder*/
     }
 }
+
+#endif

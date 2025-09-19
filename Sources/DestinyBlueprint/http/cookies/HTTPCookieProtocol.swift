@@ -1,17 +1,5 @@
 
 public protocol HTTPCookieProtocol: CustomStringConvertible, Sendable {
-    /// Name of the cookie.
-    func name() -> String
-
-    /// Sets the name of the cookie.
-    mutating func setName(_ name: String) throws(HTTPCookieError)
-
-    /// Value of the cookie.
-    func value() -> String
-
-    /// Sets the value of the cookie.
-    mutating func setValue(_ value: String) throws(HTTPCookieError)
-
     /// Maximum age this cookie is valid for.
     var maxAge: UInt64 { get set }
 
@@ -23,4 +11,18 @@ public protocol HTTPCookieProtocol: CustomStringConvertible, Sendable {
 
     var isSecure: Bool { get set }
     var isHTTPOnly: Bool { get set }
+
+    init(copying source: some HTTPCookieProtocol) throws(HTTPCookieError)
+
+    /// Name of the cookie.
+    func name() -> String
+
+    /// Sets the name of the cookie.
+    mutating func setName(_ name: String) throws(HTTPCookieError)
+
+    /// Value of the cookie.
+    func value() -> String
+
+    /// Sets the value of the cookie.
+    mutating func setValue(_ value: String) throws(HTTPCookieError)
 }

@@ -53,7 +53,7 @@ extension HTTPCookie {
     #if Inlinable
     @inlinable
     #endif
-    public init(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
+    public init(copying cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
         try self.init(
             name: cookie.name(),
             value: cookie.value(),

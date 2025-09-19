@@ -28,7 +28,7 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
 
     public func responderDebugDescription(
         isCopyable: Bool,
-        response: some HTTPMessageProtocol
+        response: some AbstractHTTPMessageProtocol
     ) -> String {
         let prefix = isCopyable ? "" : "NonCopyable"
         var responseString = response.intermediateString(escapeLineBreak: true)

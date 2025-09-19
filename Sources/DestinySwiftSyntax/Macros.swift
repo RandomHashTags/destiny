@@ -1,4 +1,15 @@
 
+// MARK: Embedded
+#if !canImport(DestinyDefaultsNonEmbedded)
+
+
+
+// MARK: Non embedded
+#else
+
+
+
+
 // MARK: #router
 /// Default macro to create a `HTTPRouterProtocol`.
 ///
@@ -65,3 +76,5 @@ public macro declareRouter(
     routeGroups: [any RouteGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) = #externalMacro(module: "DestinyMacros", type: "Router")
+
+#endif

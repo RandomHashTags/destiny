@@ -3,10 +3,12 @@ import DestinyBlueprint
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
-public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / support embedded
+public struct GenericStaticRoute<
+        Body: ResponseBodyProtocol
+    >: StaticRouteProtocol { 
     public var path:[String]
     public let contentType:HTTPMediaType?
-    public let body:(any ResponseBodyProtocol)?
+    public let body:Body?
 
     public let isCaseSensitive:Bool
     public var method:HTTPRequestMethod
@@ -22,7 +24,7 @@ public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / s
         status: some HTTPResponseStatus.StorageProtocol,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: (any ResponseBodyProtocol)? = nil
+        body: Body? = nil
     ) {
         self.init(
             version: version,
@@ -44,7 +46,7 @@ public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / s
         status: some HTTPResponseStatus.StorageProtocol,
         contentType: (some HTTPMediaTypeProtocol)? = nil,
         charset: Charset? = nil,
-        body: (any ResponseBodyProtocol)? = nil
+        body: Body? = nil
     ) {
         let mediaType:HTTPMediaType?
         if let contentType {
@@ -72,7 +74,7 @@ public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / s
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: (any ResponseBodyProtocol)? = nil
+        body: Body? = nil
     ) {
         self.version = version
         self.method = .init(method)
@@ -100,10 +102,10 @@ public struct StaticRoute: StaticRouteProtocol { // TODO: avoid existentials / s
 }
 
 // MARK: Response
-extension StaticRoute {
+extension GenericStaticRoute {
     public func response(
         middleware: some StaticMiddlewareStorageProtocol
-    ) -> some HTTPMessageProtocol {
+    ) -> some GenericHTTPMessageProtocol {
         var version = version
         let path = path.joined(separator: "/")
         var status = status
@@ -120,21 +122,21 @@ extension StaticRoute {
         }
         headers[HTTPStandardResponseHeader.contentType.rawName] = nil
         headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
-        return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+        return GenericHTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 }
 
 // MARK: Responder
-extension StaticRoute {
+extension GenericStaticRoute {
     public func responder(
         middleware: some StaticMiddlewareStorageProtocol
-    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
+    ) throws(HTTPMessageError) -> (some StaticRouteResponderProtocol)? {
         return try response(middleware: middleware).string(escapeLineBreak: true)
     }
 }
 
 // MARK: Convenience inits
-extension StaticRoute {
+extension GenericStaticRoute {
     #if Inlinable
     @inlinable
     #endif
@@ -146,7 +148,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -162,7 +164,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: (some HTTPMediaTypeProtocol)? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         let mediaType:HTTPMediaType?
         if let contentType {
@@ -183,7 +185,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -198,7 +200,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: (some HTTPMediaTypeProtocol)? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -213,7 +215,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -228,7 +230,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -243,7 +245,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: (some HTTPMediaTypeProtocol)? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -258,7 +260,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -273,7 +275,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -288,7 +290,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -303,7 +305,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -318,7 +320,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
@@ -333,7 +335,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
         contentType: HTTPMediaType? = nil,
         charset: Charset? = nil,
-        body: some ResponseBodyProtocol,
+        body: Body,
     ) -> Self {
         return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }

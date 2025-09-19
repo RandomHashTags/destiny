@@ -4,7 +4,7 @@ import DestinyDefaults
 import Logging
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
-public struct DynamicRouteResponder: DynamicRouteResponderProtocol { // TODO: avoid existentials / support embedded
+public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let _defaultResponse:DynamicResponse

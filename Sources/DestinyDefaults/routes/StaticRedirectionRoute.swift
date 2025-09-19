@@ -24,12 +24,6 @@ public struct StaticRedirectionRoute: RedirectionRouteProtocol {
     public func fromStartLine() -> String {
         return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
     }
-
-    public func response() -> HTTPResponseMessage {
-        var headers = HTTPHeaders()
-        headers["Date"] = HTTPDateFormat.placeholder
-        return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
-    }
 }
 
 // MARK: Init

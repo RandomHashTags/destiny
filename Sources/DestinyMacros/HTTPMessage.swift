@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -34,7 +35,7 @@ enum HTTPMessage: DeclarationMacro {
                 context.diagnose(DiagnosticMsg.unhandled(node: child))
             }
         }
-        var response = DestinyDefaults.HTTPResponseMessage(
+        var response = HTTPResponseMessage(
             version: version,
             status: status,
             headers: headers,

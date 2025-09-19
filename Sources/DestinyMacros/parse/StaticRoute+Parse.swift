@@ -1,6 +1,9 @@
 
+#if canImport(DestinyDefaultsNonEmbedded)
+
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded
 import HTTPMediaTypes
 import SwiftDiagnostics
 import SwiftSyntax
@@ -114,3 +117,5 @@ extension StaticRoute {
         return try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }
 }
+
+#endif

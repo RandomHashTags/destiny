@@ -4,7 +4,7 @@ public enum HTTPCookieFlag {
 
 // MARK: SameSite
 extension HTTPCookieFlag {
-    public enum SameSite: String, Sendable {
+    public enum SameSite: Sendable {
         case strict
         case lax
         case none
