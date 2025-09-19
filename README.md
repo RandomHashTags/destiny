@@ -119,6 +119,14 @@ Where applicable, to reduce overhead as much as possible. `@inlinable` and `@inl
 
 <details>
 
+<summary>@_marker annotation</summary>
+
+Where applicable, to remove protocol witness tables (reducing binary size)
+
+</details>
+
+<details>
+
 <summary>Actor avoidance</summary>
 
 To encourage better state management and data structures
@@ -129,7 +137,7 @@ To encourage better state management and data structures
 
 <summary>InlineArrays</summary>
 
-To avoid heap allocations (especially in hot-paths)
+To avoid heap allocations (especially in hot paths)
 
 </details>
 
@@ -166,7 +174,7 @@ For compile-time array optimizations, reducing heap allocations and dynamic disp
 
 <summary>Opaque types</summary>
 
-To avoid dynamic dispatch, existentials and boxing (especially in hot-paths)
+To avoid dynamic dispatch, existentials and boxing (especially in hot paths)
 
 </details>
 
@@ -174,7 +182,7 @@ To avoid dynamic dispatch, existentials and boxing (especially in hot-paths)
 
 <summary>Generic parameters</summary>
 
-Only where opaque types aren't applicable to avoid dynamic dispatch, existentials and boxing (especially in hot-paths)
+Only where opaque types aren't applicable to avoid dynamic dispatch, existentials and boxing (especially in hot paths)
 
 </details>
 
