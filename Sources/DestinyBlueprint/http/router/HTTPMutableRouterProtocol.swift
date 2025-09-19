@@ -8,7 +8,8 @@ public protocol HTTPMutableRouterProtocol: AnyObject, HTTPRouterProtocol {
     func register(
         caseSensitive: Bool,
         path: SIMD64<UInt8>,
-        responder: some StaticRouteResponderProtocol
+        responder: some StaticRouteResponderProtocol,
+        override: Bool
     )
 
     /// Registers a dynamic route responder to the given route path.

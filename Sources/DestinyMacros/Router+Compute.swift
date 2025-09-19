@@ -5,6 +5,10 @@ import HTTPMediaTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+#if MutableRouter
+import DestinyDefaultsNonEmbedded // TODO: fix
+#endif
+
 extension Router {
     static func compute(
         routerSettings: RouterSettings,

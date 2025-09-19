@@ -18,7 +18,7 @@ package final class TestRouter {
 // MARK: Router
 extension TestRouter {
     #declareRouter(
-        routerSettings: .init(copyable: false, visibility: .package),
+        routerSettings: .init(copyable: false, mutable: false, visibility: .package),
 
         version: .v1_1,
         dynamicNotFoundResponder: nil,

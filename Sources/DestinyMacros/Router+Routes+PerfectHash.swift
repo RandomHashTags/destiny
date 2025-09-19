@@ -74,25 +74,21 @@ extension RouterStorage {
         let reservedCapacity = staticRoutes.count + dynamicRoutes.count
         var routePaths = [String]()
         var routeResponders = [String]()
-        var literalRouteResponders = [String]()
         routePaths.reserveCapacity(reservedCapacity)
         routeResponders.reserveCapacity(reservedCapacity)
-        literalRouteResponders.reserveCapacity(reservedCapacity)
         appendStaticRoutes(
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: staticRoutes,
             routePaths: &routePaths,
-            routeResponders: &routeResponders,
-            literalRouteResponders: &literalRouteResponders
+            routeResponders: &routeResponders
         )
         appendDynamicRoutes(
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: dynamicRoutes,
             literalRoutePaths: &routePaths,
-            routeResponders: &routeResponders,
-            literalRouteResponders: &literalRouteResponders
+            routeResponders: &routeResponders
         )
         guard !routePaths.isEmpty else { return nil }
         var members = MemberBlockItemListSyntax()
@@ -101,7 +97,7 @@ extension RouterStorage {
             isCopyable: isCopyable,
             routePaths: routePaths,
             members: &members,
-            routeResponders: literalRouteResponders
+            routeResponders: routeResponders
         )
         let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let name = "\(namePrefix)ResponderStorage\(random)"
@@ -111,7 +107,7 @@ extension RouterStorage {
             name: "\(raw: name)",
             inheritanceClause: .init(
                 inheritedTypes: .init([
-                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: ","),
+                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: .commaToken()),
                     .init(type: TypeSyntax.init(stringLiteral: "\(copyableSymbol)Copyable"))
                 ])
             ),
@@ -422,9 +418,9 @@ extension RouterStorage {
                 ]),
                 returnClause: .init(type: TypeSyntax("UInt64")),
             ),
-            body: .init(statements: .init([
+            body: .init(statements: [
                 .init(stringLiteral: "return \(extractKeyLiteral)")
-            ]))
+            ])
         )
 
         let perfectHashReturns:(annotation: String, literal: String)        

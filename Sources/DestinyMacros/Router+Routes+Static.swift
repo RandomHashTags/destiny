@@ -68,17 +68,14 @@ extension RouterStorage {
     ) -> StructDeclSyntax? {
         var routePaths = [String]()
         var literalRouteResponders = [String]()
-        var routeResponders = [String]()
         routePaths.reserveCapacity(routes.count)
         literalRouteResponders.reserveCapacity(routes.count)
-        routeResponders.reserveCapacity(routes.count)
         appendStaticRoutes(
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: routes,
             routePaths: &routePaths,
-            routeResponders: &routeResponders,
-            literalRouteResponders: &literalRouteResponders
+            routeResponders: &literalRouteResponders
         )
         guard !routePaths.isEmpty else { return nil }
 
@@ -89,7 +86,7 @@ extension RouterStorage {
             name: "\(raw: namePrefix)ResponderStorage\(raw: random)",
             inheritanceClause: .init(
                 inheritedTypes: .init([
-                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: ","),
+                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: .commaToken()),
                     .init(type: TypeSyntax.init(stringLiteral: "\(copyableSymbol)Copyable"))
                 ])
             ),
@@ -113,8 +110,7 @@ extension RouterStorage {
         isCopyable: Bool,
         routes: [(StaticRoute, FunctionCallExprSyntax)],
         routePaths: inout [String],
-        routeResponders: inout [String],
-        literalRouteResponders: inout [String]
+        routeResponders: inout [String]
     ) {
         let getResponderValue:(RouterStorage.Route) -> String = {
             "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \($0.responder)\n)"
@@ -134,7 +130,6 @@ extension RouterStorage {
                 isCopyable: isCopyable,
                 routePaths: &routePaths,
                 routeResponders: &routeResponders,
-                literalRouteResponders: &literalRouteResponders,
                 getRedirectRouteStartLine: getRedirectRouteStartLine,
                 getResponderValue: getResponderValue
             )
@@ -160,8 +155,7 @@ extension RouterStorage {
                     }
                     registeredPaths.insert(startLine)
                     routePaths.append("\(startLine)")
-                    literalRouteResponders.append(responder)
-                    routeResponders.append(getResponderValue(.init(startLine: startLine, buffer: buffer, responder: responder)))
+                    routeResponders.append(responder)
                     if isCaseSensitive {
                         if let index = staticCaseSensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
                             staticCaseSensitiveRoutes.remove(at: index)
@@ -218,7 +212,6 @@ extension RouterStorage {
         isCopyable: Bool,
         routePaths: inout [String],
         routeResponders: inout [String],
-        literalRouteResponders: inout [String],
         getRedirectRouteStartLine: (any RedirectionRouteProtocol) -> String,
         getResponderValue: (RouterStorage.Route) -> String
     ) {
@@ -229,24 +222,19 @@ extension RouterStorage {
             guard route.isCaseSensitive == isCaseSensitive else {
                 continue
             }
-            var string = getRedirectRouteStartLine(route)
+            let string = getRedirectRouteStartLine(route)
             guard !registeredPaths.contains(string) else {
                 Router.routePathAlreadyRegistered(context: context, node: function, string)
                 continue
             }
             registeredPaths.insert(string)
-            do throws(AnyError) {
-                let responder = try IntermediateResponseBody(
-                    type: .staticStringWithDateHeader,
-                    ""
-                ).responderDebugDescription(isCopyable: isCopyable, response: route.response())
-                routePaths.append("\(string)")
-                routeResponders.append(getResponderValue(.init(startLine: string, buffer: .init(&string), responder: responder)))
-                literalRouteResponders.append(responder)
-                removedRedirects.append(index)
-            } catch {
-                context.diagnose(.init(node: function, message: DiagnosticMsg(id: "staticRedirectError", message: "\(error)")))
-            }
+            let responder = IntermediateResponseBody(
+                type: .staticStringWithDateHeader,
+                ""
+            ).responderDebugDescription(isCopyable: isCopyable, response: route.response())
+            routePaths.append("\(string)")
+            routeResponders.append(responder)
+            removedRedirects.append(index)
         }
         for i in removedRedirects.reversed() {
             staticRedirects.remove(at: i)

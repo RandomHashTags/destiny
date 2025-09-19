@@ -159,6 +159,12 @@ extension RouterStorage {
             }
             """
         }
+        while responder.first?.isWhitespace ?? false {
+            responder.removeFirst()
+        }
+        while responder.last?.isWhitespace ?? false {
+            responder.removeLast()
+        }
         let paths = route.paths.map({ PathComponent.init(stringLiteral: String($0)) })
         var members = MemberBlockItemListSyntax()
         members.append(DeclSyntax.init(stringLiteral: "let _defaultResponse = \(defaultResponse)"))
@@ -239,7 +245,7 @@ extension RouterStorage {
             leadingTrivia: .init(stringLiteral: "// MARK: \(name)\n\(visibility)"),
             name: .init(stringLiteral: name),
             inheritanceClause: .init(inheritedTypes: .init([
-                .init(type: TypeSyntax(stringLiteral: "\(copyableText)DynamicRouteResponderProtocol"), trailingComma: ","),
+                .init(type: TypeSyntax(stringLiteral: "\(copyableText)DynamicRouteResponderProtocol"), trailingComma: .commaToken()),
                 .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
             ])),
             memberBlock: .init(members: members)
@@ -380,7 +386,7 @@ extension RouterStorage {
             leadingTrivia: "// MARK: \(name)\n\(visibility)",
             name: "\(raw: name)",
             inheritanceClause: .init(inheritedTypes: .init([
-                .init(type: TypeSyntax("\(raw: copyableText)ResponderStorageProtocol"), trailingComma: ","),
+                .init(type: TypeSyntax("\(raw: copyableText)ResponderStorageProtocol"), trailingComma: .commaToken()),
                 .init(type: TypeSyntax("\(raw: copyableSymbol)Copyable"))
             ])),
             memberBlock: .init(members: responderMembers)
@@ -402,8 +408,7 @@ extension RouterStorage {
         isCopyable: Bool,
         routes: [(DynamicRoute, FunctionCallExprSyntax)],
         literalRoutePaths: inout [String],
-        routeResponders: inout [String],
-        literalRouteResponders: inout [String]
+        routeResponders: inout [String]
     ) {
         let routeStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
         for (route, function) in routes {
@@ -422,7 +427,7 @@ extension RouterStorage {
 
             registeredPaths.insert(startLine)
             literalRoutePaths.append(route.startLine())
-            literalRouteResponders.append(responder)
+            routeResponders.append(responder)
 
             if isCaseSensitive {
                 if let index = dynamicCaseSensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {

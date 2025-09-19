@@ -7,7 +7,7 @@ public final class RouteGroupStorage: MutableRouteGroupStorageProtocol, @uncheck
     @usableFromInline
     var groups:[any RouteGroupProtocol]
 
-    public init(_ groups: [any RouteGroupProtocol]) {
+    public init(_ groups: [any RouteGroupProtocol] = []) {
         self.groups = groups
     }
 }

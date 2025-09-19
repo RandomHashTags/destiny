@@ -66,8 +66,8 @@ let package = Package(
     ],
     traits: [
         //.default(enabledTraits: []),
-        .default(enabledTraits: ["Inlinable", "InlineAlways"]),
-        //.default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
+        //.default(enabledTraits: ["Inlinable", "InlineAlways"]),
+        .default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
 
         .trait( // useful when benchmarking/profiling raw performance
             name: "Inlinable",
