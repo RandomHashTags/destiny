@@ -2,11 +2,14 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded // TODO: fix
 import PerfectHashing
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if canImport(DestinyDefaultsNonEmbedded)
+import DestinyDefaultsNonEmbedded
+#endif
 
 extension RouterStorage {
     mutating func perfectHashResponder(
@@ -14,15 +17,12 @@ extension RouterStorage {
     ) -> CompiledRouterStorage.Responder? {
         let namePrefix:String
         let staticRoutes:[(StaticRoute, FunctionCallExprSyntax)]
-        let dynamicRoutes:[(DynamicRoute, FunctionCallExprSyntax)]
         if isCaseSensitive {
             namePrefix = "CaseSensitive"
             staticRoutes = staticCaseSensitiveRoutes
-            dynamicRoutes = dynamicCaseSensitiveRoutes
         } else {
             namePrefix = "CaseInsensitive"
             staticRoutes = staticCaseInsensitiveRoutes
-            dynamicRoutes = dynamicCaseInsensitiveRoutes
         }
         let copyable:String?
         var noncopyable:String? = nil
@@ -30,7 +30,6 @@ extension RouterStorage {
             namePrefix: namePrefix,
             random: getRandom(isCaseSensitive: isCaseSensitive),
             staticRoutes: staticRoutes,
-            dynamicRoutes: dynamicRoutes,
             isCaseSensitive: isCaseSensitive,
             isCopyable: true
         ) {
@@ -42,7 +41,6 @@ extension RouterStorage {
             namePrefix: namePrefix,
             random: getRandom(isCaseSensitive: isCaseSensitive),
             staticRoutes: staticRoutes,
-            dynamicRoutes: dynamicRoutes,
             isCaseSensitive: isCaseSensitive,
             isCopyable: false
         ) {
@@ -67,11 +65,15 @@ extension RouterStorage {
         namePrefix: String,
         random: Int,
         staticRoutes: [(StaticRoute, FunctionCallExprSyntax)],
-        dynamicRoutes: [(DynamicRoute, FunctionCallExprSyntax)],
         isCaseSensitive: Bool,
         isCopyable: Bool
     ) -> String? {
-        let reservedCapacity = staticRoutes.count + dynamicRoutes.count
+        var dynamicRoutesCount = 0
+        #if canImport(DestinyDefaultsNonEmbedded)
+        let dynamicRoutes = isCaseSensitive ? dynamicCaseSensitiveRoutes : dynamicCaseInsensitiveRoutes
+        dynamicRoutesCount = dynamicRoutes.count
+        #endif
+        let reservedCapacity = staticRoutes.count + dynamicRoutesCount
         var routePaths = [String]()
         var routeResponders = [String]()
         routePaths.reserveCapacity(reservedCapacity)
@@ -83,6 +85,8 @@ extension RouterStorage {
             routePaths: &routePaths,
             routeResponders: &routeResponders
         )
+
+        #if canImport(DestinyDefaultsNonEmbedded)
         appendDynamicRoutes(
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
@@ -90,6 +94,8 @@ extension RouterStorage {
             literalRoutePaths: &routePaths,
             routeResponders: &routeResponders
         )
+        #endif
+
         guard !routePaths.isEmpty else { return nil }
         var members = MemberBlockItemListSyntax()
         staticConstants(

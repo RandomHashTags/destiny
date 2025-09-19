@@ -1,9 +1,12 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded // TODO: fix
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if canImport(DestinyDefaultsNonEmbedded)
+import DestinyDefaultsNonEmbedded
+#endif
 
 public struct RouterStorage {
     let context:MacroExpansionContext
@@ -18,8 +21,11 @@ public struct RouterStorage {
 
     var dynamicMiddleware:[FunctionCallExprSyntax] = []
     var dynamicRedirects:[(any RedirectionRouteProtocol, SyntaxProtocol)] = []
+
+    #if canImport(DestinyDefaultsNonEmbedded)
     var dynamicCaseInsensitiveRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
     var dynamicCaseSensitiveRoutes:[(DynamicRoute, FunctionCallExprSyntax)] = []
+    #endif
 
     var staticMiddleware:[CompiledStaticMiddleware] = []
     var staticRedirects:[(StaticRedirectionRoute, SyntaxProtocol)] = []

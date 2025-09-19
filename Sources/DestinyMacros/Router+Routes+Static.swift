@@ -212,7 +212,7 @@ extension RouterStorage {
         isCopyable: Bool,
         routePaths: inout [String],
         routeResponders: inout [String],
-        getRedirectRouteStartLine: (any RedirectionRouteProtocol) -> String,
+        getRedirectRouteStartLine: (StaticRedirectionRoute) -> String,
         getResponderValue: (RouterStorage.Route) -> String
     ) {
         var removedRedirects = [Int]()
@@ -228,13 +228,14 @@ extension RouterStorage {
                 continue
             }
             registeredPaths.insert(string)
+            routePaths.append(string)
+            removedRedirects.append(index)
+
             let responder = IntermediateResponseBody(
                 type: .staticStringWithDateHeader,
                 ""
             ).responderDebugDescription(isCopyable: isCopyable, response: route.response())
-            routePaths.append("\(string)")
             routeResponders.append(responder)
-            removedRedirects.append(index)
         }
         for i in removedRedirects.reversed() {
             staticRedirects.remove(at: i)

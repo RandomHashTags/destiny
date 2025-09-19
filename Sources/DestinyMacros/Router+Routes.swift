@@ -1,9 +1,12 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded // TODO: fix
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if canImport(DestinyDefaultsNonEmbedded)
+import DestinyDefaultsNonEmbedded
+#endif
 
 // MARK: Parse
 extension Router {
@@ -23,6 +26,7 @@ extension Router {
             decl = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text
         }
         switch decl {
+        #if canImport(DestinyDefaultsNonEmbedded)
         case "DynamicRoute":
             var route = DynamicRoute.parse(context: context, version: version, middleware: storage.staticMiddleware, function)
             if let method = targetMethod {
@@ -33,6 +37,7 @@ extension Router {
             } else {
                 storage.dynamicCaseInsensitiveRoutes.append((route, function))
             }
+        #endif
         case "StaticRoute":
             var route = StaticRoute.parse(context: context, version: version, function)
             if let method = targetMethod {

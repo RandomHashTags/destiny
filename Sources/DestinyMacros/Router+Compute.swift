@@ -5,8 +5,8 @@ import HTTPMediaTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if MutableRouter
-import DestinyDefaultsNonEmbedded // TODO: fix
+#if MutableRouter && canImport(DestinyDefaultsNonEmbedded)
+import DestinyDefaultsNonEmbedded
 #endif
 
 extension Router {
@@ -62,7 +62,7 @@ extension Router {
                             continue
                         }
                         switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                        #if MutableRouter
+                        #if MutableRouter && canImport(DestinyDefaultsNonEmbedded)
                         case "RouteGroup":
                             let (decl, groupStorage) = RouteGroup.parse(
                                 context: context,
@@ -144,8 +144,17 @@ extension Router {
         let perfectHashCaseInsensitiveResponder = storage.perfectHashResponder(isCaseSensitive: false)
         let caseSensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: true)
         let caseInsensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: false)
-        let dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: true)
-        let dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: false)
+
+        let dynamicCaseSensitiveResponder:CompiledRouterStorage.Responder?
+        let dynamicCaseInsensitiveResponder:CompiledRouterStorage.Responder?
+        #if canImport(DestinyDefaultsNonEmbedded)
+        dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: true)
+        dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: false)
+        #else
+        dynamicCaseSensitiveResponder = nil
+        dynamicCaseInsensitiveResponder = nil
+        #endif
+
         let dynamicMiddlewareArray = storage.dynamicMiddlewareArray()
         let compiled = CompiledRouterStorage(
             settings: routerSettings,

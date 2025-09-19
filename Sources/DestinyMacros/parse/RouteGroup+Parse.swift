@@ -1,9 +1,9 @@
 
-#if MutableRouter
+#if MutableRouter && canImport(DestinyDefaultsNonEmbedded)
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded // TODO: fix
+import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 

@@ -1,4 +1,6 @@
 
+#if canImport(DestinyDefaultsNonEmbedded)
+
 import DestinyDefaultsNonEmbedded
 
 // MARK: CustomDebugStringConvertible
@@ -13,3 +15,5 @@ extension DynamicRouteResponder: CustomDebugStringConvertible {
         """
     }
 }
+
+#endif

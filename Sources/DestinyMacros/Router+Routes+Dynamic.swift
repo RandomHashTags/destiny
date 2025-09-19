@@ -1,7 +1,9 @@
 
+#if canImport(DestinyDefaultsNonEmbedded)
+
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded // TODO: fix
+import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -441,3 +443,5 @@ extension RouterStorage {
         }
     }
 }
+
+#endif
