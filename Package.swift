@@ -77,7 +77,12 @@ let package = Package(
     ],
     traits: [
         //.default(enabledTraits: []),
-        .default(enabledTraits: ["NonCopyable", "Inlinable", "InlineAlways"]),
+        .default(enabledTraits: [
+            "Inlinable",
+            "InlineAlways",
+            "NonCopyable",
+            "RequestBodyStream"
+        ]),
         //.default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
 
         .trait( // useful when benchmarking/profiling raw performance
@@ -91,13 +96,18 @@ let package = Package(
 
         .trait(
             name: "MutableRouter",
-            description: "Enables functionality that allows registering data to a Router at runtime."
+            description: "Enables functionality that registers data to a Router at runtime."
         ),
         .trait(
             name: "Copyable"
         ),
         .trait(
             name: "NonCopyable"
+        ),
+
+        .trait(
+            name: "RequestBodyStream",
+            description: "Enables functionality that streams a request's body."
         ),
 
         .trait(

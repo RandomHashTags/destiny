@@ -1,4 +1,6 @@
 
+#if RequestBodyStream
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -21,3 +23,5 @@ extension HTTPRequest {
         try await abstractRequest.bodyStream(fileDescriptor: fileDescriptor, yield)
     }
 }
+
+#endif

@@ -1,4 +1,6 @@
 
+#if RequestBodyStream
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -79,3 +81,5 @@ extension AbstractHTTPRequest._Storage {
         _body!._totalRead += UInt64(copied)
     }
 }
+
+#endif
