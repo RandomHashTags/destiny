@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 extension ResponseBody {
     #if Inlinable
@@ -53,7 +54,7 @@ public struct NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol, ~Copy
     @inlinable
     #endif
     public var count: Int {
-        preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.count
+        preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.utf8CodeUnitCount
     }
     
     #if Inlinable

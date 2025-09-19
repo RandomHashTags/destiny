@@ -38,7 +38,7 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
     @inlinable
     #endif
     public var count: Int {
-        preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.count
+        preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.utf8CodeUnitCount
     }
     
     #if Inlinable

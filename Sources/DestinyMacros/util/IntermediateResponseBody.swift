@@ -59,6 +59,18 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
 
         case .string:
             return value
+
+        case .nonCopyableBytes:
+            return "ResponseBody.NonCopyableBytes(\(value))"
+        case .nonCopyableInlineBytes:
+            return "ResponseBody.NonCopyableInlineBytes(\(value))"
+        case .nonCopyableMacroExpansionWithDateHeader:
+            var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
+            postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
+            return "NonCopyableMacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
+        case .nonCopyableStaticStringWithDateHeader:
+            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
+            return "NonCopyableStaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
         }
     }
     func escapedValue() -> String {
@@ -75,7 +87,8 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
 
     var isNoncopyable: Bool {
         switch type {
-        case .bytes, .inlineBytes, .macroExpansion, .macroExpansionWithDateHeader, .stringWithDateHeader, .staticString, .staticStringWithDateHeader:
+        case .bytes, .inlineBytes, .macroExpansion, .macroExpansionWithDateHeader, .stringWithDateHeader, .staticString, .staticStringWithDateHeader,
+                .nonCopyableBytes, .nonCopyableInlineBytes, .nonCopyableMacroExpansionWithDateHeader, .nonCopyableStaticStringWithDateHeader:
             true
         default:
             false
@@ -87,7 +100,9 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         case .macroExpansionWithDateHeader,
                 .streamWithDateHeader,
                 .staticStringWithDateHeader,
-                .stringWithDateHeader:
+                .stringWithDateHeader,
+                .nonCopyableMacroExpansionWithDateHeader,
+                .nonCopyableStaticStringWithDateHeader:
             return true
         default:
             return false
@@ -99,15 +114,20 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     }
 }
 
-public enum IntermediateResponseBodyType: Sendable {
+public enum IntermediateResponseBodyType: String, Sendable {
     case bytes
-    case inlineBytes
-    case macroExpansion
-    case macroExpansionWithDateHeader
-    case streamWithDateHeader
-    case staticString
-    case staticStringWithDateHeader
-    case stringWithDateHeader
+    case inlineBytes                             = "inlinebytes"
+    case macroExpansion                          = "macroexpansion"
+    case macroExpansionWithDateHeader            = "macroexpansionwithdateheader"
+    case streamWithDateHeader                    = "streamwithdateheader"
+    case staticString                            = "staticstring"
+    case staticStringWithDateHeader              = "staticstringwithdateheader"
+    case stringWithDateHeader                    = "stringwithdateheader"
 
     case string
+
+    case nonCopyableBytes                        = "noncopyablebytes"
+    case nonCopyableInlineBytes                  = "noncopyableinlinebytes"
+    case nonCopyableMacroExpansionWithDateHeader = "noncopyablemacroexpansionwithdateheader"
+    case nonCopyableStaticStringWithDateHeader   = "noncopyablestaticstringwithdateheader"
 }

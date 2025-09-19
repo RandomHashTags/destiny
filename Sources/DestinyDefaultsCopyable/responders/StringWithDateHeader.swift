@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 extension ResponseBody {
     public static func stringWithDateHeader(_ value: String) -> StringWithDateHeader {

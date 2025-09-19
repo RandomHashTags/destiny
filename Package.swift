@@ -29,14 +29,22 @@ pkgDependencies.append(contentsOf: [
 
 var destinyDependencies:[Target.Dependency] = [
     "DestinyBlueprint",
-    "DestinyDefaults"
+    "DestinyDefaults",
+    .byName(name: "DestinyDefaultsCopyable", condition: .when(traits: ["Copyable"])),
+    .byName(name: "DestinyDefaultsNonCopyable", condition: .when(traits: ["NonCopyable"])),
 ]
 
-#if !hasFeature(Embedded)
+#if hasFeature(Embedded)
+destinyDependencies.append("DestinyDefaultsGenerics")
+#else
 destinyDependencies.append("DestinyDefaultsNonEmbedded")
 #endif
 
 var destinyMacrosDependencies = destinyDependencies
+#if !hasFeature(Embedded)
+destinyMacrosDependencies.append("DestinyDefaultsGenerics")
+#endif
+
 destinyMacrosDependencies.append(contentsOf: [
     "HTTPHeaderExtras",
     "HTTPMediaTypes",
@@ -54,6 +62,9 @@ let package = Package(
     products: [
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
+        .library(name: "DestinyDefaultsCopyable", targets: ["DestinyDefaultsCopyable"]),
+        .library(name: "DestinyDefaultsGenerics", targets: ["DestinyDefaultsGenerics"]),
+        .library(name: "DestinyDefaultsNonCopyable", targets: ["DestinyDefaultsNonCopyable"]),
         .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
@@ -66,7 +77,7 @@ let package = Package(
     ],
     traits: [
         //.default(enabledTraits: []),
-        .default(enabledTraits: ["Inlinable", "InlineAlways"]),
+        .default(enabledTraits: ["NonCopyable", "Inlinable", "InlineAlways"]),
         //.default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
 
         .trait( // useful when benchmarking/profiling raw performance
@@ -81,6 +92,12 @@ let package = Package(
         .trait(
             name: "MutableRouter",
             description: "Enables functionality that allows registering data to a Router at runtime."
+        ),
+        .trait(
+            name: "Copyable"
+        ),
+        .trait(
+            name: "NonCopyable"
         ),
 
         .trait(
@@ -110,6 +127,34 @@ let package = Package(
             name: "DestinyDefaults",
             dependencies: [
                 "DestinyBlueprint",
+                .product(name: "Logging", package: "swift-log"),
+                //.product(name: "Metrics", package: "swift-metrics"),
+            ]
+        ),
+
+        // MARK: DestinyDefaultsCopyable
+        .target(
+            name: "DestinyDefaultsCopyable",
+            dependencies: [
+                "DestinyDefaults",
+                .product(name: "Logging", package: "swift-log"),
+                //.product(name: "Metrics", package: "swift-metrics"),
+            ]
+        ),
+
+        // MARK: DestinyDefaultsCopyable
+        .target(
+            name: "DestinyDefaultsGenerics",
+            dependencies: [
+                "DestinyDefaults"
+            ]
+        ),
+
+        // MARK: DestinyDefaultsNonCopyable
+        .target(
+            name: "DestinyDefaultsNonCopyable",
+            dependencies: [
+                "DestinyDefaults",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
             ]

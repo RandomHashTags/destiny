@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.

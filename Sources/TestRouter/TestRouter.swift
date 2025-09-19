@@ -76,7 +76,7 @@ extension TestRouter {
                 StaticRoute.get(
                     path: ["hoopla"],
                     contentType: HTTPMediaTypeText.plain,
-                    body: StaticStringWithDateHeader("rly dud")
+                    body: NonCopyableStaticStringWithDateHeader("rly dud")
                 ),
                 DynamicRoute.get(
                     path: ["HOOPLA"],
@@ -90,7 +90,7 @@ extension TestRouter {
         StaticRoute.get(
             path: ["newEndpoint"],
             contentType: HTTPMediaTypeText.html,
-            body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /legacyEndpoint to here</h1></body></html>"#)
+            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /legacyEndpoint to here</h1></body></html>"#)
         ),
         StaticRoute.get(
             path: ["stream"],
@@ -100,50 +100,50 @@ extension TestRouter {
         StaticRoute.get(
             path: ["expressionMacro"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.macroExpansionWithDateHeader(#filePath)
+            body: ResponseBody.nonCopyableMacroExpansionWithDateHeader(#filePath)
         ),
         StaticRoute.post(
             path: ["post"],
             contentType: HTTPMediaTypeApplication.json,
-            body: StaticStringWithDateHeader(#"{"bing":"bonged"}"#)
+            body: NonCopyableStaticStringWithDateHeader(#"{"bing":"bonged"}"#)
         ),
         StaticRoute.get(
             path: ["bro?what=dude"],
             contentType: HTTPMediaTypeApplication.json,
-            body: StaticStringWithDateHeader(#"{"bing":"bonged"}"#)
+            body: NonCopyableStaticStringWithDateHeader(#"{"bing":"bonged"}"#)
         ),
         StaticRoute.get(
             path: ["html"],
             contentType: HTTPMediaTypeText.html,
-            body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
         StaticRoute.get(
             path: ["SHOOP"],
             caseSensitive: false,
             contentType: HTTPMediaTypeText.html,
-            body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
         StaticRoute.get(
             version: .v2_0,
             path: ["html2"],
             contentType: HTTPMediaTypeText.html,
-            body: StaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
         StaticRoute.get(
             path: ["json"],
             contentType: HTTPMediaTypeApplication.json,
-            body: StaticStringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
+            body: NonCopyableStaticStringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
             //body: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
         ),
         StaticRoute.get(
             path: ["txt"],
             contentType: HTTPMediaTypeText.plain,
-            body: StaticStringWithDateHeader("just a regular txt page; t'was your destiny")
+            body: NonCopyableStaticStringWithDateHeader("just a regular txt page; t'was your destiny")
         ),
         StaticRoute.get(
             path: ["inlineBytes"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.inlineBytes([
+            body: ResponseBody.nonCopyableInlineBytes([
                 .H, .T, .T, .P, .forwardSlash, 49, 46, 49, .space, 50, 48, 48, .carriageReturn, .lineFeed,
                 .C, .o, .n, .t, .e, .n, .t, 45, .T, .y, .p, .e, .colon, .space, .t, .e, .x, .t, .forwardSlash, .p, .l, .a, .i, .n, .carriageReturn, .lineFeed,
                 .C, .o, .n, .t, .e, .n, .t, 45, .L, .e, .n, .g, .t, .h, .colon, .space, 49, 48, .carriageReturn, .lineFeed, .carriageReturn, .lineFeed,
@@ -153,7 +153,7 @@ extension TestRouter {
         StaticRoute.get(
             path: ["bytes"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.bytes([
+            body: ResponseBody.nonCopyableBytes([
                 .H, .T, .T, .P, .forwardSlash, 49, 46, 49, .space, 50, 48, 48, .carriageReturn, .lineFeed,
                 .C, .o, .n, .t, .e, .n, .t, 45, .T, .y, .p, .e, .colon, .space, .t, .e, .x, .t, .forwardSlash, .p, .l, .a, .i, .n, .carriageReturn, .lineFeed,
                 .C, .o, .n, .t, .e, .n, .t, 45, .L, .e, .n, .g, .t, .h, .colon, .space, 49, 48, .carriageReturn, .lineFeed, .carriageReturn, .lineFeed,
@@ -163,12 +163,12 @@ extension TestRouter {
         StaticRoute.get(
             path: ["bytes2"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.bytes([UInt8]("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
+            body: ResponseBody.nonCopyableBytes([UInt8]("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
         ),
         StaticRoute.get(
             path: ["bytes3"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.bytes(Array<UInt8>("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
+            body: ResponseBody.nonCopyableBytes(Array<UInt8>("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
         ),
         /*StaticRoute.get(
             path: ["error"],

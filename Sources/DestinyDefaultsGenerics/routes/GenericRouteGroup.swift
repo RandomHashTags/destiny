@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 /// Default immutable Route Group implementation that handles grouped routes.
 public struct GenericRouteGroup<

@@ -199,11 +199,11 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
     func setNonBlocking(socket: Int32) {
         let flags = fcntl(socket, F_GETFL, 0)
         guard flags != -1 else {
-            fatalError("HTTPServer;setNonBlocking;broken1")
+            fatalError("NonCopyableHTTPServer;setNonBlocking;broken1")
         }
         let result = fcntl(socket, F_SETFL, flags | O_NONBLOCK)
         guard result != -1 else {
-            fatalError("HTTPServer;setNonBlocking;broken2")
+            fatalError("NonCopyableHTTPServer;setNonBlocking;broken2")
         }
     }
 

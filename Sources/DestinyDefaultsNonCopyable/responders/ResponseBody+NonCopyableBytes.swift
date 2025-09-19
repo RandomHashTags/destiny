@@ -1,14 +1,15 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 extension ResponseBody {
     #if Inlinable
     @inlinable
     #endif
-    public static func bytes(_ value: [UInt8]) -> Self.Bytes {
-        Self.Bytes(value)
+    public static func nonCopyableBytes(_ value: [UInt8]) -> Self.NonCopyableBytes {
+        .init(value)
     }
-    public struct Bytes: ResponseBodyProtocol {
+    public struct NonCopyableBytes: ResponseBodyProtocol, ~Copyable {
         public let value:[UInt8]
 
         #if Inlinable
@@ -18,6 +19,9 @@ extension ResponseBody {
             self.value = value
         }
 
+        public var description: String {
+            "ResponseBody.NonCopyableBytes(\(value))"
+        }
 
         #if Inlinable
         @inlinable
@@ -45,12 +49,12 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.Bytes: StaticRouteResponderProtocol {
+extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
     public func respond(
-        router: some HTTPRouterProtocol,
+        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void

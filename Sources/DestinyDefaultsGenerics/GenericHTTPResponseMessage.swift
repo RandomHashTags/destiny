@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 
 /// Default storage for an HTTP Message.
 public struct GenericHTTPResponseMessage<

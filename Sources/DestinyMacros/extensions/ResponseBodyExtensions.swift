@@ -13,6 +13,13 @@ extension String {
     }
 }
 
+#if Copyable
+// MARK: Copyable
+
+
+
+
+
 // MARK: Bytes
 extension ResponseBody.Bytes: CustomStringConvertible {
     public var description: String {
@@ -53,3 +60,5 @@ extension StringWithDateHeader {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 }
+
+#endif

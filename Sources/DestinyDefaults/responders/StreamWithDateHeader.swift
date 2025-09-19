@@ -47,7 +47,7 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyP
     @inlinable
     #endif
     public var count: Int {
-        preDateValue.count + HTTPDateFormat.InlineArrayResult.count + postDateValue.count
+        preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.utf8CodeUnitCount
     }
     
     #if Inlinable
