@@ -82,16 +82,13 @@ extension RouterStorage {
         )
         guard !routePaths.isEmpty else { return nil }
 
-        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
+        let name = "\(namePrefix)ResponderStorage\(random)"
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n",
+            leadingTrivia: "// MARK: \(name)\n",
             modifiers: [visibilityModifier],
-            name: "\(raw: namePrefix)ResponderStorage\(raw: random)",
+            name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: .init([
-                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: .commaToken()),
-                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableSymbol)Copyable"))
-                ])
+                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
             ),
             memberBlock: .init(members: .init())
         )

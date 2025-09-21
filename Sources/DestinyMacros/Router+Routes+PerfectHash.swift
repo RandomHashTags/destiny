@@ -105,17 +105,13 @@ extension RouterStorage {
             members: &members,
             routeResponders: routeResponders
         )
-        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let name = "\(namePrefix)ResponderStorage\(random)"
         let enumDecl = StructDeclSyntax(
             leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: .init([
-                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableText)ResponderStorageProtocol"), trailingComma: .commaToken()),
-                    .init(type: TypeSyntax.init(stringLiteral: "\(copyableSymbol)Copyable"))
-                ])
+                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
             ),
             memberBlock: .init(members: members)
         )
@@ -138,7 +134,7 @@ extension RouterStorage {
         members: inout MemberBlockItemListSyntax,
         routeResponders: [String]
     ) {
-        let routerParameter = routerParameter(isCopyable: isCopyable)
+        let routerParameter = routerParameter(isCopyable: isCopyable, protocolConformances: settings.hasProtocolConformances)
         var routePathCaseConditions = ""
         var routePathSIMDs = [SIMD64<UInt8>]()
         var staticResponders = [VariableDeclSyntax]()
@@ -186,7 +182,7 @@ extension RouterStorage {
         \(raw: visibility)func respond(
             router: \(raw: routerParameter),
             socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
+            request: \(requestTypeSyntax),
             completionHandler: @Sendable @escaping () -> Void
         ) throws(ResponderError) -> Bool {
             switch self {
@@ -198,7 +194,7 @@ extension RouterStorage {
         routeMembers.append(routeResponderDecl)
         routeMembers.append(contentsOf: staticResponders.map({ .init(decl: $0) }))
         let routeConstantsDecl = EnumDeclSyntax(
-            leadingTrivia: .init(stringLiteral: "\(visibility)"),
+            modifiers: [visibilityModifier],
             name: "Route",
             inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax("UInt16"))
@@ -232,7 +228,7 @@ extension RouterStorage {
         \(raw: visibility)func respond(
             router: \(raw: routerParameter),
             socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
+            request: \(requestTypeSyntax),
             completionHandler: @Sendable @escaping () -> Void
         ) throws(ResponderError) -> Bool {
             let startLine:SIMD64<UInt8>
@@ -420,7 +416,7 @@ extension RouterStorage {
             name: "extractKey",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"))
+                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
                 ]),
                 returnClause: .init(type: TypeSyntax("UInt64")),
             ),
@@ -535,7 +531,7 @@ extension RouterStorage {
             name: "matchRoute",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"))
+                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
                 ]),
                 returnClause: .init(type: TypeSyntax("Route?"))
             ),
@@ -560,7 +556,7 @@ extension RouterStorage {
             name: "matchRoute",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"))
+                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
                 ]),
                 returnClause: .init(type: TypeSyntax("Route?"))
             ),

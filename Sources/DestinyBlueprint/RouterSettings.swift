@@ -18,6 +18,7 @@ public struct RouterSettings: Sendable {
     public init(
         copyable: Bool = false,
         mutable: Bool = false,
+        protocolConformances: Bool = true,
         visibility: RouterVisibility = .internal,
         name: String? = nil,
         requestType: String = "HTTPRequest"
@@ -25,7 +26,7 @@ public struct RouterSettings: Sendable {
         self.visibility = visibility
         self.name = name ?? "CompiledHTTPRouter"
         self.requestType = requestType
-        flags = Flags.pack(copyable: copyable, mutable: mutable)
+        flags = Flags.pack(copyable: copyable, mutable: mutable, protocolConformances: protocolConformances)
     }
 
     /// Whether or not this router should conform to `Copyable`.
@@ -33,12 +34,8 @@ public struct RouterSettings: Sendable {
     @inlinable
     #endif
     public var isCopyable: Bool {
-        get {
-            isFlag(.copyable)
-        }
-        set {
-            setFlag(.copyable, newValue)
-        }
+        get { isFlag(.copyable) }
+        set { setFlag(.copyable, newValue) }
     }
 
     /// Whether or not this router is mutable.
@@ -48,12 +45,16 @@ public struct RouterSettings: Sendable {
     @inlinable
     #endif
     public var isMutable: Bool {
-        get {
-            isFlag(.mutable)
-        }
-        set {
-            setFlag(.mutable, newValue)
-        }
+        get { isFlag(.mutable) }
+        set { setFlag(.mutable, newValue) }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasProtocolConformances: Bool {
+        get { isFlag(.protocolConformances) }
+        set { setFlag(.protocolConformances, newValue) }
     }
 }
 
@@ -63,13 +64,16 @@ extension RouterSettings {
     enum Flags: UInt8 {
         case copyable = 1
         case mutable  = 2
+        case protocolConformances = 4
 
         static func pack(
             copyable: Bool,
-            mutable: Bool
+            mutable: Bool,
+            protocolConformances: Bool
         ) -> RawValue {
             (copyable ? Self.copyable.rawValue : 0)
             | (mutable ? Self.mutable.rawValue : 0)
+            | (protocolConformances ? Self.protocolConformances.rawValue : 0)
         }
     }
 

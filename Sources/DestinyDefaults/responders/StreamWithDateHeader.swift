@@ -26,12 +26,19 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyP
     public let postDateValue:StaticString
     public let body:Body
 
+    @usableFromInline
+    let payload:DateHeaderPayload
+
     public init(
         _ body: Body
     ) {
         preDateValue = ""
         postDateValue = ""
         self.body = body
+        payload = .init(
+            preDate: preDateValue,
+            postDate: postDateValue
+        )
     }
     public init(
         preDateValue: StaticString,
@@ -41,6 +48,10 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyP
         self.preDateValue = preDateValue
         self.postDateValue = postDateValue
         self.body = body
+        payload = .init(
+            preDate: preDateValue,
+            postDate: postDateValue
+        )
     }
 
     #if Inlinable
@@ -78,6 +89,7 @@ extension StreamWithDateHeader {
     @inlinable
     #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
+        // TODO: support?
     }
 }
 
@@ -92,21 +104,7 @@ extension StreamWithDateHeader: StaticRouteResponderProtocol {
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
-        var err:SocketError? = nil
-        preDateValue.withUTF8Buffer { preDatePointer in
-            HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
-                postDateValue.withUTF8Buffer { postDatePointer in
-                    do throws(SocketError) {
-                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
-                    } catch {
-                        err = error
-                    }
-                }
-            }
-        }
-        if let err {
-            throw .socketError(err)
-        }
+        try payload.write(to: socket)
         var requestCopy = request.copy()
         Task {
             do throws(SocketError) {

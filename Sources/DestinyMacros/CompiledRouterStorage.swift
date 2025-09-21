@@ -21,6 +21,7 @@ struct CompiledRouterStorage {
     let staticNotFoundResponder:Responder?
 
     let visibilityModifier:DeclModifierSyntax
+    let requestTypeSyntax:TypeSyntax
 
     init(
         settings: RouterSettings,
@@ -53,6 +54,7 @@ struct CompiledRouterStorage {
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder
         visibilityModifier = settings.visibility.modifierDecl
+        requestTypeSyntax = settings.requestTypeSyntax
     }
     
     var visibility: RouterVisibility {
@@ -97,16 +99,14 @@ extension CompiledRouterStorage {
         } else { // handle multiple routers (2 or more)
             buildMultiRouter(members: &members, copyable: copyable, noncopyable: noncopyable)
         }
-        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: settings.isCopyable)
         let name = settings.name
         return .init(
             leadingTrivia: "// MARK: \(name)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
-            inheritanceClause: .init(inheritedTypes: .init([
-                .init(type: TypeSyntax(stringLiteral: "\(copyableText)HTTPRouterProtocol"), trailingComma: .commaToken()),
-                .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
-            ])),
+            inheritanceClause: .init(
+                inheritedTypes: routerProtocolConformances(isCopyable: settings.isCopyable, protocolConformance: settings.hasProtocolConformances)
+            ),
             memberBlock: .init(members: members)
         )
     }
@@ -127,7 +127,6 @@ extension CompiledRouterStorage {
         members.append(respondWithNotFoundDecl())
         members.append(respondWithErrorDecl())
 
-        let (copyableSymbol, copyableText) = responderCopyableValues(isCopyable: isCopyable)
         let name:String
         if isCopyable {
             name = "Copyable"
@@ -138,10 +137,9 @@ extension CompiledRouterStorage {
             leadingTrivia: "// MARK: \(name)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: "_\(name)")",
-            inheritanceClause: .init(inheritedTypes: .init([
-                .init(type: TypeSyntax(stringLiteral: "\(copyableText)HTTPRouterProtocol"), trailingComma: .commaToken()),
-                .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
-            ])),
+            inheritanceClause: .init(
+                inheritedTypes: routerProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
+            ),
             memberBlock: .init(members: members)
         )
     }
@@ -300,10 +298,10 @@ extension CompiledRouterStorage {
             name: "register",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "caseSensitive", type: TypeSyntax("Bool"), trailingComma: .commaToken()),
-                    .init(firstName: "path", type: TypeSyntax("SIMD64<UInt8>"), trailingComma: .commaToken()),
-                    .init(firstName: "responder", type: TypeSyntax("some StaticRouteResponderProtocol"), trailingComma: .commaToken()),
-                    .init(firstName: "override", type: TypeSyntax("Bool"))
+                    .init(leadingTrivia: "\n", firstName: "caseSensitive", type: TypeSyntax("Bool"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "path", type: TypeSyntax("SIMD64<UInt8>"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax("some StaticRouteResponderProtocol"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "override", type: TypeSyntax("Bool"), trailingTrivia: "\n")
                 ]),
             ),
             body: .init(statements: [])
@@ -314,10 +312,10 @@ extension CompiledRouterStorage {
             name: "register",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "caseSensitive", type: TypeSyntax("Bool"), trailingComma: .commaToken()),
-                    .init(firstName: "route", type: TypeSyntax("some DynamicRouteProtocol"), trailingComma: .commaToken()),
-                    .init(firstName: "responder", type: TypeSyntax("some DynamicRouteResponderProtocol"), trailingComma: .commaToken()),
-                    .init(firstName: "override", type: TypeSyntax("Bool"))
+                    .init(leadingTrivia: "\n", firstName: "caseSensitive", type: TypeSyntax("Bool"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "route", type: TypeSyntax("some DynamicRouteProtocol"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax("some DynamicRouteResponderProtocol"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "override", type: TypeSyntax("Bool"), trailingTrivia: "\n")
                 ])
             ),
             body: .init(statements: [])
@@ -327,10 +325,10 @@ extension CompiledRouterStorage {
             leadingTrivia: "// MARK: _Mutable\n",
             modifiers: [visibilityModifier, .init(name: .keyword(.final))],
             name: "_Mutable",
-            inheritanceClause: .init(inheritedTypes: [
+            inheritanceClause: .init(inheritedTypes: .init([
                 .init(type: TypeSyntax("HTTPMutableRouterProtocol"), trailingComma: .commaToken()),
                 .init(type: TypeSyntax("@unchecked Sendable"))
-            ]),
+            ])),
             memberBlock: .init(members: members)
         )
     }
@@ -446,10 +444,10 @@ extension CompiledRouterStorage {
             name: "handleDynamicMiddleware",
             signature: .init(
                 parameterClause: .init(parameters: .init([
-                    .init(firstName: "for", secondName: "request", type: TypeSyntax(stringLiteral: "inout some HTTPRequestProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "with", secondName: "response", type: TypeSyntax(stringLiteral: "inout some DynamicResponseProtocol"))
+                    .init(leadingTrivia: "\n", firstName: "for", secondName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "with", secondName: "response", type: TypeSyntax(stringLiteral: "inout some DynamicResponseProtocol"), trailingTrivia: "\n")
                 ])),
-                effectSpecifiers: .init(throwsClause: .init(throwsSpecifier: .keyword(.throws), leftParen: "(", type: TypeSyntax("MiddlewareError"), rightParen: ")"))
+                effectSpecifiers: .init(throwsClause: .init(throwsSpecifier: .keyword(.throws), leftParen: .leftParenToken(), type: TypeSyntax("MiddlewareError"), rightParen: .rightParenToken()))
             ),
             body: .init(statements: .init(stringLiteral: handleString))
         )
@@ -465,9 +463,9 @@ extension CompiledRouterStorage {
             name: "handle",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "client", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(firstName: "socket", type: TypeSyntax("consuming some HTTPSocketProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"))
+                    .init(leadingTrivia: "\n", firstName: "client", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("consuming some HTTPSocketProtocol & ~Copyable"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n")
                 ])
             ),
             body: .init(statements: .init(stringLiteral: """
@@ -550,12 +548,12 @@ extension CompiledRouterStorage {
             name: "respond",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
                 ),
                 returnClause: .init(type: TypeSyntax("Bool"))
             ),
@@ -579,13 +577,13 @@ extension CompiledRouterStorage {
             name: "respond",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: .commaToken()),
-                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"))
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
                 )
             ),
             body: .init(statements: .init(stringLiteral: responderString))
@@ -603,11 +601,11 @@ extension CompiledRouterStorage {
             name: "defaultDynamicResponse",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter))
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
                 ),
                 returnClause: .init(type: TypeSyntax("some DynamicResponseProtocol"))
             ),
@@ -679,13 +677,13 @@ extension CompiledRouterStorage {
             name: "respond",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: .commaToken()),
-                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
                 )
             ),
             body: .init(statements: .init(stringLiteral: responderString))
@@ -720,12 +718,12 @@ extension CompiledRouterStorage {
             name: "respondWithNotFound",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: "(", type: TypeSyntax("ResponderError"), rightParen: ")")
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
                 ),
                 returnClause: .init(type: TypeSyntax("Bool"))
             ),
@@ -755,10 +753,10 @@ extension CompiledRouterStorage {
             name: "respondWithError",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(firstName: "error", type: TypeSyntax("some Error"), trailingComma: .commaToken()),
-                    .init(firstName: "request", type: TypeSyntax("inout some HTTPRequestProtocol & ~Copyable"), trailingComma: .commaToken()),
-                    .init(firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void")),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "error", type: TypeSyntax("some Error"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
                 ]),
                 returnClause: .init(type: TypeSyntax("Bool"))
             ),

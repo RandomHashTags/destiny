@@ -47,14 +47,15 @@ public struct RouterStorage {
             for statement in statements {
                 functionString += statement.trimmedDescription + "\n"
             }
+            let protocolConformance = settings.hasProtocolConformances ? "OpaqueDynamicMiddlewareProtocol" : "Sendable"
             let name = "OpaqueDynamicMiddleware\(i)"
             let decl = try! StructDeclSyntax.init(.init(stringLiteral: """
             // MARK: \(name)
-            \(visibility)struct \(name): OpaqueDynamicMiddlewareProtocol {
+            \(visibility)struct \(name): \(protocolConformance) {
 
                 \(inlinableAnnotation)
                 \(visibility)func customLogic(
-                    request: inout some HTTPRequestProtocol & ~Copyable,
+                    request: \(requestTypeSyntax),
                     response: inout some DynamicResponseProtocol
                 ) throws(MiddlewareError) {
                     do { // TODO: use typed throw
@@ -66,7 +67,7 @@ public struct RouterStorage {
 
                 \(inlinableAnnotation)
                 \(visibility)func handle(
-                    request: inout some HTTPRequestProtocol & ~Copyable,
+                    request: \(requestTypeSyntax),
                     response: inout some DynamicResponseProtocol
                 ) throws(MiddlewareError) -> Bool {
                     try customLogic(request: &request, response: &response)
@@ -84,12 +85,21 @@ public struct RouterStorage {
     }
 
     let visibilityModifier:DeclModifierSyntax
+    let requestTypeSyntax:TypeSyntax
 
-    func routerParameter(isCopyable: Bool) -> String {
+    func routerParameter(isCopyable: Bool, protocolConformances: Bool) -> String {
         if isCopyable {
-            return "some HTTPRouterProtocol"
+            if protocolConformances {
+                return "some HTTPRouterProtocol"
+            } else {
+                return "CompiledHTTPRouter._Copyable"
+            }
         } else {
-            return "borrowing some NonCopyableHTTPRouterProtocol & ~Copyable"
+            if protocolConformances {
+                return "borrowing some NonCopyableHTTPRouterProtocol & ~Copyable"
+            } else {
+                return "borrowing CompiledHTTPRouter._NonCopyable"
+            }
         }
     }
 
@@ -114,6 +124,7 @@ extension RouterStorage {
         self.settings = settings
         self.perfectHashSettings = perfectHashSettings
         visibilityModifier = settings.visibility.modifierDecl
+        requestTypeSyntax = settings.requestTypeSyntax
     }
 }
 

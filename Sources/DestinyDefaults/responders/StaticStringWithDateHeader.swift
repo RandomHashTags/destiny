@@ -21,9 +21,16 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
 
+    @usableFromInline
+    let payload:DateHeaderPayload
+
     public init(_ value: StaticString) {
         self.preDateValue = ""
         self.postDateValue = value
+        payload = .init(
+            preDate: preDateValue,
+            postDate: value
+        )
     }
 
     public init(
@@ -32,6 +39,10 @@ public struct StaticStringWithDateHeader: ResponseBodyProtocol {
     ) {
         self.preDateValue = preDateValue
         self.postDateValue = postDateValue
+        payload = .init(
+            preDate: preDateValue,
+            postDate: postDateValue
+        )
     }
 
     #if Inlinable
@@ -75,10 +86,13 @@ extension StaticStringWithDateHeader {
     }
 }
 
-// MARK: Write to socket
+// MARK: Respond
 extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
     #endif
     public func respond(
         router: some HTTPRouterProtocol,
@@ -86,21 +100,7 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
-        var err:SocketError? = nil
-        preDateValue.withUTF8Buffer { preDatePointer in
-            HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
-                postDateValue.withUTF8Buffer { postDatePointer in
-                    do throws(SocketError) {
-                        try socket.writeBuffers([preDatePointer, datePointer, postDatePointer])
-                    } catch {
-                        err = error
-                    }
-                }
-            }
-        }
-        if let err {
-            throw .socketError(err)
-        }
+        try payload.write(to: socket)
         completionHandler()
     }
 }

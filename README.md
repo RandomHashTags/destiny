@@ -127,6 +127,14 @@ Where applicable, to remove protocol witness tables (reducing binary size)
 
 <details>
 
+<summary>_read and _modify accessors</summary>
+
+For optimal memory access where applicable (reducing overhead)
+
+</details>
+
+<details>
+
 <summary>Actor avoidance</summary>
 
 To encourage better state management and data structures

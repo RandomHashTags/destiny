@@ -16,6 +16,8 @@ extension RouterSettings {
                 settings.isCopyable = arg.expression.booleanIsTrue
             case "mutable":
                 settings.isMutable = arg.expression.booleanIsTrue
+            case "protocolConformances":
+                settings.hasProtocolConformances = arg.expression.booleanIsTrue
             case "name":
                 if let s = arg.expression.stringLiteralString(context: context) {
                     settings.name = s
