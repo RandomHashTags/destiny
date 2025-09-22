@@ -121,57 +121,57 @@ extension HTTPDateFormat {
         let secondNumbers = httpDateNumber(second)
 
         var value = InlineArrayResult(repeating: 0)
-        value[0] = dayName[0]
-        value[1] = dayName[1]
-        value[2] = dayName[2]
-        value[3] = .comma
-        value[4] = .space
-        value[5] = dayNumbers[0]
-        value[6] = dayNumbers[1]
-        value[7] = .space
-        value[8] = monthName[0]
-        value[9] = monthName[1]
-        value[10] = monthName[2]
-        value[11] = .space
-        value[12] = yearNumbers[0]
+        value[unchecked: 0] = dayName[unchecked: 0]
+        value[unchecked: 1] = dayName[unchecked: 1]
+        value[unchecked: 2] = dayName[unchecked: 2]
+        value[unchecked: 3] = .comma
+        value[unchecked: 4] = .space
+        value[unchecked: 5] = dayNumbers[unchecked: 0]
+        value[unchecked: 6] = dayNumbers[unchecked: 1]
+        value[unchecked: 7] = .space
+        value[unchecked: 8] = monthName[unchecked: 0]
+        value[unchecked: 9] = monthName[unchecked: 1]
+        value[unchecked: 10] = monthName[unchecked: 2]
+        value[unchecked: 11] = .space
+        value[unchecked: 12] = yearNumbers[unchecked: 0]
         var index = 13
         if yearNumbers[1] != 0 {
-            value[index] = yearNumbers[1]
+            value[unchecked: index] = yearNumbers[unchecked: 1]
             index += 1
         }
         if yearNumbers[2] != 0 {
-            value[index] = yearNumbers[2]
+            value[unchecked: index] = yearNumbers[unchecked: 2]
             index += 1
         }
         if yearNumbers[3] != 0 {
-            value[index] = yearNumbers[3]
+            value[unchecked: index] = yearNumbers[unchecked: 3]
             index += 1
         }
-        value[index] = .space
+        value[unchecked: index] = .space
         index += 1
-        value[index] = hourNumbers[0]
+        value[unchecked: index] = hourNumbers[unchecked: 0]
         index += 1
-        value[index] = hourNumbers[1]
+        value[unchecked: index] = hourNumbers[unchecked: 1]
         index += 1
-        value[index] = .colon
+        value[unchecked: index] = .colon
         index += 1
-        value[index] = minuteNumbers[0]
+        value[unchecked: index] = minuteNumbers[unchecked: 0]
         index += 1
-        value[index] = minuteNumbers[1]
+        value[unchecked: index] = minuteNumbers[unchecked: 1]
         index += 1
-        value[index] = .colon
+        value[unchecked: index] = .colon
         index += 1
-        value[index] = secondNumbers[0]
+        value[unchecked: index] = secondNumbers[unchecked: 0]
         index += 1
-        value[index] = secondNumbers[1]
+        value[unchecked: index] = secondNumbers[unchecked: 1]
         index += 1
-        value[index] = .space
+        value[unchecked: index] = .space
         index += 1
-        value[index] = .G
+        value[unchecked: index] = .G
         index += 1
-        value[index] = .M
+        value[unchecked: index] = .M
         index += 1
-        value[index] = .T
+        value[unchecked: index] = .T
         return value
     }
 
@@ -238,7 +238,7 @@ extension HTTPDateFormat {
         var i = 0
         for char in String(int) {
             if i < count, let v = char.asciiValue {
-                value[i] = v
+                value[unchecked: i] = v
                 i += 1
             }
         }

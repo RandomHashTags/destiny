@@ -43,43 +43,6 @@ extension VLArray where Element == UInt8 {
 
 // MARK: HTTPSocketWritable
 extension InlineArray: HTTPSocketWritable {
-    /// Calls a closure with a pointer to the viewed contiguous storage.
-    ///
-    /// The buffer pointer passed as an argument to `body` is valid only
-    /// during the execution of `withUnsafeBufferPointer(_:)`.
-    /// Do not store or return the pointer for later use.
-    ///
-    /// Note: For an empty `Span`, the closure always receives a `nil` pointer.
-    ///
-    /// - Parameter body: A closure with an `UnsafeBufferPointer` parameter
-    ///   that points to the viewed contiguous storage. If `body` has
-    ///   a return value, that value is also used as the return value
-    ///   for the `withUnsafeBufferPointer(_:)` method. The closure's
-    ///   parameter is valid only for the duration of its execution.
-    /// - Returns: The return value of the `body` closure parameter.
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
-    @discardableResult
-    public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
-        return try span.withUnsafeBufferPointer(body)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
-    @discardableResult
-    public mutating func withUnsafeMutableBufferPointer<E: Error, R>(_ body: (UnsafeMutableBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
-        var ms = mutableSpan
-        return try ms.withUnsafeMutableBufferPointer(body)
-    }
-
     #if Inlinable
     @inlinable
     #endif
@@ -114,7 +77,7 @@ extension InlineArray where Element == UInt8 {
         at index: inout Int
     ) {
         for i in indices {
-            buffer[index] = self[i]
+            buffer[index] = self[unchecked: i]
             index += 1
         }
     }
@@ -129,7 +92,7 @@ extension InlineArray where Element == UInt8 {
         var s = ""
         var i = offset
         while i < endIndex {
-            let char = self[i]
+            let char = self[unchecked: i]
             if char == 0 {
                 break
             }
@@ -143,7 +106,7 @@ extension InlineArray where Element == UInt8 {
     @inlinable
     #endif
     public func unsafeString() -> String {
-        return self.withUnsafeBufferPointer { pointer in
+        return self.span.withUnsafeBufferPointer { pointer in
             return String.init(unsafeUninitializedCapacity: pointer.count, initializingUTF8With: {
                 return $0.initialize(from: pointer).index
             })
@@ -154,7 +117,7 @@ extension InlineArray where Element == UInt8 {
     @inlinable
     #endif
     public func unsafeString(offset: Int) -> String {
-        return self.withUnsafeBufferPointer {
+        return self.span.withUnsafeBufferPointer {
             let count = $0.count - offset
             let slice = $0[offset...]
             return String.init(unsafeUninitializedCapacity: count - offset, initializingUTF8With: {
@@ -190,7 +153,7 @@ extension InlineArray where Element: Equatable {
     #endif
     public static func == (lhs: Self, rhs: Self) -> Bool {
         for i in lhs.indices {
-            if lhs[i] != rhs[i] {
+            if lhs[unchecked: i] != rhs[unchecked: i] {
                 return false
             }
         }
@@ -206,7 +169,7 @@ extension InlineArray where Element == UInt8 {
         let stringCount = rhs.count
         if lhs.count == rhs.count {
             for i in 0..<lhs.count {
-                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                if lhs[unchecked: i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
                     return false
                 }
             }
@@ -214,12 +177,12 @@ extension InlineArray where Element == UInt8 {
         } else if lhs.count > stringCount {
             var i = 0
             while i < stringCount {
-                if lhs[i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
+                if lhs[unchecked: i] != rhs[rhs.index(rhs.startIndex, offsetBy: i)].asciiValue {
                     return false
                 }
                 i += 1
             }
-            return lhs[i] == 0
+            return lhs[unchecked: i] == 0
         } else {
             return false
         }

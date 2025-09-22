@@ -312,11 +312,9 @@ extension GenericHTTPResponseMessage {
         index i: inout Int,
         array: InlineArray<count, UInt8>
     ) {
-        array.withUnsafeBufferPointer { arrayBuffer in
-            for byte in arrayBuffer {
-                buffer[i] = byte
-                i += 1
-            }
+        for j in array.indices {
+            buffer[i] = array[unchecked: j]
+            i += 1
         }
     }
 }

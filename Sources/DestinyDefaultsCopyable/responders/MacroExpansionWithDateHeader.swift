@@ -38,7 +38,7 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
     ) throws(ResponderError) {
         var err:SocketError? = nil
         preDateValue.withUTF8Buffer { preDatePointer in
-            HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
+            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
                 postDateValue.withUTF8Buffer { postDatePointer in
                     bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
                         let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]

@@ -50,11 +50,11 @@ public struct HTTPRequestLine: HTTPRequestLineProtocol, ~Copyable {
             var offset = methodEndIndex + 1
             if pathCount <= 128 {
                 for i in 0..<pathCount {
-                    pathBuffer[i] = buffer[offset]
+                    pathBuffer[i] = buffer[unchecked: offset]
                     offset += 1
                 }
             } else {
-                buffer.withUnsafeBufferPointer {
+                buffer.span.withUnsafeBufferPointer {
                     copyMemory(pathBuffer.baseAddress!, $0.baseAddress! + offset, pathCount)
                 }
             }
@@ -71,7 +71,7 @@ public struct HTTPRequestLine: HTTPRequestLineProtocol, ~Copyable {
         _ closure: (consuming VLArray<UInt8>) -> Void
     ) {
         VLArray.create(amount: methodEndIndex, initialize: {
-            buffer[$0]
+            buffer[unchecked: $0]
         }, closure)
     }
 
@@ -82,17 +82,11 @@ public struct HTTPRequestLine: HTTPRequestLineProtocol, ~Copyable {
         buffer: InlineArray<count, UInt8>,
     ) -> SIMD64<UInt8> {
         var simd = SIMD64<UInt8>()
-        buffer.withUnsafeBufferPointer {
-            for i in 0..<min(64, endIndex) {
-                simd[i] = $0[i]
-            }
-        }
-        // TODO: optimize?
-        /*withUnsafePointer(to: buffer, { bufferPointer in
+        withUnsafePointer(to: buffer, { bufferPointer in
             withUnsafeMutablePointer(to: &simd, {
-                copyMemory(.init($0), bufferPointer, endIndex)
+                copyMemory(.init($0), bufferPointer, min(64, endIndex))
             })
-        })*/
+        })
         return simd
     }
 
@@ -122,7 +116,7 @@ extension HTTPRequestLine {
         var pathQueryStartIndex:Int? = nil
         var pathEndIndex = 0
         var versionUInt64:UInt64 = 0
-        buffer.buffer.withUnsafeBufferPointer { bufferPointer in
+        buffer.buffer.span.withUnsafeBufferPointer { bufferPointer in
             guard let base = bufferPointer.baseAddress else {
                 err = .malformedRequest("bufferPointer.baseAddress == nil")
                 return

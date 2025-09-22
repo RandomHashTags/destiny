@@ -28,13 +28,13 @@ public struct Epoll<let maxEvents: Int>: Sendable {
             close(fileDescriptor)
             throw err
         }
-        self.pipeFileDescriptors = (pipeFileDescriptors[0], pipeFileDescriptors[1])
+        self.pipeFileDescriptors = (pipeFileDescriptors[unchecked: 0], pipeFileDescriptors[unchecked: 1])
         logger = Logger(label: label)
-        setNonBlocking(socket: pipeFileDescriptors[0])
-        setNonBlocking(socket: pipeFileDescriptors[1])
+        setNonBlocking(socket: pipeFileDescriptors[unchecked: 0])
+        setNonBlocking(socket: pipeFileDescriptors[unchecked: 1])
 
         //try add(client: serverFD, event: EPOLLIN.rawValue)
-        try add(client: pipeFileDescriptors[0], events: EPOLLIN.rawValue)
+        try add(client: pipeFileDescriptors[unchecked: 0], events: EPOLLIN.rawValue)
         //setNonBlocking(socket: self.fileDescriptor)
     }
 

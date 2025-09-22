@@ -7,7 +7,7 @@ extension String {
     #endif
     public mutating func append<let count: Int>(_ array: InlineArray<count, UInt8>) {
         for i in array.indices {
-            let char = array[i]
+            let char = array[unchecked: i]
             if char == 0 {
                 break
             }

@@ -77,7 +77,7 @@ extension StaticStringWithDateHeader {
         preDateValue.withUTF8Buffer {
             buffer.copyBuffer($0, at: &index)
         }
-        HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer {
+        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer {
             buffer.copyBuffer($0, at: &index)
         }
         postDateValue.withUTF8Buffer {

@@ -79,7 +79,6 @@ let package = Package(
         //.default(enabledTraits: []),
         .default(enabledTraits: [
             "Inlinable",
-            "InlineAlways",
             "NonCopyable",
             "RequestBodyStream"
         ]),

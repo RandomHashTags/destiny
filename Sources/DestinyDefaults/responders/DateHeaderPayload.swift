@@ -25,7 +25,7 @@ public struct DateHeaderPayload: @unchecked Sendable {
     #endif
     public func write(to socket: some FileDescriptor) throws(ResponderError) {
         var err:SocketError? = nil
-        HTTPDateFormat.nowInlineArray.withUnsafeBufferPointer { datePointer in
+        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
             do throws(SocketError) {
                 try socket.writeBuffers([
                     (preDatePointer, preDatePointerCount),

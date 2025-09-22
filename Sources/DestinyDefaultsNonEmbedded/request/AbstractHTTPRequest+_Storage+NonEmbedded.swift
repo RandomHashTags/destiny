@@ -23,8 +23,9 @@ extension AbstractHTTPRequest._Storage {
                 var buffer = InlineArray<bufferCount, UInt8>(repeating: 0)
                 var initialRequestBodyCount = initialBuffer.endIndex - startIndex
                 var remainingRequestBodyCount = initialRequestBodyCount
-                initialBuffer.buffer.withUnsafeBufferPointer { initialBufferPointer in
-                    buffer.withUnsafeMutableBufferPointer {
+                initialBuffer.buffer.span.withUnsafeBufferPointer { initialBufferPointer in
+                    var ms = buffer.mutableSpan
+                    ms.withUnsafeMutableBufferPointer {
                         var bufferPointer = $0
                         loadBufferSlice(
                             initialBufferPointer: initialBufferPointer,
@@ -37,8 +38,9 @@ extension AbstractHTTPRequest._Storage {
                 try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount - remainingRequestBodyCount))
                 while remainingRequestBodyCount > 0 {
                     initialRequestBodyCount = remainingRequestBodyCount
-                    initialBuffer.buffer.withUnsafeBufferPointer { initialBufferPointer in
-                        buffer.withUnsafeMutableBufferPointer {
+                    initialBuffer.buffer.span.withUnsafeBufferPointer { initialBufferPointer in
+                        var ms = buffer.mutableSpan
+                        ms.withUnsafeMutableBufferPointer {
                             var bufferPointer = $0
                             bufferPointer.update(repeating: 0)
                             loadBufferSlice(

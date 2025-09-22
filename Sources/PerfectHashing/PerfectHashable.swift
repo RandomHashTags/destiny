@@ -16,7 +16,16 @@ extension SIMD64<UInt8>: PerfectHashable {
     @inlinable
     #endif
     public func extractKey1(positions: InlineArray<1, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (0, 0, 0, 0, 0, 0, 0, self[positions[0]])) {
+        return withUnsafeBytes(of: (
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            self[positions[unchecked: 0]]
+        )) {
             $0.load(as: UInt64.self)
         }
     }
@@ -25,7 +34,16 @@ extension SIMD64<UInt8>: PerfectHashable {
     @inlinable
     #endif
     public func extractKey2(positions: InlineArray<2, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (0, 0, 0, 0, 0, 0, self[positions[0]], self[positions[1]])) {
+        return withUnsafeBytes(of: (
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            self[positions[unchecked: 0]],
+            self[positions[unchecked: 1]]
+        )) {
             $0.load(as: UInt64.self)
         }
     }
@@ -34,7 +52,16 @@ extension SIMD64<UInt8>: PerfectHashable {
     @inlinable
     #endif
     public func extractKey3(positions: InlineArray<3, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (0, 0, 0, 0, 0, self[positions[0]], self[positions[1]], self[positions[2]])) {
+        return withUnsafeBytes(of: (
+            0,
+            0,
+            0,
+            0,
+            0,
+            self[positions[unchecked: 0]],
+            self[positions[unchecked: 1]],
+            self[positions[unchecked: 2]]
+        )) {
             $0.load(as: UInt64.self)
         }
     }
@@ -43,7 +70,16 @@ extension SIMD64<UInt8>: PerfectHashable {
     @inlinable
     #endif
     public func extractKey4(positions: InlineArray<4, Int>) -> UInt64 {
-        return withUnsafeBytes(of: (0, 0, 0, 0, self[positions[0]], self[positions[1]], self[positions[2]], self[positions[3]])) {
+        return withUnsafeBytes(of: (
+            0,
+            0,
+            0,
+            0,
+            self[positions[unchecked: 0]],
+            self[positions[unchecked: 1]],
+            self[positions[unchecked: 2]],
+            self[positions[unchecked: 3]]
+        )) {
             $0.load(as: UInt64.self)
         }
     }
@@ -57,11 +93,11 @@ extension SIMD64<UInt8>: PerfectHashable {
                 0,
                 0,
                 0,
-                b[positions[0]],
-                b[positions[1]],
-                b[positions[2]],
-                b[positions[3]],
-                b[positions[4]]
+                b[positions[unchecked: 0]],
+                b[positions[unchecked: 1]],
+                b[positions[unchecked: 2]],
+                b[positions[unchecked: 3]],
+                b[positions[unchecked: 4]]
             )) {
                 $0.load(as: UInt64.self)
             }
@@ -76,12 +112,12 @@ extension SIMD64<UInt8>: PerfectHashable {
             return withUnsafeBytes(of: (
                 0,
                 0,
-                b[positions[0]],
-                b[positions[1]],
-                b[positions[2]],
-                b[positions[3]],
-                b[positions[4]],
-                b[positions[5]]
+                b[positions[unchecked: 0]],
+                b[positions[unchecked: 1]],
+                b[positions[unchecked: 2]],
+                b[positions[unchecked: 3]],
+                b[positions[unchecked: 4]],
+                b[positions[unchecked: 5]]
             )) {
                 $0.load(as: UInt64.self)
             }
@@ -95,13 +131,13 @@ extension SIMD64<UInt8>: PerfectHashable {
         return withUnsafeBytes(of: self, { b in
             return withUnsafeBytes(of: (
                 0,
-                b[positions[0]],
-                b[positions[1]],
-                b[positions[2]],
-                b[positions[3]],
-                b[positions[4]],
-                b[positions[5]],
-                b[positions[6]]
+                b[positions[unchecked: 0]],
+                b[positions[unchecked: 1]],
+                b[positions[unchecked: 2]],
+                b[positions[unchecked: 3]],
+                b[positions[unchecked: 4]],
+                b[positions[unchecked: 5]],
+                b[positions[unchecked: 6]]
             )) {
                 $0.load(as: UInt64.self)
             }
@@ -114,14 +150,14 @@ extension SIMD64<UInt8>: PerfectHashable {
     public func extractKey8(positions: InlineArray<8, Int>) -> UInt64 {
         return withUnsafeBytes(of: self, { b in
             return withUnsafeBytes(of: (
-                b[positions[0]],
-                b[positions[1]],
-                b[positions[2]],
-                b[positions[3]],
-                b[positions[4]],
-                b[positions[5]],
-                b[positions[6]],
-                b[positions[7]]
+                b[positions[unchecked: 0]],
+                b[positions[unchecked: 1]],
+                b[positions[unchecked: 2]],
+                b[positions[unchecked: 3]],
+                b[positions[unchecked: 4]],
+                b[positions[unchecked: 5]],
+                b[positions[unchecked: 6]],
+                b[positions[unchecked: 7]]
             )) {
                 $0.load(as: UInt64.self)
             }

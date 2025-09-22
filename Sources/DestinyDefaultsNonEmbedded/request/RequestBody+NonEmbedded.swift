@@ -35,7 +35,7 @@ extension RequestBody {
                 }
                 if read != chunkSize {
                     for i in stride(from: chunkSize-1, to: read-1, by: -1) {
-                        buffer[i] = 0
+                        buffer[unchecked: i] = 0
                     }
                     continuation.yield(.init(buffer: buffer, endIndex: read))
                     continuation.finish()
