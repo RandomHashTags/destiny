@@ -66,6 +66,7 @@ defaultTraits.formUnion([
     //"Copyable",
     "NonCopyable",
     "NonEmbedded",
+    //"RateLimits",
     "RequestBodyStream",
 
     "Inlinable",
@@ -78,19 +79,19 @@ defaultTraits.formUnion([
 let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
 
-    .trait(name: "GenericHTTPResponseMessage"),
+    .trait(name: "GenericHTTPMessage"),
     .trait(name: "GenericStaticRoute"),
     .trait(name: "GenericDynamicRoute"),
     .trait(
         name: "GenericDynamicResponse",
-        enabledTraits: ["GenericHTTPResponseMessage"]
+        enabledTraits: ["GenericHTTPMessage"]
     ),
     .trait(name: "GenericRouteGroup"),
     .trait(
         name: "Generics",
         description: "Enables all Generic package traits",
         enabledTraits: [
-            "GenericHTTPResponseMessage",
+            "GenericHTTPMessage",
             "GenericStaticRoute",
             "GenericDynamicRoute",
             "GenericDynamicResponse",
@@ -111,6 +112,10 @@ let traits:Set<Trait> = [
     .trait(
         name: "NonEmbedded",
         description: "Enables functionality suitable for non-embedded devices (mainly existentials)."
+    ),
+    .trait(
+        name: "RateLimits",
+        description: "Enables default rate limiting functionality."
     ),
     .trait(
         name: "RequestBodyStream",

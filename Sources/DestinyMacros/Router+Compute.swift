@@ -12,6 +12,7 @@ import DestinyDefaultsNonEmbedded
 extension Router {
     static func compute(
         routerSettings: RouterSettings,
+        routerSettingsSyntax: ExprSyntax,
         perfectHashSettings: PerfectHashSettings,
         arguments: LabeledExprListSyntax,
         context: some MacroExpansionContext
@@ -162,6 +163,7 @@ extension Router {
         let dynamicMiddlewareArray = storage.dynamicMiddlewareArray()
         let compiled = CompiledRouterStorage(
             settings: routerSettings,
+            settingsSyntax: routerSettingsSyntax,
             perfectHashCaseSensitiveResponder: perfectHashCaseSensitiveResponder,
             perfectHashCaseInsensitiveResponder: perfectHashCaseInsensitiveResponder,
             caseSensitiveResponder: caseSensitiveResponder,

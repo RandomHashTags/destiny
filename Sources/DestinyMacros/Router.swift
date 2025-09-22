@@ -11,10 +11,12 @@ enum Router: ExpressionMacro {
         of node: some FreestandingMacroExpansionSyntax,
         in context: some MacroExpansionContext
     ) -> ExprSyntax {
+        let args = node.as(ExprSyntax.self)!.macroExpansion!.arguments
         let computed = compute(
             routerSettings: .init(),
+            routerSettingsSyntax: args.first!.expression,
             perfectHashSettings: .init(),
-            arguments: node.as(ExprSyntax.self)!.macroExpansion!.arguments,
+            arguments: args,
             context: context
         )
         return "\(raw: computed.router)"
@@ -36,6 +38,7 @@ extension Router: DeclarationMacro {
             fatalError("node=\(node.debugDescription)")
         }
 
+        let routerSettingsSyntax = arguments.first!.expression
         var settings = RouterSettings()
         var perfectHashSettings = PerfectHashSettings()
         for arg in arguments {
@@ -50,6 +53,7 @@ extension Router: DeclarationMacro {
         }
         let (router, structs) = compute(
             routerSettings: settings,
+            routerSettingsSyntax: routerSettingsSyntax,
             perfectHashSettings: perfectHashSettings,
             arguments: arguments,
             context: context
@@ -80,7 +84,7 @@ extension Router: DeclarationMacro {
             )
         }
         declaredRouter.memberBlock.members.append(routerDecl)
-        declaredRouter.memberBlock.members.append(router.build())
+        declaredRouter.memberBlock.members.append(router.build(context: context))
         return [.init(declaredRouter)]
     }
 }

@@ -1,4 +1,6 @@
 
+#if RateLimits
+
 import DestinyBlueprint
 
 // MARK: DynamicRateLimitMiddleware
@@ -55,3 +57,5 @@ extension DynamicRateLimitMiddleware {
         }
     }
 }
+
+#endif

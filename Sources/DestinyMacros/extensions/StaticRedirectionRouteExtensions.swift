@@ -2,7 +2,7 @@
 import DestinyBlueprint
 import DestinyDefaults
 
-#if GenericHTTPResponseMessage
+#if GenericHTTPMessage
 
 extension StaticRedirectionRoute {
     /// The HTTP Message of this route. Computed at compile time.

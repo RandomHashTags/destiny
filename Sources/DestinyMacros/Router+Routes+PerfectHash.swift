@@ -111,14 +111,16 @@ extension RouterStorage {
             routeResponders: routeResponders
         )
         let name = "\(namePrefix)ResponderStorage\(random)"
+        let compilationCondition = isCopyable ? "Copyable" : "NonCopyable"
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n",
+            leadingTrivia: "#if \(compilationCondition)\n// MARK: \(namePrefix)ResponderStorage\(random)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
                 inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
             ),
-            memberBlock: .init(members: members)
+            memberBlock: .init(members: members),
+            trailingTrivia: "\n#endif"
         )
         generatedDecls.append(enumDecl)
         if isCaseSensitive {

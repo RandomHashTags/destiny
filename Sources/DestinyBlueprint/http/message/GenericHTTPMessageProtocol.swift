@@ -1,4 +1,6 @@
 
+#if GenericHTTPMessage
+
 /// Core protocol that builds a complete HTTP Message.
 public protocol GenericHTTPMessageProtocol: AbstractHTTPMessageProtocol, ~Copyable {
     associatedtype Body:ResponseBodyProtocol
@@ -12,3 +14,5 @@ public protocol GenericHTTPMessageProtocol: AbstractHTTPMessageProtocol, ~Copyab
 
     mutating func appendCookie(_ cookie: Cookie) throws(HTTPCookieError)
 }
+
+#endif

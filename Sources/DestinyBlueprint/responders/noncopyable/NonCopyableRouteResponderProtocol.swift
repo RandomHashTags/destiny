@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 /// Core protocol that writes its response to requests.
 public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
     /// Writes a response to a socket.
@@ -76,3 +78,5 @@ extension [UInt8]: NonCopyableRouteResponderProtocol {
         completionHandler()
     }
 }
+
+#endif

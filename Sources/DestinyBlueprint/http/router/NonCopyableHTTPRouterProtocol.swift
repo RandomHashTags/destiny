@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 import Logging
 
 /// Core protocol that handles middleware, routes and route groups.
@@ -47,3 +49,5 @@ public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copy
         completionHandler: @Sendable @escaping () -> Void
     ) -> Bool
 }
+
+#endif

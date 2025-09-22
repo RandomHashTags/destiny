@@ -1,5 +1,5 @@
 
-#if !hasFeature(Embedded)
+#if NonEmbedded
 
 /// Core protocol that handles dynamic requests and its response as existential types.
 public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Copyable {

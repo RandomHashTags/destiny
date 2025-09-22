@@ -1,10 +1,12 @@
 
 import DestinyBlueprint
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 struct CompiledRouterStorage {
     let settings:RouterSettings
+    let settingsSyntax:ExprSyntax
     let perfectHashCaseSensitiveResponder:Responder?
     let perfectHashCaseInsensitiveResponder:Responder?
 
@@ -25,6 +27,7 @@ struct CompiledRouterStorage {
 
     init(
         settings: RouterSettings,
+        settingsSyntax: ExprSyntax,
         perfectHashCaseSensitiveResponder: Responder?,
         perfectHashCaseInsensitiveResponder: Responder?,
 
@@ -40,6 +43,7 @@ struct CompiledRouterStorage {
         staticNotFoundResponder: Responder?
     ) {
         self.settings = settings
+        self.settingsSyntax = settingsSyntax
         self.perfectHashCaseSensitiveResponder = perfectHashCaseSensitiveResponder
         self.perfectHashCaseInsensitiveResponder = perfectHashCaseInsensitiveResponder
 
@@ -84,9 +88,36 @@ extension CompiledRouterStorage {
     ///   - e.g., when both the route path and its response are known at compile time (supports concurrency)
     /// - Mutable router (sacrificing performance for runtime functionality)
     ///   - e.g., registering middleware, routes, route groups, and route responders at runtime
-    func build() -> StructDeclSyntax {
+    func build(context: some MacroExpansionContext) -> StructDeclSyntax {
         let copyable = buildSubRouter(isCopyable: true)
         let noncopyable = buildSubRouter(isCopyable: false)
+
+        #if !Copyable
+        if copyable != nil {
+            context.diagnose(Diagnostic(
+                node: settingsSyntax,
+                message: DiagnosticMsg(
+                    id: "copyablePackageTraitNeededButNotEnables",
+                    message: "Router contains copyable components but the `Copyable` package trait isn't enabled",
+                    severity: .warning
+                )
+            ))
+        }
+        #endif
+
+        #if !NonCopyable
+        if noncopyable != nil {
+            context.diagnose(Diagnostic(
+                node: settingsSyntax,
+                message: DiagnosticMsg(
+                    id: "noncopyablePackageTraitNeededButNotEnables",
+                    message: "Router contains noncopyable components but the `NonCopyable` package trait isn't enabled",
+                    severity: .warning
+                )
+            ))
+        }
+        #endif
+
         var members = MemberBlockItemListSyntax()
 
         // merge single router with the compiled router
@@ -134,13 +165,14 @@ extension CompiledRouterStorage {
             name = "NonCopyable"
         }
         return .init(
-            leadingTrivia: "// MARK: \(name)\n",
+            leadingTrivia: "// MARK: \(name)\n#if \(name)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: "_\(name)")",
             inheritanceClause: .init(
                 inheritedTypes: routerProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
             ),
-            memberBlock: .init(members: members)
+            memberBlock: .init(members: members),
+            trailingTrivia: "\n#endif"
         )
     }
 }
@@ -152,31 +184,33 @@ extension CompiledRouterStorage {
         copyable: StructDeclSyntax?,
         noncopyable: StructDeclSyntax?
     ) {
-        var routerVariableNames = [String]()
+        var routerVariableNames = [(trait: String, variableName: String)]()
         if noncopyable != nil {
-            routerVariableNames.append("noncopyable")
+            routerVariableNames.append(("NonCopyable", "noncopyable"))
             let noncopyableDecl = VariableDeclSyntax(
+                leadingTrivia: "#if NonCopyable\n",
                 modifiers: [visibilityModifier],
                 .let,
                 name: "noncopyable",
-                initializer: .init(value: ExprSyntax("_NonCopyable()"))
+                initializer: .init(value: ExprSyntax("_NonCopyable()"), trailingTrivia: "\n#endif")
             )
             members.append(noncopyableDecl)
         }
         if copyable != nil {
-            routerVariableNames.append("copyable")
-            let copyableDecl = VariableDeclSyntax(
+            routerVariableNames.append(("Copyable", "copyable"))
+            let copyableDecl = VariableDeclSyntax.init(
+                leadingTrivia: "#if Copyable\n",
                 modifiers: [visibilityModifier],
                 .let,
                 name: "copyable",
-                initializer: .init(value: ExprSyntax("_Copyable()"))
+                initializer: .init(value: ExprSyntax("_Copyable()"), trailingTrivia: "\n#endif"),
             )
             members.append(copyableDecl)
         }
 
         let mutable:ClassDeclSyntax?
         if settings.isMutable {
-            routerVariableNames.append("mutable")
+            routerVariableNames.append(("MutableRouter", "mutable"))
             let mutableDecl = VariableDeclSyntax(
                 modifiers: [visibilityModifier],
                 .let,
@@ -197,33 +231,33 @@ extension CompiledRouterStorage {
         members.append(loggerDecl)
 
         let loadString = routerVariableNames.map({
-            "\($0).load()"
+            "#if \($0.trait)\n\($0.variableName).load()\n#endif"
         }).joined(separator: "\n")
         members.append(loadDecl(loadString: loadString))
 
         let handleDynamicMiddlewareString = routerVariableNames.map({
-            "try \($0).handleDynamicMiddleware(for: &request, with: &response)"
+            "#if \($0.trait)\ntry \($0.variableName).handleDynamicMiddleware(for: &request, with: &response)\n#endif"
         }).joined(separator: "\n")
         members.append(handleDynamicMiddlewareDecl(handleString: handleDynamicMiddlewareString))
 
         members.append(handleDecl())
 
         let respondersString = routerVariableNames.map({
-            "if try \($0).respond(socket: socket, request: &request, completionHandler: completionHandler) {"
-        }).joined(separator: "} else ") + "} else {\nreturn false\n}\nreturn true"
+            "#if \($0.trait)\nif try \($0.variableName).respond(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n#endif"
+        }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondDecl(respondersString: respondersString))
 
         members.append(respondWithStaticResponderDecl(isCopyable: false, responderString: "completionHandler()"))
         members.append(respondWithDynamicResponderDecl(isCopyable: false, responderString: "completionHandler()"))
 
         let respondWithNotFoundString = routerVariableNames.map({
-            "if try \($0).respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {"
-        }).joined(separator: "} else ") + "} else {\nreturn false\n}\nreturn true"
+            "#if \($0.trait)\nif try \($0.variableName).respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n#endif"
+        }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondWithNotFoundDecl(responderString: respondWithNotFoundString))
 
         let respondWithErrorString = routerVariableNames.map({
-            "if \($0).respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {"
-        }).joined(separator: "} else ") + "} else {\nreturn false\n}\nreturn true"
+            "#if \($0.trait)\nif \($0.variableName).respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n#endif"
+        }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondWithErrorDecl(logic: respondWithErrorString))
 
         if let noncopyable {

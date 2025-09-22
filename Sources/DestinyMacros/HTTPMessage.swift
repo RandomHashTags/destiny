@@ -39,7 +39,7 @@ enum HTTPMessage: DeclarationMacro {
             }
         }
         var response = ""
-        #if GenericHTTPResponseMessage
+        #if GenericHTTPMessage
         //response = genericResponse(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
         #endif
         #if NonEmbedded
@@ -49,7 +49,7 @@ enum HTTPMessage: DeclarationMacro {
         return ["\(raw: response)"]
     }
 
-    #if GenericHTTPResponseMessage
+    #if GenericHTTPMessage
     private static func genericResponse(
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,

@@ -84,14 +84,16 @@ extension RouterStorage {
         guard !routePaths.isEmpty else { return nil }
 
         let name = "\(namePrefix)ResponderStorage\(random)"
+        let compilationCondition = isCopyable ? "Copyable" : "NonCopyable"
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "// MARK: \(name)\n",
+            leadingTrivia: "#if \(compilationCondition)\n// MARK: \(name)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
                 inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
             ),
-            memberBlock: .init(members: .init())
+            memberBlock: .init(members: .init()),
+            trailingTrivia: "\n#endif"
         )
 
         generatedDecls.append(enumDecl)    
@@ -242,7 +244,7 @@ extension RouterStorage {
 
             #if NonEmbedded
             let response = route.nonEmbeddedResponse()
-            #elseif GenericHTTPResponseMessage
+            #elseif GenericHTTPMessage
             let response = route.genericResponse()
             #endif
 

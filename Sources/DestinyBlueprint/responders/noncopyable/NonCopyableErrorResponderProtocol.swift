@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 import Logging
 
 /// Core protocol that handles errors thrown from requests.
@@ -13,3 +15,5 @@ public protocol NonCopyableErrorResponderProtocol: Sendable, ~Copyable {
         completionHandler: @Sendable @escaping () -> Void
     )
 }
+
+#endif

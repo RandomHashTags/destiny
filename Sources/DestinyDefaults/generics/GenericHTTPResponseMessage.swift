@@ -1,5 +1,5 @@
 
-#if GenericHTTPResponseMessage
+#if GenericHTTPMessage
 
 import DestinyBlueprint
 

@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 /// Core protocol that stores route responders.
 public protocol NonCopyableResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
@@ -15,3 +17,5 @@ public protocol NonCopyableResponderStorageProtocol: Sendable, ~Copyable {
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 }
+
+#endif
