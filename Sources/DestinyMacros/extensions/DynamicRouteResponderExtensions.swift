@@ -1,5 +1,5 @@
 
-#if canImport(DestinyDefaultsNonEmbedded)
+#if NonEmbedded
 
 import DestinyDefaultsNonEmbedded
 

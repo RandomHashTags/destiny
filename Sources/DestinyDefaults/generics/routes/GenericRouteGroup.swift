@@ -1,6 +1,7 @@
 
+#if GenericRouteGroup
+
 import DestinyBlueprint
-import DestinyDefaults
 
 /// Default immutable Route Group implementation that handles grouped routes.
 public struct GenericRouteGroup<
@@ -42,3 +43,5 @@ extension GenericRouteGroup {
         return true
     }
 }
+
+#endif

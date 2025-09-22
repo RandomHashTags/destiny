@@ -1,6 +1,7 @@
 
+#if GenericHTTPResponseMessage
+
 import DestinyBlueprint
-import DestinyDefaults
 
 /// Default storage for an HTTP Message.
 public struct GenericHTTPResponseMessage<
@@ -461,3 +462,5 @@ extension GenericHTTPResponseMessage {
         return string
     }
 }
+
+#endif

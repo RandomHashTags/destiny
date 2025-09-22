@@ -1,19 +1,20 @@
 
-#if canImport(DestinyDefaultsNonEmbedded)
-
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if NonEmbedded
+import DestinyDefaultsNonEmbedded
+#endif
 
 // MARK: Static routes string
 extension RouterStorage {
     mutating func staticRoutesResponder(
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
-        let routes = isCaseSensitive ? staticCaseSensitiveRoutes : staticCaseInsensitiveRoutes
+        let routes = isCaseSensitive ? staticRouteStorage.caseSensitiveRoutes : staticRouteStorage.caseInsensitiveRoutes
         guard !routes.isEmpty || !staticRedirects.isEmpty else { return nil }
 
         let random:Int
@@ -156,15 +157,7 @@ extension RouterStorage {
                     registeredPaths.insert(startLine)
                     routePaths.append("\(startLine)")
                     routeResponders.append(responder)
-                    if isCaseSensitive {
-                        if let index = staticCaseSensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
-                            staticCaseSensitiveRoutes.remove(at: index)
-                        }
-                    } else {
-                        if let index = staticCaseInsensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
-                            staticCaseInsensitiveRoutes.remove(at: index)
-                        }
-                    }
+                    staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
                 } catch {
                     context.diagnose(.init(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
                 }
@@ -206,17 +199,17 @@ extension RouterStorage {
 }
 
 extension RouterStorage {
-    private func routeStartLineLiteral<T: StaticRouteProtocol>(_ route: T) -> String {
+    private func routeStartLineLiteral(_ route: some StaticRouteProtocol) -> String {
         route.startLine
     }
-    private func routeStartLineLowercased<T: StaticRouteProtocol>(_ route: T) -> String {
+    private func routeStartLineLowercased(_ route: some StaticRouteProtocol) -> String {
         route.startLine.lowercased()
     }
 
-    private func redirectRouteStartLineLiteral<T: RedirectionRouteProtocol>(_ route: T) -> String {
+    private func redirectRouteStartLineLiteral(_ route: some RedirectionRouteProtocol) -> String {
         route.fromStartLine()
     }
-    private func redirectRouteStartLineLowercased<T: RedirectionRouteProtocol>(_ route: T) -> String {
+    private func redirectRouteStartLineLowercased(_ route: some RedirectionRouteProtocol) -> String {
         route.fromStartLine().lowercased()
     }
 }
@@ -247,10 +240,16 @@ extension RouterStorage {
             routePaths.append(string)
             removedRedirects.append(index)
 
+            #if NonEmbedded
+            let response = route.nonEmbeddedResponse()
+            #elseif GenericHTTPResponseMessage
+            let response = route.genericResponse()
+            #endif
+
             let responder = IntermediateResponseBody(
                 type: .staticStringWithDateHeader,
                 ""
-            ).responderDebugDescription(isCopyable: isCopyable, response: route.response())
+            ).responderDebugDescription(isCopyable: isCopyable, response: response)
             routeResponders.append(responder)
         }
         for i in removedRedirects.reversed() {
@@ -258,5 +257,3 @@ extension RouterStorage {
         }
     }
 }
-
-#endif

@@ -1,5 +1,5 @@
 
-#if canImport(DestinyDefaultsNonEmbedded)
+#if NonEmbedded
 
 import DestinyBlueprint
 import DestinyDefaults
@@ -16,10 +16,10 @@ extension RouterStorage {
         let routes:[(DynamicRoute, FunctionCallExprSyntax)]
         if isCaseSensitive {
             getRouteStartLine = { $0.startLine() }
-            routes = dynamicCaseSensitiveRoutes
+            routes = dynamicRouteStorage.caseSensitiveRoutes
         } else {
             getRouteStartLine = { $0.startLine().lowercased() }
-            routes = dynamicCaseInsensitiveRoutes
+            routes = dynamicRouteStorage.caseInsensitiveRoutes
         }
         let copyable:String?
         let noncopyable:String?
@@ -71,7 +71,7 @@ extension RouterStorage {
             let string = getRouteStartLine(route)
             let buffer = SIMD64<UInt8>(string)
             guard let literalResponder = dynamicResponderValue(
-                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription),
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(string) else {
@@ -87,7 +87,7 @@ extension RouterStorage {
             string = getRouteStartLine(route)
             let buffer = SIMD64<UInt8>(pathLiteral)
             guard let literalResponder = dynamicResponderValue(
-                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription),
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(string) else {
@@ -101,7 +101,7 @@ extension RouterStorage {
             let string = getRouteStartLine(route)
             let buffer = SIMD64<UInt8>(string)
             guard let literalResponder = dynamicResponderValue(
-                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription),
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(string) else {
@@ -418,7 +418,7 @@ extension RouterStorage {
             }
             let startLine = routeStartLine(route)
             guard let responder = dynamicResponderValue(
-                route: .init(startLine: startLine, buffer: .init(startLine), responder: route.responderDebugDescription),
+                route: .init(startLine: startLine, buffer: .init(startLine), responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(startLine) else {
@@ -429,16 +429,7 @@ extension RouterStorage {
             registeredPaths.insert(startLine)
             literalRoutePaths.append(route.startLine())
             routeResponders.append(responder)
-
-            if isCaseSensitive {
-                if let index = dynamicCaseSensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
-                    dynamicCaseSensitiveRoutes.remove(at: index)
-                }
-            } else {
-                if let index = dynamicCaseInsensitiveRoutes.firstIndex(where: { $0.0.path == route.path && $0.1 == function }) {
-                    dynamicCaseInsensitiveRoutes.remove(at: index)
-                }
-            }
+            dynamicRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
         }
     }
 }

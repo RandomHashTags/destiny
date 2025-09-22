@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 import DestinyBlueprint
 import Logging
 
@@ -31,3 +33,5 @@ public struct NonCopyableStaticErrorResponder: NonCopyableErrorResponderProtocol
         }
     }
 }
+
+#endif

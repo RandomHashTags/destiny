@@ -1,4 +1,6 @@
 
+#if RequestBodyStream
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -50,3 +52,5 @@ extension RequestBody {
         }
     }
 }
+
+#endif

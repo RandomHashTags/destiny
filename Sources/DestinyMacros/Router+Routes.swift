@@ -4,7 +4,7 @@ import DestinyDefaults
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if canImport(DestinyDefaultsNonEmbedded)
+#if NonEmbedded
 import DestinyDefaultsNonEmbedded
 #endif
 
@@ -27,16 +27,16 @@ extension Router {
         }
         switch decl {
 
-        #if canImport(DestinyDefaultsNonEmbedded)
+        #if NonEmbedded
         case "DynamicRoute":
             var route = DynamicRoute.parse(context: context, version: version, middleware: storage.staticMiddleware, function)
             if let method = targetMethod {
                 route.method = method
             }
             if route.isCaseSensitive {
-                storage.dynamicCaseSensitiveRoutes.append((route, function))
+                storage.dynamicRouteStorage.caseSensitiveRoutes.append((route, function))
             } else {
-                storage.dynamicCaseInsensitiveRoutes.append((route, function))
+                storage.dynamicRouteStorage.caseInsensitiveRoutes.append((route, function))
             }
         case "StaticRoute":
             var route = StaticRoute.parse(context: context, version: version, function)
@@ -44,9 +44,9 @@ extension Router {
                 route.method = method
             }
             if route.isCaseSensitive {
-                storage.staticCaseSensitiveRoutes.append((route, function))
+                storage.staticRouteStorage.caseSensitiveRoutes.append((route, function))
             } else {
-                storage.staticCaseInsensitiveRoutes.append((route, function))
+                storage.staticRouteStorage.caseInsensitiveRoutes.append((route, function))
             }
         #endif
 

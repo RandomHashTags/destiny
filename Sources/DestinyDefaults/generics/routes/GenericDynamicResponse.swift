@@ -1,6 +1,7 @@
 
+#if GenericDynamicResponse
+
 import DestinyBlueprint
-import DestinyDefaults
 import VariableLengthArray
 
 /// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
@@ -95,3 +96,5 @@ extension GenericDynamicResponse {
         try message.write(to: socket)
     }
 }
+
+#endif

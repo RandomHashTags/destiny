@@ -1,5 +1,5 @@
 
-#if os(Linux)
+#if Epoll
 
 import CEpoll
 import Glibc
@@ -55,6 +55,18 @@ public struct Epoll<let maxEvents: Int>: Sendable {
     #if Inlinable
     @inlinable
     #endif
+    public func closeAll() {
+        close(pipeFileDescriptors.read)
+        close(pipeFileDescriptors.write)
+        close(fileDescriptor)
+    }
+}
+
+// MARK: Add
+extension Epoll {
+    #if Inlinable
+    @inlinable
+    #endif
     public func add(client: Int32, events: UInt32) throws(EpollError) {
         var e = epoll_event()
         e.events = events
@@ -66,7 +78,10 @@ public struct Epoll<let maxEvents: Int>: Sendable {
         logger.info("EPOLL_CTL_ADD \(client): success")
         #endif
     }
+}
 
+// MARK: Mod
+extension Epoll {
     #if Inlinable
     @inlinable
     #endif
@@ -81,7 +96,10 @@ public struct Epoll<let maxEvents: Int>: Sendable {
         logger.info("EPOLL_CTL_MOD \(fd): success")
         #endif
     }
+}
 
+// MARK: Remove
+extension Epoll {
     #if Inlinable
     @inlinable
     #endif
@@ -92,15 +110,6 @@ public struct Epoll<let maxEvents: Int>: Sendable {
         #if DEBUG
         logger.info("EPOLL_CTL_DEL \(client): success")
         #endif
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func closeAll() {
-        close(pipeFileDescriptors.read)
-        close(pipeFileDescriptors.write)
-        close(fileDescriptor)
     }
 }
 

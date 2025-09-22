@@ -1,6 +1,7 @@
 
+#if GenericStaticRoute
+
 import DestinyBlueprint
-import DestinyDefaults
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
@@ -341,3 +342,5 @@ extension GenericStaticRoute {
         return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 }
+
+#endif

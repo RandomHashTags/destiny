@@ -3,6 +3,9 @@
 import PackageDescription
 import CompilerPluginSupport
 
+var defaultTraits = Set<String>()
+
+// MARK: Dependencies
 var pkgDependencies:[Package.Dependency] = [
     // Macros
     .package(url: "https://github.com/swiftlang/swift-syntax", from: "601.0.1"),
@@ -25,6 +28,9 @@ pkgDependencies.append(contentsOf: [
     // Liburing
     //.package(url: "https://github.com/RandomHashTags/swift-liburing", branch: "main"),
 ])
+
+defaultTraits.insert("Epoll")
+defaultTraits.insert("Liburing")
 #endif
 
 var destinyDependencies:[Target.Dependency] = [
@@ -34,16 +40,11 @@ var destinyDependencies:[Target.Dependency] = [
     .byName(name: "DestinyDefaultsNonCopyable", condition: .when(traits: ["NonCopyable"])),
 ]
 
-#if hasFeature(Embedded)
-destinyDependencies.append("DestinyDefaultsGenerics")
-#else
-destinyDependencies.append("DestinyDefaultsNonEmbedded")
+#if !hasFeature(Embedded)
+destinyDependencies.append(.byName(name: "DestinyDefaultsNonEmbedded", condition: .when(traits: ["NonEmbedded"])))
 #endif
 
 var destinyMacrosDependencies = destinyDependencies
-#if !hasFeature(Embedded)
-destinyMacrosDependencies.append("DestinyDefaultsGenerics")
-#endif
 
 destinyMacrosDependencies.append(contentsOf: [
     "HTTPHeaderExtras",
@@ -57,13 +58,94 @@ destinyMacrosDependencies.append(contentsOf: [
     .product(name: "SwiftDiagnostics", package: "swift-syntax")
 ])
 
+// MARK: Traits
+defaultTraits.formUnion([
+    //"Generics",
+    "GenericDynamicResponse",
+    //"MutableRouter" // disabled by default since no other Swift networking library allows that functionality
+    //"Copyable",
+    "NonCopyable",
+    "NonEmbedded",
+    "RequestBodyStream",
+
+    "Inlinable",
+    //"InlineAlways" // disabled by default because it is shown to hurt performance
+
+    //"Epoll",
+    //"Liburing",
+    "OpenAPI"
+])
+let traits:Set<Trait> = [
+    .default(enabledTraits: defaultTraits),
+
+    .trait(name: "GenericHTTPResponseMessage"),
+    .trait(name: "GenericStaticRoute"),
+    .trait(name: "GenericDynamicRoute"),
+    .trait(
+        name: "GenericDynamicResponse",
+        enabledTraits: ["GenericHTTPResponseMessage"]
+    ),
+    .trait(name: "GenericRouteGroup"),
+    .trait(
+        name: "Generics",
+        description: "Enables all Generic package traits",
+        enabledTraits: [
+            "GenericHTTPResponseMessage",
+            "GenericStaticRoute",
+            "GenericDynamicRoute",
+            "GenericDynamicResponse",
+            "GenericRouteGroup"
+        ]
+    ),
+
+    .trait(
+        name: "MutableRouter",
+        description: "Enables functionality that registers data to a Router at runtime."
+    ),
+    .trait(
+        name: "Copyable"
+    ),
+    .trait(
+        name: "NonCopyable"
+    ),
+    .trait(
+        name: "NonEmbedded",
+        description: "Enables functionality suitable for non-embedded devices (mainly existentials)."
+    ),
+    .trait(
+        name: "RequestBodyStream",
+        description: "Enables functionality that can stream a request's body."
+    ),
+
+    .trait( // useful when benchmarking/profiling raw performance
+        name: "Inlinable",
+        description: "Enables the `@inlinable` annotation where annotated."
+    ),
+    .trait( // useful when benchmarking/profiling raw performance
+        name: "InlineAlways",
+        description: "Enables the `@inline(__always)` annotation where annotated."
+    ),
+
+    .trait(
+        name: "Epoll",
+        description: "Enables Epoll functionality (Linux only)."
+    ),
+    .trait(
+        name: "Liburing",
+        description: "Enables Liburing functionality (Linux only)."
+    ),
+    .trait(
+        name: "OpenAPI",
+        description: "Enables functionality to support OpenAPI."
+    )
+]
+
 let package = Package(
     name: "destiny",
     products: [
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
         .library(name: "DestinyDefaultsCopyable", targets: ["DestinyDefaultsCopyable"]),
-        .library(name: "DestinyDefaultsGenerics", targets: ["DestinyDefaultsGenerics"]),
         .library(name: "DestinyDefaultsNonCopyable", targets: ["DestinyDefaultsNonCopyable"]),
         .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
@@ -75,49 +157,7 @@ let package = Package(
         .library(name: "HTTPResponseStatusExtras", targets: ["HTTPResponseStatusExtras"]),
         .library(name: "PerfectHashing", targets: ["PerfectHashing"])
     ],
-    traits: [
-        //.default(enabledTraits: []),
-        .default(enabledTraits: [
-            "Inlinable",
-            "NonCopyable",
-            "RequestBodyStream"
-        ]),
-        //.default(enabledTraits: ["Inlinable", "InlineAlways", "MutableRouter"]),
-
-        .trait( // useful when benchmarking/profiling raw performance
-            name: "Inlinable",
-            description: "Enables the `@inlinable` annotation for better performance."
-        ),
-        .trait( // useful when benchmarking/profiling raw performance
-            name: "InlineAlways",
-            description: "Enables the `@inline(__always)` annotation for better performance."
-        ),
-
-        .trait(
-            name: "MutableRouter",
-            description: "Enables functionality that registers data to a Router at runtime."
-        ),
-        .trait(
-            name: "Copyable"
-        ),
-        .trait(
-            name: "NonCopyable"
-        ),
-
-        .trait(
-            name: "RequestBodyStream",
-            description: "Enables functionality that streams a request's body."
-        ),
-
-        .trait(
-            name: "DestinyDefaultsFoundation",
-            description: "Foundation extensions to DestinyDefaults."
-        ),
-        .trait(
-            name: "OpenAPI",
-            description: "Destiny conformances that enable OpenAPI support."
-        ),
-    ],
+    traits: traits,
     dependencies: pkgDependencies,
     targets: [
         // MARK: DestinyBlueprint
@@ -148,14 +188,6 @@ let package = Package(
                 "DestinyDefaults",
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
-            ]
-        ),
-
-        // MARK: DestinyDefaultsCopyable
-        .target(
-            name: "DestinyDefaultsGenerics",
-            dependencies: [
-                "DestinyDefaults"
             ]
         ),
 
@@ -264,14 +296,3 @@ let package = Package(
         ),
     ]
 )
-
-// TODO: enable the following features: LifetimeDependence
-/*
-for target in package.targets {
-    let lifetimeDependence:SwiftSetting = .enableExperimentalFeature("LifetimeDependence")
-    if target.swiftSettings == nil {
-        target.swiftSettings = [lifetimeDependence]
-    } else {
-        target.swiftSettings!.append(contentsOf: [lifetimeDependence])
-    }
-}*/

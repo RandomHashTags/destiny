@@ -1,5 +1,5 @@
 
-#if canImport(DestinyDefaultsNonEmbedded)
+#if NonEmbedded
 
 import DestinyBlueprint
 import DestinyDefaults
@@ -10,15 +10,43 @@ import SwiftSyntaxMacros
 // MARK: Responder DebugDescription
 extension DynamicRoute {
     /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
-    public var responderDebugDescription: String {
-        """
+    public func responderDebugDescription(useGenerics: Bool) -> String {
+        var response:String = "\(defaultResponse)"
+        #if GenericDynamicResponse
+        if useGenerics {
+            // TODO: convert body to `IntermediateBody`
+            if let b = defaultResponse.message.body as? StaticString {
+                response = genericResponse(b)
+            } else if let b = defaultResponse.message.body as? String {
+                response = genericResponse(b)
+            } else {
+                response = genericResponse(Optional<StaticString>.none)
+            }
+        }
+        #endif
+        return """
         DynamicRouteResponder(
             path: \(path),
-            defaultResponse: \(defaultResponse),
+            defaultResponse: \(response),
             logic: \(handlerDebugDescription)
         )
         """
     }
+
+    #if GenericDynamicResponse
+    private func genericResponse<Body: ResponseBodyProtocol>(_ body: Body?) -> String {
+        let response = GenericDynamicResponse(
+            message: GenericHTTPResponseMessage<Body, HTTPCookie>(
+                head: defaultResponse.message.head,
+                body: body,
+                contentType: defaultResponse.message.contentType,
+                charset: defaultResponse.message.charset
+            ),
+            parameters: defaultResponse.parameters
+        )
+        return "\(response)"
+    }
+    #endif
 }
 
 // MARK: Parse

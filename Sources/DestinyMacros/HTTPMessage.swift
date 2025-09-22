@@ -1,9 +1,12 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if NonEmbedded
+import DestinyDefaultsNonEmbedded
+#endif
 
 enum HTTPMessage: DeclarationMacro {
     static func expansion(
@@ -35,7 +38,28 @@ enum HTTPMessage: DeclarationMacro {
                 context.diagnose(DiagnosticMsg.unhandled(node: child))
             }
         }
-        var response = HTTPResponseMessage(
+        var response = ""
+        #if GenericHTTPResponseMessage
+        //response = genericResponse(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+        #endif
+        #if NonEmbedded
+        response = nonEmbeddedResponse(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+        #endif
+        response = "\"" + response + "\""
+        return ["\(raw: response)"]
+    }
+
+    #if GenericHTTPResponseMessage
+    private static func genericResponse(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        cookies: [HTTPCookie],
+        body: (some ResponseBodyProtocol)?,
+        contentType: HTTPMediaType?,
+        charset: Charset?
+    ) -> String {
+        GenericHTTPResponseMessage(
             version: version,
             status: status,
             headers: headers,
@@ -44,7 +68,28 @@ enum HTTPMessage: DeclarationMacro {
             contentType: contentType,
             charset: charset
         ).string(escapeLineBreak: true)
-        response = "\"" + response + "\""
-        return ["\(raw: response)"]
     }
+    #endif
+
+    #if NonEmbedded
+    private static func nonEmbeddedResponse(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        cookies: [HTTPCookie],
+        body: (any ResponseBodyProtocol)?,
+        contentType: HTTPMediaType?,
+        charset: Charset?
+    ) -> String {
+        return HTTPResponseMessage(
+            version: version,
+            status: status,
+            headers: headers,
+            cookies: cookies,
+            body: body,
+            contentType: contentType,
+            charset: charset
+        ).string(escapeLineBreak: true)
+    }
+    #endif
 }

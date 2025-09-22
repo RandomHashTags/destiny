@@ -1,4 +1,6 @@
 
+#if RequestBodyStream
+
 import DestinyDefaults
 
 /// Needed for `AsyncStream` and continuations
@@ -31,3 +33,5 @@ struct CopyableInlineBuffer<let count: Int>: Sendable {
         .init(buffer: buffer, endIndex: endIndex)
     }
 }
+
+#endif

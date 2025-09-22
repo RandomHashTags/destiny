@@ -16,6 +16,8 @@ extension RouterSettings {
                 settings.isCopyable = arg.expression.booleanIsTrue
             case "mutable":
                 settings.isMutable = arg.expression.booleanIsTrue
+            case "dynamicResponsesAreGeneric":
+                settings.dynamicResponsesAreGeneric = arg.expression.booleanIsTrue
             case "respondersAreComputedProperties":
                 settings.respondersAreComputedProperties = arg.expression.booleanIsTrue
             case "protocolConformances":

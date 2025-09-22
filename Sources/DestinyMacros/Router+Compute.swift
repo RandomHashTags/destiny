@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsGenerics
 import HTTPMediaTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -143,15 +142,19 @@ extension Router {
 
         let perfectHashCaseSensitiveResponder = storage.perfectHashResponder(isCaseSensitive: true)
         let perfectHashCaseInsensitiveResponder = storage.perfectHashResponder(isCaseSensitive: false)
-        let caseSensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: true)
-        let caseInsensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: false)
+        let caseSensitiveResponder:CompiledRouterStorage.Responder?
+        let caseInsensitiveResponder:CompiledRouterStorage.Responder?
 
         let dynamicCaseSensitiveResponder:CompiledRouterStorage.Responder?
         let dynamicCaseInsensitiveResponder:CompiledRouterStorage.Responder?
-        #if canImport(DestinyDefaultsNonEmbedded)
+        #if NonEmbedded
+        caseSensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: true)
+        caseInsensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: false)
         dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: true)
         dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: false)
         #else
+        caseSensitiveResponder = nil
+        caseInsensitiveResponder = nil
         dynamicCaseSensitiveResponder = nil
         dynamicCaseInsensitiveResponder = nil
         #endif

@@ -1,5 +1,6 @@
 
-#if os(Linux)
+#if Epoll
+
 import CEpoll
 import Glibc
 import Logging
@@ -7,6 +8,9 @@ import Logging
 @_silgen_name("accept4")
 #if Inlinable
 @inlinable
+#endif
+#if InlineAlways
+@inline(__always)
 #endif
 func accept4_fd(
     _ sockfd: Int32,
