@@ -18,6 +18,7 @@ public struct RouterSettings: Sendable {
     public init(
         copyable: Bool = false,
         mutable: Bool = false,
+        respondersAreComputedProperties: Bool = false,
         protocolConformances: Bool = true,
         visibility: RouterVisibility = .internal,
         name: String? = nil,
@@ -26,7 +27,12 @@ public struct RouterSettings: Sendable {
         self.visibility = visibility
         self.name = name ?? "CompiledHTTPRouter"
         self.requestType = requestType
-        flags = Flags.pack(copyable: copyable, mutable: mutable, protocolConformances: protocolConformances)
+        flags = Flags.pack(
+            copyable: copyable,
+            mutable: mutable,
+            respondersAreComputedProperties: respondersAreComputedProperties,
+            protocolConformances: protocolConformances
+        )
     }
 
     /// Whether or not this router should conform to `Copyable`.
@@ -52,6 +58,14 @@ public struct RouterSettings: Sendable {
     #if Inlinable
     @inlinable
     #endif
+    public var respondersAreComputedProperties: Bool {
+        get { isFlag(.respondersAreComputedProperties) }
+        set { setFlag(.respondersAreComputedProperties, newValue) }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
     public var hasProtocolConformances: Bool {
         get { isFlag(.protocolConformances) }
         set { setFlag(.protocolConformances, newValue) }
@@ -64,15 +78,18 @@ extension RouterSettings {
     enum Flags: UInt8 {
         case copyable = 1
         case mutable  = 2
-        case protocolConformances = 4
+        case respondersAreComputedProperties = 4
+        case protocolConformances = 8
 
         static func pack(
             copyable: Bool,
             mutable: Bool,
+            respondersAreComputedProperties: Bool,
             protocolConformances: Bool
         ) -> RawValue {
             (copyable ? Self.copyable.rawValue : 0)
             | (mutable ? Self.mutable.rawValue : 0)
+            | (respondersAreComputedProperties ? Self.respondersAreComputedProperties.rawValue : 0)
             | (protocolConformances ? Self.protocolConformances.rawValue : 0)
         }
     }

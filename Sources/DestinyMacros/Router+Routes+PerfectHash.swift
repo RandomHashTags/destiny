@@ -143,6 +143,33 @@ extension RouterStorage {
         staticResponders.reserveCapacity(routePaths.count)
         staticSIMDs.reserveCapacity(routePaths.count)
 
+        let responderBinding:Keyword
+        let responderType:(String) -> TypeAnnotationSyntax?
+        let responderInitializer:(String) -> InitializerClauseSyntax?
+        let responderAccessor:(String) -> AccessorBlockSyntax?
+        if settings.respondersAreComputedProperties {
+            responderBinding = .var
+            responderType = {
+                .init(type: TypeSyntax(stringLiteral: String($0.split(separator: "(").first!)))
+            }
+            responderInitializer = { _ in nil }
+            responderAccessor = {
+                .init(
+                    leftBrace: .leftBraceToken(),
+                    accessors: .getter(.init([
+                        .init(stringLiteral: $0)
+                    ])),
+                    rightBrace: .rightBraceToken()
+                )
+            }
+        } else {
+            responderBinding = .let
+            responderType = { _ in nil }
+            responderInitializer = {
+                .init(value: ExprSyntax(stringLiteral: $0))
+            }
+            responderAccessor = { _ in nil }
+        }
         var routeMembers = MemberBlockItemListSyntax()
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
@@ -159,14 +186,17 @@ extension RouterStorage {
             }
             routePathSIMDs.append(simd)
 
-            let staticResponder = VariableDeclSyntax.init(
+            let responder = routeResponders[index]
+            let responderDecl = VariableDeclSyntax.init(
                 leadingTrivia: "/// Request: `\(routePath)`\n",
                 modifiers: [visibilityModifier, .init(name: .keyword(.static))],
-                .let,
+                responderBinding,
                 name: "responder\(raw: index)",
-                initializer: .init(value: ExprSyntax(stringLiteral: routeResponders[index]))
+                type: responderType(responder),
+                initializer: responderInitializer(responder),
+                accessorBlock: responderAccessor(responder)
             )
-            staticResponders.append(staticResponder)
+            staticResponders.append(responderDecl)
 
             let staticSIMD = VariableDeclSyntax.init(
                 modifiers: [visibilityModifier, .init(name: .keyword(.static))],
