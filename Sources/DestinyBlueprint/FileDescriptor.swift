@@ -244,7 +244,7 @@ extension FileDescriptor {
         while sent < length {
             let result = socketSendMultiplatform(pointer + sent, length - sent)
             if result <= 0 {
-                throw .writeFailed(reason: "result <= 0")
+                throw .custom("writeFailed;result <= 0")
             }
             sent += result
         }

@@ -21,7 +21,7 @@ struct HTTPCookieTests {
     func httpCookieIllegalValue() {
         for illegal in Self.illegals {
             let illegalValue = "its-cr1tter-season\(illegal)"
-            #expect(throws: HTTPCookieError.illegalCharacter(value: illegalValue, illegalChar: illegal)) {
+            #expect(throws: HTTPCookieError.illegalCharacter(illegal)) {
                 let _ = try HTTPCookie(name: "name", value: illegalValue)
             }
         }
@@ -49,4 +49,17 @@ struct HTTPCookieTests {
         cookie.maxAge = 600
         #expect("\(cookie)" == "bro=sheesh; Max-Age=600")
     }
+}
+
+extension HTTPCookieError: Equatable {
+    public static func == (lhs: HTTPCookieError, rhs: HTTPCookieError) -> Bool {
+        switch lhs {
+        case .illegalCharacter(let c):
+            guard case let .illegalCharacter(cc) = rhs else { return false }
+            return c == cc
+        default:
+            return false
+        }
+    }
+
 }

@@ -118,7 +118,7 @@ extension HTTPRequestLine {
         var versionUInt64:UInt64 = 0
         buffer.buffer.span.withUnsafeBufferPointer { bufferPointer in
             guard let base = bufferPointer.baseAddress else {
-                err = .malformedRequest(reason: "bufferPointer.baseAddress == nil")
+                err = .custom("malformedRequest;bufferPointer.baseAddress == nil")
                 return
             }
             var offset = 0
@@ -130,7 +130,7 @@ extension HTTPRequestLine {
                 offset += 1
             }
             guard methodEndIndex != 0 else {
-                err = .malformedRequest(reason: "methodEndIndex == 0")
+                err = .custom("malformedRequest;methodEndIndex == 0")
                 return
             }
             offset += 1
@@ -150,13 +150,13 @@ extension HTTPRequestLine {
                 }
             }
             guard pathEndIndex != 0 else {
-                err = .malformedRequest(reason: "targetPathEndIndex == 0")
+                err = .custom("malformedRequest;targetPathEndIndex == 0")
                 return
             }
             let pathCount = pathEndIndex - methodEndIndex - 1
             offset += pathCount + 1
             guard offset + 8 < bufferPointer.count else {
-                err = .malformedRequest(reason: "not enough bytes for the HTTP Version")
+                err = .custom("malformedRequest;not enough bytes for the HTTP Version")
                 return
             }
             versionUInt64 = UnsafeRawPointer(base).loadUnaligned(fromByteOffset: offset, as: UInt64.self)
@@ -165,7 +165,7 @@ extension HTTPRequestLine {
             throw err
         }
         guard let version = HTTPVersion.init(token: versionUInt64.bigEndian) else {
-            throw .malformedRequest(reason: "unrecognized HTTPVersion: (bigEndian: \(versionUInt64.bigEndian), littleEndian: \(versionUInt64.littleEndian))")
+            throw .custom("malformedRequest;unrecognized HTTPVersion: (bigEndian: \(versionUInt64.bigEndian), littleEndian: \(versionUInt64.littleEndian))")
         }
         return HTTPRequestLine.init(
             methodEndIndex: methodEndIndex,

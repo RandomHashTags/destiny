@@ -3,6 +3,6 @@
 public enum AnyError: DestinyErrorProtocol {
     case httpCookieError(HTTPCookieError)
 
-    case custom(errno: Int32)
-    case custom(reason: String)
+    case errno(Int32)
+    case custom(String)
 }

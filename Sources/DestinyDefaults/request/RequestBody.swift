@@ -44,7 +44,7 @@ extension RequestBody {
         var mutableSpan = buffer.mutableSpan
         mutableSpan.withUnsafeMutableBufferPointer { p in
             guard let base = p.baseAddress else {
-                err = .readBufferFailed(reason: "baseAddress == nil")
+                err = .custom("readBufferFailed;baseAddress == nil")
                 return
             }
             do throws(SocketError) {

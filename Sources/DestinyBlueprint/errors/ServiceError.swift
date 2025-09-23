@@ -3,6 +3,6 @@
 public enum ServiceError: DestinyErrorProtocol {
     case serverError(ServerError)
 
-    case custom(errno: Int32)
-    case custom(reason: String)
+    case errno(Int32)
+    case custom(String)
 }

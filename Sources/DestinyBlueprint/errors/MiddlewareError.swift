@@ -3,6 +3,6 @@
 public enum MiddlewareError: DestinyErrorProtocol {
     case socketError(SocketError)
 
-    case custom(errno: Int32)
-    case custom(reason: String)
+    case errno(Int32)
+    case custom(String)
 }

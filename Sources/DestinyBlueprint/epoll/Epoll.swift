@@ -19,7 +19,7 @@ public struct Epoll<let maxEvents: Int>: Sendable {
         var err:EpollError? = nil
         pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
             guard let base = $0.baseAddress else {
-                err = .epollPipeFailed(reason: "baseAddress == nil")
+                err = .custom("epollPipeFailed;baseAddress == nil")
                 return
             }
             pipe(.init(mutating: base))
@@ -146,7 +146,7 @@ extension Epoll {
         timeout: Int32 = -1,
         events: UnsafeMutableBufferPointer<epoll_event>
     ) throws(EpollError) -> Int32 {
-        guard let base = events.baseAddress else { throw .waitFailed(reason: "events.baseAddress == nil") }
+        guard let base = events.baseAddress else { throw .custom("waitFailed;events.baseAddress == nil") }
 
         #if DEBUG
         logger.info("calling epoll_pwait with timeout: \(timeout)")
@@ -158,7 +158,7 @@ extension Epoll {
         logger.info("epoll_pwait returned \(loadedClients)")
         #endif
         if loadedClients <= -1 {
-            throw .waitFailed(reason: "loadedClients <= -1")
+            throw .custom("waitFailed;loadedClients <= -1")
         }
         return loadedClients
     }
