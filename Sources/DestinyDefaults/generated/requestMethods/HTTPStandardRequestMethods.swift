@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPStandardRequestMethod: String, HTTPRequestMethodProtocol {
+public enum HTTPStandardRequestMethod: HTTPRequestMethodProtocol {
     case connect
     case delete
     case `get`

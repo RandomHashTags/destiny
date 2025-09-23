@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import HTTPRequestMethodExtras
 import SwiftSyntax
 import SwiftSyntaxMacros
 

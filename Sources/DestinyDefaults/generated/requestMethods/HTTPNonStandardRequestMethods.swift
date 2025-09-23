@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public enum HTTPNonStandardRequestMethod: String, HTTPRequestMethodProtocol {
+public enum HTTPNonStandardRequestMethod: HTTPRequestMethodProtocol {
     case announce
     case append
     case authenticate

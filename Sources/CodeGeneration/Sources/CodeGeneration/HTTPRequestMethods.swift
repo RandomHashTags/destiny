@@ -14,23 +14,57 @@ struct HTTPRequestMethods {
 // MARK: Generate
 extension HTTPRequestMethods {
     private static func generate(type: String, _ values: [(String, String)]) -> String {
-        let cases = values.map({ "    case \($0.0)" }).joined(separator: "\n")
-        let rawNameStringValues = values.map({
-            return "        case .\($0.0): \"\($0.1)\""
-        }).joined(separator: "\n")
+        var cases = [String]()
+        var rawValueCases = [String]()
+        var rawValueInitCases = [String]()
+        var rawNameCaseValues = [String]()
+        cases.reserveCapacity(values.count)
+        rawValueCases.reserveCapacity(values.count)
+        rawValueInitCases.reserveCapacity(values.count)
+        rawNameCaseValues.reserveCapacity(values.count)
+        for (caseName, name) in values {
+            cases.append("    case \(caseName)")
+            rawValueCases.append("        case .\(caseName): \"\(caseName)\"")
+            rawValueInitCases.append("        case \"\(caseName)\": self = .\(caseName)")
+            rawNameCaseValues.append("        case .\(caseName): \"\(name)\"")
+        }
+        let name = "HTTP\(type)RequestMethod"
         return """
 
         import DestinyBlueprint
 
-        public enum HTTP\(type)RequestMethod: String, HTTPRequestMethodProtocol {
-        \(cases)
+        public enum \(name): HTTPRequestMethodProtocol {
+        \(cases.joined(separator: "\n"))
 
             #if Inlinable
             @inlinable
             #endif
             public func rawNameString() -> String {
                 switch self {
-        \(rawNameStringValues)
+        \(rawNameCaseValues.joined(separator: "\n"))
+                }
+            }
+        }
+
+        extension \(name): RawRepresentable {
+            public typealias RawValue = String
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public init?(rawValue: String) {
+                switch rawValue {
+        \(rawValueInitCases.joined(separator: "\n"))
+                default: return nil
+                }
+            }
+
+            #if Inlinable
+            @inlinable
+            #endif
+            public var rawValue: String {
+                switch self {
+        \(rawValueCases.joined(separator: "\n"))
                 }
             }
         }
