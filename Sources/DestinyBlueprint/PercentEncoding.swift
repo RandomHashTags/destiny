@@ -1,4 +1,6 @@
 
+#if PercentEncoding
+
 /// https://en.wikipedia.org/wiki/Percent-encoding
 public enum PercentEncoding {
     public static let unreserved:Set<Character> = [
@@ -128,3 +130,5 @@ extension String {
         return string
     }
 }
+
+#endif

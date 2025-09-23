@@ -84,6 +84,8 @@ extension HTTPCookie {
         )
     }
 
+    #if PercentEncoding
+
     #if Inlinable
     @inlinable
     #endif
@@ -110,6 +112,8 @@ extension HTTPCookie {
             sameSite: sameSite
         )
     }
+
+    #endif
 
     #if Inlinable
     @inlinable

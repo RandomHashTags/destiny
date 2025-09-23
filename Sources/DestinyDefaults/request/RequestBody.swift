@@ -1,4 +1,6 @@
 
+#if RequestBody
+
 import DestinyBlueprint
 
 public struct RequestBody: Sendable, ~Copyable {
@@ -99,3 +101,5 @@ extension RequestBody {
         }*/
     }
 }
+
+#endif

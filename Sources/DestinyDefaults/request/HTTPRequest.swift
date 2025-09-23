@@ -118,6 +118,8 @@ extension HTTPRequest {
     }
 }
 
+#if RequestBody
+
 // MARK: Body
 extension HTTPRequest {
     #if Inlinable
@@ -134,3 +136,5 @@ extension HTTPRequest {
         try abstractRequest.bodyCollect(fileDescriptor: fileDescriptor)
     }
 }
+
+#endif

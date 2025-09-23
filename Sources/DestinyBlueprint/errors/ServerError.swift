@@ -1,5 +1,4 @@
 
-// MARK: ServerError
 /// An `Error` that indicates failure when handling a Server.
 public enum ServerError: DestinyErrorProtocol {
     case socketCreationFailed(errno: Int32)

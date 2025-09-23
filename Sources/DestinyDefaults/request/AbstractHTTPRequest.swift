@@ -225,6 +225,8 @@ extension AbstractHTTPRequest {
     }
 }
 
+#if RequestBody
+
 // MARK: Body
 extension AbstractHTTPRequest {
     #if Inlinable
@@ -240,3 +242,5 @@ extension AbstractHTTPRequest {
         return try storage.bodyCollect(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
     }
 }
+
+#endif

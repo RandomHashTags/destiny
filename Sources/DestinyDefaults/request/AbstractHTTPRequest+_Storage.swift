@@ -12,22 +12,29 @@ extension AbstractHTTPRequest {
         @usableFromInline fileprivate(set) var methodString:String?
         @usableFromInline fileprivate(set) var path:[String]?
 
+        #if RequestHeaders
         @usableFromInline package var _headers:AbstractHTTPRequest.Headers?
+        #endif
+
+        #if RequestBody
         @usableFromInline package var _body:RequestBody?
+        #endif
 
         @usableFromInline
         init(
             requestLine: consuming HTTPRequestLine? = nil,
-            headers: consuming AbstractHTTPRequest.Headers? = nil,
-            body: consuming RequestBody? = nil,
             startLineSIMD: SIMD64<UInt8>? = nil,
             startLineSIMDLowercased: SIMD64<UInt8>? = nil,
             methodString: String? = nil,
             path: [String]? = nil
         ) {
             self.requestLine = requestLine
-            self._headers = headers
-            self._body = body
+            #if RequestHeaders
+            self._headers = nil
+            #endif
+            #if RequestBody
+            self._body = nil
+            #endif
             self.startLineSIMD = startLineSIMD
             self.startLineSIMDLowercased = startLineSIMDLowercased
             self.methodString = methodString
@@ -35,6 +42,57 @@ extension AbstractHTTPRequest {
         }
     }
 }
+
+#if RequestHeaders
+
+extension AbstractHTTPRequest._Storage {
+    @usableFromInline
+    init(
+        requestLine: consuming HTTPRequestLine? = nil,
+        headers: consuming AbstractHTTPRequest.Headers? = nil,
+        startLineSIMD: SIMD64<UInt8>? = nil,
+        startLineSIMDLowercased: SIMD64<UInt8>? = nil,
+        methodString: String? = nil,
+        path: [String]? = nil
+    ) {
+        self.requestLine = requestLine
+        self._headers = headers
+        #if RequestBody
+        self._body = nil
+        #endif
+        self.startLineSIMD = startLineSIMD
+        self.startLineSIMDLowercased = startLineSIMDLowercased
+        self.methodString = methodString
+        self.path = path
+    }
+}
+
+#endif
+
+#if RequestBody
+
+extension AbstractHTTPRequest._Storage {
+    @usableFromInline
+    init(
+        requestLine: consuming HTTPRequestLine? = nil,
+        headers: consuming AbstractHTTPRequest.Headers? = nil,
+        body: consuming RequestBody? = nil,
+        startLineSIMD: SIMD64<UInt8>? = nil,
+        startLineSIMDLowercased: SIMD64<UInt8>? = nil,
+        methodString: String? = nil,
+        path: [String]? = nil
+    ) {
+        self.requestLine = requestLine
+        self._headers = headers
+        self._body = body
+        self.startLineSIMD = startLineSIMD
+        self.startLineSIMDLowercased = startLineSIMDLowercased
+        self.methodString = methodString
+        self.path = path
+    }
+}
+
+#endif
 
 // MARK: Load
 extension AbstractHTTPRequest._Storage {
@@ -49,9 +107,16 @@ extension AbstractHTTPRequest._Storage {
         buffer: borrowing InlineByteBuffer<count>
     ) throws(SocketError) {
         let requestLine = try HTTPRequestLine.load(buffer: buffer)
+
+        #if RequestHeaders
         _headers = AbstractHTTPRequest.Headers(startIndex: requestLine.endIndex + 2)
+        #endif
+
         self.requestLine = consume requestLine
+
+        #if RequestBody
         _body = .init()
+        #endif
     }
 }
 
@@ -129,6 +194,8 @@ extension AbstractHTTPRequest._Storage {
     }
 }
 
+#if RequestBody
+
 // MARK: Body
 extension AbstractHTTPRequest._Storage {
     /// - Warning: `_headers` **MUST NOT** be `nil`!
@@ -145,6 +212,8 @@ extension AbstractHTTPRequest._Storage {
         return try _body!.collect(fileDescriptor: fileDescriptor)
     }
 }
+
+#endif
 
 // MARK: Copy
 extension AbstractHTTPRequest._Storage {

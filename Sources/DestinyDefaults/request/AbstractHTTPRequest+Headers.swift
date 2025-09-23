@@ -1,4 +1,6 @@
 
+#if RequestHeaders
+
 import DestinyBlueprint
 
 extension AbstractHTTPRequest {
@@ -58,3 +60,5 @@ extension AbstractHTTPRequest.Headers {
         }
     }
 }
+
+#endif

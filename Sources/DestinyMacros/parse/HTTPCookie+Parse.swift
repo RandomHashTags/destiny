@@ -55,6 +55,8 @@ extension HTTPCookie {
         guard let name, let value else { return nil }
         do throws(HTTPCookieError) {
             switch initializer {
+
+            #if PercentEncoding
             case .encoding:
                 return try Self(
                     name: name,
@@ -67,10 +69,12 @@ extension HTTPCookie {
                     isHTTPOnly: isHTTPOnly,
                     sameSite: sameSite
                 )
-            case .value:
-                return try Self(
+            #endif
+
+            case .uncheckedValue:
+                return Self(
                     name: name,
-                    value: value,
+                    uncheckedValue: value,
                     maxAge: maxAge,
                     expires: expires,
                     domain: domain,
@@ -79,10 +83,10 @@ extension HTTPCookie {
                     isHTTPOnly: isHTTPOnly,
                     sameSite: sameSite
                 )
-            case .uncheckedValue:
-                return Self(
+            default:
+                return try Self(
                     name: name,
-                    uncheckedValue: value,
+                    value: value,
                     maxAge: maxAge,
                     expires: expires,
                     domain: domain,

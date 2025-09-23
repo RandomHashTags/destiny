@@ -61,7 +61,8 @@ extension DynamicResponderStorage {
         } catch {
             throw .socketError(error)
         }
-        guard let responders = parameterized.getPositive(pathCount) else { return try catchallResponder(for: &request) }
+        guard pathCount < parameterized.endIndex else { return try catchallResponder(for: &request) }
+        let responders = parameterized[pathCount]
         loop: for responder in responders {
             for i in 0..<pathCount {
                 let path = responder.pathComponent(at: i)

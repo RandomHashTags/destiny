@@ -63,11 +63,14 @@ defaultTraits.formUnion([
     //"Generics",
     "GenericDynamicResponse",
     //"MutableRouter", // disabled by default since no other Swift networking library allows that functionality
-    //"Copyable",
+    //"Copyable", // needs more work to support properly
     "NonCopyable",
     "NonEmbedded",
-    //"RateLimits",
+    "PercentEncoding",
+    //"RateLimits", // not yet implemented
+    "RequestBody",
     "RequestBodyStream",
+    "RequestHeaders",
 
     "Inlinable",
     //"InlineAlways" // disabled by default because it is shown to hurt performance
@@ -125,12 +128,26 @@ let traits:Set<Trait> = [
         description: "Enables functionality suitable for non-embedded devices (mainly existentials)."
     ),
     .trait(
+        name: "PercentEncoding",
+        description: "Enables percent encoding functionality."
+    ),
+    .trait(
         name: "RateLimits",
         description: "Enables default rate limiting functionality."
     ),
     .trait(
+        name: "RequestBody",
+        description: "Enables functionality to access a request's body.",
+        enabledTraits: ["RequestHeaders"]
+    ),
+    .trait(
         name: "RequestBodyStream",
-        description: "Enables functionality that can stream a request's body."
+        description: "Enables functionality that can stream a request's body.",
+        enabledTraits: ["RequestBody"]
+    ),
+    .trait(
+        name: "RequestHeaders",
+        description: "Enables functionality to access a request's headers."
     ),
 
     .trait( // useful when benchmarking/profiling raw performance
