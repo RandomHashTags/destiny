@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 #if canImport(Darwin)
 import Darwin
 #elseif canImport(Glibc)
@@ -269,4 +271,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         return nil
     }
 }
+#endif
+
 #endif

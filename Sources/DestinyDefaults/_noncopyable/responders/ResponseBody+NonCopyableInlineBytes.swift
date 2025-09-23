@@ -1,26 +1,28 @@
 
+#if NonCopyable
+
 import DestinyBlueprint
-import DestinyDefaults
 
 extension ResponseBody {
     #if Inlinable
     @inlinable
     #endif
-    public static func nonCopyableBytes(_ value: [UInt8]) -> Self.NonCopyableBytes {
+    public static func nonCopyableInlineBytes<let count: Int>(_ value: InlineArray<count, UInt8>) -> Self.NonCopyableInlineBytes<count> {
         .init(value)
     }
-    public struct NonCopyableBytes: ResponseBodyProtocol, ~Copyable {
-        public let value:[UInt8]
+
+    public struct NonCopyableInlineBytes<let count: Int>: ResponseBodyProtocol, ~Copyable {
+        public let value:InlineArray<count, UInt8>
 
         #if Inlinable
         @inlinable
         #endif
-        public init(_ value: [UInt8]) {
+        public init(_ value: InlineArray<count, UInt8>) {
             self.value = value
         }
 
         public var description: String {
-            "ResponseBody.NonCopyableBytes(\(value))"
+            "ResponseBody.InlineBytes(\(value))" // TODO: fix
         }
 
         #if Inlinable
@@ -34,7 +36,7 @@ extension ResponseBody {
         @inlinable
         #endif
         public func string() -> String {
-            .init(decoding: value, as: UTF8.self)
+            value.string()
         }
 
         #if Inlinable
@@ -49,7 +51,7 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol {
+extension ResponseBody.NonCopyableInlineBytes: NonCopyableStaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
@@ -67,3 +69,5 @@ extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol
         completionHandler()
     }
 }
+
+#endif

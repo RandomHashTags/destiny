@@ -1,6 +1,7 @@
 
+#if Copyable
+
 import DestinyBlueprint
-import DestinyDefaults
 
 extension ResponseBody {
     public static func stringWithDateHeader(_ value: String) -> StringWithDateHeader {
@@ -111,3 +112,5 @@ extension StringWithDateHeader: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+#endif

@@ -47,7 +47,7 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         case .streamWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues(responseString)
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
-            return "StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
+            return "\(prefix)StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
         case .stringWithDateHeader:
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
             return "\(prefix)StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"
@@ -68,6 +68,10 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
             var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
             postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
             return "NonCopyableMacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
+        case .nonCopyableStreamWithDateHeader:
+            var (preDate, postDate) = preDateAndPostDateValues(responseString)
+            postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
+            return "NonCopyableStreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
         case .nonCopyableStaticStringWithDateHeader:
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
             return "NonCopyableStaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
@@ -87,8 +91,19 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
 
     var isNoncopyable: Bool {
         switch type {
-        case .bytes, .inlineBytes, .macroExpansion, .macroExpansionWithDateHeader, .stringWithDateHeader, .staticString, .staticStringWithDateHeader,
-                .nonCopyableBytes, .nonCopyableInlineBytes, .nonCopyableMacroExpansionWithDateHeader, .nonCopyableStaticStringWithDateHeader:
+        case .bytes,
+            .inlineBytes,
+            .macroExpansion,
+            .macroExpansionWithDateHeader,
+            .stringWithDateHeader,
+            .staticString,
+            .staticStringWithDateHeader,
+            .streamWithDateHeader,
+            .nonCopyableBytes,
+            .nonCopyableInlineBytes,
+            .nonCopyableMacroExpansionWithDateHeader,
+            .nonCopyableStaticStringWithDateHeader,
+            .nonCopyableStreamWithDateHeader:
             true
         default:
             false
@@ -98,14 +113,15 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     public var hasDateHeader: Bool {
         switch type {
         case .macroExpansionWithDateHeader,
-                .streamWithDateHeader,
-                .staticStringWithDateHeader,
-                .stringWithDateHeader,
-                .nonCopyableMacroExpansionWithDateHeader,
-                .nonCopyableStaticStringWithDateHeader:
-            return true
+            .streamWithDateHeader,
+            .staticStringWithDateHeader,
+            .stringWithDateHeader,
+            .nonCopyableMacroExpansionWithDateHeader,
+            .nonCopyableStaticStringWithDateHeader,
+            .nonCopyableStreamWithDateHeader:
+            true
         default:
-            return false
+            false
         }
     }
 
@@ -114,6 +130,7 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     }
 }
 
+// MARK: IntermediateResponseBodyType
 public enum IntermediateResponseBodyType: String, Sendable {
     case bytes
     case inlineBytes                             = "inlinebytes"
@@ -129,5 +146,6 @@ public enum IntermediateResponseBodyType: String, Sendable {
     case nonCopyableBytes                        = "noncopyablebytes"
     case nonCopyableInlineBytes                  = "noncopyableinlinebytes"
     case nonCopyableMacroExpansionWithDateHeader = "noncopyablemacroexpansionwithdateheader"
+    case nonCopyableStreamWithDateHeader         = "noncopyablestreamwithdateheader"
     case nonCopyableStaticStringWithDateHeader   = "noncopyablestaticstringwithdateheader"
 }

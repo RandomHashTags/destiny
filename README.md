@@ -261,6 +261,8 @@ Areas that Swift needs more development/support to unlock more performance at th
 
 - `~Copyable` types in parameter packs (current `Copyable` requirement causes retain/release and ARC traffic)
 - `~Copyable` types not being able to be used as a `typealias` or `associatedtype`
+- `Async[Throwing]Stream` not supporting typed throws
+- `Async[Throwing]Stream` not supporting `~Copyable` values
 
 ## Getting started
 

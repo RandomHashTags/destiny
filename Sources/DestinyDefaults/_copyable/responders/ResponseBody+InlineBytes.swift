@@ -1,24 +1,25 @@
 
+#if Copyable
+
 import DestinyBlueprint
-import DestinyDefaults
 
 extension ResponseBody {
     #if Inlinable
     @inlinable
     #endif
-    public static func bytes(_ value: [UInt8]) -> Self.Bytes {
-        Self.Bytes(value)
+    public static func inlineBytes<let count: Int>(_ value: InlineArray<count, UInt8>) -> Self.InlineBytes<count> {
+        Self.InlineBytes(value)
     }
-    public struct Bytes: ResponseBodyProtocol {
-        public let value:[UInt8]
+
+    public struct InlineBytes<let count: Int>: ResponseBodyProtocol {
+        public let value:InlineArray<count, UInt8>
 
         #if Inlinable
         @inlinable
         #endif
-        public init(_ value: [UInt8]) {
+        public init(_ value: InlineArray<count, UInt8>) {
             self.value = value
         }
-
 
         #if Inlinable
         @inlinable
@@ -31,7 +32,7 @@ extension ResponseBody {
         @inlinable
         #endif
         public func string() -> String {
-            .init(decoding: value, as: UTF8.self)
+            value.string()
         }
 
         #if Inlinable
@@ -46,7 +47,7 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.Bytes: StaticRouteResponderProtocol {
+extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
@@ -64,3 +65,5 @@ extension ResponseBody.Bytes: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+#endif

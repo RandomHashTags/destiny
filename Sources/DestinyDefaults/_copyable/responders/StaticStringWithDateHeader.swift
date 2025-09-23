@@ -1,4 +1,6 @@
 
+#if Copyable
+
 import DestinyBlueprint
 
 extension ResponseBody {
@@ -104,3 +106,5 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+#endif

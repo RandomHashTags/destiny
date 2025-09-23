@@ -36,8 +36,6 @@ defaultTraits.insert("Liburing")
 var destinyDependencies:[Target.Dependency] = [
     "DestinyBlueprint",
     "DestinyDefaults",
-    .byName(name: "DestinyDefaultsCopyable", condition: .when(traits: ["Copyable"])),
-    .byName(name: "DestinyDefaultsNonCopyable", condition: .when(traits: ["NonCopyable"])),
 ]
 
 #if !hasFeature(Embedded)
@@ -178,8 +176,6 @@ let package = Package(
     products: [
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
-        .library(name: "DestinyDefaultsCopyable", targets: ["DestinyDefaultsCopyable"]),
-        .library(name: "DestinyDefaultsNonCopyable", targets: ["DestinyDefaultsNonCopyable"]),
         .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
@@ -214,33 +210,12 @@ let package = Package(
             ]
         ),
 
-        // MARK: DestinyDefaultsCopyable
-        .target(
-            name: "DestinyDefaultsCopyable",
-            dependencies: [
-                "DestinyDefaults",
-                .product(name: "Logging", package: "swift-log"),
-                //.product(name: "Metrics", package: "swift-metrics"),
-            ]
-        ),
-
-        // MARK: DestinyDefaultsNonCopyable
-        .target(
-            name: "DestinyDefaultsNonCopyable",
-            dependencies: [
-                "DestinyDefaults",
-                .product(name: "Logging", package: "swift-log"),
-                //.product(name: "Metrics", package: "swift-metrics"),
-            ]
-        ),
-
         // MARK: DestinyDefaultsNonEmbedded
         .target(
             name: "DestinyDefaultsNonEmbedded",
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyDefaults",
-                .byName(name: "DestinyDefaultsCopyable", condition: .when(traits: ["Copyable"])),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
             ]
@@ -310,7 +285,6 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyDefaults",
-                "DestinyDefaultsNonCopyable",
                 "DestinySwiftSyntax" // comment-out after macro expansion to save binary size
             ]
         ),
@@ -320,7 +294,6 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyDefaults",
-                "DestinyDefaultsNonCopyable",
                 "TestRouter"
             ]
         ),

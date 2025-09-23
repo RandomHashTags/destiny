@@ -1,36 +1,38 @@
 
+#if NonCopyable
+
 import DestinyBlueprint
 
 extension ResponseBody {
     #if Inlinable
     @inlinable
     #endif
-    public static func streamWithDateHeader<Body: AsyncHTTPSocketWritable>(_ body: Body) -> StreamWithDateHeader<Body> {
+    public static func nonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>(_ body: consuming Body) -> NonCopyableStreamWithDateHeader<Body> {
         .init(body)
     }
 
     #if Inlinable
     @inlinable
     #endif
-    public static func streamWithDateHeader<Body: HTTPSocketWritable>(
+    public static func nonCopyableStreamWithDateHeader<Body: HTTPSocketWritable & ~Copyable>(
         preDateValue: StaticString,
         postDateValue: StaticString,
-        body: Body
-    ) -> StreamWithDateHeader<Body> {
+        body: consuming Body
+    ) -> NonCopyableStreamWithDateHeader<Body> {
         .init(preDateValue: preDateValue, postDateValue: postDateValue, body: body)
     }
 }
 
-public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyProtocol {
+public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>: ResponseBodyProtocol, ~Copyable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
     public let body:Body
 
     @usableFromInline
-    let payload:DateHeaderPayload
+    let payload:NonCopyableDateHeaderPayload
 
     public init(
-        _ body: Body
+        _ body: consuming Body
     ) {
         preDateValue = ""
         postDateValue = ""
@@ -43,7 +45,7 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyP
     public init(
         preDateValue: StaticString,
         postDateValue: StaticString,
-        body: Body
+        body: consuming Body
     ) {
         self.preDateValue = preDateValue
         self.postDateValue = postDateValue
@@ -81,40 +83,44 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyP
     public var hasContentLength: Bool {
         false
     }
-}
 
-// MARK: Write to buffer
-extension StreamWithDateHeader {
+    // MARK: Write to buffer
     #if Inlinable
     @inlinable
     #endif
-    public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
+    public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(BufferWriteError) {
         // TODO: support?
     }
 }
 
 // MARK: Write to socket
-extension StreamWithDateHeader: StaticRouteResponderProtocol {
+extension NonCopyableStreamWithDateHeader: NonCopyableStaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
     public func respond(
-        router: some HTTPRouterProtocol,
+        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try payload.write(to: socket)
-        var requestCopy = request.copy()
+        let body = body
         Task {
             do throws(SocketError) {
                 try await body.write(to: socket)
                 completionHandler()
             } catch {
-                if !router.respondWithError(socket: socket, error: error, request: &requestCopy, completionHandler: completionHandler) {
+                #if DEBUG
+                print("NonCopyableStreamWithDateHeader;respond;error=\(error)")
+                #endif
+                completionHandler() // TODO: fix
+                /*if !router.respondWithError(socket: socket, error: error, request: &requestCopy, completionHandler: completionHandler) {
                     completionHandler()
-                }
+                }*/
             }
         }
     }
 }
+
+#endif

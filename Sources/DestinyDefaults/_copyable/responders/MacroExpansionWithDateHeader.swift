@@ -1,4 +1,6 @@
 
+#if Copyable
+
 import DestinyBlueprint
 
 public struct MacroExpansionWithDateHeader: Sendable {
@@ -68,3 +70,5 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+#endif

@@ -1,4 +1,6 @@
 
+#if Copyable
+
 #if canImport(Darwin)
 import Darwin
 #elseif canImport(Glibc)
@@ -269,4 +271,6 @@ extension HTTPServer where ClientSocket: ~Copyable {
         return nil
     }
 }
+#endif
+
 #endif

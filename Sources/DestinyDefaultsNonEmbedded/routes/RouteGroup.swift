@@ -3,7 +3,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsCopyable
 
 // MARK: RouteGroup
 /// Default mutable Route Group implementation that handles grouped routes.

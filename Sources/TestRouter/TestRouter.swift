@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonCopyable
 import DestinySwiftSyntax // only used for the macro; comment-out here and Package.swift to save binary size when expanded
 import HTTPMediaTypes
 import Logging
@@ -101,7 +100,7 @@ extension TestRouter {
         StaticRoute.get(
             path: ["stream"],
             contentType: HTTPMediaTypeText.plain,
-            body: ResponseBody.streamWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
+            body: ResponseBody.nonCopyableStreamWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
         ),
         StaticRoute.get(
             path: ["expressionMacro"],

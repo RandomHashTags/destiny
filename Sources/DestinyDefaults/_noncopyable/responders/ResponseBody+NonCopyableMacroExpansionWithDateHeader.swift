@@ -1,6 +1,7 @@
 
+#if NonCopyable
+
 import DestinyBlueprint
-import DestinyDefaults
 
 extension ResponseBody {
     #if Inlinable
@@ -52,3 +53,5 @@ extension ResponseBody {
         }
     }
 }
+
+#endif

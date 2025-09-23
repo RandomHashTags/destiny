@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 import DestinyBlueprint
 
 public struct NonCopyableMacroExpansionWithDateHeader: Sendable, ~Copyable {
@@ -68,3 +70,5 @@ extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteRespond
         completionHandler()
     }
 }
+
+#endif

@@ -1,28 +1,25 @@
 
+#if Copyable
+
 import DestinyBlueprint
-import DestinyDefaults
 
 extension ResponseBody {
     #if Inlinable
     @inlinable
     #endif
-    public static func nonCopyableInlineBytes<let count: Int>(_ value: InlineArray<count, UInt8>) -> Self.NonCopyableInlineBytes<count> {
-        .init(value)
+    public static func bytes(_ value: [UInt8]) -> Self.Bytes {
+        Self.Bytes(value)
     }
-
-    public struct NonCopyableInlineBytes<let count: Int>: ResponseBodyProtocol, ~Copyable {
-        public let value:InlineArray<count, UInt8>
+    public struct Bytes: ResponseBodyProtocol {
+        public let value:[UInt8]
 
         #if Inlinable
         @inlinable
         #endif
-        public init(_ value: InlineArray<count, UInt8>) {
+        public init(_ value: [UInt8]) {
             self.value = value
         }
 
-        public var description: String {
-            "ResponseBody.InlineBytes(\(value))" // TODO: fix
-        }
 
         #if Inlinable
         @inlinable
@@ -35,7 +32,7 @@ extension ResponseBody {
         @inlinable
         #endif
         public func string() -> String {
-            value.string()
+            .init(decoding: value, as: UTF8.self)
         }
 
         #if Inlinable
@@ -50,12 +47,12 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.NonCopyableInlineBytes: NonCopyableStaticRouteResponderProtocol {
+extension ResponseBody.Bytes: StaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
     public func respond(
-        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
+        router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
         request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
@@ -68,3 +65,5 @@ extension ResponseBody.NonCopyableInlineBytes: NonCopyableStaticRouteResponderPr
         completionHandler()
     }
 }
+
+#endif

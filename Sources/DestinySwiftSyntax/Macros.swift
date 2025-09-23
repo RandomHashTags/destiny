@@ -1,11 +1,16 @@
 
 // MARK: Embedded
-#if !canImport(DestinyDefaultsNonEmbedded)
+#if !NonEmbedded
+#endif
 
 
 
+
+
+
+#if NonEmbedded
 // MARK: Non embedded
-#else
+
 
 
 

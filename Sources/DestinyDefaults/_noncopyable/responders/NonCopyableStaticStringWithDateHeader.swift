@@ -1,6 +1,7 @@
 
+#if NonCopyable
+
 import DestinyBlueprint
-import DestinyDefaults
 
 extension ResponseBody {
     #if Inlinable
@@ -105,3 +106,5 @@ extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponder
         completionHandler()
     }
 }
+
+#endif

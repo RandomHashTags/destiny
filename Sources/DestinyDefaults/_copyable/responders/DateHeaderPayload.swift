@@ -1,4 +1,6 @@
 
+#if Copyable
+
 import DestinyBlueprint
 
 public struct DateHeaderPayload: @unchecked Sendable {
@@ -41,3 +43,5 @@ public struct DateHeaderPayload: @unchecked Sendable {
         }
     }
 }
+
+#endif

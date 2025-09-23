@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 import DestinyBlueprint
 
 public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
@@ -41,3 +43,5 @@ public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
         }
     }
 }
+
+#endif

@@ -15,7 +15,6 @@ import SwiftGlibc
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonCopyable
 import Logging
 import TestRouter
 

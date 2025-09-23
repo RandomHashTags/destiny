@@ -1,4 +1,6 @@
 
+#if Copyable
+
 import DestinyBlueprint
 
 extension RouteResponses {
@@ -49,3 +51,5 @@ extension RouteResponses {
         }
     }
 }
+
+#endif

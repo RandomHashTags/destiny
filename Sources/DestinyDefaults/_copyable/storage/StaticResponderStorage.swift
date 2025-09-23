@@ -1,8 +1,7 @@
 
-#if MutableRouter
+#if Copyable && MutableRouter
 
 import DestinyBlueprint
-import DestinyDefaults
 
 /// Default mutable storage that handles static routes.
 /// 

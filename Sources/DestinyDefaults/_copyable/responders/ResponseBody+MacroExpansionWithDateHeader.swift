@@ -1,15 +1,17 @@
 
+#if Copyable
+
 import DestinyBlueprint
 
 extension ResponseBody {
     #if Inlinable
     @inlinable
     #endif
-    public static func macroExpansion<Value: ResponseBodyValueProtocol>(_ value: Value) -> MacroExpansion<Value> {
+    public static func macroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>(_ value: Value) -> MacroExpansionWithDateHeader<Value> {
         .init(value)
     }
 
-    public struct MacroExpansion<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol {
+    public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol {
         public var value:Value
 
         #if Inlinable
@@ -42,5 +44,14 @@ extension ResponseBody {
         ) throws(BufferWriteError) {
             try value.write(to: buffer, at: &index)
         }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public var hasDateHeader: Bool {
+            true
+        }
     }
 }
+
+#endif
