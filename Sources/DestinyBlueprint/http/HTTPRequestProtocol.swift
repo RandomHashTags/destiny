@@ -30,7 +30,9 @@ public protocol HTTPRequestProtocol: NetworkAddressable, ~Copyable {
 
     //func header<let keyCount: Int, let valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
 
+    #if RequestHeaders
     mutating func header(forKey key: String) throws(SocketError) -> String?
+    #endif
 
     /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
     /// - Returns: A copy of self.

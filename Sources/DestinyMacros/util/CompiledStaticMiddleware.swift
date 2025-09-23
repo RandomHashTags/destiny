@@ -1,4 +1,6 @@
 
+#if StaticMiddleware
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -171,3 +173,5 @@ extension CompiledStaticMiddleware {
         }
     }
 }
+
+#endif

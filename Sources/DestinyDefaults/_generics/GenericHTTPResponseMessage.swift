@@ -83,6 +83,13 @@ public struct GenericHTTPResponseMessage<
     #if Inlinable
     @inlinable
     #endif
+    public func statusCode() -> HTTPResponseStatus.Code {
+        head.status
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
     public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {
         head.status = code
     }

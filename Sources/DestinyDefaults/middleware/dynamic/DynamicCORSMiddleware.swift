@@ -29,9 +29,12 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
         do throws(SocketError) {
+            #if RequestHeaders
             guard try request.header(forKey: "Origin") != nil else { return true }
             try allowedOrigin.apply(request: &request, response: &response)
             logicKind.apply(to: &response)
+            #endif
+
             return true
         } catch {
             throw .socketError(error)
@@ -95,6 +98,8 @@ extension DynamicCORSMiddleware {
         self.init(allowedOrigin: allowedOrigin, logicKind: logicKind)
     }
 }
+
+#if RequestHeaders
 
 // MARK: Logic variants
 extension DynamicCORSMiddleware {
@@ -208,3 +213,5 @@ extension DynamicCORSMiddleware {
         response.setHeader(key: "Access-Control-Max-Age", value: maxAgeString)
     }
 }
+
+#endif

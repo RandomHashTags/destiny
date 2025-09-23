@@ -1,4 +1,6 @@
 
+#if StaticMiddleware
+
 /// Core protocol that handles static and dynamic routes at compile time.
 public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
     /// - Returns: Whether or not this middleware handles a route with the given options.
@@ -25,3 +27,5 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
         to response: inout some DynamicResponseProtocol
     ) throws(AnyError)
 }
+
+#endif

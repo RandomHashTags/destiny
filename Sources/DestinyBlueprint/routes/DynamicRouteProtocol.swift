@@ -15,6 +15,7 @@ public protocol DynamicRouteProtocol: RouteProtocol, ~Copyable {
         at i: Int
     )
 
+    #if StaticMiddleware
     /// Applies static middleware to this route.
     /// 
     /// - Parameters:
@@ -22,6 +23,7 @@ public protocol DynamicRouteProtocol: RouteProtocol, ~Copyable {
     mutating func applyStaticMiddleware(
         _ middleware: [some StaticMiddlewareProtocol]
     ) throws(AnyError)
+    #endif
 
     func startLine() -> String
 }

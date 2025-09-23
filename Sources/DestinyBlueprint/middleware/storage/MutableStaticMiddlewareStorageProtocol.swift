@@ -1,5 +1,5 @@
 
-#if MutableRouter
+#if MutableRouter && StaticMiddleware
 
 /// Core mutable protocol that stores static middleware.
 public protocol MutableStaticMiddlewareStorageProtocol: AnyObject, StaticMiddlewareStorageProtocol {

@@ -10,7 +10,11 @@ public enum DynamicCORSLogic: Sendable {
     case exposedHeaders(allowedHeaders: String, allowedMethods: String, exposedHeaders: String)
     case maxAge(allowedHeaders: String, allowedMethods: String, maxAge: String)
     case minimum(allowedHeaders: String, allowedMethods: String)
+}
 
+#if RequestHeaders
+
+extension DynamicCORSLogic {
     #if Inlinable
     @inlinable
     #endif
@@ -37,3 +41,5 @@ public enum DynamicCORSLogic: Sendable {
         }
     }
 }
+
+#endif

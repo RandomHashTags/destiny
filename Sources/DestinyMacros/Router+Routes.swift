@@ -29,7 +29,11 @@ extension Router {
 
         #if NonEmbedded
         case "DynamicRoute":
+            #if StaticMiddleware
             var route = DynamicRoute.parse(context: context, version: version, middleware: storage.staticMiddleware, function)
+            #else
+            var route = DynamicRoute.parse(context: context, version: version, function)
+            #endif
             if let method = targetMethod {
                 route.method = method
             }

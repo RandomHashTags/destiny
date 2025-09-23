@@ -69,6 +69,7 @@ defaultTraits.formUnion([
     "RequestBody",
     "RequestBodyStream",
     "RequestHeaders",
+    "StaticMiddleware",
 
     "Inlinable",
     //"InlineAlways" // disabled by default because it is shown to hurt performance
@@ -146,6 +147,10 @@ let traits:Set<Trait> = [
     .trait(
         name: "RequestHeaders",
         description: "Enables functionality to access a request's headers."
+    ),
+    .trait(
+        name: "StaticMiddleware",
+        description: "Enables static middleware functionality."
     ),
 
     .trait( // useful when benchmarking/profiling raw performance

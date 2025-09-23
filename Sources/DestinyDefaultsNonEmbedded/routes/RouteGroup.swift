@@ -8,11 +8,42 @@ import DestinyDefaults
 /// Default mutable Route Group implementation that handles grouped routes.
 public struct RouteGroup: RouteGroupProtocol { // TODO: avoid existentials / support embedded
     public let prefixEndpoints:[String]
+
+    #if StaticMiddleware
     public let staticMiddleware:[any StaticMiddlewareProtocol]
+    #endif
+
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]
     public let staticResponses:StaticResponderStorage
     public let dynamicResponses:DynamicResponderStorage
 
+    public init(
+        endpoint: String,
+        dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
+        _ routes: any RouteProtocol...
+    ) {
+        let prefixEndpoints = endpoint.split(separator: "/").map({ String($0) })
+        self.prefixEndpoints = prefixEndpoints
+        self.dynamicMiddleware = dynamicMiddleware
+        staticResponses = .init()
+        dynamicResponses = .init()
+    }
+    public init(
+        prefixEndpoints: [String],
+        dynamicMiddleware: [any DynamicMiddlewareProtocol],
+        staticResponses: StaticResponderStorage,
+        dynamicResponses: DynamicResponderStorage
+    ) {
+        self.prefixEndpoints = prefixEndpoints
+        self.dynamicMiddleware = dynamicMiddleware
+        self.staticResponses = staticResponses
+        self.dynamicResponses = dynamicResponses
+    }
+}
+
+#if StaticMiddleware
+
+extension RouteGroup {
     public init(
         endpoint: String,
         staticMiddleware: [any StaticMiddlewareProtocol] = [],
@@ -40,6 +71,8 @@ public struct RouteGroup: RouteGroupProtocol { // TODO: avoid existentials / sup
         self.dynamicResponses = dynamicResponses
     }
 }
+
+#endif
 
 // MARK: Respond
 extension RouteGroup {

@@ -107,6 +107,8 @@ extension DynamicRoute {
     }
 }
 
+#if StaticMiddleware
+
 // MARK: Apply static middleware
 extension DynamicRoute {
     #if Inlinable
@@ -127,6 +129,8 @@ extension DynamicRoute {
         }
     }
 }
+
+#endif
 
 // MARK: Convenience inits
 extension DynamicRoute {

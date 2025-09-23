@@ -1,4 +1,6 @@
 
+#if StaticMiddleware
+
 import DestinyBlueprint
 
 // MARK: StaticMiddleware
@@ -177,3 +179,5 @@ extension StaticMiddleware {
         }
     }
 }
+
+#endif

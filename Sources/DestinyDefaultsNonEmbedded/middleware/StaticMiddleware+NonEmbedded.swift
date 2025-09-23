@@ -1,4 +1,6 @@
 
+#if StaticMiddleware
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -30,3 +32,5 @@ extension StaticMiddleware {
         )
     }
 }
+
+#endif

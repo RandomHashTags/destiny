@@ -29,7 +29,10 @@ public struct RouterStorage {
     var dynamicRouteStorage = DynamicRouteStorage()
     var staticRouteStorage = StaticRouteStorage()
 
+    #if StaticMiddleware
     var staticMiddleware = [CompiledStaticMiddleware]()
+    #endif
+
     var staticRedirects:[(StaticRedirectionRoute, FunctionCallExprSyntax)] = []
 
     var routeGroups = [any DeclSyntaxProtocol]()
@@ -139,10 +142,6 @@ extension RouterStorage {
         string.removeLast(2)
         string += "\n"
         return string
-    }
-
-    func staticMiddlewareString() -> String {
-        return staticMiddleware.isEmpty ? "" : "\n" + staticMiddleware.map({ "\($0)" }).joined(separator: ",\n") + "\n"
     }
 
     mutating func dynamicMiddlewareArray() -> [String] {

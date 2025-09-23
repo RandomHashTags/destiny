@@ -1,4 +1,6 @@
 
+#if StaticMiddleware
+
 import DestinyBlueprint
 import DestinyDefaults
 import SwiftSyntax
@@ -74,3 +76,5 @@ extension StaticMiddleware {
         )
     }
 }
+
+#endif

@@ -140,7 +140,11 @@ extension RouterStorage {
         for (route, function) in routes {
             var startLine = routeStartLine(route)
             let buffer = SIMD64<UInt8>(&startLine)
+            #if StaticMiddleware
             let httpResponse = route.response(context: context, function: function, middleware: staticMiddleware)
+            #else
+            let httpResponse = route.response(context: context, function: function)
+            #endif
             if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                 if let intermediateBody = route.body as? IntermediateResponseBody {
                     guard isCopyable != intermediateBody.isNoncopyable else {

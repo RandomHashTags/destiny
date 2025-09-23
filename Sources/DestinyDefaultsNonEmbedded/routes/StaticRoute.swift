@@ -102,8 +102,9 @@ public struct StaticRoute: StaticRouteProtocol {
 
 // MARK: Response
 extension StaticRoute {
+    #if StaticMiddleware
     public func response(
-        middleware: some StaticMiddlewareStorageProtocol
+        middleware: [some StaticMiddlewareProtocol]
     ) -> some HTTPMessageProtocol {
         var version = version
         let path = path.joined(separator: "/")
@@ -121,17 +122,52 @@ extension StaticRoute {
         }
         headers[HTTPStandardResponseHeader.contentType.rawName] = nil
         headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+        return Self.response(version: version, status: status, headers: &headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+    }
+    #else
+    public func response() -> some HTTPMessageProtocol {
+        var headers = HTTPHeaders()
+        if body?.hasDateHeader ?? false {
+            headers["Date"] = HTTPDateFormat.placeholder
+        }
+        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
+        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+        return Self.response(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
+    }
+    #endif
+
+    @inline(__always)
+    package static func response(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: inout HTTPHeaders,
+        cookies: [HTTPCookie],
+        body: (any ResponseBodyProtocol)?,
+        contentType: HTTPMediaType?,
+        charset: Charset?
+    ) -> some HTTPMessageProtocol {
+        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
+        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
         return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 }
 
+
+
+
 // MARK: Responder
 extension StaticRoute {
+    #if StaticMiddleware
     public func responder(
-        middleware: some StaticMiddlewareStorageProtocol
+        middleware: [some StaticMiddlewareProtocol]
     ) throws(HTTPMessageError) -> (some StaticRouteResponderProtocol)? {
         return try response(middleware: middleware).string(escapeLineBreak: true)
     }
+    #else
+    public func responder() throws(HTTPMessageError) -> (some StaticRouteResponderProtocol)? {
+        return try response().string(escapeLineBreak: true)
+    }
+    #endif
 }
 
 // MARK: Convenience inits

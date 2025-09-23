@@ -5,6 +5,9 @@ public protocol AbstractHTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
     /// Associated HTTP Version of this message.
     var version: HTTPVersion { get set }
 
+    /// - Returns: Current status code this message.
+    func statusCode() -> HTTPResponseStatus.Code
+
     /// Set the message's status code.
     /// 
     /// - Parameters:

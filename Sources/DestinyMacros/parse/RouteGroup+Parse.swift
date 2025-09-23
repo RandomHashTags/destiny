@@ -1,5 +1,5 @@
 
-#if Copyable && MutableRouter && NonEmbedded
+#if Copyable && MutableRouter && NonEmbedded && StaticMiddleware // TODO: fix
 
 import DestinyBlueprint
 import DestinyDefaults

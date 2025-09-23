@@ -103,6 +103,8 @@ public struct GenericStaticRoute<
     }
 }
 
+#if StaticMiddleware
+
 // MARK: Response
 extension GenericStaticRoute {
     public func response(
@@ -136,6 +138,8 @@ extension GenericStaticRoute {
         return try response(middleware: middleware).string(escapeLineBreak: true)
     }
 }
+
+#endif
 
 // MARK: Convenience inits
 extension GenericStaticRoute {

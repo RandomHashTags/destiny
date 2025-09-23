@@ -29,10 +29,12 @@ public protocol AbstractDynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     ///   - code: New status code to set.
     mutating func setStatusCode(_ code: HTTPResponseStatus.Code)
 
+    #if RequestHeaders
     /// Sets a header to the given value.
     /// 
     /// - Parameters:
     ///   - key: Header you want to modify.
     ///   - value: New header value to set.
     mutating func setHeader(key: String, value: String)
+    #endif
 }

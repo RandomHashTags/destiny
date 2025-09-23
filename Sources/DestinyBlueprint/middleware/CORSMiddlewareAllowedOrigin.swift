@@ -5,7 +5,11 @@ public enum CORSMiddlewareAllowedOrigin: Sendable {
     case custom(String)
     case none
     case originBased
+}
 
+#if RequestHeaders
+
+extension CORSMiddlewareAllowedOrigin {
     #if Inlinable
     @inlinable
     #endif
@@ -26,9 +30,7 @@ public enum CORSMiddlewareAllowedOrigin: Sendable {
             try Self.applyOriginBased(request: &request, response: &response)
         }
     }
-}
 
-extension CORSMiddlewareAllowedOrigin {
     #if Inlinable
     @inlinable
     #endif
@@ -74,3 +76,5 @@ extension CORSMiddlewareAllowedOrigin {
         }
     }
 }
+
+#endif

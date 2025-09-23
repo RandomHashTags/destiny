@@ -45,7 +45,11 @@ extension Router {
             context.diagnose(DiagnosticMsg.unhandled(node: function))
             return
         }
+        #if StaticMiddleware
         storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
+        #else
+        context.diagnose(DiagnosticMsg.unhandled(node: function))
+        #endif
     }
 
     static func parseDynamicMiddleware(

@@ -73,32 +73,30 @@ extension StaticRoute {
     ///   - context: Macro expansion context where it was called.
     ///   - function: `FunctionCallExprSyntax` that represents this route.
     ///   - middleware: Static middleware this route will handle.
+    #if StaticMiddleware
     public func response(
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
     ) -> some HTTPMessageProtocol {
-        var version = version
-        let path = path.joined(separator: "/")
-        var status = status
-        var contentType = contentType
-        var headers = HTTPHeaders()
-        if body?.hasDateHeader ?? false {
-            headers["Date"] = HTTPDateFormat.placeholder
-        }
-        var cookies = [HTTPCookie]()
-        for middleware in middleware {
-            if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
-                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
-            }
-        }
-        if status == HTTPStandardResponseStatus.notImplemented.code {
+        let result = response(middleware: middleware)
+        if result.statusCode() == HTTPStandardResponseStatus.notImplemented.code {
             Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
         }
-        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
-        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
-        return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+        return result
     }
+    #else
+    public func response(
+        context: MacroExpansionContext,
+        function: FunctionCallExprSyntax
+    ) -> some HTTPMessageProtocol {
+        let result = response()
+        if result.statusCode() == HTTPStandardResponseStatus.notImplemented.code {
+            Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
+        }
+        return result
+    }
+    #endif
 }
 
 // MARK: Responder
@@ -109,6 +107,7 @@ extension StaticRoute {
     ///   - context: Macro expansion context where it was called.
     ///   - function: `FunctionCallExprSyntax` that represents this route.
     ///   - middleware: Static middleware that this route will handle.
+    #if StaticMiddleware
     public func responder(
         context: MacroExpansionContext,
         function: FunctionCallExprSyntax,
@@ -116,6 +115,14 @@ extension StaticRoute {
     ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
         return try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }
+    #else
+    public func responder(
+        context: MacroExpansionContext,
+        function: FunctionCallExprSyntax
+    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
+        return try response(context: context, function: function).string(escapeLineBreak: true)
+    }
+    #endif
 }
 
 #endif
