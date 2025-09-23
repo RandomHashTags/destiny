@@ -17,7 +17,7 @@ var pkgDependencies:[Package.Dependency] = [
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
     // Variable-length arrays
-    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", branch: "main")
+    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", from: "0.2.0", traits: [])
 ]
 
 #if os(Linux)
