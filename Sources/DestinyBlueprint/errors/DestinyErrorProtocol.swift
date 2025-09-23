@@ -17,23 +17,14 @@ import Windows
 import WinSDK
 #endif
 
-public protocol DestinyErrorProtocol: Equatable, Error {
-    /// Unique name that identifies the error.
-    var identifier: String { get }
-
-    /// Reason for the error.
-    var reason: String { get }
-
-    init(identifier: String, reason: String)
+public protocol DestinyErrorProtocol: Error {
 }
 
-extension DestinyErrorProtocol {
-    @usableFromInline
-    static func cError(_ identifier: String) -> Self {
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-        return Self(identifier: identifier, reason: String(cString: strerror(errno)) + " (errno=\(errno))")
-        #else
-        return Self(identifier: identifier, reason: "unspecified")
-        #endif
-    }
+@inlinable
+package func cError() -> Int32 {
+    #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+    return errno
+    #else
+    return .min
+    #endif
 }

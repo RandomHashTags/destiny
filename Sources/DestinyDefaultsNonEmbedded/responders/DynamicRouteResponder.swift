@@ -71,7 +71,7 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
             do {
                 try await logic(&anyRequest, &anyResponse)
             } catch {
-                err = ResponderError(identifier: "dynamicRouteResponderError", reason: "while executing dynamic logic: \(error)")
+                err = .custom(reason: "dynamicRouteResponderError;while executing dynamic logic: \(error)")
             }
             if let err {
                 if !router.respondWithError(socket: socket, error: err, request: &anyRequest, completionHandler: completionHandler) {

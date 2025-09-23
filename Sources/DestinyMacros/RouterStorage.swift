@@ -60,7 +60,7 @@ public struct RouterStorage {
                     do { // TODO: use typed throw
                         \(functionString)
                     } catch {
-                        throw .init(identifier: "\(name)HandleError", reason: "\\(error)")
+                        throw .custom(reason: "\(name)HandleError;\\(error)")
                     }
                 }
 

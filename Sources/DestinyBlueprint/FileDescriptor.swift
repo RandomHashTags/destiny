@@ -85,7 +85,7 @@ extension Int32: FileDescriptor {
         while sent < length {
             let result = socketSendMultiplatform(pointer + sent, length - sent)
             if result <= 0 {
-                throw .writeFailed()
+                throw .writeFailed(errno: errno)
             }
             sent += result
         }
@@ -105,7 +105,7 @@ extension Int32: FileDescriptor {
             }
             let result = writev(fileDescriptor, iovecs.baseAddress, Int32(count))
             if result <= 0 {
-                err = .writeFailed()
+                err = .writeFailed(errno: errno)
             }
         }
         if let err {
@@ -127,7 +127,7 @@ extension Int32: FileDescriptor {
             }
             let result = writev(fileDescriptor, iovecs.baseAddress, Int32(count))
             if result <= 0 {
-                err = .writeFailed()
+                err = .writeFailed(errno: errno)
             }
         }
         if let err {
@@ -227,7 +227,7 @@ extension FileDescriptor {
             return
         }
         #endif
-        throw SocketError.readBufferFailed()
+        throw .readBufferFailed(errno: errno)
     }
 }
 
@@ -244,7 +244,7 @@ extension FileDescriptor {
         while sent < length {
             let result = socketSendMultiplatform(pointer + sent, length - sent)
             if result <= 0 {
-                throw .writeFailed()
+                throw .writeFailed(reason: "result <= 0")
             }
             sent += result
         }

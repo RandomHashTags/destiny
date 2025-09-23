@@ -42,13 +42,13 @@ extension RequestBody {
         var mutableSpan = buffer.mutableSpan
         mutableSpan.withUnsafeMutableBufferPointer { p in
             guard let base = p.baseAddress else {
-                err = .readBufferFailed("baseAddress == nil")
+                err = .readBufferFailed(reason: "baseAddress == nil")
                 return
             }
             do throws(SocketError) {
                 read = try fileDescriptor.readBuffer(into: base, length: count, flags: 0)
                 if read <= 0 {
-                    err = .readBufferFailed()
+                    err = .readBufferFailed(errno: cError())
                 }
             } catch {
                 err = error

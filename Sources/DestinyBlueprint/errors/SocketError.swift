@@ -1,121 +1,29 @@
 
 /// An `Error` that indicates failure when handling an HTTP Socket.
-public struct SocketError: DestinyErrorProtocol {
-    public let identifier:String
-    public let reason:String
+public enum SocketError: DestinyErrorProtocol {
+    case acceptFailed(errno: Int32)
+    case acceptFailed(reason: String)
 
-    public init(identifier: String, reason: String) {
-        self.identifier = identifier
-        self.reason = reason
-    }
-}
+    case writeFailed(errno: Int32)
+    case writeFailed(reason: String)
 
-// MARK: Errors
-extension SocketError {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func acceptFailed() -> Self {
-        cError("acceptFailed")
-    }
+    case readSingleByteFailed(errno: Int32)
+    case readSingleByteFailed(reason: String)
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func acceptFailed(_ reason: String) -> Self {
-        Self(identifier: "acceptFailed", reason: reason)
-    }
+    case readBufferFailed(errno: Int32)
+    case readBufferFailed(reason: String)
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func writeFailed() -> Self {
-        cError("writeFailed")
-    }
+    case invalidStatus(errno: Int32)
+    case invalidStatus(reason: String)
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func writeFailed(_ reason: String) -> Self {
-        Self(identifier: "writeFailed", reason: reason)
-    }
+    case closeFailure(errno: Int32)
+    case closeFailure(reason: String)
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func readSingleByteFailed() -> Self {
-        cError("readSingleByteFailed")
-    }
+    case malformedRequest(errno: Int32)
+    case malformedRequest(reason: String)
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func readSingleByteFailed(_ reason: String) -> Self {
-        Self(identifier: "readSingleByteFailed", reason: reason)
-    }
+    case bufferWriteError(BufferWriteError)
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func readBufferFailed() -> Self {
-        cError("readBufferFailed")
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func readBufferFailed(_ reason: String) -> Self {
-        Self(identifier: "readBufferFailed", reason: reason)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func invalidStatus() -> Self {
-        cError("invalidStatus")
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func invalidStatus(_ reason: String) -> Self {
-        Self(identifier: "invalidStatus", reason: reason)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func closeFailure() -> Self {
-        cError("closeFailure")
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func closeFailure(_ reason: String) -> Self {
-        Self(identifier: "closeFailure", reason: reason)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func malformedRequest() -> Self {
-        cError("malformedRequest")
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func malformedRequest(_ reason: String) -> Self {
-        Self(identifier: "malformedRequest", reason: reason)
-    }
-}
-
-extension SocketError {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func bufferWriteError(_ error: BufferWriteError) -> Self {
-        Self(identifier: "bufferWriteError", reason: "\(error)")
-    }
+    case custom(errno: Int32)
+    case custom(reason: String)
 }

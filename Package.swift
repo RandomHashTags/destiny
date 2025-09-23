@@ -62,7 +62,7 @@ destinyMacrosDependencies.append(contentsOf: [
 defaultTraits.formUnion([
     //"Generics",
     "GenericDynamicResponse",
-    //"MutableRouter" // disabled by default since no other Swift networking library allows that functionality
+    //"MutableRouter", // disabled by default since no other Swift networking library allows that functionality
     //"Copyable",
     "NonCopyable",
     "NonEmbedded",
@@ -79,17 +79,27 @@ defaultTraits.formUnion([
 let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
 
-    .trait(name: "GenericHTTPMessage"),
-    .trait(name: "GenericStaticRoute"),
-    .trait(name: "GenericDynamicRoute"),
+    .trait(
+        name: "GenericHTTPMessage",
+        description: "Enables an HTTPMessage implementation utilizing generics, avoiding existentials."
+    ),
+    .trait(
+        name: "GenericStaticRoute",
+        description: "Enables a StaticRoute implementation utilizing generics, avoiding existentials."
+    ),
+    .trait(
+        name: "GenericDynamicRoute",
+        description: "Enables a DynamicRoute implementation utilizing generics, avoiding existentials."
+    ),
     .trait(
         name: "GenericDynamicResponse",
+        description: "Enables a DynamicResponse implementation utilizing generics, avoiding existentials.",
         enabledTraits: ["GenericHTTPMessage"]
     ),
     .trait(name: "GenericRouteGroup"),
     .trait(
         name: "Generics",
-        description: "Enables all Generic package traits",
+        description: "Enables all Generic package traits.",
         enabledTraits: [
             "GenericHTTPMessage",
             "GenericStaticRoute",
@@ -107,7 +117,8 @@ let traits:Set<Trait> = [
         name: "Copyable"
     ),
     .trait(
-        name: "NonCopyable"
+        name: "NonCopyable",
+        description: "Enables noncopyable functionality for optimal performance."
     ),
     .trait(
         name: "NonEmbedded",
@@ -212,6 +223,7 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyDefaults",
+                .byName(name: "DestinyDefaultsCopyable", condition: .when(traits: ["Copyable"])),
                 .product(name: "Logging", package: "swift-log"),
                 //.product(name: "Metrics", package: "swift-metrics"),
             ]
@@ -279,14 +291,19 @@ let package = Package(
         .target(
             name: "TestRouter",
             dependencies: [
-                "DestinySwiftSyntax"
+                "DestinyBlueprint",
+                "DestinyDefaults",
+                "DestinyDefaultsNonCopyable",
+                "DestinySwiftSyntax" // comment-out after macro expansion to save binary size
             ]
         ),
 
         .executableTarget(
             name: "Run",
             dependencies: [
-                "DestinySwiftSyntax",
+                "DestinyBlueprint",
+                "DestinyDefaults",
+                "DestinyDefaultsNonCopyable",
                 "TestRouter"
             ]
         ),

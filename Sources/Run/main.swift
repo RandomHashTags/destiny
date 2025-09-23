@@ -13,7 +13,9 @@ import Foundation
 import SwiftGlibc
 #endif
 
-import DestinySwiftSyntax
+import DestinyBlueprint
+import DestinyDefaults
+import DestinyDefaultsNonCopyable
 import Logging
 import TestRouter
 

@@ -86,7 +86,7 @@ public final class NonCopyableHTTPServer<
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #endif
         if serverFD == -1 {
-            throw .socketCreationFailed()
+            throw .socketCreationFailed(errno: cError())
         }
         self.serverFD = serverFD
         ClientSocket.noSigPipe(fileDescriptor: serverFD)
@@ -128,11 +128,11 @@ public final class NonCopyableHTTPServer<
         }
         if binded == -1 {
             serverFD.socketClose()
-            throw .bindFailed()
+            throw .bindFailed(errno: cError())
         }
         if listen(serverFD, backlog) == -1 {
             serverFD.socketClose()
-            throw .listenFailed()
+            throw .listenFailed(errno: cError())
         }
         setNonBlocking(socket: serverFD)
         logger.info("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")

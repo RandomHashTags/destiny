@@ -45,7 +45,7 @@ extension SocketAcceptor {
             if server == nil {
                 return nil
             }
-            throw SocketError.acceptFailed()
+            throw .acceptFailed(errno: cError())
         }
         return client
     }
@@ -62,7 +62,7 @@ extension SocketAcceptor {
             if server == nil {
                 return nil
             }
-            throw SocketError.acceptFailed()
+            throw .acceptFailed(errno: cError())
         }
         var d:Int32 = 1
         setsockopt(client, Int32(IPPROTO_TCP), TCP_NODELAY, &d, socklen_t(MemoryLayout<Int32>.size))

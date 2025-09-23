@@ -1,5 +1,5 @@
 
-#if MutableRouter && canImport(DestinyDefaultsNonEmbedded)
+#if Copyable && MutableRouter && NonEmbedded
 
 import DestinyBlueprint
 import DestinyDefaults

@@ -22,7 +22,7 @@ public struct DynamicMiddleware: ExistentialDynamicMiddlewareProtocol {
         do {
             try handleLogic(&request, &response)
         } catch {
-            throw .init(identifier: "dynamicMiddlewareHandleError", reason: "\(error)")
+            throw .custom(reason: "dynamicMiddlewareHandleError;\(error)")
         }
         return true
     }

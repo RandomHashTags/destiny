@@ -159,7 +159,7 @@ extension AbstractHTTPRequest {
     package mutating func loadStorage(fileDescriptor: some FileDescriptor) throws(SocketError) {
         let initialBuffer:InlineByteBuffer<initalBufferCount> = try readBuffer(fileDescriptor: fileDescriptor)
         if initialBuffer.endIndex <= 0 {
-            throw .malformedRequest()
+            throw .malformedRequest(errno: cError())
         }
         try storage.load(
             buffer: initialBuffer

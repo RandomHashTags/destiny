@@ -1,11 +1,6 @@
 
 /// An `Error` that indicates failure when handling a Router.
-public struct RouterError: DestinyErrorProtocol {
-    public let identifier:String
-    public let reason:String
-
-    public init(identifier: String, reason: String) {
-        self.identifier = identifier
-        self.reason = reason
-    }
+public enum RouterError: DestinyErrorProtocol {
+    case custom(errno: Int32)
+    case custom(reason: String)
 }

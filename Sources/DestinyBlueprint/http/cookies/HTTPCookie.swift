@@ -183,7 +183,7 @@ extension HTTPCookie {
                 || $0 == "\""
                 || $0 == "\\"
         }) else { return }
-        throw .illegalCharacter(value: value, illegalChar: illegalChar)
+        throw .illegalCharacter(illegalChar)
     }
 }
 

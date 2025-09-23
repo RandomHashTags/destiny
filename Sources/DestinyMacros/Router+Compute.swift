@@ -5,7 +5,7 @@ import HTTPMediaTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if MutableRouter && canImport(DestinyDefaultsNonEmbedded)
+#if NonEmbedded
 import DestinyDefaultsNonEmbedded
 #endif
 
@@ -63,7 +63,7 @@ extension Router {
                             continue
                         }
                         switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                        #if MutableRouter && canImport(DestinyDefaultsNonEmbedded)
+                        #if NonEmbedded && Copyable && MutableRouter
                         case "RouteGroup":
                             let (decl, groupStorage) = RouteGroup.parse(
                                 context: context,

@@ -13,13 +13,13 @@ public struct Epoll<let maxEvents: Int>: Sendable {
     public init(label: String) throws(EpollError) {
         fileDescriptor = epoll_create1(0)
         if fileDescriptor == -1 {
-            throw .epollCreateFailed()
+            throw .epollCreateFailed(errno: cError())
         }
         var pipeFileDescriptors:InlineArray<2, Int32> = [0, 0]
         var err:EpollError? = nil
         pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
             guard let base = $0.baseAddress else {
-                err = .epollPipeFailed()
+                err = .epollPipeFailed(reason: "baseAddress == nil")
                 return
             }
             pipe(.init(mutating: base))
@@ -72,7 +72,7 @@ extension Epoll {
         e.events = events
         e.data.fd = client
         if epoll_ctl(fileDescriptor, EPOLL_CTL_ADD, client, &e) == -1 {
-            throw .epollCtlFailed()
+            throw .epollCtlFailed(errno: cError())
         }
         #if DEBUG
         logger.info("EPOLL_CTL_ADD \(client): success")
@@ -90,7 +90,7 @@ extension Epoll {
         ev.events = events
         ev.data.fd = fd
         if epoll_ctl(fileDescriptor, EPOLL_CTL_MOD, fd, &ev) == -1 {
-            throw .epollCtlFailed()
+            throw .epollCtlFailed(errno: cError())
         }
         #if DEBUG
         logger.info("EPOLL_CTL_MOD \(fd): success")
@@ -105,7 +105,7 @@ extension Epoll {
     #endif
     public func remove(client: Int32) throws(EpollError) {
         if epoll_ctl(fileDescriptor, EPOLL_CTL_DEL, client, nil) == -1 {
-            throw .epollCtlFailed()
+            throw .epollCtlFailed(errno: cError())
         }
         #if DEBUG
         logger.info("EPOLL_CTL_DEL \(client): success")
@@ -135,12 +135,10 @@ extension Epoll {
         if let err {
             throw err
         }
-        if loadedClients == -1 {
-            throw .waitFailed()
-        }
         return loadedClients
     }
 
+    // Returns: Number of loaded clients. Guaranteed to be greater than -1.
     #if Inlinable
     @inlinable
     #endif
@@ -148,7 +146,7 @@ extension Epoll {
         timeout: Int32 = -1,
         events: UnsafeMutableBufferPointer<epoll_event>
     ) throws(EpollError) -> Int32 {
-        guard let base = events.baseAddress else { throw .waitFailed() }
+        guard let base = events.baseAddress else { throw .waitFailed(reason: "events.baseAddress == nil") }
 
         #if DEBUG
         logger.info("calling epoll_pwait with timeout: \(timeout)")
@@ -159,8 +157,8 @@ extension Epoll {
         #if DEBUG
         logger.info("epoll_pwait returned \(loadedClients)")
         #endif
-        if loadedClients == -1 {
-            throw .waitFailed()
+        if loadedClients <= -1 {
+            throw .waitFailed(reason: "loadedClients <= -1")
         }
         return loadedClients
     }

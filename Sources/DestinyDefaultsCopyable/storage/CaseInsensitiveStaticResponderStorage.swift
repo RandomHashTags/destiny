@@ -2,6 +2,7 @@
 #if MutableRouter
 
 import DestinyBlueprint
+import DestinyDefaults
 
 /// Default mutable storage that handles case insensitive static routes.
 public final class CaseInsensitiveStaticResponderStorage: StaticResponderStorage, @unchecked Sendable {

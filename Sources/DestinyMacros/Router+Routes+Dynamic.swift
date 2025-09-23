@@ -153,7 +153,7 @@ extension RouterStorage {
             do {
                 \(responder)
             } catch {
-                let err = ResponderError(identifier: "\(name)Error", reason: "\\(error)")
+                let err = ResponderError.custom(reason: "\(name)Error;\\(error)")
                 if !router.respondWithError(socket: socket, error: err, request: &request, completionHandler: completionHandler) {
                     completionHandler()
                 }

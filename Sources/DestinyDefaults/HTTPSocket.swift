@@ -103,7 +103,7 @@ extension HTTPSocket {
         while sent < length {
             let result = sendMultiplatform(pointer + sent, length - sent)
             if result <= 0 {
-                throw .writeFailed()
+                throw .writeFailed(errno: cError())
             }
             sent += result
         }
