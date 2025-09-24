@@ -44,9 +44,11 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
         port: UInt16
     ) throws(EpollError) -> EpollWorker<maxEvents> {
         let listenFD = Self.bindAndListen(port: port, backlog: backlog)
-        #if DEBUG && Logging
+        #if Logging
         let logger = Logger(label: "epoll.worker.\(workerId)")
+        #if DEBUG
         logger.info("Listening for clients on http://\(Optional<String>.none ?? "localhost"):\(port) [backlog=\(backlog), fd=\(listenFD)]")
+        #endif
         #endif
         let ep = try Epoll<maxEvents>.init(label: "epoll.worker.\(workerId)")
 

@@ -1,5 +1,5 @@
 
-extension SIMD where Scalar: FixedWidthInteger {
+extension SIMD64 where Scalar == UInt8 {
     /// - Complexity: O(1).
     #if Inlinable
     @inlinable
