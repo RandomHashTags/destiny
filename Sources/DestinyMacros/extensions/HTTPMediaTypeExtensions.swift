@@ -1,9 +1,13 @@
 
-import DestinyBlueprint
+#if MediaTypes
+
+import MediaTypes
 
 // MARK: CustomDebugStringConvertible
-extension HTTPMediaType: CustomDebugStringConvertible {
+extension MediaType: @retroactive CustomDebugStringConvertible {
     public var debugDescription: String {
-        return "HTTPMediaType(type: \"\(type)\", subType: \"\(subType)\")"
+        return "MediaType(type: \"\(type)\", subType: \"\(subType)\")"
     }
 }
+
+#endif

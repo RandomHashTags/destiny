@@ -2,11 +2,15 @@
 import DestinyBlueprint
 import DestinyDefaults
 
+#if MediaTypes
+import MediaTypes
+#endif
+
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute: StaticRouteProtocol {
     public var path:[String]
-    public let contentType:HTTPMediaType?
+    public let contentType:String?
     public let body:(any ResponseBodyProtocol)?
 
     public let isCaseSensitive:Bool
@@ -21,7 +25,7 @@ public struct StaticRoute: StaticRouteProtocol {
         path: [String],
         isCaseSensitive: Bool = true,
         status: some HTTPResponseStatus.StorageProtocol,
-        contentType: HTTPMediaType? = nil,
+        contentType: String? = nil,
         charset: Charset? = nil,
         body: (any ResponseBodyProtocol)? = nil
     ) {
@@ -42,36 +46,8 @@ public struct StaticRoute: StaticRouteProtocol {
         method: some HTTPRequestMethodProtocol,
         path: [String],
         isCaseSensitive: Bool = true,
-        status: some HTTPResponseStatus.StorageProtocol,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
-        charset: Charset? = nil,
-        body: (any ResponseBodyProtocol)? = nil
-    ) {
-        let mediaType:HTTPMediaType?
-        if let contentType {
-            mediaType = .init(contentType)
-        } else {
-            mediaType = nil
-        }
-        self.init(
-            version: version,
-            method: method,
-            path: path,
-            isCaseSensitive: isCaseSensitive,
-            status: status.code,
-            contentType: mediaType,
-            charset: charset,
-            body: body
-        )
-    }
-
-    public init(
-        version: HTTPVersion = .v1_1,
-        method: some HTTPRequestMethodProtocol,
-        path: [String],
-        isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: String? = nil,
         charset: Charset? = nil,
         body: (any ResponseBodyProtocol)? = nil
     ) {
@@ -103,37 +79,37 @@ public struct StaticRoute: StaticRouteProtocol {
 // MARK: Response
 extension StaticRoute {
     #if StaticMiddleware
-    public func response(
-        middleware: [some StaticMiddlewareProtocol]
-    ) -> some HTTPMessageProtocol {
-        var version = version
-        let path = path.joined(separator: "/")
-        var status = status
-        var contentType = contentType
-        var headers = HTTPHeaders()
-        if body?.hasDateHeader ?? false {
-            headers["Date"] = HTTPDateFormat.placeholder
-        }
-        var cookies = [HTTPCookie]()
-        middleware.forEach { middleware in
-            if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
-                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
+        public func response(
+            middleware: [some StaticMiddlewareProtocol]
+        ) -> some HTTPMessageProtocol {
+            var version = version
+            let path = path.joined(separator: "/")
+            var status = status
+            var contentType = contentType
+            var headers = HTTPHeaders()
+            if body?.hasDateHeader ?? false {
+                headers["Date"] = HTTPDateFormat.placeholder
             }
+            var cookies = [HTTPCookie]()
+            middleware.forEach { middleware in
+                if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
+                    middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
+                }
+            }
+            headers[HTTPStandardResponseHeader.contentType.rawName] = nil
+            headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+            return Self.response(version: version, status: status, headers: &headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
         }
-        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
-        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
-        return Self.response(version: version, status: status, headers: &headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
-    }
     #else
-    public func response() -> some HTTPMessageProtocol {
-        var headers = HTTPHeaders()
-        if body?.hasDateHeader ?? false {
-            headers["Date"] = HTTPDateFormat.placeholder
+        public func response() -> some HTTPMessageProtocol {
+            var headers = HTTPHeaders()
+            if body?.hasDateHeader ?? false {
+                headers["Date"] = HTTPDateFormat.placeholder
+            }
+            headers[HTTPStandardResponseHeader.contentType.rawName] = nil
+            headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+            return Self.response(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
         }
-        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
-        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
-        return Self.response(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
-    }
     #endif
 
     @inline(__always)
@@ -143,7 +119,7 @@ extension StaticRoute {
         headers: inout HTTPHeaders,
         cookies: [HTTPCookie],
         body: (any ResponseBodyProtocol)?,
-        contentType: HTTPMediaType?,
+        contentType: String?,
         charset: Charset?
     ) -> some HTTPMessageProtocol {
         headers[HTTPStandardResponseHeader.contentType.rawName] = nil
@@ -176,6 +152,131 @@ extension StaticRoute {
 
 
 
+#if MediaTypes
+// MARK: MediaTypes
+extension StaticRoute {
+    public init(
+        version: HTTPVersion = .v1_1,
+        method: some HTTPRequestMethodProtocol,
+        path: [String],
+        isCaseSensitive: Bool = true,
+        status: some HTTPResponseStatus.StorageProtocol,
+        mediaType: (some MediaTypeProtocol)? = nil,
+        charset: Charset? = nil,
+        body: (any ResponseBodyProtocol)? = nil
+    ) {
+        self.init(
+            version: version,
+            method: method,
+            path: path,
+            isCaseSensitive: isCaseSensitive,
+            status: status.code,
+            contentType: mediaType?.template,
+            charset: charset,
+            body: body
+        )
+    }
+
+    #if Copyable
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func on(
+            version: HTTPVersion = .v1_1,
+            method: some HTTPRequestMethodProtocol,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            mediaType: (some MediaTypeProtocol)? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: mediaType?.template, charset: charset, body: body)
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func get(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            mediaType: (some MediaTypeProtocol)? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, mediaType: mediaType, charset: charset, body: body)
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func post(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            mediaType: (some MediaTypeProtocol)? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, mediaType: mediaType, charset: charset, body: body)
+        }
+    #endif
+
+    #if NonCopyable
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func on(
+            version: HTTPVersion = .v1_1,
+            method: some HTTPRequestMethodProtocol,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            mediaType: (some MediaTypeProtocol)? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func get(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            mediaType: (some MediaTypeProtocol)? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func post(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            mediaType: (some MediaTypeProtocol)? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
+    #endif
+}
+#endif
+
 #if Copyable
 // MARK: Copyable
 extension StaticRoute {
@@ -188,206 +289,155 @@ extension StaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: String? = nil,
         charset: Charset? = nil,
         body: some ResponseBodyProtocol
     ) -> Self {
         return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func on(
-        version: HTTPVersion = .v1_1,
-        method: some HTTPRequestMethodProtocol,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        let mediaType:HTTPMediaType?
-        if let contentType {
-            mediaType = .init(contentType)
-        } else {
-            mediaType = nil
+    #if HTTPStandardRequestMethods
+
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func get(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
         }
-        return Self(version: version, method: method, path: path, isCaseSensitive: caseSensitive, status: status, contentType: mediaType, charset: charset, body: body)
-    }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func get(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func head(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func get(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.get, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func post(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func head(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.head, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func put(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func post(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func delete(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func post(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.post, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func connect(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func put(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.put, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func options(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func delete(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.delete, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func trace(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
 
-    #if Inlinable
-    @inlinable
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func patch(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: some ResponseBodyProtocol
+        ) -> Self {
+            return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
+        }
     #endif
-    public static func connect(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.connect, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func options(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.options, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func trace(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.trace, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func patch(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: some ResponseBodyProtocol
-    ) -> Self {
-        return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, body: body)
-    }
 }
-
 #endif
 
 #if NonCopyable
 // MARK: NonCopyable
-
 extension StaticRoute {
     #if Inlinable
     @inlinable
@@ -398,193 +448,149 @@ extension StaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable
     ) -> Self {
         fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func on(
-        version: HTTPVersion = .v1_1,
-        method: some HTTPRequestMethodProtocol,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+    #if HTTPStandardRequestMethods
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func get(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func get(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func get(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func head(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func head(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func post(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func post(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func put(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func post(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func delete(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func put(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func connect(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func delete(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func options(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func connect(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func trace(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
 
-    #if Inlinable
-    @inlinable
+        #if Inlinable
+        @inlinable
+        #endif
+        public static func patch(
+            version: HTTPVersion = .v1_1,
+            path: [String],
+            caseSensitive: Bool = true,
+            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            contentType: String? = nil,
+            charset: Charset? = nil,
+            body: consuming some ResponseBodyProtocol & ~Copyable
+        ) -> Self {
+            fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
+        }
     #endif
-    public static func options(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func trace(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func patch(
-        version: HTTPVersion = .v1_1,
-        path: [String],
-        caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
-        charset: Charset? = nil,
-        body: consuming some ResponseBodyProtocol & ~Copyable
-    ) -> Self {
-        fatalError("unsupported; only here to allow noncopyable response bodies to be available from the macros")
-    }
 }
-
 #endif

@@ -3,6 +3,10 @@
 
 import DestinyBlueprint
 
+#if MediaTypes
+import MediaTypes
+#endif
+
 // MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 public struct StaticMiddleware: StaticMiddlewareProtocol {
@@ -24,11 +28,11 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     /// HTTP Media Types this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all media types.
-    public let handlesContentTypes:Set<HTTPMediaType>?
+    public let handlesContentTypes:Set<String>?
 
     public let appliesVersion:HTTPVersion?
     public let appliesStatus:HTTPResponseStatus.Code?
-    public let appliesContentType:HTTPMediaType?
+    public let appliesContentType:String?
     public let appliesHeaders:HTTPHeaders
     public let appliesCookies:[HTTPCookie]
     public let excludedRoutes:Set<String>
@@ -40,10 +44,10 @@ extension StaticMiddleware {
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: [HTTPRequestMethod]? = nil,
         handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
-        handlesContentTypes: [HTTPMediaType]? = nil,
+        handlesContentTypes: [String]? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus.Code? = nil,
-        appliesContentType: HTTPMediaType? = nil,
+        appliesContentType: String? = nil,
         appliesHeaders: HTTPHeaders = .init(),
         appliesCookies: [HTTPCookie] = [],
         excludedRoutes: Set<String> = []
@@ -52,7 +56,7 @@ extension StaticMiddleware {
         self.handlesMethods = handlesMethods
         self.handlesStatuses = handlesStatuses
         if let handlesContentTypes {
-            self.handlesContentTypes = Set(handlesContentTypes.map({ .init($0) }))
+            self.handlesContentTypes = Set(handlesContentTypes)
         } else {
             self.handlesContentTypes = nil
         }
@@ -63,6 +67,36 @@ extension StaticMiddleware {
         self.appliesCookies = appliesCookies
         self.excludedRoutes = excludedRoutes
     }
+
+    #if MediaTypes
+        public init(
+            handlesVersions: Set<HTTPVersion>? = nil,
+            handlesMethods: [HTTPRequestMethod]? = nil,
+            handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
+            handlesMediaTypes: [MediaType]? = nil,
+            appliesVersion: HTTPVersion? = nil,
+            appliesStatus: HTTPResponseStatus.Code? = nil,
+            appliesMediaType: MediaType? = nil,
+            appliesHeaders: HTTPHeaders = .init(),
+            appliesCookies: [HTTPCookie] = [],
+            excludedRoutes: Set<String> = []
+        ) {
+            self.handlesVersions = handlesVersions
+            self.handlesMethods = handlesMethods
+            self.handlesStatuses = handlesStatuses
+            if let handlesMediaTypes {
+                self.handlesContentTypes = Set(handlesMediaTypes.map({ $0.template }))
+            } else {
+                self.handlesContentTypes = nil
+            }
+            self.appliesVersion = appliesVersion
+            self.appliesStatus = appliesStatus
+            self.appliesContentType = appliesMediaType?.template
+            self.appliesHeaders = appliesHeaders
+            self.appliesCookies = appliesCookies
+            self.excludedRoutes = excludedRoutes
+        }
+    #endif
 }
 
 // MARK: Handles
@@ -74,7 +108,7 @@ extension StaticMiddleware {
         version: HTTPVersion,
         path: String,
         method: some HTTPRequestMethodProtocol,
-        contentType: HTTPMediaType?,
+        contentType: String?,
         status: HTTPResponseStatus.Code
     ) -> Bool {
         return !excludedRoutes.contains(path)
@@ -115,9 +149,9 @@ extension StaticMiddleware {
     #if Inlinable
     @inlinable
     #endif
-    public func handlesContentType(_ mediaType: HTTPMediaType?) -> Bool {
-        if let mediaType {
-            handlesContentTypes?.contains(mediaType) ?? true
+    public func handlesContentType(_ contentType: String?) -> Bool {
+        if let contentType {
+            handlesContentTypes?.contains(contentType) ?? true
         } else {
             true
         }
@@ -131,7 +165,7 @@ extension StaticMiddleware {
     #endif
     public func apply(
         version: inout HTTPVersion,
-        contentType: inout HTTPMediaType?,
+        contentType: inout String?,
         status: inout HTTPResponseStatus.Code,
         headers: inout some HTTPHeadersProtocol,
         cookies: inout [HTTPCookie]
@@ -155,7 +189,7 @@ extension StaticMiddleware {
     @inlinable
     #endif
     public func apply(
-        contentType: inout HTTPMediaType?,
+        contentType: inout String?,
         to response: inout some DynamicResponseProtocol
     ) throws(AnyError) {
         if let appliesVersion {

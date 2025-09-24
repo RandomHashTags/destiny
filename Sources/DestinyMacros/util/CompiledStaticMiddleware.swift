@@ -25,11 +25,11 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
     /// HTTP MediaT Types this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all media types.
-    public let handlesContentTypes:Set<HTTPMediaType>?
+    public let handlesContentTypes:Set<String>?
 
     public let appliesVersion:HTTPVersion?
     public let appliesStatus:HTTPResponseStatus.Code?
-    public let appliesContentType:HTTPMediaType?
+    public let appliesContentType:String?
     public let appliesHeaders:HTTPHeaders
     public let appliesCookies:[HTTPCookie]
     public let excludedRoutes:Set<String>
@@ -38,10 +38,10 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: [HTTPRequestMethod]? = nil,
         handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
-        handlesContentTypes: Set<HTTPMediaType>? = nil,
+        handlesContentTypes: Set<String>? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus.Code? = nil,
-        appliesContentType: HTTPMediaType? = nil,
+        appliesContentType: String? = nil,
         appliesHeaders: HTTPHeaders = .init(),
         appliesCookies: [HTTPCookie] = [],
         excludedRoutes: Set<String> = []
@@ -68,7 +68,7 @@ extension CompiledStaticMiddleware {
         version: HTTPVersion,
         path: String,
         method: some HTTPRequestMethodProtocol,
-        contentType: HTTPMediaType?,
+        contentType: String?,
         status: HTTPResponseStatus.Code
     ) -> Bool {
         return !excludedRoutes.contains(path)
@@ -109,7 +109,7 @@ extension CompiledStaticMiddleware {
     #if Inlinable
     @inlinable
     #endif
-    public func handlesContentType(_ mediaType: HTTPMediaType?) -> Bool {
+    public func handlesContentType(_ mediaType: String?) -> Bool {
         if let mediaType {
             handlesContentTypes?.contains(mediaType) ?? true
         } else {
@@ -125,7 +125,7 @@ extension CompiledStaticMiddleware {
     #endif
     public func apply(
         version: inout HTTPVersion,
-        contentType: inout HTTPMediaType?,
+        contentType: inout String?,
         status: inout HTTPResponseStatus.Code,
         headers: inout some HTTPHeadersProtocol,
         cookies: inout [HTTPCookie]
@@ -149,7 +149,7 @@ extension CompiledStaticMiddleware {
     @inlinable
     #endif
     public func apply(
-        contentType: inout HTTPMediaType?,
+        contentType: inout String?,
         to response: inout some DynamicResponseProtocol
     ) throws(AnyError) {
         if let appliesVersion {

@@ -10,7 +10,7 @@ public struct GenericHTTPResponseMessage<
     >: GenericHTTPMessageProtocol {
     public var head:HTTPResponseMessageHead<Cookie>
     public var body:Body?
-    public var contentType:HTTPMediaType?
+    public var contentType:String?
     public var charset:Charset?
 
     public init(
@@ -19,40 +19,7 @@ public struct GenericHTTPResponseMessage<
         headers: HTTPHeaders,
         cookies: [Cookie],
         body: Body?,
-        contentType: HTTPMediaType?,
-        charset: Charset?
-    ) {
-        head = .init(headers: headers, cookies: cookies, status: status, version: version)
-        self.body = body
-        self.contentType = contentType
-        self.charset = charset
-    }
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        cookies: [Cookie],
-        body: Body?,
-        contentType: (some HTTPMediaTypeProtocol)?,
-        charset: Charset?
-    ) {
-        head = .init(headers: headers, cookies: cookies, status: status, version: version)
-        self.body = body
-        if let contentType {
-            self.contentType = .init(contentType)
-        } else {
-            self.contentType = nil
-        }
-        self.charset = charset
-    }
-
-    public init(
-        headers: HTTPHeaders,
-        cookies: [Cookie],
-        body: Body?,
-        contentType: HTTPMediaType?,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion,
+        contentType: String?,
         charset: Charset?
     ) {
         head = .init(headers: headers, cookies: cookies, status: status, version: version)
@@ -63,7 +30,7 @@ public struct GenericHTTPResponseMessage<
     public init(
         head: HTTPResponseMessageHead<Cookie>,
         body: Body?,
-        contentType: HTTPMediaType?,
+        contentType: String?,
         charset: Charset?
     ) {
         self.head = head
@@ -174,7 +141,7 @@ extension GenericHTTPResponseMessage {
         var contentLengthString:String
         if let body {
             if let contentType {
-                contentTypeDescription = contentType.description
+                contentTypeDescription = contentType
                 capacity += 16 + contentTypeDescription.utf8Span.count // "Content-Type: x\r\n"
                 if let charset {
                     charsetRawName = charset.rawName
@@ -401,63 +368,6 @@ extension GenericHTTPResponseMessage {
     #if Inlinable
     @inlinable
     #endif
-    public static func create(
-        escapeLineBreak: Bool,
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: some HTTPHeadersProtocol,
-        body: String?,
-        contentType: HTTPMediaType?,
-        charset: Charset?
-    ) -> String {
-        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func create(
-        escapeLineBreak: Bool,
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: some HTTPHeadersProtocol,
-        body: String?,
-        contentType: (some HTTPMediaTypeProtocol)?,
-        charset: Charset?
-    ) -> String {
-        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func create(
-        suffix: String,
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: String,
-        body: String?,
-        contentType: (some HTTPMediaTypeProtocol)?,
-        charset: Charset?
-    ) -> String {
-        var string = "\(version.string) \(status)\(suffix)\(headers)"
-        if let body {
-            let contentLength = body.utf8.count
-            //let test = body.utf8Span.count // TODO: crashes LSP
-            if let contentType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
-            }
-            string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)\(body)"
-        }
-        return string
-    }
-
-
-    #if Inlinable
-    @inlinable
-    #endif
     public static func headers(
         suffix: String,
         headers: some HTTPHeadersProtocol
@@ -469,5 +379,129 @@ extension GenericHTTPResponseMessage {
         return string
     }
 }
+
+#if MediaTypes
+
+// MARK: MediaTypes
+import MediaTypes
+
+extension GenericHTTPResponseMessage {
+    public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        cookies: [Cookie],
+        body: Body?,
+        mediaType: MediaType?,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
+        self.body = body
+        self.contentType = mediaType?.template
+        self.charset = charset
+    }
+    public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        cookies: [Cookie],
+        body: Body?,
+        mediaType: (some MediaTypeProtocol)?,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
+        self.body = body
+        if let mediaType {
+            self.contentType = mediaType.template
+        } else {
+            self.contentType = nil
+        }
+        self.charset = charset
+    }
+
+    public init(
+        headers: HTTPHeaders,
+        cookies: [Cookie],
+        body: Body?,
+        mediaType: MediaType?,
+        status: HTTPResponseStatus.Code,
+        version: HTTPVersion,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
+        self.body = body
+        self.contentType = mediaType?.template
+        self.charset = charset
+    }
+    public init(
+        head: HTTPResponseMessageHead<Cookie>,
+        body: Body?,
+        mediaType: MediaType?,
+        charset: Charset?
+    ) {
+        self.head = head
+        self.body = body
+        self.contentType = mediaType?.template
+        self.charset = charset
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func create(
+        escapeLineBreak: Bool,
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: some HTTPHeadersProtocol,
+        body: String?,
+        mediaType: MediaType?,
+        charset: Charset?
+    ) -> String {
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, mediaType: mediaType, charset: charset)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func create(
+        escapeLineBreak: Bool,
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: some HTTPHeadersProtocol,
+        body: String?,
+        mediaType: (some MediaTypeProtocol)?,
+        charset: Charset?
+    ) -> String {
+        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
+        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, mediaType: mediaType, charset: charset)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func create(
+        suffix: String,
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: String,
+        body: String?,
+        mediaType: (some MediaTypeProtocol)?,
+        charset: Charset?
+    ) -> String {
+        var string = "\(version.string) \(status)\(suffix)\(headers)"
+        if let body {
+            let contentLength = body.utf8.count
+            //let test = body.utf8Span.count // TODO: crashes LSP
+            if let mediaType {
+                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(mediaType.template)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+            }
+            string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)\(body)"
+        }
+        return string
+    }
+}
+
+#endif
 
 #endif

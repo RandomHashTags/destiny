@@ -31,6 +31,8 @@ extension HTTPRequestMethods {
         let name = "HTTP\(type)RequestMethod"
         return """
 
+        #if \(name)s
+
         import DestinyBlueprint
 
         public enum \(name): HTTPRequestMethodProtocol {
@@ -46,6 +48,7 @@ extension HTTPRequestMethods {
             }
         }
 
+        #if \(name)RawValues
         extension \(name): RawRepresentable {
             public typealias RawValue = String
 
@@ -68,6 +71,9 @@ extension HTTPRequestMethods {
                 }
             }
         }
+        #endif
+
+        #endif
         """
     }
 }

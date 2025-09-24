@@ -4,6 +4,10 @@ import DestinyDefaults
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+#if MediaTypes
+import MediaTypes
+#endif
+
 #if NonEmbedded
 import DestinyDefaultsNonEmbedded
 #endif
@@ -17,25 +21,31 @@ enum HTTPMessage: DeclarationMacro {
         var status = HTTPStandardResponseStatus.notImplemented.code
         var headers = HTTPHeaders()
         var body:(any ResponseBodyProtocol)? = nil
-        var contentType:HTTPMediaType? = nil
+        var contentType:String? = nil
         var charset:Charset? = nil
         var cookies = [HTTPCookie]()
-        for child in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
-            switch child.label?.text {
+        for arg in node.as(ExprSyntax.self)!.macroExpansion!.arguments {
+            switch arg.label?.text {
             case "version":
-                version = HTTPVersion.parse(context: context, expr: child.expression) ?? version
+                version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
             case "status":
-                status = HTTPResponseStatus.parseCode(expr: child.expression) ?? status
+                status = HTTPResponseStatus.parseCode(context: context, expr: arg.expression) ?? status
             case "headers":
-                headers = HTTPHeaders.parse(context: context, child.expression)
+                headers = HTTPHeaders.parse(context: context, arg.expression)
             case "body":
-                body = ResponseBody.parse(context: context, expr: child.expression)
+                body = ResponseBody.parse(context: context, expr: arg.expression)
             case "contentType":
-                contentType = HTTPMediaType.parse(context: context, expr: child.expression) ?? contentType
+                contentType = arg.expression.stringLiteralString(context: context) ?? contentType
+            case "mediaType":
+                #if MediaTypes
+                contentType = MediaType.parse(context: context, expr: arg.expression)?.template ?? arg.expression.stringLiteral?.string ?? contentType
+                #else
+                contentType = child.expression.stringLiteralString(context: context) ?? contentType
+                #endif
             case "charset":
-                charset = Charset(expr: child.expression)
+                charset = Charset(expr: arg.expression)
             default:
-                context.diagnose(DiagnosticMsg.unhandled(node: child))
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
         var response = ""
@@ -56,7 +66,7 @@ enum HTTPMessage: DeclarationMacro {
         headers: HTTPHeaders,
         cookies: [HTTPCookie],
         body: (some ResponseBodyProtocol)?,
-        contentType: HTTPMediaType?,
+        mediaType: MediaType?,
         charset: Charset?
     ) -> String {
         GenericHTTPResponseMessage(
@@ -65,7 +75,7 @@ enum HTTPMessage: DeclarationMacro {
             headers: headers,
             cookies: cookies,
             body: body,
-            contentType: contentType,
+            mediaType: mediaType,
             charset: charset
         ).string(escapeLineBreak: true)
     }
@@ -78,7 +88,7 @@ enum HTTPMessage: DeclarationMacro {
         headers: HTTPHeaders,
         cookies: [HTTPCookie],
         body: (any ResponseBodyProtocol)?,
-        contentType: HTTPMediaType?,
+        contentType: String?,
         charset: Charset?
     ) -> String {
         return HTTPResponseMessage(

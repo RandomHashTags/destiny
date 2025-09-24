@@ -1,27 +1,35 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import HTTPResponseStatusExtras
 import SwiftSyntax
+import SwiftSyntaxMacros
 
 extension HTTPResponseStatus {
-    public static func parseCode(expr: some ExprSyntaxProtocol) -> Code? {
+    public static func parseCode(context: some MacroExpansionContext, expr: some ExprSyntaxProtocol) -> Code? {
         guard let member = expr.memberAccess,
             member.declName.baseName.text == "code",
             let base = member.base?.memberAccess
         else {
+            if let t = expr.integerLiteral?.literal.text {
+                return Code(t)
+            }
+            context.diagnose(DiagnosticMsg.unhandled(node: expr))
             return nil
         }
-        return parseCode(staticName: base.declName.baseName.text)
+        return parseCode(rawValue: base.declName.baseName.text)
     }
 
-    public static func parseCode(staticName: String) -> Code? {
+    public static func parseCode(rawValue: String) -> Code? {
+        #if HTTPStandardResponseStatusRawValues
         if let v = HTTPStandardResponseStatus(rawValue: staticName) {
             return v.code
         }
+        #endif
+        #if HTTPNonStandardResponseStatusRawValues
         if let v = HTTPNonStandardResponseStatus(rawValue: staticName) {
             return v.code
         }
+        #endif
         return nil
     }
 }

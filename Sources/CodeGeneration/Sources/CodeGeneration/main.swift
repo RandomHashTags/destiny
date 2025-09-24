@@ -15,9 +15,6 @@ try FileManager.default.createDirectory(
 
 try await withThrowingDiscardingTaskGroup { group in
     group.addTask {
-        try await generateHTTPMediaTypes()
-    }
-    group.addTask {
         try await generateHTTPRequestMethods()
     }
     group.addTask {
@@ -60,9 +57,6 @@ func writeToDisk(write: Bool, folder: String, _ values: [(fileName: String, cont
 }
 
 let actuallyWrite = true
-func generateHTTPMediaTypes() async throws {
-    try await writeToDisk(write: actuallyWrite, folder: "mediaTypes", HTTPMediaTypes.generateSources())
-}
 
 func generateHTTPRequestMethods() async throws {
     try await writeToDisk(write: actuallyWrite, folder: "requestMethods", HTTPRequestMethods.generateSources())

@@ -13,6 +13,13 @@ var pkgDependencies:[Package.Dependency] = [
     // Logging
     .package(url: "https://github.com/apple/swift-log", from: "1.6.3"),
 
+    // Media types
+    .package(
+        url: "https://github.com/RandomHashTags/swift-media-types",
+        branch: "main",
+        traits: ["MediaTypes", "RawValues", "FileExtensionInits", "MediaTypeParsable"]
+    ),
+
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
@@ -36,6 +43,7 @@ defaultTraits.insert("Liburing")
 var destinyDependencies:[Target.Dependency] = [
     "DestinyBlueprint",
     "DestinyDefaults",
+    .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"]))
 ]
 
 #if !hasFeature(Embedded)
@@ -45,12 +53,8 @@ destinyDependencies.append(.byName(name: "DestinyDefaultsNonEmbedded", condition
 var destinyMacrosDependencies = destinyDependencies
 
 destinyMacrosDependencies.append(contentsOf: [
-    "HTTPHeaderExtras",
-    "HTTPMediaTypes",
-    "HTTPMediaTypeExtras",
-    "HTTPRequestMethodExtras",
-    "HTTPResponseStatusExtras",
     "PerfectHashing",
+    .product(name: "MediaTypesSwiftSyntax", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
     .product(name: "SwiftSyntax", package: "swift-syntax"),
     .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
     .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
@@ -59,10 +63,15 @@ destinyMacrosDependencies.append(contentsOf: [
 
 // MARK: Traits
 defaultTraits.formUnion([
+    "Copyable",
     //"Generics",
     "GenericDynamicResponse",
+    "HTTPStandardRequestHeaders",
+    "HTTPStandardRequestMethods",
+    "HTTPStandardResponseHeaders",
+    "HTTPStandardResponseStatuses",
+    "MediaTypes",
     //"MutableRouter", // disabled by default since no other Swift networking library allows that functionality
-    "Copyable",
     "NonCopyable",
     "NonEmbedded",
     "PercentEncoding",
@@ -110,6 +119,74 @@ let traits:Set<Trait> = [
             "GenericDynamicRoute",
             "GenericDynamicResponse",
             "GenericRouteGroup"
+        ]
+    ),
+
+    .trait(name: "HTTPNonStandardRequestHeaders"),
+    .trait(name: "HTTPNonStandardRequestHeaderHashable"),
+    .trait(name: "HTTPNonStandardRequestHeaderRawValues"),
+    .trait(name: "HTTPNonStandardResponseHeaders"),
+    .trait(name: "HTTPNonStandardResponseHeaderHashable"),
+    .trait(name: "HTTPNonStandardResponseHeaderRawValues"),
+    .trait(name: "HTTPStandardRequestHeaders"),
+    .trait(name: "HTTPStandardRequestHeaderHashable"),
+    .trait(name: "HTTPStandardRequestHeaderRawValues"),
+    .trait(name: "HTTPStandardResponseHeaders"),
+    .trait(name: "HTTPStandardResponseHeaderHashable"),
+    .trait(name: "HTTPStandardResponseHeaderRawValues"),
+    .trait(
+        name: "HTTPRequestHeaders",
+        enabledTraits: [
+            "HTTPNonStandardRequestHeaders",
+            "HTTPNonStandardRequestHeaderHashable",
+            "HTTPNonStandardRequestHeaderRawValues",
+            "HTTPStandardRequestHeaders",
+            "HTTPStandardRequestHeaderHashable",
+            "HTTPStandardRequestHeaderRawValues"
+        ]
+    ),
+    .trait(
+        name: "HTTPResponseHeaders",
+        enabledTraits: [
+            "HTTPNonStandardResponseHeaders",
+            "HTTPNonStandardResponseHeaderHashable",
+            "HTTPNonStandardResponseHeaderRawValues",
+            "HTTPStandardResponseHeaders",
+            "HTTPStandardResponseHeaderHashable",
+            "HTTPStandardResponseHeaderRawValues"
+        ]
+    ),
+
+    .trait(name: "HTTPNonStandardRequestMethods"),
+    .trait(name: "HTTPNonStandardRequestMethodRawValues"),
+    .trait(name: "HTTPStandardRequestMethods"),
+    .trait(name: "HTTPStandardRequestMethodRawValues"),
+    .trait(
+        name: "HTTPRequestMethods",
+        enabledTraits: [
+            "HTTPNonStandardRequestMethods",
+            "HTTPNonStandardRequestMethodRawValues",
+            "HTTPStandardRequestMethods",
+            "HTTPStandardRequestMethodRawValues"
+        ]
+    ),
+
+    .trait(name: "HTTPNonStandardResponseStatuses"),
+    .trait(name: "HTTPNonStandardResponseStatusRawValues"),
+    .trait(name: "HTTPStandardResponseStatuses"),
+    .trait(name: "HTTPStandardResponseStatusRawValues"),
+    .trait(
+        name: "HTTPStandardResponseStatuses",
+        enabledTraits: [
+            "HTTPNonStandardResponseStatuses",
+            "HTTPStandardResponseStatuses"
+        ]
+    ),
+    .trait(
+        name: "HTTPStandardResponseStatusRawValues",
+        enabledTraits: [
+            "HTTPNonStandardResponseStatusRawValues",
+            "HTTPStandardResponseStatusRawValues"
         ]
     ),
 
@@ -177,6 +254,10 @@ let traits:Set<Trait> = [
         description: "Enables swift-log functionality."
     ),
     .trait(
+        name: "MediaTypes",
+        description: "Enables swift-media-types functionality."
+    ),
+    .trait(
         name: "OpenAPI",
         description: "Enables functionality to support OpenAPI."
     )
@@ -191,16 +272,17 @@ let package = Package(
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 
-        .library(name: "HTTPHeaderExtras", targets: ["HTTPHeaderExtras"]),
-        .library(name: "HTTPMediaTypes", targets: ["HTTPMediaTypes"]),
-        .library(name: "HTTPMediaTypeExtras", targets: ["HTTPMediaTypeExtras"]),
-        .library(name: "HTTPRequestMethodExtras", targets: ["HTTPRequestMethodExtras"]),
-        .library(name: "HTTPResponseStatusExtras", targets: ["HTTPResponseStatusExtras"]),
         .library(name: "PerfectHashing", targets: ["PerfectHashing"])
     ],
     traits: traits,
     dependencies: pkgDependencies,
     targets: [
+        // MARK: Targets
+
+
+
+
+
         // MARK: DestinyBlueprint
         .target(
             name: "DestinyBlueprint",
@@ -245,46 +327,6 @@ let package = Package(
             dependencies: [
                 "Destiny",
                 "DestinyMacros"
-            ]
-        ),
-
-        // MARK: HTTPHeaderExtras
-        .target(
-            name: "HTTPHeaderExtras",
-            dependencies: [
-                "DestinyDefaults"
-            ]
-        ),
-
-        // MARK: HTTPMediaTypes
-        .target(
-            name: "HTTPMediaTypes",
-            dependencies: [
-                "DestinyBlueprint"
-            ]
-        ),
-
-        // MARK: HTTPMediaTypeExtras
-        .target(
-            name: "HTTPMediaTypeExtras",
-            dependencies: [
-                "HTTPMediaTypes"
-            ]
-        ),
-
-        // MARK: HTTPRequestMethodExtras
-        .target(
-            name: "HTTPRequestMethodExtras",
-            dependencies: [
-                "DestinyDefaults"
-            ]
-        ),
-
-        // MARK: HTTPResponseStatusExtras
-        .target(
-            name: "HTTPResponseStatusExtras",
-            dependencies: [
-                "DestinyDefaults"
             ]
         ),
 

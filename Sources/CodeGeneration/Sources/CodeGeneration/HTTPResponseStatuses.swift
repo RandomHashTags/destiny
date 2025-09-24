@@ -38,6 +38,8 @@ extension HTTPResponseStatuses {
         let name = "HTTP\(type)ResponseStatus"
         return """
 
+        #if \(name)es
+
         import DestinyBlueprint
 
         public enum \(name): HTTPResponseStatus.StorageProtocol {
@@ -53,6 +55,7 @@ extension HTTPResponseStatuses {
             }
         }
 
+        #if \(name)RawValues
         extension \(name): RawRepresentable {
             public typealias RawValue = String
 
@@ -75,6 +78,9 @@ extension HTTPResponseStatuses {
                 }
             }
         }
+        #endif
+
+        #endif
         """
     }
 }

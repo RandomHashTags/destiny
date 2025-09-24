@@ -4,10 +4,13 @@
 import DestinyBlueprint
 import DestinyDefaults
 import DestinyDefaultsNonEmbedded
-import HTTPMediaTypes
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if MediaTypes
+import MediaTypes
+#endif
 
 // MARK: Parse
 extension StaticRoute {
@@ -27,7 +30,7 @@ extension StaticRoute {
         var path = [String]()
         var isCaseSensitive = true
         var status = HTTPStandardResponseStatus.notImplemented.code
-        var contentType = HTTPMediaType(HTTPMediaTypeText.plain)
+        var contentType:String? = nil
         var charset:Charset? = nil
         var body:(any ResponseBodyProtocol)? = nil
         for arg in function.arguments {
@@ -41,9 +44,15 @@ extension StaticRoute {
             case "isCaseSensitive", "caseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "status":
-                status = HTTPResponseStatus.parseCode(expr: arg.expression) ?? status
+                status = HTTPResponseStatus.parseCode(context: context, expr: arg.expression) ?? status
             case "contentType":
-                contentType = HTTPMediaType.parse(context: context, expr: arg.expression) ?? contentType
+                contentType = arg.expression.stringLiteralString(context: context) ?? contentType
+            case "mediaType":
+                #if MediaTypes
+                contentType = MediaType.parse(context: context, expr: arg.expression)?.template ?? contentType
+                #else
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
+                #endif
             case "charset":
                 charset = Charset(expr: arg.expression)
             case "body":

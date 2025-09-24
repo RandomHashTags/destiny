@@ -85,6 +85,9 @@ extension ExprSyntaxProtocol {
     }
     func stringLiteralString(context: some MacroExpansionContext) -> String? {
         guard let s = stringLiteral?.string else {
+            if self.is(NilLiteralExprSyntax.self) {
+                return nil
+            }
             context.diagnose(DiagnosticMsg.expectedStringLiteral(expr: self))
             return nil
         }

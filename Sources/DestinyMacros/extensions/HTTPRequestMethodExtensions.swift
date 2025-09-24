@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import HTTPRequestMethodExtras
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -19,12 +18,16 @@ extension HTTPRequestMethod {
             string.removeFirst()
             string.removeLast()
         }
+        #if HTTPStandardRequestMethodRawValues
         if let m = HTTPStandardRequestMethod(rawValue: string) {
             return .init(m)
         }
+        #endif
+        #if HTTPNonStandardRequestMethodRawValues
         if let m = HTTPNonStandardRequestMethod(rawValue: string) {
             return .init(m)
         }
+        #endif
         return nil
     }
 }

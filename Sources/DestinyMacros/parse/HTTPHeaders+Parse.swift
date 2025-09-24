@@ -1,10 +1,11 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import HTTPHeaderExtras
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if HTTPStandardRequestHeaders
 
 extension HTTPStandardRequestHeader {
     public init?(context: some MacroExpansionContext, expr: some ExprSyntaxProtocol) {
@@ -12,26 +13,35 @@ extension HTTPStandardRequestHeader {
             context.diagnose(DiagnosticMsg.expectedMemberAccessExpr(expr: expr))
             return nil
         }
+        #if HTTPStandardRequestHeaderRawValues
         if let value = Self(rawValue: string) {
             self = value
-        } else {
-            return nil
         }
+        #endif
+        return nil
     }
 }
+
+#endif
+
+#if HTTPNonStandardRequestHeaders
+
 extension HTTPNonStandardRequestHeader {
     public init?(context: some MacroExpansionContext, expr: some ExprSyntaxProtocol) {
         guard let string = expr.memberAccess?.declName.baseName.text else {
             context.diagnose(DiagnosticMsg.expectedMemberAccessExpr(expr: expr))
             return nil
         }
+        #if HTTPNonStandardRequestHeaderRawValues
         if let value = Self(rawValue: string) {
             self = value
-        } else {
-            return nil
         }
+        #endif
+        return nil
     }
 }
+
+#endif
 
 extension HTTPHeaders {
     /// - Returns: The valid headers in a dictionary.

@@ -9,7 +9,7 @@ public struct GenericStaticRoute<
         Body: ResponseBodyProtocol
     >: StaticRouteProtocol { 
     public var path:[String]
-    public let contentType:HTTPMediaType?
+    public let contentType:MediaType?
     public let body:Body?
 
     public let isCaseSensitive:Bool
@@ -24,7 +24,7 @@ public struct GenericStaticRoute<
         path: [String],
         isCaseSensitive: Bool = true,
         status: some HTTPResponseStatus.StorageProtocol,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body? = nil
     ) {
@@ -46,11 +46,11 @@ public struct GenericStaticRoute<
         path: [String],
         isCaseSensitive: Bool = true,
         status: some HTTPResponseStatus.StorageProtocol,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
+        contentType: (some MediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: Body? = nil
     ) {
-        let mediaType:HTTPMediaType?
+        let mediaType:MediaType?
         if let contentType {
             mediaType = .init(contentType)
         } else {
@@ -74,7 +74,7 @@ public struct GenericStaticRoute<
         path: [String],
         isCaseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body? = nil
     ) {
@@ -152,7 +152,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -168,11 +168,11 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
+        contentType: (some MediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
-        let mediaType:HTTPMediaType?
+        let mediaType:MediaType?
         if let contentType {
             mediaType = .init(contentType)
         } else {
@@ -189,7 +189,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -204,7 +204,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
+        contentType: (some MediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -219,7 +219,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -234,7 +234,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -249,7 +249,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: (some HTTPMediaTypeProtocol)? = nil,
+        contentType: (some MediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -264,7 +264,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -279,7 +279,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -294,7 +294,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -309,7 +309,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -324,7 +324,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {
@@ -339,7 +339,7 @@ extension GenericStaticRoute {
         path: [String],
         caseSensitive: Bool = true,
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
-        contentType: HTTPMediaType? = nil,
+        contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
     ) -> Self {

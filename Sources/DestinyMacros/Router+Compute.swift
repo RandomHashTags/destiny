@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import HTTPMediaTypes
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -102,7 +101,7 @@ extension Router {
                 headers: [:],
                 cookies: [HTTPCookie](),
                 body: "{\"error\":true,\"reason\":\"\\(error)\"}",
-                contentType: HTTPMediaTypeApplication.json,
+                contentType: "application/json",
                 charset: nil
             ).string(escapeLineBreak: true)
             errorResponder = .get(
@@ -199,7 +198,7 @@ extension Router {
                 headers: ["Date":HTTPDateFormat.placeholder],
                 cookies: [HTTPCookie](),
                 body: "not found",
-                contentType: HTTPMediaType(HTTPMediaTypeText.plain),
+                contentType: "text/plain",
                 charset: Charset.utf8
             )
         )

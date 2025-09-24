@@ -8,14 +8,14 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
         version: HTTPVersion,
         path: String,
         method: some HTTPRequestMethodProtocol,
-        contentType: HTTPMediaType?,
+        contentType: String?,
         status: HTTPResponseStatus.Code
     ) -> Bool
 
     /// Updates the given variables by applying this middleware.
     func apply(
         version: inout HTTPVersion,
-        contentType: inout HTTPMediaType?,
+        contentType: inout String?,
         status: inout HTTPResponseStatus.Code,
         headers: inout some HTTPHeadersProtocol,
         cookies: inout [HTTPCookie]
@@ -23,7 +23,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
 
     /// Updates the `response` by applying this middleware.
     func apply(
-        contentType: inout HTTPMediaType?,
+        contentType: inout String?,
         to response: inout some DynamicResponseProtocol
     ) throws(AnyError)
 }

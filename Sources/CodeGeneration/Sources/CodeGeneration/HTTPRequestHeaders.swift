@@ -26,8 +26,10 @@ extension HTTPRequestHeaders {
         }
         let comment = type == "Standard" ? "/// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields\n" : ""
         return """
+
+        #if \(name)s
         
-        \(comment)public enum \(name): Hashable {
+        \(comment)public enum \(name) {
         \(cases.joined(separator: "\n"))
 
             #if Inlinable
@@ -40,6 +42,12 @@ extension HTTPRequestHeaders {
             }
         }
 
+        #if \(name)Hashable
+        extension \(name): Hashable {
+        }
+        #endif
+
+        #if \(name)RawValues
         extension \(name): RawRepresentable {
             public typealias RawValue = String
 
@@ -62,6 +70,9 @@ extension HTTPRequestHeaders {
                 }
             }
         }
+        #endif
+
+        #endif
         """
     }
 }

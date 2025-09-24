@@ -6,6 +6,11 @@ import DestinyDefaults
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+#if MediaTypes
+import MediaTypes
+import MediaTypesSwiftSyntax
+#endif
+
 // MARK: SwiftSyntax
 extension StaticMiddleware {
     /// Parsing logic for this middleware.
@@ -19,10 +24,10 @@ extension StaticMiddleware {
         var handlesVersions:Set<HTTPVersion>? = nil
         var handlesMethods:[HTTPRequestMethod]? = nil
         var handlesStatuses:Set<HTTPResponseStatus.Code>? = nil
-        var handlesContentTypes:Set<HTTPMediaType>? = nil
+        var handlesContentTypes:Set<String>? = nil
         var appliesVersion:HTTPVersion? = nil
         var appliesStatus:HTTPResponseStatus.Code? = nil
-        var appliesContentType:HTTPMediaType? = nil
+        var appliesContentType:String? = nil
         var appliesHeaders = HTTPHeaders()
         var appliesCookies = [HTTPCookie]()
         var excludedRoutes = Set<String>()
@@ -36,20 +41,47 @@ extension StaticMiddleware {
                 handlesMethods = array.compactMap({ HTTPRequestMethod.parse(expr: $0.expression) })
             case "handlesStatuses":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
-                handlesStatuses = Set(array.compactMap({ HTTPResponseStatus.parseCode(expr: $0.expression) }))
+                handlesStatuses = Set(array.compactMap({ HTTPResponseStatus.parseCode(context: context, expr: $0.expression) }))
             case "handlesContentTypes":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
-                handlesContentTypes = Set(array.compactMap({ HTTPMediaType.parse(memberName: "\($0.expression.memberAccess!.declName.baseName.text)") }))
+                handlesContentTypes = Set(array.compactMap({
+                    if let s = $0.expression.memberAccess?.declName.baseName.text {
+                        return s
+                    } else if let s = $0.expression.stringLiteral?.string {
+                        return "\(s)"
+                    } else {
+                        context.diagnose(DiagnosticMsg.unhandled(node: $0))
+                        return nil
+                    }
+                }))
+            case "handlesMediaTypes":
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                handlesContentTypes = Set(array.compactMap({
+                    #if MediaTypes
+                    return MediaType.parse(context: context, expr: $0.expression)?.template
+                    #else
+                    if let s = $0.expression.memberAccess?.declName.baseName.text {
+                        return s
+                    } else if let s = $0.expression.stringLiteral?.string {
+                        return "\(s)"
+                    } else {
+                        context.diagnose(DiagnosticMsg.unhandled(node: $0))
+                        return nil
+                    }
+                    #endif
+                }))
             case "appliesVersion":
                 appliesVersion = HTTPVersion.parse(context: context, expr: arg.expression)
             case "appliesStatus":
-                appliesStatus = HTTPResponseStatus.parseCode(expr: arg.expression)
+                appliesStatus = HTTPResponseStatus.parseCode(context: context, expr: arg.expression)
             case "appliesContentType":
-                guard let memberName = arg.expression.memberAccess?.declName.baseName.text else {
-                    context.diagnose(DiagnosticMsg.expectedMemberAccessExpr(expr: arg.expression))
-                    break
-                }
-                appliesContentType = HTTPMediaType.parse(memberName: memberName)
+                appliesContentType = arg.expression.stringLiteralString(context: context) ?? appliesContentType
+            case "appliesMediaType":
+                #if MediaTypes
+                appliesContentType = MediaType.parse(context: context, expr: arg.expression)?.template ?? appliesContentType
+                #else
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
+                #endif
             case "appliesHeaders":
                 appliesHeaders = HTTPHeaders.parse(context: context, arg.expression)
             case "appliesCookies":

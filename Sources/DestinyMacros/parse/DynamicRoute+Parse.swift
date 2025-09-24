@@ -7,6 +7,10 @@ import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 
+#if MediaTypes
+import MediaTypes
+#endif
+
 // MARK: Responder DebugDescription
 extension DynamicRoute {
     /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
@@ -111,7 +115,15 @@ extension DynamicRoute {
             handler: { _, _ in }
         )
         route.defaultResponse = DynamicResponse(
-            message: HTTPResponseMessage(version: details.version, status: details.status, headers: headers, cookies: cookies, body: nil, contentType: nil, charset: nil),
+            message: HTTPResponseMessage(
+                version: details.version,
+                status: details.status,
+                headers: headers,
+                cookies: cookies,
+                body: nil,
+                contentType: nil,
+                charset: nil
+            ),
             parameters: details.parameters
         )
         route.handlerDebugDescription = details.handler
@@ -131,7 +143,7 @@ extension DynamicRoute {
         var path = [PathComponent]()
         var isCaseSensitive = true
         var status = HTTPStandardResponseStatus.notImplemented.code
-        var contentType:HTTPMediaType? = nil
+        var contentType:String? = nil
         var handler = "nil"
         var parameters = [String]()
         for arg in function.arguments {
@@ -153,17 +165,22 @@ extension DynamicRoute {
             case "isCaseSensitive", "caseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "status":
-                guard let parsed = HTTPResponseStatus.parseCode(expr: arg.expression) else {
-                    context.diagnose(DiagnosticMsg.unhandled(node: arg.expression))
+                guard let parsed = HTTPResponseStatus.parseCode(context: context, expr: arg.expression) else {
                     break
                 }
                 status = parsed
             case "contentType":
-                guard let parsed = HTTPMediaType.parse(context: context, expr: arg.expression) else {
+                contentType = arg.expression.stringLiteralString(context: context) ?? contentType
+            case "mediaType":
+                #if MediaTypes
+                guard let parsed = MediaType.parse(context: context, expr: arg.expression)?.template else {
                     context.diagnose(DiagnosticMsg.unhandled(node: arg.expression))
                     break
                 }
                 contentType = parsed
+                #else
+                context.diagnose(DiagnosticMsg.unhandled(node: arg))
+                #endif
             case "handler":
                 handler = "\(arg.expression)"
             default:
@@ -185,7 +202,7 @@ extension DynamicRoute {
         var path = [PathComponent]()
         var isCaseSensitive = true
         var status = HTTPStandardResponseStatus.notImplemented.code
-        var contentType:HTTPMediaType? = nil
+        var contentType:String? = nil
         var handler = "nil"
         var parameters = [String]()
     }
