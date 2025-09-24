@@ -1,6 +1,4 @@
 
-import Logging
-
 /// Core protocol that handles middleware, routes and route groups.
 public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes a static response to the socket.

@@ -13,7 +13,9 @@ import Foundation
 #error("not yet supported")
 #endif
 
+#if Logging
 import Logging
+#endif
 
 // MARK: DestinyServiceProtocol
 public protocol DestinyServiceProtocol: Sendable, ~Copyable {
@@ -26,11 +28,16 @@ public protocol DestinyServiceProtocol: Sendable, ~Copyable {
 // MARK: DestinyServiceGroup
 public final class DestinyServiceGroup: Sendable {
     public let services:[any DestinyServiceProtocol]
+
+    #if Logging
     public let logger:Logger
+    #endif
+
     private let onShutdown:@Sendable (Int32) -> Void
 
     nonisolated(unsafe) private var tasks:[Task<(), Never>] = []
 
+    #if Logging
     public init(
         services: [any DestinyServiceProtocol],
         logger: Logger,
@@ -40,6 +47,15 @@ public final class DestinyServiceGroup: Sendable {
         self.logger = logger
         self.onShutdown = onShutdown
     }
+    #else
+    public init(
+        services: [any DestinyServiceProtocol],
+        onShutdown: @Sendable @escaping (Int32) -> Void = { _ in }
+    ) {
+        self.services = services
+        self.onShutdown = onShutdown
+    }
+    #endif
 
     public func run() {
         tasks = []
@@ -50,9 +66,13 @@ public final class DestinyServiceGroup: Sendable {
                 do throws(ServiceError) {
                     try await service.run()
                 } catch {
+                    #if Logging
                     self.logger.error("\(#function);error trying to run service=\(error)")
+                    #endif
                 }
+                #if Logging
                 self.logger.info("service exited")
+                #endif
             }
             tasks.append(t)
         }
@@ -67,7 +87,9 @@ public final class DestinyServiceGroup: Sendable {
             #endif
             let signalSource = DispatchSource.makeSignalSource(signal: signalName, queue: .main)
             signalSource.setEventHandler {
+                #if Logging
                 self.logger.info("Got signal: \(signalName)")
+                #endif
                 Task {
                     await self._shutdown(signal: signalName)
                 }
@@ -79,18 +101,24 @@ public final class DestinyServiceGroup: Sendable {
     }
 
     public func shutdown() async {
+        #if Logging
         logger.info("Sending signal: SIGTERM")
+        #endif
         await _shutdown(signal: SIGTERM)
     }
     private func _shutdown(signal: Int32) async {
+        #if Logging
         logger.info("Received signal: SIGTERM")
+        #endif
         await withTaskGroup { group in 
             for service in services {
                 group.addTask {
                     do throws(ServiceError) {
                         try await service.shutdown()
                     } catch {
+                        #if Logging
                         self.logger.error("\(#function);error shutting down service=\(error)")
+                        #endif
                     }
                 }
             }

@@ -1,5 +1,15 @@
 
+#if Logging
+import Logging
+#endif
+
 public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
+
+    #if Logging
+    /// The router's logger.
+    var logger: Logger { get }
+    #endif
+
     /// Load logic before this router is ready to handle sockets.
     func load() throws(RouterError)
 

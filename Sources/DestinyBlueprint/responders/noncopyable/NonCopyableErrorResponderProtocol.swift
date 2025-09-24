@@ -1,8 +1,6 @@
 
 #if NonCopyable
 
-import Logging
-
 /// Core protocol that handles errors thrown from requests.
 public protocol NonCopyableErrorResponderProtocol: Sendable, ~Copyable {
     /// Writes a response to a socket.
@@ -11,7 +9,6 @@ public protocol NonCopyableErrorResponderProtocol: Sendable, ~Copyable {
         socket: some FileDescriptor,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger,
         completionHandler: @Sendable @escaping () -> Void
     )
 }

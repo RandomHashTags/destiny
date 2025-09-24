@@ -3,12 +3,18 @@
 
 import CEpoll
 import Glibc
+
+#if Logging
 import Logging
+#endif
 
 public struct Epoll<let maxEvents: Int>: Sendable {
     public let fileDescriptor:Int32
     public let pipeFileDescriptors:(read: Int32, write: Int32)
+
+    #if Logging
     public let logger:Logger
+    #endif
 
     public init(label: String) throws(EpollError) {
         fileDescriptor = epoll_create1(0)
@@ -29,7 +35,11 @@ public struct Epoll<let maxEvents: Int>: Sendable {
             throw err
         }
         self.pipeFileDescriptors = (pipeFileDescriptors[unchecked: 0], pipeFileDescriptors[unchecked: 1])
+
+        #if Logging
         logger = Logger(label: label)
+        #endif
+
         setNonBlocking(socket: pipeFileDescriptors[unchecked: 0])
         setNonBlocking(socket: pipeFileDescriptors[unchecked: 1])
 
@@ -74,7 +84,7 @@ extension Epoll {
         if epoll_ctl(fileDescriptor, EPOLL_CTL_ADD, client, &e) == -1 {
             throw .epollCtlFailed(errno: cError())
         }
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("EPOLL_CTL_ADD \(client): success")
         #endif
     }
@@ -92,7 +102,7 @@ extension Epoll {
         if epoll_ctl(fileDescriptor, EPOLL_CTL_MOD, fd, &ev) == -1 {
             throw .epollCtlFailed(errno: cError())
         }
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("EPOLL_CTL_MOD \(fd): success")
         #endif
     }
@@ -107,7 +117,7 @@ extension Epoll {
         if epoll_ctl(fileDescriptor, EPOLL_CTL_DEL, client, nil) == -1 {
             throw .epollCtlFailed(errno: cError())
         }
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("EPOLL_CTL_DEL \(client): success")
         #endif
     }
@@ -148,13 +158,13 @@ extension Epoll {
     ) throws(EpollError) -> Int32 {
         guard let base = events.baseAddress else { throw .custom("waitFailed;events.baseAddress == nil") }
 
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("calling epoll_pwait with timeout: \(timeout)")
         #endif
 
         let loadedClients = epoll_pwait(fileDescriptor, base, Int32(maxEvents), timeout, nil)
 
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("epoll_pwait returned \(loadedClients)")
         #endif
         if loadedClients <= -1 {

@@ -2,7 +2,10 @@
 #if NonCopyable
 
 import DestinyBlueprint
+
+#if Logging
 import Logging
+#endif
 
 /// Default Error Responder implementation that does the bare minimum required to log and send an error response known at compile time.
 public struct NonCopyableStaticErrorResponder: NonCopyableErrorResponderProtocol, ~Copyable {
@@ -20,16 +23,17 @@ public struct NonCopyableStaticErrorResponder: NonCopyableErrorResponderProtocol
         socket: some FileDescriptor,
         error: some Error,
         request: inout some HTTPRequestProtocol & ~Copyable,
-        logger: Logger,
         completionHandler: @Sendable @escaping () -> Void
     ) {
-        #if DEBUG
-        logger.warning("\(error)")
+        #if DEBUG && Logging
+        router.logger.warning("\(error)")
         #endif
         do throws(ResponderError) {
             try logic(error).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
         } catch {
-            logger.error("[NonCopyableStaticErrorResponder] Encountered error trying to write response: \(error)")
+            #if Logging
+            router.logger.error("[NonCopyableStaticErrorResponder] Encountered error trying to write response: \(error)")
+            #endif
         }
     }
 }

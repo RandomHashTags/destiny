@@ -3,7 +3,10 @@
 
 import CEpoll
 import Glibc
+
+#if Logging
 import Logging
+#endif
 
 @_silgen_name("accept4")
 #if Inlinable
@@ -27,8 +30,10 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
     @usableFromInline
     let ep:Epoll<maxEvents>
 
+    #if Logging
     @usableFromInline
     let logger:Logger
+    #endif
 
     @usableFromInline
     var running = true
@@ -38,16 +43,25 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
         backlog: Int32,
         port: UInt16
     ) throws(EpollError) -> EpollWorker<maxEvents> {
+        let listenFD = Self.bindAndListen(port: port, backlog: backlog)
+        #if DEBUG && Logging
         let logger = Logger(label: "epoll.worker.\(workerId)")
-        let listenFD = Self.bindAndListen(port: port, backlog: backlog, logger: logger)
+        logger.info("Listening for clients on http://\(Optional<String>.none ?? "localhost"):\(port) [backlog=\(backlog), fd=\(listenFD)]")
+        #endif
         let ep = try Epoll<maxEvents>.init(label: "epoll.worker.\(workerId)")
 
         // add listenFD with edge-triggered
         let flags = UInt32(EPOLLIN.rawValue) | UInt32(EPOLLET.rawValue)
         try ep.add(client: listenFD, events: flags)
+
+        #if Logging
         return .init(listenFD: listenFD, ep: ep, logger: logger)
+        #else
+        return .init(listenFD: listenFD, ep: ep)
+        #endif
     }
 
+    #if Logging
     public init(
         listenFD: Int32,
         ep: Epoll<maxEvents>,
@@ -57,6 +71,15 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
         self.ep = ep
         self.logger = logger
     }
+    #else
+    public init(
+        listenFD: Int32,
+        ep: Epoll<maxEvents>
+    ) {
+        self.listenFD = listenFD
+        self.ep = ep
+    }
+    #endif
 
     deinit {
         ep.closeAll()
@@ -82,7 +105,7 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
     func acceptNewConnection() -> Int32? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("\(#function); calling accept4_fd")
         #endif
         let fd = withUnsafeMutablePointer(to: &addr) {
@@ -94,10 +117,12 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
             if errno == EAGAIN || errno == EWOULDBLOCK {
                 return nil
             }
+            #if Logging
             logger.warning("\(#function); accept4 failed (errno=\(errno))")
+            #endif
             return nil
         }
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("\(#function); returned \(fd)")
         #endif
         return fd
@@ -129,7 +154,7 @@ extension EpollWorker {
         handleClient: (_ socket: Int32, _ completionHandler: @Sendable @escaping () -> Void) -> Void
     ) throws(EpollError) {
         //if let c = pinToCore { pinToCore(c) }
-        #if DEBUG
+        #if DEBUG && Logging
         logger.info("running with timeout: \(timeout)")
         #endif
 
@@ -141,7 +166,9 @@ extension EpollWorker {
                 do throws(EpollError) {
                     loadedClients = try ep.wait(timeout: timeout, events: buffer)
                 } catch {
+                    #if Logging
                     logger.error("Epoll wait error: \(error)")
+                    #endif
                     return
                 }
                 guard loadedClients > 0 else { continue }
@@ -152,7 +179,7 @@ extension EpollWorker {
                     // cancel pipe
                     if eventFD == ep.pipeFileDescriptors.read {
                         // drain pipe
-                        #if DEBUG
+                        #if DEBUG && Logging
                         logger.info("draining...")
                         #endif
 
@@ -169,7 +196,9 @@ extension EpollWorker {
                             do throws(EpollError) {
                                 try ep.add(client: client, events: flags)
                             } catch {
+                                #if Logging
                                 logger.error("Epoll add error: \(error)")
+                                #endif
                             }
                         }
                         continue
@@ -195,8 +224,7 @@ extension EpollWorker {
     #endif
     static func bindAndListen(
         port: UInt16,
-        backlog: Int32,
-        logger: Logger
+        backlog: Int32
     ) -> Int32 {
         let fd = socket(AF_INET, Int32(SOCK_STREAM.rawValue), Int32(IPPROTO_TCP))
         guard fd >= 0 else {
@@ -235,9 +263,6 @@ extension EpollWorker {
         }
 
         setNonBlockingFD(fd)
-        #if DEBUG
-        logger.info("Listening for clients on http://\(Optional<String>.none ?? "localhost"):\(port) [backlog=\(backlog), fd=\(fd)]")
-        #endif
         return fd
     }
 

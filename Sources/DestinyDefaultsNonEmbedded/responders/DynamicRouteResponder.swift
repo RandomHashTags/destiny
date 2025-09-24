@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import Logging
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
 public struct DynamicRouteResponder: DynamicRouteResponderProtocol {

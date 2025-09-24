@@ -20,7 +20,9 @@ import WinSDK
 // TODO: support
 #endif
 
+#if Logging
 import Logging
+#endif
 
 // MARK: HTTPDateFormat
 /// Default storage that optimally keeps track of the current date in the HTTP Format,
@@ -50,7 +52,24 @@ public struct HTTPDateFormat: Sendable {
         _read { yield _nowInlineArray }
     }
 
+    /// - Returns: HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
+    @discardableResult
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func now() -> InlineArrayResult? {
+        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
+        return nowGlibc()
+        #else
+        return nil
+        #endif
+    }
+}
+
+// MARK: Load
+extension HTTPDateFormat {
     /// Begins the auto-updating of the current date in the HTTP Format.
+    #if Logging
     #if Inlinable
     @inlinable
     #endif
@@ -74,19 +93,31 @@ public struct HTTPDateFormat: Sendable {
             }
         }
     }
-
-    /// - Returns: HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
-    @discardableResult
+    #else
     #if Inlinable
     @inlinable
     #endif
-    public static func now() -> InlineArrayResult? {
-        #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
-        return nowGlibc()
-        #else
-        return nil
-        #endif
+    public static func load() {
+        // TODO: make it update at the beginning of the second
+        Task.detached(priority: .userInitiated) {
+            while !Task.isCancelled {
+                //let clock:SuspendingClock = SuspendingClock()
+                //var now:SuspendingClock.Instant = clock.now
+                do { // TODO: fix
+                    //var updateAt:SuspendingClock.Instant = now
+                    //updateAt.duration(to: Duration.init(secondsComponent: 1, attosecondsComponent: 0))
+                    //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
+                    try await Task.sleep(for: .seconds(1))
+                    if let result = Self.now() {
+                        _nowInlineArray = result
+                    }
+                } catch {
+                    //logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")
+                }
+            }
+        }
     }
+    #endif
 }
 
 // MARK: Get

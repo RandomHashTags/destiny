@@ -15,8 +15,10 @@ import SwiftGlibc
 
 import DestinyBlueprint
 import DestinyDefaults
-import Logging
 import TestRouter
+
+#if Logging
+import Logging
 
 LoggingSystem.bootstrap { label in
     var handler = StreamLogHandler.standardOutput(label: label)
@@ -27,6 +29,7 @@ LoggingSystem.bootstrap { label in
     #endif
     return handler
 }
+#endif
 
 // MARK: Config
 let address = processArg(key: "hostname")
@@ -42,6 +45,7 @@ let reuseAddress = processArg(key: "reuseaddress")?.elementsEqual("true") ?? tru
 let reusePort = processArg(key: "reuseport")?.elementsEqual("true") ?? true
 let noTCPDelay = processArg(key: "tcpnodelay")?.elementsEqual("true") ?? true
 
+#if Logging
 let server = NonCopyableHTTPServer<TestRouter.DeclaredRouter.CompiledHTTPRouter, HTTPSocket>(
     address: address,
     port: port,
@@ -58,6 +62,22 @@ let application = Application(
     logger: Logger(label: "destiny.application")
 )
 HTTPDateFormat.load(logger: application.logger)
+#else
+let server = NonCopyableHTTPServer<TestRouter.DeclaredRouter.CompiledHTTPRouter, HTTPSocket>(
+    address: address,
+    port: port,
+    backlog: backlog,
+    reuseAddress: reuseAddress,
+    reusePort: reusePort,
+    noTCPDelay: noTCPDelay,
+    router: TestRouter.DeclaredRouter.router,
+    onLoad: serverOnLoad
+)
+let application = Application(
+    server: server
+)
+HTTPDateFormat.load()
+#endif
 
 application.run()
 
@@ -95,11 +115,7 @@ func processCommand() async {
         let arguments = line.split(separator: " ")
         switch arguments.first {
         case "stop", "shutdown":
-            //do throws(ServiceError) {
-                await Application.shared.shutdown()
-            //} catch {
-            //    Application.shared.logger.warning("Encountered error trying to shutdown application: \(error)")
-            //}
+            await Application.shared.shutdown()
             return
         default:
             break

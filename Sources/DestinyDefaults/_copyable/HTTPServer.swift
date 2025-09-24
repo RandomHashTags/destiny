@@ -10,7 +10,10 @@ import Foundation
 #endif
 
 import DestinyBlueprint
+
+#if Logging
 import Logging
+#endif
 
 // MARK: Server
 /// Default HTTP Server implementation.
@@ -24,7 +27,10 @@ public final class HTTPServer<
     /// This value is capped at the system's limit.
     public let backlog:Int32
     public let router:Router
+
+    #if Logging
     public let logger:Logger
+    #endif
 
     /// Called when the server loads successfully, just before it accepts incoming network requests.
     public let onLoad:(@Sendable () -> Void)?
@@ -38,6 +44,8 @@ public final class HTTPServer<
     @usableFromInline
     nonisolated(unsafe) private(set) var serverFD:Int32? = nil
 
+    // MARK: Init
+    #if Logging
     public init(
         address: String? = nil,
         port: UInt16,
@@ -59,6 +67,27 @@ public final class HTTPServer<
         self.onLoad = onLoad
         self.onShutdown = onShutdown
     }
+    #else
+    public init(
+        address: String? = nil,
+        port: UInt16,
+        backlog: Int32 = SOMAXCONN,
+        reuseAddress: Bool = true,
+        reusePort: Bool = true,
+        noTCPDelay: Bool = true,
+        router: Router,
+        onLoad: (@Sendable () -> Void)? = nil,
+        onShutdown: (@Sendable () -> Void)? = nil
+    ) {
+        self.address = address
+        self.port = port
+        self.backlog = min(SOMAXCONN, backlog)
+        flags = Flag.pack(noTCPDelay: noTCPDelay, reuseAddress: reuseAddress, reusePort: reusePort)
+        self.router = router
+        self.onLoad = onLoad
+        self.onShutdown = onShutdown
+    }
+    #endif
     
     // MARK: Run
     public func run() async throws(ServiceError) {
@@ -137,7 +166,10 @@ public final class HTTPServer<
             throw .listenFailed(errno: cError())
         }
         setNonBlocking(socket: serverFD)
+
+        #if Logging
         logger.info("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\(serverFD)]")
+        #endif
         return serverFD
     }
 }
@@ -237,7 +269,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
                                 client.socketClose()
                             })
                         } catch {
+                            #if Logging
                             self.logger.warning("\(#function);\(error)")
+                            #endif
                         }
                     }
                 }
@@ -266,7 +300,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
             })
             processor.shutdown()
         } catch {
+            #if Logging
             logger.error("HTTPServer;\(#function);error=\(error)")
+            #endif
         }
         return nil
     }

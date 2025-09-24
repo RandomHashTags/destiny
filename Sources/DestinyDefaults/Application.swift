@@ -1,13 +1,21 @@
 
 import DestinyBlueprint
+
+#if Logging
 import Logging
+#endif
 
 public struct Application: ApplicationProtocol {
     nonisolated(unsafe) public static private(set) var shared:Application! = nil
 
     public let serviceGroup:DestinyServiceGroup
-    public let logger:Logger
 
+    #if Logging
+    public let logger:Logger
+    #endif
+
+    // MARK: Init
+    #if Logging
     public init(
         server: some HTTPServerProtocol,
         services: [any DestinyServiceProtocol] = [],
@@ -22,14 +30,33 @@ public struct Application: ApplicationProtocol {
         self.logger = logger
         Self.shared = self
     }
+    #else
+    public init(
+        server: some HTTPServerProtocol,
+        services: [any DestinyServiceProtocol] = []
+    ) {
+        var services = services
+        services.insert(server, at: 0)
+        serviceGroup = DestinyServiceGroup(
+            services: services
+        )
+        Self.shared = self
+    }
+    #endif
 
     public func run() {
         serviceGroup.run()
     }
 
     public func shutdown() async {
+        #if Logging
         logger.info("Application shutting down...")
+        #endif
+
         await serviceGroup.shutdown()
+
+        #if Logging
         logger.info("Application shutdown successfully")
+        #endif
     }
 }

@@ -77,6 +77,7 @@ defaultTraits.formUnion([
 
     //"Epoll",
     //"Liburing",
+    "Logging",
     "OpenAPI"
 ])
 let traits:Set<Trait> = [
@@ -172,6 +173,10 @@ let traits:Set<Trait> = [
         description: "Enables Liburing functionality (Linux only)."
     ),
     .trait(
+        name: "Logging",
+        description: "Enables swift-log functionality."
+    ),
+    .trait(
         name: "OpenAPI",
         description: "Enables functionality to support OpenAPI."
     )
@@ -201,7 +206,7 @@ let package = Package(
             name: "DestinyBlueprint",
             dependencies: [
                 .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
-                .product(name: "Logging", package: "swift-log"),
+                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 //.product(name: "Metrics", package: "swift-metrics"),
                 .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
             ]
@@ -212,7 +217,7 @@ let package = Package(
             name: "DestinyDefaults",
             dependencies: [
                 "DestinyBlueprint",
-                .product(name: "Logging", package: "swift-log"),
+                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 //.product(name: "Metrics", package: "swift-metrics"),
             ]
         ),
@@ -223,7 +228,7 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyDefaults",
-                .product(name: "Logging", package: "swift-log"),
+                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 //.product(name: "Metrics", package: "swift-metrics"),
             ]
         ),

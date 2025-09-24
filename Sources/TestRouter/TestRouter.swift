@@ -3,7 +3,10 @@ import DestinyBlueprint
 import DestinyDefaults
 import DestinySwiftSyntax // only used for the macro; comment-out here and Package.swift to save binary size when expanded
 import HTTPMediaTypes
+
+#if Logging
 import Logging
+#endif
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
