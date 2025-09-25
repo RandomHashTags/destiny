@@ -310,7 +310,8 @@ let package = Package(
             name: "TestRouter",
             dependencies: [
                 "DestinyBlueprint",
-                "DestinyDefaults"
+                "DestinyDefaults",
+                "DestinySwiftSyntax"
             ]
         ),
 

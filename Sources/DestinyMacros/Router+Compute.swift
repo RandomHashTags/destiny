@@ -97,7 +97,7 @@ extension Router {
         if customErrorResponder.isEmpty || customErrorResponder.isEmpty || customErrorResponder == "nil" {
             let defaultStaticErrorResponse = GenericHTTPResponseMessage(
                 version: version,
-                status: HTTPStandardResponseStatus.ok.code,
+                status: 200, // ok
                 headers: [:],
                 cookies: [HTTPCookie](),
                 body: "{\"error\":true,\"reason\":\"\\(error)\"}",
@@ -194,7 +194,7 @@ extension Router {
             isCopyable: isCopyable,
             response: GenericHTTPResponseMessage(
                 version: version,
-                status: HTTPStandardResponseStatus.notFound.code,
+                status: 404, // not found
                 headers: ["Date":HTTPDateFormat.placeholder],
                 cookies: [HTTPCookie](),
                 body: "not found",

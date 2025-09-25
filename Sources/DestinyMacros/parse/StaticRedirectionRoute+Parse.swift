@@ -17,11 +17,11 @@ extension StaticRedirectionRoute {
         _ function: FunctionCallExprSyntax
     ) -> Self {
         var version = version
-        var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
+        var method:any HTTPRequestMethodProtocol = HTTPRequestMethod(name: "GET")
         var from = [String]()
         var isCaseSensitive = true
         var to = [String]()
-        var status = HTTPStandardResponseStatus.movedPermanently.code
+        var status:HTTPResponseStatus.Code = 301 // moved permanently
         for arg in function.arguments {
             switch arg.label?.text {
             case "version":

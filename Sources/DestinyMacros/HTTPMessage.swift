@@ -19,7 +19,7 @@ enum HTTPMessage: DeclarationMacro {
         in context: some MacroExpansionContext
     ) -> [DeclSyntax] {
         var version = HTTPVersion.v1_1
-        var status = HTTPStandardResponseStatus.notImplemented.code
+        var status:HTTPResponseStatus.Code = 501 // not implemented
         var headers = HTTPHeaders()
         var body:(any ResponseBodyProtocol)? = nil
         var contentType:String? = nil
@@ -69,7 +69,7 @@ enum HTTPMessage: DeclarationMacro {
         headers: HTTPHeaders,
         cookies: [HTTPCookie],
         body: (some ResponseBodyProtocol)?,
-        mediaType: MediaType?,
+        contentType: String?,
         charset: Charset?
     ) -> String {
         GenericHTTPResponseMessage(
@@ -78,7 +78,7 @@ enum HTTPMessage: DeclarationMacro {
             headers: headers,
             cookies: cookies,
             body: body,
-            mediaType: mediaType,
+            contentType: contentType,
             charset: charset
         ).string(escapeLineBreak: true)
     }
