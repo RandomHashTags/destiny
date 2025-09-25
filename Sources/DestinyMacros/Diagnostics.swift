@@ -78,6 +78,9 @@ extension ExprSyntaxProtocol {
 extension ExprSyntaxProtocol {
     func arrayElements(context: some MacroExpansionContext) -> ArrayElementListSyntax? {
         guard let elements = array?.elements else {
+            if self.is(NilLiteralExprSyntax.self) {
+                return nil
+            }
             context.diagnose(DiagnosticMsg.expectedArrayExpr(expr: self))
             return nil
         }

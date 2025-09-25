@@ -85,7 +85,7 @@ extension HTTPRequestMethods {
         [
             ("connect", "CONNECT"),
             ("delete", "DELETE"),
-            ("`get`", "GET"),
+            ("get", "GET"),
             ("head", "HEAD"),
             ("options", "OPTIONS"),
             ("patch", "PATCH"),
@@ -174,7 +174,7 @@ extension HTTPRequestMethods {
             ("msearch", "MSEARCH"),
             ("notifyall", "NOTIFYALL"),
             ("notifyFile", "NOTIFY-FILE"),
-            ("`open`", "OPEN"),
+            ("open", "OPEN"),
             ("outbox", "OUTBOX"),
             ("partial", "PARTIAL"),
             ("partialUpdate", "PARTIAL-UPDATE"),

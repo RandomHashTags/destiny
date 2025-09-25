@@ -25,9 +25,9 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     /// - Warning: `nil` makes it handle all status codes.
     public let handlesStatuses:Set<HTTPResponseStatus.Code>?
 
-    /// HTTP Media Types this middleware handles.
+    /// HTTP Content Types this middleware handles.
     /// 
-    /// - Warning: `nil` makes it handle all media types.
+    /// - Warning: `nil` makes it handle all content types.
     public let handlesContentTypes:Set<String>?
 
     public let appliesVersion:HTTPVersion?

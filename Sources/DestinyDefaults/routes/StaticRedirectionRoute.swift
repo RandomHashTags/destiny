@@ -31,7 +31,7 @@ extension StaticRedirectionRoute {
     public init(
         version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.movedPermanently.code,
+        status: HTTPResponseStatus.Code = 301, // moved permanently
         from: [StaticString],
         isCaseSensitive: Bool = true,
         to: [StaticString]
@@ -47,7 +47,7 @@ extension StaticRedirectionRoute {
     public init(
         version: HTTPVersion = .v1_1,
         method: some HTTPRequestMethodProtocol,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.movedPermanently.code,
+        status: HTTPResponseStatus.Code = 301, // moved permanently
         from: [StaticString],
         isCaseSensitive: Bool = true,
         to: [StaticString]

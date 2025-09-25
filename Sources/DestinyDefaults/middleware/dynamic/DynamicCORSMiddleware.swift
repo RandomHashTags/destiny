@@ -53,25 +53,25 @@ extension DynamicCORSMiddleware {
     ///   - allowCredentials: Whether or not cookies and other credentials are present in the response. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-allow-credentials).
     ///   - exposedHeaders: Headers that JavaScript in browsers is allowed to access. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-expose-headers).
     ///   - maxAge: How long the response to the preflight request can be cached without sending another preflight request; measured in seconds. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-max-age).
-    public init(
+    public static func build(
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
-        allowedHeaders: Set<HTTPStandardRequestHeader> = [.accept, .authorization, .contentType, .origin],
-        allowedMethods: [HTTPRequestMethod] = [
-            .init(HTTPStandardRequestMethod.get),
-            .init(HTTPStandardRequestMethod.post),
-            .init(HTTPStandardRequestMethod.put),
-            .init(HTTPStandardRequestMethod.options),
-            .init(HTTPStandardRequestMethod.delete),
-            .init(HTTPStandardRequestMethod.patch)
+        allowedHeaders: Set<String> = ["Accept", "Authorization", "Content-Type", "Origin"],
+        allowedMethods: [String] = [
+            "GET",
+            "POST",
+            "PUT",
+            "OPTIONS",
+            "DELETE",
+            "PATCH"
         ],
         allowCredentials: Bool = false,
-        exposedHeaders: Set<HTTPStandardRequestHeader>? = nil,
+        exposedHeaders: Set<String>? = nil,
         maxAge: Int? = 3600 // one hour
-    ) {
+    ) -> Self {
         let logicKind:DynamicCORSLogic
-        let allowedHeaders = allowedHeaders.map({ $0.rawName }).joined(separator: ",")
-        let allowedMethods = allowedMethods.map({ "\($0)" }).joined(separator: ",")
-        let exposedHeaders = exposedHeaders?.map({ $0.rawName }).joined(separator: ",")
+        let allowedHeaders = allowedHeaders.joined(separator: ",")
+        let allowedMethods = allowedMethods.joined(separator: ",")
+        let exposedHeaders = exposedHeaders?.joined(separator: ",")
         if allowCredentials {
             if let exposedHeaders {
                 if let maxAgeString = Self.maxAgeString(maxAge) {
@@ -95,8 +95,47 @@ extension DynamicCORSMiddleware {
         } else {
             logicKind = .minimum(allowedHeaders: allowedHeaders, allowedMethods: allowedMethods)
         }
-        self.init(allowedOrigin: allowedOrigin, logicKind: logicKind)
+        return self.init(allowedOrigin: allowedOrigin, logicKind: logicKind)
     }
+
+    public init() {
+        self = Self.build()
+    }
+
+    #if HTTPStandardRequestHeaders && HTTPStandardRequestMethods
+    public init(
+        allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
+        allowedHeaders: Set<HTTPStandardRequestHeader> = [.accept, .authorization, .contentType, .origin],
+        allowedMethods: [HTTPRequestMethod] = [
+            .init(HTTPStandardRequestMethod.get),
+            .init(HTTPStandardRequestMethod.post),
+            .init(HTTPStandardRequestMethod.put),
+            .init(HTTPStandardRequestMethod.options),
+            .init(HTTPStandardRequestMethod.delete),
+            .init(HTTPStandardRequestMethod.patch)
+        ],
+        allowCredentials: Bool = false,
+        exposedHeaders: Set<HTTPStandardRequestHeader>? = nil,
+        maxAge: Int? = 3600 // one hour
+    ) {
+        let allowedHeaders = Set(allowedHeaders.map({ $0.rawName }))
+        let allowedMethods = allowedMethods.map({ $0.rawNameString() })
+        let exposedLiteralHeaders:Set<String>?
+        if let e = exposedHeaders {
+            exposedLiteralHeaders = Set(e.map({ $0.rawName }))
+        } else {
+            exposedLiteralHeaders = nil
+        }
+        self = Self.build(
+            allowedOrigin: allowedOrigin,
+            allowedHeaders: allowedHeaders,
+            allowedMethods: allowedMethods,
+            allowCredentials: allowCredentials,
+            exposedHeaders: exposedLiteralHeaders,
+            maxAge: maxAge
+        )
+    }
+    #endif
 }
 
 #if RequestHeaders

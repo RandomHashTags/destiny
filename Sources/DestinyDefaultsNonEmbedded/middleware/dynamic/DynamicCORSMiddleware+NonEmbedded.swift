@@ -1,4 +1,6 @@
 
+#if HTTPStandardRequestHeaders
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -38,3 +40,5 @@ extension DynamicCORSMiddleware {
         )
     }
 }
+
+#endif

@@ -48,7 +48,7 @@ public enum HTTPNonStandardRequestMethod: HTTPRequestMethodProtocol {
     case msearch
     case notifyall
     case notifyFile
-    case `open`
+    case open
     case outbox
     case partial
     case partialUpdate
@@ -156,7 +156,7 @@ public enum HTTPNonStandardRequestMethod: HTTPRequestMethodProtocol {
         case .msearch: "MSEARCH"
         case .notifyall: "NOTIFYALL"
         case .notifyFile: "NOTIFY-FILE"
-        case .`open`: "OPEN"
+        case .open: "OPEN"
         case .outbox: "OUTBOX"
         case .partial: "PARTIAL"
         case .partialUpdate: "PARTIAL-UPDATE"
@@ -271,7 +271,7 @@ extension HTTPNonStandardRequestMethod: RawRepresentable {
         case "msearch": self = .msearch
         case "notifyall": self = .notifyall
         case "notifyFile": self = .notifyFile
-        case "`open`": self = .`open`
+        case "open": self = .open
         case "outbox": self = .outbox
         case "partial": self = .partial
         case "partialUpdate": self = .partialUpdate
@@ -382,7 +382,7 @@ extension HTTPNonStandardRequestMethod: RawRepresentable {
         case .msearch: "msearch"
         case .notifyall: "notifyall"
         case .notifyFile: "notifyFile"
-        case .`open`: "`open`"
+        case .open: "open"
         case .outbox: "outbox"
         case .partial: "partial"
         case .partialUpdate: "partialUpdate"

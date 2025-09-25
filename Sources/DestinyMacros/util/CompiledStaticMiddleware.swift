@@ -22,9 +22,9 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
     /// - Warning: `nil` makes it handle all statuses.
     public let handlesStatuses:Set<HTTPResponseStatus.Code>?
 
-    /// HTTP MediaT Types this middleware handles.
+    /// HTTP Content Types this middleware handles.
     /// 
-    /// - Warning: `nil` makes it handle all media types.
+    /// - Warning: `nil` makes it handle all content types.
     public let handlesContentTypes:Set<String>?
 
     public let appliesVersion:HTTPVersion?
@@ -109,9 +109,9 @@ extension CompiledStaticMiddleware {
     #if Inlinable
     @inlinable
     #endif
-    public func handlesContentType(_ mediaType: String?) -> Bool {
-        if let mediaType {
-            handlesContentTypes?.contains(mediaType) ?? true
+    public func handlesContentType(_ contentType: String?) -> Bool {
+        if let contentType {
+            handlesContentTypes?.contains(contentType) ?? true
         } else {
             true
         }

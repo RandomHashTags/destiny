@@ -46,7 +46,7 @@ public struct StaticRoute: StaticRouteProtocol {
         method: some HTTPRequestMethodProtocol,
         path: [String],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         charset: Charset? = nil,
         body: (any ResponseBodyProtocol)? = nil
@@ -96,8 +96,8 @@ extension StaticRoute {
                     middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
                 }
             }
-            headers[HTTPStandardResponseHeader.contentType.rawName] = nil
-            headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+            headers["Content-Type"] = nil
+            headers["Content-Length"] = nil
             return Self.response(version: version, status: status, headers: &headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
         }
     #else
@@ -106,8 +106,8 @@ extension StaticRoute {
             if body?.hasDateHeader ?? false {
                 headers["Date"] = HTTPDateFormat.placeholder
             }
-            headers[HTTPStandardResponseHeader.contentType.rawName] = nil
-            headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+            headers["Content-Type"] = nil
+            headers["Content-Length"] = nil
             return Self.response(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
         }
     #endif
@@ -122,8 +122,8 @@ extension StaticRoute {
         contentType: String?,
         charset: Charset?
     ) -> some HTTPMessageProtocol {
-        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
-        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+        headers["Content-Type"] = nil
+        headers["Content-Length"] = nil
         return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 }
@@ -187,7 +187,7 @@ extension StaticRoute {
             method: some HTTPRequestMethodProtocol,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -202,7 +202,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -217,7 +217,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -236,7 +236,7 @@ extension StaticRoute {
             method: some HTTPRequestMethodProtocol,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -251,7 +251,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -266,7 +266,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -288,7 +288,7 @@ extension StaticRoute {
         method: some HTTPRequestMethodProtocol,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         charset: Charset? = nil,
         body: some ResponseBodyProtocol
@@ -305,7 +305,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -320,7 +320,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -335,7 +335,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -350,7 +350,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -365,7 +365,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -380,7 +380,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -395,7 +395,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -410,7 +410,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -425,7 +425,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: some ResponseBodyProtocol
@@ -447,7 +447,7 @@ extension StaticRoute {
         method: some HTTPRequestMethodProtocol,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable
@@ -464,7 +464,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -479,7 +479,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -494,7 +494,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -509,7 +509,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -524,7 +524,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -539,7 +539,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -554,7 +554,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -569,7 +569,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable
@@ -584,7 +584,7 @@ extension StaticRoute {
             version: HTTPVersion = .v1_1,
             path: [String],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             contentType: String? = nil,
             charset: Charset? = nil,
             body: consuming some ResponseBodyProtocol & ~Copyable

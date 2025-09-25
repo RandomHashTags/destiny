@@ -60,7 +60,7 @@ extension DynamicRoute {
         method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         cookies: [HTTPCookie] = [],
@@ -86,7 +86,7 @@ extension DynamicRoute {
         method: HTTPRequestMethod,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         cookies: [HTTPCookie] = [],
@@ -148,7 +148,7 @@ extension DynamicRoute {
         method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -164,7 +164,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -180,7 +180,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -196,7 +196,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -212,7 +212,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -228,7 +228,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -244,7 +244,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -260,7 +260,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -276,7 +276,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -292,7 +292,7 @@ extension DynamicRoute {
         version: HTTPVersion = .v1_1,
         path: [PathComponent],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         body: (any ResponseBodyProtocol)? = nil,
@@ -311,7 +311,7 @@ extension DynamicRoute {
             method: some HTTPRequestMethodProtocol,
             path: [PathComponent],
             isCaseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             cookies: [HTTPCookie] = [],
@@ -337,7 +337,7 @@ extension DynamicRoute {
             method: HTTPRequestMethod,
             path: [PathComponent],
             isCaseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             cookies: [HTTPCookie] = [],
@@ -366,7 +366,7 @@ extension DynamicRoute {
             method: some HTTPRequestMethodProtocol,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -383,7 +383,7 @@ extension DynamicRoute {
             method: some HTTPRequestMethodProtocol,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -399,7 +399,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -415,7 +415,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: (some MediaTypeProtocol)? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -431,7 +431,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -447,7 +447,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -463,7 +463,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -479,7 +479,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -495,7 +495,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -511,7 +511,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -527,7 +527,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,
@@ -543,7 +543,7 @@ extension DynamicRoute {
             version: HTTPVersion = .v1_1,
             path: [PathComponent],
             caseSensitive: Bool = true,
-            status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+            status: HTTPResponseStatus.Code = 501, // not implemented
             mediaType: MediaType? = nil,
             headers: HTTPHeaders = .init(),
             body: (any ResponseBodyProtocol)? = nil,

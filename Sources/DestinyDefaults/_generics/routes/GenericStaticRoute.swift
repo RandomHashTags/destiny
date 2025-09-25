@@ -73,7 +73,7 @@ public struct GenericStaticRoute<
         method: some HTTPRequestMethodProtocol,
         path: [String],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body? = nil
@@ -124,8 +124,8 @@ extension GenericStaticRoute {
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
             }
         }
-        headers[HTTPStandardResponseHeader.contentType.rawName] = nil
-        headers[HTTPStandardResponseHeader.contentLength.rawName] = nil
+        headers["Content-Type"] = nil
+        headers["Content-Length"] = nil
         return GenericHTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 }
@@ -151,7 +151,7 @@ extension GenericStaticRoute {
         method: some HTTPRequestMethodProtocol,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -167,7 +167,7 @@ extension GenericStaticRoute {
         method: some HTTPRequestMethodProtocol,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: (some MediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -188,7 +188,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -203,7 +203,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: (some MediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -218,7 +218,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -233,7 +233,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -248,7 +248,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: (some MediaTypeProtocol)? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -263,7 +263,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -278,7 +278,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -293,7 +293,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -308,7 +308,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -323,7 +323,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,
@@ -338,7 +338,7 @@ extension GenericStaticRoute {
         version: HTTPVersion = .v1_1,
         path: [String],
         caseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.notImplemented.code,
+        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: MediaType? = nil,
         charset: Charset? = nil,
         body: Body,

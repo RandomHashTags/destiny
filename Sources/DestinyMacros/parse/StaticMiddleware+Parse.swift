@@ -47,41 +47,35 @@ extension StaticMiddleware {
                 handlesContentTypes = Set(array.compactMap({
                     if let s = $0.expression.memberAccess?.declName.baseName.text {
                         return s
-                    } else if let s = $0.expression.stringLiteral?.string {
-                        return "\(s)"
                     } else {
-                        context.diagnose(DiagnosticMsg.unhandled(node: $0))
-                        return nil
+                        return $0.expression.stringLiteralString(context: context)
                     }
                 }))
+            #if MediaTypes
             case "handlesMediaTypes":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
                 handlesContentTypes = Set(array.compactMap({
-                    #if MediaTypes
-                    return MediaType.parse(context: context, expr: $0.expression)?.template
-                    #else
-                    if let s = $0.expression.memberAccess?.declName.baseName.text {
-                        return s
-                    } else if let s = $0.expression.stringLiteral?.string {
-                        return "\(s)"
-                    } else {
+                    guard let s = MediaType.parse(context: context, expr: $0.expression)?.template else {
                         context.diagnose(DiagnosticMsg.unhandled(node: $0))
                         return nil
                     }
-                    #endif
+                    return s
                 }))
+            #endif
             case "appliesVersion":
                 appliesVersion = HTTPVersion.parse(context: context, expr: arg.expression)
             case "appliesStatus":
                 appliesStatus = HTTPResponseStatus.parseCode(context: context, expr: arg.expression)
             case "appliesContentType":
                 appliesContentType = arg.expression.stringLiteralString(context: context) ?? appliesContentType
+            #if MediaTypes
             case "appliesMediaType":
-                #if MediaTypes
-                appliesContentType = MediaType.parse(context: context, expr: arg.expression)?.template ?? appliesContentType
-                #else
-                context.diagnose(DiagnosticMsg.unhandled(node: arg))
-                #endif
+                guard let s = MediaType.parse(context: context, expr: arg.expression)?.template else {
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg))
+                    break
+                }
+                appliesContentType = s
+            #endif
             case "appliesHeaders":
                 appliesHeaders = HTTPHeaders.parse(context: context, arg.expression)
             case "appliesCookies":

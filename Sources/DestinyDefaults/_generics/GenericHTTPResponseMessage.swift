@@ -73,11 +73,11 @@ public struct GenericHTTPResponseMessage<
             var bodyString = body.string()
             bodyString.replace("\"", with: "\\\"")
             if let contentType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "Content-Type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
             if body.hasContentLength {
                 let contentLength = bodyString.utf8Span.count
-                string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)\(bodyString)"
+                string += "Content-Length: \(contentLength)\(suffix)\(suffix)\(bodyString)"
             } else {
                 string += "\(suffix)\(bodyString)"
             }
@@ -93,11 +93,11 @@ public struct GenericHTTPResponseMessage<
         var string = head.string(suffix: suffix)
         if let body {
             if let contentType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
+                string += "Content-Type: \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
             }
             if body.hasContentLength {
                 let contentLength = body.string().utf8Span.count
-                string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)"
+                string += "Content-Length: \(contentLength)\(suffix)\(suffix)"
             }
         }
         return string
@@ -329,7 +329,7 @@ extension GenericHTTPResponseMessage {
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.temporaryRedirect.code
+        status: HTTPResponseStatus.Code = 307 // temporary redirect
     ) -> Self {
         var headers = HTTPHeaders()
         return .redirect(to: target, version: version, status: status, headers: &headers)
@@ -347,7 +347,7 @@ extension GenericHTTPResponseMessage {
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
-        status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.temporaryRedirect.code,
+        status: HTTPResponseStatus.Code = 307, // temporary redirect
         headers: inout HTTPHeaders
     ) -> Self {
         headers["Location"] = "/\(target)"
@@ -494,9 +494,9 @@ extension GenericHTTPResponseMessage {
             let contentLength = body.utf8.count
             //let test = body.utf8Span.count // TODO: crashes LSP
             if let mediaType {
-                string += "\(HTTPStandardResponseHeader.contentType.rawName): \(mediaType.template)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "Content-Type: \(mediaType.template)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
-            string += "\(HTTPStandardResponseHeader.contentLength.rawName): \(contentLength)\(suffix)\(suffix)\(body)"
+            string += "Content-Length: \(contentLength)\(suffix)\(suffix)\(body)"
         }
         return string
     }

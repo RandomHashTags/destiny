@@ -6,7 +6,7 @@ import DestinyBlueprint
 public enum HTTPStandardRequestMethod: HTTPRequestMethodProtocol {
     case connect
     case delete
-    case `get`
+    case get
     case head
     case options
     case patch
@@ -50,7 +50,7 @@ public enum HTTPStandardRequestMethod: HTTPRequestMethodProtocol {
         switch self {
         case .connect: "CONNECT"
         case .delete: "DELETE"
-        case .`get`: "GET"
+        case .get: "GET"
         case .head: "HEAD"
         case .options: "OPTIONS"
         case .patch: "PATCH"
@@ -101,7 +101,7 @@ extension HTTPStandardRequestMethod: RawRepresentable {
         switch rawValue {
         case "connect": self = .connect
         case "delete": self = .delete
-        case "`get`": self = .`get`
+        case "get": self = .get
         case "head": self = .head
         case "options": self = .options
         case "patch": self = .patch
@@ -148,7 +148,7 @@ extension HTTPStandardRequestMethod: RawRepresentable {
         switch self {
         case .connect: "connect"
         case .delete: "delete"
-        case .`get`: "`get`"
+        case .get: "get"
         case .head: "head"
         case .options: "options"
         case .patch: "patch"

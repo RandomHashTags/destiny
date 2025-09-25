@@ -6,6 +6,7 @@ import SwiftSyntaxMacros
 
 #if MediaTypes
 import MediaTypes
+import MediaTypesSwiftSyntax
 #endif
 
 #if NonEmbedded
@@ -36,12 +37,14 @@ enum HTTPMessage: DeclarationMacro {
                 body = ResponseBody.parse(context: context, expr: arg.expression)
             case "contentType":
                 contentType = arg.expression.stringLiteralString(context: context) ?? contentType
+            #if MediaTypes
             case "mediaType":
-                #if MediaTypes
-                contentType = MediaType.parse(context: context, expr: arg.expression)?.template ?? arg.expression.stringLiteral?.string ?? contentType
-                #else
-                contentType = child.expression.stringLiteralString(context: context) ?? contentType
-                #endif
+                guard let s = MediaType.parse(context: context, expr: arg.expression)?.template else {
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg))
+                    break
+                }
+                contentType = s
+            #endif
             case "charset":
                 charset = Charset(expr: arg.expression)
             default:
@@ -55,7 +58,7 @@ enum HTTPMessage: DeclarationMacro {
         #if NonEmbedded
         response = nonEmbeddedResponse(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
         #endif
-        response = "\"" + response + "\""
+        response = "\"\(response)\""
         return ["\(raw: response)"]
     }
 

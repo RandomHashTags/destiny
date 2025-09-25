@@ -10,6 +10,7 @@ import SwiftSyntaxMacros
 
 #if MediaTypes
 import MediaTypes
+import MediaTypesSwiftSyntax
 #endif
 
 // MARK: Parse
@@ -47,12 +48,14 @@ extension StaticRoute {
                 status = HTTPResponseStatus.parseCode(context: context, expr: arg.expression) ?? status
             case "contentType":
                 contentType = arg.expression.stringLiteralString(context: context) ?? contentType
+            #if MediaTypes
             case "mediaType":
-                #if MediaTypes
-                contentType = MediaType.parse(context: context, expr: arg.expression)?.template ?? contentType
-                #else
-                context.diagnose(DiagnosticMsg.unhandled(node: arg))
-                #endif
+                guard let s = MediaType.parse(context: context, expr: arg.expression)?.template else {
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg))
+                    break
+                }
+                contentType = s
+            #endif
             case "charset":
                 charset = Charset(expr: arg.expression)
             case "body":
@@ -61,7 +64,7 @@ extension StaticRoute {
                 context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
-        return StaticRoute(
+        return Self(
             version: version,
             method: method,
             path: isCaseSensitive ? path : path.map({ $0.lowercased() }),
@@ -89,7 +92,7 @@ extension StaticRoute {
         middleware: [some StaticMiddlewareProtocol]
     ) -> some HTTPMessageProtocol {
         let result = response(middleware: middleware)
-        if result.statusCode() == HTTPStandardResponseStatus.notImplemented.code {
+        if result.statusCode() == 501 { // not implemented
             Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
         }
         return result
@@ -100,7 +103,7 @@ extension StaticRoute {
         function: FunctionCallExprSyntax
     ) -> some HTTPMessageProtocol {
         let result = response()
-        if result.statusCode() == HTTPStandardResponseStatus.notImplemented.code {
+        if result.statusCode() == 501 { // not implemented
             Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
         }
         return result

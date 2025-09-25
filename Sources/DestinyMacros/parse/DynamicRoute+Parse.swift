@@ -9,6 +9,7 @@ import SwiftSyntaxMacros
 
 #if MediaTypes
 import MediaTypes
+import MediaTypesSwiftSyntax
 #endif
 
 // MARK: Responder DebugDescription
@@ -103,7 +104,7 @@ extension DynamicRoute {
         cookies: [HTTPCookie]
     ) -> Self {
         if let contentType = details.contentType {
-            headers[HTTPStandardResponseHeader.contentType.rawName] = "\(contentType)"
+            headers["Content-Type"] = contentType
         }
         var route = DynamicRoute(
             version: details.version,
@@ -171,16 +172,14 @@ extension DynamicRoute {
                 status = parsed
             case "contentType":
                 contentType = arg.expression.stringLiteralString(context: context) ?? contentType
+            #if MediaTypes
             case "mediaType":
-                #if MediaTypes
                 guard let parsed = MediaType.parse(context: context, expr: arg.expression)?.template else {
-                    context.diagnose(DiagnosticMsg.unhandled(node: arg.expression))
+                    context.diagnose(DiagnosticMsg.unhandled(node: arg))
                     break
                 }
                 contentType = parsed
-                #else
-                context.diagnose(DiagnosticMsg.unhandled(node: arg))
-                #endif
+            #endif
             case "handler":
                 handler = "\(arg.expression)"
             default:

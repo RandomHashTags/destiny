@@ -46,16 +46,6 @@ var destinyDependencies:[Target.Dependency] = [
     .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"]))
 ]
 
-var testRouterDependencies:[Target.Dependency] = [
-    "DestinyBlueprint",
-    "DestinyDefaults"
-]
-
-#if !(EMBEDDED || hasFeature(Embedded))
-testRouterDependencies.append("DestinySwiftSyntax")
-destinyDependencies.append(.byName(name: "DestinyDefaultsNonEmbedded", condition: .when(traits: ["NonEmbedded"])))
-#endif
-
 var destinyMacrosDependencies = destinyDependencies
 
 destinyMacrosDependencies.append(contentsOf: [
@@ -70,28 +60,11 @@ destinyMacrosDependencies.append(contentsOf: [
 // MARK: Traits
 defaultTraits.formUnion([
     "Copyable",
-    //"Generics",
-    "GenericDynamicResponse",
-    "HTTPStandardRequestMethods",
-    "HTTPStandardRequestMethodRawValues",
-    "HTTPStandardResponseStatuses",
-    "HTTPStandardResponseStatusRawValues",
-    "MediaTypes",
-    //"MutableRouter", // disabled by default since no other Swift networking library allows that functionality
+    "Generics",
     "NonCopyable",
-    "NonEmbedded",
-    "PercentEncoding",
-    //"RateLimits", // not yet implemented
-    "RequestBody",
-    "RequestBodyStream",
-    "RequestHeaders",
-    "StaticMiddleware",
 
     "Inlinable",
     //"InlineAlways" // disabled by default because it is shown to hurt performance
-
-    "Logging",
-    "OpenAPI"
 ])
 let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
@@ -272,7 +245,6 @@ let package = Package(
     products: [
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
-        .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 
@@ -307,18 +279,6 @@ let package = Package(
                 //.product(name: "Metrics", package: "swift-metrics"),
             ]
         ),
-
-        // MARK: DestinyDefaultsNonEmbedded
-        .target(
-            name: "DestinyDefaultsNonEmbedded",
-            dependencies: [
-                "DestinyBlueprint",
-                "DestinyDefaults",
-                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-                //.product(name: "Metrics", package: "swift-metrics"),
-            ]
-        ),
-
         // MARK: Destiny
         .target(
             name: "Destiny",
@@ -350,8 +310,7 @@ let package = Package(
             name: "TestRouter",
             dependencies: [
                 "DestinyBlueprint",
-                "DestinyDefaults",
-                "DestinySwiftSyntax"
+                "DestinyDefaults"
             ]
         ),
 
@@ -360,15 +319,6 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyDefaults",
-                "TestRouter"
-            ]
-        ),
-
-        .testTarget(
-            name: "DestinyTests",
-            dependencies: [
-                "DestinySwiftSyntax",
-                "DestinyMacros",
                 "TestRouter"
             ]
         ),

@@ -21,12 +21,12 @@ extension HTTPResponseStatus {
 
     public static func parseCode(rawValue: String) -> Code? {
         #if HTTPStandardResponseStatusRawValues
-        if let v = HTTPStandardResponseStatus(rawValue: staticName) {
+        if let v = HTTPStandardResponseStatus(rawValue: rawValue) {
             return v.code
         }
         #endif
         #if HTTPNonStandardResponseStatusRawValues
-        if let v = HTTPNonStandardResponseStatus(rawValue: staticName) {
+        if let v = HTTPNonStandardResponseStatus(rawValue: rawValue) {
             return v.code
         }
         #endif
