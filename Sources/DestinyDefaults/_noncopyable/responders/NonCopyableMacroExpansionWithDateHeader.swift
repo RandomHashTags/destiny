@@ -12,7 +12,7 @@ public struct NonCopyableMacroExpansionWithDateHeader: Sendable, ~Copyable {
     public init(_ value: StaticString, body: String) {
         preDateValue = ""
         postDateValue = value
-        bodyCount = String(body.count).utf8
+        bodyCount = String(body.utf8Span.count).utf8
         self.body = body.utf8
     }
     public init(
@@ -22,7 +22,7 @@ public struct NonCopyableMacroExpansionWithDateHeader: Sendable, ~Copyable {
     ) {
         self.preDateValue = preDateValue
         self.postDateValue = postDateValue
-        bodyCount = String(body.count).utf8
+        bodyCount = String(body.utf8Span.count).utf8
         self.body = body.utf8
     }
 }

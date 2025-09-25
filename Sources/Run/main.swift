@@ -95,7 +95,7 @@ func serverOnLoad() {
 @inlinable
 func processArg(key: String) -> String? {
     if let v = ProcessInfo.processInfo.arguments.first(where: { $0.hasPrefix("--" + key + "=") }) {
-        return String(v[v.index(v.startIndex, offsetBy: 3 + key.count)...])
+        return String(v[v.index(v.startIndex, offsetBy: 3 + key.utf8Span.count)...])
     }
     return nil
 }

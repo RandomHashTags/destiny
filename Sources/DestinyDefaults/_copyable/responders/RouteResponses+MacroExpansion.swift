@@ -11,7 +11,7 @@ extension RouteResponses {
 
         public init(_ value: StaticString, body: String) {
             self.value = value
-            bodyCount = String(body.count).utf8
+            bodyCount = String(body.utf8Span.count).utf8
             self.body = body.utf8
         }
 

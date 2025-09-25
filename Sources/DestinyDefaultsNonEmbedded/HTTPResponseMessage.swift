@@ -144,7 +144,7 @@ extension HTTPResponseMessage {
     public func temporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
         for (key, value) in head.headers {
-            capacity += 4 + key.count + value.count // Header: Value\r\n
+            capacity += 4 + key.utf8Span.count + value.utf8Span.count // Header: Value\r\n
         }
         var contentTypeDescription:String
         var charsetRawName:String
@@ -405,8 +405,7 @@ extension HTTPResponseMessage {
     ) -> String {
         var string = "\(version.string) \(status)\(suffix)\(headers)"
         if let body {
-            let contentLength = body.utf8.count
-            //let test = body.utf8Span.count // TODO: crashes LSP
+            let contentLength = body.utf8Span.count
             if let contentType {
                 string += "Content-Type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
@@ -527,8 +526,7 @@ extension HTTPResponseMessage {
     ) -> String {
         var string = "\(version.string) \(status)\(suffix)\(headers)"
         if let body {
-            let contentLength = body.utf8.count
-            //let test = body.utf8Span.count // TODO: crashes LSP
+            let contentLength = body.utf8Span.count
             if let mediaType {
                 string += "Content-Type: \(mediaType.template)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }

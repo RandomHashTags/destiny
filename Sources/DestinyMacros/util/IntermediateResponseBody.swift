@@ -126,7 +126,12 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     }
 
     public var hasContentLength: Bool {
-        return type != .streamWithDateHeader
+        switch type {
+        case .streamWithDateHeader, .nonCopyableStreamWithDateHeader:
+            false
+        default:
+            true
+        }
     }
 }
 
