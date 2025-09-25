@@ -1,5 +1,5 @@
 
-#if Copyable
+#if CopyableDateHeaderPayload
 
 import DestinyBlueprint
 

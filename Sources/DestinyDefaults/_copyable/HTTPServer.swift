@@ -1,5 +1,5 @@
 
-#if Copyable
+#if CopyableHTTPServer
 
 #if canImport(Darwin)
 import Darwin
@@ -245,7 +245,7 @@ extension HTTPServer where ClientSocket: ~Copyable {
     @inlinable
     #endif
     func processClients() async throws(ServerError) {
-        #if os(Linux)
+        #if Epoll
         let _:InlineArray<64, Bool>? = processClientsEpoll(port: port, router: router)
         #else
         let serverFD1 = try bindAndListen()
@@ -253,6 +253,7 @@ extension HTTPServer where ClientSocket: ~Copyable {
         #endif
     }
 
+    #if !Epoll && !Liburing
     #if Inlinable
     @inlinable
     #endif
@@ -279,9 +280,10 @@ extension HTTPServer where ClientSocket: ~Copyable {
             }
         }
     }
+    #endif
 }
 
-#if os(Linux)
+#if Epoll
 // MARK: Epoll
 extension HTTPServer where ClientSocket: ~Copyable {
     @discardableResult

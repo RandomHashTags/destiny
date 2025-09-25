@@ -1,4 +1,6 @@
 
+#if RouterSettings
+
 import DestinyBlueprint
 import SwiftSyntax
 
@@ -7,3 +9,5 @@ extension RouterSettings {
         hasProtocolConformances ? TypeSyntax("inout some HTTPRequestProtocol & ~Copyable") : TypeSyntax(stringLiteral: "inout \(requestType)")
     }
 }
+
+#endif

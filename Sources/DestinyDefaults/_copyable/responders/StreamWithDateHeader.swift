@@ -1,5 +1,5 @@
 
-#if Copyable
+#if CopyableStreamWithDateHeader
 
 import DestinyBlueprint
 

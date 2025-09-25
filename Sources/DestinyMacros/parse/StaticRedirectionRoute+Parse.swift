@@ -1,4 +1,6 @@
 
+#if StaticRedirectionRoute
+
 import DestinyBlueprint
 import DestinyDefaults
 import SwiftSyntax
@@ -46,3 +48,5 @@ extension StaticRedirectionRoute {
         return route
     }
 }
+
+#endif

@@ -1,4 +1,6 @@
 
+#if RouterSettings
+
 import DestinyBlueprint
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -37,3 +39,5 @@ extension RouterSettings {
         return settings
     }
 }
+
+#endif

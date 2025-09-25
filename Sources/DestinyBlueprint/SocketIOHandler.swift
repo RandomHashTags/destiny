@@ -16,7 +16,7 @@ extension SocketIOHandler {
     public var isSupported: Bool {
         switch self {
         case .epoll:
-            #if os(Linux)
+            #if Epoll
             return true
             #else
             return false
@@ -30,7 +30,7 @@ extension SocketIOHandler {
             #endif
 
         case .io_uring:
-            #if os(Linux)
+            #if Liburing
             return true
             #else
             return false

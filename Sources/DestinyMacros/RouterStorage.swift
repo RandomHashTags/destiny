@@ -10,7 +10,11 @@ import DestinyDefaultsNonEmbedded
 
 public struct RouterStorage {
     let context:MacroExpansionContext
+
+    #if RouterSettings
     let settings:RouterSettings
+    #endif
+
     let perfectHashSettings:PerfectHashSettings
     var generatedDecls = MemberBlockItemListSyntax()
 
@@ -33,7 +37,9 @@ public struct RouterStorage {
     var staticMiddleware = [CompiledStaticMiddleware]()
     #endif
 
+    #if StaticRedirectionRoute
     var staticRedirects:[(StaticRedirectionRoute, FunctionCallExprSyntax)] = []
+    #endif
 
     var routeGroups = [any DeclSyntaxProtocol]()
 
@@ -49,7 +55,7 @@ public struct RouterStorage {
             for statement in statements {
                 functionString += statement.trimmedDescription + "\n"
             }
-            let protocolConformance = settings.hasProtocolConformances ? "OpaqueDynamicMiddlewareProtocol" : "Sendable"
+            let protocolConformance = hasProtocolConformances ? "OpaqueDynamicMiddlewareProtocol" : "Sendable"
             let name = "OpaqueDynamicMiddleware\(i)"
             let decl = try! StructDeclSyntax.init(.init(stringLiteral: """
             // MARK: \(name)
@@ -83,7 +89,27 @@ public struct RouterStorage {
     }()
 
     var visibility: RouterVisibility {
+        #if RouterSettings
         settings.visibility
+        #else
+        .package
+        #endif
+    }
+
+    var hasProtocolConformances: Bool {
+        #if RouterSettings
+        settings.hasProtocolConformances
+        #else
+        true
+        #endif
+    }
+
+    var respondersAreComputedProperties: Bool {
+        #if RouterSettings
+        settings.respondersAreComputedProperties
+        #else
+        false
+        #endif
     }
 
     let visibilityModifier:DeclModifierSyntax
@@ -117,6 +143,7 @@ public struct RouterStorage {
 
 // MARK: Init
 extension RouterStorage {
+    #if RouterSettings
     init(
         context: MacroExpansionContext,
         settings: RouterSettings,
@@ -128,6 +155,17 @@ extension RouterStorage {
         visibilityModifier = settings.visibility.modifierDecl
         requestTypeSyntax = settings.requestTypeSyntax
     }
+    #else
+    init(
+        context: MacroExpansionContext,
+        perfectHashSettings: PerfectHashSettings
+    ) {
+        self.context = context
+        self.perfectHashSettings = perfectHashSettings
+        visibilityModifier = RouterVisibility.package.modifierDecl
+        requestTypeSyntax = TypeSyntax(stringLiteral: "HTTPRequest")
+    }
+    #endif
 }
 
 // MARK: Misc

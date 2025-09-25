@@ -1,4 +1,6 @@
 
+#if StaticRedirectionRoute
+
 import DestinyBlueprint
 
 /// Default Redirection Route implementation that handles redirects for static routes.
@@ -62,3 +64,5 @@ extension StaticRedirectionRoute {
         )
     }
 }
+
+#endif

@@ -54,9 +54,11 @@ extension Router {
             }
         #endif
 
+        #if StaticRedirectionRoute
         case "StaticRedirectionRoute":
             let route = StaticRedirectionRoute.parse(context: context, version: version, function)
             storage.staticRedirects.append((route, function))
+        #endif
         default:
             context.diagnose(DiagnosticMsg.unhandled(node: function.calledExpression))
         }

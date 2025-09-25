@@ -1,4 +1,6 @@
 
+#if RouterSettings
+
 /// Configurable settings that change how the auto-generated router behaves.
 public struct RouterSettings: Sendable {
     /// Name of the compiled router's `struct`.
@@ -123,3 +125,5 @@ extension RouterSettings {
         }
     }
 }
+
+#endif

@@ -46,6 +46,8 @@ extension ResponseBody.InlineBytes: CustomStringConvertible {
     }
 }
 
+#if CopyableStringWithDateHeader
+
 // MARK: StringWithDateHeader
 extension StringWithDateHeader {
     var responderDebugDescription: String {
@@ -60,5 +62,6 @@ extension StringWithDateHeader {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 }
+#endif
 
 #endif

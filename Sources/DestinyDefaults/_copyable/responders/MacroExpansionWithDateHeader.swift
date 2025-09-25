@@ -1,5 +1,5 @@
 
-#if Copyable
+#if CopyableMacroExpansionWithDateHeader
 
 import DestinyBlueprint
 

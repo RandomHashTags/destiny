@@ -47,6 +47,9 @@ extension AsyncHTTPChunkDataStream {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
         buffer.initialize(repeating: 0)
+        defer {
+            buffer.deallocate()
+        }
         for await var chunk in stream {
             var i = 0
             var hex = String(chunk.chunkDataCount, radix: 16)
@@ -78,9 +81,6 @@ extension AsyncHTTPChunkDataStream {
         buffer[2] = .lineFeed
         buffer[3] = .carriageReturn
         buffer[4] = .lineFeed
-        defer {
-            buffer.deallocate()
-        }
         try socket.socketWriteBuffer(buffer.baseAddress!, length: 5)
     }
 }

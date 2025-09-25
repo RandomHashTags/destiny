@@ -12,13 +12,24 @@ enum Router: ExpressionMacro {
         in context: some MacroExpansionContext
     ) -> ExprSyntax {
         let args = node.as(ExprSyntax.self)!.macroExpansion!.arguments
-        let computed = compute(
+        let computed:(router: CompiledRouterStorage, structs: MemberBlockItemListSyntax)
+
+        #if RouterSettings
+        computed = compute(
             routerSettings: .init(),
             routerSettingsSyntax: args.first!.expression,
             perfectHashSettings: .init(),
             arguments: args,
             context: context
         )
+        #else
+        computed = compute(
+            routerSettingsSyntax: args.first!.expression,
+            perfectHashSettings: .init(),
+            arguments: args,
+            context: context
+        )
+        #endif
         return "\(raw: computed.router)"
     }
 }
@@ -39,39 +50,54 @@ extension Router: DeclarationMacro {
         }
 
         let routerSettingsSyntax = arguments.first!.expression
+        #if RouterSettings
         var settings = RouterSettings()
+        #endif
         var perfectHashSettings = PerfectHashSettings()
         for arg in arguments {
             switch arg.label?.text {
+            #if RouterSettings
             case "routerSettings":
                 settings = .parse(context: context, expr: arg.expression)
+            #endif
             case "perfectHashSettings":
                 perfectHashSettings = .parse(context: context, expr: arg.expression)
             default:
                 break
             }
         }
-        let (router, structs) = compute(
+        let (router, structs):(router: CompiledRouterStorage, structs: MemberBlockItemListSyntax)
+
+        #if RouterSettings
+        (router, structs) = compute(
             routerSettings: settings,
             routerSettingsSyntax: routerSettingsSyntax,
             perfectHashSettings: perfectHashSettings,
             arguments: arguments,
             context: context
         )
+        #else
+        (router, structs) = compute(
+            routerSettingsSyntax: routerSettingsSyntax,
+            perfectHashSettings: perfectHashSettings,
+            arguments: arguments,
+            context: context
+        )
+        #endif
         var declaredRouter = StructDeclSyntax(
             modifiers: [router.visibilityModifier],
             name: "DeclaredRouter",
             memberBlock: .init(members: .init())
         )
         declaredRouter.memberBlock.members.append(contentsOf: structs)
-        
+
         let routerDecl = VariableDeclSyntax(
             leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\n"),
             modifiers: [router.visibilityModifier, .init(name: .keyword(.static))],
             .var,
             name: "router",
-            type: .init(type: TypeSyntax(stringLiteral: "\(settings.name)")),
-            accessorBlock: .init(stringLiteral: "{ \(settings.name)() }")
+            type: .init(type: TypeSyntax(stringLiteral: "\(router.name)")),
+            accessorBlock: .init(stringLiteral: "{ \(router.name)() }")
         )
         declaredRouter.memberBlock.members.append(routerDecl)
         declaredRouter.memberBlock.members.append(router.build(context: context))
@@ -92,6 +118,7 @@ extension Router {
 
 // MARK: Redirects
 extension Router {
+    #if StaticRedirectionRoute
     static func parseRedirects(
         context: some MacroExpansionContext,
         version: HTTPVersion,
@@ -113,6 +140,7 @@ extension Router {
             }
         }
     }
+    #endif
 }
 
 // MARK: RoutePath

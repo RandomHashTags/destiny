@@ -142,7 +142,7 @@ extension RouterStorage {
         members: inout MemberBlockItemListSyntax,
         routeResponders: [String]
     ) {
-        let routerParameter = routerParameter(isCopyable: isCopyable, protocolConformances: settings.hasProtocolConformances)
+        let routerParameter = routerParameter(isCopyable: isCopyable, protocolConformances: hasProtocolConformances)
         var routePathCaseConditions = ""
         var routePathSIMDs = [SIMD64<UInt8>]()
         var staticResponders = [VariableDeclSyntax]()
@@ -155,7 +155,7 @@ extension RouterStorage {
         let responderType:(String) -> TypeAnnotationSyntax?
         let responderInitializer:(String) -> InitializerClauseSyntax?
         let responderAccessor:(String) -> AccessorBlockSyntax?
-        if settings.respondersAreComputedProperties {
+        if respondersAreComputedProperties {
             responderBinding = .var
             responderType = {
                 .init(type: TypeSyntax(stringLiteral: String($0.split(separator: "(").first!)))

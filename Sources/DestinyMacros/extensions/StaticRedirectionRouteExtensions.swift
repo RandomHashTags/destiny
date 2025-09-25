@@ -1,4 +1,6 @@
 
+#if StaticRedirectionRoute
+
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -27,4 +29,6 @@ extension StaticRedirectionRoute {
         return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
     }
 }
+#endif
+
 #endif

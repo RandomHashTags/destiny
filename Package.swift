@@ -69,7 +69,6 @@ destinyMacrosDependencies.append(contentsOf: [
 
 // MARK: Traits
 defaultTraits.formUnion([
-    "Copyable",
     "CORS",
     //"Generics", // disabled by default since we use non-embedded types instead of generics by default
     "GenericDynamicResponse",
@@ -87,7 +86,6 @@ defaultTraits.formUnion([
     "RequestBodyStream",
     "RequestHeaders",
     //"RoutePath", // not yet integrated
-    "StaticMiddleware",
 
     "Inlinable",
     //"InlineAlways" // disabled by default because it is shown to hurt performance
@@ -100,6 +98,37 @@ let traits:Set<Trait> = [
 
     .trait(
         name: "CORS"
+    ),
+
+    .trait(name: "CopyableHTTPServer"),
+    .trait(name: "CopyableMacroExpansion"),
+    .trait(name: "CopyableMacroExpansionWithDateHeader"),
+    .trait(name: "CopyableDateHeaderPayload"),
+    .trait(
+        name: "CopyableStaticStringWithDateHeader",
+        enabledTraits: ["CopyableDateHeaderPayload"]
+    ),
+    .trait(name: "CopyableStringWithDateHeader"),
+    .trait(
+        name: "CopyableStreamWithDateHeader",
+        enabledTraits: ["CopyableDateHeaderPayload"]
+    ),
+    .trait(
+        name: "CopyableResponders",
+        enabledTraits: [
+            "CopyableMacroExpansion",
+            "CopyableMacroExpansionWithDateHeader",
+            "CopyableStaticStringWithDateHeader",
+            "CopyableStringWithDateHeader",
+            "CopyableStreamWithDateHeader"
+        ]
+    ),
+    .trait(
+        name: "Copyable",
+        enabledTraits: [
+            "CopyableHTTPServer",
+            "CopyableResponders"
+        ]
     ),
 
     .trait(
@@ -205,15 +234,18 @@ let traits:Set<Trait> = [
         description: "Enables functionality that registers data to a Router at runtime."
     ),
     .trait(
-        name: "Copyable"
-    ),
-    .trait(
         name: "NonCopyable",
         description: "Enables noncopyable functionality for optimal performance."
     ),
     .trait(
         name: "NonEmbedded",
-        description: "Enables functionality suitable for non-embedded devices (mainly existentials)."
+        description: "Enables functionality suitable for non-embedded devices (mainly existentials).",
+        enabledTraits: [
+            "Copyable",
+            "RouterSettings",
+            "StaticMiddleware",
+            "StaticRedirectionRoute"
+        ]
     ),
     .trait(
         name: "PercentEncoding",
@@ -241,8 +273,14 @@ let traits:Set<Trait> = [
         name: "RoutePath"
     ),
     .trait(
+        name: "RouterSettings"
+    ),
+    .trait(
         name: "StaticMiddleware",
         description: "Enables static middleware functionality."
+    ),
+    .trait(
+        name: "StaticRedirectionRoute"
     ),
 
     .trait( // useful when benchmarking/profiling raw performance
