@@ -70,7 +70,8 @@ destinyMacrosDependencies.append(contentsOf: [
 // MARK: Traits
 defaultTraits.formUnion([
     "Copyable",
-    //"Generics",
+    "CORS",
+    //"Generics", // disabled by default since we use non-embedded types instead of generics by default
     "GenericDynamicResponse",
     "HTTPStandardRequestMethods",
     "HTTPStandardRequestMethodRawValues",
@@ -85,6 +86,7 @@ defaultTraits.formUnion([
     "RequestBody",
     "RequestBodyStream",
     "RequestHeaders",
+    //"RoutePath", // not yet integrated
     "StaticMiddleware",
 
     "Inlinable",
@@ -95,6 +97,10 @@ defaultTraits.formUnion([
 ])
 let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
+
+    .trait(
+        name: "CORS"
+    ),
 
     .trait(
         name: "GenericHTTPMessage",
@@ -230,6 +236,9 @@ let traits:Set<Trait> = [
     .trait(
         name: "RequestHeaders",
         description: "Enables functionality to access a request's headers."
+    ),
+    .trait(
+        name: "RoutePath"
     ),
     .trait(
         name: "StaticMiddleware",

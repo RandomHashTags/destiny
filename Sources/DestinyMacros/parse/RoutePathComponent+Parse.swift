@@ -1,4 +1,6 @@
 
+#if RoutePath
+
 import DestinyBlueprint
 import SwiftDiagnostics
 import SwiftSyntax
@@ -165,3 +167,5 @@ extension RoutePathComponent {
         return paths
     }
 }
+
+#endif

@@ -1,4 +1,6 @@
 
+#if RoutePath
+
 import DestinyBlueprint
 
 // MARK: ExpressibleByStringLiteral
@@ -46,3 +48,5 @@ extension RoutePathComponent: ExpressibleByStringLiteral {
         }
     }
 }
+
+#endif

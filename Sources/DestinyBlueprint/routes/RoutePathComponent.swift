@@ -1,4 +1,6 @@
 
+#if RoutePath
+
 public enum RoutePathComponent: RoutePathComponentProtocol {
     case catchall
     case literal(SIMD64<UInt8>)
@@ -35,3 +37,5 @@ public enum RoutePathComponent: RoutePathComponentProtocol {
         return true
     }
 }
+
+#endif

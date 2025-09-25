@@ -60,14 +60,18 @@ destinyMacrosDependencies.append(contentsOf: [
 // MARK: Traits
 defaultTraits.formUnion([
     "Copyable",
+    //"GenericDynamicResponse",
     "Generics",
     "NonCopyable",
 
     "Inlinable",
-    //"InlineAlways" // disabled by default because it is shown to hurt performance
 ])
 let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
+
+    .trait(
+        name: "CORS"
+    ),
 
     .trait(
         name: "GenericHTTPMessage",
@@ -96,74 +100,6 @@ let traits:Set<Trait> = [
             "GenericDynamicRoute",
             "GenericDynamicResponse",
             "GenericRouteGroup"
-        ]
-    ),
-
-    .trait(name: "HTTPNonStandardRequestHeaders"),
-    .trait(name: "HTTPNonStandardRequestHeaderHashable"),
-    .trait(name: "HTTPNonStandardRequestHeaderRawValues"),
-    .trait(name: "HTTPNonStandardResponseHeaders"),
-    .trait(name: "HTTPNonStandardResponseHeaderHashable"),
-    .trait(name: "HTTPNonStandardResponseHeaderRawValues"),
-    .trait(name: "HTTPStandardRequestHeaders"),
-    .trait(name: "HTTPStandardRequestHeaderHashable"),
-    .trait(name: "HTTPStandardRequestHeaderRawValues"),
-    .trait(name: "HTTPStandardResponseHeaders"),
-    .trait(name: "HTTPStandardResponseHeaderHashable"),
-    .trait(name: "HTTPStandardResponseHeaderRawValues"),
-    .trait(
-        name: "HTTPRequestHeaders",
-        enabledTraits: [
-            "HTTPNonStandardRequestHeaders",
-            "HTTPNonStandardRequestHeaderHashable",
-            "HTTPNonStandardRequestHeaderRawValues",
-            "HTTPStandardRequestHeaders",
-            "HTTPStandardRequestHeaderHashable",
-            "HTTPStandardRequestHeaderRawValues"
-        ]
-    ),
-    .trait(
-        name: "HTTPResponseHeaders",
-        enabledTraits: [
-            "HTTPNonStandardResponseHeaders",
-            "HTTPNonStandardResponseHeaderHashable",
-            "HTTPNonStandardResponseHeaderRawValues",
-            "HTTPStandardResponseHeaders",
-            "HTTPStandardResponseHeaderHashable",
-            "HTTPStandardResponseHeaderRawValues"
-        ]
-    ),
-
-    .trait(name: "HTTPNonStandardRequestMethods"),
-    .trait(name: "HTTPNonStandardRequestMethodRawValues"),
-    .trait(name: "HTTPStandardRequestMethods"),
-    .trait(name: "HTTPStandardRequestMethodRawValues"),
-    .trait(
-        name: "HTTPRequestMethods",
-        enabledTraits: [
-            "HTTPNonStandardRequestMethods",
-            "HTTPNonStandardRequestMethodRawValues",
-            "HTTPStandardRequestMethods",
-            "HTTPStandardRequestMethodRawValues"
-        ]
-    ),
-
-    .trait(name: "HTTPNonStandardResponseStatuses"),
-    .trait(name: "HTTPNonStandardResponseStatusRawValues"),
-    .trait(name: "HTTPStandardResponseStatuses"),
-    .trait(name: "HTTPStandardResponseStatusRawValues"),
-    .trait(
-        name: "HTTPStandardResponseStatuses",
-        enabledTraits: [
-            "HTTPNonStandardResponseStatuses",
-            "HTTPStandardResponseStatuses"
-        ]
-    ),
-    .trait(
-        name: "HTTPResponseStatusRawValues",
-        enabledTraits: [
-            "HTTPNonStandardResponseStatusRawValues",
-            "HTTPStandardResponseStatusRawValues"
         ]
     ),
 
@@ -311,7 +247,7 @@ let package = Package(
             dependencies: [
                 "DestinyBlueprint",
                 "DestinyDefaults",
-                "DestinySwiftSyntax"
+                //"DestinySwiftSyntax" // TODO: support
             ]
         ),
 

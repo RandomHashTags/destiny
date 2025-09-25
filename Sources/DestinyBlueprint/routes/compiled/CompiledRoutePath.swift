@@ -1,4 +1,6 @@
 
+#if RoutePath
+
 public struct CompiledRoutePath<each Component: RoutePathComponentProtocol>: Equatable, Sendable {
     #if Inlinable
     @inlinable
@@ -17,3 +19,5 @@ public struct CompiledRoutePath<each Component: RoutePathComponentProtocol>: Equ
         self.components = components
     }
 }
+
+#endif

@@ -1,13 +1,12 @@
 
+#if NonEmbedded
+
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
-
-#if NonEmbedded
-import DestinyDefaultsNonEmbedded
-#endif
 
 // MARK: Static routes string
 extension RouterStorage {
@@ -263,3 +262,5 @@ extension RouterStorage {
         }
     }
 }
+
+#endif

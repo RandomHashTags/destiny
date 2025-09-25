@@ -1,5 +1,5 @@
 
-#if HTTPStandardRequestHeaders
+#if CORS && HTTPStandardRequestHeaders
 
 import DestinyBlueprint
 import DestinyDefaults

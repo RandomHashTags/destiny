@@ -1,7 +1,10 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+
+#if canImport(DestinySwiftSyntax)
 import DestinySwiftSyntax
+#endif
 
 #if canImport(FoundationEssentials)
 import FoundationEssentials
