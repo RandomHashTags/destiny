@@ -12,8 +12,6 @@ extension RouterSettings {
         guard let function = expr.functionCall else { return settings }
         for arg in function.arguments {
             switch arg.label?.text {
-            case "copyable":
-                settings.isCopyable = arg.expression.booleanIsTrue
             case "mutable":
                 settings.isMutable = arg.expression.booleanIsTrue
             case "dynamicResponsesAreGeneric":

@@ -27,7 +27,6 @@ package final class TestRouter {
 extension TestRouter {
     #declareRouter(
         routerSettings: .init(
-            copyable: false,
             visibility: .package
         ),
 

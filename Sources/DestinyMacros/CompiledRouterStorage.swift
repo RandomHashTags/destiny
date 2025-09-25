@@ -136,7 +136,7 @@ extension CompiledRouterStorage {
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: routerProtocolConformances(isCopyable: settings.isCopyable, protocolConformance: settings.hasProtocolConformances)
+                inheritedTypes: routerProtocolConformances(isCopyable: false, protocolConformance: settings.hasProtocolConformances)
             ),
             memberBlock: .init(members: members)
         )

@@ -16,7 +16,6 @@ public struct RouterSettings: Sendable {
     public var visibility:RouterVisibility
 
     public init(
-        copyable: Bool = false,
         mutable: Bool = false,
         dynamicResponsesAreGeneric: Bool = true,
         respondersAreComputedProperties: Bool = false,
@@ -29,23 +28,11 @@ public struct RouterSettings: Sendable {
         self.name = name ?? "CompiledHTTPRouter"
         self.requestType = requestType
         flags = Flags.pack(
-            copyable: copyable,
             mutable: mutable,
             dynamicResponsesAreGeneric: dynamicResponsesAreGeneric,
             respondersAreComputedProperties: respondersAreComputedProperties,
             protocolConformances: protocolConformances
         )
-    }
-
-    /// Whether or not this router should conform to `Copyable`.
-    /// 
-    /// Default is `false`.
-    #if Inlinable
-    @inlinable
-    #endif
-    public var isCopyable: Bool {
-        get { isFlag(.copyable) }
-        set { setFlag(.copyable, newValue) }
     }
 
     /// Whether or not this router is mutable.
@@ -100,21 +87,18 @@ public struct RouterSettings: Sendable {
 extension RouterSettings {
     @usableFromInline
     enum Flags: UInt8 {
-        case copyable = 1
-        case mutable = 2
-        case dynamicResponsesAreGeneric = 4
-        case respondersAreComputedProperties = 8
-        case protocolConformances = 16
+        case mutable = 1
+        case dynamicResponsesAreGeneric = 2
+        case respondersAreComputedProperties = 4
+        case protocolConformances = 8
 
         static func pack(
-            copyable: Bool,
             mutable: Bool,
             dynamicResponsesAreGeneric: Bool,
             respondersAreComputedProperties: Bool,
             protocolConformances: Bool
         ) -> RawValue {
-            (copyable ? Self.copyable.rawValue : 0)
-            | (mutable ? Self.mutable.rawValue : 0)
+            (mutable ? Self.mutable.rawValue : 0)
             | (dynamicResponsesAreGeneric ? Self.dynamicResponsesAreGeneric.rawValue : 0)
             | (respondersAreComputedProperties ? Self.respondersAreComputedProperties.rawValue : 0)
             | (protocolConformances ? Self.protocolConformances.rawValue : 0)

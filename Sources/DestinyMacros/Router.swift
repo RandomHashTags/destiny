@@ -65,24 +65,14 @@ extension Router: DeclarationMacro {
         )
         declaredRouter.memberBlock.members.append(contentsOf: structs)
         
-        let routerDecl:VariableDeclSyntax
-        if settings.isCopyable {
-            routerDecl = VariableDeclSyntax(
-                modifiers: [router.visibilityModifier, .init(name: .keyword(.static))],
-                .let,
-                name: "router",
-                initializer: .init(value: ExprSyntax("\(raw: settings.name)()"))
-            )
-        } else {
-            routerDecl = VariableDeclSyntax(
-                leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\n"),
-                modifiers: [router.visibilityModifier, .init(name: .keyword(.static))],
-                .var,
-                name: "router",
-                type: .init(type: TypeSyntax(stringLiteral: "\(settings.name)")),
-                accessorBlock: .init(stringLiteral: "{ \(settings.name)() }")
-            )
-        }
+        let routerDecl = VariableDeclSyntax(
+            leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\n"),
+            modifiers: [router.visibilityModifier, .init(name: .keyword(.static))],
+            .var,
+            name: "router",
+            type: .init(type: TypeSyntax(stringLiteral: "\(settings.name)")),
+            accessorBlock: .init(stringLiteral: "{ \(settings.name)() }")
+        )
         declaredRouter.memberBlock.members.append(routerDecl)
         declaredRouter.memberBlock.members.append(router.build(context: context))
         return [.init(declaredRouter)]
