@@ -85,7 +85,7 @@ extension TestRouter {
             DynamicCORSMiddleware(),
             DynamicDateMiddleware(),
             DynamicMiddleware({ request, response in
-                guard try request.isMethod(HTTPStandardRequestMethod.get) else { return }
+                guard try request.isMethod(HTTPRequestMethod(name: "GET")) else { return }
                 #if canImport(FoundationEssentials) || canImport(Foundation)
                 response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
                 #else
@@ -208,7 +208,7 @@ extension TestRouter {
         Route.get( // https://www.techempower.com/benchmarks
             path: ["plaintext"],
             handler: { _, response in
-                response.setStatusCode(HTTPStandardResponseStatus.ok.code)
+                response.setStatusCode(200) // ok
                 response.setHeader(key: "Server", value: "Destiny")
                 response.setBody("Hello World!")
             }

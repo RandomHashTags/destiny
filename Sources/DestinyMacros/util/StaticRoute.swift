@@ -145,8 +145,6 @@ extension StaticRoute {
     #endif
 }
 
-#endif
-
 // MARK: Response
 extension StaticRoute {
     /// Builds the HTTP Message for this route.
@@ -206,3 +204,5 @@ extension StaticRoute {
     }
     #endif
 }
+
+#endif

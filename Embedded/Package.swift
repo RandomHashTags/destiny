@@ -73,6 +73,37 @@ let traits:Set<Trait> = [
         name: "CORS"
     ),
 
+    .trait(name: "CopyableHTTPServer"),
+    .trait(name: "CopyableMacroExpansion"),
+    .trait(name: "CopyableMacroExpansionWithDateHeader"),
+    .trait(name: "CopyableDateHeaderPayload"),
+    .trait(
+        name: "CopyableStaticStringWithDateHeader",
+        enabledTraits: ["CopyableDateHeaderPayload"]
+    ),
+    .trait(name: "CopyableStringWithDateHeader"),
+    .trait(
+        name: "CopyableStreamWithDateHeader",
+        enabledTraits: ["CopyableDateHeaderPayload"]
+    ),
+    .trait(
+        name: "CopyableResponders",
+        enabledTraits: [
+            "CopyableMacroExpansion",
+            "CopyableMacroExpansionWithDateHeader",
+            "CopyableStaticStringWithDateHeader",
+            "CopyableStringWithDateHeader",
+            "CopyableStreamWithDateHeader"
+        ]
+    ),
+    .trait(
+        name: "Copyable",
+        enabledTraits: [
+            "CopyableHTTPServer",
+            "CopyableResponders"
+        ]
+    ),
+
     .trait(
         name: "GenericHTTPMessage",
         description: "Enables an HTTPMessage implementation utilizing generics, avoiding existentials."
@@ -106,9 +137,6 @@ let traits:Set<Trait> = [
     .trait(
         name: "MutableRouter",
         description: "Enables functionality that registers data to a Router at runtime."
-    ),
-    .trait(
-        name: "Copyable"
     ),
     .trait(
         name: "NonCopyable",
