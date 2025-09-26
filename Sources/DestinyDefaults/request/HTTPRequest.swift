@@ -22,14 +22,16 @@ public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
         abstractRequest = .init(storage: storage)
     }
 
-    #if RequestHeaders
     #if Inlinable
     @inlinable
     #endif
     public mutating func headers() throws(SocketError) -> [Substring:Substring] {
-        try abstractRequest.headers(fileDescriptor: fileDescriptor)
+        #if RequestHeaders
+        return try abstractRequest.headers(fileDescriptor: fileDescriptor)
+        #else
+        return [:]
+        #endif
     }
-    #endif
 }
 
 // MARK: Protocol conformance
@@ -93,14 +95,16 @@ extension HTTPRequest {
         try abstractRequest.isMethod(fileDescriptor: fileDescriptor, method)
     }
 
-    #if RequestHeaders
     #if Inlinable
     @inlinable
     #endif
     public mutating func header(forKey key: String) throws(SocketError) -> String? {
-        try abstractRequest.header(fileDescriptor: fileDescriptor, forKey: key)
+        #if RequestHeaders
+        return try abstractRequest.header(fileDescriptor: fileDescriptor, forKey: key)
+        #else
+        return nil
+        #endif
     }
-    #endif
 
     #if Inlinable
     @inlinable

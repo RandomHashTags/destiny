@@ -70,6 +70,8 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 ### TODO
 
 - [ ] DocC Tutorials
+- [ ] Allow more than 64 bytes as the compared request line
+- [ ] Route partial matching (via Regex or something else)
 - [ ] Cache Middleware
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication

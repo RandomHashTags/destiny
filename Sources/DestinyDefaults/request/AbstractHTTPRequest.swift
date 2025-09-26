@@ -28,7 +28,6 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
         self.customStorage = storage
     }
 
-    #if RequestHeaders
     #if Inlinable
     @inlinable
     #endif
@@ -36,6 +35,7 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
     @inline(__always)
     #endif
     mutating func headers(fileDescriptor: some FileDescriptor) throws(SocketError) -> [Substring:Substring] {
+        #if RequestHeaders
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
@@ -43,8 +43,10 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
             storage._headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
         }
         return storage._headers!.headers
+        #else
+        return [:]
+        #endif
     }
-    #endif
 }
 
 // MARK: Protocol conformance
@@ -110,7 +112,6 @@ extension AbstractHTTPRequest {
         return method.rawNameString() == storage.methodString(buffer: initialBuffer!)
     }
 
-    #if RequestHeaders
     #if Inlinable
     @inlinable
     #endif
@@ -118,10 +119,13 @@ extension AbstractHTTPRequest {
     @inline(__always)
     #endif
     mutating func header(fileDescriptor: some FileDescriptor, forKey key: String) throws(SocketError) -> String? {
+        #if RequestHeaders
         guard let value = try headers(fileDescriptor: fileDescriptor)[Substring(key)] else { return nil }
         return String(value)
+        #else
+        return nil
+        #endif
     }
-    #endif
 
     #if Inlinable
     @inlinable

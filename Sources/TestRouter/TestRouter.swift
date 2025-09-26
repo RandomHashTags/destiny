@@ -85,15 +85,11 @@ extension TestRouter {
             DynamicCORSMiddleware(),
             DynamicDateMiddleware(),
             DynamicMiddleware({ request, response in
-                #if RequestHeaders
-
                 guard try request.isMethod(HTTPStandardRequestMethod.get) else { return }
                 #if canImport(FoundationEssentials) || canImport(Foundation)
                 response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
                 #else
                 response.setHeader(key: "Womp-Womp", value: String(UInt64.random(in: 0..<UInt64.max)))
-                #endif
-
                 #endif
             })
         ],
@@ -214,11 +210,7 @@ extension TestRouter {
             contentType: nil,
             handler: { _, response in
                 response.setStatusCode(HTTPStandardResponseStatus.ok.code)
-
-                #if RequestHeaders
                 response.setHeader(key: "Server", value: "Destiny")
-                #endif
-
                 response.setBody("Hello World!")
             }
         ),
@@ -240,12 +232,7 @@ extension TestRouter {
             path: ["dynamic"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
-                #if RequestHeaders
                 let header = try request.header(forKey: "Host") ?? "nil"
-                #else
-                let header = "nil"
-                #endif
-
                 try response.setBody("Host=\(header)")
             }
         ),
