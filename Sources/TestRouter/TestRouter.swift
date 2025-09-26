@@ -81,7 +81,11 @@ extension TestRouter {
                 appliesContentType: nil,
                 appliesHeaders: ["You-POST'd":"true"]
             ),
-            //StaticMiddleware(handlesMethods: [.get], handlesContentTypes: [.javascript], appliesStatus: .badRequest),
+            StaticMiddleware(
+                handlesMethods: [HTTPStandardRequestMethod.get],
+                handlesMediaTypes: [MediaTypeText.javascript],
+                appliesStatus: HTTPStandardResponseStatus.badRequest.code
+            ),
             DynamicCORSMiddleware(),
             DynamicDateMiddleware(),
             DynamicMiddleware({ request, response in

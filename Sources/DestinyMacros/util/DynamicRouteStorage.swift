@@ -1,10 +1,10 @@
 
+import DestinyBlueprint
+import SwiftSyntax
+
 #if NonEmbedded
 import DestinyDefaultsNonEmbedded
 #endif
-
-import DestinyBlueprint
-import SwiftSyntax
 
 struct DynamicRouteStorage {
     #if NonEmbedded

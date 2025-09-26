@@ -150,10 +150,11 @@ extension StaticMiddleware {
     @inlinable
     #endif
     public func handlesContentType(_ contentType: String?) -> Bool {
+        guard let handlesContentTypes else { return true }
         if let contentType {
-            handlesContentTypes?.contains(contentType) ?? true
+            return handlesContentTypes.contains(contentType)
         } else {
-            true
+            return false
         }
     }
 }

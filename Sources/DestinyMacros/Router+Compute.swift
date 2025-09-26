@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -193,6 +194,12 @@ extension Router {
         compiledStorage.errorResponder = errorResponder
         compiledStorage.dynamicNotFoundResponder = dynamicNotFoundResponder
         compiledStorage.staticNotFoundResponder = staticNotFoundResponder
+
+        for (i, middleware) in storage.staticMiddleware.enumerated() {
+            if !middleware.appliedAtLeastOnce {
+                Diagnostic.unusedMiddleware(context: storage.context, node: storage.staticMiddlewareFunctions[i])
+            }
+        }
         return (compiledStorage, storage.generatedDecls)
     }
     private static func defaultErrorResponder(

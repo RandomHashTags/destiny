@@ -47,6 +47,7 @@ extension Router {
         }
         #if StaticMiddleware
         storage.staticMiddleware.append(StaticMiddleware.parse(context: context, function))
+        storage.staticMiddlewareFunctions.append(function)
         #else
         context.diagnose(DiagnosticMsg.unhandled(node: function))
         #endif

@@ -62,6 +62,9 @@ extension Diagnostic {
     static func routeResponseStatusNotImplemented(context: some MacroExpansionContext, node: SyntaxProtocol) {
         context.diagnose(.init(node: node, message: DiagnosticMsg(id: "routeResponseStatusNotImplemented", message: "Route's response status is \".notImplemented\".", severity: .warning)))
     }
+    static func unusedMiddleware(context: some MacroExpansionContext, node: SyntaxProtocol) {
+        context.diagnose(.init(node: node, message: DiagnosticMsg(id: "unusedMiddleware", message: "Middleware doesn't apply to any route.", severity: .warning)))
+    }
 }
 
 // MARK: SwiftSyntax Misc

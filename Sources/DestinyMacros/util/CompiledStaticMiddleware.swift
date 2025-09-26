@@ -6,7 +6,7 @@ import DestinyDefaults
 
 // MARK: CompiledStaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
-public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
+public final class CompiledStaticMiddleware: StaticMiddlewareProtocol, @unchecked Sendable {
     /// Route request versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
@@ -33,6 +33,8 @@ public struct CompiledStaticMiddleware: StaticMiddlewareProtocol {
     public let appliesHeaders:HTTPHeaders
     public let appliesCookies:[HTTPCookie]
     public let excludedRoutes:Set<String>
+
+    public var appliedAtLeastOnce = false
 
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
@@ -110,10 +112,11 @@ extension CompiledStaticMiddleware {
     @inlinable
     #endif
     public func handlesContentType(_ contentType: String?) -> Bool {
+        guard let handlesContentTypes else { return true }
         if let contentType {
-            handlesContentTypes?.contains(contentType) ?? true
+            return handlesContentTypes.contains(contentType)
         } else {
-            true
+            return false
         }
     }
 }
@@ -130,6 +133,7 @@ extension CompiledStaticMiddleware {
         headers: inout some HTTPHeadersProtocol,
         cookies: inout [HTTPCookie]
     ) {
+        appliedAtLeastOnce = true
         if let appliesVersion {
             version = appliesVersion
         }
@@ -152,6 +156,7 @@ extension CompiledStaticMiddleware {
         contentType: inout String?,
         to response: inout some DynamicResponseProtocol
     ) throws(AnyError) {
+        appliedAtLeastOnce = true
         if let appliesVersion {
             response.setHTTPVersion(appliesVersion)
         }
