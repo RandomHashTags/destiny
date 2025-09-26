@@ -42,4 +42,32 @@ extension DynamicCORSLogic {
     }
 }
 
+extension DynamicCORSLogic {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func apply(
+        to headers: inout some HTTPHeadersProtocol
+    ) {
+        switch self {
+        case .allowCredentials_exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):
+            DynamicCORSMiddleware.logic_allowCredentials_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
+        case .allowCredentials_exposedHeaders(let allowedHeaders, let allowedMethods, let exposedHeaders):
+            DynamicCORSMiddleware.logic_allowCredentials_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
+        case .allowCredentials_maxAge(let allowedHeaders, let allowedMethods, let maxAge):
+            DynamicCORSMiddleware.logic_allowCredentials_maxAge(&headers, allowedHeaders, allowedMethods, maxAge)
+        case .allowCredentials(let allowedHeaders, let allowedMethods):
+            DynamicCORSMiddleware.logic_allowCredentials(&headers, allowedHeaders, allowedMethods)
+        case .exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):
+            DynamicCORSMiddleware.logic_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
+        case .exposedHeaders(let allowedHeaders, let allowedMethods, let exposedHeaders):
+            DynamicCORSMiddleware.logic_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
+        case .maxAge(let allowedHeaders, let allowedMethods, let maxAge):
+            DynamicCORSMiddleware.logic_maxAge(&headers, allowedHeaders, allowedMethods, maxAge)
+        case .minimum(let allowedHeaders, let allowedMethods):
+            DynamicCORSMiddleware.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
+        }
+    }
+}
+
 #endif

@@ -6,7 +6,7 @@ import DestinyBlueprint
 // MARK: DynamicCORSMiddleware
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
-public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddlewareProtocol {
+public struct DynamicCORSMiddleware: CORSMiddlewareProtocol {
     public let allowedOrigin:CORSMiddlewareAllowedOrigin
     public let logicKind:DynamicCORSLogic
 
@@ -22,7 +22,10 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol, OpaqueDynamicMiddle
         guard let input else { return nil }
         return "\(input)"
     }
+}
 
+// MARK: OpaqueDynamicMiddlewareProtocol
+extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {
     #if Inlinable
     @inlinable
     #endif
@@ -249,6 +252,119 @@ extension DynamicCORSMiddleware {
     ) {
         Self.handleSharedLogic(&response, allowedHeaders, allowedMethods)
         response.setHeader(key: "Access-Control-Max-Age", value: maxAgeString)
+    }
+}
+
+// MARK: HTTPHeadersProtocol
+extension DynamicCORSMiddleware {
+    #if Inlinable
+    @inlinable
+    #endif
+    static func handleSharedLogic(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String
+    ) {
+        headers["Access-Control-Allow-Headers"] = allowedHeaders
+        headers["Access-Control-Allow-Methods"] = allowedMethods
+    }
+}
+
+extension DynamicCORSMiddleware {
+    #if Inlinable
+    @inlinable
+    #endif
+    static func logic_allowCredentials_exposedHeaders_maxAge(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String,
+        _ exposedHeaders: String,
+        _ maxAgeString: String
+    ) {
+        logic_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAgeString)
+        headers["Access-Control-Allow-Credentials"] = "true"
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func logic_allowCredentials_exposedHeaders(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String,
+        _ exposedHeaders: String
+    ) {
+        logic_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
+        headers["Access-Control-Allow-Credentials"] = "true"
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func logic_allowCredentials_maxAge(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String,
+        _ maxAgeString: String
+    ) {
+        logic_allowCredentials(&headers, allowedHeaders, allowedMethods)
+        headers["Access-Control-Max-Age"] = maxAgeString
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func logic_allowCredentials(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String
+    ) {
+        Self.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
+        headers["Access-Control-Allow-Credentials"] = "true"
+    }
+}
+
+extension DynamicCORSMiddleware {
+    #if Inlinable
+    @inlinable
+    #endif
+    static func logic_exposedHeaders_maxAge(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String,
+        _ exposedHeaders: String,
+        _ maxAgeString: String
+    ) {
+        logic_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
+        headers["Access-Control-Max-Age"] = maxAgeString
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func logic_exposedHeaders(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String,
+        _ exposedHeaders: String
+    ) {
+        Self.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
+        headers["Access-Control-Expose-Headers"] = exposedHeaders
+    }
+}
+
+extension DynamicCORSMiddleware {
+    #if Inlinable
+    @inlinable
+    #endif
+    static func logic_maxAge(
+        _ headers: inout some HTTPHeadersProtocol,
+        _ allowedHeaders: String,
+        _ allowedMethods: String,
+        _ maxAgeString: String
+    ) {
+        Self.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
+        headers["Access-Control-Max-Age"] = maxAgeString
     }
 }
 

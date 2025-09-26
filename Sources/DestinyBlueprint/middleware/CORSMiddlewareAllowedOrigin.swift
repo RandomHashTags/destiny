@@ -77,4 +77,72 @@ extension CORSMiddlewareAllowedOrigin {
     }
 }
 
+extension CORSMiddlewareAllowedOrigin {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func apply(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        headers: inout some HTTPHeadersProtocol
+    ) throws(SocketError) {
+        switch self {
+        case .all:
+            Self.applyAll(headers: &headers)
+        case .any(let origins):
+            try Self.applyAny(request: &request, headers: &headers, origins: origins)
+        case .custom(let s):
+            Self.applyCustom(headers: &headers, string: s)
+        case .none:
+            break
+        case .originBased:
+            try Self.applyOriginBased(request: &request, headers: &headers)
+        }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func applyAll(
+        headers: inout some HTTPHeadersProtocol
+    ) {
+        headers["Access-Control-Allow-Origin"] = "*"
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func applyAny(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        headers: inout some HTTPHeadersProtocol,
+        origins: Set<String>
+    ) throws(SocketError) {
+        if let origin = try request.header(forKey: "Origin"), origins.contains(origin) {
+            headers["Access-Control-Allow-Origin"] = origin
+        }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func applyCustom(
+        headers: inout some HTTPHeadersProtocol,
+        string: String
+    ) {
+        headers["Access-Control-Allow-Origin"] = string
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    static func applyOriginBased(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        headers: inout some HTTPHeadersProtocol
+    ) throws(SocketError) {
+        headers["Vary"] = "origin"
+        if let origin = try request.header(forKey: "Origin") {
+            headers["Access-Control-Allow-Origin"] = origin
+        }
+    }
+}
+
 #endif
