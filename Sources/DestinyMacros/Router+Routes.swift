@@ -28,29 +28,28 @@ extension Router {
         switch decl {
 
         #if NonEmbedded
-        case "DynamicRoute":
+        case "Route":
             #if StaticMiddleware
-            var route = DynamicRoute.parse(context: context, version: version, middleware: storage.staticMiddleware, function)
+            var (staticRoute, dynamicRoute) = Route.parse(context: context, version: version, middleware: storage.staticMiddleware, function)
             #else
-            var route = DynamicRoute.parse(context: context, version: version, function)
+            var (staticRoute, dynamicRoute) = Route.parse(context: context, version: version, function)
             #endif
             if let method = targetMethod {
-                route.method = method
+                staticRoute?.method = method
+                dynamicRoute?.method = method
             }
-            if route.isCaseSensitive {
-                storage.dynamicRouteStorage.caseSensitiveRoutes.append((route, function))
-            } else {
-                storage.dynamicRouteStorage.caseInsensitiveRoutes.append((route, function))
-            }
-        case "StaticRoute":
-            var route = StaticRoute.parse(context: context, version: version, function)
-            if let method = targetMethod {
-                route.method = method
-            }
-            if route.isCaseSensitive {
-                storage.staticRouteStorage.caseSensitiveRoutes.append((route, function))
-            } else {
-                storage.staticRouteStorage.caseInsensitiveRoutes.append((route, function))
+            if let staticRoute {
+                if staticRoute.isCaseSensitive {
+                    storage.staticRouteStorage.caseSensitiveRoutes.append((staticRoute, function))
+                } else {
+                    storage.staticRouteStorage.caseInsensitiveRoutes.append((staticRoute, function))
+                }
+            } else if let dynamicRoute {
+                if dynamicRoute.isCaseSensitive {
+                    storage.dynamicRouteStorage.caseSensitiveRoutes.append((dynamicRoute, function))
+                } else {
+                    storage.dynamicRouteStorage.caseInsensitiveRoutes.append((dynamicRoute, function))
+                }
             }
         #endif
 

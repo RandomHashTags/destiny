@@ -7,7 +7,7 @@ import DestinyBlueprint
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct GenericStaticRoute<
         Body: ResponseBodyProtocol
-    >: StaticRouteProtocol {
+    >: RouteProtocol {
     public var path:[String]
     public let contentType:String?
     public let body:Body?
@@ -67,6 +67,9 @@ public struct GenericStaticRoute<
         return "\(method.rawNameString()) /\(path.joined(separator: "/")) \(version.string)" 
     }
 
+    /// Insert paths into this route's path at the given index.
+    /// 
+    /// Used by Route Groups at compile time.
     #if Inlinable
     @inlinable
     #endif

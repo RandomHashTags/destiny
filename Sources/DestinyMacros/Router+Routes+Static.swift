@@ -172,7 +172,7 @@ extension RouterStorage {
                     continue
                 }
                 registeredPaths.insert(startLine)
-                Router.conditionalRoute(
+                /*Router.conditionalRoute(
                     context: context,
                     conditionalResponders: &conditionalResponders,
                     route: route,
@@ -180,7 +180,7 @@ extension RouterStorage {
                     string: startLine,
                     buffer: buffer,
                     httpResponse: httpResponse
-                )
+                )*/
             }
         }
     }
@@ -204,10 +204,10 @@ extension RouterStorage {
 }
 
 extension RouterStorage {
-    private func routeStartLineLiteral(_ route: some StaticRouteProtocol) -> String {
+    private func routeStartLineLiteral(_ route: StaticRoute) -> String {
         route.startLine
     }
-    private func routeStartLineLowercased(_ route: some StaticRouteProtocol) -> String {
+    private func routeStartLineLowercased(_ route: StaticRoute) -> String {
         route.startLine.lowercased()
     }
 

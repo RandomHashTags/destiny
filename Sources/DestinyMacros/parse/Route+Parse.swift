@@ -12,50 +12,8 @@ import MediaTypes
 import MediaTypesSwiftSyntax
 #endif
 
-// MARK: Responder DebugDescription
-extension DynamicRoute {
-    /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
-    public func responderDebugDescription(useGenerics: Bool) -> String {
-        var response:String = "\(defaultResponse)"
-        #if GenericDynamicResponse
-        if useGenerics {
-            // TODO: convert body to `IntermediateBody`
-            if let b = defaultResponse.message.body as? StaticString {
-                response = genericResponse(b)
-            } else if let b = defaultResponse.message.body as? String {
-                response = genericResponse(b)
-            } else {
-                response = genericResponse(Optional<StaticString>.none)
-            }
-        }
-        #endif
-        return """
-        DynamicRouteResponder(
-            path: \(path),
-            defaultResponse: \(response),
-            logic: \(handlerDebugDescription)
-        )
-        """
-    }
-
-    #if GenericDynamicResponse
-    private func genericResponse<Body: ResponseBodyProtocol>(_ body: Body?) -> String {
-        let response = GenericDynamicResponse(
-            message: GenericHTTPResponseMessage<Body, HTTPCookie>(
-                head: defaultResponse.message.head,
-                body: body,
-                contentType: defaultResponse.message.contentType,
-                charset: defaultResponse.message.charset
-            ),
-            parameters: defaultResponse.parameters
-        )
-        return "\(response)"
-    }
-    #endif
-}
-
 // MARK: Parse
-extension DynamicRoute {
+extension Route {
     /// Parsing logic for this dynamic route. Computed at compile time.
     /// 
     /// - Parameters:
@@ -69,7 +27,7 @@ extension DynamicRoute {
         version: HTTPVersion,
         middleware: [any StaticMiddlewareProtocol],
         _ function: FunctionCallExprSyntax
-    ) -> Self {
+    ) -> (static: StaticRoute?, dynamic: DynamicRoute?) {
         var details = parseDetails(context: context, version: version, function)
         var version = details.version
         var status = details.status
@@ -102,38 +60,53 @@ extension DynamicRoute {
         details: Details,
         headers: inout HTTPHeaders,
         cookies: [HTTPCookie]
-    ) -> Self {
+    ) -> (StaticRoute?, DynamicRoute?) {
         if let contentType = details.contentType {
             headers["Content-Type"] = contentType
         }
-        var route = DynamicRoute(
-            version: details.version,
-            method: details.method,
-            path: details.path,
-            isCaseSensitive: details.isCaseSensitive,
-            status: details.status,
-            contentType: details.contentType,
-            handler: { _, _ in }
-        )
-        route.defaultResponse = DynamicResponse(
-            message: HTTPResponseMessage(
+        if details.path.firstIndex(where: { $0.isParameter }) == nil && details.handler == nil { // static route
+            let route = StaticRoute(
                 version: details.version,
+                method: details.method,
+                path: details.path.map({ $0.value }),
+                isCaseSensitive: details.isCaseSensitive,
                 status: details.status,
-                headers: headers,
-                cookies: cookies,
+                contentType: details.contentType,
+                charset: details.charset,
+                body: details.body
+            )
+            return (route, nil)
+        } else { // dynamic route
+            var route = DynamicRoute(
+                version: details.version,
+                method: details.method,
+                path: details.path,
+                isCaseSensitive: details.isCaseSensitive,
+                status: details.status,
+                contentType: details.contentType,
                 body: nil,
-                contentType: nil,
-                charset: nil
-            ),
-            parameters: details.parameters
-        )
-        route.handlerDebugDescription = details.handler
-        return route
+                handler: { _, _ in }
+            )
+            route.defaultResponse = DynamicResponse(
+                message: HTTPResponseMessage(
+                    version: details.version,
+                    status: details.status,
+                    headers: headers,
+                    cookies: cookies,
+                    body: details.body,
+                    contentType: details.contentType,
+                    charset: details.charset
+                ),
+                parameters: details.parameters
+            )
+            route.handlerDebugDescription = details.handler ?? "nil"
+            return (nil, route)
+        }
     }
 }
 
 // MARK: Parse details
-extension DynamicRoute {
+extension Route {
     static func parseDetails(
         context: some MacroExpansionContext,
         version: HTTPVersion,
@@ -145,7 +118,9 @@ extension DynamicRoute {
         var isCaseSensitive = true
         var status = HTTPStandardResponseStatus.notImplemented.code
         var contentType:String? = nil
-        var handler = "nil"
+        var charset:Charset? = nil
+        var body:(any ResponseBodyProtocol)? = nil
+        var handler:String? = nil
         var parameters = [String]()
         for arg in function.arguments {
             switch arg.label?.text {
@@ -180,6 +155,10 @@ extension DynamicRoute {
                 }
                 contentType = parsed
             #endif
+            case "charset":
+                charset = Charset.init(expr: arg.expression)
+            case "body":
+                body = ResponseBody.parse(context: context, expr: arg.expression) ?? body
             case "handler":
                 handler = "\(arg.expression)"
             default:
@@ -189,12 +168,23 @@ extension DynamicRoute {
         if !isCaseSensitive {
             path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
-        return .init(version: version, method: method, path: path, isCaseSensitive: isCaseSensitive, status: status, contentType: contentType, handler: handler, parameters: parameters)
+        return .init(
+            version: version,
+            method: method,
+            path: path,
+            isCaseSensitive: isCaseSensitive,
+            status: status,
+            contentType: contentType,
+            charset: charset,
+            body: body,
+            handler: handler,
+            parameters: parameters
+        )
     }
 }
 
 // MARK: Details
-extension DynamicRoute {
+extension Route {
     struct Details {
         var version:HTTPVersion
         var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
@@ -202,7 +192,9 @@ extension DynamicRoute {
         var isCaseSensitive = true
         var status = HTTPStandardResponseStatus.notImplemented.code
         var contentType:String? = nil
-        var handler = "nil"
+        var charset:Charset?
+        var body:(any ResponseBodyProtocol)?
+        var handler:String? = nil
         var parameters = [String]()
     }
 }

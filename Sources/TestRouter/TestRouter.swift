@@ -102,12 +102,12 @@ extension TestRouter {
                 staticMiddleware: [
                     StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
                 ],
-                StaticRoute.get(
+                Route.get(
                     path: ["hoopla"],
                     mediaType: MediaTypeText.plain,
                     body: NonCopyableStaticStringWithDateHeader("rly dud")
                 ),
-                DynamicRoute.get(
+                Route.get(
                     path: ["HOOPLA"],
                     mediaType: MediaTypeText.plain,
                     handler: { _, response in
@@ -116,60 +116,60 @@ extension TestRouter {
                 )
             ),*/
         ],
-        StaticRoute.get(
+        Route.get(
             path: ["newEndpoint"],
             mediaType: MediaTypeText.html,
             body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /legacyEndpoint to here</h1></body></html>"#)
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["stream"],
             contentType: "text/plain",
             body: ResponseBody.nonCopyableStreamWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["expressionMacro"],
             mediaType: MediaTypeText.plain,
             body: ResponseBody.nonCopyableMacroExpansionWithDateHeader(#filePath)
         ),
-        StaticRoute.post(
+        Route.post(
             path: ["post"],
             mediaType: MediaTypeApplication.json,
             body: NonCopyableStaticStringWithDateHeader(#"{"bing":"bonged"}"#)
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["bro?what=dude"],
             mediaType: MediaTypeApplication.json,
             body: NonCopyableStaticStringWithDateHeader(#"{"bing":"bonged"}"#)
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["html"],
             mediaType: MediaTypeText.html,
             body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["SHOOP"],
             caseSensitive: false,
             mediaType: MediaTypeText.html,
             body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
-        StaticRoute.get(
+        Route.get(
             version: .v2_0,
             path: ["html2"],
             mediaType: MediaTypeText.html,
             body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["json"],
             mediaType: MediaTypeApplication.json,
             body: NonCopyableStaticStringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
             //body: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["txt"],
             mediaType: MediaTypeText.plain,
             body: NonCopyableStaticStringWithDateHeader("just a regular txt page; t'was your destiny")
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["inlineBytes"],
             mediaType: MediaTypeText.plain,
             body: ResponseBody.nonCopyableInlineBytes([
@@ -179,7 +179,7 @@ extension TestRouter {
                 33, 34, 35, 36, 37, 38, 39, 40, 41, 42
             ])
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["bytes"],
             mediaType: MediaTypeText.plain,
             body: ResponseBody.nonCopyableBytes([
@@ -189,46 +189,44 @@ extension TestRouter {
                 33, 34, 35, 36, 37, 38, 39, 40, 41, 42
             ])
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["bytes2"],
             mediaType: MediaTypeText.plain,
             body: ResponseBody.nonCopyableBytes([UInt8]("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
         ),
-        StaticRoute.get(
+        Route.get(
             path: ["bytes3"],
             mediaType: MediaTypeText.plain,
             body: ResponseBody.nonCopyableBytes(Array<UInt8>("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
         ),
-        /*StaticRoute.get(
+        /*Route.get(
             path: ["error"],
             status: HTTPStandardResponseStatus.badRequest.code,
             mediaType: MediaTypeApplication.json,
             body: .error(CustomError.yipyip)
         ),*/
-        DynamicRoute.get( // https://www.techempower.com/benchmarks
+        Route.get( // https://www.techempower.com/benchmarks
             path: ["plaintext"],
-            contentType: nil,
             handler: { _, response in
                 response.setStatusCode(HTTPStandardResponseStatus.ok.code)
                 response.setHeader(key: "Server", value: "Destiny")
                 response.setBody("Hello World!")
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             path: ["dynamicExpressionMacro"],
-            contentType: nil,
             handler: { _, response in
                 response.setBody(#filePath)
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             path: ["error2"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
                 throw CustomError.yipyip
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             path: ["dynamic"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
@@ -236,7 +234,7 @@ extension TestRouter {
                 try response.setBody("Host=\(header)")
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             path: ["asyncDynamic"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
@@ -244,7 +242,7 @@ extension TestRouter {
                 try await Task.sleep(for: .seconds(3))
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             version: .v2_0,
             path: ["dynamic2"],
             mediaType: MediaTypeText.plain,
@@ -256,21 +254,21 @@ extension TestRouter {
                 #endif
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             path: ["dynamic", ":text"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
                 response.setBody(response.parameter(at: 0))
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             path: ["anydynamic", "*", "value"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
                 response.setBody(response.parameter(at: 0))
             }
         ),
-        DynamicRoute.get(
+        Route.get(
             path: ["catchall", "**"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
