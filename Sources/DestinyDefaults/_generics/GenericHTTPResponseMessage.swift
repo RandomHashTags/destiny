@@ -189,11 +189,10 @@ extension GenericHTTPResponseMessage {
     @inlinable
     #endif
     func writeString(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, string: String) {
-        string.utf8Span.span.withUnsafeBufferPointer {
-            $0.forEach {
-                buffer[i] = $0
-                i += 1
-            }
+        let span = string.utf8Span.span
+        for j in span.indices {
+            buffer[i] = span[unchecked: j]
+            i += 1
         }
     }
 

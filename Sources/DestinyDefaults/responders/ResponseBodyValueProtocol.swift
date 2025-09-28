@@ -6,8 +6,6 @@ public protocol ResponseBodyValueProtocol: BufferWritable, ~Copyable {
     var count: Int { get }
 
     func string() -> String
-
-    //func temporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows
 }
 
 // MARK: Default conformances

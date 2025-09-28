@@ -6,7 +6,7 @@ public struct PerfectHashSettings {
 
     /// Route paths that don't require exact matching to respond.
     /// 
-    /// - Warning: All route paths listed allow for 'random' request paths to respond with a route's responder if the hash keys match.
+    /// - Warning: These route paths allow for 'random' request paths to respond with a route's responder if the hash keys match.
     public let relaxedRoutePaths:Set<String>
 
     /// Whether or not route paths require exact matching to respond.

@@ -97,13 +97,24 @@ let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
 
     .trait(
-        name: "CORS"
+        name: "CORS",
+        description: "Enables cross-origin resource sharing functionality."
     ),
 
-    .trait(name: "CopyableHTTPServer"),
-    .trait(name: "CopyableMacroExpansion"),
-    .trait(name: "CopyableMacroExpansionWithDateHeader"),
-    .trait(name: "CopyableDateHeaderPayload"),
+    .trait(
+        name: "CopyableHTTPServer"
+    ),
+    .trait(
+        name: "CopyableMacroExpansion",
+        description: "Enables the copyable MacroExpansion route responder."
+    ),
+    .trait(
+        name: "CopyableMacroExpansionWithDateHeader",
+        description: "Enables the copyable MacroExpansionWithDateHeader route responder."
+    ),
+    .trait(
+        name: "CopyableDateHeaderPayload"
+    ),
     .trait(
         name: "CopyableStaticStringWithDateHeader",
         enabledTraits: ["CopyableDateHeaderPayload"]
@@ -115,6 +126,7 @@ let traits:Set<Trait> = [
     ),
     .trait(
         name: "CopyableResponders",
+        description: "Enables all copyable route responders.",
         enabledTraits: [
             "CopyableMacroExpansion",
             "CopyableMacroExpansionWithDateHeader",
@@ -125,9 +137,42 @@ let traits:Set<Trait> = [
     ),
     .trait(
         name: "Copyable",
+        description: "Enables all copyable package traits.",
         enabledTraits: [
             "CopyableHTTPServer",
             "CopyableResponders"
+        ]
+    ),
+
+    .trait(name: "NonCopyableHTTPServer"),
+    .trait(name: "NonCopyableBytes"),
+    .trait(name: "NonCopyableInlineBytes"),
+    .trait(name: "NonCopyableDateHeaderPayload"),
+    .trait(name: "NonCopyableMacroExpansionWithDateHeader"),
+    .trait(
+        name: "NonCopyableStaticStringWithDateHeader",
+        enabledTraits: ["NonCopyableDateHeaderPayload"]
+    ),
+    .trait(
+        name: "NonCopyableStreamWithDateHeader",
+        enabledTraits: ["NonCopyableDateHeaderPayload"]
+    ),
+    .trait(
+        name: "NonCopyableResponders",
+        enabledTraits: [
+            "NonCopyableBytes",
+            "NonCopyableInlineBytes",
+            "NonCopyableMacroExpansionWithDateHeader",
+            "NonCopyableStaticStringWithDateHeader",
+            "NonCopyableStreamWithDateHeader",
+        ]
+    ),
+    .trait(
+        name: "NonCopyable",
+        description: "Enables noncopyable functionality for optimal performance.",
+        enabledTraits: [
+            "NonCopyableHTTPServer",
+            "NonCopyableResponders"
         ]
     ),
 
@@ -148,7 +193,10 @@ let traits:Set<Trait> = [
         description: "Enables a DynamicResponse implementation utilizing generics, avoiding existentials.",
         enabledTraits: ["GenericHTTPMessage"]
     ),
-    .trait(name: "GenericRouteGroup"),
+    .trait(
+        name: "GenericRouteGroup",
+        description: "Enables a RouteGroup implementation utilizing generics, avoiding existentials."
+    ),
     .trait(
         name: "Generics",
         description: "Enables all Generic package traits.",
@@ -232,10 +280,6 @@ let traits:Set<Trait> = [
     .trait(
         name: "MutableRouter",
         description: "Enables functionality that registers data to a Router at runtime."
-    ),
-    .trait(
-        name: "NonCopyable",
-        description: "Enables noncopyable functionality for optimal performance."
     ),
     .trait(
         name: "NonEmbedded",

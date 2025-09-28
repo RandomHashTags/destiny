@@ -21,7 +21,7 @@ extension RouteGroup {
         settings: RouterSettings,
         perfectHashSettings: PerfectHashSettings,
         version: HTTPVersion,
-        staticMiddleware: [CompiledStaticMiddleware],
+        staticMiddleware: [StaticMiddleware],
         dynamicMiddleware: [FunctionCallExprSyntax],
         storage: inout RouterStorage,
         _ function: FunctionCallExprSyntax

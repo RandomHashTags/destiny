@@ -5,13 +5,6 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension ResponseBody {
-    private static func parseString(_ expr: some ExprSyntaxProtocol) -> String {
-        if let s = expr.stringLiteral?.string {
-            return s
-        } else {
-            return expr.description
-        }
-    }
     public static func parse(
         context: some MacroExpansionContext,
         expr: some ExprSyntaxProtocol

@@ -60,8 +60,7 @@ destinyMacrosDependencies.append(contentsOf: [
 // MARK: Traits
 defaultTraits.formUnion([
     "Copyable",
-    //"GenericDynamicResponse",
-    "Generics",
+    "GenericDynamicResponse",
     "NonCopyable",
 
     "Inlinable",
@@ -104,6 +103,38 @@ let traits:Set<Trait> = [
         ]
     ),
 
+    .trait(name: "NonCopyableHTTPServer"),
+    .trait(name: "NonCopyableBytes"),
+    .trait(name: "NonCopyableInlineBytes"),
+    .trait(name: "NonCopyableDateHeaderPayload"),
+    .trait(name: "NonCopyableMacroExpansionWithDateHeader"),
+    .trait(
+        name: "NonCopyableStaticStringWithDateHeader",
+        enabledTraits: ["NonCopyableDateHeaderPayload"]
+    ),
+    .trait(
+        name: "NonCopyableStreamWithDateHeader",
+        enabledTraits: ["NonCopyableDateHeaderPayload"]
+    ),
+    .trait(
+        name: "NonCopyableResponders",
+        enabledTraits: [
+            "NonCopyableBytes",
+            "NonCopyableInlineBytes",
+            "NonCopyableMacroExpansionWithDateHeader",
+            "NonCopyableStaticStringWithDateHeader",
+            "NonCopyableStreamWithDateHeader",
+        ]
+    ),
+    .trait(
+        name: "NonCopyable",
+        description: "Enables noncopyable functionality for optimal performance.",
+        enabledTraits: [
+            "NonCopyableHTTPServer",
+            "NonCopyableResponders"
+        ]
+    ),
+
     .trait(
         name: "GenericHTTPMessage",
         description: "Enables an HTTPMessage implementation utilizing generics, avoiding existentials."
@@ -137,10 +168,6 @@ let traits:Set<Trait> = [
     .trait(
         name: "MutableRouter",
         description: "Enables functionality that registers data to a Router at runtime."
-    ),
-    .trait(
-        name: "NonCopyable",
-        description: "Enables noncopyable functionality for optimal performance."
     ),
     .trait(
         name: "NonEmbedded",

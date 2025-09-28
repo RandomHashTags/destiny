@@ -30,9 +30,7 @@ extension StaticString: BufferWritable {
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int
     ) {
-        self.withUTF8Buffer { p in
-            buffer.copyBuffer(p, at: &index)
-        }
+        buffer.copyBuffer(baseAddress: utf8Start, count: utf8CodeUnitCount, at: &index)
     }
 }
 

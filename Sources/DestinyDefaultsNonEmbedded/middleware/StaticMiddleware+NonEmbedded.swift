@@ -5,11 +5,11 @@
     import DestinyDefaults
 
     extension StaticMiddleware {
-        public init(
+        public convenience init(
             handlesVersions: Set<HTTPVersion>? = nil,
             handlesMethods: [any HTTPRequestMethodProtocol]? = nil,
             handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
-            handlesContentTypes: [String]? = nil,
+            handlesContentTypes: Set<String>? = nil,
             appliesVersion: HTTPVersion? = nil,
             appliesStatus: HTTPResponseStatus.Code? = nil,
             appliesContentType: String? = nil,
@@ -37,7 +37,7 @@
     import MediaTypes
 
     extension StaticMiddleware {
-        public init(
+        public convenience init(
             handlesVersions: Set<HTTPVersion>? = nil,
             handlesMethods: [any HTTPRequestMethodProtocol]? = nil,
             handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
@@ -49,11 +49,17 @@
             appliesCookies: [HTTPCookie] = [],
             excludedRoutes: Set<String> = []
         ) {
+            let handlesContentTypes:Set<String>?
+            if let handlesMediaTypes {
+                handlesContentTypes = Set(handlesMediaTypes.map({ $0.template }))
+            } else {
+                handlesContentTypes = nil
+            }
             self.init(
                 handlesVersions: handlesVersions,
                 handlesMethods: handlesMethods?.map({ .init($0) }),
                 handlesStatuses: handlesStatuses,
-                handlesContentTypes: handlesMediaTypes?.map({ $0.template }),
+                handlesContentTypes: handlesContentTypes,
                 appliesVersion: appliesVersion,
                 appliesStatus: appliesStatus,
                 appliesContentType: appliesMediaType?.template,

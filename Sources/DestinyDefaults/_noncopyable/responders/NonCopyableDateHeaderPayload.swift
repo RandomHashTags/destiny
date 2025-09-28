@@ -1,5 +1,5 @@
 
-#if NonCopyable
+#if NonCopyableDateHeaderPayload
 
 import DestinyBlueprint
 

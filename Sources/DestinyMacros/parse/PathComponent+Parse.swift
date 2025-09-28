@@ -38,6 +38,11 @@ extension PathComponent {
             Diagnostic.spacesNotAllowedInRoutePath(context: context, node: expression)
             return nil
         }
+        #if NonEmbedded
         self = .init(stringLiteral: string)
+        #else
+        context.diagnose(DiagnosticMsg.unhandled(node: expression))
+        return nil
+        #endif
     }
 }

@@ -23,11 +23,11 @@ public struct RouterSettings: Sendable {
         respondersAreComputedProperties: Bool = false,
         protocolConformances: Bool = true,
         visibility: RouterVisibility = .internal,
-        name: String? = nil,
+        name: String = "CompiledHTTPRouter",
         requestType: String = "HTTPRequest"
     ) {
         self.visibility = visibility
-        self.name = name ?? "CompiledHTTPRouter"
+        self.name = name
         self.requestType = requestType
         flags = Flags.pack(
             mutable: mutable,

@@ -29,17 +29,7 @@ extension StaticString: HTTPSocketWritable {
     public func write(
         to socket: some FileDescriptor
     ) throws(SocketError) {
-        var err:SocketError? = nil
-        withUTF8Buffer {
-            do throws(SocketError) {
-                try socket.socketWriteBuffer($0.baseAddress!, length: $0.count)
-            } catch {
-                err = error
-            }
-        }
-        if let err {
-            throw err
-        }
+        try socket.socketWriteBuffer(utf8Start, length: utf8CodeUnitCount)
     }
 }
 

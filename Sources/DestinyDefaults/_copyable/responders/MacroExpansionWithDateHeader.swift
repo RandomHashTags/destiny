@@ -4,6 +4,8 @@
 import DestinyBlueprint
 
 public struct MacroExpansionWithDateHeader: Sendable {
+    public static let bodyCountSuffix:StaticString = "\r\n\r\n"
+
     public let preDateValue:StaticString
     public let postDateValue:StaticString
     public let bodyCount:String.UTF8View
@@ -39,27 +41,20 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var err:SocketError? = nil
-        preDateValue.withUTF8Buffer { preDatePointer in
-            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
-                postDateValue.withUTF8Buffer { postDatePointer in
-                    bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
-                        let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
-                        bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
-                            body.withContiguousStorageIfAvailable { bodyPointer in
-                                do throws(SocketError) {
-                                    try socket.writeBuffers([
-                                        preDatePointer,
-                                        datePointer,
-                                        postDatePointer,
-                                        bodyCountPointer,
-                                        bodyCountSuffixPointer,
-                                        bodyPointer
-                                    ])
-                                } catch {
-                                    err = error
-                                }
-                            }
-                        }
+        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
+            bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
+                body.withContiguousStorageIfAvailable { bodyPointer in
+                    do throws(SocketError) {
+                        try socket.writeBuffers([
+                            (preDateValue.utf8Start, preDateValue.utf8CodeUnitCount),
+                            (datePointer.baseAddress!, datePointer.count),
+                            (postDateValue.utf8Start, postDateValue.utf8CodeUnitCount),
+                            (bodyCountPointer.baseAddress!, bodyCountPointer.count),
+                            (Self.bodyCountSuffix.utf8Start, Self.bodyCountSuffix.utf8CodeUnitCount),
+                            (bodyPointer.baseAddress!, bodyPointer.count),
+                        ])
+                    } catch {
+                        err = error
                     }
                 }
             }

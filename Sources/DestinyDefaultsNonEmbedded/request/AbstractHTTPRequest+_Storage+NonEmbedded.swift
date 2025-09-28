@@ -23,34 +23,21 @@ extension AbstractHTTPRequest._Storage {
                 var buffer = InlineArray<bufferCount, UInt8>(repeating: 0)
                 var initialRequestBodyCount = initialBuffer.endIndex - startIndex
                 var remainingRequestBodyCount = initialRequestBodyCount
-                initialBuffer.buffer.span.withUnsafeBufferPointer { initialBufferPointer in
-                    var ms = buffer.mutableSpan
-                    ms.withUnsafeMutableBufferPointer {
-                        var bufferPointer = $0
-                        loadBufferSlice(
-                            initialBufferPointer: initialBufferPointer,
-                            bufferPointer: &bufferPointer,
-                            index: &startIndex,
-                            initialRequestBodyCount: &remainingRequestBodyCount
-                        )
-                    }
-                }
+                loadBufferSlice(
+                    initialBuffer: initialBuffer,
+                    buffer: &buffer,
+                    index: &startIndex,
+                    initialRequestBodyCount: &remainingRequestBodyCount
+                )
                 try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount - remainingRequestBodyCount))
                 while remainingRequestBodyCount > 0 {
                     initialRequestBodyCount = remainingRequestBodyCount
-                    initialBuffer.buffer.span.withUnsafeBufferPointer { initialBufferPointer in
-                        var ms = buffer.mutableSpan
-                        ms.withUnsafeMutableBufferPointer {
-                            var bufferPointer = $0
-                            bufferPointer.update(repeating: 0)
-                            loadBufferSlice(
-                                initialBufferPointer: initialBufferPointer,
-                                bufferPointer: &bufferPointer,
-                                index: &startIndex,
-                                initialRequestBodyCount: &remainingRequestBodyCount
-                            )
-                        }
-                    }
+                    loadBufferSlice(
+                        initialBuffer: initialBuffer,
+                        buffer: &buffer,
+                        index: &startIndex,
+                        initialRequestBodyCount: &remainingRequestBodyCount
+                    )
                     try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount - remainingRequestBodyCount))
                 }
                 if initialBuffer.endIndex != initialBufferCount {
@@ -65,17 +52,22 @@ extension AbstractHTTPRequest._Storage {
     #if Inlinable
     @inlinable
     #endif
-    mutating func loadBufferSlice(
-        initialBufferPointer: UnsafeBufferPointer<UInt8>,
-        bufferPointer: inout UnsafeMutableBufferPointer<UInt8>,
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    mutating func loadBufferSlice<let initialBufferCount: Int, let bufferCount: Int>(
+        initialBuffer: borrowing InlineByteBuffer<initialBufferCount>,
+        buffer: inout InlineArray<bufferCount, UInt8>,
         index: inout Int,
         initialRequestBodyCount: inout Int
     ) {
-        let bufferCount = bufferPointer.count
+        let initialBufferSpan = initialBuffer.buffer.span
+        var bufferMutableSpan = buffer.mutableSpan
+        bufferMutableSpan.update(repeating: 0)
         let copied = min(bufferCount, initialRequestBodyCount)
         var i = 0
         while i < copied {
-            bufferPointer[i] = initialBufferPointer[index]
+            bufferMutableSpan[unchecked: i] = initialBufferSpan[unchecked: index]
             i += 1
             index += 1
         }

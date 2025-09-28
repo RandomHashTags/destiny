@@ -7,9 +7,10 @@ import DestinyBlueprint
 import MediaTypes
 #endif
 
-// MARK: StaticMiddleware
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
-public struct StaticMiddleware: StaticMiddlewareProtocol {
+/// 
+/// - Warning: USAGE IS EXPECTED TO BE ONLY AT COMPILE TIME!
+public final class StaticMiddleware: StaticMiddlewareProtocol, @unchecked Sendable {
     /// HTTP Versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
@@ -36,15 +37,15 @@ public struct StaticMiddleware: StaticMiddlewareProtocol {
     public let appliesHeaders:HTTPHeaders
     public let appliesCookies:[HTTPCookie]
     public let excludedRoutes:Set<String>
-}
 
-// MARK: Init
-extension StaticMiddleware {
+    public var appliedAtLeastOnce = false
+
+    // MARK: Init
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: [HTTPRequestMethod]? = nil,
         handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
-        handlesContentTypes: [String]? = nil,
+        handlesContentTypes: Set<String>? = nil,
         appliesVersion: HTTPVersion? = nil,
         appliesStatus: HTTPResponseStatus.Code? = nil,
         appliesContentType: String? = nil,
@@ -55,11 +56,7 @@ extension StaticMiddleware {
         self.handlesVersions = handlesVersions
         self.handlesMethods = handlesMethods
         self.handlesStatuses = handlesStatuses
-        if let handlesContentTypes {
-            self.handlesContentTypes = Set(handlesContentTypes)
-        } else {
-            self.handlesContentTypes = nil
-        }
+        self.handlesContentTypes = handlesContentTypes
         self.appliesVersion = appliesVersion
         self.appliesStatus = appliesStatus
         self.appliesContentType = appliesContentType
@@ -171,6 +168,7 @@ extension StaticMiddleware {
         headers: inout some HTTPHeadersProtocol,
         cookies: inout [HTTPCookie]
     ) {
+        appliedAtLeastOnce = true
         if let appliesVersion {
             version = appliesVersion
         }
@@ -193,6 +191,7 @@ extension StaticMiddleware {
         contentType: inout String?,
         to response: inout some DynamicResponseProtocol
     ) throws(AnyError) {
+        appliedAtLeastOnce = true
         if let appliesVersion {
             response.setHTTPVersion(appliesVersion)
         }

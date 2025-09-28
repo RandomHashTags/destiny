@@ -34,7 +34,7 @@ public struct RouterStorage {
     var staticRouteStorage = StaticRouteStorage()
 
     #if StaticMiddleware
-    var staticMiddleware = [CompiledStaticMiddleware]()
+    var staticMiddleware = [StaticMiddleware]()
     var staticMiddlewareFunctions = [FunctionCallExprSyntax]()
     #endif
 

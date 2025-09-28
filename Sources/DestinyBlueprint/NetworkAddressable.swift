@@ -1,8 +1,8 @@
 
 public protocol NetworkAddressable: Sendable, ~Copyable {
-    /// Local socket address of this file descriptor.
+    /// Local socket address of the file descriptor.
     func socketLocalAddress() -> String?
 
-    /// Peer socket address of this file descriptor.
+    /// Peer socket address of the file descriptor.
     func socketPeerAddress() -> String?
 }

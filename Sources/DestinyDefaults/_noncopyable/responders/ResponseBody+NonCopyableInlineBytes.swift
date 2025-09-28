@@ -1,5 +1,5 @@
 
-#if NonCopyable
+#if NonCopyableInlineBytes
 
 import DestinyBlueprint
 

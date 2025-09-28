@@ -1,5 +1,5 @@
 
-#if NonCopyable
+#if NonCopyableHTTPServer
 
 #if canImport(Darwin)
 import Darwin

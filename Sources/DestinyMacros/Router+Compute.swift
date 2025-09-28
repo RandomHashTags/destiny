@@ -195,11 +195,13 @@ extension Router {
         compiledStorage.dynamicNotFoundResponder = dynamicNotFoundResponder
         compiledStorage.staticNotFoundResponder = staticNotFoundResponder
 
+        #if StaticMiddleware
         for (i, middleware) in storage.staticMiddleware.enumerated() {
             if !middleware.appliedAtLeastOnce {
                 Diagnostic.unusedMiddleware(context: storage.context, node: storage.staticMiddlewareFunctions[i])
             }
         }
+        #endif
         return (compiledStorage, storage.generatedDecls)
     }
     private static func defaultErrorResponder(

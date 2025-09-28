@@ -20,7 +20,7 @@ extension StaticMiddleware {
     public static func parse(
         context: some MacroExpansionContext,
         _ function: FunctionCallExprSyntax
-    ) -> CompiledStaticMiddleware {
+    ) -> Self {
         var handlesVersions:Set<HTTPVersion>? = nil
         var handlesMethods:[HTTPRequestMethod]? = nil
         var handlesStatuses:Set<HTTPResponseStatus.Code>? = nil

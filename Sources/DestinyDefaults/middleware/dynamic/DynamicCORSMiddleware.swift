@@ -37,7 +37,6 @@ extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {
             guard try request.header(forKey: "Origin") != nil else { return true }
             try allowedOrigin.apply(request: &request, response: &response)
             logicKind.apply(to: &response)
-
             return true
         } catch {
             throw .socketError(error)
