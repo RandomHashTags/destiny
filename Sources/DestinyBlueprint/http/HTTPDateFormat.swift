@@ -134,7 +134,7 @@ extension HTTPDateFormat {
     @inlinable
     #endif
     public static func get(
-        year: Int,
+        year: Int32,
         month: UInt8,
         day: UInt8,
         dayOfWeek: UInt8,
@@ -151,17 +151,17 @@ extension HTTPDateFormat {
         let secondNumbers = httpDateNumber(second)
 
         var value = InlineArrayResult(repeating: 0)
-        value[unchecked: 0] = dayName[unchecked: 0]
-        value[unchecked: 1] = dayName[unchecked: 1]
-        value[unchecked: 2] = dayName[unchecked: 2]
+        value[unchecked: 0] = dayName.0
+        value[unchecked: 1] = dayName.1
+        value[unchecked: 2] = dayName.2
         value[unchecked: 3] = .comma
         value[unchecked: 4] = .space
         value[unchecked: 5] = dayNumbers[unchecked: 0]
         value[unchecked: 6] = dayNumbers[unchecked: 1]
         value[unchecked: 7] = .space
-        value[unchecked: 8] = monthName[unchecked: 0]
-        value[unchecked: 9] = monthName[unchecked: 1]
-        value[unchecked: 10] = monthName[unchecked: 2]
+        value[unchecked: 8] = monthName.0
+        value[unchecked: 9] = monthName.1
+        value[unchecked: 10] = monthName.2
         value[unchecked: 11] = .space
         value[unchecked: 12] = yearNumbers[unchecked: 0]
         var index = 13
@@ -208,37 +208,37 @@ extension HTTPDateFormat {
     #if Inlinable
     @inlinable
     #endif
-    static func httpDayName(_ int: some BinaryInteger) -> InlineArray<3, UInt8> {
+    static func httpDayName(_ int: UInt8) -> (UInt8, UInt8, UInt8) {
         switch int {
-        case 0:  [83, 117, 110] // Sun
-        case 1:  [77, 111, 110] // Mon
-        case 2:  [84, 117, 101] // Tue
-        case 3:  [87, 101, 100] // Wed
-        case 4:  [84, 104, 117] // Thu
-        case 5:  [70, 114, 105] // Fri
-        case 6:  [83, 97, 116]  // Sat
-        default: [63, 63, 63]   // ???
+        case 0:  (83, 117, 110) // Sun
+        case 1:  (77, 111, 110) // Mon
+        case 2:  (84, 117, 101) // Tue
+        case 3:  (87, 101, 100) // Wed
+        case 4:  (84, 104, 117) // Thu
+        case 5:  (70, 114, 105) // Fri
+        case 6:  (83, 97, 116)  // Sat
+        default: (63, 63, 63)   // ???
         }
     }
 
     #if Inlinable
     @inlinable
     #endif
-    static func httpMonthName(_ int: some BinaryInteger) -> InlineArray<3, UInt8> {
+    static func httpMonthName(_ int: UInt8) -> (UInt8, UInt8, UInt8) {
         switch int {
-        case 0:  [74, 97, 110]  // Jan
-        case 1:  [70, 101, 98]  // Feb
-        case 2:  [77, 97, 114]  // Mar
-        case 3:  [65, 112, 114] // Apr
-        case 4:  [77, 97, 121]  // May
-        case 5:  [74, 117, 110] // Jun
-        case 6:  [74, 117, 108] // Jul
-        case 7:  [65, 117, 103] // Aug
-        case 8:  [83, 101, 112] // Sep
-        case 9:  [79, 99, 116]  // Oct
-        case 10: [78, 111, 118] // Nov
-        case 11: [68, 101, 99]  // Dec
-        default: [63, 63, 63]   // ???
+        case 0:  (74, 97, 110)  // Jan
+        case 1:  (70, 101, 98)  // Feb
+        case 2:  (77, 97, 114)  // Mar
+        case 3:  (65, 112, 114) // Apr
+        case 4:  (77, 97, 121)  // May
+        case 5:  (74, 117, 110) // Jun
+        case 6:  (74, 117, 108) // Jul
+        case 7:  (65, 117, 103) // Aug
+        case 8:  (83, 101, 112) // Sep
+        case 9:  (79, 99, 116)  // Oct
+        case 10: (78, 111, 118) // Nov
+        case 11: (68, 101, 99)  // Dec
+        default: (63, 63, 63)   // ???
         }
     }
 
@@ -256,20 +256,24 @@ extension HTTPDateFormat {
         } else if int < 40 {
             return [51, 18 + UInt8(int)]
         } else {
-            return httpNumber(int) // future proofing
+            return (httpNumber(Int32(int))) // future proofing
         }
     }
 
     #if Inlinable
     @inlinable
     #endif
-    static func httpNumber<let count: Int>(_ int: some BinaryInteger) -> InlineArray<count, UInt8> {
+    static func httpNumber<let count: Int>(_ int: Int32) -> InlineArray<count, UInt8> {
         var value = InlineArray<count, UInt8>(repeating: 0)
         var i = 0
-        for char in String(int) {
-            if i < count, let v = char.asciiValue {
-                value[unchecked: i] = v
-                i += 1
+        withUnsafeBytes(of: String(int)) {
+            for char in $0 {
+                if i < count {
+                    value[unchecked: i] = char
+                    i += 1
+                } else {
+                    break
+                }
             }
         }
         return value
@@ -295,7 +299,7 @@ extension HTTPDateFormat {
     #endif
     static func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
         return HTTPDateFormat.get(
-            year: 1900 + Int(gmt.tm_year),
+            year: 1900 + gmt.tm_year,
             month: UInt8(gmt.tm_mon),
             day: UInt8(gmt.tm_mday),
             dayOfWeek: UInt8(gmt.tm_wday),
