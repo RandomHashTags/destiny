@@ -69,10 +69,42 @@ extension HTTPHeaders {
         _ expr: some ExprSyntaxProtocol
     ) -> String? {
         guard let key = expr.stringLiteralString(context: context) else { return nil }
-        guard !key.contains(" ") else {
-            context.diagnose(.init(node: expr, message: DiagnosticMsg(id: "spacesNotAllowedInHTTPFieldName", message: "Spaces aren't allowed in HTTP field names.")))
+        if let illegalByte = illegalByte(key) {
+            context.diagnose(.init(node: expr, message: DiagnosticMsg(id: "illegalCharacterInHTTPFieldName", message: "Illegal character in HTTP field name: \(Character(UnicodeScalar(illegalByte))) (byte: \(illegalByte))")))
             return nil
         }
         return key
+    }
+
+    /// Spec: https://www.rfc-editor.org/rfc/rfc7230#section-3.2.6
+    /// 
+    /// - Returns: Byte not allowed in the field name.
+    public static func illegalByte(_ key: some StringProtocol) -> UInt8? {
+        guard !key.isEmpty else { return 0 }
+        return key.utf8.first {
+            switch $0 {
+            case 33, // !
+                35, // #
+                36, // $
+                37, // %
+                38, // &
+                39, // '
+                42, // *
+                43, // +
+                45, // -
+                46, // .
+                48...57, // digit
+                65...90, // uppercase letter
+                94, // ^
+                95, // _
+                96, // `
+                97...122,  // lowercase letter
+                124, // |
+                126: // ~
+                return false
+            default:
+                return true
+            }
+        }
     }
 }
