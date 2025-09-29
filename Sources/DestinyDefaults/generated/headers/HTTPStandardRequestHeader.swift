@@ -42,6 +42,56 @@ public enum HTTPStandardRequestHeader {
     case userAgent
     case via
 
+    /// Lowercased canonical name of the header used for comparison.
+    #if Inlinable
+    @inlinable
+    #endif
+    public var canonicalName: String {
+        switch self {
+        case .aim: "a-im"
+        case .accept: "accept"
+        case .acceptCharset: "accept-charset"
+        case .acceptDatetime: "accept-datetime"
+        case .acceptEncoding: "accept-encoding"
+        case .acceptLanguage: "accept-language"
+        case .accessControlRequestHeaders: "access-control-request-headers"
+        case .accessControlRequestMethod: "access-control-request-method"
+        case .authorization: "authorization"
+        case .cacheControl: "cache-control"
+        case .connection: "connection"
+        case .contentEncoding: "content-encoding"
+        case .contentLength: "content-length"
+        case .contentType: "content-type"
+        case .cookie: "cookie"
+        case .date: "date"
+        case .expect: "expect"
+        case .forwarded: "forwarded"
+        case .from: "from"
+        case .host: "host"
+        case .ifMatch: "if-match"
+        case .ifModifiedSince: "if-modified-since"
+        case .ifNoneMatch: "if-none-match"
+        case .ifRange: "if-range"
+        case .ifUnmodifiedSince: "if-unmodified-since"
+        case .maxForwards: "max-forwards"
+        case .origin: "origin"
+        case .pragma: "pragma"
+        case .prefer: "prefer"
+        case .proxyAuthorization: "proxy-authorization"
+        case .range: "range"
+        case .referer: "referer"
+        case .te: "te"
+        case .trailer: "trailer"
+        case .transferEncoding: "transfer-encoding"
+        case .upgrade: "upgrade"
+        case .userAgent: "user-agent"
+        case .via: "via"
+        }
+    }
+}
+
+#if HTTPStandardRequestHeaderRawNames
+extension HTTPStandardRequestHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -88,6 +138,7 @@ public enum HTTPStandardRequestHeader {
         }
     }
 }
+#endif
 
 #if HTTPStandardRequestHeaderHashable
 extension HTTPStandardRequestHeader: Hashable {

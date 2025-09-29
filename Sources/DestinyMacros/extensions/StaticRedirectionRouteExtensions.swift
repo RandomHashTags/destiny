@@ -10,7 +10,7 @@ extension StaticRedirectionRoute {
     /// The HTTP Message of this route. Computed at compile time.
     public func genericResponse() -> GenericHTTPResponseMessage<StaticString, HTTPCookie> {
         var headers = HTTPHeaders()
-        headers["Date"] = HTTPDateFormat.placeholder
+        headers["date"] = HTTPDateFormat.placeholder
         return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
     }
 }
@@ -25,7 +25,7 @@ extension StaticRedirectionRoute {
     /// The HTTP Message of this route. Computed at compile time.
     public func nonEmbeddedResponse() -> HTTPResponseMessage {
         var headers = HTTPHeaders()
-        headers["Date"] = HTTPDateFormat.placeholder
+        headers["date"] = HTTPDateFormat.placeholder
         return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
     }
 }

@@ -32,7 +32,7 @@ extension ResponseBody {
         @inlinable
         #endif
         public func string() -> String {
-            value.string()
+            value.unsafeString()
         }
 
         #if Inlinable

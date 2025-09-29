@@ -248,7 +248,7 @@ extension HTTPResponseMessage {
     @inlinable
     #endif
     func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: String) {
-        let headerKey:InlineArray<_, UInt8> = [83, 101, 116, 45, 67, 111, 111, 107, 105, 101, 58, 32] // "Set-Cookie: "
+        let headerKey:InlineArray<_, UInt8> = [.s, .e, .t, .subtract, .c, .o, .o, .k, .i, .e, .colon, .space]
         writeInlineArray(to: buffer, index: &i, array: headerKey)
 
         writeString(to: buffer, index: &i, string: cookie)
@@ -267,18 +267,18 @@ extension HTTPResponseMessage {
     ) throws(BufferWriteError) {
         guard var body else { return }
         if contentType != nil {
-            let contentTypeHeader:InlineArray<_, UInt8> = [67, 111, 110, 116, 101, 110, 116, 45, 84, 121, 112, 101, 58, 32] // "Content-Type: "
+            let contentTypeHeader:InlineArray<_, UInt8> = [.c, .o, .n, .t, .e, .n, .t, .subtract, .t, .y, .p, .e, .colon, .space]
             writeInlineArray(to: buffer, index: &i, array: contentTypeHeader)
 
             writeString(to: buffer, index: &i, string: contentTypeDescription)
             if charset != nil {
-                let charsetSpan:InlineArray<_, UInt8> = [59, 32, 99, 104, 97, 114, 115, 101, 116, 61] // "; charset="
+                let charsetSpan:InlineArray<_, UInt8> = [59, .space, .c, .h, .a, .r, .s, .e, .t, 61] // "; charset="
                 writeInlineArray(to: buffer, index: &i, array: charsetSpan)
                 writeString(to: buffer, index: &i, string: charsetRawName)
             }
             writeCRLF(to: buffer, index: &i)
         }
-        let contentLengthHeader:InlineArray<_, UInt8> = [67, 111, 110, 116, 101, 110, 116, 45, 76, 101, 110, 103, 116, 104, 58, 32] // "Content-Length: "
+        let contentLengthHeader:InlineArray<_, UInt8> = [.c, .o, .n, .t, .e, .n, .t, .subtract, .l, .e, .n, .g, .t, .h, .colon, .space]
         writeInlineArray(to: buffer, index: &i, array: contentLengthHeader)
 
         writeString(to: buffer, index: &i, string: contentLengthString)
@@ -359,7 +359,7 @@ extension HTTPResponseMessage {
         status: HTTPResponseStatus.Code = HTTPStandardResponseStatus.temporaryRedirect.code,
         headers: inout HTTPHeaders
     ) -> Self {
-        headers["Location"] = "/\(target)"
+        headers["location"] = "/\(target)"
         return Self(
             version: version, 
             status: status,

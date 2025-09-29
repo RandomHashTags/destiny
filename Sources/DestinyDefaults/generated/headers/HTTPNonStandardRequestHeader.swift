@@ -21,6 +21,36 @@ public enum HTTPNonStandardRequestHeader {
     case xUIDH
     case xWapProfile
 
+    /// Lowercased canonical name of the header used for comparison.
+    #if Inlinable
+    @inlinable
+    #endif
+    public var canonicalName: String {
+        switch self {
+        case .correlationID: "correlation-id"
+        case .dnt: "dnt"
+        case .frontEndHttps: "front-end-https"
+        case .proxyConnection: "proxy-connection"
+        case .saveData: "save-data"
+        case .secGPC: "sec-gpc"
+        case .upgradeInsecureRequests: "upgrade-insecure-requests"
+        case .xATTDeviceID: "x-att-device-id"
+        case .xCorrelationID: "x-correlation-id"
+        case .xCsrfToken: "x-csrf-token"
+        case .xForwardedFor: "x-forwarded-for"
+        case .xForwardedHost: "x-forwarded-host"
+        case .xForwardedProto: "x-forwarded-proto"
+        case .xHttpMethodOverride: "x-http-method-override"
+        case .xRequestID: "x-request-id"
+        case .xRequestedWith: "x-requested-with"
+        case .xUIDH: "x-uidh"
+        case .xWapProfile: "x-wap-profile"
+        }
+    }
+}
+
+#if HTTPNonStandardRequestHeaderRawNames
+extension HTTPNonStandardRequestHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -47,6 +77,7 @@ public enum HTTPNonStandardRequestHeader {
         }
     }
 }
+#endif
 
 #if HTTPNonStandardRequestHeaderHashable
 extension HTTPNonStandardRequestHeader: Hashable {

@@ -18,11 +18,13 @@ extension HTTPRequestHeaders {
         var rawValueCases = [String]()
         var cases = [String]()
         var rawNames = [String]()
-        for value in values {
-            rawValueInitCases.append("        case \"\(value.0)\": self = .\(value.0)")
-            rawValueCases.append("        case .\(value.0): \"\(value.0)\"")
-            cases.append("    case \(value.0)")
-            rawNames.append("        case .\(value.0): \"\(value.1)\"")
+        var canonicalNames = [String]()
+        for (caseName, name) in values {
+            rawValueInitCases.append("        case \"\(caseName)\": self = .\(caseName)")
+            rawValueCases.append("        case .\(caseName): \"\(caseName)\"")
+            cases.append("    case \(caseName)")
+            rawNames.append("        case .\(caseName): \"\(name)\"")
+            canonicalNames.append("        case .\(caseName): \"\(name.lowercased())\"")
         }
         let comment = type == "Standard" ? "/// https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields\n" : ""
         return """
@@ -32,6 +34,19 @@ extension HTTPRequestHeaders {
         \(comment)public enum \(name) {
         \(cases.joined(separator: "\n"))
 
+            /// Lowercased canonical name of the header used for comparison.
+            #if Inlinable
+            @inlinable
+            #endif
+            public var canonicalName: String {
+                switch self {
+        \(canonicalNames.joined(separator: "\n"))
+                }
+            }
+        }
+
+        #if \(name)RawNames
+        extension \(name) {
             #if Inlinable
             @inlinable
             #endif
@@ -41,6 +56,7 @@ extension HTTPRequestHeaders {
                 }
             }
         }
+        #endif
 
         #if \(name)Hashable
         extension \(name): Hashable {

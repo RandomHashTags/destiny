@@ -62,7 +62,7 @@ extension Route {
         cookies: [HTTPCookie]
     ) -> (StaticRoute?, DynamicRoute?) {
         if let contentType = details.contentType {
-            headers["Content-Type"] = contentType
+            headers["content-type"] = contentType
         }
         if details.path.firstIndex(where: { $0.isParameter }) == nil && details.handler == nil { // static route
             let route = StaticRoute(

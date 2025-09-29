@@ -91,7 +91,7 @@ public struct GenericStaticRoute<
             var contentType = contentType
             var headers = HTTPHeaders()
             if body?.hasDateHeader ?? false {
-                headers["Date"] = HTTPDateFormat.placeholder
+                headers["date"] = HTTPDateFormat.placeholder
             }
             var cookies = [HTTPCookie]()
             middleware.forEach { middleware in
@@ -99,8 +99,8 @@ public struct GenericStaticRoute<
                     middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
                 }
             }
-            headers["Content-Type"] = nil
-            headers["Content-Length"] = nil
+            headers["content-type"] = nil
+            headers["content-length"] = nil
             return GenericHTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
         }
     }

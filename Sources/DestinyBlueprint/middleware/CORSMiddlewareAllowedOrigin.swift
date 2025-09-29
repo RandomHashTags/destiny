@@ -37,7 +37,7 @@ extension CORSMiddlewareAllowedOrigin {
     static func applyAll(
         response: inout some DynamicResponseProtocol
     ) {
-        response.setHeader(key: "Access-Control-Allow-Origin", value: "*")
+        response.setHeader(key: "access-control-allow-origin", value: "*")
     }
 
     #if Inlinable
@@ -48,8 +48,8 @@ extension CORSMiddlewareAllowedOrigin {
         response: inout some DynamicResponseProtocol,
         origins: Set<String>
     ) throws(SocketError) {
-        if let origin = try request.header(forKey: "Origin"), origins.contains(origin) {
-            response.setHeader(key: "Access-Control-Allow-Origin", value: origin)
+        if let origin = try request.header(forKey: "origin"), origins.contains(origin) {
+            response.setHeader(key: "access-control-allow-origin", value: origin)
         }
     }
 
@@ -60,7 +60,7 @@ extension CORSMiddlewareAllowedOrigin {
         response: inout some DynamicResponseProtocol,
         string: String
     ) {
-        response.setHeader(key: "Access-Control-Allow-Origin", value: string)
+        response.setHeader(key: "access-control-allow-origin", value: string)
     }
 
     #if Inlinable
@@ -70,9 +70,9 @@ extension CORSMiddlewareAllowedOrigin {
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
     ) throws(SocketError) {
-        response.setHeader(key: "Vary", value: "origin")
-        if let origin = try request.header(forKey: "Origin") {
-            response.setHeader(key: "Access-Control-Allow-Origin", value: origin)
+        response.setHeader(key: "vary", value: "origin")
+        if let origin = try request.header(forKey: "origin") {
+            response.setHeader(key: "access-control-allow-origin", value: origin)
         }
     }
 }
@@ -105,7 +105,7 @@ extension CORSMiddlewareAllowedOrigin {
     static func applyAll(
         headers: inout some HTTPHeadersProtocol
     ) {
-        headers["Access-Control-Allow-Origin"] = "*"
+        headers["access-control-allow-origin"] = "*"
     }
 
     #if Inlinable
@@ -116,8 +116,8 @@ extension CORSMiddlewareAllowedOrigin {
         headers: inout some HTTPHeadersProtocol,
         origins: Set<String>
     ) throws(SocketError) {
-        if let origin = try request.header(forKey: "Origin"), origins.contains(origin) {
-            headers["Access-Control-Allow-Origin"] = origin
+        if let origin = try request.header(forKey: "origin"), origins.contains(origin) {
+            headers["access-control-allow-origin"] = origin
         }
     }
 
@@ -128,7 +128,7 @@ extension CORSMiddlewareAllowedOrigin {
         headers: inout some HTTPHeadersProtocol,
         string: String
     ) {
-        headers["Access-Control-Allow-Origin"] = string
+        headers["access-control-allow-origin"] = string
     }
 
     #if Inlinable
@@ -138,9 +138,9 @@ extension CORSMiddlewareAllowedOrigin {
         request: inout some HTTPRequestProtocol & ~Copyable,
         headers: inout some HTTPHeadersProtocol
     ) throws(SocketError) {
-        headers["Vary"] = "origin"
-        if let origin = try request.header(forKey: "Origin") {
-            headers["Access-Control-Allow-Origin"] = origin
+        headers["vary"] = "origin"
+        if let origin = try request.header(forKey: "origin") {
+            headers["access-control-allow-origin"] = origin
         }
     }
 }

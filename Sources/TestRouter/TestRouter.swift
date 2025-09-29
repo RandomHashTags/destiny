@@ -38,30 +38,30 @@ extension TestRouter {
         middleware: [
             StaticMiddleware(
                 appliesContentType: nil,
-                appliesHeaders: ["Server":"destiny"],
+                appliesHeaders: ["server":"destiny"],
                 excludedRoutes: ["plaintext"]
             ),
             StaticMiddleware(
                 handlesVersions: [.v1_0],
                 appliesContentType: nil,
-                appliesHeaders: ["Version":"destiny1.0"]
+                appliesHeaders: ["version":"destiny1.0"]
             ),
             StaticMiddleware(
                 handlesVersions: [.v1_1],
                 appliesContentType: nil,
-                appliesHeaders: ["Version":"destiny1.1", "Connection":"close"],
+                appliesHeaders: ["version":"destiny1.1", "connection":"close"],
                 appliesCookies: [HTTPCookie(name: "cookie1", value: "yessir"), HTTPCookie(name: "cookie2", value: "pogchamp")],
                 excludedRoutes: ["plaintext"]
             ),
             StaticMiddleware(
                 handlesVersions: [.v2_0],
                 appliesContentType: nil,
-                appliesHeaders: ["Version":"destiny2.0"]
+                appliesHeaders: ["version":"destiny2.0"]
             ),
             StaticMiddleware(
                 handlesVersions: [.v3_0],
                 appliesContentType: nil,
-                appliesHeaders: ["Version":"destiny3.0"]
+                appliesHeaders: ["version":"destiny3.0"]
             ),
             StaticMiddleware(
                 handlesMethods: [HTTPStandardRequestMethod.get],
@@ -73,13 +73,13 @@ extension TestRouter {
             StaticMiddleware(
                 handlesMethods: [HTTPStandardRequestMethod.get],
                 appliesContentType: nil,
-                appliesHeaders: ["You-GET'd":"true"],
+                appliesHeaders: ["you-get'd":"true"],
                 excludedRoutes: ["plaintext"]
             ),
             StaticMiddleware(
                 handlesMethods: [HTTPStandardRequestMethod.post],
                 appliesContentType: nil,
-                appliesHeaders: ["You-POST'd":"true"]
+                appliesHeaders: ["you-post'd":"true"]
             ),
             StaticMiddleware(
                 handlesMethods: [HTTPStandardRequestMethod.get],
@@ -91,9 +91,9 @@ extension TestRouter {
             DynamicMiddleware({ request, response in
                 guard try request.isMethod(HTTPRequestMethod(name: "GET")) else { return }
                 #if canImport(FoundationEssentials) || canImport(Foundation)
-                response.setHeader(key: "Womp-Womp", value: UUID().uuidString)
+                response.setHeader(key: "womp-womp", value: UUID().uuidString)
                 #else
-                response.setHeader(key: "Womp-Womp", value: String(UInt64.random(in: 0..<UInt64.max)))
+                response.setHeader(key: "womp-womp", value: String(UInt64.random(in: 0..<UInt64.max)))
                 #endif
             })
         ],
@@ -104,7 +104,7 @@ extension TestRouter {
             /*RouteGroup(
                 endpoint: "grouped",
                 staticMiddleware: [
-                    StaticMiddleware(appliesHeaders: ["routerGroup":"grouped"])
+                    StaticMiddleware(appliesHeaders: ["routergroup":"grouped"])
                 ],
                 Route.get(
                     path: ["hoopla"],
@@ -213,7 +213,7 @@ extension TestRouter {
             path: ["plaintext"],
             handler: { _, response in
                 response.setStatusCode(200) // ok
-                response.setHeader(key: "Server", value: "Destiny")
+                response.setHeader(key: "server", value: "Destiny")
                 response.setBody("Hello World!")
             }
         ),
@@ -234,8 +234,8 @@ extension TestRouter {
             path: ["dynamic"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
-                let header = try request.header(forKey: "Host") ?? "nil"
-                try response.setBody("Host=\(header)")
+                let header = try request.header(forKey: "host") ?? "nil"
+                try response.setBody("host=\(header)")
             }
         ),
         Route.get(

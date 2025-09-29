@@ -34,5 +34,7 @@ public protocol AbstractDynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     /// - Parameters:
     ///   - key: Header you want to modify.
     ///   - value: New header value to set.
+    /// 
+    /// - Warning: `key` is case-sensitive!
     mutating func setHeader(key: String, value: String)
 }

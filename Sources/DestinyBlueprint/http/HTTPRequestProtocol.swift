@@ -28,8 +28,8 @@ public protocol HTTPRequestProtocol: NetworkAddressable, ~Copyable {
     /// - Returns: Whether or not the request's method matches the given one.
     mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool
 
-    //func header<let keyCount: Int, let valueCount: Int>(forKey key: InlineArray<keyCount, UInt8>) -> InlineArray<valueCount, UInt8>?
-
+    /// - Returns: The value for the corresponding header key.
+    /// - Warning: `key` is case-sensitive!
     mutating func header(forKey key: String) throws(SocketError) -> String?
 
     /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
@@ -41,27 +41,3 @@ public protocol HTTPRequestProtocol: NetworkAddressable, ~Copyable {
         from socket: consuming some HTTPSocketProtocol & ~Copyable
     ) throws(SocketError) -> Self
 }
-
-/*
-extension HTTPRequestProtocol where Self: ~Copyable {
-    #if Inlinable
-    @inlinable
-    #endif
-    public func isMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
-        isMethod(method.rawName)
-    }
-}*/
-
-/*
-/// Core protocol that handles data for a request.
-/// 
-/// Some examples of data that is usually stored include:
-/// - Authentication headers
-/// - Cookies
-/// - Unique IDs
-public protocol RequestStorageProtocol: Sendable, ~Copyable {
-    /// - Returns: The stored value for the associated key.
-    func get<K, V>(key: K) -> V?
-    /// Stores the value for the associated key.
-    func set<K, V>(key: K, value: V?)
-}*/

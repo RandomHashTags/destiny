@@ -48,6 +48,62 @@ public enum HTTPStandardResponseHeader {
     case via
     case wwwAuthenticate
 
+    /// Lowercased canonical name of the header used for comparison.
+    #if Inlinable
+    @inlinable
+    #endif
+    public var canonicalName: String {
+        switch self {
+        case .acceptPatch: "accept-patch"
+        case .acceptRanges: "accept-ranges"
+        case .accessControlAllowOrigin: "access-control-allow-origin"
+        case .accessControlAllowCredentials: "access-control-allow-credentials"
+        case .accessControlAllowHeaders: "access-control-allow-headers"
+        case .accessControlAllowMethods: "access-control-allow-methods"
+        case .accessControlExposeHeaders: "access-control-expose-headers"
+        case .accessControlMaxAge: "access-control-max-age"
+        case .age: "age"
+        case .allow: "allow"
+        case .altSvc: "alt-svc"
+        case .cacheControl: "cache-control"
+        case .connection: "connection"
+        case .contentDisposition: "content-disposition"
+        case .contentEncoding: "content-encoding"
+        case .contentLanguage: "content-language"
+        case .contentLength: "content-length"
+        case .contentLocation: "content-location"
+        case .contentRange: "content-range"
+        case .contentType: "content-type"
+        case .date: "date"
+        case .deltaBase: "delta-base"
+        case .eTag: "etag"
+        case .expires: "expires"
+        case .im: "im"
+        case .lastModified: "last-modified"
+        case .link: "link"
+        case .location: "location"
+        case .p3p: "p3p"
+        case .pragma: "pragma"
+        case .preferenceApplied: "preference-applied"
+        case .proxyAuthenticate: "proxy-authenticate"
+        case .publicKeyPins: "public-key-pins"
+        case .retryAfter: "retry-after"
+        case .server: "server"
+        case .setCookie: "set-cookie"
+        case .strictTransportSecurity: "strict-transport-security"
+        case .tk: "tk"
+        case .trailer: "trailer"
+        case .transferEncoding: "transfer-encoding"
+        case .upgrade: "upgrade"
+        case .vary: "vary"
+        case .via: "via"
+        case .wwwAuthenticate: "www-authenticate"
+        }
+    }
+}
+
+#if HTTPStandardResponseHeaderRawNames
+extension HTTPStandardResponseHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -100,6 +156,7 @@ public enum HTTPStandardResponseHeader {
         }
     }
 }
+#endif
 
 #if HTTPStandardResponseHeaderHashable
 extension HTTPStandardResponseHeader: Hashable {

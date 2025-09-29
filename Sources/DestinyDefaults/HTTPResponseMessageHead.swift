@@ -38,7 +38,7 @@ public struct HTTPResponseMessageHead<
             string += "\(header): \(value)\(suffix)"
         }
         for cookie in cookies {
-            string += "Set-Cookie: \(cookie)\(suffix)"
+            string += "set-cookie: \(cookie)\(suffix)"
         }
         return string
     }

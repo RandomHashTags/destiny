@@ -7,6 +7,7 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
     @usableFromInline
     var _storage:[(key: String, value: String)]
 
+    /// - Warning: Keys are case-sensitive!
     #if Inlinable
     @inlinable
     #endif
@@ -14,6 +15,7 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
         self._storage = _storage
     }
 
+    /// - Warning: Keys are case-sensitive!
     #if Inlinable
     @inlinable
     #endif
@@ -26,6 +28,8 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
         self._storage = array
     }
 
+    /// Creates an instance initialized with the given key-value pairs.
+    /// - Warning: Keys are case-sensitive!
     #if Inlinable
     @inlinable
     #endif
@@ -47,6 +51,7 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
 
 extension HTTPHeaders {
     /// - Complexity: Reading or writing a header value that already exists is O(_n_), while removing a header (writing `nil`) is O(2*n*) if it exists and O(_n_) on average if it doesn't.
+    /// - Warning: `header` is case-sensitive!
     #if Inlinable
     @inlinable
     #endif
@@ -70,6 +75,7 @@ extension HTTPHeaders {
     /// Whether or not the given header exists.
     /// 
     /// - Complexity: O(_n_).
+    /// - Warning: `header` is case-sensitive!
     #if Inlinable
     @inlinable
     #endif

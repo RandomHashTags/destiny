@@ -3,13 +3,7 @@ import VariableLengthArray
 
 // MARK: VLArray
 extension VLArray where Element == UInt8 {
-    #if Inlinable
-    @inlinable
-    #endif
-    public func withUnsafeBufferPointer<E: Error, R>(_ body: (UnsafeBufferPointer<Element>) throws(E) -> R) throws(E) -> R {
-        return try body(UnsafeBufferPointer.init(storage))
-    }
-
+    /// - Returns: A case-literal `String` initialized from `storage`.
     #if Inlinable
     @inlinable
     #endif
@@ -19,6 +13,7 @@ extension VLArray where Element == UInt8 {
         })
     }
 
+    /// - Returns: A case-literal `String` initialized from `storage`.
     #if Inlinable
     @inlinable
     #endif
@@ -85,23 +80,9 @@ extension InlineArray where Element == UInt8 {
 
 // MARK: string
 extension InlineArray where Element == UInt8 {
-    #if Inlinable
-    @inlinable
-    #endif
-    public func string(offset: Index = 0) -> String {
-        var s = ""
-        var i = offset
-        while i < endIndex {
-            let char = self[unchecked: i]
-            if char == 0 {
-                break
-            }
-            s.append(Character(Unicode.Scalar(char)))
-            i += 1
-        }
-        return s
-    }
-
+    /// Efficiently initializes a `String` from `span`.
+    /// 
+    /// - Returns: A case-literal `String` initialized from `span`.
     #if Inlinable
     @inlinable
     #endif
@@ -113,6 +94,9 @@ extension InlineArray where Element == UInt8 {
         }
     }
 
+    /// Efficiently initializes a `String` from `span`.
+    /// 
+    /// - Returns: A case-literal `String` initialized from `span`.
     #if Inlinable
     @inlinable
     #endif

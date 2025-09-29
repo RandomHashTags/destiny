@@ -34,7 +34,7 @@ extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
         do throws(SocketError) {
-            guard try request.header(forKey: "Origin") != nil else { return true }
+            guard try request.header(forKey: "origin") != nil else { return true }
             try allowedOrigin.apply(request: &request, response: &response)
             logicKind.apply(to: &response)
             return true
@@ -57,7 +57,7 @@ extension DynamicCORSMiddleware {
     ///   - maxAge: How long the response to the preflight request can be cached without sending another preflight request; measured in seconds. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-max-age).
     public static func build(
         allowedOrigin: CORSMiddlewareAllowedOrigin = .originBased,
-        allowedHeaders: Set<String> = ["Accept", "Authorization", "Content-Type", "Origin"],
+        allowedHeaders: Set<String> = ["accept", "authorization", "content-type", "origin"],
         allowedMethods: [String] = [
             "GET",
             "POST",
@@ -120,11 +120,11 @@ extension DynamicCORSMiddleware {
         exposedHeaders: Set<HTTPStandardRequestHeader>? = nil,
         maxAge: Int? = 3600 // one hour
     ) {
-        let allowedHeaders = Set(allowedHeaders.map({ $0.rawName }))
+        let allowedHeaders = Set(allowedHeaders.map({ $0.canonicalName }))
         let allowedMethods = allowedMethods.map({ $0.rawNameString() })
         let exposedLiteralHeaders:Set<String>?
         if let e = exposedHeaders {
-            exposedLiteralHeaders = Set(e.map({ $0.rawName }))
+            exposedLiteralHeaders = Set(e.map({ $0.canonicalName }))
         } else {
             exposedLiteralHeaders = nil
         }
@@ -151,8 +151,8 @@ extension DynamicCORSMiddleware {
         _ allowedHeaders: String,
         _ allowedMethods: String
     ) {
-        response.setHeader(key: "Access-Control-Allow-Headers", value: allowedHeaders)
-        response.setHeader(key: "Access-Control-Allow-Methods", value: allowedMethods)
+        response.setHeader(key: "access-control-allow-headers", value: allowedHeaders)
+        response.setHeader(key: "access-control-allow-methods", value: allowedMethods)
     }
 }
 
@@ -168,7 +168,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         logic_exposedHeaders_maxAge(&response, allowedHeaders, allowedMethods, exposedHeaders, maxAgeString)
-        response.setHeader(key: "Access-Control-Allow-Credentials", value: "true")
+        response.setHeader(key: "access-control-allow-credentials", value: "true")
     }
 
     #if Inlinable
@@ -181,7 +181,7 @@ extension DynamicCORSMiddleware {
         _ exposedHeaders: String
     ) {
         logic_exposedHeaders(&response, allowedHeaders, allowedMethods, exposedHeaders)
-        response.setHeader(key: "Access-Control-Allow-Credentials", value: "true")
+        response.setHeader(key: "access-control-allow-credentials", value: "true")
     }
 
     #if Inlinable
@@ -194,7 +194,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         logic_allowCredentials(&response, allowedHeaders, allowedMethods)
-        response.setHeader(key: "Access-Control-Max-Age", value: maxAgeString)
+        response.setHeader(key: "access-control-max-age", value: maxAgeString)
     }
 
     #if Inlinable
@@ -206,7 +206,7 @@ extension DynamicCORSMiddleware {
         _ allowedMethods: String
     ) {
         Self.handleSharedLogic(&response, allowedHeaders, allowedMethods)
-        response.setHeader(key: "Access-Control-Allow-Credentials", value: "true")
+        response.setHeader(key: "access-control-allow-credentials", value: "true")
     }
 }
 
@@ -222,7 +222,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         logic_exposedHeaders(&response, allowedHeaders, allowedMethods, exposedHeaders)
-        response.setHeader(key: "Access-Control-Max-Age", value: maxAgeString)
+        response.setHeader(key: "access-control-max-age", value: maxAgeString)
     }
 
     #if Inlinable
@@ -235,7 +235,7 @@ extension DynamicCORSMiddleware {
         _ exposedHeaders: String
     ) {
         Self.handleSharedLogic(&response, allowedHeaders, allowedMethods)
-        response.setHeader(key: "Access-Control-Expose-Headers", value: exposedHeaders)
+        response.setHeader(key: "access-control-expose-headers", value: exposedHeaders)
     }
 }
 
@@ -250,7 +250,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         Self.handleSharedLogic(&response, allowedHeaders, allowedMethods)
-        response.setHeader(key: "Access-Control-Max-Age", value: maxAgeString)
+        response.setHeader(key: "access-control-max-age", value: maxAgeString)
     }
 }
 
@@ -264,8 +264,8 @@ extension DynamicCORSMiddleware {
         _ allowedHeaders: String,
         _ allowedMethods: String
     ) {
-        headers["Access-Control-Allow-Headers"] = allowedHeaders
-        headers["Access-Control-Allow-Methods"] = allowedMethods
+        headers["access-control-allow-headers"] = allowedHeaders
+        headers["access-control-allow-methods"] = allowedMethods
     }
 }
 
@@ -281,7 +281,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         logic_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAgeString)
-        headers["Access-Control-Allow-Credentials"] = "true"
+        headers["access-control-allow-credentials"] = "true"
     }
 
     #if Inlinable
@@ -294,7 +294,7 @@ extension DynamicCORSMiddleware {
         _ exposedHeaders: String
     ) {
         logic_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
-        headers["Access-Control-Allow-Credentials"] = "true"
+        headers["access-control-allow-credentials"] = "true"
     }
 
     #if Inlinable
@@ -307,7 +307,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         logic_allowCredentials(&headers, allowedHeaders, allowedMethods)
-        headers["Access-Control-Max-Age"] = maxAgeString
+        headers["access-control-max-age"] = maxAgeString
     }
 
     #if Inlinable
@@ -319,7 +319,7 @@ extension DynamicCORSMiddleware {
         _ allowedMethods: String
     ) {
         Self.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
-        headers["Access-Control-Allow-Credentials"] = "true"
+        headers["access-control-allow-credentials"] = "true"
     }
 }
 
@@ -335,7 +335,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         logic_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
-        headers["Access-Control-Max-Age"] = maxAgeString
+        headers["access-control-max-age"] = maxAgeString
     }
 
     #if Inlinable
@@ -348,7 +348,7 @@ extension DynamicCORSMiddleware {
         _ exposedHeaders: String
     ) {
         Self.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
-        headers["Access-Control-Expose-Headers"] = exposedHeaders
+        headers["access-control-expose-headers"] = exposedHeaders
     }
 }
 
@@ -363,7 +363,7 @@ extension DynamicCORSMiddleware {
         _ maxAgeString: String
     ) {
         Self.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
-        headers["Access-Control-Max-Age"] = maxAgeString
+        headers["access-control-max-age"] = maxAgeString
     }
 }
 

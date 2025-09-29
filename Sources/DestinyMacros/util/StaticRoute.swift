@@ -90,7 +90,7 @@ extension StaticRoute {
             var contentType = contentType
             var headers = HTTPHeaders()
             if body?.hasDateHeader ?? false {
-                headers["Date"] = HTTPDateFormat.placeholder
+                headers["date"] = HTTPDateFormat.placeholder
             }
             var cookies = [HTTPCookie]()
             middleware.forEach { middleware in
@@ -98,18 +98,18 @@ extension StaticRoute {
                     middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
                 }
             }
-            headers["Content-Type"] = nil
-            headers["Content-Length"] = nil
+            headers["content-type"] = nil
+            headers["content-length"] = nil
             return Self.response(version: version, status: status, headers: &headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
         }
     #else
         public func response() -> some HTTPMessageProtocol {
             var headers = HTTPHeaders()
             if body?.hasDateHeader ?? false {
-                headers["Date"] = HTTPDateFormat.placeholder
+                headers["date"] = HTTPDateFormat.placeholder
             }
-            headers["Content-Type"] = nil
-            headers["Content-Length"] = nil
+            headers["content-type"] = nil
+            headers["content-length"] = nil
             return Self.response(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
         }
     #endif
@@ -124,8 +124,8 @@ extension StaticRoute {
         contentType: String?,
         charset: Charset?
     ) -> some HTTPMessageProtocol {
-        headers["Content-Type"] = nil
-        headers["Content-Length"] = nil
+        headers["content-type"] = nil
+        headers["content-length"] = nil
         return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
 }

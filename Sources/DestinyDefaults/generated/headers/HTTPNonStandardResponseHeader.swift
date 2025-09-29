@@ -20,6 +20,35 @@ public enum HTTPNonStandardResponseHeader {
     case xWebKitCSP
     case xXSSProtection
 
+    /// Lowercased canonical name of the header used for comparison.
+    #if Inlinable
+    @inlinable
+    #endif
+    public var canonicalName: String {
+        switch self {
+        case .contentSecurityPolicy: "content-security-policy"
+        case .expectCT: "expect-ct"
+        case .nel: "nel"
+        case .permissionsPolicy: "permissions-policy"
+        case .refresh: "refresh"
+        case .reportTo: "report-to"
+        case .status: "status"
+        case .timingAllowOrigin: "timing-allow-origin"
+        case .xContentSecurityPolicy: "x-content-security-policy"
+        case .xContentTypeOptions: "x-content-type-options"
+        case .xCorrelationID: "x-correlation-id"
+        case .xPoweredBy: "x-powered-by"
+        case .xRedirectBy: "x-redirect-by"
+        case .xRequestID: "x-request-id"
+        case .xUACompatible: "x-ua-compatible"
+        case .xWebKitCSP: "x-webkit-csp"
+        case .xXSSProtection: "x-xss-protection"
+        }
+    }
+}
+
+#if HTTPNonStandardResponseHeaderRawNames
+extension HTTPNonStandardResponseHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -45,6 +74,7 @@ public enum HTTPNonStandardResponseHeader {
         }
     }
 }
+#endif
 
 #if HTTPNonStandardResponseHeaderHashable
 extension HTTPNonStandardResponseHeader: Hashable {

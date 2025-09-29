@@ -223,7 +223,7 @@ extension Router {
             response: GenericHTTPResponseMessage(
                 version: version,
                 status: 404, // not found
-                headers: ["Date":HTTPDateFormat.placeholder],
+                headers: ["date":HTTPDateFormat.placeholder],
                 cookies: [HTTPCookie](),
                 body: "not found",
                 contentType: "text/plain",
