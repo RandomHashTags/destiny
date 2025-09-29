@@ -16,7 +16,7 @@ var pkgDependencies:[Package.Dependency] = [
     // Media types
     .package(
         url: "https://github.com/RandomHashTags/swift-media-types",
-        branch: "main",
+        from: "0.1.0",
         traits: ["MediaTypes", "RawValues", "FileExtensionInits", "MediaTypeParsable"]
     ),
 
