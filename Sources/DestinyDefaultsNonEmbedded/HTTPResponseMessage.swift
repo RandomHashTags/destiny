@@ -84,11 +84,11 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
             var bodyString = body.string()
             bodyString.replace("\"", with: "\\\"")
             if let contentType {
-                string += "Content-Type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "content-type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
             if body.hasContentLength {
                 let contentLength = bodyString.utf8Span.count
-                string += "Content-Length: \(contentLength)\(suffix)\(suffix)\(bodyString)"
+                string += "content-length: \(contentLength)\(suffix)\(suffix)\(bodyString)"
             } else {
                 string += "\(suffix)\(bodyString)"
             }
@@ -104,11 +104,11 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
         var string = head.string(suffix: suffix)
         if let body {
             if let contentType {
-                string += "Content-Type: \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
+                string += "content-type: \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
             }
             if body.hasContentLength {
                 let contentLength = body.string().utf8Span.count
-                string += "Content-Length: \(contentLength)\(suffix)\(suffix)"
+                string += "content-length: \(contentLength)\(suffix)\(suffix)"
             }
         }
         return string
@@ -406,9 +406,9 @@ extension HTTPResponseMessage {
         if let body {
             let contentLength = body.utf8Span.count
             if let contentType {
-                string += "Content-Type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "content-type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
-            string += "Content-Length: \(contentLength)\(suffix)\(suffix)\(body)"
+            string += "content-length: \(contentLength)\(suffix)\(suffix)\(body)"
         }
         return string
     }
@@ -527,9 +527,9 @@ extension HTTPResponseMessage {
         if let body {
             let contentLength = body.utf8Span.count
             if let mediaType {
-                string += "Content-Type: \(mediaType.template)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
+                string += "content-type: \(mediaType.template)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
-            string += "Content-Length: \(contentLength)\(suffix)\(suffix)\(body)"
+            string += "content-length: \(contentLength)\(suffix)\(suffix)\(body)"
         }
         return string
     }

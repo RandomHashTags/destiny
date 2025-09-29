@@ -196,12 +196,12 @@ extension TestRouter {
         Route.get(
             path: ["bytes2"],
             mediaType: MediaTypeText.plain,
-            body: ResponseBody.nonCopyableBytes([UInt8]("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
+            body: ResponseBody.nonCopyableBytes([UInt8]("HTTP/1.1 200\r\ncontent-type: text/plain\r\ncontent-length: 4\r\n\r\nbruh".utf8))
         ),
         Route.get(
             path: ["bytes3"],
             mediaType: MediaTypeText.plain,
-            body: ResponseBody.nonCopyableBytes(Array<UInt8>("HTTP/1.1 200\r\nContent-Type: text/plain\r\nContent-Length: 4\r\n\r\nbruh".utf8))
+            body: ResponseBody.nonCopyableBytes(Array<UInt8>("HTTP/1.1 200\r\ncontent-type: text/plain\r\ncontent-length: 4\r\n\r\nbruh".utf8))
         ),
         /*Route.get(
             path: ["error"],
