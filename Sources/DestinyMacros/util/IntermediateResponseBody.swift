@@ -1,22 +1,39 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import SwiftSyntax
 
 /// Sole purpose of this struct is to properly handle certain response bodies that aren't parsable with runtime data.
 public struct IntermediateResponseBody: ResponseBodyProtocol {
     public let type:IntermediateResponseBodyType
-    public let value:String
+    public let valueExpr:ExprSyntax
 
     public init(
         type: IntermediateResponseBodyType,
-        _ value: String
+        _ value: some ExprSyntaxProtocol
     ) {
         self.type = type
-        self.value = value
+        self.valueExpr = .init(value)
+    }
+
+    var value: String {
+        if let stringLiteral = valueExpr.stringLiteral {
+            return stringLiteral.segments.map({
+                if case let .stringSegment(seg) = $0 {
+                    return seg.content.text.replacing("\n", with: "\\n")
+                }
+                return "\($0)"
+            }).joined()
+        }
+        return valueExpr.description
     }
 
     public var count: Int {
-        value.count
+        var c = value.count
+        if let l = valueExpr.stringLiteral?.segments.count {
+            c -= (l - 1)
+        }
+        return c
     }
 
     public func string() -> String {

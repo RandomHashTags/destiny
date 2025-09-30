@@ -218,7 +218,8 @@ extension Router {
         version: HTTPVersion,
         isCopyable: Bool
     ) -> String? {
-        return IntermediateResponseBody(type: .staticStringWithDateHeader, "not found").responderDebugDescription(
+        let stringLiteral = StringLiteralExprSyntax(content: "not found")
+        return IntermediateResponseBody(type: .staticStringWithDateHeader, stringLiteral).responderDebugDescription(
             isCopyable: isCopyable,
             response: GenericHTTPResponseMessage(
                 version: version,

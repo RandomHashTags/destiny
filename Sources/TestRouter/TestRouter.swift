@@ -174,6 +174,15 @@ extension TestRouter {
             body: NonCopyableStaticStringWithDateHeader("just a regular txt page; t'was your destiny")
         ),
         Route.get(
+            path: ["string"],
+            mediaType: MediaTypeText.plain,
+            body: NonCopyableStaticStringWithDateHeader("""
+            0123just a regular txt page; t'was your destiny
+            y_up
+            yup!!
+            """)
+        ),
+        Route.get(
             path: ["inlineBytes"],
             mediaType: MediaTypeText.plain,
             body: ResponseBody.nonCopyableInlineBytes([

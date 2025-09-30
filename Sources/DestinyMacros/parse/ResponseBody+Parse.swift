@@ -10,7 +10,7 @@ extension ResponseBody {
         expr: some ExprSyntaxProtocol
     ) -> IntermediateResponseBody? {
         guard let function = expr.functionCall else {
-            if let string = expr.stringLiteral?.string {
+            if let string = expr.stringLiteral {
                 return .init(type: .string, string)
             }
             return nil
@@ -21,7 +21,7 @@ extension ResponseBody {
             key = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text.lowercased()
         }
         if let key, let type = IntermediateResponseBodyType(rawValue: key) {
-            return IntermediateResponseBody(type: type, firstArg.expression.stringLiteral?.string ?? firstArg.expression.description)
+            return IntermediateResponseBody(type: type, firstArg.expression)
         }
         context.diagnose(DiagnosticMsg.unhandled(node: expr))
         return nil

@@ -107,8 +107,7 @@ public struct HTTPResponseMessage: HTTPMessageProtocol {
                 string += "content-type: \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
             }
             if body.hasContentLength {
-                let contentLength = body.string().utf8Span.count
-                string += "content-length: \(contentLength)\(suffix)\(suffix)"
+                string += "content-length: \(body.count)\(suffix)\(suffix)"
             }
         }
         return string
