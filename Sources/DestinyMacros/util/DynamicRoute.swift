@@ -133,7 +133,7 @@ extension DynamicRoute {
 extension DynamicRoute {
     /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
     public func responderDebugDescription(useGenerics: Bool) -> String {
-        var response:String = "\(defaultResponse)"
+        var response = "\(defaultResponse)"
         #if GenericDynamicResponse
         if useGenerics {
             // TODO: convert body to `IntermediateBody`

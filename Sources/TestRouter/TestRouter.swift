@@ -30,6 +30,7 @@ package final class TestRouter {
 extension TestRouter {
     #declareRouter(
         routerSettings: .init(
+            //dynamicResponsesAreGeneric: false,
             visibility: .package
         ),
 

@@ -94,7 +94,7 @@ extension Route {
                     headers: headers,
                     cookies: cookies,
                     body: details.body,
-                    contentType: details.contentType,
+                    contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
                     charset: details.charset
                 ),
                 parameters: details.parameters
