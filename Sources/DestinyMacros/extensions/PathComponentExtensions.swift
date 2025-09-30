@@ -8,6 +8,7 @@ extension PathComponent: CustomDebugStringConvertible {
         case .literal(let s): "PathComponent.literal(\"\(s)\")"
         case .parameter(let s): "PathComponent.parameter(\"\(s)\")"
         case .catchall: "PathComponent.catchall"
+        case .components(let l, let r): "PathComponent.components(\(l.debugDescription), \(r?.debugDescription ?? "nil"))"
         }
     }
 }

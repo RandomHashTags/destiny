@@ -20,6 +20,27 @@ extension PathComponent: ExpressibleByStringLiteral {
             var correctedValue = String(value[value.index(after: value.startIndex)...])
             Self.removeChar(char: value.first!, &correctedValue)
             self = .parameter(correctedValue)
+        } else if let partialMatchStartIndex = value.firstIndex(of: "{"), let partialMatchEndIndex = value.firstIndex(of: "}") {
+            let parameterName = String(value[value.index(after: partialMatchStartIndex)..<partialMatchEndIndex])
+            let firstComponent:PathComponent
+            let secondComponent:PathComponent
+            if partialMatchStartIndex == value.startIndex {
+                firstComponent = .parameter(parameterName)
+            } else {
+                let before = String(value[value.startIndex..<partialMatchStartIndex])
+                firstComponent = .literal(before)
+            }
+            if partialMatchEndIndex == value.index(before: value.endIndex) {
+                secondComponent = .parameter(parameterName)
+            } else {
+                let targetComponent = Self(stringLiteral: String(value[value.index(after: partialMatchEndIndex)...]))
+                if firstComponent.isParameter {
+                    secondComponent = targetComponent
+                } else {
+                    secondComponent = .components(.parameter(parameterName), targetComponent)
+                }
+            }
+            self = .components(firstComponent, secondComponent)
         } else {
             var correctedValue = value
             Self.removeChar(char: ":", &correctedValue)

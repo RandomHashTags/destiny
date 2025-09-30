@@ -282,6 +282,11 @@ extension TestRouter {
                 response.setBody(response.parameter(at: 0))
             }
         ),
+        /*Route.get(
+            path: ["critters-{they}-bite"],
+            mediaType: MediaTypeText.plain,
+            body: NonCopyableStaticStringWithDateHeader("Cr1tters, THEY BITE!")
+        ),*/
         Route.get(
             path: ["catchall", "**"],
             mediaType: MediaTypeText.plain,

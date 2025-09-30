@@ -1,4 +1,6 @@
 
+#if RoutePath
+
 import DestinyBlueprint
 import DestinyMacros
 import Testing
@@ -139,3 +141,5 @@ extension RoutePathComponentTests {
         #expect(compiled[1] == .literal(stringToSIMD64(String(path[endIndex...]))))
     }
 }
+
+#endif

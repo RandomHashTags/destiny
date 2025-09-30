@@ -1,5 +1,8 @@
 
+#if NonEmbedded
+
 import DestinyDefaults
+import DestinyDefaultsNonEmbedded
 import Testing
 
 @Suite
@@ -22,3 +25,5 @@ struct RedirectionTests {
         #expect(msg == "HTTP/1.1 \(status)\r\nLocation: /yippie\r\nReally: rly\r\n")
     }
 }
+
+#endif

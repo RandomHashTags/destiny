@@ -59,6 +59,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 ### WIP
 
 - [ ] DocC Documentation
+- [ ] Route partial matching (via Regex or something else)
 - [ ] Unit testing
 - [ ] Rate Limits
 - [ ] Route queries
@@ -71,7 +72,6 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 
 - [ ] DocC Tutorials
 - [ ] Allow more than 64 bytes as the compared request line
-- [ ] Route partial matching (via Regex or something else)
 - [ ] Cache Middleware
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication

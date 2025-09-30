@@ -26,7 +26,8 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
         var buffer = InlineArray<1024, UInt8>(repeating: 0)
         var endIndex = 0
         let bufferCount = buffer.count
-        buffer.withUnsafeMutableBufferPointer {
+        var ms = buffer.mutableSpan
+        ms.withUnsafeMutableBufferPointer {
             endIndex = readBuffer(into: $0, length: bufferCount, flags: 0)
         }
         return .init(buffer: buffer, endIndex: endIndex)

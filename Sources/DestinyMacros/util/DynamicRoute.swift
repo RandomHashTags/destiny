@@ -17,7 +17,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
     /// Default HTTP Message computed by default values and static middleware.
     public var defaultResponse:DynamicResponse
     public let handler:@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
-    @usableFromInline package var handlerDebugDescription:String = "{ _, _ in }"
+    @usableFromInline package var handlerDebugDescription = "{ _, _ in }"
 
     /// `HTTPVersion` associated with this route.
     public let version:HTTPVersion

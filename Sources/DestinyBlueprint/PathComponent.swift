@@ -7,6 +7,8 @@ public enum PathComponent: Equatable, Sendable {
     case parameter(String)
     case catchall
 
+    indirect case components(PathComponent, PathComponent?)
+
     /// Whether or not this component is a literal.
     #if Inlinable
     @inlinable
@@ -16,7 +18,7 @@ public enum PathComponent: Equatable, Sendable {
         return true
     }
 
-    /// Whether or not this component is a parameter.
+    /// Whether or not this component does any route path matching.
     #if Inlinable
     @inlinable
     #endif
@@ -25,6 +27,7 @@ public enum PathComponent: Equatable, Sendable {
         case .literal:   false
         case .parameter: true
         case .catchall:  true
+        case .components(let l, let r): l.isParameter || (r?.isParameter ?? false)
         }
     }
 
@@ -35,9 +38,10 @@ public enum PathComponent: Equatable, Sendable {
     #endif
     public var slug: String {
         switch self {
-        case .literal(let value):   value
+        case .literal(let value): value
         case .parameter(let value): ":" + value
         case .catchall: "**"
+        case .components: ""
         }
     }
 
@@ -47,9 +51,10 @@ public enum PathComponent: Equatable, Sendable {
     #endif
     public var value: String {
         switch self {
-        case .literal(let value):   value
-        case .parameter(let value): value
-        case .catchall:             ""
+        case .literal(let s): s
+        case .parameter(let s): s
+        case .catchall: ""
+        case .components: ""
         }
     }
 }

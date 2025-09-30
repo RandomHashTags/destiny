@@ -82,7 +82,7 @@ extension RouterStorage {
             responders.append((buffer, literalResponder))
         }
         for (route, function) in parameterized {
-            var string = "\(route.method.rawNameString()) /\(route.path.map({ $0.isParameter ? ":any_parameter" : $0.slug }).joined(separator: "/")) \(route.version.string)"
+            var string = "\(route.method.rawNameString()) /\(route.path.map({ $0.isParameter ? ":any" : $0.slug }).joined(separator: "/")) \(route.version.string)"
             let pathLiteral = string
             string = getRouteStartLine(route)
             let buffer = SIMD64<UInt8>(pathLiteral)
@@ -325,6 +325,9 @@ extension RouterStorage {
                     case .parameter:
                         lastIsCatchall = false
                         lastIsParameter = true
+                    default: // TODO: fixme
+                        found = false
+                        break loop
                     }
                 }
                 if found && (lastIsCatchall || lastIsParameter && requestPathCount == pathComponentsCount) {

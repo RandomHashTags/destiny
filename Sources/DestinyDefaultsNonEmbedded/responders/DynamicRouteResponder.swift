@@ -13,13 +13,13 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
     public init(
         path: [PathComponent],
         defaultResponse: DynamicResponse,
-        logic: @Sendable @escaping (inout any HTTPRequestProtocol & ~Copyable, inout any DynamicResponseProtocol) async throws -> Void,
+        logic: (@Sendable (inout any HTTPRequestProtocol & ~Copyable, inout any DynamicResponseProtocol) async throws -> Void)?,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
         parameterPathIndexes = path.enumerated().compactMap({ $1.isParameter ? $0 : nil })
         self._defaultResponse = defaultResponse
-        self.logic = logic
+        self.logic = logic ?? { _, _ in }
         self.logicDebugDescription = logicDebugDescription
     }
 
