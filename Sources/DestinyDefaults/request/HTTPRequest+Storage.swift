@@ -3,12 +3,12 @@ extension HTTPRequest {
     /// Custom request storage.
     public struct Storage: Sendable, ~Copyable {
         @usableFromInline
-        var storage:[ObjectIdentifier:Sendable]
+        var storage:[ObjectIdentifier:any Sendable]
 
         #if Inlinable
         @inlinable
         #endif
-        public init(_ storage: [ObjectIdentifier:Sendable]) {
+        public init(_ storage: [ObjectIdentifier:any Sendable]) {
             self.storage = storage
         }
 

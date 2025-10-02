@@ -13,6 +13,7 @@ import DestinyDefaultsNonEmbedded
 
 extension RouterStorage {
     mutating func perfectHashResponder(
+        context: some MacroExpansionContext,
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
         #if NonEmbedded
@@ -28,6 +29,7 @@ extension RouterStorage {
         let copyable:String?
         var noncopyable:String? = nil
         if let declName = perfectHashDeclName(
+            context: context,
             namePrefix: namePrefix,
             random: getRandom(isCaseSensitive: isCaseSensitive),
             staticRoutes: staticRoutes,
@@ -39,6 +41,7 @@ extension RouterStorage {
             copyable = nil
         }
         if let declName = perfectHashDeclName(
+            context: context,
             namePrefix: namePrefix,
             random: getRandom(isCaseSensitive: isCaseSensitive),
             staticRoutes: staticRoutes,
@@ -67,6 +70,7 @@ extension RouterStorage {
 extension RouterStorage {
     #if NonEmbedded
     private mutating func perfectHashDeclName(
+        context: some MacroExpansionContext,
         namePrefix: String,
         random: Int,
         staticRoutes: [(StaticRoute, FunctionCallExprSyntax)],
@@ -86,6 +90,7 @@ extension RouterStorage {
 
         #if NonEmbedded
         appendStaticRoutes(
+            context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: staticRoutes,
@@ -93,6 +98,7 @@ extension RouterStorage {
             routeResponders: &routeResponders
         )
         appendDynamicRoutes(
+            context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: dynamicRoutes,

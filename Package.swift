@@ -362,6 +362,106 @@ let traits:Set<Trait> = [
     )
 ]
 
+// MARK: Targets
+var targets = [
+
+
+
+
+
+    // MARK: DestinyBlueprint
+    Target.target(
+        name: "DestinyBlueprint",
+        dependencies: [
+            .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
+            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
+            //.product(name: "Metrics", package: "swift-metrics"),
+            .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
+        ]
+    ),
+
+    // MARK: DestinyDefaults
+    .target(
+        name: "DestinyDefaults",
+        dependencies: [
+            "DestinyBlueprint",
+            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
+            //.product(name: "Metrics", package: "swift-metrics"),
+        ]
+    ),
+
+    // MARK: DestinyDefaultsNonEmbedded
+    .target(
+        name: "DestinyDefaultsNonEmbedded",
+        dependencies: [
+            "DestinyBlueprint",
+            "DestinyDefaults",
+            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
+            //.product(name: "Metrics", package: "swift-metrics"),
+        ]
+    ),
+
+    // MARK: Destiny
+    .target(
+        name: "Destiny",
+        dependencies: destinyDependencies
+    ),
+
+    // MARK: DestinySwiftSyntax
+    .target(
+        name: "DestinySwiftSyntax",
+        dependencies: [
+            "Destiny",
+            "DestinyMacros"
+        ]
+    ),
+
+    // MARK: PerfectHashing
+    .target(
+        name: "PerfectHashing"
+    ),
+
+    // MARK: DestinyMacros
+    .macro(
+        name: "DestinyMacros",
+        dependencies: destinyMacrosDependencies
+    ),
+
+    // MARK: TestRouter
+    .target(
+        name: "TestRouter",
+        dependencies: [
+            "DestinyBlueprint",
+            "DestinyDefaults",
+            "DestinySwiftSyntax"
+        ]
+    ),
+
+    .executableTarget(
+        name: "Run",
+        dependencies: [
+            "DestinyBlueprint",
+            "DestinyDefaults",
+            "TestRouter"
+        ]
+    ),
+
+    .testTarget(
+        name: "DestinyTests",
+        dependencies: [
+            "DestinySwiftSyntax",
+            "DestinyMacros",
+            "TestRouter"
+        ]
+    ),
+]
+
+
+// MARK: Swift Settings
+for target in targets {
+    target.swiftSettings = [.enableUpcomingFeature("ExistentialAny")]
+}
+
 let package = Package(
     name: "destiny",
     products: [
@@ -375,97 +475,5 @@ let package = Package(
     ],
     traits: traits,
     dependencies: pkgDependencies,
-    targets: [
-        // MARK: Targets
-
-
-
-
-
-        // MARK: DestinyBlueprint
-        .target(
-            name: "DestinyBlueprint",
-            dependencies: [
-                .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
-                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-                //.product(name: "Metrics", package: "swift-metrics"),
-                .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
-            ]
-        ),
-
-        // MARK: DestinyDefaults
-        .target(
-            name: "DestinyDefaults",
-            dependencies: [
-                "DestinyBlueprint",
-                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-                //.product(name: "Metrics", package: "swift-metrics"),
-            ]
-        ),
-
-        // MARK: DestinyDefaultsNonEmbedded
-        .target(
-            name: "DestinyDefaultsNonEmbedded",
-            dependencies: [
-                "DestinyBlueprint",
-                "DestinyDefaults",
-                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-                //.product(name: "Metrics", package: "swift-metrics"),
-            ]
-        ),
-
-        // MARK: Destiny
-        .target(
-            name: "Destiny",
-            dependencies: destinyDependencies
-        ),
-
-        // MARK: DestinySwiftSyntax
-        .target(
-            name: "DestinySwiftSyntax",
-            dependencies: [
-                "Destiny",
-                "DestinyMacros"
-            ]
-        ),
-
-        // MARK: PerfectHashing
-        .target(
-            name: "PerfectHashing"
-        ),
-
-        // MARK: DestinyMacros
-        .macro(
-            name: "DestinyMacros",
-            dependencies: destinyMacrosDependencies
-        ),
-
-        // MARK: TestRouter
-        .target(
-            name: "TestRouter",
-            dependencies: [
-                "DestinyBlueprint",
-                "DestinyDefaults",
-                "DestinySwiftSyntax"
-            ]
-        ),
-
-        .executableTarget(
-            name: "Run",
-            dependencies: [
-                "DestinyBlueprint",
-                "DestinyDefaults",
-                "TestRouter"
-            ]
-        ),
-
-        .testTarget(
-            name: "DestinyTests",
-            dependencies: [
-                "DestinySwiftSyntax",
-                "DestinyMacros",
-                "TestRouter"
-            ]
-        ),
-    ]
+    targets: targets
 )

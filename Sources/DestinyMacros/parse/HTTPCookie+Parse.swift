@@ -11,7 +11,7 @@ extension HTTPCookie {
     ///   - expr: SwiftSyntax expression that represents this cookie at compile time.
     public static func parse(
         context: some MacroExpansionContext,
-        expr: ExprSyntaxProtocol
+        expr: some ExprSyntaxProtocol
     ) -> Self? {
         var name:String? = nil
         var value:String? = nil

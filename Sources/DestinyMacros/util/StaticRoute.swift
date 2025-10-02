@@ -155,7 +155,7 @@ extension StaticRoute {
     ///   - middleware: Static middleware this route will handle.
     #if StaticMiddleware
     public func response(
-        context: MacroExpansionContext,
+        context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
     ) -> some HTTPMessageProtocol {
@@ -167,7 +167,7 @@ extension StaticRoute {
     }
     #else
     public func response(
-        context: MacroExpansionContext,
+        context: some MacroExpansionContext,
         function: FunctionCallExprSyntax
     ) -> some HTTPMessageProtocol {
         let result = response()
@@ -189,7 +189,7 @@ extension StaticRoute {
     ///   - middleware: Static middleware that this route will handle.
     #if StaticMiddleware
     public func responder(
-        context: MacroExpansionContext,
+        context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
     ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
@@ -197,7 +197,7 @@ extension StaticRoute {
     }
     #else
     public func responder(
-        context: MacroExpansionContext,
+        context: some MacroExpansionContext,
         function: FunctionCallExprSyntax
     ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
         return try response(context: context, function: function).string(escapeLineBreak: true)

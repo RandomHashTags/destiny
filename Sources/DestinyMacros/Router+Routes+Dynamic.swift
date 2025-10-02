@@ -10,6 +10,7 @@ import SwiftSyntaxMacros
 // MARK: Dynamic responses string
 extension RouterStorage {
     mutating func dynamicRoutesResponder(
+        context: some MacroExpansionContext,
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
         let getRouteStartLine:(DynamicRoute) -> String
@@ -24,6 +25,7 @@ extension RouterStorage {
         let copyable:String?
         let noncopyable:String?
         if let responders = dynamicRoutesSyntax(
+            context: context,
             isCopyable: true,
             getRouteStartLine: getRouteStartLine,
             routes: routes
@@ -33,6 +35,7 @@ extension RouterStorage {
             copyable = nil
         }
         if let responders = dynamicRoutesSyntax(
+            context: context,
             isCopyable: false,
             getRouteStartLine: getRouteStartLine,
             routes: routes
@@ -47,6 +50,7 @@ extension RouterStorage {
 
 extension RouterStorage {
     private mutating func dynamicRoutesSyntax(
+        context: some MacroExpansionContext,
         isCopyable: Bool,
         getRouteStartLine: (DynamicRoute) -> String,
         routes: [(DynamicRoute, FunctionCallExprSyntax)],
@@ -412,6 +416,7 @@ extension RouterStorage {
 // MARK: Append routes
 extension RouterStorage {
     mutating func appendDynamicRoutes(
+        context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         isCopyable: Bool,
         routes: [(DynamicRoute, FunctionCallExprSyntax)],

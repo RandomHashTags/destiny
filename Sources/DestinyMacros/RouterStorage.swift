@@ -9,8 +9,6 @@ import DestinyDefaultsNonEmbedded
 #endif
 
 public struct RouterStorage {
-    let context:MacroExpansionContext
-
     #if RouterSettings
     let settings:RouterSettings
     #endif
@@ -146,11 +144,9 @@ public struct RouterStorage {
 extension RouterStorage {
     #if RouterSettings
     init(
-        context: MacroExpansionContext,
         settings: RouterSettings,
         perfectHashSettings: PerfectHashSettings
     ) {
-        self.context = context
         self.settings = settings
         self.perfectHashSettings = perfectHashSettings
         visibilityModifier = settings.visibility.modifierDecl
@@ -158,10 +154,8 @@ extension RouterStorage {
     }
     #else
     init(
-        context: MacroExpansionContext,
         perfectHashSettings: PerfectHashSettings
     ) {
-        self.context = context
         self.perfectHashSettings = perfectHashSettings
         visibilityModifier = RouterVisibility.package.modifierDecl
         requestTypeSyntax = TypeSyntax(stringLiteral: "HTTPRequest")

@@ -26,7 +26,7 @@ extension RequestBody {
         buffer: inout InlineArray<chunkSize, UInt8>,
         _ yield: (consuming InlineByteBuffer<chunkSize>) async throws -> Void
     ) async throws {
-        let asyncStream = AsyncThrowingStream<CopyableInlineBuffer<chunkSize>, Error> { continuation in
+        let asyncStream = AsyncThrowingStream<CopyableInlineBuffer<chunkSize>, any Error> { continuation in
             while true {
                 var read = 0
                 do throws(SocketError) {

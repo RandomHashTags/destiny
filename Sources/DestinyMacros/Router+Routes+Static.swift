@@ -11,6 +11,7 @@ import SwiftSyntaxMacros
 // MARK: Static routes string
 extension RouterStorage {
     mutating func staticRoutesResponder(
+        context: some MacroExpansionContext,
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
         let routes = isCaseSensitive ? staticRouteStorage.caseSensitiveRoutes : staticRouteStorage.caseInsensitiveRoutes
@@ -32,6 +33,7 @@ extension RouterStorage {
         let copyable:String?
         let noncopyable:String?
         if let decl = responderStorageDeclName(
+            context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: true,
             random: random,
@@ -44,6 +46,7 @@ extension RouterStorage {
             copyable = nil
         }
         if let decl = responderStorageDeclName(
+            context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: false,
             random: random,
@@ -62,6 +65,7 @@ extension RouterStorage {
 // MARK: Responder storage decl
 extension RouterStorage {
     private mutating func responderStorageDeclName(
+        context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         isCopyable: Bool,
         random: Int,
@@ -74,6 +78,7 @@ extension RouterStorage {
         routePaths.reserveCapacity(routes.count)
         literalRouteResponders.reserveCapacity(routes.count)
         appendStaticRoutes(
+            context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
             routes: routes,
@@ -108,6 +113,7 @@ extension RouterStorage {
 // MARK: Append routes
 extension RouterStorage {
     mutating func appendStaticRoutes(
+        context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         isCopyable: Bool,
         routes: [(StaticRoute, FunctionCallExprSyntax)],
@@ -128,6 +134,7 @@ extension RouterStorage {
         }
         if !isCopyable { // always make redirects noncopyable for optimal performance
             appendStaticRedirects(
+                context: context,
                 isCaseSensitive: isCaseSensitive,
                 isCopyable: isCopyable,
                 routePaths: &routePaths,
@@ -222,6 +229,7 @@ extension RouterStorage {
 // MARK: Append redirects
 extension RouterStorage {
     private mutating func appendStaticRedirects(
+        context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         isCopyable: Bool,
         routePaths: inout [String],

@@ -19,8 +19,8 @@ extension Router {
         context: some MacroExpansionContext
     ) -> (router: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var compiledStorage = CompiledRouterStorage(routerSettings: routerSettings)
-        var storage = RouterStorage(context: context, settings: routerSettings, perfectHashSettings: perfectHashSettings)
-        return compute(compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
+        var storage = RouterStorage(settings: routerSettings, perfectHashSettings: perfectHashSettings)
+        return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
     }
     #else
     static func compute(
@@ -30,12 +30,13 @@ extension Router {
         context: some MacroExpansionContext
     ) -> (router: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var compiledStorage = CompiledRouterStorage()
-        var storage = RouterStorage(context: context, perfectHashSettings: perfectHashSettings)
-        return compute(compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
+        var storage = RouterStorage(perfectHashSettings: perfectHashSettings)
+        return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
     }
     #endif
 
     static func compute(
+        context: some MacroExpansionContext,
         compiledStorage: inout CompiledRouterStorage,
         storage: inout RouterStorage,
         routerSettingsSyntax: ExprSyntax,
@@ -49,7 +50,7 @@ extension Router {
             if let label = arg.label {
                 switch label.text {
                 case "version":
-                    version = HTTPVersion.parse(context: storage.context, expr: arg.expression) ?? version
+                    version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
                 case "errorResponder":
                     customErrorResponder = "\(arg.expression)"
                 case "dynamicNotFoundResponder":
@@ -57,10 +58,10 @@ extension Router {
                 case "staticNotFoundResponder":
                     customStaticNotFoundResponder = "\(arg.expression)"
                 case "redirects":
-                    guard let array = arg.expression.arrayElements(context: storage.context) else { break }
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
                     #if StaticRedirectionRoute
                     parseRedirects(
-                        context: storage.context,
+                        context: context,
                         version: version,
                         array: array,
                         staticRedirects: &storage.staticRedirects,
@@ -68,30 +69,30 @@ extension Router {
                     )
                     #endif
                 case "middleware":
-                    guard let array = arg.expression.arrayElements(context: storage.context) else { break }
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
                     for element in array {
                         //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
                         if let function = element.expression.functionCall {
-                            parseMiddleware(context: storage.context, function: function, storage: &storage)
+                            parseMiddleware(context: context, function: function, storage: &storage)
                         } else if let expansion = element.expression.macroExpansion {
                             // TODO: support custom middleware
-                            storage.context.diagnose(DiagnosticMsg.unhandled(node: expansion))
+                            context.diagnose(DiagnosticMsg.unhandled(node: expansion))
                         } else {
-                            storage.context.diagnose(DiagnosticMsg.unhandled(node: element))
+                            context.diagnose(DiagnosticMsg.unhandled(node: element))
                         }
                     }
                 case "routeGroups":
-                    guard let array = arg.expression.arrayElements(context: storage.context) else { break }
+                    guard let array = arg.expression.arrayElements(context: context) else { break }
                     for element in array {
                         guard let function = element.expression.functionCall else {
-                            storage.context.diagnose(DiagnosticMsg.unhandled(node: element))
+                            context.diagnose(DiagnosticMsg.unhandled(node: element))
                             continue
                         }
                         switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
                         #if NonEmbedded && Copyable && MutableRouter
                         case "RouteGroup":
                             let (decl, groupStorage) = RouteGroup.parse(
-                                context: storage.context,
+                                context: context,
                                 settings: routerSettings,
                                 perfectHashSettings: perfectHashSettings,
                                 version: version,
@@ -106,14 +107,14 @@ extension Router {
                         #endif
 
                         default:
-                            storage.context.diagnose(DiagnosticMsg.unhandled(node: function))
+                            context.diagnose(DiagnosticMsg.unhandled(node: function))
                         }
                     }
                 default:
                     break
                 }
             } else if let function = arg.expression.functionCall { // route
-                parseRoute(context: storage.context, version: version, function: function, storage: &storage)
+                parseRoute(context: context, version: version, function: function, storage: &storage)
             } else {
                 // TODO: support custom routes
             }
@@ -166,17 +167,17 @@ extension Router {
 
         let conditionalRespondersString = storage.conditionalRespondersString()
 
-        let perfectHashCaseSensitiveResponder = storage.perfectHashResponder(isCaseSensitive: true)
-        let perfectHashCaseInsensitiveResponder = storage.perfectHashResponder(isCaseSensitive: false)
+        let perfectHashCaseSensitiveResponder = storage.perfectHashResponder(context: context, isCaseSensitive: true)
+        let perfectHashCaseInsensitiveResponder = storage.perfectHashResponder(context: context, isCaseSensitive: false)
         let caseSensitiveResponder:CompiledRouterStorage.Responder?
         let caseInsensitiveResponder:CompiledRouterStorage.Responder?
         let dynamicCaseSensitiveResponder:CompiledRouterStorage.Responder?
         let dynamicCaseInsensitiveResponder:CompiledRouterStorage.Responder?
         #if NonEmbedded
-        caseSensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: true)
-        caseInsensitiveResponder = storage.staticRoutesResponder(isCaseSensitive: false)
-        dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: true)
-        dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(isCaseSensitive: false)
+        caseSensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: true)
+        caseInsensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: false)
+        dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: true)
+        dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: false)
         #else
         caseSensitiveResponder = nil
         caseInsensitiveResponder = nil
@@ -198,7 +199,7 @@ extension Router {
         #if StaticMiddleware
         for (i, middleware) in storage.staticMiddleware.enumerated() {
             if !middleware.appliedAtLeastOnce {
-                Diagnostic.unusedMiddleware(context: storage.context, node: storage.staticMiddlewareFunctions[i])
+                Diagnostic.unusedMiddleware(context: context, node: storage.staticMiddlewareFunctions[i])
             }
         }
         #endif

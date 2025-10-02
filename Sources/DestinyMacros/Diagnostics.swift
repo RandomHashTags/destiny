@@ -56,13 +56,13 @@ extension DiagnosticMsg {
 }
 
 extension Diagnostic {
-    static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: SyntaxProtocol) {
+    static func spacesNotAllowedInRoutePath(context: some MacroExpansionContext, node: some SyntaxProtocol) {
         context.diagnose(.init(node: node, message: DiagnosticMsg(id: "spacesNotAllowedInRoutePath", message: "Spaces aren't allowed in route paths.")))
     }
-    static func routeResponseStatusNotImplemented(context: some MacroExpansionContext, node: SyntaxProtocol) {
+    static func routeResponseStatusNotImplemented(context: some MacroExpansionContext, node: some SyntaxProtocol) {
         context.diagnose(.init(node: node, message: DiagnosticMsg(id: "routeResponseStatusNotImplemented", message: "Route's response status is \".notImplemented\".", severity: .warning)))
     }
-    static func unusedMiddleware(context: some MacroExpansionContext, node: SyntaxProtocol) {
+    static func unusedMiddleware(context: some MacroExpansionContext, node: some SyntaxProtocol) {
         context.diagnose(.init(node: node, message: DiagnosticMsg(id: "unusedMiddleware", message: "Middleware doesn't apply to any route.", severity: .warning)))
     }
 }
