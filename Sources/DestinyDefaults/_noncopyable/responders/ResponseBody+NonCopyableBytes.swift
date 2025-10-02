@@ -10,7 +10,7 @@ extension ResponseBody {
     public static func nonCopyableBytes(_ value: [UInt8]) -> Self.NonCopyableBytes {
         .init(value)
     }
-    public struct NonCopyableBytes: ResponseBodyProtocol, ~Copyable {
+    public struct NonCopyableBytes: ~Copyable {
         public let value:[UInt8]
 
         #if Inlinable
@@ -50,7 +50,8 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol {
+// MARK: Respond
+extension ResponseBody.NonCopyableBytes {
     #if Inlinable
     @inlinable
     #endif
@@ -68,5 +69,9 @@ extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension ResponseBody.NonCopyableBytes: ResponseBodyProtocol {}
+extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol {}
 
 #endif

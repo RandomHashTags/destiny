@@ -19,7 +19,7 @@ extension ResponseBody {
     }
 }
 
-public struct StaticStringWithDateHeader: ResponseBodyProtocol {
+public struct StaticStringWithDateHeader {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
 
@@ -85,7 +85,7 @@ extension StaticStringWithDateHeader {
 }
 
 // MARK: Respond
-extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
+extension StaticStringWithDateHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -102,5 +102,9 @@ extension StaticStringWithDateHeader: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension StaticStringWithDateHeader: ResponseBodyProtocol {}
+extension StaticStringWithDateHeader: StaticRouteResponderProtocol {}
 
 #endif

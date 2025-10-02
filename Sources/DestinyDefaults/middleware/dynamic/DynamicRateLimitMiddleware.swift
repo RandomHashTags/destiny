@@ -3,9 +3,8 @@
 
 import DestinyBlueprint
 
-// MARK: DynamicRateLimitMiddleware
 // TODO: finish
-public final class DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol, OpaqueDynamicMiddlewareProtocol, @unchecked Sendable {
+public final class DynamicRateLimitMiddleware: @unchecked Sendable {
     @usableFromInline
     var limits:[String:Entry]
 
@@ -14,7 +13,10 @@ public final class DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol, Opaq
     ) {
         limits = [:]
     }
+}
 
+// MARK: Handle
+extension DynamicRateLimitMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -57,5 +59,9 @@ extension DynamicRateLimitMiddleware {
         }
     }
 }
+
+// MARK: Conformances
+extension DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol {}
+extension DynamicRateLimitMiddleware: OpaqueDynamicMiddlewareProtocol {}
 
 #endif

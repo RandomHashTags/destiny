@@ -2,7 +2,7 @@
 import DestinyBlueprint
 import DestinyDefaults
 
-public struct Route: RouteProtocol {
+public struct Route {
     public var path:[PathComponent]
     public let contentType:String?
 
@@ -256,6 +256,11 @@ extension Route {
         return on(version: version, method: HTTPStandardRequestMethod.patch, path: path, caseSensitive: caseSensitive, status: status, contentType: contentType, charset: charset, headers: headers, body: body, handler: handler)
     }
 }
+
+// MARK: Conformances
+extension Route: RouteProtocol {}
+
+
 
 #if MediaTypes
 // MARK: MediaTypes

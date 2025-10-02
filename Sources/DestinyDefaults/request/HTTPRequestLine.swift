@@ -3,7 +3,7 @@ import DestinyBlueprint
 import VariableLengthArray
 
 /// Default HTTP Request Line implementation.
-public struct HTTPRequestLine: HTTPRequestLineProtocol, ~Copyable {
+public struct HTTPRequestLine: ~Copyable {
     public let methodEndIndex:Int
     public let pathQueryStartIndex:Int?
     public let endIndex:Int
@@ -111,59 +111,46 @@ extension HTTPRequestLine {
     public static func load<let count: Int>(
         buffer: borrowing InlineByteBuffer<count>
     ) throws(SocketError) -> Self {
-        var err:SocketError? = nil
         var methodEndIndex = 0
-        var pathQueryStartIndex:Int? = nil
-        var pathEndIndex = 0
-        var versionUInt64:UInt64 = 0
-        buffer.buffer.span.withUnsafeBufferPointer { bufferPointer in
-            guard let base = bufferPointer.baseAddress else {
-                err = .custom("malformedRequest;bufferPointer.baseAddress == nil")
-                return
-            }
-            var offset = 0
-            while offset < bufferPointer.count, methodEndIndex == 0 {
-                if bufferPointer[offset] == .space {
-                    methodEndIndex = offset
-                    break
-                }
-                offset += 1
-            }
-            guard methodEndIndex != 0 else {
-                err = .custom("malformedRequest;methodEndIndex == 0")
-                return
+        let bufferSpan = buffer.buffer.span
+        var offset = 0
+        while offset < bufferSpan.count, methodEndIndex == 0 {
+            if bufferSpan[unchecked: offset] == .space {
+                methodEndIndex = offset
+                break
             }
             offset += 1
-            var i = offset
-            loop: while i < bufferPointer.count {
-                switch bufferPointer[i] {
-                case .space:
-                    pathEndIndex = i
-                    break loop
-                case .questionMark:
-                    i += 1
-                    if i < bufferPointer.count {
-                        pathQueryStartIndex = i
-                    }
-                default:
-                    i += 1
+        }
+        guard methodEndIndex != 0 else {
+            throw .custom("malformedRequest;methodEndIndex == 0")
+        }
+        offset += 1
+        var pathQueryStartIndex:Int? = nil
+        var pathEndIndex = 0
+        var i = offset
+        loop: while i < bufferSpan.count {
+            switch bufferSpan[unchecked: i] {
+            case .space:
+                pathEndIndex = i
+                break loop
+            case .questionMark:
+                i += 1
+                if i < bufferSpan.count {
+                    pathQueryStartIndex = i
                 }
+            default:
+                i += 1
             }
-            guard pathEndIndex != 0 else {
-                err = .custom("malformedRequest;targetPathEndIndex == 0")
-                return
-            }
-            let pathCount = pathEndIndex - methodEndIndex - 1
-            offset += pathCount + 1
-            guard offset + 8 < bufferPointer.count else {
-                err = .custom("malformedRequest;not enough bytes for the HTTP Version")
-                return
-            }
-            versionUInt64 = UnsafeRawPointer(base).loadUnaligned(fromByteOffset: offset, as: UInt64.self)
         }
-        if let err {
-            throw err
+        guard pathEndIndex != 0 else {
+            throw .custom("malformedRequest;targetPathEndIndex == 0")
         }
+        let pathCount = pathEndIndex - methodEndIndex - 1
+        offset += pathCount + 1
+        guard offset + 8 < bufferSpan.count else {
+            throw .custom("malformedRequest;not enough bytes for the HTTP Version")
+        }
+        let versionUInt64 = bufferSpan.bytes.unsafeLoadUnaligned(fromUncheckedByteOffset: offset, as: UInt64.self)
         guard let version = HTTPVersion.init(token: versionUInt64.bigEndian) else {
             throw .custom("malformedRequest;unrecognized HTTPVersion: (bigEndian: \(versionUInt64.bigEndian), littleEndian: \(versionUInt64.littleEndian))")
         }
@@ -175,3 +162,6 @@ extension HTTPRequestLine {
         )
     }
 }
+
+// MARK: Conformances
+extension HTTPRequestLine: HTTPRequestLineProtocol {}

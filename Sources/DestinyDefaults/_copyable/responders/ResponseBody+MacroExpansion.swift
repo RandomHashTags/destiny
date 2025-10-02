@@ -11,7 +11,7 @@ extension ResponseBody {
         .init(value)
     }
 
-    public struct MacroExpansion<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol {
+    public struct MacroExpansion<Value: ResponseBodyValueProtocol> {
         public var value:Value
 
         #if Inlinable
@@ -46,5 +46,8 @@ extension ResponseBody {
         }
     }
 }
+
+// MARK: Conformances
+extension ResponseBody.MacroExpansion: ResponseBodyProtocol {}
 
 #endif

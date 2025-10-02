@@ -4,7 +4,7 @@
 import DestinyBlueprint
 
 /// Default mutable storage that handles case insensitive static routes.
-public final class CaseInsensitiveStaticResponderStorage: StaticResponderStorage, @unchecked Sendable {
+public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
     #if Inlinable
     @inlinable
     #endif
@@ -40,5 +40,8 @@ public final class CaseInsensitiveStaticResponderStorage: StaticResponderStorage
         return true
     }
 }
+
+// MARK: Conformances
+extension CaseInsensitiveStaticResponderStorage: StaticResponderStorage {}
 
 #endif

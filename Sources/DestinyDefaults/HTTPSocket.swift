@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default HTTP Socket implementation.
-public struct HTTPSocket: HTTPSocketProtocol, ~Copyable {
+public struct HTTPSocket: ~Copyable {
     public typealias Buffer = InlineArray<1024, UInt8>
 
     public let fileDescriptor:Int32
@@ -117,3 +117,6 @@ extension HTTPSocket {
         return fileDescriptor.socketSendMultiplatform(pointer, length)
     }
 }
+
+// MARK: Conformances
+extension HTTPSocket: HTTPSocketProtocol {}

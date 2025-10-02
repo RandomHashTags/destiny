@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default Conditional Route Responder implementation where multiple responders are computed at compile time, but only one should be selected based on the request.
-public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol { // TODO: avoid existentials / support embedded
+public struct ConditionalRouteResponder { // TODO: avoid existentials / support embedded
     public private(set) var staticConditions:[@Sendable (inout any HTTPRequestProtocol) -> Bool]
     public private(set) var staticResponders:[any StaticRouteResponderProtocol]
     public private(set) var dynamicConditions:[@Sendable (inout any HTTPRequestProtocol) -> Bool]
@@ -24,7 +24,10 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol { // 
         self.dynamicConditions = dynamicConditions
         self.dynamicResponders = dynamicResponders
     }
+}
 
+// MARK: Respond
+extension ConditionalRouteResponder {
     #if Inlinable
     @inlinable
     #endif
@@ -54,3 +57,6 @@ public struct ConditionalRouteResponder: ConditionalRouteResponderProtocol { // 
         }*/
     }
 }
+
+// MARK: Conformances
+extension ConditionalRouteResponder: ConditionalRouteResponderProtocol {}

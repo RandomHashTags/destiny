@@ -5,7 +5,7 @@ import DestinyBlueprint
 import Logging
 #endif
 
-public struct Application: ApplicationProtocol {
+public struct Application {
     nonisolated(unsafe) public static private(set) var shared:Application! = nil
 
     public let serviceGroup:DestinyServiceGroup
@@ -60,3 +60,6 @@ public struct Application: ApplicationProtocol {
         #endif
     }
 }
+
+// MARK: Conformances
+extension Application: ApplicationProtocol {}

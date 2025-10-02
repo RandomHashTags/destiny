@@ -23,7 +23,7 @@ extension ResponseBody {
     }
 }
 
-public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>: ResponseBodyProtocol, ~Copyable {
+public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>: ~Copyable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
     public let body:Body
@@ -93,8 +93,8 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
     }
 }
 
-// MARK: Write to socket
-extension NonCopyableStreamWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+// MARK: Respond
+extension NonCopyableStreamWithDateHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -122,5 +122,9 @@ extension NonCopyableStreamWithDateHeader: NonCopyableStaticRouteResponderProtoc
         }
     }
 }
+
+// MARK: Conformances
+extension NonCopyableStreamWithDateHeader: ResponseBodyProtocol {}
+extension NonCopyableStreamWithDateHeader: NonCopyableStaticRouteResponderProtocol {}
 
 #endif

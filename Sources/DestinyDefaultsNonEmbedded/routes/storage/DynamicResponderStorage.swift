@@ -5,7 +5,7 @@ import DestinyBlueprint
 import DestinyDefaults
 
 /// Default mutable storage that handles dynamic routes.
-public final class DynamicResponderStorage: MutableDynamicResponderStorageProtocol, @unchecked Sendable {
+public final class DynamicResponderStorage: @unchecked Sendable {
     /// Dynamic routes with no special handling of its path.
     public var parameterless:[SIMD64<UInt8>:any DynamicRouteResponderProtocol]
 
@@ -145,5 +145,7 @@ extension DynamicResponderStorage {
         }
     }
 }
+
+extension DynamicResponderStorage: MutableDynamicResponderStorageProtocol {}
 
 #endif

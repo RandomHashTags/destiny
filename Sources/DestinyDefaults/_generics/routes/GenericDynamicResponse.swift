@@ -7,7 +7,7 @@ import VariableLengthArray
 /// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
 public struct GenericDynamicResponse<
         Message: GenericHTTPMessageProtocol
-    >: DynamicResponseProtocol {
+    > {
     public var message:Message
     public var parameters:[String]
 
@@ -96,5 +96,8 @@ extension GenericDynamicResponse {
         try message.write(to: socket)
     }
 }
+
+// MARK: Conformances
+extension GenericDynamicResponse: DynamicResponseProtocol {}
 
 #endif

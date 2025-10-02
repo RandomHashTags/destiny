@@ -29,8 +29,8 @@ public struct MacroExpansionWithDateHeader: Sendable {
     }
 }
 
-// MARK: Write to socket
-extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
+// MARK: Respond
+extension MacroExpansionWithDateHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -65,5 +65,8 @@ extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {}
 
 #endif

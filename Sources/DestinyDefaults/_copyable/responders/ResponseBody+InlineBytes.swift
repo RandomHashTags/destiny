@@ -11,7 +11,7 @@ extension ResponseBody {
         Self.InlineBytes(value)
     }
 
-    public struct InlineBytes<let count: Int>: ResponseBodyProtocol {
+    public struct InlineBytes<let count: Int> {
         public let value:InlineArray<count, UInt8>
 
         #if Inlinable
@@ -47,7 +47,8 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {
+// MARK: Respond
+extension ResponseBody.InlineBytes {
     #if Inlinable
     @inlinable
     #endif
@@ -65,5 +66,9 @@ extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension ResponseBody.InlineBytes: ResponseBodyProtocol {}
+extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {}
 
 #endif

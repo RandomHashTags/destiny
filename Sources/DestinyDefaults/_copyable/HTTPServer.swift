@@ -20,7 +20,7 @@ import Logging
 public final class HTTPServer<
         Router: HTTPRouterProtocol,
         ClientSocket: HTTPSocketProtocol & ~Copyable
-    >: HTTPServerProtocol, SocketAcceptor {
+    > {
     public let address:String?
     public let port:UInt16
     /// Maximum amount of pending connections the Server will queue.
@@ -310,5 +310,9 @@ extension HTTPServer where ClientSocket: ~Copyable {
     }
 }
 #endif
+
+// MARK: Conformances
+extension HTTPServer: HTTPServerProtocol {}
+extension HTTPServer: SocketAcceptor {}
 
 #endif

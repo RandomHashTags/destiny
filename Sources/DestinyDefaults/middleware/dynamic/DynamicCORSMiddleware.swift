@@ -24,8 +24,8 @@ public struct DynamicCORSMiddleware: CORSMiddlewareProtocol {
     }
 }
 
-// MARK: OpaqueDynamicMiddlewareProtocol
-extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {
+// MARK: Handle
+extension DynamicCORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -366,5 +366,8 @@ extension DynamicCORSMiddleware {
         headers["access-control-max-age"] = maxAgeString
     }
 }
+
+// MARK: Conformances
+extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {}
 
 #endif

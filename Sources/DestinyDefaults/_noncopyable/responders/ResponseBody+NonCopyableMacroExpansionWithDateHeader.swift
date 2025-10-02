@@ -11,7 +11,7 @@ extension ResponseBody {
         .init(value)
     }
 
-    public struct NonCopyableMacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol, ~Copyable {
+    public struct NonCopyableMacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: ~Copyable {
         public var value:Value
 
         #if Inlinable
@@ -53,5 +53,8 @@ extension ResponseBody {
         }
     }
 }
+
+// MARK: Conformances
+extension ResponseBody.NonCopyableMacroExpansionWithDateHeader: ResponseBodyProtocol {}
 
 #endif

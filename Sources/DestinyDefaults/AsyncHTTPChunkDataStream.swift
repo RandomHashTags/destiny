@@ -1,7 +1,7 @@
 
 import DestinyBlueprint
 
-public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: AsyncHTTPSocketWritable {
+public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol> {
     public let chunkSize:Int
     public let stream:ReusableAsyncStream<T>
 
@@ -84,3 +84,6 @@ extension AsyncHTTPChunkDataStream {
         try socket.socketWriteBuffer(buffer.baseAddress!, length: 5)
     }
 }
+
+// MARK: Conformances
+extension AsyncHTTPChunkDataStream: AsyncHTTPSocketWritable {}

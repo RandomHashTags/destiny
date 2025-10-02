@@ -17,7 +17,7 @@ extension ResponseBody {
     }
 }
 
-public struct StringWithDateHeader: ResponseBodyProtocol {
+public struct StringWithDateHeader {
     public let preDateValue:String.UTF8View
     public let postDateValue:String.UTF8View
     public let value:String.UTF8View
@@ -81,8 +81,8 @@ extension StringWithDateHeader {
     }
 }
 
-// MARK: Write to socket
-extension StringWithDateHeader: StaticRouteResponderProtocol {
+// MARK: Respond
+extension StringWithDateHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -112,5 +112,9 @@ extension StringWithDateHeader: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension StringWithDateHeader: ResponseBodyProtocol {}
+extension StringWithDateHeader: StaticRouteResponderProtocol {}
 
 #endif

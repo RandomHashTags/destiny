@@ -23,7 +23,7 @@ extension ResponseBody {
     }
 }
 
-public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: ResponseBodyProtocol {
+public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable> {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
     public let body:Body
@@ -95,8 +95,8 @@ extension StreamWithDateHeader {
     }
 }
 
-// MARK: Write to socket
-extension StreamWithDateHeader: StaticRouteResponderProtocol {
+// MARK: Respond
+extension StreamWithDateHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -120,5 +120,9 @@ extension StreamWithDateHeader: StaticRouteResponderProtocol {
         }
     }
 }
+
+// MARK: Conformances
+extension StreamWithDateHeader: ResponseBodyProtocol {}
+extension StreamWithDateHeader: StaticRouteResponderProtocol {}
 
 #endif

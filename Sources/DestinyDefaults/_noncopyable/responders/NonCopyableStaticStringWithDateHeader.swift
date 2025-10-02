@@ -19,7 +19,7 @@ extension ResponseBody {
     }
 }
 
-public struct NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol, ~Copyable {
+public struct NonCopyableStaticStringWithDateHeader: ~Copyable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
 
@@ -85,7 +85,7 @@ extension NonCopyableStaticStringWithDateHeader {
 }
 
 // MARK: Respond
-extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+extension NonCopyableStaticStringWithDateHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -102,5 +102,9 @@ extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponder
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol {}
+extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponderProtocol {}
 
 #endif

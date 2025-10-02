@@ -3,7 +3,7 @@ import DestinyBlueprint
 import DestinyDefaults
 
 /// Default storage for an HTTP Message.
-public struct HTTPResponseMessage: HTTPMessageProtocol {
+public struct HTTPResponseMessage {
     public var head:HTTPResponseMessageHead<HTTPCookie>
     public var body:(any ResponseBodyProtocol)?
     public var contentType:String?
@@ -427,6 +427,10 @@ extension HTTPResponseMessage {
         return string
     }
 }
+
+// MARK: Conformances
+extension HTTPResponseMessage: HTTPMessageProtocol {}
+
 
 #if MediaTypes
 

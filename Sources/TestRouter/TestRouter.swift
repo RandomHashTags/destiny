@@ -31,6 +31,7 @@ extension TestRouter {
     #declareRouter(
         routerSettings: .init(
             //dynamicResponsesAreGeneric: false,
+            //protocolConformances: false,
             visibility: .package
         ),
 

@@ -4,7 +4,7 @@
 import DestinyBlueprint
 
 /// Default Existential Dynamic Middleware implementation which handles requests to dynamic routes.
-public struct ExistentialDynamicMiddleware: ExistentialDynamicMiddlewareProtocol {
+public struct ExistentialDynamicMiddleware {
     public let handleLogic:@Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) throws(MiddlewareError) -> Void
     package var logic:String = "{ _, _ in }"
 
@@ -29,5 +29,8 @@ public struct ExistentialDynamicMiddleware: ExistentialDynamicMiddlewareProtocol
         "ExistentialDynamicMiddleware \(logic)"
     }
 }
+
+// MARK: Conformances
+extension ExistentialDynamicMiddleware: ExistentialDynamicMiddlewareProtocol {}
 
 #endif

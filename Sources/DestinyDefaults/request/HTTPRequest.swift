@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Default storage for http request data.
-public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
+public struct HTTPRequest: ~Copyable {
     public typealias InitialBuffer = InlineByteBuffer<1024>
 
     @usableFromInline
@@ -21,20 +21,19 @@ public struct HTTPRequest: HTTPRequestProtocol, ~Copyable {
         self.fileDescriptor = fileDescriptor
         abstractRequest = .init(storage: storage)
     }
+}
 
+// MARK: Load
+extension HTTPRequest {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func headers() throws(SocketError) -> [Substring:Substring] {
-        #if RequestHeaders
-        return try abstractRequest.headers(fileDescriptor: fileDescriptor)
-        #else
-        return [:]
-        #endif
+    public static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> Self {
+        Self(fileDescriptor: socket.fileDescriptor)
     }
 }
 
-// MARK: Protocol conformance
+// MARK: General logic
 extension HTTPRequest {
     #if Inlinable
     @inlinable
@@ -109,6 +108,17 @@ extension HTTPRequest {
     #if Inlinable
     @inlinable
     #endif
+    public mutating func headers() throws(SocketError) -> [Substring:Substring] {
+        #if RequestHeaders
+        return try abstractRequest.headers(fileDescriptor: fileDescriptor)
+        #else
+        return [:]
+        #endif
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
     public func copy() -> Self {
         var c = Self(fileDescriptor: fileDescriptor)
         c.abstractRequest = abstractRequest.copy()
@@ -116,15 +126,7 @@ extension HTTPRequest {
     }
 }
 
-// MARK: Load
-extension HTTPRequest {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> Self {
-        Self(fileDescriptor: socket.fileDescriptor)
-    }
-}
+
 
 #if RequestBody
 
@@ -146,3 +148,7 @@ extension HTTPRequest {
 }
 
 #endif
+
+
+// MARK: Conformances
+extension HTTPRequest: HTTPRequestProtocol {}

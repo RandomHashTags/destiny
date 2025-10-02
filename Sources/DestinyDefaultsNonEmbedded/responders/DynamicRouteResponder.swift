@@ -3,7 +3,7 @@ import DestinyBlueprint
 import DestinyDefaults
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
-public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
+public struct DynamicRouteResponder {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let _defaultResponse:DynamicResponse
@@ -52,7 +52,10 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
             yield(index)
         }
     }
+}
 
+// MARK: Respond
+extension DynamicRouteResponder {
     #if Inlinable
     @inlinable
     #endif
@@ -93,3 +96,6 @@ public struct DynamicRouteResponder: DynamicRouteResponderProtocol {
         }
     }
 }
+
+// MARK: Conformances
+extension DynamicRouteResponder: DynamicRouteResponderProtocol {}

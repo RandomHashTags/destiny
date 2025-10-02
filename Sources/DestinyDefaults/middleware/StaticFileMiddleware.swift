@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 // MARK: StaticFileMiddleware
-public struct StaticFileMiddleware: FileMiddlewareProtocol { // TODO: finish
+public struct StaticFileMiddleware { // TODO: finish
 
     let filePath:String
     let endpoint:String
@@ -24,4 +24,7 @@ public struct StaticFileMiddleware: FileMiddlewareProtocol { // TODO: finish
         return []
     }
 }
+
+// MARK: Conformances
+extension StaticFileMiddleware: FileMiddlewareProtocol {}
 */

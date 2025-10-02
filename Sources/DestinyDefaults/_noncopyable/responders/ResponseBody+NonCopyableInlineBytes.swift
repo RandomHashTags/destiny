@@ -11,7 +11,7 @@ extension ResponseBody {
         .init(value)
     }
 
-    public struct NonCopyableInlineBytes<let count: Int>: ResponseBodyProtocol, ~Copyable {
+    public struct NonCopyableInlineBytes<let count: Int>: ~Copyable {
         public let value:InlineArray<count, UInt8>
 
         #if Inlinable
@@ -51,7 +51,8 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.NonCopyableInlineBytes: NonCopyableStaticRouteResponderProtocol {
+// MARK: Respond
+extension ResponseBody.NonCopyableInlineBytes {
     #if Inlinable
     @inlinable
     #endif
@@ -69,5 +70,9 @@ extension ResponseBody.NonCopyableInlineBytes: NonCopyableStaticRouteResponderPr
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension ResponseBody.NonCopyableInlineBytes: ResponseBodyProtocol {}
+extension ResponseBody.NonCopyableInlineBytes: NonCopyableStaticRouteResponderProtocol {}
 
 #endif

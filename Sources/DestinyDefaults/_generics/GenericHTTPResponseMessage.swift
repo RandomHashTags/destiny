@@ -7,7 +7,7 @@ import DestinyBlueprint
 public struct GenericHTTPResponseMessage<
         Body: ResponseBodyProtocol,
         Cookie: HTTPCookieProtocol
-    >: GenericHTTPMessageProtocol {
+    > {
     public var head:HTTPResponseMessageHead<Cookie>
     public var body:Body?
     public var contentType:String?
@@ -377,6 +377,9 @@ extension GenericHTTPResponseMessage {
         return string
     }
 }
+
+// MARK: Conformances
+extension GenericHTTPResponseMessage: GenericHTTPMessageProtocol {}
 
 #if MediaTypes
 

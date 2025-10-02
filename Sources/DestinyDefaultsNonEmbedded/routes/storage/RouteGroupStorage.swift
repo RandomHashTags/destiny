@@ -3,7 +3,7 @@
 
 import DestinyBlueprint
 
-public final class RouteGroupStorage: MutableRouteGroupStorageProtocol, @unchecked Sendable { // TODO: avoid existentials / support embedded
+public final class RouteGroupStorage: @unchecked Sendable { // TODO: avoid existentials / support embedded
     @usableFromInline
     var groups:[any RouteGroupProtocol]
 
@@ -31,5 +31,8 @@ extension RouteGroupStorage {
         return false
     }
 }
+
+// MARK: Conformances
+extension RouteGroupStorage: MutableRouteGroupStorageProtocol {}
 
 #endif

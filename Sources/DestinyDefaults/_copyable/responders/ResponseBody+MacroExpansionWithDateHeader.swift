@@ -11,7 +11,7 @@ extension ResponseBody {
         .init(value)
     }
 
-    public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: ResponseBodyProtocol {
+    public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol> {
         public var value:Value
 
         #if Inlinable
@@ -53,5 +53,8 @@ extension ResponseBody {
         }
     }
 }
+
+// MARK: Conformances
+extension ResponseBody.MacroExpansionWithDateHeader: ResponseBodyProtocol {}
 
 #endif

@@ -4,7 +4,7 @@
 import DestinyBlueprint
 
 /// Default Redirection Route implementation that handles redirects for static routes.
-public struct StaticRedirectionRoute: RedirectionRouteProtocol {
+public struct StaticRedirectionRoute {
     /// Endpoint that has been moved.
     public package(set) var from:[String]
 
@@ -64,5 +64,8 @@ extension StaticRedirectionRoute {
         )
     }
 }
+
+// MARK: Conformances
+extension StaticRedirectionRoute: RedirectionRouteProtocol {}
 
 #endif

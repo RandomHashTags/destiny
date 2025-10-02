@@ -4,7 +4,7 @@
 import DestinyBlueprint
 
 extension RouteResponses {
-    public struct MacroExpansion: StaticRouteResponderProtocol {
+    public struct MacroExpansion {
         public let value:StaticString
         public let bodyCount:String.UTF8View
         public let body:String.UTF8View
@@ -14,42 +14,48 @@ extension RouteResponses {
             bodyCount = String(body.utf8Span.count).utf8
             self.body = body.utf8
         }
+    }
+}
 
-        #if Inlinable
-        @inlinable
-        #endif
-        public func respond(
-            router: some HTTPRouterProtocol,
-            socket: some FileDescriptor,
-            request: inout some HTTPRequestProtocol & ~Copyable,
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) {
-            var err:SocketError? = nil
-            value.withUTF8Buffer { valuePointer in
-                bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
-                    body.withContiguousStorageIfAvailable { bodyPointer in
-                        let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
-                        bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
-                            do throws(SocketError) {
-                                try socket.writeBuffers([
-                                    valuePointer,
-                                    bodyCountPointer,
-                                    bodyCountSuffixPointer,
-                                    bodyPointer
-                                ])
-                            } catch {
-                                err = error
-                            }
+// MARK: Respond
+extension RouteResponses.MacroExpansion {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: some FileDescriptor,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
+        var err:SocketError? = nil
+        value.withUTF8Buffer { valuePointer in
+            bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
+                body.withContiguousStorageIfAvailable { bodyPointer in
+                    let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
+                    bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
+                        do throws(SocketError) {
+                            try socket.writeBuffers([
+                                valuePointer,
+                                bodyCountPointer,
+                                bodyCountSuffixPointer,
+                                bodyPointer
+                            ])
+                        } catch {
+                            err = error
                         }
                     }
                 }
             }
-            if let err {
-                throw .socketError(err)
-            }
-            completionHandler()
         }
+        if let err {
+            throw .socketError(err)
+        }
+        completionHandler()
     }
 }
+
+// MARK: Conformances
+extension RouteResponses.MacroExpansion: StaticRouteResponderProtocol {}
 
 #endif

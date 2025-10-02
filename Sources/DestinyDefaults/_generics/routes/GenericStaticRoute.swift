@@ -7,7 +7,7 @@ import DestinyBlueprint
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct GenericStaticRoute<
         Body: ResponseBodyProtocol
-    >: RouteProtocol {
+    > {
     public var path:[String]
     public let contentType:String?
     public let body:Body?
@@ -115,6 +115,9 @@ public struct GenericStaticRoute<
     }
 
     #endif
+
+// MARK: Conformances
+extension GenericStaticRoute: RouteProtocol {}
 
 // MARK: Convenience inits
 extension GenericStaticRoute {

@@ -10,7 +10,7 @@ extension ResponseBody {
     public static func bytes(_ value: [UInt8]) -> Self.Bytes {
         Self.Bytes(value)
     }
-    public struct Bytes: ResponseBodyProtocol {
+    public struct Bytes {
         public let value:[UInt8]
 
         #if Inlinable
@@ -47,7 +47,8 @@ extension ResponseBody {
     }
 }
 
-extension ResponseBody.Bytes: StaticRouteResponderProtocol {
+// MARK: Respond
+extension ResponseBody.Bytes {
     #if Inlinable
     @inlinable
     #endif
@@ -65,5 +66,9 @@ extension ResponseBody.Bytes: StaticRouteResponderProtocol {
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension ResponseBody.Bytes: ResponseBodyProtocol {}
+extension ResponseBody.Bytes: StaticRouteResponderProtocol {}
 
 #endif

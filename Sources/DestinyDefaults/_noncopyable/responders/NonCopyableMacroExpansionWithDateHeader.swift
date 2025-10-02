@@ -29,8 +29,8 @@ public struct NonCopyableMacroExpansionWithDateHeader: Sendable, ~Copyable {
     }
 }
 
-// MARK: Write to socket
-extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+// MARK: Respond
+extension NonCopyableMacroExpansionWithDateHeader {
     #if Inlinable
     @inlinable
     #endif
@@ -65,5 +65,8 @@ extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteRespond
         completionHandler()
     }
 }
+
+// MARK: Conformances
+extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteResponderProtocol {}
 
 #endif

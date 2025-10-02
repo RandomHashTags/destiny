@@ -14,6 +14,7 @@ public enum DynamicCORSLogic: Sendable {
     case minimum(allowedHeaders: String, allowedMethods: String)
 }
 
+// MARK: Apply to response
 extension DynamicCORSLogic {
     #if Inlinable
     @inlinable
@@ -42,6 +43,7 @@ extension DynamicCORSLogic {
     }
 }
 
+// MARK: Apply to headers
 extension DynamicCORSLogic {
     #if Inlinable
     @inlinable

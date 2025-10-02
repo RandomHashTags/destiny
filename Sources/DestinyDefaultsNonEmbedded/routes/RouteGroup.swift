@@ -6,7 +6,7 @@ import DestinyDefaults
 
 // MARK: RouteGroup
 /// Default mutable Route Group implementation that handles grouped routes.
-public struct RouteGroup: RouteGroupProtocol { // TODO: avoid existentials / support embedded
+public struct RouteGroup { // TODO: avoid existentials / support embedded
     public let prefixEndpoints:[String]
 
     #if StaticMiddleware
@@ -94,5 +94,8 @@ extension RouteGroup {
         return true
     }
 }
+
+// MARK: Conformances
+extension RouteGroup: RouteGroupProtocol {}
 
 #endif

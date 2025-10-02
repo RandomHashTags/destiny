@@ -6,7 +6,7 @@ import DestinyBlueprint
 /// Default mutable storage that handles static routes.
 /// 
 /// - Warning: Is case-sensitive by default.
-public class StaticResponderStorage: MutableStaticResponderStorageProtocol, @unchecked Sendable {
+public class StaticResponderStorage: @unchecked Sendable {
 
     @usableFromInline var macroExpansions:[SIMD64<UInt8>:RouteResponses.MacroExpansion]
     @usableFromInline var macroExpansionsWithDateHeader:[SIMD64<UInt8>:MacroExpansionWithDateHeader]
@@ -145,5 +145,8 @@ extension StaticResponderStorage {
         bytes[path] = responder
     }
 }
+
+// MARK: Conformances
+extension StaticResponderStorage: MutableStaticResponderStorageProtocol {}
 
 #endif

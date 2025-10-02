@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 /// Adds the `Date` header to responses for dynamic routes.
-public struct DynamicDateMiddleware: OpaqueDynamicMiddlewareProtocol {
+public struct DynamicDateMiddleware {
     public init() {
     }
 
@@ -17,3 +17,6 @@ public struct DynamicDateMiddleware: OpaqueDynamicMiddlewareProtocol {
         return true
     }
 }
+
+// MARK: Conformances
+extension DynamicDateMiddleware: OpaqueDynamicMiddlewareProtocol {}

@@ -10,7 +10,7 @@ import MediaTypes
 /// Default Static Middleware implementation which handles static & dynamic routes at compile time.
 /// 
 /// - Warning: USAGE IS EXPECTED TO BE ONLY AT COMPILE TIME!
-public final class StaticMiddleware: StaticMiddlewareProtocol, @unchecked Sendable {
+public final class StaticMiddleware: @unchecked Sendable {
     /// HTTP Versions this middleware handles.
     /// 
     /// - Warning: `nil` makes it handle all versions.
@@ -213,5 +213,8 @@ extension StaticMiddleware {
         }
     }
 }
+
+// MARK: Conformances
+extension StaticMiddleware: StaticMiddlewareProtocol {}
 
 #endif
