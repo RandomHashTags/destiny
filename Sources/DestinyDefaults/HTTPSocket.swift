@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Default HTTP Socket implementation.
 public struct HTTPSocket: ~Copyable {
@@ -118,5 +118,11 @@ extension HTTPSocket {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension HTTPSocket: HTTPSocketProtocol {}
+
+#endif

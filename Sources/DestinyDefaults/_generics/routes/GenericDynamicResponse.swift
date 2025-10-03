@@ -1,7 +1,7 @@
 
 #if GenericDynamicResponse
 
-import DestinyBlueprint
+import DestinyEmbedded
 import VariableLengthArray
 
 /// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
@@ -97,7 +97,13 @@ extension GenericDynamicResponse {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension GenericDynamicResponse: DynamicResponseProtocol {}
+
+#endif
 
 #endif

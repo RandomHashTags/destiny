@@ -1,9 +1,7 @@
 
 #if HTTPStandardResponseStatuses
 
-import DestinyBlueprint
-
-public enum HTTPStandardResponseStatus: HTTPResponseStatus.StorageProtocol {
+public enum HTTPStandardResponseStatus: Sendable {
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.100
     case `continue`
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.101
@@ -345,6 +343,14 @@ extension HTTPStandardResponseStatus: RawRepresentable {
         }
     }
 }
+#endif
+
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
+extension HTTPStandardResponseStatus: HTTPResponseStatus.StorageProtocol {}
+
 #endif
 
 #endif

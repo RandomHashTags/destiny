@@ -3,7 +3,7 @@ import DestinyBlueprint
 import VariableLengthArray
 
 /// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
-public struct DynamicResponse {
+public struct DynamicResponse: Sendable {
     public var message:HTTPResponseMessage
     public var parameters:[String]
 

@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 public struct HTTPResponseMessageHead<
         Cookie: HTTPCookieProtocol
@@ -55,3 +55,7 @@ public struct HTTPResponseMessageHead<
         return array
     }
 }
+
+#if canImport(DestinyBlueprint)
+import DestinyBlueprint
+#endif

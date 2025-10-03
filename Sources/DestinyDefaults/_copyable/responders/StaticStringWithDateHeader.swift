@@ -1,7 +1,7 @@
 
 #if CopyableStaticStringWithDateHeader
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     #if Inlinable
@@ -19,7 +19,7 @@ extension ResponseBody {
     }
 }
 
-public struct StaticStringWithDateHeader {
+public struct StaticStringWithDateHeader: Sendable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
 
@@ -103,8 +103,14 @@ extension StaticStringWithDateHeader {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension StaticStringWithDateHeader: ResponseBodyProtocol {}
 extension StaticStringWithDateHeader: StaticRouteResponderProtocol {}
+
+#endif
 
 #endif

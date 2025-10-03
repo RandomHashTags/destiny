@@ -1,7 +1,7 @@
 
 #if RateLimits
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 // TODO: finish
 public final class DynamicRateLimitMiddleware: @unchecked Sendable {
@@ -60,8 +60,14 @@ extension DynamicRateLimitMiddleware {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol {}
 extension DynamicRateLimitMiddleware: OpaqueDynamicMiddlewareProtocol {}
+
+#endif
 
 #endif

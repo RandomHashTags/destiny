@@ -1,7 +1,7 @@
 
 #if NonCopyableBytes
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     #if Inlinable
@@ -56,9 +56,7 @@ extension ResponseBody.NonCopyableBytes {
     @inlinable
     #endif
     public func respond(
-        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         do throws(SocketError) {
@@ -70,8 +68,27 @@ extension ResponseBody.NonCopyableBytes {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension ResponseBody.NonCopyableBytes: ResponseBodyProtocol {}
-extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol {}
+
+extension ResponseBody.NonCopyableBytes: NonCopyableStaticRouteResponderProtocol {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func respond(
+        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
+        socket: some FileDescriptor,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
+        try respond(socket: socket, completionHandler: completionHandler)
+    }
+}
+
+#endif
 
 #endif

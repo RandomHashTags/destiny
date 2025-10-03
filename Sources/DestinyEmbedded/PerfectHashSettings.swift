@@ -1,6 +1,6 @@
 
 /// Configurable settings that change how perfect hashing behaves.
-public struct PerfectHashSettings {
+public struct PerfectHashSettings: Sendable {
     /// Number of route path characters to try generating perfect hashes from.
     public let maxBytes:[Int]
 

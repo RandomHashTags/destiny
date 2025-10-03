@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 import VariableLengthArray
 
 extension AbstractHTTPRequest {

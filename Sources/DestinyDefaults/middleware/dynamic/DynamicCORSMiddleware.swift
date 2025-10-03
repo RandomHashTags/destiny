@@ -1,7 +1,7 @@
 
 #if CORS
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 // MARK: DynamicCORSMiddleware
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
@@ -142,6 +142,10 @@ extension DynamicCORSMiddleware {
 
 
 // MARK: Logic variants
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 extension DynamicCORSMiddleware {
     #if Inlinable
     @inlinable
@@ -369,5 +373,7 @@ extension DynamicCORSMiddleware {
 
 // MARK: Conformances
 extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {}
+
+#endif
 
 #endif

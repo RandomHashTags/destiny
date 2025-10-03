@@ -1,9 +1,7 @@
 
 #if HTTPNonStandardResponseStatuses
 
-import DestinyBlueprint
-
-public enum HTTPNonStandardResponseStatus: HTTPResponseStatus.StorageProtocol {
+public enum HTTPNonStandardResponseStatus: Sendable {
     case thisIsFine
     case pageExpired
     case methodFailure
@@ -191,6 +189,14 @@ extension HTTPNonStandardResponseStatus: RawRepresentable {
         }
     }
 }
+#endif
+
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
+extension HTTPNonStandardResponseStatus: HTTPResponseStatus.StorageProtocol {}
+
 #endif
 
 #endif

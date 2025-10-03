@@ -87,6 +87,7 @@ defaultTraits.formUnion([
     "RequestHeaders",
     //"RoutePath", // not yet integrated
 
+    "Protocols",
     "Inlinable",
     //"InlineAlways" // disabled by default because it is shown to hurt performance
 
@@ -331,6 +332,10 @@ let traits:Set<Trait> = [
         name: "StaticRedirectionRoute"
     ),
 
+    .trait(
+        name: "Protocols",
+        description: "Enables the design protocols and the DestinyBlueprint target."
+    ),
     .trait( // useful when benchmarking/profiling raw performance
         name: "Inlinable",
         description: "Enables the `@inlinable` annotation where annotated."
@@ -369,10 +374,19 @@ var targets = [
 
 
 
-    // MARK: DestinyBlueprint
+    // MARK: DestinyEmbedded
     Target.target(
+        name: "DestinyEmbedded",
+        dependencies: [
+            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
+            .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
+        ]
+    ),
+    // MARK: DestinyBlueprint
+    .target(
         name: "DestinyBlueprint",
         dependencies: [
+            "DestinyEmbedded",
             .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
             //.product(name: "Metrics", package: "swift-metrics"),
@@ -384,7 +398,8 @@ var targets = [
     .target(
         name: "DestinyDefaults",
         dependencies: [
-            "DestinyBlueprint",
+            "DestinyEmbedded",
+            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
             //.product(name: "Metrics", package: "swift-metrics"),
         ]
@@ -394,7 +409,8 @@ var targets = [
     .target(
         name: "DestinyDefaultsNonEmbedded",
         dependencies: [
-            "DestinyBlueprint",
+            "DestinyEmbedded",
+            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
             "DestinyDefaults",
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
             //.product(name: "Metrics", package: "swift-metrics"),
@@ -431,7 +447,8 @@ var targets = [
     .target(
         name: "TestRouter",
         dependencies: [
-            "DestinyBlueprint",
+            "DestinyEmbedded",
+            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
             "DestinyDefaults",
             "DestinySwiftSyntax"
         ]
@@ -440,7 +457,8 @@ var targets = [
     .executableTarget(
         name: "Run",
         dependencies: [
-            "DestinyBlueprint",
+            "DestinyEmbedded",
+            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
             "DestinyDefaults",
             "TestRouter"
         ]

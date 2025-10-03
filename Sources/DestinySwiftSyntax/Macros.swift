@@ -1,4 +1,6 @@
 
+import DestinyEmbedded
+
 // MARK: Embedded
 #if !NonEmbedded
 #endif
@@ -8,7 +10,9 @@
 
 
 
-#if NonEmbedded
+#if NonEmbedded && canImport(DestinyBlueprint)
+import DestinyBlueprint
+
 // MARK: Non embedded
 
 

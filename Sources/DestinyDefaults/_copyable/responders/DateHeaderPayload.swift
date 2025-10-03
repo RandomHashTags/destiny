@@ -1,7 +1,7 @@
 
 #if CopyableDateHeaderPayload
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 public struct DateHeaderPayload: @unchecked Sendable {
     @usableFromInline let preDatePointer:UnsafePointer<UInt8>

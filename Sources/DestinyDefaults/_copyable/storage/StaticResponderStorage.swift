@@ -1,7 +1,7 @@
 
 #if Copyable && MutableRouter
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Default mutable storage that handles static routes.
 /// 
@@ -146,7 +146,13 @@ extension StaticResponderStorage {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension StaticResponderStorage: MutableStaticResponderStorageProtocol {}
+
+#endif
 
 #endif

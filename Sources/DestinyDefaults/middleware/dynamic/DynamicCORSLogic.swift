@@ -1,8 +1,6 @@
 
 #if CORS
 
-import DestinyBlueprint
-
 public enum DynamicCORSLogic: Sendable {
     case allowCredentials_exposedHeaders_maxAge(allowedHeaders: String, allowedMethods: String, exposedHeaders: String, maxAge: String)
     case allowCredentials_exposedHeaders(allowedHeaders: String, allowedMethods: String, exposedHeaders: String)
@@ -13,6 +11,10 @@ public enum DynamicCORSLogic: Sendable {
     case maxAge(allowedHeaders: String, allowedMethods: String, maxAge: String)
     case minimum(allowedHeaders: String, allowedMethods: String)
 }
+
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
 
 // MARK: Apply to response
 extension DynamicCORSLogic {
@@ -71,5 +73,7 @@ extension DynamicCORSLogic {
         }
     }
 }
+
+#endif
 
 #endif

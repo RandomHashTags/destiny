@@ -9,7 +9,11 @@ import Glibc
 import Foundation
 #endif
 
+import DestinyEmbedded
+
+#if canImport(DestinyBlueprint)
 import DestinyBlueprint
+#endif
 
 #if Logging
 import Logging

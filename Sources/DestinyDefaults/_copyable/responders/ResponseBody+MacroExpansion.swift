@@ -1,7 +1,7 @@
 
 #if CopyableMacroExpansion
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     #if Inlinable
@@ -47,7 +47,13 @@ extension ResponseBody {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension ResponseBody.MacroExpansion: ResponseBodyProtocol {}
+
+#endif
 
 #endif

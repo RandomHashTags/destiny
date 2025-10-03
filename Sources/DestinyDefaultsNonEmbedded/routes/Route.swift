@@ -2,7 +2,7 @@
 import DestinyBlueprint
 import DestinyDefaults
 
-public struct Route {
+public struct Route: Sendable {
     public var path:[PathComponent]
     public let contentType:String?
 

@@ -1,13 +1,7 @@
 
 #if CORS
 
-public enum CORSMiddlewareAllowedOrigin: Sendable {
-    case all
-    case any(Set<String>)
-    case custom(String)
-    case none
-    case originBased
-}
+import DestinyEmbedded
 
 extension CORSMiddlewareAllowedOrigin {
     #if Inlinable

@@ -1,7 +1,7 @@
 
 #if NonCopyableMacroExpansionWithDateHeader
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 public struct NonCopyableMacroExpansionWithDateHeader: Sendable, ~Copyable {
     public static let bodyCountSuffix:StaticString = "\r\n\r\n"
@@ -35,9 +35,7 @@ extension NonCopyableMacroExpansionWithDateHeader {
     @inlinable
     #endif
     public func respond(
-        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var err:SocketError? = nil
@@ -66,7 +64,25 @@ extension NonCopyableMacroExpansionWithDateHeader {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
-extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteResponderProtocol {}
+extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func respond(
+        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
+        socket: some FileDescriptor,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
+        try respond(socket: socket, completionHandler: completionHandler)
+    }
+}
+
+#endif
 
 #endif

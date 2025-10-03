@@ -1,7 +1,7 @@
 
 #if CopyableStreamWithDateHeader
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     #if Inlinable
@@ -121,8 +121,14 @@ extension StreamWithDateHeader {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension StreamWithDateHeader: ResponseBodyProtocol {}
 extension StreamWithDateHeader: StaticRouteResponderProtocol {}
+
+#endif
 
 #endif

@@ -1,8 +1,8 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Adds the `Date` header to responses for dynamic routes.
-public struct DynamicDateMiddleware {
+public struct DynamicDateMiddleware: Sendable {
     public init() {
     }
 
@@ -18,5 +18,11 @@ public struct DynamicDateMiddleware {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension DynamicDateMiddleware: OpaqueDynamicMiddlewareProtocol {}
+
+#endif

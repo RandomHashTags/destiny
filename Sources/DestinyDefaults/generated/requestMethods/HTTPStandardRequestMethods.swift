@@ -1,9 +1,7 @@
 
 #if HTTPStandardRequestMethods
 
-import DestinyBlueprint
-
-public enum HTTPStandardRequestMethod: HTTPRequestMethodProtocol {
+public enum HTTPStandardRequestMethod: Sendable {
     case connect
     case delete
     case get
@@ -187,6 +185,14 @@ extension HTTPStandardRequestMethod: RawRepresentable {
         }
     }
 }
+#endif
+
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
+extension HTTPStandardRequestMethod: HTTPRequestMethodProtocol {}
+
 #endif
 
 #endif

@@ -1,4 +1,6 @@
 
+#if canImport(DestinyBlueprint)
+
 import DestinyBlueprint
 
 /// Types conforming to this protocol can be used as...
@@ -33,3 +35,5 @@ extension StaticString: ResponseBodyValueProtocol {
         description
     }
 }
+
+#endif

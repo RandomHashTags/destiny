@@ -1,6 +1,6 @@
 
 /// An `Error` that indicates failure when handling an HTTP Socket.
-public enum SocketError: DestinyErrorProtocol {
+public enum SocketError {
     case acceptFailed(errno: Int32)
     case writeFailed(errno: Int32)
     case readSingleByteFailed(errno: Int32)
@@ -13,3 +13,6 @@ public enum SocketError: DestinyErrorProtocol {
     case errno(Int32)
     case custom(String)
 }
+
+// MARK: Conformances
+extension SocketError: Error {}

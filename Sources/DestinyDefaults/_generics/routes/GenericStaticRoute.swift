@@ -1,7 +1,7 @@
 
 #if GenericStaticRoute
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 // MARK: StaticRoute
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
@@ -116,8 +116,14 @@ public struct GenericStaticRoute<
 
     #endif
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension GenericStaticRoute: RouteProtocol {}
+
+#endif
 
 // MARK: Convenience inits
 extension GenericStaticRoute {

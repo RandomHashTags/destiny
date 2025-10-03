@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Default storage for http request data.
 public struct HTTPRequest: ~Copyable {
@@ -86,11 +86,11 @@ extension HTTPRequest {
     public mutating func pathCount() throws(SocketError) -> Int {
         try abstractRequest.pathCount(fileDescriptor: fileDescriptor)
     }
-
+    
     #if Inlinable
     @inlinable
     #endif
-    public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+    public mutating func isMethod(_ method: HTTPRequestMethod) throws(SocketError) -> Bool {
         try abstractRequest.isMethod(fileDescriptor: fileDescriptor, method)
     }
 
@@ -150,5 +150,18 @@ extension HTTPRequest {
 #endif
 
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
-extension HTTPRequest: HTTPRequestProtocol {}
+extension HTTPRequest: HTTPRequestProtocol {
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+        try abstractRequest.isMethod(fileDescriptor: fileDescriptor, method)
+    }
+}
+
+#endif

@@ -1,7 +1,7 @@
 
 #if CopyableStringWithDateHeader
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     public static func stringWithDateHeader(_ value: String) -> StringWithDateHeader {
@@ -17,7 +17,7 @@ extension ResponseBody {
     }
 }
 
-public struct StringWithDateHeader {
+public struct StringWithDateHeader: Sendable {
     public let preDateValue:String.UTF8View
     public let postDateValue:String.UTF8View
     public let value:String.UTF8View
@@ -87,9 +87,7 @@ extension StringWithDateHeader {
     @inlinable
     #endif
     public func respond(
-        router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var err:SocketError? = nil
@@ -113,8 +111,27 @@ extension StringWithDateHeader {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension StringWithDateHeader: ResponseBodyProtocol {}
-extension StringWithDateHeader: StaticRouteResponderProtocol {}
+
+extension StringWithDateHeader: StaticRouteResponderProtocol {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: some FileDescriptor,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
+        try respond(socket: socket, completionHandler: completionHandler)
+    }
+}
+
+#endif
 
 #endif

@@ -262,7 +262,8 @@ List of techniques Destiny wants to incorporate to push performance even further
 Areas that Swift needs more development/support to unlock more performance at the language level.
 
 - `~Copyable` types in parameter packs (current `Copyable` requirement causes retain/release and ARC traffic)
-- `~Copyable` types not being able to be used as a `typealias` or `associatedtype`
+- `~Copyable` types not being allowed as a `typealias` or `associatedtype` (as a protocol requirement)
+- `~Copyable` types not being allowed in tuples
 - `Async[Throwing]Stream` not supporting typed throws
 - `Async[Throwing]Stream` not supporting `~Copyable` values
 

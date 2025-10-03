@@ -1,7 +1,7 @@
 
 #if Copyable
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     #if Inlinable
@@ -10,7 +10,7 @@ extension ResponseBody {
     public static func bytes(_ value: [UInt8]) -> Self.Bytes {
         Self.Bytes(value)
     }
-    public struct Bytes {
+    public struct Bytes: Sendable {
         public let value:[UInt8]
 
         #if Inlinable
@@ -53,9 +53,7 @@ extension ResponseBody.Bytes {
     @inlinable
     #endif
     public func respond(
-        router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         do throws(SocketError) {
@@ -67,8 +65,27 @@ extension ResponseBody.Bytes {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension ResponseBody.Bytes: ResponseBodyProtocol {}
-extension ResponseBody.Bytes: StaticRouteResponderProtocol {}
+
+extension ResponseBody.Bytes: StaticRouteResponderProtocol {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func respond(
+        router: some HTTPRouterProtocol,
+        socket: some FileDescriptor,
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
+        try respond(socket: socket, completionHandler: completionHandler)
+    }
+}
+
+#endif
 
 #endif

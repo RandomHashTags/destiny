@@ -1,7 +1,7 @@
 
 #if RequestHeaders
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension AbstractHTTPRequest {
     @usableFromInline

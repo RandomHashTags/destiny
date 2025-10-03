@@ -1,11 +1,11 @@
 
 /// Default storage for an HTTP Message's headers.
-public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
+public struct HTTPHeaders: Sendable {
     public typealias Key = String
     public typealias Value = String
 
     @usableFromInline
-    var _storage:[(key: String, value: String)]
+    package var _storage:[(key: String, value: String)]
 
     /// - Warning: Keys are case-sensitive!
     #if Inlinable
@@ -26,19 +26,6 @@ public struct HTTPHeaders: HTTPHeadersProtocol, ExpressibleByDictionaryLiteral {
             array.append((key, value))
         }
         self._storage = array
-    }
-
-    /// Creates an instance initialized with the given key-value pairs.
-    /// - Warning: Keys are case-sensitive!
-    #if Inlinable
-    @inlinable
-    #endif
-    public init(dictionaryLiteral elements: (Key, Value)...) {
-        _storage = []
-        _storage.reserveCapacity(elements.count)
-        for (key, value) in elements {
-            _storage.append((key, value))
-        }
     }
 
     #if Inlinable
@@ -84,11 +71,11 @@ extension HTTPHeaders {
     }
 }
 
-extension HTTPHeaders {
+extension HTTPHeaders: Sequence {
     #if Inlinable
     @inlinable
     #endif
-    public func makeIterator() -> HTTPHeadersProtocolIterator {
-        HTTPHeadersProtocolIterator(headers: _storage)
+    public func makeIterator() -> HTTPHeadersIterator {
+        HTTPHeadersIterator(headers: _storage)
     }
 }

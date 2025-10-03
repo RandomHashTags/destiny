@@ -1,9 +1,9 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 import VariableLengthArray
 
 /// Default HTTP Request Line implementation.
-public struct HTTPRequestLine: ~Copyable {
+public struct HTTPRequestLine: Sendable, ~Copyable {
     public let methodEndIndex:Int
     public let pathQueryStartIndex:Int?
     public let endIndex:Int
@@ -163,5 +163,11 @@ extension HTTPRequestLine {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension HTTPRequestLine: HTTPRequestLineProtocol {}
+
+#endif

@@ -1,7 +1,7 @@
 
 #if GenericHTTPMessage
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Default storage for an HTTP Message.
 public struct GenericHTTPResponseMessage<
@@ -378,8 +378,14 @@ extension GenericHTTPResponseMessage {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension GenericHTTPResponseMessage: GenericHTTPMessageProtocol {}
+
+#endif
 
 #if MediaTypes
 

@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol> {
     public let chunkSize:Int
@@ -85,5 +85,11 @@ extension AsyncHTTPChunkDataStream {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension AsyncHTTPChunkDataStream: AsyncHTTPSocketWritable {}
+
+#endif

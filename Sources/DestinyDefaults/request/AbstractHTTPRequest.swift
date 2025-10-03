@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Shared request storage that works for different `FileDescriptor` implementations.
 @usableFromInline
@@ -49,7 +49,7 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
     }
 }
 
-// MARK: Protocol conformance
+// MARK: Generic logic
 extension AbstractHTTPRequest {
     #if Inlinable
     @inlinable
@@ -105,7 +105,7 @@ extension AbstractHTTPRequest {
     #if InlineAlways
     @inline(__always)
     #endif
-    mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+    mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: HTTPRequestMethod) throws(SocketError) -> Bool {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
@@ -248,6 +248,29 @@ extension AbstractHTTPRequest {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
         return try storage.bodyCollect(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
+    }
+}
+
+#endif
+
+
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
+// MARK: Conformance logic
+extension AbstractHTTPRequest {
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+        if initialBuffer == nil {
+            try loadStorage(fileDescriptor: fileDescriptor)
+        }
+        return method.rawNameString() == storage.methodString(buffer: initialBuffer!)
     }
 }
 

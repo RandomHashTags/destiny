@@ -1,7 +1,7 @@
 
 #if StaticMiddleware
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 #if MediaTypes
 import MediaTypes
@@ -214,7 +214,13 @@ extension StaticMiddleware {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension StaticMiddleware: StaticMiddlewareProtocol {}
+
+#endif
 
 #endif

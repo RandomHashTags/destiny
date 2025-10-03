@@ -1,10 +1,10 @@
 
 #if StaticRedirectionRoute
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Default Redirection Route implementation that handles redirects for static routes.
-public struct StaticRedirectionRoute {
+public struct StaticRedirectionRoute: Sendable {
     /// Endpoint that has been moved.
     public package(set) var from:[String]
 
@@ -45,7 +45,13 @@ extension StaticRedirectionRoute {
         self.isCaseSensitive = isCaseSensitive
         self.to = to.map({ $0.description })
     }
+}
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
+extension StaticRedirectionRoute {
     public init(
         version: HTTPVersion = .v1_1,
         method: some HTTPRequestMethodProtocol,
@@ -67,5 +73,7 @@ extension StaticRedirectionRoute {
 
 // MARK: Conformances
 extension StaticRedirectionRoute: RedirectionRouteProtocol {}
+
+#endif
 
 #endif

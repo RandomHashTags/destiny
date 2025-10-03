@@ -1,7 +1,7 @@
 
 #if NonCopyableStaticStringWithDateHeader
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     #if Inlinable
@@ -103,8 +103,14 @@ extension NonCopyableStaticStringWithDateHeader {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol {}
 extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponderProtocol {}
+
+#endif
 
 #endif

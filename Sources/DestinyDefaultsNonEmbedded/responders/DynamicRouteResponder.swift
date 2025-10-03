@@ -3,7 +3,7 @@ import DestinyBlueprint
 import DestinyDefaults
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
-public struct DynamicRouteResponder {
+public struct DynamicRouteResponder: Sendable {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let _defaultResponse:DynamicResponse

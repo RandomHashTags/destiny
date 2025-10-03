@@ -2,7 +2,7 @@
 import DestinyBlueprint
 
 // MARK: StaticFileMiddleware
-public struct StaticFileMiddleware { // TODO: finish
+public struct StaticFileMiddleware: Sendable { // TODO: finish
 
     let filePath:String
     let endpoint:String

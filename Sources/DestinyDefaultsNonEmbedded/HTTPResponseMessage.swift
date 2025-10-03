@@ -3,7 +3,7 @@ import DestinyBlueprint
 import DestinyDefaults
 
 /// Default storage for an HTTP Message.
-public struct HTTPResponseMessage {
+public struct HTTPResponseMessage: Sendable {
     public var head:HTTPResponseMessageHead<HTTPCookie>
     public var body:(any ResponseBodyProtocol)?
     public var contentType:String?

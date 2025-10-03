@@ -26,7 +26,7 @@ public protocol HTTPRequestProtocol: NetworkAddressable, ~Copyable {
     mutating func pathCount() throws(SocketError) -> Int
 
     /// - Returns: Whether or not the request's method matches the given one.
-    mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool
+    mutating func isMethod(_ method: HTTPRequestMethod) throws(SocketError) -> Bool
 
     /// - Returns: The value for the corresponding header key.
     /// - Warning: `key` is case-sensitive!
@@ -36,8 +36,9 @@ public protocol HTTPRequestProtocol: NetworkAddressable, ~Copyable {
     /// - Returns: A copy of self.
     func copy() -> Self
 
+    /*
     /// Loads this request from a socket.
     static func load(
         from socket: consuming some HTTPSocketProtocol & ~Copyable
-    ) throws(SocketError) -> Self
+    ) throws(SocketError) -> Self*/
 }

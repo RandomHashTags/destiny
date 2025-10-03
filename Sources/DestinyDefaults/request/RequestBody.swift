@@ -1,7 +1,7 @@
 
 #if RequestBody
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 public struct RequestBody: Sendable, ~Copyable {
     @usableFromInline

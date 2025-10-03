@@ -1,11 +1,9 @@
 
-import DestinyBlueprint
-
 #if Logging
 import Logging
 #endif
 
-public struct Application {
+public struct Application: Sendable {
     nonisolated(unsafe) public static private(set) var shared:Application! = nil
 
     public let serviceGroup:DestinyServiceGroup
@@ -61,5 +59,11 @@ public struct Application {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension Application: ApplicationProtocol {}
+
+#endif

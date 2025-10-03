@@ -1,6 +1,9 @@
 
-import DestinyBlueprint
 import DestinyDefaults
+
+#if canImport(DestinyBlueprint)
+import DestinyBlueprint
+#endif
 
 #if canImport(DestinySwiftSyntax)
 import DestinySwiftSyntax

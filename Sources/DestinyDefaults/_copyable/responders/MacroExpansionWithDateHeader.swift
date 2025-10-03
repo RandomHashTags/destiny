@@ -1,7 +1,7 @@
 
 #if CopyableMacroExpansionWithDateHeader
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 public struct MacroExpansionWithDateHeader: Sendable {
     public static let bodyCountSuffix:StaticString = "\r\n\r\n"
@@ -66,7 +66,13 @@ extension MacroExpansionWithDateHeader {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {}
+
+#endif
 
 #endif

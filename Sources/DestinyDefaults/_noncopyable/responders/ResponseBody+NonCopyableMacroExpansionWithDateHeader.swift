@@ -1,7 +1,7 @@
 
 #if NonCopyableMacroExpansionWithDateHeader
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 extension ResponseBody {
     #if Inlinable
@@ -54,7 +54,13 @@ extension ResponseBody {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension ResponseBody.NonCopyableMacroExpansionWithDateHeader: ResponseBodyProtocol {}
+
+#endif
 
 #endif

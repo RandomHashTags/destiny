@@ -1,7 +1,7 @@
 
 #if Copyable && MutableRouter
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 /// Default mutable storage that handles case insensitive static routes.
 public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
@@ -41,7 +41,13 @@ public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension CaseInsensitiveStaticResponderStorage: StaticResponderStorage {}
+
+#endif
 
 #endif
