@@ -17,8 +17,9 @@ extension HTTPSocketProtocol where Self: ~Copyable {
             var i = 0
             while i < count {
                 p[i] = .carriageReturn
-                p[i + 1] = .lineFeed
-                i += 2
+                i += 1
+                p[i] = .lineFeed
+                i += 1
             }
             do throws(SocketError) {
                 try writeBuffer(p.baseAddress!, length: capacity)

@@ -15,6 +15,10 @@ import FoundationEssentials
 import Foundation
 #endif
 
+#if canImport(Glibc)
+import Glibc
+#endif
+
 #if Logging
 import Logging
 #endif
@@ -31,6 +35,8 @@ package final class TestRouter {
 
 // MARK: Router
 extension TestRouter {
+    //#server(routerType: "DeclaredRouter.CompiledHTTPRouter")
+
     #declareRouter(
         routerSettings: .init(
             //dynamicResponsesAreGeneric: false,

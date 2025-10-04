@@ -1,6 +1,21 @@
 
 import DestinyEmbedded
 
+@freestanding(declaration, names: named(Server))
+public macro server(
+    address: String? = nil,
+    port: UInt16 = 8080,
+    backlog: Int32 = 0,
+    routerType: String = "CompiledHTTPRouter",
+    reuseAddress: Bool = true,
+    reusePort: Bool = true,
+    noTCPDelay: Bool = true,
+    maxEpollEvents: Int = 64,
+    socketType: String = "HTTPSocket",
+    onLoad: (() -> Void)? = nil,
+    onShutdown: (() -> Void)? = nil
+) = #externalMacro(module: "DestinyMacros", type: "Server")
+
 // MARK: Embedded
 #if !NonEmbedded
 #endif

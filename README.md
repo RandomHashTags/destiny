@@ -266,6 +266,7 @@ Areas that Swift needs more development/support to unlock more performance at th
 - `~Copyable` types not being allowed in tuples
 - `Async[Throwing]Stream` not supporting typed throws
 - `Async[Throwing]Stream` not supporting `~Copyable` values
+- Parameter Pack same-element requirements not being supported ("yet")
 
 ## Getting started
 

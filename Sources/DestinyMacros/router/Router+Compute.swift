@@ -17,7 +17,7 @@ extension Router {
         perfectHashSettings: PerfectHashSettings,
         arguments: LabeledExprListSyntax,
         context: some MacroExpansionContext
-    ) -> (router: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
+    ) -> (storage: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var compiledStorage = CompiledRouterStorage(routerSettings: routerSettings)
         var storage = RouterStorage(settings: routerSettings, perfectHashSettings: perfectHashSettings)
         return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
@@ -28,7 +28,7 @@ extension Router {
         perfectHashSettings: PerfectHashSettings,
         arguments: LabeledExprListSyntax,
         context: some MacroExpansionContext
-    ) -> (router: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
+    ) -> (storage: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var compiledStorage = CompiledRouterStorage()
         var storage = RouterStorage(perfectHashSettings: perfectHashSettings)
         return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
@@ -41,7 +41,7 @@ extension Router {
         storage: inout RouterStorage,
         routerSettingsSyntax: ExprSyntax,
         arguments: LabeledExprListSyntax
-    ) -> (router: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
+    ) -> (storage: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var version = HTTPVersion.v1_1
         var customErrorResponder = ""
         var customDynamicNotFoundResponder = ""
@@ -173,6 +173,7 @@ extension Router {
         let caseInsensitiveResponder:CompiledRouterStorage.Responder?
         let dynamicCaseSensitiveResponder:CompiledRouterStorage.Responder?
         let dynamicCaseInsensitiveResponder:CompiledRouterStorage.Responder?
+
         #if NonEmbedded
         caseSensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: true)
         caseInsensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: false)

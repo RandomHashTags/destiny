@@ -2,26 +2,40 @@
 import SwiftSyntax
 
 struct CompiledHTTPServer {
-    let address:String?
-    let port:UInt16
-    let backlog:Int32
-    let router:String
+    var noncopyable = true
+    var logging = true
 
-    let reuseAddress:Bool
-    let reusePort:Bool
-    let noTCPDelay:Bool
-    let maxEvents:Int
-    let socket:String
+    var address:String? = nil
 
-    let onLoad:String?
-    let onShutdown:String?
+    /// Underlying type should be `UInt16`.
+    var port = "8080"
+
+    /// Underlying type should be `Int32`.
+    var backlog = "SOMAXCONN"
+
+    var routerType = "Router"
+
+    var reuseAddress = true
+    var reusePort = true
+    var noTCPDelay = true
+
+    /// Underlying type should be `Int`.
+    var maxEpollEvents = "64"
+
+    var socketType = "HTTPSocket"
+
+    var onLoad:String? = nil
+    var onShutdown:String? = nil
 }
 
 // MARK: Build
 extension CompiledHTTPServer {
-    func build() -> StructDeclSyntax {
+    func build(name: TokenSyntax) -> StructDeclSyntax {
         var members = MemberBlockItemListSyntax()
         members.append(routerDecl())
+        if logging {
+            members.append(loggerDecl())
+        }
         members.append(runDecl())
         members.append(shutdownDecl())
         members.append(noTCPDelayDecl())
@@ -30,11 +44,15 @@ extension CompiledHTTPServer {
         members.append(bindAndListenDecl())
         members.append(setNonBlockingDecl())
         members.append(processClientsDecl())
-        members.append(acceptFunctionDecl())
+        members.append(acceptClientDecl())
         members.append(processClientsOLDDecl())
         members.append(epollDecl())
         return StructDeclSyntax(
-            name: "CompiledHTTPServer",
+            name: name,
+            inheritanceClause: .init(inheritedTypes: [
+                .init(type: TypeSyntax("Sendable"), trailingComma: .commaToken()),
+                .init(type: TypeSyntax("\(raw: noncopyable ? "~" : "")Copyable"))
+            ]),
             memberBlock: .init(members: members)
         )
     }
@@ -46,7 +64,7 @@ extension CompiledHTTPServer {
         return .init(
             .let,
             name: "router",
-            type: TypeAnnotationSyntax(type: TypeSyntax("\(raw: router)"))
+            type: TypeAnnotationSyntax(type: TypeSyntax("\(raw: routerType)"))
         )
     }
 }
@@ -108,7 +126,7 @@ extension CompiledHTTPServer {
             signature: .init(parameterClause: .init(parameters: [])),
             body: .init(statements: .init(stringLiteral: """
             \(onShutdown ?? "")
-            serverFD?.socketClose()
+            //serverFD?.socketClose() // TODO: fix?
             """))
         )
     }
@@ -160,8 +178,8 @@ extension CompiledHTTPServer {
         if reuseAddress {
             reuseAddressLogic = """
             // reuse address
-            var r:Int32 = 1
-            setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &r, socklen_t(MemoryLayout<Int32>.size))
+            var reuseAddressValue:Int32 = 1
+            setsockopt(serverFD, SOL_SOCKET, SO_REUSEADDR, &reuseAddressValue, socklen_t(MemoryLayout<Int32>.size))
             """
         } else {
             reuseAddressLogic = ""
@@ -172,8 +190,8 @@ extension CompiledHTTPServer {
             reusePortLogic = """
             #if canImport(Glibc)
             // reuse port
-            var r:Int32 = 1
-            setsockopt(serverFD, SOL_SOCKET, SO_REUSEPORT, &r, socklen_t(MemoryLayout<Int32>.size))
+            var reusePortValue:Int32 = 1
+            setsockopt(serverFD, SOL_SOCKET, SO_REUSEPORT, &reusePortValue, socklen_t(MemoryLayout<Int32>.size))
             #endif
             """
         } else {
@@ -203,12 +221,11 @@ extension CompiledHTTPServer {
             if serverFD == -1 {
                 throw .socketCreationFailed(errno: cError())
             }
-            self.serverFD = serverFD
-            \(socket).noSigPipe(fileDescriptor: serverFD)
+            \(socketType).noSigPipe(fileDescriptor: serverFD)
             #if canImport(Glibc)
             var addr = sockaddr_in6(
                 sin6_family: sa_family_t(AF_INET6),
-                sin6_port: port.bigEndian,
+                sin6_port: UInt16(\(port)).bigEndian,
                 sin6_flowinfo: 0,
                 sin6_addr: in6addr_any,
                 sin6_scope_id: 0
@@ -217,7 +234,7 @@ extension CompiledHTTPServer {
             var addr = sockaddr_in6(
                 sin6_len: UInt8(MemoryLayout<sockaddr_in>.stride),
                 sin6_family: UInt8(AF_INET6),
-                sin6_port: port.bigEndian,
+                sin6_port: UInt16(\(port)).bigEndian,
                 sin6_flowinfo: 0,
                 sin6_addr: in6addr_any,
                 sin6_scope_id: 0
@@ -234,7 +251,7 @@ extension CompiledHTTPServer {
                 serverFD.socketClose()
                 throw .bindFailed(errno: cError())
             }
-            if listen(serverFD, backlog) == -1 {
+            if listen(serverFD, \(backlog)) == -1 {
                 serverFD.socketClose()
                 throw .listenFailed(errno: cError())
             }
@@ -295,10 +312,10 @@ extension CompiledHTTPServer {
             ),
             body: .init(statements: .init(stringLiteral: """
             #if Epoll
-            processClientsEpoll(port: port, router: router)
+            processClientsEpoll()
             #else
             let serverFD1 = try bindAndListen()
-            await processClientsOLD(serverFD: serverFD)
+            await processClientsOLD(serverFD: serverFD1)
             #endif
             """))
         )
@@ -307,7 +324,7 @@ extension CompiledHTTPServer {
 
 // MARK: Accept function
 extension CompiledHTTPServer {
-    private func acceptFunctionDecl() -> FunctionDeclSyntax {
+    private func acceptClientDecl() -> FunctionDeclSyntax {
         let finalLogic:String
         if noTCPDelay {
             finalLogic = """
@@ -319,9 +336,12 @@ extension CompiledHTTPServer {
         }
         return .init(
             leadingTrivia: "\(inlinableAnnotation)\n",
-            name: "acceptFunction",
+            modifiers: [.init(name: .keyword(.static))],
+            name: "acceptClient",
             signature: .init(
-                parameterClause: .init(parameters: []),
+                parameterClause: .init(parameters: [
+                    .init(firstName: "_", secondName: "server", type: TypeSyntax("Int32?"))
+                ]),
                 effectSpecifiers: .init(
                     throwsClause: .init(
                         throwsSpecifier: .keyword(.throws),
@@ -352,27 +372,8 @@ extension CompiledHTTPServer {
 // MARK: Process clients old
 extension CompiledHTTPServer {
     private func processClientsOLDDecl() -> FunctionDeclSyntax {
-        let acceptFunctionLogic:String
-        if noTCPDelay {
-            acceptFunctionLogic = """
-            guard let serverFD = server else { return nil }
-            var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
-            let client = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
-            if client == -1 {
-                if server == nil {
-                    return nil
-                }
-                throw .acceptFailed(errno: cError())
-            }
-            var d:Int32 = 1
-            setsockopt(client, Int32(IPPROTO_TCP), TCP_NODELAY, &d, socklen_t(MemoryLayout<Int32>.size))
-            return client
-            """
-        } else {
-            acceptFunctionLogic = """
-            """
-        }
         return .init(
+            leadingTrivia: "#if !Epoll && !Liburing\n",
             name: "processClientsOLD",
             signature: .init(
                 parameterClause: .init(parameters: [
@@ -383,14 +384,13 @@ extension CompiledHTTPServer {
                 )
             ),
             body: .init(statements: .init(stringLiteral: """
-            let acceptClient = acceptFunction(noTCPDelay: noTCPDelay)
             while !Task.isCancelled {
                 await withTaskGroup(of: Void.self) { group in
                     for _ in 0..<\(backlog) {
                         group.addTask {
                             do throws(SocketError) {
-                                guard let client = try acceptClient(serverFD) else { return }
-                                let socket = \(socket)(fileDescriptor: client)
+                                guard let client = try Self.acceptClient(serverFD) else { return }
+                                let socket = \(socketType)(fileDescriptor: client)
                                 self.router.handle(client: client, socket: socket, completionHandler: {
                                     client.socketClose()
                                 })
@@ -404,7 +404,8 @@ extension CompiledHTTPServer {
                     await group.waitForAll()
                 }
             }
-            """))
+            """),
+            trailingTrivia: "\n#endif")
         )
     }
 }
@@ -413,16 +414,16 @@ extension CompiledHTTPServer {
 extension CompiledHTTPServer {
     private func epollDecl() -> FunctionDeclSyntax {
         return .init(
-            leadingTrivia: "\(inlinableAnnotation)\n",
+            leadingTrivia: "#if Epoll\n\(inlinableAnnotation)\n",
             name: "processClientsEpoll",
             signature: .init(
                 parameterClause: .init(parameters: [])
             ),
             body: .init(statements: .init(stringLiteral: """
             do throws(EpollError) {
-                var processor = try EpollWorker<\(maxEvents)>.create(workerId: 0, backlog: \(backlog), port: \(port))
-                try processor.run(timeout: -1, handleClient: { client, handler in
-                    let socket = \(socket)(fileDescriptor: client)
+                var processor = try EpollWorker<\(maxEpollEvents)>.create(workerId: 0, backlog: \(backlog), port: \(port))
+                processor.run(timeout: -1, handleClient: { client, handler in
+                    let socket = \(socketType)(fileDescriptor: client)
                     router.handle(client: client, socket: socket, completionHandler: handler)
                 })
                 processor.shutdown()
@@ -431,7 +432,8 @@ extension CompiledHTTPServer {
                 logger.error("CompiledHTTPServer;\\(#function);error=\\(error)")
                 #endif
             }
-            """))
+            """),
+            trailingTrivia: "\n#endif")
         )
     }
 }

@@ -6,7 +6,7 @@ import DestinyEmbedded
 // MARK: DynamicCORSMiddleware
 /// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
-public struct DynamicCORSMiddleware: CORSMiddlewareProtocol {
+public struct DynamicCORSMiddleware: Sendable {
     public let allowedOrigin:CORSMiddlewareAllowedOrigin
     public let logicKind:DynamicCORSLogic
 
@@ -372,6 +372,7 @@ extension DynamicCORSMiddleware {
 }
 
 // MARK: Conformances
+extension DynamicCORSMiddleware: CORSMiddlewareProtocol {}
 extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {}
 
 #endif

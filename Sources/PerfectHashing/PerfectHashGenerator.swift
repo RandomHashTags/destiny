@@ -106,9 +106,8 @@ extension PerfectHashGenerator {
                         if tryHashFunction(candidate: candidate, hashTable: &hashTable, verificationKeys: &verificationKeys) {
                             found.append((candidate, [UInt8](hashTable), [UInt64](verificationKeys)))
                         }
-                        hashTable.withUnsafeMutableBufferPointer {
-                            $0.update(repeating: 255)
-                        }
+                        var mutableSpan = hashTable.mutableSpan
+                        mutableSpan.update(repeating: 0)
                     }
                 }
                 if !found.isEmpty {

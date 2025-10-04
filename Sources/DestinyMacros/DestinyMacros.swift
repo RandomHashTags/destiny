@@ -8,6 +8,7 @@ import SwiftSyntaxMacros
 struct DestinyMacros: CompilerPlugin {
     let providingMacros:[any Macro.Type] = [
         Router.self,
+        Server.self,
         HTTPMessage.self
     ]
 }

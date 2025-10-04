@@ -12,25 +12,8 @@ enum Router: ExpressionMacro {
         in context: some MacroExpansionContext
     ) -> ExprSyntax {
         let args = node.as(ExprSyntax.self)!.macroExpansion!.arguments
-        let computed:(router: CompiledRouterStorage, structs: MemberBlockItemListSyntax)
-
-        #if RouterSettings
-        computed = compute(
-            routerSettings: .init(),
-            routerSettingsSyntax: args.first!.expression,
-            perfectHashSettings: .init(),
-            arguments: args,
-            context: context
-        )
-        #else
-        computed = compute(
-            routerSettingsSyntax: args.first!.expression,
-            perfectHashSettings: .init(),
-            arguments: args,
-            context: context
-        )
-        #endif
-        return "\(raw: computed.router)"
+        let router = declaredRouter(context: context, arguments: args)
+        return "\(raw: router)"
     }
 }
 
@@ -48,17 +31,54 @@ extension Router: DeclarationMacro {
         } else {
             fatalError("node=\(node.debugDescription)")
         }
+        let router = declaredRouter(context: context, arguments: arguments)
+        return [.init(router)]
+    }
+}
 
+// MARK: DeclaredRouter
+extension Router {
+    static func declaredRouter(
+        context: some MacroExpansionContext,
+        arguments: LabeledExprListSyntax
+    ) -> StructDeclSyntax {
+        let (storage, structs) = build(context: context, arguments: arguments)
+        var declaredRouter = StructDeclSyntax(
+            modifiers: [storage.visibilityModifier],
+            name: "DeclaredRouter",
+            memberBlock: .init(members: structs)
+        )
+
+        let routerDecl = VariableDeclSyntax(
+            leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\n"),
+            modifiers: [storage.visibilityModifier, .init(name: .keyword(.static))],
+            .var,
+            name: "router",
+            type: .init(type: TypeSyntax(stringLiteral: "\(storage.name)")),
+            accessorBlock: .init(stringLiteral: "{ \(storage.name)() }")
+        )
+        declaredRouter.memberBlock.members.append(routerDecl)
+        declaredRouter.memberBlock.members.append(storage.build(context: context))
+        return declaredRouter
+    }
+}
+
+// MARK: Build
+extension Router {
+    static func build(
+        context: some MacroExpansionContext,
+        arguments: LabeledExprListSyntax
+    ) -> (storage: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         let routerSettingsSyntax = arguments.first!.expression
         #if RouterSettings
-        var settings = RouterSettings()
+        var routerSettings = RouterSettings()
         #endif
         var perfectHashSettings = PerfectHashSettings()
         for arg in arguments {
             switch arg.label?.text {
             #if RouterSettings
             case "routerSettings":
-                settings = .parse(context: context, expr: arg.expression)
+                routerSettings = .parse(context: context, expr: arg.expression)
             #endif
             case "perfectHashSettings":
                 perfectHashSettings = .parse(context: context, expr: arg.expression)
@@ -66,42 +86,22 @@ extension Router: DeclarationMacro {
                 break
             }
         }
-        let (router, structs):(router: CompiledRouterStorage, structs: MemberBlockItemListSyntax)
-
         #if RouterSettings
-        (router, structs) = compute(
-            routerSettings: settings,
+        return compute(
+            routerSettings: routerSettings,
             routerSettingsSyntax: routerSettingsSyntax,
             perfectHashSettings: perfectHashSettings,
             arguments: arguments,
             context: context
         )
         #else
-        (router, structs) = compute(
+        return compute(
             routerSettingsSyntax: routerSettingsSyntax,
             perfectHashSettings: perfectHashSettings,
             arguments: arguments,
             context: context
         )
         #endif
-        var declaredRouter = StructDeclSyntax(
-            modifiers: [router.visibilityModifier],
-            name: "DeclaredRouter",
-            memberBlock: .init(members: .init())
-        )
-        declaredRouter.memberBlock.members.append(contentsOf: structs)
-
-        let routerDecl = VariableDeclSyntax(
-            leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\n"),
-            modifiers: [router.visibilityModifier, .init(name: .keyword(.static))],
-            .var,
-            name: "router",
-            type: .init(type: TypeSyntax(stringLiteral: "\(router.name)")),
-            accessorBlock: .init(stringLiteral: "{ \(router.name)() }")
-        )
-        declaredRouter.memberBlock.members.append(routerDecl)
-        declaredRouter.memberBlock.members.append(router.build(context: context))
-        return [.init(declaredRouter)]
     }
 }
 

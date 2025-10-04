@@ -1,5 +1,7 @@
 
 /// Default storage for an HTTP Message's headers.
+/// 
+/// - Warning: Keys are case-sensitive!
 public struct HTTPHeaders: Sendable {
     public typealias Key = String
     public typealias Value = String
@@ -37,7 +39,7 @@ public struct HTTPHeaders: Sendable {
 }
 
 extension HTTPHeaders {
-    /// - Complexity: Reading or writing a header value that already exists is O(_n_), while removing a header (writing `nil`) is O(2*n*) if it exists and O(_n_) on average if it doesn't.
+    /// - Complexity: On average, reading/writing an existing header is O(_n_) while removing a header is O(2*n*) if it exists and O(_n_) if it doesn't.
     /// - Warning: `header` is case-sensitive!
     #if Inlinable
     @inlinable

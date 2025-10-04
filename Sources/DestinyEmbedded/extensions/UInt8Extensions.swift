@@ -241,5 +241,4 @@ extension UInt8 {
     @inlinable
     @inline(__always)
     public static var z: Self { 122 }
-
 }

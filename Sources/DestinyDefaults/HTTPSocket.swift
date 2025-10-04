@@ -40,7 +40,7 @@ extension HTTPSocket {
         var bytesRead = 0
         while bytesRead < length {
             let toRead = min(Buffer.count, length - bytesRead)
-            let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
+            let read = fileDescriptor.socketReceive(baseAddress: baseAddress + bytesRead, length: toRead, flags: flags)
             if read < 0 { // error
                 try fileDescriptor.handleReadError()
                 break
@@ -64,7 +64,7 @@ extension HTTPSocket {
         var bytesRead = 0
         while bytesRead < length {
             let toRead = min(Buffer.count, length - bytesRead)
-            let read = fileDescriptor.socketReceive(baseAddress + bytesRead, toRead, flags)
+            let read = fileDescriptor.socketReceive(baseAddress: baseAddress + bytesRead, length: toRead, flags: flags)
             if read < 0 { // error
                 try fileDescriptor.handleReadError()
                 break
@@ -101,7 +101,7 @@ extension HTTPSocket {
     ) throws(SocketError) {
         var sent = 0
         while sent < length {
-            let result = sendMultiplatform(pointer + sent, length - sent)
+            let result = socketSendMultiplatform(pointer: pointer + sent, length: length - sent)
             if result <= 0 {
                 throw .writeFailed(errno: cError())
             }
@@ -110,11 +110,27 @@ extension HTTPSocket {
     }
 }
 
-// MARK: Send
+// MARK: Socket
 extension HTTPSocket {
-    @usableFromInline
-    func sendMultiplatform(_ pointer: UnsafeRawPointer, _ length: Int) -> Int {
-        return fileDescriptor.socketSendMultiplatform(pointer, length)
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int {
+        return fileDescriptor.socketReceive(baseAddress: baseAddress, length: length, flags: flags)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int {
+        return fileDescriptor.socketReceive(baseAddress: baseAddress, length: length, flags: flags)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
+        return fileDescriptor.socketSendMultiplatform(pointer: pointer, length: length)
     }
 }
 

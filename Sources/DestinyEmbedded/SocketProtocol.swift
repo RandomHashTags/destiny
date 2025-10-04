@@ -1,6 +1,4 @@
 
-import DestinyEmbedded
-
 /// Core protocol that handles incoming network requests.
 public protocol SocketProtocol: FileDescriptor, ~Copyable {
     init(fileDescriptor: Int32)

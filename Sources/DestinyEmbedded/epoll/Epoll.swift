@@ -125,45 +125,30 @@ extension Epoll {
 
 // MARK: Wait
 extension Epoll {
-    #if Inlinable
-    @inlinable
-    #endif
-    public func wait(
-        timeout: Int32 = -1,
-        events: inout InlineArray<maxEvents, epoll_event>
-    ) throws(EpollError) -> Int32 {
-        var loadedClients:Int32 = -1
-        var err:EpollError? = nil
-        var mutableSpan = events.mutableSpan
-        mutableSpan.withUnsafeMutableBufferPointer { p in
-            do throws(EpollError) {
-                loadedClients = try wait(events: p)
-            } catch {
-                err = error
-            }
-        }
-        if let err {
-            throw err
-        }
-        return loadedClients
-    }
-
     // Returns: Number of loaded clients. Guaranteed to be greater than -1.
     #if Inlinable
     @inlinable
     #endif
     public func wait(
         timeout: Int32 = -1,
-        events: UnsafeMutableBufferPointer<epoll_event>
+        events: inout MutableSpan<epoll_event>
     ) throws(EpollError) -> Int32 {
-        guard let base = events.baseAddress else { throw .custom("waitFailed;events.baseAddress == nil") }
+        var err:EpollError? = nil
+        var loadedClients:Int32 = 0
+        events.withUnsafeMutableBufferPointer { buffer in
+            guard let base = buffer.baseAddress else {
+                err = .custom("waitFailed;events.baseAddress == nil")
+                return
+            }
+            #if DEBUG && Logging
+            logger.info("calling epoll_pwait with timeout: \(timeout)")
+            #endif
 
-        #if DEBUG && Logging
-        logger.info("calling epoll_pwait with timeout: \(timeout)")
-        #endif
-
-        let loadedClients = epoll_pwait(fileDescriptor, base, Int32(maxEvents), timeout, nil)
-
+            loadedClients = epoll_pwait(fileDescriptor, base, Int32(maxEvents), timeout, nil)
+        }
+        if let err {
+            throw err
+        }
         #if DEBUG && Logging
         logger.info("epoll_pwait returned \(loadedClients)")
         #endif
