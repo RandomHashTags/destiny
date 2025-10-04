@@ -8,7 +8,7 @@ import Logging
 #endif
 
 /// Default Error Responder implementation that does the bare minimum required to log and send an error response known at compile time.
-public struct NonCopyableStaticErrorResponder: ~Copyable {
+public struct NonCopyableStaticErrorResponder: Sendable, ~Copyable {
     public let logic:@Sendable (_ error: any Error) -> any NonCopyableStaticRouteResponderProtocol & ~Copyable
 
     public init(_ logic: @Sendable @escaping (_ error: any Error) -> any NonCopyableStaticRouteResponderProtocol & ~Copyable) {

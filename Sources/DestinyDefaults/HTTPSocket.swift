@@ -2,7 +2,7 @@
 import DestinyEmbedded
 
 /// Default HTTP Socket implementation.
-public struct HTTPSocket: ~Copyable {
+public struct HTTPSocket: Sendable, ~Copyable {
     public typealias Buffer = InlineArray<1024, UInt8>
 
     public let fileDescriptor:Int32

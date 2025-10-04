@@ -23,7 +23,7 @@ extension ResponseBody {
     }
 }
 
-public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>: ~Copyable {
+public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>: Sendable, ~Copyable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
     public let body:Body

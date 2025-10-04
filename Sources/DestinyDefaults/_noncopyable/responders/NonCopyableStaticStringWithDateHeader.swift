@@ -19,7 +19,7 @@ extension ResponseBody {
     }
 }
 
-public struct NonCopyableStaticStringWithDateHeader: ~Copyable {
+public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
     public let preDateValue:StaticString
     public let postDateValue:StaticString
 

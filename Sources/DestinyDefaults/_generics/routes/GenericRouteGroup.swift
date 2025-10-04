@@ -8,7 +8,7 @@ public struct GenericRouteGroup<
         DynamicMiddlewareStorage: DynamicMiddlewareStorageProtocol,
         StaticResponders: ResponderStorageProtocol,
         DynamicResponders: ResponderStorageProtocol
-    >: ~Copyable {
+    >: Sendable, ~Copyable {
     public let dynamicMiddleware:DynamicMiddlewareStorage?
     public let staticResponders:StaticResponders
     public let dynamicResponders:DynamicResponders

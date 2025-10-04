@@ -11,7 +11,7 @@ extension ResponseBody {
         .init(value)
     }
 
-    public struct NonCopyableInlineBytes<let count: Int>: ~Copyable {
+    public struct NonCopyableInlineBytes<let count: Int>: Sendable, ~Copyable {
         public let value:InlineArray<count, UInt8>
 
         #if Inlinable

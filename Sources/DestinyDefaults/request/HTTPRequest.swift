@@ -2,7 +2,7 @@
 import DestinyEmbedded
 
 /// Default storage for http request data.
-public struct HTTPRequest: ~Copyable {
+public struct HTTPRequest: Sendable, ~Copyable {
     public typealias InitialBuffer = InlineByteBuffer<1024>
 
     @usableFromInline

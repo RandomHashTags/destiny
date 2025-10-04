@@ -10,7 +10,7 @@ extension ResponseBody {
     public static func nonCopyableBytes(_ value: [UInt8]) -> Self.NonCopyableBytes {
         .init(value)
     }
-    public struct NonCopyableBytes: ~Copyable {
+    public struct NonCopyableBytes: Sendable, ~Copyable {
         public let value:[UInt8]
 
         #if Inlinable
