@@ -1,4 +1,6 @@
 
+import CustomOperators
+
 // TODO: move to own repo?
 public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProtocol {
 
@@ -67,7 +69,7 @@ extension PerfectHashGenerator {
             }
             if index != -1 {
                 positions[positionIndex] = index
-                positionIndex += 1
+                positionIndex +=! 1
                 characterCount[index].removeAll()
                 index = -1
                 countAtIndex = 0
@@ -176,12 +178,12 @@ extension PerfectHashGenerator {
         }
         while hashTable.first == 255 {
             hashTable.removeFirst()
-            candidate.finalHashSubtraction += 1
-            candidate.tableSize -= 1
+            candidate.finalHashSubtraction +=! 1
+            candidate.tableSize -=! 1
         }
         while hashTable.last == 255 {
             hashTable.removeLast()
-            candidate.tableSize -= 1
+            candidate.tableSize -=! 1
         }
         let usedSlots = hashTable.count(where: { $0 != 255 })
         let efficiency = Double(usedSlots) / Double(candidate.tableSize) * 100

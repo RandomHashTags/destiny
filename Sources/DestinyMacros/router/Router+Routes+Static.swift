@@ -195,7 +195,7 @@ extension RouterStorage {
     private func responseBodyResponderDebugDescription(
         isCopyable: Bool,
         body: (any ResponseBodyProtocol)?,
-        response: some HTTPMessageProtocol
+        response: HTTPResponseMessage
     ) throws(HTTPMessageError) -> String? {
         guard let body else { return nil }
         let s:String?

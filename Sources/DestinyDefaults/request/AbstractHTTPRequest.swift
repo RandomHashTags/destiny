@@ -1,4 +1,5 @@
 
+import CustomOperators
 import DestinyEmbedded
 
 /// Shared request storage that works for different `FileDescriptor` implementations.
@@ -69,7 +70,7 @@ extension AbstractHTTPRequest {
         var i = offset
         while i < path.count {
             yield(path[i])
-            i += 1
+            i +=! 1
         }
     }
 

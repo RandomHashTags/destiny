@@ -89,12 +89,12 @@ extension Router {
                             continue
                         }
                         switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                        #if NonEmbedded && Copyable && MutableRouter
+                        #if RouteGroup
                         case "RouteGroup":
                             let (decl, groupStorage) = RouteGroup.parse(
                                 context: context,
-                                settings: routerSettings,
-                                perfectHashSettings: perfectHashSettings,
+                                settings: storage.settings,
+                                perfectHashSettings: storage.perfectHashSettings,
                                 version: version,
                                 staticMiddleware: storage.staticMiddleware,
                                 dynamicMiddleware: storage.dynamicMiddleware,
@@ -221,17 +221,31 @@ extension Router {
         isCopyable: Bool
     ) -> String? {
         let stringLiteral = StringLiteralExprSyntax(content: "not found")
-        return IntermediateResponseBody(type: .staticStringWithDateHeader, stringLiteral).responderDebugDescription(
+        let intermediateBody = IntermediateResponseBody(type: .staticStringWithDateHeader, stringLiteral)
+        #if GenericHTTPMessage
+        let response = GenericHTTPResponseMessage(
+            version: version,
+            status: 404, // not found
+            headers: ["date":HTTPDateFormat.placeholder],
+            cookies: [HTTPCookie](),
+            body: "not found",
+            contentType: "text/plain",
+            charset: Charset.utf8
+        )
+        #else
+        let response = HTTPResponseMessage(
+            version: version,
+            status: 404, // not found
+            headers: ["date":HTTPDateFormat.placeholder],
+            cookies: [HTTPCookie](),
+            body: "not found",
+            contentType: "text/plain",
+            charset: Charset.utf8
+        )
+        #endif
+        return intermediateBody.responderDebugDescription(
             isCopyable: isCopyable,
-            response: GenericHTTPResponseMessage(
-                version: version,
-                status: 404, // not found
-                headers: ["date":HTTPDateFormat.placeholder],
-                cookies: [HTTPCookie](),
-                body: "not found",
-                contentType: "text/plain",
-                charset: Charset.utf8
-            )
+            response: response
         )
     }
 }

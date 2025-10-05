@@ -1,7 +1,8 @@
 
-#if MutableRouter
+#if DynamicResponderStorage
 
-import DestinyBlueprint
+import CustomOperators
+import DestinyEmbedded
 import DestinyDefaults
 
 /// Default mutable storage that handles dynamic routes.
@@ -104,13 +105,13 @@ extension DynamicResponderStorage {
                         throw .socketError(error)
                     }
                     if component.value != pathAtIndex {
-                        responderIndex += 1
+                        responderIndex +=! 1
                         continue loop
                     }
                 }
-                componentIndex += 1
+                componentIndex +=! 1
             }
-            responderIndex += 1
+            responderIndex +=! 1
         }
         return nil
     }
@@ -146,6 +147,12 @@ extension DynamicResponderStorage {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 extension DynamicResponderStorage: MutableDynamicResponderStorageProtocol {}
+
+#endif
 
 #endif

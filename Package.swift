@@ -85,8 +85,10 @@ defaultTraits.formUnion([
     "RequestBody",
     "RequestBodyStream",
     "RequestHeaders",
+    "RouteGroup",
     //"RoutePath", // not yet integrated
 
+    "OverflowArithmetic", // shown to reduce overhead
     "Protocols",
     "Inlinable",
     //"InlineAlways" // disabled by default because it is shown to hurt performance
@@ -319,6 +321,13 @@ let traits:Set<Trait> = [
         description: "Enables functionality to access a request's headers."
     ),
     .trait(
+        name: "RouteGroup",
+        enabledTraits: [
+            "DynamicResponderStorage",
+            "StaticResponderStorage"
+        ]
+    ),
+    .trait(
         name: "RoutePath"
     ),
     .trait(
@@ -332,6 +341,25 @@ let traits:Set<Trait> = [
         name: "StaticRedirectionRoute"
     ),
 
+    .trait(name: "DynamicResponderStorage"),
+    .trait(name: "StaticResponderStorage"),
+
+    .trait(
+        name: "OverflowAddition",
+        description: "Enables unchecked overflow addition operators instead of checked overflow addition operators where annotated."
+    ),
+    .trait(
+        name: "OverflowSubtraction",
+        description: "Enables unchecked overflow subtraction operators instead of checked overflow subtraction operators where annotated."
+    ),
+    .trait(
+        name: "OverflowArithmetic",
+        description: "Uses unchecked overflow operators instead of checked overflow operators where annotated.",
+        enabledTraits: [
+            "OverflowAddition",
+            "OverflowSubtraction"
+        ]
+    ),
     .trait(
         name: "Protocols",
         description: "Enables the design protocols and the DestinyBlueprint target."
@@ -374,18 +402,26 @@ var targets = [
 
 
 
-    // MARK: DestinyEmbedded
+    // MARK: CustomOperators
     Target.target(
+        name: "CustomOperators"
+    ),
+
+    // MARK: DestinyEmbedded
+    .target(
         name: "DestinyEmbedded",
         dependencies: [
+            "CustomOperators",
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
             .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
         ]
     ),
+
     // MARK: DestinyBlueprint
     .target(
         name: "DestinyBlueprint",
         dependencies: [
+            "CustomOperators",
             "DestinyEmbedded",
             .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
@@ -398,6 +434,7 @@ var targets = [
     .target(
         name: "DestinyDefaults",
         dependencies: [
+            "CustomOperators",
             "DestinyEmbedded",
             .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
@@ -409,6 +446,7 @@ var targets = [
     .target(
         name: "DestinyDefaultsNonEmbedded",
         dependencies: [
+            "CustomOperators",
             "DestinyEmbedded",
             .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
             "DestinyDefaults",
@@ -434,7 +472,10 @@ var targets = [
 
     // MARK: PerfectHashing
     .target(
-        name: "PerfectHashing"
+        name: "PerfectHashing",
+        dependencies: [
+            "CustomOperators"
+        ]
     ),
 
     // MARK: DestinyMacros
@@ -486,6 +527,7 @@ let package = Package(
         .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
         .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
         .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
+        .library(name: "DestinyEmbedded", targets: ["DestinyEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 

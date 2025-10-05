@@ -1,6 +1,7 @@
 
 #if RequestBodyStream
 
+import CustomOperators
 import DestinyBlueprint
 import DestinyDefaults
 
@@ -17,11 +18,11 @@ extension AbstractHTTPRequest._Storage {
     ) async throws {
         if _headers!._endIndex == nil {
             _headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer)
-            var startIndex = _headers!._endIndex! + 2
+            var startIndex = _headers!._endIndex! +! 2
             if startIndex < initialBufferCount {
                 // part of the request body is contained in the initial buffer
                 var buffer = InlineArray<bufferCount, UInt8>(repeating: 0)
-                var initialRequestBodyCount = initialBuffer.endIndex - startIndex
+                var initialRequestBodyCount = initialBuffer.endIndex -! startIndex
                 var remainingRequestBodyCount = initialRequestBodyCount
                 loadBufferSlice(
                     initialBuffer: initialBuffer,
@@ -29,7 +30,7 @@ extension AbstractHTTPRequest._Storage {
                     index: &startIndex,
                     initialRequestBodyCount: &remainingRequestBodyCount
                 )
-                try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount - remainingRequestBodyCount))
+                try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount -! remainingRequestBodyCount))
                 while remainingRequestBodyCount > 0 {
                     initialRequestBodyCount = remainingRequestBodyCount
                     loadBufferSlice(
@@ -38,7 +39,7 @@ extension AbstractHTTPRequest._Storage {
                         index: &startIndex,
                         initialRequestBodyCount: &remainingRequestBodyCount
                     )
-                    try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount - remainingRequestBodyCount))
+                    try await yield(.init(buffer: buffer, endIndex: initialRequestBodyCount -! remainingRequestBodyCount))
                 }
                 if initialBuffer.endIndex != initialBufferCount {
                     // request body was completely within the initial buffer
@@ -68,11 +69,11 @@ extension AbstractHTTPRequest._Storage {
         var i = 0
         while i < copied {
             bufferMutableSpan[unchecked: i] = initialBufferSpan[unchecked: index]
-            i += 1
-            index += 1
+            i +=! 1
+            index +=! 1
         }
-        initialRequestBodyCount -= copied
-        _body!._totalRead += UInt64(copied)
+        initialRequestBodyCount -=! copied
+        _body!._totalRead +=! UInt64(copied)
     }
 }
 

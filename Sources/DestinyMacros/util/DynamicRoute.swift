@@ -142,7 +142,7 @@ extension DynamicRoute {
             } else if let b = defaultResponse.message.body as? String {
                 response = genericResponse(b)
             } else {
-                response = genericResponse(Optional<StaticString>.none)
+                response = genericResponse(Optional<String>.none)
             }
         }
         #endif

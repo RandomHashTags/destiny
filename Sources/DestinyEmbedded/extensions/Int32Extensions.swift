@@ -17,6 +17,8 @@ import Windows
 import WinSDK
 #endif
 
+import CustomOperators
+
 // MARK: Int32
 extension Int32 {
     #if Inlinable
@@ -62,11 +64,11 @@ extension Int32 {
     ) throws(SocketError) {
         var sent = 0
         while sent < length {
-            let result = socketSendMultiplatform(pointer: pointer + sent, length: length - sent)
+            let result = socketSendMultiplatform(pointer: pointer + sent, length: length -! sent)
             if result <= 0 {
                 throw .writeFailed(errno: errno)
             }
-            sent += result
+            sent +=! result
         }
     }
 

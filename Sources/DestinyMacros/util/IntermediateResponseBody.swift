@@ -43,63 +43,6 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
     }
 
-    public func responderDebugDescription(
-        isCopyable: Bool,
-        response: some AbstractHTTPMessageProtocol
-    ) -> String {
-        let prefix = isCopyable ? "" : "NonCopyable"
-        var responseString = response.intermediateString(escapeLineBreak: true)
-        switch type {
-        case .bytes:
-            return "ResponseBody.\(prefix)Bytes(\(value))"
-        case .inlineBytes:
-            return "ResponseBody.\(prefix)InlineBytes(\(value))"
-        case .macroExpansion:
-            responseString.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
-            return "RouteResponses.\(prefix)MacroExpansion(\"\(responseString)\", body: \(value))"
-        case .macroExpansionWithDateHeader:
-            var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
-            postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
-            return "\(prefix)MacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
-        case .streamWithDateHeader:
-            var (preDate, postDate) = preDateAndPostDateValues(responseString)
-            postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
-            return "\(prefix)StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
-        case .stringWithDateHeader:
-            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
-            return "\(prefix)StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"
-        case .staticString:
-            return "\(prefix)StaticString(\"\(responseString)\(escapedValue())\")"
-        case .staticStringWithDateHeader:
-            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
-            return "\(prefix)StaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
-
-        case .string:
-            return value
-
-        case .nonCopyableBytes:
-            return "ResponseBody.NonCopyableBytes(\(value))"
-        case .nonCopyableInlineBytes:
-            return "ResponseBody.NonCopyableInlineBytes(\(value))"
-        case .nonCopyableMacroExpansionWithDateHeader:
-            var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
-            postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
-            return "NonCopyableMacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
-        case .nonCopyableStreamWithDateHeader:
-            var (preDate, postDate) = preDateAndPostDateValues(responseString)
-            postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
-            return "NonCopyableStreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
-        case .nonCopyableStaticStringWithDateHeader:
-            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
-            return "NonCopyableStaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
-        }
-    }
-    func escapedValue() -> String {
-        var string = value
-        string.replace("\"", with: "\\\"")
-        return string
-    }
-
     private func preDateAndPostDateValues(_ string: String) -> (preDate: Substring, postDate: Substring) {
         let preDate = string[string.startIndex..<string.index(string.startIndex, offsetBy: 22)]
         let postDate = string[string.index(string.startIndex, offsetBy: 51)...]
@@ -151,6 +94,94 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         }
     }
 }
+
+// MARK: Responder debug description
+extension IntermediateResponseBody {
+    func responderDebugDescription(
+        isCopyable: Bool,
+        responseString: inout String
+    ) -> String {
+        let prefix = isCopyable ? "" : "NonCopyable"
+        switch type {
+        case .bytes:
+            return "ResponseBody.\(prefix)Bytes(\(value))"
+        case .inlineBytes:
+            return "ResponseBody.\(prefix)InlineBytes(\(value))"
+        case .macroExpansion:
+            responseString.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
+            return "RouteResponses.\(prefix)MacroExpansion(\"\(responseString)\", body: \(value))"
+        case .macroExpansionWithDateHeader:
+            var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
+            postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
+            return "\(prefix)MacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
+        case .streamWithDateHeader:
+            var (preDate, postDate) = preDateAndPostDateValues(responseString)
+            postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
+            return "\(prefix)StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
+        case .stringWithDateHeader:
+            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
+            return "\(prefix)StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"
+        case .staticString:
+            return "\(prefix)StaticString(\"\(responseString)\(escapedValue())\")"
+        case .staticStringWithDateHeader:
+            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
+            return "\(prefix)StaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
+
+        case .string:
+            return value
+
+        case .nonCopyableBytes:
+            return "ResponseBody.NonCopyableBytes(\(value))"
+        case .nonCopyableInlineBytes:
+            return "ResponseBody.NonCopyableInlineBytes(\(value))"
+        case .nonCopyableMacroExpansionWithDateHeader:
+            var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
+            postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
+            return "NonCopyableMacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
+        case .nonCopyableStreamWithDateHeader:
+            var (preDate, postDate) = preDateAndPostDateValues(responseString)
+            postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
+            return "NonCopyableStreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
+        case .nonCopyableStaticStringWithDateHeader:
+            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
+            return "NonCopyableStaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
+        }
+    }
+    func escapedValue() -> String {
+        var string = value
+        string.replace("\"", with: "\\\"")
+        return string
+    }
+}
+
+#if canImport(DestinyDefaultsNonEmbedded)
+
+import DestinyDefaultsNonEmbedded
+
+extension IntermediateResponseBody {
+    public func responderDebugDescription(
+        isCopyable: Bool,
+        response: HTTPResponseMessage
+    ) -> String {
+        var responseString = response.intermediateString(escapeLineBreak: true)
+        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
+    }
+}
+#endif
+
+#if GenericHTTPMessage
+
+extension IntermediateResponseBody {
+    public func responderDebugDescription<B, C>(
+        isCopyable: Bool,
+        response: GenericHTTPResponseMessage<B, C>
+    ) -> String {
+        var responseString = response.intermediateString(escapeLineBreak: true)
+        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
+    }
+}
+
+#endif
 
 // MARK: IntermediateResponseBodyType
 public enum IntermediateResponseBodyType: String, Sendable {

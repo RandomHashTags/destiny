@@ -1,4 +1,6 @@
 
+#if RouteGroup
+
 /// Core protocol that stores route responders for routes within this route group.
 public protocol RouteGroupStorageProtocol: Sendable, ~Copyable {
     /// Responds to a socket.
@@ -11,3 +13,5 @@ public protocol RouteGroupStorageProtocol: Sendable, ~Copyable {
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 }
+
+#endif

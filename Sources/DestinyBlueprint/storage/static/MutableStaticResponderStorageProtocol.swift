@@ -1,5 +1,5 @@
 
-#if MutableRouter
+#if StaticResponderStorage
 
 /// Core mutable protocol that stores static responders for static routes.
 public protocol MutableStaticResponderStorageProtocol: AnyObject, ResponderStorageProtocol {

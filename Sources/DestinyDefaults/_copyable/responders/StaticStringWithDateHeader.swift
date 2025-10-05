@@ -1,6 +1,7 @@
 
 #if CopyableStaticStringWithDateHeader
 
+import CustomOperators
 import DestinyEmbedded
 
 extension ResponseBody {
@@ -51,7 +52,7 @@ public struct StaticStringWithDateHeader: Sendable {
     @inlinable
     #endif
     public var count: Int {
-        preDateValue.utf8CodeUnitCount + HTTPDateFormat.InlineArrayResult.count + postDateValue.utf8CodeUnitCount
+        preDateValue.utf8CodeUnitCount +! HTTPDateFormat.InlineArrayResult.count +! postDateValue.utf8CodeUnitCount
     }
     
     #if Inlinable

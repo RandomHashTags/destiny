@@ -254,7 +254,7 @@ extension TestRouter {
             path: ["dynamic"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
-                let header = try request.header(forKey: "host") ?? "nil"
+                let header = try request.header(forKey: "Host") ?? "nil"
                 try response.setBody("host=\(header)")
             }
         ),

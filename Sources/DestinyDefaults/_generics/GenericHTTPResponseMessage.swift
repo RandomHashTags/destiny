@@ -1,6 +1,7 @@
 
 #if GenericHTTPMessage
 
+import CustomOperators
 import DestinyEmbedded
 
 /// Default storage for an HTTP Message.
@@ -88,23 +89,6 @@ public struct GenericHTTPResponseMessage<
     #if Inlinable
     @inlinable
     #endif
-    public func intermediateString(escapeLineBreak: Bool) -> String {
-        let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        var string = head.string(suffix: suffix)
-        if let body {
-            if let contentType {
-                string += "content-type: \(contentType)\((charset != nil ? "; charset=\(charset!.rawName)" : ""))\(suffix)"
-            }
-            if body.hasContentLength {
-                string += "content-length: \(body.count)\(suffix)\(suffix)"
-            }
-        }
-        return string
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setHeader(key: String, value: String) {
         head.headers[key] = value
     }
@@ -133,7 +117,7 @@ extension GenericHTTPResponseMessage {
     public func temporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
         for (key, value) in head.headers {
-            capacity += 4 + key.utf8Span.count + value.utf8Span.count // Header: Value\r\n
+            capacity +=! (4 +! key.utf8Span.count +! value.utf8Span.count) // Header: Value\r\n
         }
         var contentTypeDescription:String
         var charsetRawName:String
@@ -141,10 +125,10 @@ extension GenericHTTPResponseMessage {
         if let body {
             if let contentType {
                 contentTypeDescription = contentType
-                capacity += 16 + contentTypeDescription.utf8Span.count // "Content-Type: x\r\n"
+                capacity +=! (16 +! contentTypeDescription.utf8Span.count) // "Content-Type: x\r\n"
                 if let charset {
                     charsetRawName = charset.rawName
-                    capacity += 10 + charsetRawName.utf8Span.count // "; charset=x"
+                    capacity +=! (10 +! charsetRawName.utf8Span.count) // "; charset=x"
                 } else {
                     charsetRawName = ""
                 }
@@ -154,7 +138,7 @@ extension GenericHTTPResponseMessage {
             }
             let bodyCount = body.count
             contentLengthString = String(bodyCount)
-            capacity += 20 + contentLengthString.utf8Span.count + bodyCount // "Content-Length: #\r\n\r\n" + content
+            capacity +=! (20 +! contentLengthString.utf8Span.count +! bodyCount) // "Content-Length: #\r\n\r\n" + content
         } else {
             contentTypeDescription = ""
             contentLengthString = ""
@@ -162,7 +146,7 @@ extension GenericHTTPResponseMessage {
         }
         let cookieDescriptions = head.cookieDescriptions()
         for cookie in cookieDescriptions {
-            capacity += 14 + cookie.utf8Span.count // Set-Cookie: x\r\n
+            capacity +=! (14 +! cookie.utf8Span.count) // Set-Cookie: x\r\n
         }
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
@@ -191,7 +175,7 @@ extension GenericHTTPResponseMessage {
         let span = string.utf8Span.span
         for j in span.indices {
             buffer[i] = span[unchecked: j]
-            i += 1
+            i +=! 1
         }
     }
 
@@ -201,9 +185,9 @@ extension GenericHTTPResponseMessage {
     #endif
     func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         buffer[i] = .carriageReturn
-        i += 1
+        i +=! 1
         buffer[i] = .lineFeed
-        i += 1
+        i +=! 1
     }
 
     #if Inlinable
@@ -212,7 +196,7 @@ extension GenericHTTPResponseMessage {
     func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
         writeInlineArray(to: buffer, index: &i, array: head.version.inlineArray)
         buffer[i] = .space
-        i += 1
+        i +=! 1
 
         let statusString = String(head.status)
         writeString(to: buffer, index: &i, string: statusString)
@@ -225,9 +209,9 @@ extension GenericHTTPResponseMessage {
     func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: String, value: String) {
         writeString(to: buffer, index: &i, string: key)
         buffer[i] = .colon
-        i += 1
+        i +=! 1
         buffer[i] = .space
-        i += 1
+        i +=! 1
 
         writeString(to: buffer, index: &i, string: value)
         writeCRLF(to: buffer, index: &i)
@@ -287,7 +271,7 @@ extension GenericHTTPResponseMessage {
     ) {
         for j in array.indices {
             buffer[i] = array[unchecked: j]
-            i += 1
+            i +=! 1
         }
     }
 }

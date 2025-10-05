@@ -27,9 +27,4 @@ public protocol AbstractHTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
     func string(
         escapeLineBreak: Bool
     ) throws(HTTPMessageError) -> String
-
-    /// Compile time string.
-    func intermediateString(
-        escapeLineBreak: Bool
-    ) -> String
 }

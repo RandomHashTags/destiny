@@ -1,6 +1,7 @@
 
 #if RequestHeaders
 
+import CustomOperators
 import DestinyEmbedded
 
 extension AbstractHTTPRequest {
@@ -45,18 +46,30 @@ extension AbstractHTTPRequest.Headers {
         fileDescriptor: some FileDescriptor,
         initialBuffer: borrowing InlineByteBuffer<count>
     ) {
-        // TODO: optimize?
         _endIndex = startIndex
-        let string = initialBuffer.buffer.unsafeString(offset: startIndex)
-        let slices = string.split(separator: "\r\n", omittingEmptySubsequences: false)
-        for slice in slices {
-            if slice.isEmpty { // request body starts
-                break
+        var index = startIndex
+        var start = startIndex
+        while index +! 3 < initialBuffer.buffer.count {
+            if initialBuffer.buffer[unchecked: index] == .carriageReturn {
+                // encountered \r
+                if initialBuffer.buffer[unchecked: index +! 1] == .lineFeed {
+                    // encountered \r\n
+                    if initialBuffer.buffer[unchecked: index +! 2] == .carriageReturn
+                    && initialBuffer.buffer[unchecked: index +! 3] == .lineFeed {
+                        // request body starts
+                        _endIndex = index +! 2
+                        return
+                    }
+                    let slice = initialBuffer.buffer.unsafeString(startIndex: start, endIndex: index)
+                    if let i = slice.firstIndex(of: ":") {
+                        headers[slice[slice.startIndex..<i]] = slice[slice.index(i, offsetBy: 2)...]
+                    }
+                }
+                index +=! 2
+                start = index
+            } else {
+                index +=! 1
             }
-            if let i = slice.firstIndex(of: ":") {
-                headers[slice[slice.startIndex..<i]] = slice[slice.index(i, offsetBy: 2)...]
-            }
-            _endIndex! += slice.utf8Span.count + 2
         }
     }
 }

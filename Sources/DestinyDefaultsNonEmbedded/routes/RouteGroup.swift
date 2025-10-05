@@ -1,7 +1,6 @@
 
-#if Copyable && MutableRouter
+#if RouteGroup
 
-import DestinyBlueprint
 import DestinyDefaults
 
 // MARK: RouteGroup
@@ -17,62 +16,59 @@ public struct RouteGroup: Sendable { // TODO: avoid existentials / support embed
     public let staticResponses:StaticResponderStorage
     public let dynamicResponses:DynamicResponderStorage
 
-    public init(
-        endpoint: String,
-        dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
-        _ routes: any RouteProtocol...
-    ) {
-        let prefixEndpoints = endpoint.split(separator: "/").map({ String($0) })
-        self.prefixEndpoints = prefixEndpoints
-        self.dynamicMiddleware = dynamicMiddleware
-        staticResponses = .init()
-        dynamicResponses = .init()
-    }
-    public init(
-        prefixEndpoints: [String],
-        dynamicMiddleware: [any DynamicMiddlewareProtocol],
-        staticResponses: StaticResponderStorage,
-        dynamicResponses: DynamicResponderStorage
-    ) {
-        self.prefixEndpoints = prefixEndpoints
-        self.dynamicMiddleware = dynamicMiddleware
-        self.staticResponses = staticResponses
-        self.dynamicResponses = dynamicResponses
-    }
+    // MARK: Init
+    #if StaticMiddleware
+        public init(
+            endpoint: String,
+            staticMiddleware: [any StaticMiddlewareProtocol] = [],
+            dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
+            _ routes: any RouteProtocol...
+        ) {
+            let prefixEndpoints = endpoint.split(separator: "/").map({ String($0) })
+            self.prefixEndpoints = prefixEndpoints
+            self.staticMiddleware = staticMiddleware
+            self.dynamicMiddleware = dynamicMiddleware
+            staticResponses = .init()
+            dynamicResponses = .init()
+        }
+        public init(
+            prefixEndpoints: [String],
+            staticMiddleware: [any StaticMiddlewareProtocol],
+            dynamicMiddleware: [any DynamicMiddlewareProtocol],
+            staticResponses: StaticResponderStorage,
+            dynamicResponses: DynamicResponderStorage
+        ) {
+            self.prefixEndpoints = prefixEndpoints
+            self.staticMiddleware = staticMiddleware
+            self.dynamicMiddleware = dynamicMiddleware
+            self.staticResponses = staticResponses
+            self.dynamicResponses = dynamicResponses
+        }
+    #else
+        public init(
+            endpoint: String,
+            dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
+            _ routes: any RouteProtocol...
+        ) {
+            let prefixEndpoints = endpoint.split(separator: "/").map({ String($0) })
+            self.prefixEndpoints = prefixEndpoints
+            self.dynamicMiddleware = dynamicMiddleware
+            staticResponses = .init()
+            dynamicResponses = .init()
+        }
+        public init(
+            prefixEndpoints: [String],
+            dynamicMiddleware: [any DynamicMiddlewareProtocol],
+            staticResponses: StaticResponderStorage,
+            dynamicResponses: DynamicResponderStorage
+        ) {
+            self.prefixEndpoints = prefixEndpoints
+            self.dynamicMiddleware = dynamicMiddleware
+            self.staticResponses = staticResponses
+            self.dynamicResponses = dynamicResponses
+        }
+    #endif
 }
-
-#if StaticMiddleware
-
-extension RouteGroup {
-    public init(
-        endpoint: String,
-        staticMiddleware: [any StaticMiddlewareProtocol] = [],
-        dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
-        _ routes: any RouteProtocol...
-    ) {
-        let prefixEndpoints = endpoint.split(separator: "/").map({ String($0) })
-        self.prefixEndpoints = prefixEndpoints
-        self.staticMiddleware = staticMiddleware
-        self.dynamicMiddleware = dynamicMiddleware
-        staticResponses = .init()
-        dynamicResponses = .init()
-    }
-    public init(
-        prefixEndpoints: [String],
-        staticMiddleware: [any StaticMiddlewareProtocol],
-        dynamicMiddleware: [any DynamicMiddlewareProtocol],
-        staticResponses: StaticResponderStorage,
-        dynamicResponses: DynamicResponderStorage
-    ) {
-        self.prefixEndpoints = prefixEndpoints
-        self.staticMiddleware = staticMiddleware
-        self.dynamicMiddleware = dynamicMiddleware
-        self.staticResponses = staticResponses
-        self.dynamicResponses = dynamicResponses
-    }
-}
-
-#endif
 
 // MARK: Respond
 extension RouteGroup {
@@ -95,7 +91,13 @@ extension RouteGroup {
     }
 }
 
+#if canImport(DestinyBlueprint)
+
+import DestinyBlueprint
+
 // MARK: Conformances
 extension RouteGroup: RouteGroupProtocol {}
+
+#endif
 
 #endif

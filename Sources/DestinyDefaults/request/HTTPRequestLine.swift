@@ -1,4 +1,5 @@
 
+import CustomOperators
 import DestinyEmbedded
 import VariableLengthArray
 
@@ -28,14 +29,14 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
     @inlinable
     #endif
     public var pathCount: Int {
-        pathEndIndex - methodEndIndex - 1
+        pathEndIndex -! methodEndIndex -! 1
     }
 
     #if Inlinable
     @inlinable
     #endif
     public var pathEndIndex: Int {
-        endIndex - 9
+        endIndex -! 9
     }
 
     #if Inlinable
@@ -47,11 +48,11 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
     ) {
         let pathCount = pathCount
         withUnsafeTemporaryAllocation(of: UInt8.self, capacity: pathCount, { pathBuffer in
-            var offset = methodEndIndex + 1
+            var offset = methodEndIndex +! 1
             if pathCount <= 128 {
                 for i in 0..<pathCount {
                     pathBuffer[i] = buffer[unchecked: offset]
-                    offset += 1
+                    offset +=! 1
                 }
             } else {
                 buffer.span.withUnsafeBufferPointer {
@@ -119,12 +120,12 @@ extension HTTPRequestLine {
                 methodEndIndex = offset
                 break
             }
-            offset += 1
+            offset +=! 1
         }
         guard methodEndIndex != 0 else {
             throw .custom("malformedRequest;methodEndIndex == 0")
         }
-        offset += 1
+        offset +=! 1
         var pathQueryStartIndex:Int? = nil
         var pathEndIndex = 0
         var i = offset
@@ -134,20 +135,20 @@ extension HTTPRequestLine {
                 pathEndIndex = i
                 break loop
             case .questionMark:
-                i += 1
+                i +=! 1
                 if i < bufferSpan.count {
                     pathQueryStartIndex = i
                 }
             default:
-                i += 1
+                i +=! 1
             }
         }
         guard pathEndIndex != 0 else {
             throw .custom("malformedRequest;targetPathEndIndex == 0")
         }
-        let pathCount = pathEndIndex - methodEndIndex - 1
-        offset += pathCount + 1
-        guard offset + 8 < bufferSpan.count else {
+        let pathCount = pathEndIndex -! methodEndIndex -! 1
+        offset +=! (pathCount +! 1)
+        guard offset +! 8 < bufferSpan.count else {
             throw .custom("malformedRequest;not enough bytes for the HTTP Version")
         }
         let versionUInt64 = bufferSpan.bytes.unsafeLoadUnaligned(fromUncheckedByteOffset: offset, as: UInt64.self)
@@ -158,7 +159,7 @@ extension HTTPRequestLine {
             methodEndIndex: methodEndIndex,
             pathQueryStartIndex: pathQueryStartIndex,
             version: version,
-            endIndex: pathEndIndex + 9
+            endIndex: pathEndIndex +! 9
         )
     }
 }

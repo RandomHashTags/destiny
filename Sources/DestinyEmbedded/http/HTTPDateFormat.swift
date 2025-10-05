@@ -20,6 +20,8 @@ import WinSDK
 // TODO: support
 #endif
 
+import CustomOperators
+
 #if Logging
 import Logging
 #endif
@@ -167,40 +169,40 @@ extension HTTPDateFormat {
         var index = 13
         if yearNumbers[1] != 0 {
             value[unchecked: index] = yearNumbers[unchecked: 1]
-            index += 1
+            index +=! 1
         }
         if yearNumbers[2] != 0 {
             value[unchecked: index] = yearNumbers[unchecked: 2]
-            index += 1
+            index +=! 1
         }
         if yearNumbers[3] != 0 {
             value[unchecked: index] = yearNumbers[unchecked: 3]
-            index += 1
+            index +=! 1
         }
         value[unchecked: index] = .space
-        index += 1
+        index +=! 1
         value[unchecked: index] = hourNumbers[unchecked: 0]
-        index += 1
+        index +=! 1
         value[unchecked: index] = hourNumbers[unchecked: 1]
-        index += 1
+        index +=! 1
         value[unchecked: index] = .colon
-        index += 1
+        index +=! 1
         value[unchecked: index] = minuteNumbers[unchecked: 0]
-        index += 1
+        index +=! 1
         value[unchecked: index] = minuteNumbers[unchecked: 1]
-        index += 1
+        index +=! 1
         value[unchecked: index] = .colon
-        index += 1
+        index +=! 1
         value[unchecked: index] = secondNumbers[unchecked: 0]
-        index += 1
+        index +=! 1
         value[unchecked: index] = secondNumbers[unchecked: 1]
-        index += 1
+        index +=! 1
         value[unchecked: index] = .space
-        index += 1
+        index +=! 1
         value[unchecked: index] = .G
-        index += 1
+        index +=! 1
         value[unchecked: index] = .M
-        index += 1
+        index +=! 1
         value[unchecked: index] = .T
         return value
     }
@@ -248,13 +250,13 @@ extension HTTPDateFormat {
     static func httpDateNumber(_ int: UInt8) -> InlineArray<2, UInt8> {
         // we don't use a switch here because it would bloat the binary
         if int < 10 {
-            return [48, 48 + UInt8(int)]
+            return [48, 48 +! UInt8(int)]
         } else if int < 20 {
-            return [49, 38 + UInt8(int)]
+            return [49, 38 +! UInt8(int)]
         } else if int < 30 {
-            return [50, 28 + UInt8(int)]
+            return [50, 28 +! UInt8(int)]
         } else if int < 40 {
-            return [51, 18 + UInt8(int)]
+            return [51, 18 +! UInt8(int)]
         } else {
             return (httpNumber(Int32(int))) // future proofing
         }
@@ -270,7 +272,7 @@ extension HTTPDateFormat {
             for char in $0 {
                 if i < count {
                     value[unchecked: i] = char
-                    i += 1
+                    i +=! 1
                 } else {
                     break
                 }
@@ -299,7 +301,7 @@ extension HTTPDateFormat {
     #endif
     static func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
         return HTTPDateFormat.get(
-            year: 1900 + gmt.tm_year,
+            year: 1900 +! gmt.tm_year,
             month: UInt8(gmt.tm_mon),
             day: UInt8(gmt.tm_mday),
             dayOfWeek: UInt8(gmt.tm_wday),

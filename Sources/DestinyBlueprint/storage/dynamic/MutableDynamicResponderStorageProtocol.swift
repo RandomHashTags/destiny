@@ -1,5 +1,5 @@
 
-#if MutableRouter
+#if DynamicResponderStorage
 
 /// Core mutable protocol that stores dynamic responders for dynamic routes.
 public protocol MutableDynamicResponderStorageProtocol: AnyObject, ResponderStorageProtocol {

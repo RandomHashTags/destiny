@@ -1,6 +1,7 @@
 
 #if RequestBody
 
+import CustomOperators
 import DestinyEmbedded
 
 public struct RequestBody: Sendable, ~Copyable {
@@ -59,7 +60,7 @@ extension RequestBody {
         if let err {
             throw err
         }
-        _totalRead += UInt64(read)
+        _totalRead +=! UInt64(read)
         return read
     }
 }

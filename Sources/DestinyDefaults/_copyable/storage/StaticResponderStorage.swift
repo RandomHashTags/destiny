@@ -1,5 +1,5 @@
 
-#if Copyable && MutableRouter
+#if StaticResponderStorage
 
 import DestinyEmbedded
 

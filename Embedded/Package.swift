@@ -63,19 +63,31 @@ defaultTraits.formUnion([
     "GenericDynamicResponse",
     "NonCopyable",
 
+    "OverflowArithmetic",
     "Inlinable",
 ])
 let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
 
     .trait(
-        name: "CORS"
+        name: "CORS",
+        description: "Enables cross-origin resource sharing functionality."
     ),
 
-    .trait(name: "CopyableHTTPServer"),
-    .trait(name: "CopyableMacroExpansion"),
-    .trait(name: "CopyableMacroExpansionWithDateHeader"),
-    .trait(name: "CopyableDateHeaderPayload"),
+    .trait(
+        name: "CopyableHTTPServer"
+    ),
+    .trait(
+        name: "CopyableMacroExpansion",
+        description: "Enables the copyable MacroExpansion route responder."
+    ),
+    .trait(
+        name: "CopyableMacroExpansionWithDateHeader",
+        description: "Enables the copyable MacroExpansionWithDateHeader route responder."
+    ),
+    .trait(
+        name: "CopyableDateHeaderPayload"
+    ),
     .trait(
         name: "CopyableStaticStringWithDateHeader",
         enabledTraits: ["CopyableDateHeaderPayload"]
@@ -87,6 +99,7 @@ let traits:Set<Trait> = [
     ),
     .trait(
         name: "CopyableResponders",
+        description: "Enables all copyable route responders.",
         enabledTraits: [
             "CopyableMacroExpansion",
             "CopyableMacroExpansionWithDateHeader",
@@ -97,6 +110,7 @@ let traits:Set<Trait> = [
     ),
     .trait(
         name: "Copyable",
+        description: "Enables all copyable package traits.",
         enabledTraits: [
             "CopyableHTTPServer",
             "CopyableResponders"
@@ -152,7 +166,10 @@ let traits:Set<Trait> = [
         description: "Enables a DynamicResponse implementation utilizing generics, avoiding existentials.",
         enabledTraits: ["GenericHTTPMessage"]
     ),
-    .trait(name: "GenericRouteGroup"),
+    .trait(
+        name: "GenericRouteGroup",
+        description: "Enables a RouteGroup implementation utilizing generics, avoiding existentials."
+    ),
     .trait(
         name: "Generics",
         description: "Enables all Generic package traits.",
@@ -165,13 +182,91 @@ let traits:Set<Trait> = [
         ]
     ),
 
+    .trait(name: "HTTPNonStandardRequestHeaders"),
+    .trait(name: "HTTPNonStandardRequestHeaderHashable"),
+    .trait(name: "HTTPNonStandardRequestHeaderRawNames"),
+    .trait(name: "HTTPNonStandardRequestHeaderRawValues"),
+    .trait(name: "HTTPNonStandardResponseHeaders"),
+    .trait(name: "HTTPNonStandardResponseHeaderHashable"),
+    .trait(name: "HTTPNonStandardResponseHeaderRawNames"),
+    .trait(name: "HTTPNonStandardResponseHeaderRawValues"),
+    .trait(name: "HTTPStandardRequestHeaders"),
+    .trait(name: "HTTPStandardRequestHeaderHashable"),
+    .trait(name: "HTTPStandardRequestHeaderRawNames"),
+    .trait(name: "HTTPStandardRequestHeaderRawValues"),
+    .trait(name: "HTTPStandardResponseHeaders"),
+    .trait(name: "HTTPStandardResponseHeaderHashable"),
+    .trait(name: "HTTPStandardResponseHeaderRawNames"),
+    .trait(name: "HTTPStandardResponseHeaderRawValues"),
+    .trait(
+        name: "HTTPRequestHeaders",
+        enabledTraits: [
+            "HTTPNonStandardRequestHeaders",
+            "HTTPNonStandardRequestHeaderHashable",
+            "HTTPNonStandardRequestHeaderRawValues",
+            "HTTPStandardRequestHeaders",
+            "HTTPStandardRequestHeaderHashable",
+            "HTTPStandardRequestHeaderRawValues"
+        ]
+    ),
+    .trait(
+        name: "HTTPResponseHeaders",
+        enabledTraits: [
+            "HTTPNonStandardResponseHeaders",
+            "HTTPNonStandardResponseHeaderHashable",
+            "HTTPNonStandardResponseHeaderRawValues",
+            "HTTPStandardResponseHeaders",
+            "HTTPStandardResponseHeaderHashable",
+            "HTTPStandardResponseHeaderRawValues"
+        ]
+    ),
+
+    .trait(name: "HTTPNonStandardRequestMethods"),
+    .trait(name: "HTTPNonStandardRequestMethodRawValues"),
+    .trait(name: "HTTPStandardRequestMethods"),
+    .trait(name: "HTTPStandardRequestMethodRawValues"),
+    .trait(
+        name: "HTTPRequestMethods",
+        enabledTraits: [
+            "HTTPNonStandardRequestMethods",
+            "HTTPNonStandardRequestMethodRawValues",
+            "HTTPStandardRequestMethods",
+            "HTTPStandardRequestMethodRawValues"
+        ]
+    ),
+
+    .trait(name: "HTTPNonStandardResponseStatuses"),
+    .trait(name: "HTTPNonStandardResponseStatusRawValues"),
+    .trait(name: "HTTPStandardResponseStatuses"),
+    .trait(name: "HTTPStandardResponseStatusRawValues"),
+    .trait(
+        name: "HTTPStandardResponseStatuses",
+        enabledTraits: [
+            "HTTPNonStandardResponseStatuses",
+            "HTTPStandardResponseStatuses"
+        ]
+    ),
+    .trait(
+        name: "HTTPResponseStatusRawValues",
+        enabledTraits: [
+            "HTTPNonStandardResponseStatusRawValues",
+            "HTTPStandardResponseStatusRawValues"
+        ]
+    ),
+
     .trait(
         name: "MutableRouter",
         description: "Enables functionality that registers data to a Router at runtime."
     ),
     .trait(
         name: "NonEmbedded",
-        description: "Enables functionality suitable for non-embedded devices (mainly existentials)."
+        description: "Enables functionality suitable for non-embedded devices (mainly existentials).",
+        enabledTraits: [
+            "Copyable",
+            "RouterSettings",
+            "StaticMiddleware",
+            "StaticRedirectionRoute"
+        ]
     ),
     .trait(
         name: "PercentEncoding",
@@ -196,10 +291,49 @@ let traits:Set<Trait> = [
         description: "Enables functionality to access a request's headers."
     ),
     .trait(
+        name: "RouteGroup",
+        enabledTraits: [
+            "DynamicResponderStorage",
+            "StaticResponderStorage"
+        ]
+    ),
+    .trait(
+        name: "RoutePath"
+    ),
+    .trait(
+        name: "RouterSettings"
+    ),
+    .trait(
         name: "StaticMiddleware",
         description: "Enables static middleware functionality."
     ),
+    .trait(
+        name: "StaticRedirectionRoute"
+    ),
 
+    .trait(name: "DynamicResponderStorage"),
+    .trait(name: "StaticResponderStorage"),
+
+    .trait(
+        name: "OverflowAddition",
+        description: "Enables unchecked overflow addition operators instead of checked overflow addition operators where annotated."
+    ),
+    .trait(
+        name: "OverflowSubtraction",
+        description: "Enables unchecked overflow subtraction operators instead of checked overflow subtraction operators where annotated."
+    ),
+    .trait(
+        name: "OverflowArithmetic",
+        description: "Uses unchecked overflow operators instead of checked overflow operators where annotated.",
+        enabledTraits: [
+            "OverflowAddition",
+            "OverflowSubtraction"
+        ]
+    ),
+    .trait(
+        name: "Protocols",
+        description: "Enables the design protocols and the DestinyBlueprint target."
+    ),
     .trait( // useful when benchmarking/profiling raw performance
         name: "Inlinable",
         description: "Enables the `@inlinable` annotation where annotated."
@@ -233,14 +367,6 @@ let traits:Set<Trait> = [
 
 let package = Package(
     name: "destiny",
-    products: [
-        .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
-        .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
-        .library(name: "Destiny", targets: ["Destiny"]),
-        .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
-
-        .library(name: "PerfectHashing", targets: ["PerfectHashing"])
-    ],
     traits: traits,
     dependencies: pkgDependencies,
     targets: [
@@ -250,10 +376,26 @@ let package = Package(
 
 
 
+        // MARK: CustomOperators
+        .target(
+            name: "CustomOperators"
+        ),
+
+        // MARK: DestinyEmbedded
+        .target(
+            name: "DestinyEmbedded",
+            dependencies: [
+                "CustomOperators",
+                .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
+                .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
+            ]
+        ),
         // MARK: DestinyBlueprint
         .target(
             name: "DestinyBlueprint",
             dependencies: [
+                "CustomOperators",
+                "DestinyEmbedded",
                 .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
                 .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 //.product(name: "Metrics", package: "swift-metrics"),
@@ -265,6 +407,8 @@ let package = Package(
         .target(
             name: "DestinyDefaults",
             dependencies: [
+                "CustomOperators",
+                "DestinyEmbedded",
                 "DestinyBlueprint",
                 .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 //.product(name: "Metrics", package: "swift-metrics"),
@@ -287,7 +431,10 @@ let package = Package(
 
         // MARK: PerfectHashing
         .target(
-            name: "PerfectHashing"
+            name: "PerfectHashing",
+            dependencies: [
+                "CustomOperators"
+            ]
         ),
 
         // MARK: DestinyMacros
@@ -300,6 +447,7 @@ let package = Package(
         .target(
             name: "TestRouter",
             dependencies: [
+                "DestinyEmbedded",
                 "DestinyBlueprint",
                 "DestinyDefaults",
                 //"DestinySwiftSyntax" // TODO: support
@@ -309,6 +457,7 @@ let package = Package(
         .executableTarget(
             name: "Run",
             dependencies: [
+                "DestinyEmbedded",
                 "DestinyBlueprint",
                 "DestinyDefaults",
                 "TestRouter"

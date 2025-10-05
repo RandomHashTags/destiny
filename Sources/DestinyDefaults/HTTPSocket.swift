@@ -1,4 +1,5 @@
 
+import CustomOperators
 import DestinyEmbedded
 
 /// Default HTTP Socket implementation.
@@ -39,7 +40,7 @@ extension HTTPSocket {
     ) throws(SocketError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
-            let toRead = min(Buffer.count, length - bytesRead)
+            let toRead = min(Buffer.count, length -! bytesRead)
             let read = fileDescriptor.socketReceive(baseAddress: baseAddress + bytesRead, length: toRead, flags: flags)
             if read < 0 { // error
                 try fileDescriptor.handleReadError()
@@ -47,7 +48,7 @@ extension HTTPSocket {
             } else if read == 0 { // end of file
                 break
             }
-            bytesRead += read
+            bytesRead +=! read
         }
         return bytesRead
     }
@@ -63,7 +64,7 @@ extension HTTPSocket {
     ) throws(SocketError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
-            let toRead = min(Buffer.count, length - bytesRead)
+            let toRead = min(Buffer.count, length -! bytesRead)
             let read = fileDescriptor.socketReceive(baseAddress: baseAddress + bytesRead, length: toRead, flags: flags)
             if read < 0 { // error
                 try fileDescriptor.handleReadError()
@@ -71,7 +72,7 @@ extension HTTPSocket {
             } else if read == 0 { // end of file
                 break
             }
-            bytesRead += read
+            bytesRead +=! read
         }
         return bytesRead
     }
@@ -101,11 +102,11 @@ extension HTTPSocket {
     ) throws(SocketError) {
         var sent = 0
         while sent < length {
-            let result = socketSendMultiplatform(pointer: pointer + sent, length: length - sent)
+            let result = socketSendMultiplatform(pointer: pointer + sent, length: length -! sent)
             if result <= 0 {
                 throw .writeFailed(errno: cError())
             }
-            sent += result
+            sent +=! result
         }
     }
 }

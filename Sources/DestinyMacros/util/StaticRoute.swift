@@ -83,7 +83,7 @@ extension StaticRoute {
     #if StaticMiddleware
         public func response(
             middleware: [some StaticMiddlewareProtocol]
-        ) -> some HTTPMessageProtocol {
+        ) -> HTTPResponseMessage {
             var version = version
             let path = path.joined(separator: "/")
             var status = status
@@ -103,7 +103,7 @@ extension StaticRoute {
             return Self.response(version: version, status: status, headers: &headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
         }
     #else
-        public func response() -> some HTTPMessageProtocol {
+        public func response() -> HTTPResponseMessage {
             var headers = HTTPHeaders()
             if body?.hasDateHeader ?? false {
                 headers["date"] = HTTPDateFormat.placeholder
@@ -123,7 +123,7 @@ extension StaticRoute {
         body: (any ResponseBodyProtocol)?,
         contentType: String?,
         charset: Charset?
-    ) -> some HTTPMessageProtocol {
+    ) -> HTTPResponseMessage {
         headers["content-type"] = nil
         headers["content-length"] = nil
         return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
@@ -135,12 +135,12 @@ extension StaticRoute {
     #if StaticMiddleware
     public func responder(
         middleware: [some StaticMiddlewareProtocol]
-    ) throws(HTTPMessageError) -> (some StaticRouteResponderProtocol)? {
-        return try response(middleware: middleware).string(escapeLineBreak: true)
+    ) -> (some StaticRouteResponderProtocol)? {
+        return response(middleware: middleware).string(escapeLineBreak: true)
     }
     #else
-    public func responder() throws(HTTPMessageError) -> (some StaticRouteResponderProtocol)? {
-        return try response().string(escapeLineBreak: true)
+    public func responder() -> (some StaticRouteResponderProtocol)? {
+        return response().string(escapeLineBreak: true)
     }
     #endif
 }
@@ -158,7 +158,7 @@ extension StaticRoute {
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
-    ) -> some HTTPMessageProtocol {
+    ) -> HTTPResponseMessage {
         let result = response(middleware: middleware)
         if result.statusCode() == 501 { // not implemented
             Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
@@ -169,7 +169,7 @@ extension StaticRoute {
     public func response(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax
-    ) -> some HTTPMessageProtocol {
+    ) -> HTTPResponseMessage {
         let result = response()
         if result.statusCode() == 501 { // not implemented
             Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
@@ -193,14 +193,14 @@ extension StaticRoute {
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
     ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
-        return try response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
+        return response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }
     #else
     public func responder(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax
     ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
-        return try response(context: context, function: function).string(escapeLineBreak: true)
+        return response(context: context, function: function).string(escapeLineBreak: true)
     }
     #endif
 }

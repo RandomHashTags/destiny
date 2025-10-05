@@ -1,4 +1,5 @@
 
+import CustomOperators
 import DestinyEmbedded
 import VariableLengthArray
 
@@ -109,7 +110,7 @@ extension AbstractHTTPRequest._Storage {
         let requestLine = try HTTPRequestLine.load(buffer: buffer)
 
         #if RequestHeaders
-        _headers = AbstractHTTPRequest.Headers(startIndex: requestLine.endIndex + 2)
+        _headers = AbstractHTTPRequest.Headers(startIndex: requestLine.endIndex +! 2)
         #endif
 
         self.requestLine = consume requestLine

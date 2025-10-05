@@ -137,6 +137,14 @@ For optimal memory access where applicable (reducing overhead)
 
 <details>
 
+<summary>Custom arithmetic operators</summary>
+
+Where applicable, to reduce arithmetic overhead (Swift's default arithmetic safety features). Can be disabled by removing the package traits `OverflowAddition`, `OverflowSubtraction` and `OverflowArithmetic`.
+
+</details>
+
+<details>
+
 <summary>Actor avoidance</summary>
 
 To encourage better state management and data structures

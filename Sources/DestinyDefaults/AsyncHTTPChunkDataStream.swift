@@ -1,4 +1,5 @@
 
+import CustomOperators
 import DestinyEmbedded
 
 public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol> {
@@ -45,7 +46,7 @@ extension AsyncHTTPChunkDataStream {
         to socket: some FileDescriptor
     ) async throws(SocketError) {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
-        let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 + chunkSize)
+        let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 +! chunkSize)
         buffer.initialize(repeating: 0)
         defer {
             buffer.deallocate()
@@ -56,13 +57,13 @@ extension AsyncHTTPChunkDataStream {
             hex.withUTF8 {
                 for byte in $0 {
                     buffer[i] = byte
-                    i += 1
+                    i +=! 1
                 }
             }
             buffer[i] = .carriageReturn
-            i += 1
+            i +=! 1
             buffer[i] = .lineFeed
-            i += 1
+            i +=! 1
 
             do throws(BufferWriteError) {
                 try chunk.write(to: buffer, at: &i)
@@ -71,9 +72,9 @@ extension AsyncHTTPChunkDataStream {
             }
 
             buffer[i] = .carriageReturn
-            i += 1
+            i +=! 1
             buffer[i] = .lineFeed
-            i += 1
+            i +=! 1
             try socket.socketWriteBuffer(buffer.baseAddress!, length: i)
         }
         buffer[0] = 48

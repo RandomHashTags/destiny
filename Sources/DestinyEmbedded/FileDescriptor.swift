@@ -17,6 +17,8 @@ import Windows
 import WinSDK
 #endif
 
+import CustomOperators
+
 /// Types conforming to this protocol indicate they behave like a file descriptor.
 public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     /// Unique file descriptor of this socket where communication between the server and client are handled.
@@ -65,11 +67,11 @@ extension FileDescriptor {
     ) throws(SocketError) {
         var sent = 0
         while sent < length {
-            let result = socketSendMultiplatform(pointer: pointer + sent, length: length - sent)
+            let result = socketSendMultiplatform(pointer: pointer + sent, length: length -! sent)
             if result <= 0 {
                 throw .custom("writeFailed;result <= 0")
             }
-            sent += result
+            sent +=! result
         }
     }
 

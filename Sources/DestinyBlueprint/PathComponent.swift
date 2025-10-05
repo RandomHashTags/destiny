@@ -41,7 +41,7 @@ public enum PathComponent: Equatable, Sendable {
         case .literal(let value): value
         case .parameter(let value): ":" + value
         case .catchall: "**"
-        case .components: ""
+        case .components: value
         }
     }
 
@@ -54,7 +54,7 @@ public enum PathComponent: Equatable, Sendable {
         case .literal(let s): s
         case .parameter(let s): s
         case .catchall: ""
-        case .components: ""
+        case .components(let l, let r): "\(l.value)\(r?.value ?? "")"
         }
     }
 }

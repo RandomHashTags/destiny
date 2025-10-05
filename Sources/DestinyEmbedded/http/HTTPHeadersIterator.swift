@@ -1,4 +1,6 @@
 
+import CustomOperators
+
 /// Default iterator for `HTTPHeaders`.
 public struct HTTPHeadersIterator: IteratorProtocol {
     @usableFromInline
@@ -26,7 +28,7 @@ public struct HTTPHeadersIterator: IteratorProtocol {
             return nil
         }
         let (key, value) = headers[Int(self.index)]
-        self.index += 1
+        self.index +=! 1
         return (key, value)
     }
 }

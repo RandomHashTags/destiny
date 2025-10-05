@@ -1,5 +1,5 @@
 
-#if MutableRouter
+#if RouteGroup
 
 /// Core mutable protocol that stores responders for routes within this route group.
 public protocol MutableRouteGroupStorageProtocol: AnyObject, RouteGroupStorageProtocol {
