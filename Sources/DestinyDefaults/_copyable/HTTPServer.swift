@@ -24,7 +24,7 @@ import Logging
 public final class HTTPServer<
         Router: HTTPRouterProtocol,
         ClientSocket: HTTPSocketProtocol & ~Copyable
-    > {
+    >: Sendable {
     public let address:String?
     public let port:UInt16
     /// Maximum amount of pending connections the Server will queue.

@@ -200,7 +200,7 @@ extension Router {
         #if StaticMiddleware
         for (i, middleware) in storage.staticMiddleware.enumerated() {
             if !middleware.appliedAtLeastOnce {
-                Diagnostic.unusedMiddleware(context: context, node: storage.staticMiddlewareFunctions[i])
+                Diagnostic.unusedMiddleware(context: context, node: storage.staticMiddlewareFunctions[i].calledExpression)
             }
         }
         #endif
