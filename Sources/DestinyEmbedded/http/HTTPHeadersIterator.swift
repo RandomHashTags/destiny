@@ -1,5 +1,5 @@
 
-import CustomOperators
+import UnwrapArithmeticOperators
 
 /// Default iterator for `HTTPHeaders`.
 public struct HTTPHeadersIterator: IteratorProtocol {

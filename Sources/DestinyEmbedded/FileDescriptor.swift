@@ -17,7 +17,7 @@ import Windows
 import WinSDK
 #endif
 
-import CustomOperators
+import UnwrapArithmeticOperators
 
 /// Types conforming to this protocol indicate they behave like a file descriptor.
 public protocol FileDescriptor: NetworkAddressable, ~Copyable {

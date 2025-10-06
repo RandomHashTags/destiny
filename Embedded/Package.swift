@@ -23,6 +23,17 @@ var pkgDependencies:[Package.Dependency] = [
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
+    // Unlock more performance
+    .package(
+        url: "https://github.com/RandomHashTags/swift-unwrap-arithmetic-operators",
+        from: "0.1.0",
+        traits: [
+            .trait(name: "UnwrapAddition", condition: .when(traits: ["UnwrapAddition"])),
+            .trait(name: "UnwrapSubtraction", condition: .when(traits: ["UnwrapSubtraction"])),
+            .trait(name: "UnwrapArithmetic", condition: .when(traits: ["UnwrapArithmetic"]))
+        ]
+    ),
+
     // Variable-length arrays
     .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", from: "0.2.0", traits: [])
 ]
@@ -63,7 +74,7 @@ defaultTraits.formUnion([
     "GenericDynamicResponse",
     "NonCopyable",
 
-    "OverflowArithmetic",
+    "UnwrapArithmetic",
     "Inlinable",
 ])
 let traits:Set<Trait> = [
@@ -315,19 +326,19 @@ let traits:Set<Trait> = [
     .trait(name: "StaticResponderStorage"),
 
     .trait(
-        name: "OverflowAddition",
-        description: "Enables unchecked overflow addition operators instead of checked overflow addition operators where annotated."
+        name: "UnwrapAddition",
+        description: "Enables unchecked overflow addition operators (`+!` and `+=!`)."
     ),
     .trait(
-        name: "OverflowSubtraction",
-        description: "Enables unchecked overflow subtraction operators instead of checked overflow subtraction operators where annotated."
+        name: "UnwrapSubtraction",
+        description: "Enables unchecked overflow subtraction operators (`-!` and `-=!`)."
     ),
     .trait(
-        name: "OverflowArithmetic",
-        description: "Uses unchecked overflow operators instead of checked overflow operators where annotated.",
+        name: "UnwrapArithmetic",
+        description: "Enables unchecked overflow operators.",
         enabledTraits: [
-            "OverflowAddition",
-            "OverflowSubtraction"
+            "UnwrapAddition",
+            "UnwrapSubtraction"
         ]
     ),
     .trait(
@@ -376,16 +387,11 @@ let package = Package(
 
 
 
-        // MARK: CustomOperators
-        .target(
-            name: "CustomOperators"
-        ),
-
         // MARK: DestinyEmbedded
         .target(
             name: "DestinyEmbedded",
             dependencies: [
-                "CustomOperators",
+                .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
                 .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
             ]
@@ -394,7 +400,7 @@ let package = Package(
         .target(
             name: "DestinyBlueprint",
             dependencies: [
-                "CustomOperators",
+                .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
                 "DestinyEmbedded",
                 .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
                 .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
@@ -407,7 +413,7 @@ let package = Package(
         .target(
             name: "DestinyDefaults",
             dependencies: [
-                "CustomOperators",
+                .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
                 "DestinyEmbedded",
                 "DestinyBlueprint",
                 .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
@@ -433,7 +439,7 @@ let package = Package(
         .target(
             name: "PerfectHashing",
             dependencies: [
-                "CustomOperators"
+                .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators")
             ]
         ),
 

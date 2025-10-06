@@ -1,6 +1,6 @@
 
-import CustomOperators
 import DestinyEmbedded
+import UnwrapArithmeticOperators
 
 public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol> {
     public let chunkSize:Int

@@ -17,7 +17,7 @@ import Windows
 import WinSDK
 #endif
 
-import CustomOperators
+import UnwrapArithmeticOperators
 
 // MARK: Int32
 extension Int32 {

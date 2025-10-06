@@ -1,5 +1,5 @@
 
-import CustomOperators
+import UnwrapArithmeticOperators
 
 // TODO: move to own repo?
 public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProtocol {

@@ -47,8 +47,8 @@ extension Router {
         var customDynamicNotFoundResponder = ""
         var customStaticNotFoundResponder = ""
         for arg in arguments {
-            if let label = arg.label {
-                switch label.text {
+            if let label = arg.label?.text {
+                switch label {
                 case "version":
                     version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
                 case "errorResponder":
@@ -220,26 +220,30 @@ extension Router {
         version: HTTPVersion,
         isCopyable: Bool
     ) -> String? {
-        let stringLiteral = StringLiteralExprSyntax(content: "not found")
+        let status:HTTPResponseStatus.Code = 404 // not found
+        let headers = HTTPHeaders(["date":HTTPDateFormat.placeholder])
+        let body = "not found"
+        let contentType = "text/plain"
+        let stringLiteral = StringLiteralExprSyntax(content: body)
         let intermediateBody = IntermediateResponseBody(type: .staticStringWithDateHeader, stringLiteral)
         #if GenericHTTPMessage
         let response = GenericHTTPResponseMessage(
             version: version,
-            status: 404, // not found
-            headers: ["date":HTTPDateFormat.placeholder],
+            status: status,
+            headers: headers,
             cookies: [HTTPCookie](),
-            body: "not found",
-            contentType: "text/plain",
+            body: body,
+            contentType: contentType,
             charset: Charset.utf8
         )
         #else
         let response = HTTPResponseMessage(
             version: version,
-            status: 404, // not found
-            headers: ["date":HTTPDateFormat.placeholder],
+            status: status,
+            headers: headers,
             cookies: [HTTPCookie](),
-            body: "not found",
-            contentType: "text/plain",
+            body: body,
+            contentType: contentType,
             charset: Charset.utf8
         )
         #endif
