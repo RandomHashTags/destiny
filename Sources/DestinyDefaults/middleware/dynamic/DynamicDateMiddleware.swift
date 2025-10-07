@@ -13,7 +13,7 @@ public struct DynamicDateMiddleware: Sendable {
         request: inout some HTTPRequestProtocol & ~Copyable,
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
-        response.setHeader(key: "date", value: HTTPDateFormat.nowInlineArray.unsafeString())
+        response.setHeader(key: "date", value: HTTPDateFormat.nowString)
         return true
     }
 }

@@ -97,7 +97,7 @@ extension FileDescriptor where Self: ~Copyable {
         _ string: String
     ) throws(SocketError) {
         var err:SocketError? = nil
-        string.utf8Span.span.withUnsafeBufferPointer {
+        string.withContiguousStorageIfAvailable {
             do throws(SocketError) {
                 try socketWriteBuffer($0.baseAddress!, length: $0.count)
             } catch {

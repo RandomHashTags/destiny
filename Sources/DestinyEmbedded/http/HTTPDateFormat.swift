@@ -39,9 +39,10 @@ public struct HTTPDateFormat: Sendable {
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 
     @usableFromInline
-    nonisolated(unsafe) static var _nowInlineArray: InlineArrayResult = [
-        84, 104, 117, 44, 32, 48, 49, 32, 74, 97, 110, 32, 49, 57, 55, 48, 32, 48, 48, 58, 48, 48, 58, 48, 48, 32, 71, 77, 84
-    ] // Thu, 01 Jan 1970 00:00:00 GMT
+    nonisolated(unsafe) static private(set) var _nowUnsafeBufferPointer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 29)
+
+    @usableFromInline
+    nonisolated(unsafe) static private(set) var _nowString = placeholder
 
     #if Inlinable
     @inlinable
@@ -49,8 +50,18 @@ public struct HTTPDateFormat: Sendable {
     #if InlineAlways
     @inline(__always)
     #endif
-    public static var nowInlineArray: InlineArrayResult {
-        _read { yield _nowInlineArray }
+    public static var nowUnsafeBufferPointer: UnsafeBufferPointer<UInt8> {
+        _read { yield UnsafeBufferPointer(_nowUnsafeBufferPointer) }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    #if InlineAlways
+    @inline(__always)
+    #endif
+    public static var nowString: String {
+        _read { yield _nowString }
     }
 
     /// - Returns: HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
@@ -86,7 +97,14 @@ extension HTTPDateFormat {
                     //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
                     try await Task.sleep(for: .seconds(1))
                     if let result = Self.now() {
-                        _nowInlineArray = result
+                        var s = ""
+                        s.reserveCapacity(29)
+                        for i in 0..<29 {
+                            let byte = result[unchecked: i]
+                            _nowUnsafeBufferPointer[i] = byte
+                            s.append(Character(UnicodeScalar(byte)))
+                        }
+                        _nowString = s
                     }
                 } catch {
                     logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")

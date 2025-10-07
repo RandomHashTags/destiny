@@ -26,20 +26,14 @@ public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
     @inline(__always)
     #endif
     public func write(to socket: some FileDescriptor) throws(ResponderError) {
-        var err:SocketError? = nil
-        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
-            do throws(SocketError) {
-                try socket.writeBuffers3(
-                    (preDatePointer, preDatePointerCount),
-                    (datePointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
-                    (postDatePointer, postDatePointerCount)
-                )
-            } catch {
-                err = error
-            }
-        }
-        if let err {
-            throw .socketError(err)
+        do throws(SocketError) {
+            try socket.writeBuffers3(
+                (preDatePointer, preDatePointerCount),
+                (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
+                (postDatePointer, postDatePointerCount)
+            )
+        } catch {
+            throw .socketError(error)
         }
     }
 }

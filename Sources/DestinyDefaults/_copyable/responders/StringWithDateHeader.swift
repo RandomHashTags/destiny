@@ -70,9 +70,7 @@ extension StringWithDateHeader {
         preDateValue.withContiguousStorageIfAvailable {
             buffer.copyBuffer($0, at: &index)
         }
-        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer {
-            buffer.copyBuffer($0, at: &index)
-        }
+        buffer.copyBuffer(HTTPDateFormat.nowUnsafeBufferPointer, at: &index)
         postDateValue.withContiguousStorageIfAvailable {
             buffer.copyBuffer($0, at: &index)
         }
@@ -93,14 +91,17 @@ extension StringWithDateHeader {
     ) throws(ResponderError) {
         var err:SocketError? = nil
         preDateValue.withContiguousStorageIfAvailable { preDatePointer in
-            HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
-                postDateValue.withContiguousStorageIfAvailable { postDatePointer in
-                    value.withContiguousStorageIfAvailable { valuePointer in
-                        do throws(SocketError) {
-                            try socket.writeBuffers4(preDatePointer, datePointer, postDatePointer, valuePointer)
-                        } catch {
-                            err = error
-                        }
+            postDateValue.withContiguousStorageIfAvailable { postDatePointer in
+                value.withContiguousStorageIfAvailable { valuePointer in
+                    do throws(SocketError) {
+                        try socket.writeBuffers4(
+                            preDatePointer,
+                            HTTPDateFormat.nowUnsafeBufferPointer,
+                            postDatePointer,
+                            valuePointer
+                        )
+                    } catch {
+                        err = error
                     }
                 }
             }

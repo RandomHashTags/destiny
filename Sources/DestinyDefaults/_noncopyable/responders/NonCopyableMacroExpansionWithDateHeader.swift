@@ -39,21 +39,19 @@ extension NonCopyableMacroExpansionWithDateHeader {
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var err:SocketError? = nil
-        HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
-            bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
-                body.withContiguousStorageIfAvailable { bodyPointer in
-                    do throws(SocketError) {
-                        try socket.writeBuffers6(
-                            (preDateValue.utf8Start, preDateValue.utf8CodeUnitCount),
-                            (datePointer.baseAddress!, datePointer.count),
-                            (postDateValue.utf8Start, postDateValue.utf8CodeUnitCount),
-                            (bodyCountPointer.baseAddress!, bodyCountPointer.count),
-                            (Self.bodyCountSuffix.utf8Start, Self.bodyCountSuffix.utf8CodeUnitCount),
-                            (bodyPointer.baseAddress!, bodyPointer.count),
-                        )
-                    } catch {
-                        err = error
-                    }
+        bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
+            body.withContiguousStorageIfAvailable { bodyPointer in
+                do throws(SocketError) {
+                    try socket.writeBuffers6(
+                        (preDateValue.utf8Start, preDateValue.utf8CodeUnitCount),
+                        (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
+                        (postDateValue.utf8Start, postDateValue.utf8CodeUnitCount),
+                        (bodyCountPointer.baseAddress!, bodyCountPointer.count),
+                        (Self.bodyCountSuffix.utf8Start, Self.bodyCountSuffix.utf8CodeUnitCount),
+                        (bodyPointer.baseAddress!, bodyPointer.count),
+                    )
+                } catch {
+                    err = error
                 }
             }
         }

@@ -189,16 +189,6 @@ extension HTTPResponseMessage {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    func writeString(_ string: inout String, to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, ) {
-        string.withUTF8 {
-            buffer.copyBuffer($0, at: &i)
-            i +=! $0.count
-        }
-    }
-
     /// Writes `\r` and `\n` to the buffer.
     #if Inlinable
     @inlinable
@@ -259,15 +249,15 @@ extension HTTPResponseMessage {
         guard var body else { return }
         if contentType != nil {
             writeStaticString("content-type: ", to: buffer, index: &i)
-            writeString(&contentTypeDescription, to: buffer, index: &i)
+            writeString(contentTypeDescription, to: buffer, index: &i)
             if charset != nil {
                 writeStaticString("; charset=", to: buffer, index: &i)
-                writeString(&charsetRawName, to: buffer, index: &i)
+                writeString(charsetRawName, to: buffer, index: &i)
             }
             writeCRLF(to: buffer, index: &i)
         }
         writeStaticString("content-length: ", to: buffer, index: &i)
-        writeString(&contentLengthString, to: buffer, index: &i)
+        writeString(contentLengthString, to: buffer, index: &i)
         writeCRLF(to: buffer, index: &i)
 
         writeCRLF(to: buffer, index: &i)
