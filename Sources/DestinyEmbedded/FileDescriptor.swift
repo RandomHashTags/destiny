@@ -42,13 +42,28 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     ) throws(SocketError)
 
     /// Efficiently writes multiple buffers to the file descriptor.
-    func writeBuffers<let count: Int>(
-        _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
+    func writeBuffers3(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
     ) throws(SocketError)
 
     /// Efficiently writes multiple buffers to the file descriptor.
-    func writeBuffers<let count: Int>(
-        _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
+    func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: UnsafeBufferPointer<UInt8>,
+        _ b3: UnsafeBufferPointer<UInt8>,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(SocketError)
+
+    /// Efficiently writes multiple buffers to the file descriptor.
+    func writeBuffers6(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
     ) throws(SocketError)
 
     func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int
@@ -57,7 +72,7 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
 }
 
 // MARK: Write
-extension FileDescriptor {
+extension FileDescriptor where Self: ~Copyable {
     #if Inlinable
     @inlinable
     #endif
@@ -91,6 +106,77 @@ extension FileDescriptor {
         }
         if let err {
             throw err
+        }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers3(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+    ) throws(SocketError) {
+        var iovecs = (
+            iovec(iov_base: .init(mutating: b1.0), iov_len: b1.1),
+            iovec(iov_base: .init(mutating: b2.0), iov_len: b2.1),
+            iovec(iov_base: .init(mutating: b3.0), iov_len: b3.1)
+        )
+        let result = withUnsafePointer(to: &iovecs) {
+            writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 3)
+        }
+        if result <= 0 {
+            throw .writeFailed(errno: errno)
+        }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: UnsafeBufferPointer<UInt8>,
+        _ b3: UnsafeBufferPointer<UInt8>,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(SocketError) {
+        var iovecs = (
+            iovec(iov_base: .init(mutating: b1.baseAddress), iov_len: b1.count),
+            iovec(iov_base: .init(mutating: b2.baseAddress), iov_len: b2.count),
+            iovec(iov_base: .init(mutating: b3.baseAddress), iov_len: b3.count),
+            iovec(iov_base: .init(mutating: b4.baseAddress), iov_len: b4.count)
+        )
+        let result = withUnsafePointer(to: &iovecs) {
+            writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 4)
+        }
+        if result <= 0 {
+            throw .writeFailed(errno: errno)
+        }
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers6(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+    ) throws(SocketError) {
+        var iovecs = (
+            iovec(iov_base: .init(mutating: b1.0), iov_len: b1.1),
+            iovec(iov_base: .init(mutating: b2.0), iov_len: b2.1),
+            iovec(iov_base: .init(mutating: b3.0), iov_len: b3.1),
+            iovec(iov_base: .init(mutating: b4.0), iov_len: b4.1),
+            iovec(iov_base: .init(mutating: b5.0), iov_len: b5.1),
+            iovec(iov_base: .init(mutating: b6.0), iov_len: b6.1)
+        )
+        let result = withUnsafePointer(to: &iovecs) {
+            writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 6)
+        }
+        if result <= 0 {
+            throw .writeFailed(errno: errno)
         }
     }
 }

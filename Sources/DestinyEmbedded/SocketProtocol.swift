@@ -32,24 +32,6 @@ extension SocketProtocol where Self: ~Copyable {
     #if Inlinable
     @inlinable
     #endif
-    public func writeBuffers<let count: Int>(
-        _ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>
-    ) throws(SocketError) {
-        try fileDescriptor.writeBuffers(buffers)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func writeBuffers<let count: Int>(
-        _ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>
-    ) throws(SocketError) {
-        try fileDescriptor.writeBuffers(buffers)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeString(
         _ string: String
     ) throws(SocketError) {

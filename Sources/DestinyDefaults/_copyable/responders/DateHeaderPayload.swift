@@ -29,11 +29,11 @@ public struct DateHeaderPayload: @unchecked Sendable {
         var err:SocketError? = nil
         HTTPDateFormat.nowInlineArray.span.withUnsafeBufferPointer { datePointer in
             do throws(SocketError) {
-                try socket.writeBuffers([
+                try socket.writeBuffers3(
                     (preDatePointer, preDatePointerCount),
                     (datePointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
                     (postDatePointer, postDatePointerCount)
-                ])
+                )
             } catch {
                 err = error
             }

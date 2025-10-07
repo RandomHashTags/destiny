@@ -43,14 +43,14 @@ extension NonCopyableMacroExpansionWithDateHeader {
             bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
                 body.withContiguousStorageIfAvailable { bodyPointer in
                     do throws(SocketError) {
-                        try socket.writeBuffers([
+                        try socket.writeBuffers6(
                             (preDateValue.utf8Start, preDateValue.utf8CodeUnitCount),
                             (datePointer.baseAddress!, datePointer.count),
                             (postDateValue.utf8Start, postDateValue.utf8CodeUnitCount),
                             (bodyCountPointer.baseAddress!, bodyCountPointer.count),
                             (Self.bodyCountSuffix.utf8Start, Self.bodyCountSuffix.utf8CodeUnitCount),
                             (bodyPointer.baseAddress!, bodyPointer.count),
-                        ])
+                        )
                     } catch {
                         err = error
                     }

@@ -33,12 +33,12 @@ extension RouteResponses.MacroExpansion {
                     let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
                     bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
                         do throws(SocketError) {
-                            try socket.writeBuffers([
+                            try socket.writeBuffers4(
                                 valuePointer,
                                 bodyCountPointer,
                                 bodyCountSuffixPointer,
                                 bodyPointer
-                            ])
+                            )
                         } catch {
                             err = error
                         }

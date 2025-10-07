@@ -97,7 +97,7 @@ extension StringWithDateHeader {
                 postDateValue.withContiguousStorageIfAvailable { postDatePointer in
                     value.withContiguousStorageIfAvailable { valuePointer in
                         do throws(SocketError) {
-                            try socket.writeBuffers([preDatePointer, datePointer, postDatePointer, valuePointer])
+                            try socket.writeBuffers4(preDatePointer, datePointer, postDatePointer, valuePointer)
                         } catch {
                             err = error
                         }

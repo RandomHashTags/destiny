@@ -11,10 +11,6 @@ struct TestHTTPSocket: HTTPSocketProtocol, ~Copyable {
         _fileDescriptor.writeBuffer(pointer, length: length)
     }
 
-    func writeBuffers<let count: Int>(_ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>) throws(SocketError) {
-        _fileDescriptor.writeBuffers(buffers)
-    }
-
     var fileDescriptor:Int32
     var _fileDescriptor:TestFileDescriptor
 
