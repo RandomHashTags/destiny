@@ -38,6 +38,21 @@ public enum HTTPVersion: Hashable, Sendable {
         }
     }
 
+    /// StaticString representation of this HTTP Version (`HTTP/<major>.<minor>`).
+    #if Inlinable
+    @inlinable
+    #endif
+    public var staticString: StaticString {
+        switch self {
+        case .v0_9: "HTTP/0.9"
+        case .v1_0: "HTTP/1.0"
+        case .v1_1: "HTTP/1.1"
+        case .v1_2: "HTTP/1.2"
+        case .v2_0: "HTTP/2.0"
+        case .v3_0: "HTTP/3.0"
+        }
+    }
+
     /// `InlineArray<8, UInt8>` representation of this HTTP Version.
     #if Inlinable
     @inlinable
