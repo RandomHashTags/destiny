@@ -581,7 +581,7 @@ extension RouterStorage {
             ),
             body: .init(statements: .init(stringLiteral: """
                 let \(values.variables) = perfectHash(simd)
-                guard hashIndex < \(hashTable.count), let entry = Self.hashTable[hashIndex]\(values.hashCollectionCheck) else { return nil }
+                guard hashIndex < \(hashTable.count), let entry = Self.hashTable[unchecked: hashIndex]\(values.hashCollectionCheck) else { return nil }
                 return \(returnLogic)
                 """)
             ),

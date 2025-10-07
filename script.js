@@ -39,6 +39,6 @@ export const options = {
 // about authoring k6 scripts.
 //
 export default function() {
-  http.get('http://localhost:8080/dynamic');
+  http.get('http://localhost:8080/html');
   sleep(1);
 }
