@@ -75,6 +75,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] Cache Middleware
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
+- [ ] Compression support
 - [ ] OpenAPI support
 - [ ] Tracing support
 - [ ] TLS/SSL
