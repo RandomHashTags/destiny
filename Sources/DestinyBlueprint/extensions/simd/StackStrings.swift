@@ -1,5 +1,5 @@
 
-extension SIMD where Scalar: BinaryInteger {
+extension SIMD64<UInt8> {
     /// - Complexity: O(*n*) if `string` is non-contiguous, O(1) if already contiguous.
     #if Inlinable
     @inlinable
@@ -35,8 +35,7 @@ extension SIMD where Scalar: BinaryInteger {
         }
         return scalarCount
     }
-}
-extension SIMD where Scalar == UInt8 {
+
     /// - Complexity: O(1)
     #if Inlinable
     @inlinable
@@ -45,7 +44,7 @@ extension SIMD where Scalar == UInt8 {
         let amount = leadingNonzeroByteCountSIMD
         var characters = [Character](repeating: Character(Unicode.Scalar(0)), count: amount)
         for i in 0..<amount {
-            characters[i] = Character(Unicode.Scalar(self[i]))
+            characters[i] = Character(UnicodeScalar(self[i]))
         }
         return String(characters)
     }

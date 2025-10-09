@@ -35,7 +35,7 @@ package final class TestRouter {
 
 // MARK: Router
 extension TestRouter {
-    //#server(routerType: "DeclaredRouter.CompiledHTTPRouter")
+    //#httpServer(routerType: "DeclaredRouter.CompiledHTTPRouter")
 
     #declareRouter(
         routerSettings: .init(

@@ -189,7 +189,7 @@ extension AbstractHTTPRequest._Storage {
             return path
         }
         requestLine!.path(buffer: buffer.buffer, {
-            path = $0.unsafeString().split(separator: "/").map({ String($0) })
+            path = $0.unsafeString().split(separator: "/").map({ String($0) }) // TODO: optimize; don't use split and map
         })
         return path!
     }

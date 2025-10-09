@@ -128,7 +128,14 @@ extension HTTPDateFormat {
                     //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
                     try await Task.sleep(for: .seconds(1))
                     if let result = Self.now() {
-                        _nowInlineArray = result
+                        var s = ""
+                        s.reserveCapacity(29)
+                        for i in 0..<29 {
+                            let byte = result[unchecked: i]
+                            _nowUnsafeBufferPointer[i] = byte
+                            s.append(Character(UnicodeScalar(byte)))
+                        }
+                        _nowString = s
                     }
                 } catch {
                     //logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")

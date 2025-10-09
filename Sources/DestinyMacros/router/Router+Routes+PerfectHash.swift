@@ -541,7 +541,7 @@ extension RouterStorage {
         }
         return try! StructDeclSyntax.init("""
         struct RouteEntry: Sendable { // found \(raw: values.comment)perfect hash with \(raw: hashMaxBytes) character\(raw: hashMaxBytes == 1 ? "" : "s") (\(raw: efficiency)% efficiency)
-            \(raw: values.keyVariable)\(raw: simd.variable)let route:Route
+            \(raw: simd.variable)\(raw: values.keyVariable)let route:Route
             init(
                 _ route: Route,
                 \(raw: simd.initializer)\(raw: values.keyAnnotation)

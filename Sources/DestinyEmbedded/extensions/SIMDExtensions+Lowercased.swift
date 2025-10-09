@@ -1,5 +1,5 @@
 
-extension SIMD64 where Scalar == UInt8 {
+extension SIMD64<UInt8> {
     /// - Complexity: O(1).
     #if Inlinable
     @inlinable

@@ -2,7 +2,7 @@
 import DestinyEmbedded
 
 @freestanding(declaration, names: named(Server))
-public macro server(
+public macro httpServer(
     address: String? = nil,
     port: UInt16 = 8080,
     backlog: Int32 = 0,
@@ -57,19 +57,6 @@ public macro router<T: HTTPRouterProtocol>(
     routeGroups: [any RouteGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) -> T = #externalMacro(module: "DestinyMacros", type: "Router")
-
-
-// MARK: #httpMessage
-/// A convenience macro to create a complete HTTP Message at compile time.
-@freestanding(expression)
-public macro httpMessage<T: ExpressibleByStringLiteral>(
-    version: HTTPVersion,
-    status: HTTPResponseStatus,
-    headers: [String:String] = [:],
-    body: (any ResponseBodyProtocol)? = nil,
-    contentType: String? = nil,
-    charset: Charset? = nil
-) -> T = #externalMacro(module: "DestinyMacros", type: "HTTPMessage")
 
 
 // MARK: #declareRouter

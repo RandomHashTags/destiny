@@ -112,13 +112,15 @@ private func readCommand() async -> String? {
 }
 func processCommand() async {
     if let line = await readCommand() {
-        let arguments = line.split(separator: " ")
-        switch arguments.first {
-        case "stop", "shutdown":
-            await Application.shared.shutdown()
-            return
-        default:
-            break
+        if let cmdEndIndex = line.firstIndex(of: " ") {
+            let cmd = line[line.startIndex..<cmdEndIndex]
+            switch cmd {
+            case "stop", "shutdown":
+                await Application.shared.shutdown()
+                return
+            default:
+                break
+            }
         }
     }
     guard !Task.isCancelled else { return }
