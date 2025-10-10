@@ -5,8 +5,8 @@ import SwiftSyntax
 
 /// Sole purpose of this struct is to properly handle certain response bodies that aren't parsable with runtime data.
 public struct IntermediateResponseBody: ResponseBodyProtocol {
-    public let type:IntermediateResponseBodyType
     public let valueExpr:ExprSyntax
+    public let type:IntermediateResponseBodyType
 
     public init(
         type: IntermediateResponseBodyType,

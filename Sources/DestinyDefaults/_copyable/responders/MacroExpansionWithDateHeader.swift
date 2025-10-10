@@ -6,26 +6,23 @@ import DestinyEmbedded
 public struct MacroExpansionWithDateHeader: Sendable {
     public static let bodyCountSuffix:StaticString = "\r\n\r\n"
 
-    public let preDateValue:StaticString
-    public let postDateValue:StaticString
     public let bodyCount:String.UTF8View
     public let body:String.UTF8View
+    public let payload:DateHeaderPayload
 
     public init(_ value: StaticString, body: String) {
-        preDateValue = ""
-        postDateValue = value
         bodyCount = String(body.utf8Span.count).utf8
         self.body = body.utf8
+        payload = .init(preDate: "", postDate: value)
     }
     public init(
         preDateValue: StaticString,
         postDateValue: StaticString,
         body: String
     ) {
-        self.preDateValue = preDateValue
-        self.postDateValue = postDateValue
         bodyCount = String(body.utf8Span.count).utf8
         self.body = body.utf8
+        payload = .init(preDate: preDateValue, postDate: postDateValue)
     }
 }
 
@@ -45,9 +42,9 @@ extension MacroExpansionWithDateHeader {
             body.withContiguousStorageIfAvailable { bodyPointer in
                 do throws(SocketError) {
                     try socket.writeBuffers6(
-                        (preDateValue.utf8Start, preDateValue.utf8CodeUnitCount),
+                        (payload.preDatePointer, payload.preDatePointerCount),
                         (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
-                        (postDateValue.utf8Start, postDateValue.utf8CodeUnitCount),
+                        (payload.postDatePointer, payload.postDatePointerCount),
                         (bodyCountPointer.baseAddress!, bodyCountPointer.count),
                         (Self.bodyCountSuffix.utf8Start, Self.bodyCountSuffix.utf8CodeUnitCount),
                         (bodyPointer.baseAddress!, bodyPointer.count),

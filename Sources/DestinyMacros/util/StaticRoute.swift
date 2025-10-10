@@ -15,9 +15,9 @@ public struct StaticRoute: Sendable {
     public let contentType:String?
     public let body:(any ResponseBodyProtocol)?
 
-    public let isCaseSensitive:Bool
     public var method:HTTPRequestMethod
     public let status:HTTPResponseStatus.Code
+    public let isCaseSensitive:Bool
     public let charset:Charset?
     public let version:HTTPVersion
 

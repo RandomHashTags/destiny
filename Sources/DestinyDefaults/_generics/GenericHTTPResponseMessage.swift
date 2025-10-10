@@ -150,12 +150,12 @@ extension GenericHTTPResponseMessage {
         }
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
-            writeStartLine(to: p, index: &i)
+            writeStartLine(to: p, at: &i)
             for (key, value) in head.headers {
-                writeHeader(to: p, index: &i, key: key, value: value)
+                writeHeader(to: p, at: &i, key: key, value: value)
             }
             for cookie in cookieDescriptions {
-                writeCookie(to: p, index: &i, cookie: cookie)
+                writeCookie(cookie, to: p, at: &i)
             }
             try writeResult(
                 to: p,
@@ -171,7 +171,7 @@ extension GenericHTTPResponseMessage {
     #if Inlinable
     @inlinable
     #endif
-    func writeString(_ string: String, to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
+    func writeString(_ string: String, to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
         let span = string.utf8Span.span
         for j in span.indices {
             buffer[i] = span[unchecked: j]
@@ -183,7 +183,7 @@ extension GenericHTTPResponseMessage {
     #if Inlinable
     @inlinable
     #endif
-    func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
+    func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
         buffer[i] = .carriageReturn
         i +=! 1
         buffer[i] = .lineFeed
@@ -193,37 +193,37 @@ extension GenericHTTPResponseMessage {
     #if Inlinable
     @inlinable
     #endif
-    func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int) {
-        writeStaticString(head.version.staticString, to: buffer, index: &i)
+    func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
+        writeStaticString(head.version.staticString, to: buffer, at: &i)
         buffer[i] = .space
         i +=! 1
 
         let statusString = String(head.status)
-        writeString(statusString, to: buffer, index: &i)
-        writeCRLF(to: buffer, index: &i)
+        writeString(statusString, to: buffer, at: &i)
+        writeCRLF(to: buffer, at: &i)
     }
 
     #if Inlinable
     @inlinable
     #endif
-    func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, key: String, value: String) {
-        writeString(key, to: buffer, index: &i)
+    func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int, key: String, value: String) {
+        writeString(key, to: buffer, at: &i)
         buffer[i] = .colon
         i +=! 1
         buffer[i] = .space
         i +=! 1
 
-        writeString(value, to: buffer, index: &i)
-        writeCRLF(to: buffer, index: &i)
+        writeString(value, to: buffer, at: &i)
+        writeCRLF(to: buffer, at: &i)
     }
 
     #if Inlinable
     @inlinable
     #endif
-    func writeCookie(to buffer: UnsafeMutableBufferPointer<UInt8>, index i: inout Int, cookie: String) {
-        writeStaticString("set-cookie: ", to: buffer, index: &i)
-        writeString(cookie, to: buffer, index: &i)
-        writeCRLF(to: buffer, index: &i)
+    func writeCookie(_ cookie: String, to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
+        writeStaticString("set-cookie: ", to: buffer, at: &i)
+        writeString(cookie, to: buffer, at: &i)
+        writeCRLF(to: buffer, at: &i)
     }
 
     #if Inlinable
@@ -238,19 +238,19 @@ extension GenericHTTPResponseMessage {
     ) throws(BufferWriteError) {
         guard var body else { return }
         if contentType != nil {
-            writeStaticString("content-type: ", to: buffer, index: &i)
-            writeString(contentTypeDescription, to: buffer, index: &i)
+            writeStaticString("content-type: ", to: buffer, at: &i)
+            writeString(contentTypeDescription, to: buffer, at: &i)
             if charset != nil {
-                writeStaticString("; charset=", to: buffer, index: &i)
-                writeString(charsetRawName, to: buffer, index: &i)
+                writeStaticString("; charset=", to: buffer, at: &i)
+                writeString(charsetRawName, to: buffer, at: &i)
             }
-            writeCRLF(to: buffer, index: &i)
+            writeCRLF(to: buffer, at: &i)
         }
-        writeStaticString("content-length: ", to: buffer, index: &i)
-        writeString(contentLengthString, to: buffer, index: &i)
-        writeCRLF(to: buffer, index: &i)
+        writeStaticString("content-length: ", to: buffer, at: &i)
+        writeString(contentLengthString, to: buffer, at: &i)
+        writeCRLF(to: buffer, at: &i)
 
-        writeCRLF(to: buffer, index: &i)
+        writeCRLF(to: buffer, at: &i)
         try body.write(to: buffer, at: &i)
     }
 
@@ -260,7 +260,7 @@ extension GenericHTTPResponseMessage {
     func writeStaticString(
         _ string: StaticString,
         to buffer: UnsafeMutableBufferPointer<UInt8>,
-        index i: inout Int
+        at i: inout Int
     ) {
         for j in 0..<string.utf8CodeUnitCount {
             buffer[i] = (string.utf8Start + j).pointee

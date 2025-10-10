@@ -5,9 +5,9 @@ import DestinyEmbedded
 
 extension RouteResponses {
     public struct MacroExpansion: Sendable {
-        public let value:StaticString
         public let bodyCount:String.UTF8View
         public let body:String.UTF8View
+        public let value:StaticString
 
         public init(_ value: StaticString, body: String) {
             self.value = value

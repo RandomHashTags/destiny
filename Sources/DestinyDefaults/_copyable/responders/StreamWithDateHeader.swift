@@ -25,22 +25,16 @@ extension ResponseBody {
 }
 
 public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable> {
-    public let preDateValue:StaticString
-    public let postDateValue:StaticString
     public let body:Body
-
-    @usableFromInline
-    let payload:DateHeaderPayload
+    public let payload:DateHeaderPayload
 
     public init(
         _ body: Body
     ) {
-        preDateValue = ""
-        postDateValue = ""
         self.body = body
         payload = .init(
-            preDate: preDateValue,
-            postDate: postDateValue
+            preDate: "",
+            postDate: ""
         )
     }
     public init(
@@ -48,8 +42,6 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable> {
         postDateValue: StaticString,
         body: Body
     ) {
-        self.preDateValue = preDateValue
-        self.postDateValue = postDateValue
         self.body = body
         payload = .init(
             preDate: preDateValue,
@@ -61,14 +53,14 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable> {
     @inlinable
     #endif
     public var count: Int {
-        preDateValue.utf8CodeUnitCount +! HTTPDateFormat.InlineArrayResult.count +! postDateValue.utf8CodeUnitCount
+        payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
     }
-    
+
     #if Inlinable
     @inlinable
     #endif
     public func string() -> String {
-        "\(preDateValue)\(HTTPDateFormat.placeholder)\(postDateValue)"
+        "\(String(cString: payload.preDatePointer))\(HTTPDateFormat.placeholder)\(String(cString: payload.postDatePointer))"
     }
 
     #if Inlinable

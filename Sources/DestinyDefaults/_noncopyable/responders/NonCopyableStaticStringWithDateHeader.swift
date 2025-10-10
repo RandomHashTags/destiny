@@ -21,18 +21,12 @@ extension ResponseBody {
 }
 
 public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
-    public let preDateValue:StaticString
-    public let postDateValue:StaticString
-
-    @usableFromInline
-    let payload:NonCopyableDateHeaderPayload
+    public let payload:NonCopyableDateHeaderPayload
 
     public init(_ value: StaticString) {
-        self.preDateValue = ""
-        self.postDateValue = value
         payload = .init(
-            preDate: preDateValue,
-            postDate: postDateValue
+            preDate: "",
+            postDate: value
         )
     }
 
@@ -40,8 +34,6 @@ public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
         preDateValue: StaticString,
         postDateValue: StaticString
     ) {
-        self.preDateValue = preDateValue
-        self.postDateValue = postDateValue
         payload = .init(
             preDate: preDateValue,
             postDate: postDateValue
@@ -52,14 +44,14 @@ public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
     @inlinable
     #endif
     public var count: Int {
-        preDateValue.utf8CodeUnitCount +! HTTPDateFormat.InlineArrayResult.count +! postDateValue.utf8CodeUnitCount
+        payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
     }
     
     #if Inlinable
     @inlinable
     #endif
     public func string() -> String {
-        "\(preDateValue)\(HTTPDateFormat.placeholder)\(postDateValue)"
+        "\(String(cString: payload.preDatePointer))\(HTTPDateFormat.placeholder)\(String(cString: payload.postDatePointer))"
     }
 
     #if Inlinable
@@ -77,9 +69,9 @@ extension NonCopyableStaticStringWithDateHeader {
     #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
-        buffer.copyBuffer(baseAddress: preDateValue.utf8Start, count: preDateValue.utf8CodeUnitCount, at: &index)
+        buffer.copyBuffer(baseAddress: payload.preDatePointer, count: payload.preDatePointerCount, at: &index)
         buffer.copyBuffer(HTTPDateFormat.nowUnsafeBufferPointer, at: &index)
-        buffer.copyBuffer(baseAddress: postDateValue.utf8Start, count: postDateValue.utf8CodeUnitCount, at: &index)
+        buffer.copyBuffer(baseAddress: payload.postDatePointer, count: payload.postDatePointerCount, at: &index)
     }
 }
 

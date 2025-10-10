@@ -11,21 +11,23 @@ public struct DynamicRoute: DynamicRouteProtocol {
     /// Path of this route.
     public var path:[PathComponent]
 
+    public var method:HTTPRequestMethod
+
     /// Default content type of this route. May be modified by static middleware at compile time or dynamic middleware upon requests.
     public var contentType:String?
+
+    /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
+    public var status:HTTPResponseStatus.Code
 
     /// Default HTTP Message computed by default values and static middleware.
     public var defaultResponse:DynamicResponse
     public let handler:@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
     @usableFromInline package var handlerDebugDescription = "{ _, _ in }"
 
+    public let isCaseSensitive:Bool
+
     /// `HTTPVersion` associated with this route.
     public let version:HTTPVersion
-    public var method:HTTPRequestMethod
-
-    /// Default status of this route. May be modified by static middleware at compile time or by dynamic middleware upon requests.
-    public var status:HTTPResponseStatus.Code
-    public let isCaseSensitive:Bool
 
     public var pathCount: Int {
         path.count

@@ -25,22 +25,16 @@ extension ResponseBody {
 }
 
 public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>: Sendable, ~Copyable {
-    public let preDateValue:StaticString
-    public let postDateValue:StaticString
     public let body:Body
-
-    @usableFromInline
-    let payload:NonCopyableDateHeaderPayload
+    public let payload:NonCopyableDateHeaderPayload
 
     public init(
         _ body: consuming Body
     ) {
-        preDateValue = ""
-        postDateValue = ""
         self.body = body
         payload = .init(
-            preDate: preDateValue,
-            postDate: postDateValue
+            preDate: "",
+            postDate: ""
         )
     }
     public init(
@@ -48,8 +42,6 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
         postDateValue: StaticString,
         body: consuming Body
     ) {
-        self.preDateValue = preDateValue
-        self.postDateValue = postDateValue
         self.body = body
         payload = .init(
             preDate: preDateValue,
@@ -61,14 +53,14 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
     @inlinable
     #endif
     public var count: Int {
-        preDateValue.utf8CodeUnitCount +! HTTPDateFormat.InlineArrayResult.count +! postDateValue.utf8CodeUnitCount
+        payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
     }
     
     #if Inlinable
     @inlinable
     #endif
     public func string() -> String {
-        "\(preDateValue)\(HTTPDateFormat.placeholder)\(postDateValue)"
+        "\(String(cString: payload.preDatePointer))\(HTTPDateFormat.placeholder)\(String(cString: payload.postDatePointer))"
     }
 
     #if Inlinable

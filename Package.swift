@@ -123,15 +123,16 @@ let traits:Set<Trait> = [
         name: "CopyableHTTPServer"
     ),
     .trait(
+        name: "CopyableDateHeaderPayload"
+    ),
+    .trait(
         name: "CopyableMacroExpansion",
         description: "Enables the copyable MacroExpansion route responder."
     ),
     .trait(
         name: "CopyableMacroExpansionWithDateHeader",
-        description: "Enables the copyable MacroExpansionWithDateHeader route responder."
-    ),
-    .trait(
-        name: "CopyableDateHeaderPayload"
+        description: "Enables the copyable MacroExpansionWithDateHeader route responder.",
+        enabledTraits: ["CopyableDateHeaderPayload"]
     ),
     .trait(
         name: "CopyableStaticStringWithDateHeader",
@@ -162,11 +163,15 @@ let traits:Set<Trait> = [
         ]
     ),
 
+    
     .trait(name: "NonCopyableHTTPServer"),
+    .trait(name: "NonCopyableDateHeaderPayload"),
     .trait(name: "NonCopyableBytes"),
     .trait(name: "NonCopyableInlineBytes"),
-    .trait(name: "NonCopyableDateHeaderPayload"),
-    .trait(name: "NonCopyableMacroExpansionWithDateHeader"),
+    .trait(
+        name: "NonCopyableMacroExpansionWithDateHeader",
+        enabledTraits: ["NonCopyableDateHeaderPayload"]
+    ),
     .trait(
         name: "NonCopyableStaticStringWithDateHeader",
         enabledTraits: ["NonCopyableDateHeaderPayload"]
