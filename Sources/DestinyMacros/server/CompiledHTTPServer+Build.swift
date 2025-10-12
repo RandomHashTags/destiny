@@ -10,6 +10,9 @@ struct CompiledHTTPServer {
     /// Underlying type should be `UInt16`.
     var port = "8080"
 
+    /// Maximum amount of pending connections the Server will queue.
+    /// This value is capped at the system's limit.
+    /// 
     /// Underlying type should be `Int32`.
     var backlog = "SOMAXCONN"
 
@@ -24,7 +27,10 @@ struct CompiledHTTPServer {
 
     var socketType = "HTTPSocket"
 
+    /// Called when the server loads successfully, just before it accepts incoming network requests.
     var onLoad:String? = nil
+
+    /// Called when the server terminates.
     var onShutdown:String? = nil
 }
 
@@ -48,6 +54,7 @@ extension CompiledHTTPServer {
         members.append(processClientsOLDDecl())
         members.append(epollDecl())
         return StructDeclSyntax(
+            modifiers: [.init(name: .keyword(.package))],
             name: name,
             inheritanceClause: .init(inheritedTypes: [
                 .init(type: TypeSyntax("Sendable"), trailingComma: .commaToken()),

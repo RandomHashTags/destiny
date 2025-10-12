@@ -120,9 +120,6 @@ let traits:Set<Trait> = [
     ),
 
     .trait(
-        name: "CopyableHTTPServer"
-    ),
-    .trait(
         name: "CopyableDateHeaderPayload"
     ),
     .trait(
@@ -158,7 +155,6 @@ let traits:Set<Trait> = [
         name: "Copyable",
         description: "Enables all copyable package traits.",
         enabledTraits: [
-            "CopyableHTTPServer",
             "CopyableResponders"
         ]
     ),
