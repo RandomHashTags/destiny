@@ -7,9 +7,10 @@ extension AbstractHTTPRequest {
     /// Underlying storage for the default request implementation.
     @usableFromInline
     package struct _Storage: Sendable, ~Copyable {
-        @usableFromInline fileprivate(set) var requestLine:HTTPRequestLine?
         @usableFromInline fileprivate(set) var startLineSIMD:SIMD64<UInt8>?
         @usableFromInline fileprivate(set) var startLineSIMDLowercased:SIMD64<UInt8>?
+
+        @usableFromInline fileprivate(set) var requestLine:HTTPRequestLine?
         @usableFromInline fileprivate(set) var methodString:String?
         @usableFromInline fileprivate(set) var path:[String]?
 
