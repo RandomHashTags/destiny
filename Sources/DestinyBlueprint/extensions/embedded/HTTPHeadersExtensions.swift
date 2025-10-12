@@ -1,6 +1,4 @@
 
-extension HTTPHeaders: HTTPHeadersProtocol {}
-
 extension HTTPHeaders: ExpressibleByDictionaryLiteral {
     /// Creates an instance initialized with the given key-value pairs.
     /// - Warning: Keys are case-sensitive!

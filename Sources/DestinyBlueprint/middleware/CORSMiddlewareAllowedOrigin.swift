@@ -77,7 +77,7 @@ extension CORSMiddlewareAllowedOrigin {
     #endif
     public func apply(
         request: inout some HTTPRequestProtocol & ~Copyable,
-        headers: inout some HTTPHeadersProtocol
+        headers: inout HTTPHeaders
     ) throws(SocketError) {
         switch self {
         case .all:
@@ -97,7 +97,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     static func applyAll(
-        headers: inout some HTTPHeadersProtocol
+        headers: inout HTTPHeaders
     ) {
         headers["access-control-allow-origin"] = "*"
     }
@@ -107,7 +107,7 @@ extension CORSMiddlewareAllowedOrigin {
     #endif
     static func applyAny(
         request: inout some HTTPRequestProtocol & ~Copyable,
-        headers: inout some HTTPHeadersProtocol,
+        headers: inout HTTPHeaders,
         origins: Set<String>
     ) throws(SocketError) {
         if let origin = try request.header(forKey: "origin"), origins.contains(origin) {
@@ -119,7 +119,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     static func applyCustom(
-        headers: inout some HTTPHeadersProtocol,
+        headers: inout HTTPHeaders,
         string: String
     ) {
         headers["access-control-allow-origin"] = string
@@ -130,7 +130,7 @@ extension CORSMiddlewareAllowedOrigin {
     #endif
     static func applyOriginBased(
         request: inout some HTTPRequestProtocol & ~Copyable,
-        headers: inout some HTTPHeadersProtocol
+        headers: inout HTTPHeaders
     ) throws(SocketError) {
         headers["vary"] = "origin"
         if let origin = try request.header(forKey: "origin") {

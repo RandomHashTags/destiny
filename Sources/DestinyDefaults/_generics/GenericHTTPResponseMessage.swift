@@ -345,7 +345,7 @@ extension GenericHTTPResponseMessage {
     #endif
     public static func headers(
         suffix: String,
-        headers: some HTTPHeadersProtocol
+        headers: HTTPHeaders
     ) -> String {
         var string = ""
         for (header, value) in headers {
@@ -436,7 +436,7 @@ extension GenericHTTPResponseMessage {
         escapeLineBreak: Bool,
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: some HTTPHeadersProtocol,
+        headers: HTTPHeaders,
         body: String?,
         mediaType: MediaType?,
         charset: Charset?
@@ -452,7 +452,7 @@ extension GenericHTTPResponseMessage {
         escapeLineBreak: Bool,
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
-        headers: some HTTPHeadersProtocol,
+        headers: HTTPHeaders,
         body: String?,
         mediaType: (some MediaTypeProtocol)?,
         charset: Charset?

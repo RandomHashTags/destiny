@@ -51,7 +51,7 @@ extension CORSLogic {
     @inlinable
     #endif
     public func apply(
-        to headers: inout some HTTPHeadersProtocol
+        to headers: inout HTTPHeaders
     ) {
         switch self {
         case .allowCredentials_exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):

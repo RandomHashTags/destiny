@@ -165,7 +165,7 @@ extension StaticMiddleware {
         version: inout HTTPVersion,
         contentType: inout String?,
         status: inout HTTPResponseStatus.Code,
-        headers: inout some HTTPHeadersProtocol,
+        headers: inout HTTPHeaders,
         cookies: inout [HTTPCookie]
     ) {
         appliedAtLeastOnce = true

@@ -35,7 +35,7 @@ extension CORSMiddleware {
     #endif
     public func handle(
         request: inout some HTTPRequestProtocol & ~Copyable,
-        headers: inout some HTTPHeadersProtocol
+        headers: inout HTTPHeaders
     ) throws(MiddlewareError) -> Bool {
         do throws(SocketError) {
             guard try request.header(forKey: "origin") != nil else { return true }
@@ -279,13 +279,13 @@ extension CORSMiddleware {
     }
 }
 
-// MARK: HTTPHeadersProtocol
+// MARK: HTTPHeaders
 extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
     static func handleSharedLogic(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String
     ) {
@@ -299,7 +299,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     static func logic_allowCredentials_exposedHeaders_maxAge(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String,
@@ -313,7 +313,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     static func logic_allowCredentials_exposedHeaders(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String
@@ -326,7 +326,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     static func logic_allowCredentials_maxAge(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ maxAgeString: String
@@ -339,7 +339,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     static func logic_allowCredentials(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String
     ) {
@@ -353,7 +353,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     static func logic_exposedHeaders_maxAge(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String,
@@ -367,7 +367,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     static func logic_exposedHeaders(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ exposedHeaders: String
@@ -382,7 +382,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     static func logic_maxAge(
-        _ headers: inout some HTTPHeadersProtocol,
+        _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
         _ allowedMethods: String,
         _ maxAgeString: String
