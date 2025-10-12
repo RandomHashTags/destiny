@@ -5,7 +5,7 @@ import UnwrapArithmeticOperators
 
 /// Default storage for an HTTP Message.
 public struct HTTPResponseMessage: Sendable {
-    public var head:HTTPResponseMessageHead<HTTPCookie>
+    public var head:HTTPResponseMessageHead
     public var body:(any ResponseBodyProtocol)?
     public var contentType:String?
     public var charset:Charset?
@@ -40,7 +40,7 @@ public struct HTTPResponseMessage: Sendable {
         self.charset = charset
     }
     public init(
-        head: HTTPResponseMessageHead<HTTPCookie>,
+        head: HTTPResponseMessageHead,
         body: (any ResponseBodyProtocol)?,
         contentType: String?,
         charset: Charset?
@@ -107,8 +107,8 @@ public struct HTTPResponseMessage: Sendable {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
-        try head.cookies.append(.init(copying: cookie))
+    public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
+        head.cookies.append(cookie)
     }
 
     #if Inlinable
@@ -451,7 +451,7 @@ extension HTTPResponseMessage {
 
     }
     public init(
-        head: HTTPResponseMessageHead<HTTPCookie>,
+        head: HTTPResponseMessageHead,
         body: (any ResponseBodyProtocol)?,
         mediaType: MediaType?,
         charset: Charset?

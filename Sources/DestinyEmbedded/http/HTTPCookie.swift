@@ -7,6 +7,7 @@ public struct HTTPCookie: Sendable {
     @usableFromInline
     package var _value:String
 
+    /// Maximum age this cookie is valid for.
     public var maxAge:UInt64 = 0
 
     @usableFromInline
@@ -18,6 +19,7 @@ public struct HTTPCookie: Sendable {
     public var path:String?
     public var sameSite:HTTPCookieFlag.SameSite?
 
+    /// Name of the cookie.
     #if Inlinable
     @inlinable
     #endif
@@ -25,6 +27,7 @@ public struct HTTPCookie: Sendable {
         _name
     }
 
+    /// Sets the name of the cookie.
     #if Inlinable
     @inlinable
     #endif
@@ -32,6 +35,7 @@ public struct HTTPCookie: Sendable {
         _name = name
     }
 
+    /// Value of the cookie.
     #if Inlinable
     @inlinable
     #endif
@@ -39,6 +43,7 @@ public struct HTTPCookie: Sendable {
         _value
     }
 
+    /// Sets the value of the cookie.
     #if Inlinable
     @inlinable
     #endif
@@ -158,7 +163,7 @@ extension HTTPCookie {
 }
 
 // MARK: CustomStringConvertible
-extension HTTPCookie {
+extension HTTPCookie: CustomStringConvertible {
     #if Inlinable
     @inlinable
     #endif

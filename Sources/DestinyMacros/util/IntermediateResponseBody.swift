@@ -172,9 +172,9 @@ extension IntermediateResponseBody {
 #if GenericHTTPMessage
 
 extension IntermediateResponseBody {
-    public func responderDebugDescription<B, C>(
+    public func responderDebugDescription<B>(
         isCopyable: Bool,
-        response: GenericHTTPResponseMessage<B, C>
+        response: GenericHTTPResponseMessage<B>
     ) -> String {
         var responseString = response.intermediateString(escapeLineBreak: true)
         return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)

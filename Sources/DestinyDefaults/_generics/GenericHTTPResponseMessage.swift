@@ -6,10 +6,9 @@ import UnwrapArithmeticOperators
 
 /// Default storage for an HTTP Message.
 public struct GenericHTTPResponseMessage<
-        Body: ResponseBodyProtocol,
-        Cookie: HTTPCookieProtocol
+        Body: ResponseBodyProtocol
     > {
-    public var head:HTTPResponseMessageHead<Cookie>
+    public var head:HTTPResponseMessageHead
     public var body:Body?
     public var contentType:String?
     public var charset:Charset?
@@ -18,7 +17,7 @@ public struct GenericHTTPResponseMessage<
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: HTTPHeaders,
-        cookies: [Cookie],
+        cookies: [HTTPCookie],
         body: Body?,
         contentType: String?,
         charset: Charset?
@@ -29,7 +28,7 @@ public struct GenericHTTPResponseMessage<
         self.charset = charset
     }
     public init(
-        head: HTTPResponseMessageHead<Cookie>,
+        head: HTTPResponseMessageHead,
         body: Body?,
         contentType: String?,
         charset: Charset?
@@ -96,7 +95,7 @@ public struct GenericHTTPResponseMessage<
     #if Inlinable
     @inlinable
     #endif
-    public mutating func appendCookie(_ cookie: Cookie) {
+    public mutating func appendCookie(_ cookie: HTTPCookie) {
         head.cookies.append(cookie)
     }
 
@@ -374,7 +373,7 @@ extension GenericHTTPResponseMessage {
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: HTTPHeaders,
-        cookies: [Cookie],
+        cookies: [HTTPCookie],
         body: Body?,
         mediaType: MediaType?,
         charset: Charset?
@@ -388,7 +387,7 @@ extension GenericHTTPResponseMessage {
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: HTTPHeaders,
-        cookies: [Cookie],
+        cookies: [HTTPCookie],
         body: Body?,
         mediaType: (some MediaTypeProtocol)?,
         charset: Charset?
@@ -405,7 +404,7 @@ extension GenericHTTPResponseMessage {
 
     public init(
         headers: HTTPHeaders,
-        cookies: [Cookie],
+        cookies: [HTTPCookie],
         body: Body?,
         mediaType: MediaType?,
         status: HTTPResponseStatus.Code,
@@ -418,7 +417,7 @@ extension GenericHTTPResponseMessage {
         self.charset = charset
     }
     public init(
-        head: HTTPResponseMessageHead<Cookie>,
+        head: HTTPResponseMessageHead,
         body: Body?,
         mediaType: MediaType?,
         charset: Charset?

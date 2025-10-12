@@ -75,8 +75,8 @@ extension GenericDynamicResponse {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
-        try message.appendCookie(Message.Cookie.init(copying: cookie))
+    public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
+        try message.appendCookie(cookie)
     }
 
     #if Inlinable

@@ -160,7 +160,7 @@ extension DynamicRoute {
     #if GenericDynamicResponse
     private func genericResponse<Body: ResponseBodyProtocol>(_ body: Body?) -> String {
         let response = GenericDynamicResponse(
-            message: GenericHTTPResponseMessage<Body, HTTPCookie>(
+            message: GenericHTTPResponseMessage<Body>(
                 head: defaultResponse.message.head,
                 body: body,
                 contentType: defaultResponse.message.contentType,

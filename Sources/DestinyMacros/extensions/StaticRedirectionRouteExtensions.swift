@@ -8,7 +8,7 @@ import DestinyDefaults
 
 extension StaticRedirectionRoute {
     /// The HTTP Message of this route. Computed at compile time.
-    public func genericResponse() -> GenericHTTPResponseMessage<StaticString, HTTPCookie> {
+    public func genericResponse() -> GenericHTTPResponseMessage<StaticString> {
         var headers = HTTPHeaders()
         headers["date"] = HTTPDateFormat.placeholder
         return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)

@@ -4,7 +4,7 @@
 /// Core protocol that builds a HTTP Message for dynamic routes before sending it to the client.
 public protocol GenericDynamicResponseProtocol: AbstractDynamicResponseProtocol, ~Copyable {
     associatedtype Body:ResponseBodyProtocol
-    associatedtype Cookie:HTTPCookieProtocol
+    associatedtype Cookie = HTTPCookie
 
     mutating func appendCookie(_ cookie: Cookie) throws(HTTPCookieError)
 

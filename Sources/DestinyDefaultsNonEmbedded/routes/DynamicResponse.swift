@@ -71,7 +71,7 @@ extension DynamicResponse {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func appendCookie(_ cookie: some HTTPCookieProtocol) throws(HTTPCookieError) {
+    public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
         try message.appendCookie(cookie)
     }
 
