@@ -37,4 +37,6 @@ public protocol AbstractDynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     /// 
     /// - Warning: `key` is case-sensitive!
     mutating func setHeader(key: String, value: String)
+
+    mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError)
 }
