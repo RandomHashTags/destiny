@@ -5,8 +5,8 @@ import DestinyBlueprint
 import DestinyDefaults
 
 // MARK: Init
-extension DynamicCORSMiddleware {
-    /// Default initializer to create a `DynamicCORSMiddleware`.
+extension CORSMiddleware {
+    /// Default initializer to create a `CORSMiddleware`.
     ///
     /// - Parameters:
     ///   - allowedOrigin: Supported origins that allow CORS. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-allow-origin).

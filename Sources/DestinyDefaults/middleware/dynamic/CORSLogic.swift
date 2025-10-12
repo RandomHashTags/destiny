@@ -1,7 +1,7 @@
 
 #if CORS
 
-public enum DynamicCORSLogic: Sendable {
+public enum CORSLogic: Sendable {
     case allowCredentials_exposedHeaders_maxAge(allowedHeaders: String, allowedMethods: String, exposedHeaders: String, maxAge: String)
     case allowCredentials_exposedHeaders(allowedHeaders: String, allowedMethods: String, exposedHeaders: String)
     case allowCredentials_maxAge(allowedHeaders: String, allowedMethods: String, maxAge: String)
@@ -17,7 +17,7 @@ public enum DynamicCORSLogic: Sendable {
 import DestinyBlueprint
 
 // MARK: Apply to response
-extension DynamicCORSLogic {
+extension CORSLogic {
     #if Inlinable
     @inlinable
     #endif
@@ -26,27 +26,27 @@ extension DynamicCORSLogic {
     ) {
         switch self {
         case .allowCredentials_exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):
-            DynamicCORSMiddleware.logic_allowCredentials_exposedHeaders_maxAge(&response, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
+            CORSMiddleware.logic_allowCredentials_exposedHeaders_maxAge(&response, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
         case .allowCredentials_exposedHeaders(let allowedHeaders, let allowedMethods, let exposedHeaders):
-            DynamicCORSMiddleware.logic_allowCredentials_exposedHeaders(&response, allowedHeaders, allowedMethods, exposedHeaders)
+            CORSMiddleware.logic_allowCredentials_exposedHeaders(&response, allowedHeaders, allowedMethods, exposedHeaders)
         case .allowCredentials_maxAge(let allowedHeaders, let allowedMethods, let maxAge):
-            DynamicCORSMiddleware.logic_allowCredentials_maxAge(&response, allowedHeaders, allowedMethods, maxAge)
+            CORSMiddleware.logic_allowCredentials_maxAge(&response, allowedHeaders, allowedMethods, maxAge)
         case .allowCredentials(let allowedHeaders, let allowedMethods):
-            DynamicCORSMiddleware.logic_allowCredentials(&response, allowedHeaders, allowedMethods)
+            CORSMiddleware.logic_allowCredentials(&response, allowedHeaders, allowedMethods)
         case .exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):
-            DynamicCORSMiddleware.logic_exposedHeaders_maxAge(&response, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
+            CORSMiddleware.logic_exposedHeaders_maxAge(&response, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
         case .exposedHeaders(let allowedHeaders, let allowedMethods, let exposedHeaders):
-            DynamicCORSMiddleware.logic_exposedHeaders(&response, allowedHeaders, allowedMethods, exposedHeaders)
+            CORSMiddleware.logic_exposedHeaders(&response, allowedHeaders, allowedMethods, exposedHeaders)
         case .maxAge(let allowedHeaders, let allowedMethods, let maxAge):
-            DynamicCORSMiddleware.logic_maxAge(&response, allowedHeaders, allowedMethods, maxAge)
+            CORSMiddleware.logic_maxAge(&response, allowedHeaders, allowedMethods, maxAge)
         case .minimum(let allowedHeaders, let allowedMethods):
-            DynamicCORSMiddleware.handleSharedLogic(&response, allowedHeaders, allowedMethods)
+            CORSMiddleware.handleSharedLogic(&response, allowedHeaders, allowedMethods)
         }
     }
 }
 
 // MARK: Apply to headers
-extension DynamicCORSLogic {
+extension CORSLogic {
     #if Inlinable
     @inlinable
     #endif
@@ -55,21 +55,21 @@ extension DynamicCORSLogic {
     ) {
         switch self {
         case .allowCredentials_exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):
-            DynamicCORSMiddleware.logic_allowCredentials_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
+            CORSMiddleware.logic_allowCredentials_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
         case .allowCredentials_exposedHeaders(let allowedHeaders, let allowedMethods, let exposedHeaders):
-            DynamicCORSMiddleware.logic_allowCredentials_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
+            CORSMiddleware.logic_allowCredentials_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
         case .allowCredentials_maxAge(let allowedHeaders, let allowedMethods, let maxAge):
-            DynamicCORSMiddleware.logic_allowCredentials_maxAge(&headers, allowedHeaders, allowedMethods, maxAge)
+            CORSMiddleware.logic_allowCredentials_maxAge(&headers, allowedHeaders, allowedMethods, maxAge)
         case .allowCredentials(let allowedHeaders, let allowedMethods):
-            DynamicCORSMiddleware.logic_allowCredentials(&headers, allowedHeaders, allowedMethods)
+            CORSMiddleware.logic_allowCredentials(&headers, allowedHeaders, allowedMethods)
         case .exposedHeaders_maxAge(let allowedHeaders, let allowedMethods, let exposedHeaders, let maxAge):
-            DynamicCORSMiddleware.logic_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
+            CORSMiddleware.logic_exposedHeaders_maxAge(&headers, allowedHeaders, allowedMethods, exposedHeaders, maxAge)
         case .exposedHeaders(let allowedHeaders, let allowedMethods, let exposedHeaders):
-            DynamicCORSMiddleware.logic_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
+            CORSMiddleware.logic_exposedHeaders(&headers, allowedHeaders, allowedMethods, exposedHeaders)
         case .maxAge(let allowedHeaders, let allowedMethods, let maxAge):
-            DynamicCORSMiddleware.logic_maxAge(&headers, allowedHeaders, allowedMethods, maxAge)
+            CORSMiddleware.logic_maxAge(&headers, allowedHeaders, allowedMethods, maxAge)
         case .minimum(let allowedHeaders, let allowedMethods):
-            DynamicCORSMiddleware.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
+            CORSMiddleware.handleSharedLogic(&headers, allowedHeaders, allowedMethods)
         }
     }
 }

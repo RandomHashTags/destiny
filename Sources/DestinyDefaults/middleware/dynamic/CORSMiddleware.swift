@@ -3,14 +3,18 @@
 
 import DestinyEmbedded
 
-// MARK: DynamicCORSMiddleware
-/// Default dynamic `CORSMiddlewareProtocol` implementation that enables CORS for dynamic requests.
-/// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
-public struct DynamicCORSMiddleware: Sendable {
-    public let allowedOrigin:CORSMiddlewareAllowedOrigin
-    public let logicKind:DynamicCORSLogic
+public typealias DynamicCORSMiddleware = CORSMiddleware
+public typealias StaticCORSMiddleware = CORSMiddleware
 
-    public init(allowedOrigin: CORSMiddlewareAllowedOrigin, logicKind: DynamicCORSLogic) {
+// MARK: CORSMiddleware
+/// Default Middleware implementing Cross-Origin Resource Sharing (CORS) headers.
+/// 
+/// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+public struct CORSMiddleware: Sendable {
+    public let allowedOrigin:CORSMiddlewareAllowedOrigin
+    public let logicKind:CORSLogic
+
+    public init(allowedOrigin: CORSMiddlewareAllowedOrigin, logicKind: CORSLogic) {
         self.allowedOrigin = allowedOrigin
         self.logicKind = logicKind
     }
@@ -25,7 +29,24 @@ public struct DynamicCORSMiddleware: Sendable {
 }
 
 // MARK: Handle
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func handle(
+        request: inout some HTTPRequestProtocol & ~Copyable,
+        headers: inout some HTTPHeadersProtocol
+    ) throws(MiddlewareError) -> Bool {
+        do throws(SocketError) {
+            guard try request.header(forKey: "origin") != nil else { return true }
+            try allowedOrigin.apply(request: &request, headers: &headers)
+            logicKind.apply(to: &headers)
+            return true
+        } catch {
+            throw .socketError(error)
+        }
+    }
+
     #if Inlinable
     @inlinable
     #endif
@@ -45,8 +66,8 @@ extension DynamicCORSMiddleware {
 }
 
 // MARK: Init
-extension DynamicCORSMiddleware {
-    /// Default initializer to create a `DynamicCORSMiddleware`.
+extension CORSMiddleware {
+    /// Default initializer to create a `CORSMiddleware`.
     ///
     /// - Parameters:
     ///   - allowedOrigin: Supported origins that allow CORS. [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS#access-control-allow-origin).
@@ -70,7 +91,7 @@ extension DynamicCORSMiddleware {
         exposedHeaders: Set<String>? = nil,
         maxAge: Int? = 3600 // one hour
     ) -> Self {
-        let logicKind:DynamicCORSLogic
+        let logicKind:CORSLogic
         let allowedHeaders = allowedHeaders.joined(separator: ",")
         let allowedMethods = allowedMethods.joined(separator: ",")
         let exposedHeaders = exposedHeaders?.joined(separator: ",")
@@ -146,7 +167,7 @@ extension DynamicCORSMiddleware {
 
 import DestinyBlueprint
 
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -160,7 +181,7 @@ extension DynamicCORSMiddleware {
     }
 }
 
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -214,7 +235,7 @@ extension DynamicCORSMiddleware {
     }
 }
 
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -243,7 +264,7 @@ extension DynamicCORSMiddleware {
     }
 }
 
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -259,7 +280,7 @@ extension DynamicCORSMiddleware {
 }
 
 // MARK: HTTPHeadersProtocol
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -273,7 +294,7 @@ extension DynamicCORSMiddleware {
     }
 }
 
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -327,7 +348,7 @@ extension DynamicCORSMiddleware {
     }
 }
 
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -356,7 +377,7 @@ extension DynamicCORSMiddleware {
     }
 }
 
-extension DynamicCORSMiddleware {
+extension CORSMiddleware {
     #if Inlinable
     @inlinable
     #endif
@@ -372,8 +393,8 @@ extension DynamicCORSMiddleware {
 }
 
 // MARK: Conformances
-extension DynamicCORSMiddleware: CORSMiddlewareProtocol {}
-extension DynamicCORSMiddleware: OpaqueDynamicMiddlewareProtocol {}
+extension CORSMiddleware: CORSMiddlewareProtocol {}
+extension CORSMiddleware: OpaqueDynamicMiddlewareProtocol {}
 
 #endif
 
