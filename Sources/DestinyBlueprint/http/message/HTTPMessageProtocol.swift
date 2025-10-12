@@ -6,6 +6,4 @@ public protocol HTTPMessageProtocol: AbstractHTTPMessageProtocol, ~Copyable {
     /// - Parameters:
     ///   - body: New body to set.
     mutating func setBody(_ body: some ResponseBodyProtocol)
-
-    mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError)
 }

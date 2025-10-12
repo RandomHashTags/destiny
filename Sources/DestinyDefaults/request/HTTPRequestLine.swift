@@ -3,7 +3,7 @@ import DestinyEmbedded
 import UnwrapArithmeticOperators
 import VariableLengthArray
 
-/// Default HTTP Request Line implementation.
+/// Default HTTP Request Line implementation that includes the request method, target and HTTP version.
 public struct HTTPRequestLine: Sendable, ~Copyable {
     public let methodEndIndex:Int
     public let pathQueryStartIndex:Int?
@@ -163,12 +163,3 @@ extension HTTPRequestLine {
         )
     }
 }
-
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
-
-// MARK: Conformances
-extension HTTPRequestLine: HTTPRequestLineProtocol {}
-
-#endif
