@@ -48,7 +48,7 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
         try _request.header(fileDescriptor: fileDescriptor, forKey: key)
     }
 
-    static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> TestRequest {
+    static func load(from socket: consuming some SocketProtocol & ~Copyable) throws(SocketError) -> TestRequest {
         .init(fileDescriptor: .init(fileDescriptor: socket.fileDescriptor), _request: .init())
     }
 

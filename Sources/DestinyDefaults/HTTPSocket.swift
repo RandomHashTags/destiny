@@ -140,6 +140,6 @@ extension HTTPSocket {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension HTTPSocket: HTTPSocketProtocol {}
+extension HTTPSocket: SocketProtocol {}
 
 #endif

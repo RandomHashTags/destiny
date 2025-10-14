@@ -23,7 +23,7 @@ import Logging
 /// Default HTTP Server implementation.
 public final class NonCopyableHTTPServer<
         Router: NonCopyableHTTPRouterProtocol & ~Copyable,
-        ClientSocket: HTTPSocketProtocol & ~Copyable
+        ClientSocket: SocketProtocol & ~Copyable
     >: HTTPServerProtocol, SocketAcceptor {
     public let address:String?
     public let port:UInt16

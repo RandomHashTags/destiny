@@ -39,6 +39,6 @@ public protocol HTTPRequestProtocol: NetworkAddressable, ~Copyable {
     /*
     /// Loads this request from a socket.
     static func load(
-        from socket: consuming some HTTPSocketProtocol & ~Copyable
+        from socket: consuming some SocketProtocol & ~Copyable
     ) throws(SocketError) -> Self*/
 }

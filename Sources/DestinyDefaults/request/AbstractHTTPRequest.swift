@@ -151,7 +151,7 @@ extension AbstractHTTPRequest {
     #if InlineAlways
     @inline(__always)
     #endif
-    static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> Self {
+    static func load(from socket: consuming some SocketProtocol & ~Copyable) throws(SocketError) -> Self {
         Self()
     }
 }

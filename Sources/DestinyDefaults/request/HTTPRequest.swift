@@ -28,7 +28,7 @@ extension HTTPRequest {
     #if Inlinable
     @inlinable
     #endif
-    public static func load(from socket: consuming some HTTPSocketProtocol & ~Copyable) throws(SocketError) -> Self {
+    public static func load(from socket: consuming some SocketProtocol & ~Copyable) throws(SocketError) -> Self {
         Self(fileDescriptor: socket.fileDescriptor)
     }
 }

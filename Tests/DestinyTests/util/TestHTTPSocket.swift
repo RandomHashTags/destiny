@@ -2,7 +2,7 @@
 import DestinyBlueprint
 @testable import DestinyDefaults
 
-struct TestHTTPSocket: HTTPSocketProtocol, ~Copyable {
+struct TestHTTPSocket: SocketProtocol, ~Copyable {
     func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) throws(DestinyBlueprint.SocketError) -> Int {
         _fileDescriptor.readBuffer(into: baseAddress, length: length, flags: flags)
     }

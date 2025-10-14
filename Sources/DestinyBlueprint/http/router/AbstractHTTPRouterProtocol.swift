@@ -21,7 +21,7 @@ public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
     ///   - logger: Logger of the socket acceptor that called this function.
     func handle(
         client: some FileDescriptor,
-        socket: consuming some HTTPSocketProtocol & ~Copyable,
+        socket: consuming some SocketProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     )
 }
