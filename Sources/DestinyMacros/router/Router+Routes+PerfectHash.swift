@@ -240,9 +240,6 @@ extension RouterStorage {
         let routeConstantsDecl = EnumDeclSyntax(
             modifiers: [visibilityModifier],
             name: "Route",
-            inheritanceClause: .init(inheritedTypes: .init([
-                .init(type: TypeSyntax("UInt16"))
-            ])),
             memberBlock: .init(members: routeMembers)
         )
         members.append(routeConstantsDecl)

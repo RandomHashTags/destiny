@@ -60,7 +60,7 @@ extension AbstractHTTPRequest {
     #endif
     mutating func forEachPath(
         fileDescriptor: some FileDescriptor,
-        offset: Int = 0,
+        offset: Int,
         _ yield: (String) -> Void
     ) throws(SocketError) {
         if initialBuffer == nil {

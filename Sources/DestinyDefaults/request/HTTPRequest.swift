@@ -67,7 +67,7 @@ extension HTTPRequest {
     @inlinable
     #endif
     public mutating func forEachPath(
-        offset: Int = 0,
+        offset: Int,
         _ yield: (String) -> Void
     ) throws(SocketError) {
         try abstractRequest.forEachPath(fileDescriptor: fileDescriptor, offset: offset, yield)

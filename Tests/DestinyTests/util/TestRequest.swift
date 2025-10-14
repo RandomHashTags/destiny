@@ -26,7 +26,7 @@ struct TestRequest: HTTPRequestProtocol, ~Copyable {
         offset: Int = 0,
         _ yield: (String) -> Void
     ) throws(SocketError) {
-        try _request.forEachPath(fileDescriptor: fileDescriptor, yield)
+        try _request.forEachPath(fileDescriptor: fileDescriptor, offset: offset, yield)
     }
 
     mutating func path(at index: Int) throws(SocketError) -> String {
