@@ -14,7 +14,7 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
   - [Completed](#completed)
   - [WIP](#wip)
   - [TODO](#todo)
-- [Getting Started](#getting-started)
+- [Documentation](#documentation)
 - [Benchmarks](#benchmarks)
 - [Contributing](#contributing)
 - [Support](#support)
@@ -74,13 +74,13 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [ ] Support custom middleware & routes in the macro
 - [ ] Support third-party macro expansions in the macro
 
-## Getting started
+## Documentation
 
-See [Getting Started](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/GettingStarted.md)
+See [Documentation](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Index.md)
 
 ## Benchmarks
 
-See [Getting Started](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
+See [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
 
 ## Contributing
 

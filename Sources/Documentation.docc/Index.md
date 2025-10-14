@@ -10,8 +10,8 @@ Destiny is a standalone, high-performance and lightweight http networking framew
 - [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
 - [Middleware](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Middleware.md)
 - [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md)
-- [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
 - [Route Path Components](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutePathComponents.md)
+- [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
 - [Server](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Server.md)
 
 ### Advanced
