@@ -5,9 +5,16 @@ import VariableLengthArray
 
 /// Default HTTP Request Line implementation that includes the request method, target and HTTP version.
 public struct HTTPRequestLine: Sendable, ~Copyable {
+    /// Index in a buffer where the request method ends.
     public let methodEndIndex:Int
+
+    /// Index in a buffer where the target query starts.
     public let pathQueryStartIndex:Int?
+
+    /// Index in a buffer where the contents actually ends.
     public let endIndex:Int
+
+    /// Mapped HTTP Version of a request.
     public let version:HTTPVersion
 
     #if Inlinable
@@ -25,6 +32,7 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
         self.endIndex = endIndex
     }
 
+    /// Number of bytes of the target.
     #if Inlinable
     @inlinable
     #endif
@@ -32,6 +40,7 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
         pathEndIndex -! methodEndIndex -! 1
     }
 
+    /// Index in a buffer where the target ends.
     #if Inlinable
     @inlinable
     #endif
@@ -106,6 +115,9 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
 
 // MARK: Load
 extension HTTPRequestLine {
+    /// Tries parsing a `HTTPRequestLine` from a buffer.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif

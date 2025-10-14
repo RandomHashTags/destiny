@@ -1,5 +1,5 @@
 
-/// Core protocol that handles incoming network requests.
+/// Core protocol that handles incoming network data.
 public protocol SocketProtocol: FileDescriptor, ~Copyable {
     init(fileDescriptor: Int32)
 }
@@ -15,20 +15,9 @@ extension SocketProtocol where Self: ~Copyable {
         #endif
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    public func socketLocalAddress() -> String? {
-        fileDescriptor.socketLocalAddress()
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public func socketPeerAddress() -> String? {
-        fileDescriptor.socketPeerAddress()
-    }
-
+    /// Writes a `String` to the file descriptor.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif

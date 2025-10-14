@@ -1,11 +1,11 @@
 
 /// A byte buffer that is backed by an `InlineArray`.
 public struct InlineByteBuffer<let count: Int>: Sendable, ~Copyable {
-    @usableFromInline
-    package let buffer:InlineArray<count, UInt8>
+    /// Byte buffer storage.
+    public let buffer:InlineArray<count, UInt8>
 
-    @usableFromInline
-    package let endIndex:Int
+    /// The actual "end" of the byte buffer data.
+    public let endIndex:Int
 
     #if Inlinable
     @inlinable

@@ -2,7 +2,8 @@
 import DestinyEmbedded
 import UnwrapArithmeticOperators
 
-public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol> {
+/// Default storage that can stream chunks of data to a file descriptor.
+public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: Sendable {
     public let chunkSize:Int
     public let stream:ReusableAsyncStream<T>
 

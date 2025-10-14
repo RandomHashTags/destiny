@@ -8,7 +8,9 @@ public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol,
     /// - Parameters:
     ///   - request: Incoming network request.
     ///   - response: Current response for the request.
+    /// 
     /// - Returns: Whether or not to continue processing the request.
+    /// - Throws: `MiddlewareError`
     func handle(
         request: inout any HTTPRequestProtocol,
         response: inout any DynamicResponseProtocol

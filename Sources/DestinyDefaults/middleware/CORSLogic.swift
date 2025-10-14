@@ -1,6 +1,7 @@
 
 #if CORS
 
+/// List of all available CORS logic cases.
 public enum CORSLogic: Sendable {
     case allowCredentials_exposedHeaders_maxAge(allowedHeaders: String, allowedMethods: String, exposedHeaders: String, maxAge: String)
     case allowCredentials_exposedHeaders(allowedHeaders: String, allowedMethods: String, exposedHeaders: String)
@@ -18,6 +19,7 @@ import DestinyBlueprint
 
 // MARK: Apply to response
 extension CORSLogic {
+    /// Applies CORS headers to a dynamic response.
     #if Inlinable
     @inlinable
     #endif
@@ -47,6 +49,7 @@ extension CORSLogic {
 
 // MARK: Apply to headers
 extension CORSLogic {
+    /// Applies CORS headers to a `HTTPHeaders`.
     #if Inlinable
     @inlinable
     #endif

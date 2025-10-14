@@ -17,7 +17,7 @@ extension AbstractHTTPRequest._Storage {
         _ yield: (consuming InlineByteBuffer<bufferCount>) async throws -> Void
     ) async throws {
         if _headers!._endIndex == nil {
-            _headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer)
+            _headers!.load(buffer: initialBuffer)
             var startIndex = _headers!._endIndex! +! 2
             if startIndex < initialBufferCount {
                 // part of the request body is contained in the initial buffer

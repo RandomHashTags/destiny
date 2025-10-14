@@ -4,6 +4,9 @@
 import DestinyEmbedded
 
 extension CORSMiddlewareAllowedOrigin {
+    /// Applies CORS headers to a dynamic response.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -72,6 +75,9 @@ extension CORSMiddlewareAllowedOrigin {
 }
 
 extension CORSMiddlewareAllowedOrigin {
+    /// Applies CORS headers to a `HTTPHeaders`.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif

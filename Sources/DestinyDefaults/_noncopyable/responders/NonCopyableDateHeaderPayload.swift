@@ -3,6 +3,7 @@
 
 import DestinyEmbedded
 
+/// Default storage to efficiently handle the `date` header payload for responders.
 public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
     @usableFromInline let preDatePointer:UnsafePointer<UInt8>
     @usableFromInline let preDatePointerCount:Int
@@ -19,6 +20,9 @@ public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
         self.postDatePointerCount = postDate.utf8CodeUnitCount
     }
 
+    /// Efficiently writes the `preDate` value, `date` header and `postDate` value to a file descriptor.
+    /// 
+    /// - Throws: `ResponderError`
     #if Inlinable
     @inlinable
     #endif

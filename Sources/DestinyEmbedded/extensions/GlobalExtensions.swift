@@ -17,7 +17,11 @@ import Windows
 import WinSDK
 #endif
 
-// MARK: copy memory
+/// Copies a number of bytes from the source pointer to the destination pointer.
+/// - Parameters:
+///   - __dest: Destination pointer.
+///   - __src: Source pointer.
+///   - __n: Number of bytes to copy.
 #if Inlinable
 @inlinable
 #endif

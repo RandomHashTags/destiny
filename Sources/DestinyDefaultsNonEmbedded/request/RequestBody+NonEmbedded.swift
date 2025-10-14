@@ -6,6 +6,9 @@ import DestinyDefaults
 
 // MARK: Stream
 extension RequestBody {
+    /// Streams data from a file descriptor.
+    /// 
+    /// - Throws: `any Error`
     #if Inlinable
     @inlinable
     #endif
@@ -15,9 +18,12 @@ extension RequestBody {
         _ yield: (consuming InlineByteBuffer<chunkSize>) async throws -> Void
     ) async throws {
         var buffer = InlineArray<chunkSize, UInt8>(repeating: 0)
-        try await stream(fileDescriptor: fileDescriptor,buffer: &buffer, yield)
+        try await stream(fileDescriptor: fileDescriptor, buffer: &buffer, yield)
     }
 
+    /// Streams data from a file descriptor and writes it into a buffer.
+    /// 
+    /// - Throws: `any Error`
     #if Inlinable
     @inlinable
     #endif

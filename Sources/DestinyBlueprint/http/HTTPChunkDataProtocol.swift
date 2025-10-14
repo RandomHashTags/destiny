@@ -1,4 +1,5 @@
 
+/// A "chunk" of data when using the `Transfer-Encoding: chunked` header.
 public protocol HTTPChunkDataProtocol: BufferWritable, HTTPSocketWritable, ~Copyable {
     /// Size of the chunk in bytes.
     var chunkDataCount: Int { get }

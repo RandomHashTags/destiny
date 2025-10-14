@@ -5,6 +5,8 @@ public protocol HTTPSocketWritable: Sendable, ~Copyable {
     /// 
     /// - Parameters:
     ///   - socket: The socket.
+    /// 
+    /// - Throws: `SocketError`
     func write(
         to socket: some FileDescriptor
     ) throws(SocketError)

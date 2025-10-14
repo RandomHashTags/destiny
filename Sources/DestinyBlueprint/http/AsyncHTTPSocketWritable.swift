@@ -5,6 +5,8 @@ public protocol AsyncHTTPSocketWritable: Sendable, ~Copyable {
     /// 
     /// - Parameters:
     ///   - socket: The socket.
+    /// 
+    /// - Throws: `SocketError`
     func write(
         to socket: some FileDescriptor
     ) async throws(SocketError)
@@ -15,6 +17,8 @@ extension AsyncHTTPSocketWritable {
     /// 
     /// - Parameters:
     ///   - socket: some noncopyable `SocketProtocol`.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif

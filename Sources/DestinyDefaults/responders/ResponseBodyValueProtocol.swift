@@ -3,7 +3,7 @@
 
 import DestinyBlueprint
 
-/// Types conforming to this protocol can be used as...
+/// Types conforming to this protocol can be used as a response body's value. Mainly used for convenience for macro usage.
 public protocol ResponseBodyValueProtocol: BufferWritable, ~Copyable {
     var count: Int { get }
 

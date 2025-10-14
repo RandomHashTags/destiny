@@ -8,6 +8,7 @@ import Glibc
 import Logging
 #endif
 
+/// Native Swift support for Epoll.
 public struct Epoll<let maxEvents: Int>: Sendable {
     public let fileDescriptor:Int32
     public let pipeFileDescriptors:(read: Int32, write: Int32)
@@ -16,6 +17,7 @@ public struct Epoll<let maxEvents: Int>: Sendable {
     public let logger:Logger
     #endif
 
+    /// - Throws: `EpollError`
     public init(label: String) throws(EpollError) {
         fileDescriptor = epoll_create1(0)
         if fileDescriptor == -1 {
@@ -48,6 +50,7 @@ public struct Epoll<let maxEvents: Int>: Sendable {
         //setNonBlocking(socket: self.fileDescriptor)
     }
 
+    /// Flags a file descriptor as non-blocking.
     #if Inlinable
     @inlinable
     #endif
@@ -62,6 +65,7 @@ public struct Epoll<let maxEvents: Int>: Sendable {
         }
     }
 
+    /// Closes all file descriptors managed by epoll.
     #if Inlinable
     @inlinable
     #endif
@@ -74,6 +78,9 @@ public struct Epoll<let maxEvents: Int>: Sendable {
 
 // MARK: Add
 extension Epoll {
+    /// Adds a file descriptor to epoll.
+    /// 
+    /// - Throws: `EpollError`
     #if Inlinable
     @inlinable
     #endif
@@ -92,6 +99,9 @@ extension Epoll {
 
 // MARK: Mod
 extension Epoll {
+    /// Modifies a file descriptor from epoll.
+    /// 
+    /// - Throws: `EpollError`
     #if Inlinable
     @inlinable
     #endif
@@ -110,6 +120,9 @@ extension Epoll {
 
 // MARK: Remove
 extension Epoll {
+    /// Deletes a file descriptor from epoll.
+    /// 
+    /// - Throws: `EpollError`
     #if Inlinable
     @inlinable
     #endif
@@ -125,7 +138,10 @@ extension Epoll {
 
 // MARK: Wait
 extension Epoll {
-    // Returns: Number of loaded clients. Guaranteed to be greater than -1.
+    /// Calls `epoll_pwait`.
+    /// 
+    /// - Returns: Number of loaded clients. Guaranteed to be greater than -1.
+    /// - Throws: `EpollError`
     #if Inlinable
     @inlinable
     #endif

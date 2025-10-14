@@ -3,6 +3,7 @@
 import Logging
 #endif
 
+/// A bare-bones protocol all routers conform to.
 public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
 
     #if Logging
@@ -11,6 +12,8 @@ public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
     #endif
 
     /// Load logic before this router is ready to handle sockets.
+    /// 
+    /// - Throws: `RouterError`
     func load() throws(RouterError)
 
     /// Handle logic for a given socket.
@@ -18,7 +21,7 @@ public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
     /// - Parameters:
     ///   - client: File descriptor assigned to the socket.
     ///   - socket: The socket.
-    ///   - logger: Logger of the socket acceptor that called this function.
+    ///   - completionHandler: Closure that should be called when the socket should be released.
     func handle(
         client: some FileDescriptor,
         socket: consuming some SocketProtocol & ~Copyable,

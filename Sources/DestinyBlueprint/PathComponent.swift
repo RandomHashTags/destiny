@@ -1,12 +1,17 @@
 
 /// Represents an individual path value for a route.
 /// Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
-// TODO: support case sensitivity
 public enum PathComponent: Equatable, Sendable {
+    /// Path component that matches the given `String` exactly.
     case literal(String)
-    case parameter(String)
+
+    /// Path component that matches a case-insensitive variable-length input.
+    case parameter(parameterName: String)
+
+    /// Path component that matches everything.
     case catchall
 
+    /// Path component that enables multiple components to be joined sequentially.
     indirect case components(PathComponent, PathComponent?)
 
     /// Whether or not this component is a literal.
@@ -32,6 +37,7 @@ public enum PathComponent: Equatable, Sendable {
     }
 
     /// String representation of this component including the delimiter, if it is a parameter.
+    /// 
     /// Used to determine where parameters are located in a route's path at compile time.
     #if Inlinable
     @inlinable

@@ -236,6 +236,7 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, at: &i)
     }
 
+    /// - Throws: `BufferWriteError`
     #if Inlinable
     @inlinable
     #endif

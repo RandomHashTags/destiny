@@ -11,6 +11,7 @@ public struct StaticRedirectionRoute: Sendable {
     /// Endpoint to redirect to.
     public package(set) var to:[String]
 
+    /// Request method of this route.
     public let method:HTTPRequestMethod
 
     /// Status of this redirection route.

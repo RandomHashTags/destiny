@@ -1,6 +1,9 @@
 
 /// Types conforming to this protocol can write its contents to an `UnsafeMutableBufferPointer<UInt8>`.
 public protocol BufferWritable: Sendable, ~Copyable {
+    /// Writes contents of `self` to a buffer at the given index.
+    /// 
+    /// - Throws: `BufferWriteError`
     mutating func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int

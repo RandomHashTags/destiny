@@ -21,11 +21,14 @@ public protocol AbstractHTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
     ///   - value: New header value to set.
     mutating func setHeader(key: String, value: String)
 
+    /// - Throws: `HTTPCookieError`
     mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError)
 
     /// - Parameters:
     ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
+    /// 
     /// - Returns: A string representing an HTTP Message with the given values.
+    /// - Throws: `HTTPMessageError`
     func string(
         escapeLineBreak: Bool
     ) throws(HTTPMessageError) -> String

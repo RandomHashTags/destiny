@@ -25,6 +25,7 @@ public struct HTTPRequest: Sendable, ~Copyable {
 
 // MARK: Load
 extension HTTPRequest {
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif

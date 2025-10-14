@@ -44,6 +44,8 @@ public struct HTTPCookie: Sendable {
     }
 
     /// Sets the value of the cookie.
+    /// 
+    /// - Throws: `HTTPCookieError` if `value` contains an illegal character.
     #if Inlinable
     @inlinable
     #endif
@@ -57,6 +59,7 @@ public struct HTTPCookie: Sendable {
 extension HTTPCookie {
     #if PercentEncoding
 
+    /// - Throws: `HTTPCookieError` if `encoding` contains an illegal character.
     #if Inlinable
     @inlinable
     #endif
@@ -86,6 +89,7 @@ extension HTTPCookie {
 
     #endif
 
+    /// - Throws: `HTTPCookieError` if `value` contains an illegal character.
     #if Inlinable
     @inlinable
     #endif
@@ -218,6 +222,7 @@ extension HTTPCookie {
         }
     }
 
+    /// Whether or not the cookie is secure.
     #if Inlinable
     @inlinable
     #endif
@@ -226,6 +231,7 @@ extension HTTPCookie {
         set { setFlag(.secure, newValue) }
     }
 
+    /// Whether or not the cookie is http only.
     #if Inlinable
     @inlinable
     #endif

@@ -49,6 +49,9 @@ extension ResponseBody {
 
 // MARK: Respond
 extension ResponseBody.Bytes {
+    /// Writes a response to a file descriptor.
+    /// 
+    /// - Throws: `ResponderError`
     #if Inlinable
     @inlinable
     #endif

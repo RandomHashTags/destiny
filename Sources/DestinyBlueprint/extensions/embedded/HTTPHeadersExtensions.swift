@@ -5,7 +5,7 @@ extension HTTPHeaders: ExpressibleByDictionaryLiteral {
     #if Inlinable
     @inlinable
     #endif
-    public init(dictionaryLiteral elements: (Key, Value)...) {
+    public init(dictionaryLiteral elements: (String, String)...) {
         var _storage = [(Key, Value)]()
         _storage.reserveCapacity(elements.count)
         for (key, value) in elements {

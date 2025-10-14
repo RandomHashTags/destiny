@@ -1,4 +1,5 @@
 
+/// Access control keywords.
 public enum RouterVisibility: Sendable {
     case `public`
     case `package`

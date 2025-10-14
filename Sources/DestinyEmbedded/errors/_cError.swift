@@ -17,6 +17,7 @@ import Windows
 import WinSDK
 #endif
 
+/// - Returns: `errno` if supported, otherwise `Int32.min`.
 @inlinable
 package func cError() -> Int32 {
     #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)

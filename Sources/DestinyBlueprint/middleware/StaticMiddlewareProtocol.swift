@@ -22,6 +22,8 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
     )
 
     /// Updates the `response` by applying this middleware.
+    /// 
+    /// - Throws: `AnyError`
     func apply(
         contentType: inout String?,
         to response: inout some DynamicResponseProtocol

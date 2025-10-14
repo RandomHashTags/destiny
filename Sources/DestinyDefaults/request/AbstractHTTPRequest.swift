@@ -29,6 +29,10 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
         self.customStorage = storage
     }
 
+    /// Loads the headers from a buffer (if not already loaded).
+    /// 
+    /// - Returns: An efficient, case-sensitive dictionary of the headers.
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -41,7 +45,7 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
             try loadStorage(fileDescriptor: fileDescriptor)
         }
         if storage._headers!._endIndex == nil {
-            storage._headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer!)
+            storage._headers!.load(buffer: initialBuffer!)
         }
         return storage._headers!.headers
         #else
@@ -52,6 +56,7 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
 
 // MARK: Generic logic
 extension AbstractHTTPRequest {
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -74,6 +79,7 @@ extension AbstractHTTPRequest {
         }
     }
 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -87,6 +93,7 @@ extension AbstractHTTPRequest {
         return storage.path(buffer: initialBuffer!)[index]
     }
 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -100,6 +107,7 @@ extension AbstractHTTPRequest {
         return storage.path(buffer: initialBuffer!).count
     }
 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -113,6 +121,7 @@ extension AbstractHTTPRequest {
         return method.rawNameString() == storage.methodString(buffer: initialBuffer!)
     }
 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -145,6 +154,7 @@ extension AbstractHTTPRequest {
 
 // MARK: Load
 extension AbstractHTTPRequest {
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -159,6 +169,8 @@ extension AbstractHTTPRequest {
 // MARK: Load storage
 extension AbstractHTTPRequest {
     /// Loads `initialBuffer` and `_storage`.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -179,6 +191,7 @@ extension AbstractHTTPRequest {
 
 // MARK: Read buffer
 extension AbstractHTTPRequest {
+    /// - Throws: `SocketError`
     /// - Warning: **DOESN'T** check if the read bytes are >= 0!
     #if Inlinable
     @inlinable
@@ -207,6 +220,7 @@ extension AbstractHTTPRequest {
 
 // MARK: Start line
 extension AbstractHTTPRequest {
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -220,6 +234,7 @@ extension AbstractHTTPRequest {
         return storage.startLineSIMD(buffer: initialBuffer!)
     }
 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -238,6 +253,7 @@ extension AbstractHTTPRequest {
 
 // MARK: Body
 extension AbstractHTTPRequest {
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -261,6 +277,7 @@ import DestinyBlueprint
 
 // MARK: Conformance logic
 extension AbstractHTTPRequest {
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif

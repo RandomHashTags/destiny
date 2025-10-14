@@ -44,6 +44,7 @@ public struct HTTPDateFormat: Sendable {
     @usableFromInline
     nonisolated(unsafe) static private(set) var _nowString = placeholder
 
+    /// Last calculated date value in the HTTP Format as an `UnsafeBufferPointer<UInt8>`.
     #if Inlinable
     @inlinable
     #endif
@@ -54,6 +55,7 @@ public struct HTTPDateFormat: Sendable {
         _read { yield UnsafeBufferPointer(_nowUnsafeBufferPointer) }
     }
 
+    /// Last calculated date value in the HTTP Format as a `String`.
     #if Inlinable
     @inlinable
     #endif
@@ -64,6 +66,8 @@ public struct HTTPDateFormat: Sendable {
         _read { yield _nowString }
     }
 
+    /// Calculates the current date in the HTTP Format.
+    /// 
     /// - Returns: HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
     @discardableResult
     #if Inlinable
@@ -80,8 +84,8 @@ public struct HTTPDateFormat: Sendable {
 
 // MARK: Load
 extension HTTPDateFormat {
-    /// Begins the auto-updating of the current date in the HTTP Format.
     #if Logging
+    /// Begins the auto-updating of the current date in the HTTP Format.
     #if Inlinable
     @inlinable
     #endif
@@ -113,6 +117,7 @@ extension HTTPDateFormat {
         }
     }
     #else
+    /// Begins the auto-updating of the current date in the HTTP Format.
     #if Inlinable
     @inlinable
     #endif
@@ -156,7 +161,7 @@ extension HTTPDateFormat {
     ///   - hour: Number of hours past midnight (00:00), in the range 0 to 23.
     ///   - minute: Number of minutes after the hour, in the range 0 to 59.
     ///   - second: Number of seconds after the minute, normally in the range 0 to 59, but can be up to 60 to allow for leap seconds.
-    /// - Returns: A string that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
+    /// - Returns: An `InlineArray` that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
     #if Inlinable
     @inlinable
     #endif
@@ -192,15 +197,15 @@ extension HTTPDateFormat {
         value[unchecked: 11] = .space
         value[unchecked: 12] = yearNumbers[unchecked: 0]
         var index = 13
-        if yearNumbers[1] != 0 {
+        if yearNumbers[unchecked: 1] != 0 {
             value[unchecked: index] = yearNumbers[unchecked: 1]
             index +=! 1
         }
-        if yearNumbers[2] != 0 {
+        if yearNumbers[unchecked: 2] != 0 {
             value[unchecked: index] = yearNumbers[unchecked: 2]
             index +=! 1
         }
-        if yearNumbers[3] != 0 {
+        if yearNumbers[unchecked: 3] != 0 {
             value[unchecked: index] = yearNumbers[unchecked: 3]
             index +=! 1
         }
@@ -248,6 +253,7 @@ extension HTTPDateFormat {
         }
     }
 
+    /// - Returns: The month's 3 byte representation to be used in the HTTP Format.
     #if Inlinable
     @inlinable
     #endif
@@ -311,7 +317,7 @@ extension HTTPDateFormat {
 
 // MARK: SwiftGlibc
 extension HTTPDateFormat {
-    // https://linux.die.net/man/3/localtime
+    /// https://linux.die.net/man/3/localtime
     #if Inlinable
     @inlinable
     #endif

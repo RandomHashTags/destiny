@@ -3,6 +3,7 @@
 import Logging
 #endif
 
+/// Default storage that manages services.
 public struct Application: Sendable {
     nonisolated(unsafe) public static private(set) var shared:Application! = nil
 
@@ -64,6 +65,6 @@ public struct Application: Sendable {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension Application: ApplicationProtocol {}
+extension Application: DestinyServiceProtocol {}
 
 #endif

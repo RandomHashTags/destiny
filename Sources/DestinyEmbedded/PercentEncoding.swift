@@ -87,6 +87,8 @@ public enum PercentEncoding {
 
 // MARK: URL
 extension String {
+    /// Encodes `self` using url percent encoding.
+    /// 
     /// - Complexity: O(_n_).
     #if Inlinable
     @inlinable
@@ -110,6 +112,8 @@ extension String {
 
 // MARK: Cookie
 extension String {
+    /// Encodes `self` as an HTTP Cookie Value (percent encoded).
+    /// 
     /// - Complexity: O(_n_).
     #if Inlinable
     @inlinable

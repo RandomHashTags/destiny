@@ -26,9 +26,15 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     /// - Warning: Don't forget to close when you're done with it. It is **not** closed automatically.
     var fileDescriptor: Int32 { get }
 
-    /// Reads multiple bytes and writes them into a buffer.
+    /// Reads and writes multiple bytes from the file descriptor into a buffer.
+    /// 
+    /// - Parameters:
+    ///   - into: The `UnsafeMutableRawPointer` the bytes will be written to.
+    ///   - length: Number of bytes to read.
+    ///   - flags: Applied flags when reading.
     /// 
     /// - Returns: Number of bytes received.
+    /// - Throws: `SocketError`
     func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
@@ -36,19 +42,25 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     ) throws(SocketError) -> Int
 
     /// Writes a single buffer to the file descriptor.
+    /// 
+    /// - Throws: `SocketError`
     func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
     ) throws(SocketError)
 
-    /// Efficiently writes multiple buffers to the file descriptor.
+    /// Efficiently writes 3 buffers to the file descriptor.
+    /// 
+    /// - Throws: `SocketError`
     func writeBuffers3(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
     ) throws(SocketError)
 
-    /// Efficiently writes multiple buffers to the file descriptor.
+    /// Efficiently writes 4 buffers to the file descriptor.
+    /// 
+    /// - Throws: `SocketError`
     func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
         _ b2: UnsafeBufferPointer<UInt8>,
@@ -56,7 +68,9 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
         _ b4: UnsafeBufferPointer<UInt8>
     ) throws(SocketError)
 
-    /// Efficiently writes multiple buffers to the file descriptor.
+    /// Efficiently writes 6 buffers to the file descriptor.
+    /// 
+    /// - Throws: `SocketError`
     func writeBuffers6(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),

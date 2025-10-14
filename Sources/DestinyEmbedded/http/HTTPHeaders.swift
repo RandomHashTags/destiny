@@ -3,9 +3,6 @@
 /// 
 /// - Warning: Keys are case-sensitive!
 public struct HTTPHeaders: Sendable {
-    public typealias Key = String
-    public typealias Value = String
-
     @usableFromInline
     package var _storage:[(key: String, value: String)]
 
@@ -30,6 +27,7 @@ public struct HTTPHeaders: Sendable {
         self._storage = array
     }
 
+    /// Reserves enough space to store the specified number of elements.
     #if Inlinable
     @inlinable
     #endif

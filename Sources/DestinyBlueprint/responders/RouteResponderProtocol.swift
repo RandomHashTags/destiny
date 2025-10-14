@@ -1,13 +1,15 @@
 
 /// Core protocol that writes its response to requests.
 public protocol RouteResponderProtocol: Sendable, ~Copyable {
-    /// Writes a response to a socket.
+    /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
     ///   - router: Router this responder is stored in.
     ///   - socket: Socket to write to.
     ///   - request: Socket's request.
-    ///   - completionHandler: Call when you're done successfully responding.
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
+    /// - Throws: `ResponderError`
     #if Inlinable
     @inlinable
     #endif

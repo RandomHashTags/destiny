@@ -9,7 +9,9 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
     ///   - router: Router this responder is stored in.
     ///   - socket: Socket to write to.
     ///   - request: Socket's request.
-    ///   - completionHandler: Call when you're done successfully responding.
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
+    /// - Throws: `ResponderError`
     #if Inlinable
     @inlinable
     #endif

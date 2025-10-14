@@ -12,6 +12,20 @@ public struct HTTPSocket: Sendable, ~Copyable {
         self.fileDescriptor = fileDescriptor
         Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketLocalAddress() -> String? {
+        fileDescriptor.socketLocalAddress()
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func socketPeerAddress() -> String? {
+        fileDescriptor.socketPeerAddress()
+    }
 }
 
 // MARK: Reading

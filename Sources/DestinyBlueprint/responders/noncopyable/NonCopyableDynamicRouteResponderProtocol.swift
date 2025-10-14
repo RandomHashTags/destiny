@@ -25,6 +25,9 @@ public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteRespon
     ///   - socket: Socket to write to.
     ///   - request: Socket's request.
     ///   - response: HTTP message to send to the socket.
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
+    /// - Throws: `ResponderError`
     func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

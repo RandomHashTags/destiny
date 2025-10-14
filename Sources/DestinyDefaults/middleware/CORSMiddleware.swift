@@ -7,7 +7,7 @@ public typealias DynamicCORSMiddleware = CORSMiddleware
 public typealias StaticCORSMiddleware = CORSMiddleware
 
 // MARK: CORSMiddleware
-/// Default Middleware implementing Cross-Origin Resource Sharing (CORS) headers.
+/// Default Middleware applying Cross-Origin Resource Sharing (CORS) headers.
 /// 
 /// [Read more](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
 public struct CORSMiddleware: Sendable {
@@ -30,6 +30,7 @@ public struct CORSMiddleware: Sendable {
 
 // MARK: Handle
 extension CORSMiddleware {
+    /// - Throws: `MiddlewareError`
     #if Inlinable
     @inlinable
     #endif

@@ -5,7 +5,11 @@
 public protocol RouteGroupStorageProtocol: Sendable, ~Copyable {
     /// Responds to a socket.
     /// 
+    /// - Parameters:
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
     /// - Returns: Whether or not a response was sent.
+    /// - Throws: `ResponderError`
     func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

@@ -53,6 +53,12 @@ extension ResponseBody {
 
 // MARK: Respond
 extension ResponseBody.NonCopyableInlineBytes {
+    /// Writes a response to a file descriptor.
+    /// 
+    /// - Parameters:
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
+    /// - Throws: `ResponderError`
     #if Inlinable
     @inlinable
     #endif

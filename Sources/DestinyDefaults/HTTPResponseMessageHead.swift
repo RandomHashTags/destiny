@@ -1,6 +1,7 @@
 
 import DestinyEmbedded
 
+/// Default storage that efficiently handles an HTTP Message's head content (headers, status code and HTTP Version).
 public struct HTTPResponseMessageHead: Sendable {
     public var headers:HTTPHeaders
     public var cookies:[HTTPCookie]

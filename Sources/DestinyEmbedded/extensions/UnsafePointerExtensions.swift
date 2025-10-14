@@ -2,6 +2,7 @@
 import UnwrapArithmeticOperators
 
 extension UnsafeMutableBufferPointer where Element == UInt8 {
+    /// Copies the given buffer to `self` at the given index.
     #if Inlinable
     @inlinable
     #endif
@@ -13,6 +14,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
         copyBuffer(buffer, at: &index)
     }
 
+    /// Copies the given buffer to `self` at the given index.
     #if Inlinable
     @inlinable
     #endif
@@ -26,6 +28,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
 }
 
 extension UnsafeMutableBufferPointer where Element == UInt8 {
+    /// Copies the given buffer to `self` at the given index.
     #if Inlinable
     @inlinable
     #endif
@@ -37,6 +40,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
         index +=! buffer.count
     }
 
+    /// Copies the given buffer to `self` at the given index.
     #if Inlinable
     @inlinable
     #endif
@@ -50,6 +54,7 @@ extension UnsafeMutableBufferPointer where Element == UInt8 {
 }
 
 extension UnsafeMutableBufferPointer where Element == UInt8 {
+    /// Copies the given buffer to `self` at the given index.
     #if Inlinable
     @inlinable
     #endif

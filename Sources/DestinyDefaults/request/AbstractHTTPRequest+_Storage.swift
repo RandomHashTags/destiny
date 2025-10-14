@@ -99,6 +99,8 @@ extension AbstractHTTPRequest._Storage {
 // MARK: Load
 extension AbstractHTTPRequest._Storage {
     /// Loads `requestLine`, `_headers` and `_body`.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -212,6 +214,7 @@ extension AbstractHTTPRequest._Storage {
 
 // MARK: Body
 extension AbstractHTTPRequest._Storage {
+    /// - Throws: `SocketError`
     /// - Warning: `_headers` **MUST NOT** be `nil`!
     #if Inlinable
     @inlinable
@@ -221,7 +224,7 @@ extension AbstractHTTPRequest._Storage {
         initialBuffer: borrowing InlineByteBuffer<initialBufferCount>
     ) throws(SocketError) -> InlineByteBuffer<bufferCount> {
         if _headers!._endIndex == nil {
-            _headers!.load(fileDescriptor: fileDescriptor, initialBuffer: initialBuffer)
+            _headers!.load(buffer: initialBuffer)
         }
         return try _body!.collect(fileDescriptor: fileDescriptor)
     }

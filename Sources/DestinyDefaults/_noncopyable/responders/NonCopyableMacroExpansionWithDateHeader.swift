@@ -28,6 +28,12 @@ public struct NonCopyableMacroExpansionWithDateHeader: Sendable, ~Copyable {
 
 // MARK: Respond
 extension NonCopyableMacroExpansionWithDateHeader {
+    /// Writes a response to a file descriptor.
+    /// 
+    /// - Parameters:
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
+    /// - Throws: `ResponderError`
     #if Inlinable
     @inlinable
     #endif

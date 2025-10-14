@@ -23,6 +23,7 @@ func accept4_fd(
 ) -> Int32
 
 // MARK: EpollWorker
+/// Native Swift support for Epoll.
 public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
     @usableFromInline
     let listenFD:Int32
@@ -38,6 +39,9 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
     @usableFromInline
     var running = true
 
+    /// Creates an `EpollWorker` with the given configuration.
+    /// 
+    /// - Throws: `EpollError`
     public static func create(
         workerId: Int,
         backlog: Int32,
@@ -100,7 +104,7 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
         pthread_setaffinity_np(tid, MemoryLayout<cpu_set_t>.size, &cpuset)*/
     }
 
-    /// - Returns: accepted nonblocking file descriptor
+    /// - Returns: Accepted nonblocking file descriptor
     #if Inlinable
     @inlinable
     #endif
@@ -143,17 +147,19 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
 
 // MARK: Run
 extension EpollWorker {
+    /// Runs the worker (runs `epoll_pwait` until stopped).
+    /// 
     /// - Parameters:
     ///   - pinToCore: Which core to run this on.
     ///   - timeout: Milliseconds to wait until we time-out.
-    ///   - handleClient: Handle logic for a socket.
+    ///   - handleClient: Handle logic for a file descriptor.
     #if Inlinable
     @inlinable
     #endif
     public mutating func run(
         pinToCore: Int32? = nil,
         timeout: Int32 = -1,
-        handleClient: (_ socket: Int32, _ completionHandler: @Sendable @escaping () -> Void) -> Void
+        handleClient: (_ fileDescriptor: Int32, _ completionHandler: @Sendable @escaping () -> Void) -> Void
     ) {
         //if let c = pinToCore { pinToCore(c) }
         #if DEBUG && Logging
@@ -218,7 +224,7 @@ extension EpollWorker {
 
 // MARK: Bind and listen
 extension EpollWorker {
-    /// makeReusePortListeningSocket
+    /// Opens, binds and listens to a socket with the given port and backlog.
     #if Inlinable
     @inlinable
     #endif

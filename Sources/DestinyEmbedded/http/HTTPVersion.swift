@@ -8,6 +8,10 @@ public enum HTTPVersion: Hashable, Sendable {
     case v2_0
     case v3_0
 
+    /// Tries to map the given token to the referenced `HTTPVersion`.
+    /// 
+    /// - Parameters:
+    ///   - token: The `UInt64` in `bigEndian` representation.
     #if Inlinable
     @inlinable
     #endif

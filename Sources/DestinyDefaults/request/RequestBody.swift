@@ -4,7 +4,9 @@
 import DestinyEmbedded
 import UnwrapArithmeticOperators
 
+/// The bytes transmitted in an HTTP Message immediately folowing the headers (if there are any).
 public struct RequestBody: Sendable, ~Copyable {
+    /// Current total number of bytes read from the body.
     @usableFromInline
     package var _totalRead:UInt64
 
@@ -17,6 +19,7 @@ public struct RequestBody: Sendable, ~Copyable {
         self._totalRead = totalRead
     }
 
+    /// Current total number of bytes read from the body.
     #if Inlinable
     @inlinable
     #endif
@@ -30,6 +33,9 @@ public struct RequestBody: Sendable, ~Copyable {
 
 // MARK: Read
 extension RequestBody {
+    /// Reads a number of bytes from a file descriptor and writes it into a buffer.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -67,6 +73,9 @@ extension RequestBody {
 
 // MARK: Collect
 extension RequestBody {
+    /// Reads a number of bytes from a file descriptor and writes it into a buffer.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif

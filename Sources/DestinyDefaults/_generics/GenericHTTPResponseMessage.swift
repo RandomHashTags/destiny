@@ -225,6 +225,7 @@ extension GenericHTTPResponseMessage {
         writeCRLF(to: buffer, at: &i)
     }
 
+    /// - Throws: `BufferWriteError`
     #if Inlinable
     @inlinable
     #endif

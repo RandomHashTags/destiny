@@ -23,6 +23,9 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     ///   - socket: Socket to write to.
     ///   - request: Socket's request.
     ///   - response: HTTP Message to send to the socket.
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
+    /// - Throws: `ResponderError`
     func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
