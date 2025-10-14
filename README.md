@@ -2,13 +2,11 @@
 
 <a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.2+-F05138?style=&logo=swift" alt="Requires at least Swift 6.2"></a> <img src="https://img.shields.io/badge/Platforms-Any-gold"> <a href="https://discord.com/invite/VyuFQUpcUz"><img src="https://img.shields.io/badge/Chat-Discord-7289DA?style=&logo=discord"></a> <a href="https://github.com/RandomHashTags/destiny/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="Apache 2.0 License"></a>
 
-Destiny is a standalone lightweight web server that makes use of the latest Swift features to push performance to the limit of the language, and designed to be easy to use while keeping the binary size small.
+Destiny is a standalone, high-performance and lightweight web server that makes use of the latest Swift features to push performance to the limit of the language, and designed to be easy to use while keeping the binary size small.
 
 It provides a router (which is used via a Swift Macro) that accepts middleware, redirects, routes, and route groups for processing requests.
 
 Features like TLS/SSL, Web Sockets and embedded support are coming soon.
-
-We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Destiny's inner workings to perform optimally, empowering the developer to determine the data structures and types used (if you don't use the default implementations from `DestinyDefaults`).
 
 ## Table of Contents
 
@@ -16,16 +14,8 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
   - [Completed](#completed)
   - [WIP](#wip)
   - [TODO](#todo)
-- [Techniques](#techniques)
-  - [TODO](#todo-1)
-  - [Limitations](#limitations)
 - [Getting Started](#getting-started)
-  - [Routes](#routes)
-    - [Wildcards](#wildcards)
 - [Benchmarks](#benchmarks)
-  - [Static](#static)
-  - [Dynamic](#dynamic)
-  - [Conclusion](#conclusion)
 - [Contributing](#contributing)
 - [Support](#support)
   - [Funding](#funding)
@@ -59,6 +49,7 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 ### WIP
 
 - [ ] DocC Documentation
+- [ ] DocC Tutorials
 - [ ] Route partial matching (via Regex or something else)
 - [ ] Unit testing
 - [ ] Rate Limits
@@ -70,7 +61,6 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 
 ### TODO
 
-- [ ] DocC Tutorials
 - [ ] Allow more than 64 bytes as the compared request line
 - [ ] Cache Middleware
 - [ ] Data Validation (form, POST, etc)
@@ -84,230 +74,13 @@ We provide a blueprint library, `DestinyBlueprint`, that lays out the API of Des
 - [ ] Support custom middleware & routes in the macro
 - [ ] Support third-party macro expansions in the macro
 
-## Techniques
-
-List of techniques Destiny uses to push performance to the limits of the Swift Language.
-
-<details>
-
-<summary>Structs by default</summary>
-
-To avoid heap allocation and pointer indirection
-
-</details>
-
-<details>
-
-<summary>Noncopyable types</summary>
-
-For better memory management and to avoid retain/release/ARC traffic
-
-</details>
-
-<details>
-
-<summary>Package Traits</summary>
-
-Allows even more control over expected behavior and functionality
-
-</details>
-
-<details>
-
-<summary>Inline annotations</summary>
-
-Where applicable, to reduce overhead as much as possible. `@inlinable` and `@inline(__always)` annotations can be disabled by removing the package traits `Inlinable` and `InlineAlways`.
-
-</details>
-
-<details>
-
-<summary>@_marker annotation</summary>
-
-Where applicable, to remove protocol witness tables (reducing binary size)
-
-</details>
-
-<details>
-
-<summary>_read and _modify accessors</summary>
-
-For optimal memory access where applicable (reducing overhead)
-
-</details>
-
-<details>
-
-<summary>Custom arithmetic operators</summary>
-
-Where applicable, to reduce arithmetic overhead (Swift's default arithmetic safety features). Can be disabled by removing the package traits `OverflowAddition`, `OverflowSubtraction` and `OverflowArithmetic`.
-
-</details>
-
-<details>
-
-<summary>Actor avoidance</summary>
-
-To encourage better state management and data structures
-
-</details>
-
-<details>
-
-<summary>InlineArrays</summary>
-
-To avoid heap allocations (especially in hot paths)
-
-</details>
-
-<details>
-
-<summary>Concurrency</summary>
-
-To maximize multi-core performance and support non-blocking operations
-
-</details>
-
-<details>
-
-<summary>Macros</summary>
-
-Unlocks compile-time optimizations for middleware, routers, routes, route groups, and route responders.
-
-<b>Most runtime optimizations come from here.</b> This includes:
-
-- auto generation of optimal data structures and functions (avoiding classes and existentials)
-- perfect hashing for routes (if enabled & possible)
-
-</details>
-
-<details>
-
-<summary>Parameter Packs</summary>
-
-For compile-time array optimizations, reducing heap allocations and dynamic dispatch 
-
-</details>
-
-<details>
-
-<summary>Opaque types</summary>
-
-To avoid dynamic dispatch, existentials and boxing (especially in hot paths)
-
-</details>
-
-<details>
-
-<summary>Generic parameters</summary>
-
-Only where opaque types aren't applicable to avoid dynamic dispatch, existentials and boxing (especially in hot paths)
-
-</details>
-
-<details>
-
-<summary>Typed throws</summary>
-
-To improve runtime performance and a step closer to support embedded; eliminates heap allocation, metadata and dynamic dispatch for error handling
-
-</details>
-
-<details>
-
-<summary>Swift 6 Language Mode</summary>
-
-To avoid data races by enforcing compile time data race safety
-
-</details>
-
-<details>
-
-<summary>Code Generation</summary>
-
-For tedious work and easier development
-
-</details>
-
-<details>
-
-<summary>Minimal Dependencies</summary>
-
-To reduce binary size, simplify development and give full control over implementation details to the developer
-
-- no Foundation
-- no SwiftNIO
-
-</details>
-
-<details>
-
-<summary>Module Abstractions</summary>
-
-To simplify and allow more control over development implementations
-
-</details>
-
-<details>
-
-<summary>Benchmarks and performance profiling</summary>
-
-To determine best data structures and techniques for optimal performance without sacrificing functionality
-
-</details>
-
-### TODO
-
-List of techniques Destiny wants to incorporate to push performance even further, not strictly Swift related.
-
-- file descriptor pool
-- connection pool
-- optionally batch responses
-- kqueue support
-- io_uring support
-
-### Limitations
-
-Areas that Swift needs more development/support to unlock more abstraction/performance at the language level.
-
-- `~Copyable` types in parameter packs (current `Copyable` requirement causes retain/release and ARC traffic)
-- `~Copyable` types not being allowed as a `typealias` or `associatedtype` (as a protocol requirement)
-- `~Copyable` types not being allowed in tuples
-- `Async[Throwing]Stream` not supporting typed throws
-- `Async[Throwing]Stream` not supporting `~Copyable` values
-- Parameter Pack same-element requirements not being supported ("yet")
-- `@_marker` protocols not allowing requirements
-
 ## Getting started
 
-coming soon...
-
-## Routes
-
-### Wildcards
-
-- `*` and `:<param name>` = parameter
-- `**` = catchall
-
+See [Getting Started](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/GettingStarted.md)
 
 ## Benchmarks
 
-- Libraries tested
-  - [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.2.0 (this library)
-  - [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.11.1
-  - [vapor/vapor](https://github.com/vapor/vapor) v4.114.1
-
-### Static
-
-Initial testing of a basic HTML response shows this library has the lowest server latency, highest throughput and most consistent timings **when serving the same content**.
-
-### Dynamic
-
-Depends on how much dynamic content you add; initial testing compared to a Static response performs about the same but usually costs a few microseconds more (~10-50). I am actively researching and testing improvements.
-
-### Conclusion
-
-This library is a clear leader in reliability, performance and efficiency. Performance metrics for static **and** dynamic content are better than or comparable to the best networking libraries available (regardless of programming language).
+See [Getting Started](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
 
 ## Contributing
 

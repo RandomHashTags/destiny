@@ -5,6 +5,7 @@ import DestinyBlueprint
 import DestinyDefaults
 
 extension HTTPRequest {
+    /// - Throws: `any Error`
     #if Inlinable
     @inlinable
     #endif

@@ -8,6 +8,8 @@ import UnwrapArithmeticOperators
 // MARK: Body
 extension AbstractHTTPRequest._Storage {
     /// - Warning: `_headers` **MUST NOT** be `nil`!
+    /// 
+    /// - Throws: `any Error`
     #if Inlinable
     @inlinable
     #endif

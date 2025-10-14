@@ -6,6 +6,7 @@ import DestinyDefaults
 
 // MARK: Body
 extension AbstractHTTPRequest {
+    /// - Throws: `any Error`
     #if Inlinable
     @inlinable
     #endif

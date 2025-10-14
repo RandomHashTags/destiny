@@ -1,7 +1,7 @@
 
 import DestinyEmbedded
 
-/// Default storage that efficiently handles an HTTP Message's head content (headers, status code and HTTP Version).
+/// Default storage that efficiently handles an HTTP Message's head content (HTTP Version, status code and headers).
 public struct HTTPResponseMessageHead: Sendable {
     public var headers:HTTPHeaders
     public var cookies:[HTTPCookie]
@@ -53,7 +53,3 @@ public struct HTTPResponseMessageHead: Sendable {
         return array
     }
 }
-
-#if canImport(DestinyBlueprint)
-import DestinyBlueprint
-#endif

@@ -357,8 +357,14 @@ let traits:Set<Trait> = [
         name: "StaticRedirectionRoute"
     ),
 
-    .trait(name: "DynamicResponderStorage"),
-    .trait(name: "StaticResponderStorage"),
+    .trait(
+        name: "DynamicResponderStorage",
+        description: "Enables a responder storage that can register dynamic data to a router at runtime."
+    ),
+    .trait(
+        name: "StaticResponderStorage",
+        description: "Enables a responder storage that can register static data to a router at runtime."
+    ),
 
     .trait(
         name: "UnwrapAddition",
