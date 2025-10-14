@@ -190,7 +190,19 @@ extension AbstractHTTPRequest._Storage {
             return path
         }
         requestLine!.path(buffer: buffer.buffer, {
-            path = $0.unsafeString().split(separator: "/").map({ String($0) }) // TODO: optimize; don't use split and map
+            path = [String]()
+            var startIndex = 0
+            for i in $0.indices {
+                if $0.storage[i] == .forwardSlash {
+                    if startIndex < i {
+                        path!.append($0.unsafeString(startIndex: startIndex, endIndex: i))
+                    }
+                    startIndex = i +! 1
+                }
+            }
+            if startIndex < $0.count {
+                path!.append($0.unsafeString(startIndex: startIndex, endIndex: $0.count))
+            }
         })
         return path!
     }

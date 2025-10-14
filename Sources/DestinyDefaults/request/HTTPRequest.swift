@@ -70,7 +70,7 @@ extension HTTPRequest {
         offset: Int = 0,
         _ yield: (String) -> Void
     ) throws(SocketError) {
-        try abstractRequest.forEachPath(fileDescriptor: fileDescriptor, yield)
+        try abstractRequest.forEachPath(fileDescriptor: fileDescriptor, offset: offset, yield)
     }
 
     #if Inlinable

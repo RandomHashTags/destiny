@@ -13,6 +13,21 @@ extension VLArray where Element == UInt8 {
             return $0.initialize(from: storage).index
         })
     }
+
+    /// Efficiently initializes a `String` from `storage`.
+    /// 
+    /// - Returns: A case-literal `String` initialized from `storage` with start and end indexes.
+    /// - Warning: `endIndex` MUST be greater than `startIndex`.
+    #if Inlinable
+    @inlinable
+    #endif
+    public func unsafeString(startIndex: Int, endIndex: Int) -> String {
+        let count = endIndex -! startIndex
+        let slice = storage[startIndex..<endIndex]
+        return String.init(unsafeUninitializedCapacity: count, initializingUTF8With: {
+            return $0.initialize(from: slice).index
+        })
+    }
 }
 
 
