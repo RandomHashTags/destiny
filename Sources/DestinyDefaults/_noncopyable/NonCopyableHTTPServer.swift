@@ -24,7 +24,7 @@ import Logging
 public final class NonCopyableHTTPServer<
         Router: NonCopyableHTTPRouterProtocol & ~Copyable,
         ClientSocket: SocketProtocol & ~Copyable
-    >: HTTPServerProtocol, SocketAcceptor {
+    >: HTTPServerProtocol {
     public let address:String?
     public let port:UInt16
     /// Maximum amount of pending connections the Server will queue.
@@ -257,8 +257,54 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         await processClientsOLD(serverFD: serverFD)
         #endif
     }
+}
 
-    #if !Epoll && !Liburing
+#if !Epoll && !Liburing
+
+extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func acceptFunction(noTCPDelay: Bool) -> @Sendable (Int32?) throws(SocketError) -> Int32? {
+        noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    @Sendable
+    static func acceptClient(server: Int32?) throws(SocketError) -> Int32? {
+        guard let serverFD = server else { return nil }
+        var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
+        let client = withUnsafeMutablePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1, { accept(serverFD, $0, &len) }) })
+        if client == -1 {
+            if server == nil {
+                return nil
+            }
+            throw .acceptFailed(errno: cError())
+        }
+        return client
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    @Sendable
+    static func acceptClientNoTCPDelay(server: Int32?) throws(SocketError) -> Int32? {
+        guard let serverFD = server else { return nil }
+        var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
+        let client = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
+        if client == -1 {
+            if server == nil {
+                return nil
+            }
+            throw .acceptFailed(errno: cError())
+        }
+        var d:Int32 = 1
+        setsockopt(client, Int32(IPPROTO_TCP), TCP_NODELAY, &d, socklen_t(MemoryLayout<Int32>.size))
+        return client
+    }
+
     #if Inlinable
     @inlinable
     #endif
@@ -285,8 +331,9 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
             }
         }
     }
-    #endif
 }
+
+#endif
 
 #if Epoll
 // MARK: Epoll
