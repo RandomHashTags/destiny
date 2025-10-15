@@ -1,6 +1,6 @@
 # Destiny Network IO Handler
 
-Destiny chooses the optimal networking io system based on the host machine.
+Destiny chooses the optimal networking io system based on the compilation machine and enabled package traits.
 
 ## Handlers
 Destiny's networking i/o handlers are:

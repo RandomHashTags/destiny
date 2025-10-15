@@ -7,6 +7,7 @@ public enum EpollError {
     case epollPipeFailed(errno: Int32)
     case epollCtlFailed(errno: Int32)
     case waitFailed(errno: Int32)
+    case negativeLoadedClients
 
     case errno(Int32)
     case custom(String)

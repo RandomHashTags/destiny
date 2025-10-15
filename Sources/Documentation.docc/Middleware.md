@@ -10,13 +10,13 @@
 
 Middleware can be used to edit http requests and responses.
 
-Destiny splits middleware into 2 different kinds of Middleware, Static and Dynamic, which have different performance and functionality characteristics when used.
+Destiny splits middleware into 2 different kinds of Middleware, Static and Dynamic, which have different performance and functionality characteristics when used, especially when provided in macros.
 
 ## Behavior
 
 ### Static
 
-"Static" middleware does all its editing to requests and responses at compile time for maximum performance and efficiency.
+"Static" middleware, when normally provided in a macro, does all its editing to requests and responses at compile time for maximum performance and efficiency.
 
 ### Dynamic
 
@@ -24,5 +24,7 @@ Destiny splits middleware into 2 different kinds of Middleware, Static and Dynam
 
 ## See Also
 - [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
+- [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
+- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
 - [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
 - [Routing Hierarchy](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutingHierarchy.md)

@@ -2,6 +2,7 @@
 import DestinyBlueprint
 import DestinyDefaults
 
+/// Convenient route storage used by the macros to optimally manage routes.
 public struct Route: Sendable {
     public var path:[PathComponent]
     public let contentType:String?

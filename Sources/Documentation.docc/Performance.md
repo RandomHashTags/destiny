@@ -11,7 +11,9 @@ This document explains the performance of Destiny to achieve maximum performance
 ## Techniques
 
 ### Actor avoidance
-To encourage better state management and data structures.
+Swift Actors mitigate data races by sacrificing performance. Destiny doesn't use them because it uses better state management and data structures to avoid data races.
+
+Destiny uses the Swift 6 Language Mode by default so data races are guaranteed to be avoided at compile time.
 
 ### Annotations
 
@@ -30,10 +32,10 @@ Destiny utilizes Swift Concurrency to maximize multi-core performance and suppor
 Only where opaque types aren't applicable to avoid dynamic dispatch, existentials and boxing (especially in hot paths).
 
 ### InlineArray
-Introduced in Swift 6.2, Destiny utilizes `InlineArray` because it is a stack-based array value type that offers major performance wins over heap-based arrays.
+Implemented in Swift 6.2, Destiny utilizes `InlineArray` because it is a stack-based array value type that offers major performance wins over heap-based arrays. This is the main reason why the minimum required Swift version to use Destiny is 6.2.
 
 ### Macros
-Swift Macros are a powerful compile time feature. Destiny utilizes them to abstract manual creation and maintenance of its server, router, routes, and middleware for optimal convenience, productivity and performance.
+Swift Macros are a powerful compile time feature. Destiny utilizes them to abstract manual creation and maintenance of its middleware, servers, routers, routes, and route groups for optimal convenience, productivity and performance.
 
 - All middleware, redirects, routes, and route groups generate optimal data structures and logic during the expansion of a `#router`
   - tries enabling Perfect Hashing for routes for optimal routing performance
@@ -44,21 +46,28 @@ To reduce binary size, simplify development and give full control over implement
 - no Foundation (by default)
 - no SwiftNIO
 
+### Minimal Protocols
+Destiny was originally designed to abstract the underlying implementations to support third-party data structures and state management. `DestinyBlueprint` is the module that enables plug and play of any implementation as long as it conforms to the right protocols.
+
+Diving deeper into performance and binary size optimizations, Destiny is moving away from this abstraction since the abstraction required to maximize performance while supporting custom implementations is overly restrictive requiring duplicating protocols and code with minor differences. Destiny would like to adopt `@_marker` on its protocols throughout `DestinyBlueprint` to fully support custom implementations again but the annotation doesn't support adding protocol requirements (and its not a fully stable/supported annotation).
+
 ### Module Abstractions
 To simplify and allow more control over development implementations.
 
 ### Network IO
-Destiny utilizes highly efficient networking systems based on the host machine to perform optimally.
+Destiny utilizes highly efficient networking systems to perform optimally.
 
 See [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkingIOHandler.md).
 
 ### Noncopyable Values
-Destiny heavily uses noncopyable values and ownership semantics for optimal performance, avoiding common retain/release/ARC traffic that can cripple performance.
+Destiny heavily uses noncopyable values and ownership semantics for optimal performance, avoiding common retain/release/ARC traffic that can hurt performance.
 
 ### Opaque Types
 To avoid dynamic dispatch, existentials and boxing (especially in hot paths).
 
 ### Package Traits
+Implemented in Swift 6.1, Destiny utilizes Swift Package Traits to enable (or disable) features at the compilation level. This offers optimal control over binary size and expected features, reducing code bloat and improving debuggability.
+
 See [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md) for the full list Destiny supports.
 
 ### Parameter Packs
@@ -68,19 +77,21 @@ For compile-time array optimizations, reducing heap allocations and dynamic disp
 Unlocks blazingly fast routing.
 
 ### Performance Profiling
-To determine best data structures and techniques for optimal performance without sacrificing functionality.
+Destiny was heavily designed by utilizing `perf` and `nm` to determine best data structures and techniques for optimal performance and binary size without sacrificing functionality.
 
 ### Small Binary
 A small binary is an overall indication of how well a project is developed. Destiny is built in such a way to eliminate bloat and allow complete control over its underlying features which make maintaining, debugging, and deploying hassle-free.
 
+Swift [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md) greatly help in this area.
+
 ### Swift 6 Language Mode
-The Swift 6 Language Mode enables compile time data race safety.
+Destiny uses the Swift 6 Language Mode by default, enabling compile time data race safety.
 
 ### Structs by default
-Structs have way better performance than classes, which is why they are the default even if they require more care when handling. Destiny's structs are also designed to use as little memory as possible (optimally aligning types).
+Structs have way better performance characteristics than classes, which is why they are the default even if they require more care when handling. Destiny's structs are also designed to use as little memory as possible (optimally aligning types).
 
 ### Typed Throws
-Destiny utilizes typed throws to avoid heap allocations and reduced performance associated with regular, existential throws.
+Destiny utilizes typed throws to avoid heap allocations and reduced performance associated with regular, existential errors and throws.
 
 ### Unwrap Arithmetic Operators
 Where applicable, to reduce arithmetic overhead (Swift's default arithmetic safety features).

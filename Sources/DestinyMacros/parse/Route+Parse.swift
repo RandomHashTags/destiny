@@ -158,7 +158,7 @@ extension Route {
             case "charset":
                 charset = Charset.init(expr: arg.expression)
             case "body":
-                body = ResponseBody.parse(context: context, expr: arg.expression) ?? body
+                body = IntermediateResponseBody.parse(context: context, expr: arg.expression) ?? body
             case "handler":
                 handler = "\(arg.expression)"
             default:

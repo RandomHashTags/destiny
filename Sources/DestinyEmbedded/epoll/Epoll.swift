@@ -169,7 +169,7 @@ extension Epoll {
         logger.info("epoll_pwait returned \(loadedClients)")
         #endif
         if loadedClients <= -1 {
-            throw .custom("waitFailed;loadedClients <= -1")
+            throw .negativeLoadedClients
         }
         return loadedClients
     }
