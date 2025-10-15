@@ -72,6 +72,7 @@ extension HTTPCookie {
         path: String? = nil,
         isSecure: Bool = false,
         isHTTPOnly: Bool = false,
+        isPartitioned: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
     ) throws(HTTPCookieError) {
         try self.init(
@@ -83,6 +84,7 @@ extension HTTPCookie {
             path: path,
             isSecure: isSecure,
             isHTTPOnly: isHTTPOnly,
+            isPartitioned: isPartitioned,
             sameSite: sameSite
         )
     }
@@ -102,6 +104,7 @@ extension HTTPCookie {
         path: String? = nil,
         isSecure: Bool = false,
         isHTTPOnly: Bool = false,
+        isPartitioned: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
     ) throws(HTTPCookieError) {
         try Self.validateValue(value)
@@ -114,6 +117,7 @@ extension HTTPCookie {
             path: path,
             isSecure: isSecure,
             isHTTPOnly: isHTTPOnly,
+            isPartitioned: isPartitioned,
             sameSite: sameSite
         )
     }
@@ -130,6 +134,7 @@ extension HTTPCookie {
         path: String? = nil,
         isSecure: Bool = false,
         isHTTPOnly: Bool = false,
+        isPartitioned: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
     ) {
         self._name = name
@@ -139,7 +144,9 @@ extension HTTPCookie {
         self.domain = domain
         self.path = path
         self.sameSite = sameSite
-        flags = (isSecure || sameSite == HTTPCookieFlag.SameSite.none ? Flag.secure.rawValue : 0) | (isHTTPOnly ? Flag.httpOnly.rawValue : 0)
+        flags = (isSecure || sameSite == HTTPCookieFlag.SameSite.none ? Flag.secure.rawValue : 0)
+            | (isHTTPOnly ? Flag.httpOnly.rawValue : 0)
+            | (isSecure && isPartitioned ? Flag.partitioned.rawValue : 0)
     }
 }
 
@@ -181,6 +188,9 @@ extension HTTPCookie: CustomStringConvertible {
         }
         if isSecure {
             string += "; Secure"
+            if isPartitioned {
+                string += "; Partitioned"
+            }
         }
         if isHTTPOnly {
             string += "; HttpOnly"
@@ -204,6 +214,7 @@ extension HTTPCookie {
     enum Flag: UInt8 {
         case secure   = 1
         case httpOnly = 2
+        case partitioned = 4
     }
 
     @inlinable
@@ -238,5 +249,16 @@ extension HTTPCookie {
     public var isHTTPOnly: Bool {
         get { isFlag(.httpOnly) }
         set { setFlag(.httpOnly, newValue) }
+    }
+
+    /// Whether or not the cookie is partitioned.
+    /// 
+    /// [Read more](https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies).
+    #if Inlinable
+    @inlinable
+    #endif
+    public var isPartitioned: Bool {
+        get { isFlag(.partitioned) }
+        set { setFlag(.partitioned, newValue) }
     }
 }

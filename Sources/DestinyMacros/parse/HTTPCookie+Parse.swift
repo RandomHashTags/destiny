@@ -22,6 +22,7 @@ extension HTTPCookie {
         var path:String? = nil
         var isSecure = false
         var isHTTPOnly = false
+        var isPartitioned = false
         var sameSite:HTTPCookieFlag.SameSite? = nil
         if let function = expr.functionCall {
             for arg in function.arguments {
@@ -45,6 +46,8 @@ extension HTTPCookie {
                     isSecure = arg.expression.booleanIsTrue
                 case "isHTTPOnly":
                     isHTTPOnly = arg.expression.booleanIsTrue
+                case "isPartitioned":
+                    isPartitioned = arg.expression.booleanIsTrue
                 case "sameSite":
                     sameSite = HTTPCookieFlag.SameSite(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "")
                 default:
@@ -67,6 +70,7 @@ extension HTTPCookie {
                     path: path,
                     isSecure: isSecure,
                     isHTTPOnly: isHTTPOnly,
+                    isPartitioned: isPartitioned,
                     sameSite: sameSite
                 )
             #endif
@@ -81,6 +85,7 @@ extension HTTPCookie {
                     path: path,
                     isSecure: isSecure,
                     isHTTPOnly: isHTTPOnly,
+                    isPartitioned: isPartitioned,
                     sameSite: sameSite
                 )
             default:
@@ -93,6 +98,7 @@ extension HTTPCookie {
                     path: path,
                     isSecure: isSecure,
                     isHTTPOnly: isHTTPOnly,
+                    isPartitioned: isPartitioned,
                     sameSite: sameSite
                 )
             }
