@@ -59,7 +59,7 @@ To simplify and allow more control over development implementations.
 ### Network IO
 Destiny utilizes highly efficient networking systems to perform optimally.
 
-See [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkingIOHandler.md).
+See [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkIOHandler.md).
 
 ### Noncopyable Values
 Destiny heavily uses noncopyable values and ownership semantics for optimal performance, avoiding common retain/release/ARC traffic that can hurt performance.
@@ -79,7 +79,7 @@ For compile-time array optimizations, reducing heap allocations and dynamic disp
 Unlocks blazingly fast routing.
 
 ### Performance Profiling
-Destiny was heavily designed by utilizing `perf` and `nm` to determine best data structures and techniques for optimal performance and binary size without sacrificing functionality.
+Destiny was heavily designed by utilizing `perf`, `nm` and `k6` to determine best data structures and techniques for optimal performance and binary size without sacrificing functionality.
 
 ### Small Binary
 A small binary is an overall indication of how well a project is developed. Destiny is built in such a way to eliminate bloat and allow complete control over its underlying features which make maintaining, debugging, and deploying hassle-free.
