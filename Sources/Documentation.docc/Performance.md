@@ -133,16 +133,16 @@ Last benchmark conducted: Oct 16, 2025
 - Operating System: Arch Linux (6.17.1-arch1-1; x86_64)
 - Desktop Environment: Xfce 4.20
 - CPU: stock AMD Ryzen 7 7800X3D (16 threads) @ 5.053G (powersave governors)
-- RAM: 32GB DDR5
+- RAM: 2x16GB DDR5 @ 4800 MT/s
 - Storage: 1TB NVME SSD (550.6 GiB free; swap disabled)
-- Swift: 6.2 (swift-6.2-RELEASE)
-- Swiftly: 1.0.0
-- k6: v1.3.0 (commit/89149e9087, go1.25.2 X:nodwarf5, linux/amd64)
+- [Swift](https://www.swift.org/): 6.2 (swift-6.2-RELEASE)
+- [Swiftly](https://github.com/swiftlang/swiftly): 1.0.0
+- [k6](https://grafana.com/docs/k6/latest/): v1.3.0 (commit/89149e9087, go1.25.2 X:nodwarf5, linux/amd64)
 
 ### Libraries tested
-  - [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.3.0 (this library)
-  - [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.16.0
-  - [vapor/vapor](https://github.com/vapor/vapor) v4.117.0
+- [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.3.0 (this library)
+- [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.16.0
+- [vapor/vapor](https://github.com/vapor/vapor) v4.117.0
 
 ### Results
 
@@ -156,11 +156,12 @@ Depends on how much dynamic content you add; initial testing compared to a Stati
 
 #### Performance Rankings
 
-Destiny's ranks #1 in all categories compared to the other libraries tested:
+Destiny ranks #1 in all categories compared to the other libraries:
 - [x] Highest Throughput
-- [x] Lowest Latency
-- [x] Timing Consistency
 - [x] Highest Sustained Load (no dropped/failed/reset connections)
+- [x] Lowest Latency
+- [x] Lowest System Resource Utilization
+- [x] Most Consistent Timings
 
 #### Conclusion
 
