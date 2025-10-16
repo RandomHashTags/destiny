@@ -25,7 +25,7 @@ struct CompiledHTTPServer {
     /// Underlying type should be `Int`.
     var maxEpollEvents = "64"
 
-    var socketType = "HTTPSocket"
+    var socketType = "DestinyDefaults.HTTPSocket"
 
     /// Called when the server loads successfully, just before it accepts incoming network requests.
     var onLoad:String? = nil

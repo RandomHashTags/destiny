@@ -1,5 +1,4 @@
-// swift-tools-version:5.10
-// The swift-tools-version declares the minimum version of Swift required to build this package.
+// swift-tools-version:6.2
 
 import PackageDescription
 
@@ -8,19 +7,29 @@ let package = Package(
     platforms: [
         .macOS(.v14)
     ],
+    traits: [
+        .default(enabledTraits: ["Logging", "NonCopyable", "Copyable", "Inlinable"]),
+        .trait(name: "Copyable"),
+        .trait(name: "NonCopyable"),
+        .trait(name: "Logging"),
+        .trait(name: "Inlinable"),
+    ],
     dependencies: [
-        .package(url: "https://github.com/ordo-one/package-benchmark", from: "1.29.3"),
+        .package(url: "https://github.com/ordo-one/package-benchmark", exact: "1.29.4"),
 
         // networking
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", from: "2.8.0"),
-        .package(url: "https://github.com/apple/swift-nio", from: "2.85.0"),
-        .package(url: "https://github.com/apple/swift-log", from: "1.6.4"),
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", exact: "2.9.0"),
+        .package(url: "https://github.com/apple/swift-nio", exact: "2.87.0"),
+        .package(url: "https://github.com/apple/swift-log", exact: "1.6.4"),
 
-        .package(url: "https://github.com/swift-server/async-http-client", from: "1.26.1"),
+        .package(url: "https://github.com/swift-server/async-http-client", exact: "1.29.0"),
 
-        .package(url: "https://github.com/RandomHashTags/destiny", branch: "main"),
-        .package(url: "https://github.com/vapor/vapor", exact: "4.115.1"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.15.0")
+        .package(
+            url: "https://github.com/RandomHashTags/destiny",
+            branch: "main"
+        ),
+        .package(url: "https://github.com/vapor/vapor", exact: "4.117.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.16.0")
     ],
     targets: [
         .target(
@@ -45,6 +54,7 @@ let package = Package(
         .target(
             name: "TestDestiny",
             dependencies: [
+                "Utilities",
                 .product(name: "DestinySwiftSyntax", package: "destiny")
             ],
             path: "Benchmarks/Destiny"
@@ -52,6 +62,7 @@ let package = Package(
         .target(
             name: "TestHummingbird",
             dependencies: [
+                "Utilities",
                 .product(name: "Hummingbird", package: "hummingbird")
             ],
             path: "Benchmarks/Hummingbird"
@@ -59,6 +70,7 @@ let package = Package(
         .target(
             name: "TestVapor",
             dependencies: [
+                "Utilities",
                 .product(name: "Vapor", package: "vapor")
             ],
             path: "Benchmarks/Vapor"

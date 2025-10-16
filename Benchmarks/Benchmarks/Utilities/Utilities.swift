@@ -28,3 +28,7 @@ public func make_request(port: UInt16) {
         close(socket)
     })
 }*/
+
+package enum CustomError : Error {
+    case yeet
+}

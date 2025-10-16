@@ -6,6 +6,8 @@ This document explains the performance of Destiny to achieve maximum performance
 - [Techniques](#techniques)
 - [Limitations](#limitations)
 - [Benchmarks](#benchmarks)
+  - [Setup](#benchmarks)
+  - [Results](#benchmarks)
 - [See Also](#see-also)
 
 ## Techniques
@@ -124,20 +126,43 @@ Areas that Swift needs more development/support to unlock more abstraction/perfo
 - `@_marker` protocols not allowing requirements
 
 ## Benchmarks
-- Libraries tested
-  - [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.2.0 (this library)
-  - [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.11.1
-  - [vapor/vapor](https://github.com/vapor/vapor) v4.114.1
 
-### Static
+Last benchmark conducted: Oct 16, 2025
+
+### Setup
+- Operating System: Arch Linux (6.17.1-arch1-1; x86_64)
+- Desktop Environment: Xfce 4.20
+- CPU: stock AMD Ryzen 7 7800X3D (16 threads) @ 5.053G (powersave governors)
+- RAM: 32GB DDR5
+- Storage: 1TB NVME SSD (550.6 GiB free; swap disabled)
+- Swift: 6.2 (swift-6.2-RELEASE)
+- Swiftly: 1.0.0
+- k6: v1.3.0 (commit/89149e9087, go1.25.2 X:nodwarf5, linux/amd64)
+
+### Libraries tested
+  - [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.3.0 (this library)
+  - [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.16.0
+  - [vapor/vapor](https://github.com/vapor/vapor) v4.117.0
+
+### Results
+
+#### Static
 
 Initial testing of a basic HTML response shows this library has the lowest server latency, highest throughput and most consistent timings **when serving the same content**.
 
-### Dynamic
+#### Dynamic
 
 Depends on how much dynamic content you add; initial testing compared to a Static response performs about the same but usually costs a few microseconds more (~10-50).
 
-### Conclusion
+#### Performance Rankings
+
+Destiny's ranks #1 in all categories compared to the other libraries tested:
+- [x] Highest Throughput
+- [x] Lowest Latency
+- [x] Timing Consistency
+- [x] Highest Sustained Load (no dropped/failed/reset connections)
+
+#### Conclusion
 
 This library is a clear leader in reliability, performance and efficiency. Performance metrics for static **and** dynamic content are better than or comparable to the best networking libraries available (regardless of programming language).
 

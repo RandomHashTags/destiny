@@ -11,7 +11,7 @@ public macro httpServer(
     reusePort: Bool = true,
     noTCPDelay: Bool = true,
     maxEpollEvents: Int = 64,
-    socketType: String = "HTTPSocket",
+    socketType: String = "DestinyDefaults.HTTPSocket",
     onLoad: (() -> Void)? = nil,
     onShutdown: (() -> Void)? = nil
 ) = #externalMacro(module: "DestinyMacros", type: "Server")
