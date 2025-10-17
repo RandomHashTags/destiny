@@ -86,6 +86,9 @@ A small binary is an overall indication of how well a project is developed. Dest
 
 Swift [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md) greatly help in this area.
 
+### Spans
+Destiny uses `Span` and `MutableSpan` instead of unsafe pointers where applicable for enhanced safety (which perform identical to unsafe pointers).
+
 ### Swift 6 Language Mode
 Destiny uses the Swift 6 Language Mode by default, enabling compile time data race safety.
 
@@ -94,6 +97,9 @@ Structs have way better performance characteristics than classes, which is why t
 
 ### Typed Throws
 Destiny utilizes typed throws to avoid heap allocations and reduced performance associated with regular, existential errors and throws.
+
+### Unsafe Pointers
+Destiny minimizes its usage of unsafe pointers by using `Span` and `MutableSpan`, however, they are unavoidable when calling C library functions for optimal networking io.
 
 ### Unwrap Arithmetic Operators
 Where applicable, to reduce arithmetic overhead (Swift's default arithmetic safety features).
