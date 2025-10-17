@@ -77,6 +77,15 @@ extension RouterStorage {
         isCaseSensitive: Bool,
         isCopyable: Bool
     ) -> String? {
+        if isCopyable {
+            #if !Copyable
+            return nil
+            #endif
+        } else {
+            #if !NonCopyable
+            return nil
+            #endif
+        }
         var dynamicRoutesCount = 0
         #if NonEmbedded
         let dynamicRoutes = isCaseSensitive ? dynamicRouteStorage.caseSensitiveRoutes : dynamicRouteStorage.caseInsensitiveRoutes
@@ -117,16 +126,14 @@ extension RouterStorage {
             routeResponders: routeResponders
         )
         let name = "\(namePrefix)ResponderStorage\(random)"
-        let compilationCondition = isCopyable ? "Copyable" : "NonCopyable"
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "#if \(compilationCondition)\n// MARK: \(namePrefix)ResponderStorage\(random)\n",
+            leadingTrivia: "// MARK: \(namePrefix)ResponderStorage\(random)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
                 inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
             ),
-            memberBlock: .init(members: members),
-            trailingTrivia: "\n#endif"
+            memberBlock: .init(members: members)
         )
         generatedDecls.append(enumDecl)
         if isCaseSensitive {

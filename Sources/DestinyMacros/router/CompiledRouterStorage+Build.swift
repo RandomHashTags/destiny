@@ -91,14 +91,13 @@ extension CompiledRouterStorage {
             name = "NonCopyable"
         }
         return .init(
-            leadingTrivia: "// MARK: \(name)\n#if \(name)\n",
+            leadingTrivia: "// MARK: \(name)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: "_\(name)")",
             inheritanceClause: .init(
                 inheritedTypes: routerProtocolConformances(isCopyable: isCopyable, protocolConformance: hasProtocolConformances)
             ),
-            memberBlock: .init(members: members),
-            trailingTrivia: "\n#endif"
+            memberBlock: .init(members: members)
         )
     }
 }
@@ -110,33 +109,31 @@ extension CompiledRouterStorage {
         copyable: StructDeclSyntax?,
         noncopyable: StructDeclSyntax?
     ) {
-        var routerVariableNames = [(trait: String, variableName: String)]()
+        var routerVariableNames = [String]()
         if noncopyable != nil {
-            routerVariableNames.append(("NonCopyable", "noncopyable"))
+            routerVariableNames.append("noncopyable")
             let noncopyableDecl = VariableDeclSyntax(
-                leadingTrivia: "#if NonCopyable\n",
                 modifiers: [visibilityModifier],
                 .let,
                 name: "noncopyable",
-                initializer: .init(value: ExprSyntax("_NonCopyable()"), trailingTrivia: "\n#endif")
+                initializer: .init(value: ExprSyntax("_NonCopyable()"))
             )
             members.append(noncopyableDecl)
         }
         if copyable != nil {
-            routerVariableNames.append(("Copyable", "copyable"))
+            routerVariableNames.append("copyable")
             let copyableDecl = VariableDeclSyntax.init(
-                leadingTrivia: "#if Copyable\n",
                 modifiers: [visibilityModifier],
                 .let,
                 name: "copyable",
-                initializer: .init(value: ExprSyntax("_Copyable()"), trailingTrivia: "\n#endif"),
+                initializer: .init(value: ExprSyntax("_Copyable()")),
             )
             members.append(copyableDecl)
         }
 
         let mutable:ClassDeclSyntax?
         if isMutable {
-            routerVariableNames.append(("MutableRouter", "mutable"))
+            routerVariableNames.append("mutable")
             let mutableDecl = VariableDeclSyntax(
                 modifiers: [visibilityModifier],
                 .let,
@@ -160,19 +157,19 @@ extension CompiledRouterStorage {
         }
 
         let loadString = routerVariableNames.map({
-            "#if \($0.trait)\n\($0.variableName).load()\n#endif"
+            "\($0).load()\n"
         }).joined(separator: "\n")
         members.append(loadDecl(loadString: loadString))
 
         let handleDynamicMiddlewareString = routerVariableNames.map({
-            "#if \($0.trait)\ntry \($0.variableName).handleDynamicMiddleware(for: &request, with: &response)\n#endif"
+            "try \($0).handleDynamicMiddleware(for: &request, with: &response)\n"
         }).joined(separator: "\n")
         members.append(handleDynamicMiddlewareDecl(handleString: handleDynamicMiddlewareString))
 
         members.append(handleDecl())
 
         let respondersString = routerVariableNames.map({
-            "#if \($0.trait)\nif try \($0.variableName).respond(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n#endif"
+            "if try \($0).respond(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n"
         }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondDecl(respondersString: respondersString))
 
@@ -180,12 +177,12 @@ extension CompiledRouterStorage {
         members.append(respondWithDynamicResponderDecl(isCopyable: false, responderString: "completionHandler()"))
 
         let respondWithNotFoundString = routerVariableNames.map({
-            "#if \($0.trait)\nif try \($0.variableName).respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n#endif"
+            "if try \($0).respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n"
         }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondWithNotFoundDecl(responderString: respondWithNotFoundString))
 
         let respondWithErrorString = routerVariableNames.map({
-            "#if \($0.trait)\nif \($0.variableName).respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n#endif"
+            "if \($0).respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n"
         }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondWithErrorDecl(logic: respondWithErrorString))
 

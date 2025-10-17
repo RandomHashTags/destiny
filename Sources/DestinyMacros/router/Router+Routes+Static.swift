@@ -73,6 +73,15 @@ extension RouterStorage {
         getRedirectRouteStartLine: (any RedirectionRouteProtocol) -> String,
         routes: [(StaticRoute, FunctionCallExprSyntax)]
     ) -> String? {
+        if isCopyable {
+            #if !Copyable
+            return nil
+            #endif
+        } else {
+            #if !NonCopyable
+            return nil
+            #endif
+        }
         var routePaths = [String]()
         var literalRouteResponders = [String]()
         routePaths.reserveCapacity(routes.count)
@@ -88,16 +97,14 @@ extension RouterStorage {
         guard !routePaths.isEmpty else { return nil }
 
         let name = "\(namePrefix)ResponderStorage\(random)"
-        let compilationCondition = isCopyable ? "Copyable" : "NonCopyable"
         let enumDecl = StructDeclSyntax(
-            leadingTrivia: "#if \(compilationCondition)\n// MARK: \(name)\n",
+            leadingTrivia: "// MARK: \(name)\n",
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
                 inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
             ),
-            memberBlock: .init(members: .init()),
-            trailingTrivia: "\n#endif"
+            memberBlock: .init(members: .init())
         )
 
         generatedDecls.append(enumDecl)    
