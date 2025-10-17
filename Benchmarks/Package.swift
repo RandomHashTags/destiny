@@ -7,11 +7,6 @@ let package = Package(
     platforms: [
         .macOS(.v14)
     ],
-    traits: [
-        .default(enabledTraits: ["NonCopyable", "Copyable"]),
-        .trait(name: "Copyable"),
-        .trait(name: "NonCopyable"),
-    ],
     dependencies: [
         // networking
         .package(url: "https://github.com/swift-server/swift-service-lifecycle", exact: "2.9.0"),
@@ -22,7 +17,12 @@ let package = Package(
 
         .package(
             url: "https://github.com/RandomHashTags/destiny",
-            branch: "main"
+            branch: "main",
+            traits: [
+                "Copyable",
+                "Inlinable",
+                "MediaTypes"
+            ]
         ),
         .package(url: "https://github.com/vapor/vapor", exact: "4.117.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.16.0")

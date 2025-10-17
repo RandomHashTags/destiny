@@ -21,12 +21,20 @@ extension DestinyStorage {
                     "server":"destiny",
                     "connection":"close"
                 ]
-            )
+            ),
+            DynamicCORSMiddleware()
         ],
         Route.get(
             path: ["html"],
             contentType: "text/html",
             body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+        ),
+        Route.get(
+            path: ["dynamic"],
+            contentType: "text/html",
+            handler: { request, response in
+                response.setBody("\(UInt64.random(in: UInt64.min...UInt64.max))")
+            }
         )
     )
 }

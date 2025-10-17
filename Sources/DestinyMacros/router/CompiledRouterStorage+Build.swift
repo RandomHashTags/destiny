@@ -404,9 +404,14 @@ extension CompiledRouterStorage {
 // MARK: Handle dynamic middleware
 extension CompiledRouterStorage {
     private func handleDynamicMiddlewareDecl() -> FunctionDeclSyntax {
-        let handleString = dynamicMiddlewareArray.enumerated().map({
-            "guard try dynamicMiddleware.\($0.offset).handle(request: &request, response: &response) else { return }"
-        }).joined(separator: "\n")
+        let handleString:String
+        if dynamicMiddlewareArray.count == 1 { // really Swift?
+            handleString = "guard try dynamicMiddleware.handle(request: &request, response: &response) else { return }"
+        } else {
+            handleString = dynamicMiddlewareArray.enumerated().map({
+                "guard try dynamicMiddleware.\($0.offset).handle(request: &request, response: &response) else { return }"
+            }).joined(separator: "\n")
+        }
         return handleDynamicMiddlewareDecl(handleString: handleString)
     }
     private func handleDynamicMiddlewareDecl(handleString: String) -> FunctionDeclSyntax {
