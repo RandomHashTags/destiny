@@ -1,4 +1,6 @@
 
+#if NonCopyable
+
 /// Core protocol that handles requests to static routes.
 public protocol NonCopyableStaticRouteResponderProtocol: NonCopyableRouteResponderProtocol, ~Copyable {
 }
@@ -7,3 +9,5 @@ public protocol NonCopyableStaticRouteResponderProtocol: NonCopyableRouteRespond
 extension String: NonCopyableStaticRouteResponderProtocol {}
 extension StaticString: NonCopyableStaticRouteResponderProtocol {}
 extension [UInt8]: NonCopyableStaticRouteResponderProtocol {}
+
+#endif

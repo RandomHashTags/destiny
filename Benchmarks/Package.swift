@@ -19,9 +19,7 @@ let package = Package(
             url: "https://github.com/RandomHashTags/destiny",
             branch: "main",
             traits: [
-                "Copyable",
-                "Inlinable",
-                "MediaTypes"
+                "Inlinable"
             ]
         ),
         .package(url: "https://github.com/vapor/vapor", exact: "4.117.0"),
