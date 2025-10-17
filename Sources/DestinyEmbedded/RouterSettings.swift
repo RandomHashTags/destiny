@@ -22,6 +22,7 @@ public struct RouterSettings: Sendable {
         dynamicResponsesAreGeneric: Bool = true,
         respondersAreComputedProperties: Bool = false,
         protocolConformances: Bool = true,
+        logging: Bool = true,
         visibility: RouterVisibility = .internal,
         name: String = "CompiledHTTPRouter",
         requestType: String = "HTTPRequest"
@@ -33,7 +34,8 @@ public struct RouterSettings: Sendable {
             mutable: mutable,
             dynamicResponsesAreGeneric: dynamicResponsesAreGeneric,
             respondersAreComputedProperties: respondersAreComputedProperties,
-            protocolConformances: protocolConformances
+            protocolConformances: protocolConformances,
+            logging: logging
         )
     }
 
@@ -83,6 +85,17 @@ public struct RouterSettings: Sendable {
         get { isFlag(.protocolConformances) }
         set { setFlag(.protocolConformances, newValue) }
     }
+
+    /// Whether or not the expanded data should include logging logic.
+    /// 
+    /// Default is `true`.
+    #if Inlinable
+    @inlinable
+    #endif
+    public var hasLogging: Bool {
+        get { isFlag(.logging) }
+        set { setFlag(.logging, newValue) }
+    }
 }
 
 // MARK: Flags
@@ -93,17 +106,20 @@ extension RouterSettings {
         case dynamicResponsesAreGeneric = 2
         case respondersAreComputedProperties = 4
         case protocolConformances = 8
+        case logging = 16
 
         static func pack(
             mutable: Bool,
             dynamicResponsesAreGeneric: Bool,
             respondersAreComputedProperties: Bool,
-            protocolConformances: Bool
+            protocolConformances: Bool,
+            logging: Bool
         ) -> RawValue {
             (mutable ? Self.mutable.rawValue : 0)
             | (dynamicResponsesAreGeneric ? Self.dynamicResponsesAreGeneric.rawValue : 0)
             | (respondersAreComputedProperties ? Self.respondersAreComputedProperties.rawValue : 0)
             | (protocolConformances ? Self.protocolConformances.rawValue : 0)
+            | (logging ? Self.logging.rawValue : 0)
         }
     }
 

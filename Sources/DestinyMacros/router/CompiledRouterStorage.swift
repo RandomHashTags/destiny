@@ -150,6 +150,14 @@ struct CompiledRouterStorage {
         "HTTPRequest"
         #endif
     }
+
+    var hasLogging: Bool {
+        #if RouterSettings
+        settings.hasLogging
+        #else
+        false
+        #endif
+    }
 }
 
 // MARK: Responder

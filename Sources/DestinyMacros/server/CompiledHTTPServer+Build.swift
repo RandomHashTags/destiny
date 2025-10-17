@@ -80,12 +80,10 @@ extension CompiledHTTPServer {
 extension CompiledHTTPServer {
     private func loggerDecl() -> VariableDeclSyntax {
         return .init(
-            leadingTrivia: "#if Logging\n",
             .let,
             name: "logger",
             type: TypeAnnotationSyntax(
-                type: TypeSyntax("Logger"),
-                trailingTrivia: "\n#endif"
+                type: TypeSyntax("Logger")
             )
         )
     }
@@ -204,6 +202,13 @@ extension CompiledHTTPServer {
         } else {
             reusePortLogic = ""
         }
+
+        let logInfo:String
+        if logging {
+            logInfo = "logger.info(\"Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\\(serverFD)]\")"
+        } else {
+            logInfo = ""
+        }
         return .init(
             leadingTrivia: "/// - Returns: The file descriptor of the created socket.\n",
             name: "bindAndListen",
@@ -264,9 +269,7 @@ extension CompiledHTTPServer {
             }
             setNonBlocking(socket: serverFD)
 
-            #if Logging
-            logger.info("Listening for clients on http://\(address ?? "localhost"):\(port) [backlog=\(backlog), serverFD=\\(serverFD)]")
-            #endif
+            \(logInfo)
 
             return serverFD
             """))
@@ -379,6 +382,12 @@ extension CompiledHTTPServer {
 // MARK: Process clients old
 extension CompiledHTTPServer {
     private func processClientsOLDDecl() -> FunctionDeclSyntax {
+        let logWarning:String
+        if logging {
+            logWarning = "self.logger.warning(\"\\(#function);\\(error)\")"
+        } else {
+            logWarning = ""
+        }
         return .init(
             leadingTrivia: "#if !Epoll && !Liburing\n",
             name: "processClientsOLD",
@@ -402,9 +411,7 @@ extension CompiledHTTPServer {
                                     client.socketClose()
                                 })
                             } catch {
-                                #if Logging
-                                self.logger.warning("\\(#function);\\(error)")
-                                #endif
+                                \(logWarning)
                             }
                         }
                     }
@@ -420,6 +427,12 @@ extension CompiledHTTPServer {
 // MARK: Epoll
 extension CompiledHTTPServer {
     private func epollDecl() -> FunctionDeclSyntax {
+        let logError:String
+        if logging {
+            logError = "logger.error(\"CompiledHTTPServer;\\(#function);error=\\(error)\")"
+        } else {
+            logError = ""
+        }
         return .init(
             leadingTrivia: "#if Epoll\n\(inlinableAnnotation)\n",
             name: "processClientsEpoll",
@@ -435,9 +448,7 @@ extension CompiledHTTPServer {
                 })
                 processor.shutdown()
             } catch {
-                #if Logging
-                logger.error("CompiledHTTPServer;\\(#function);error=\\(error)")
-                #endif
+                \(logError)
             }
             """),
             trailingTrivia: "\n#endif")

@@ -22,6 +22,8 @@ extension RouterSettings {
                 settings.respondersAreComputedProperties = arg.expression.booleanIsTrue
             case "protocolConformances":
                 settings.hasProtocolConformances = arg.expression.booleanIsTrue
+            case "logging":
+                settings.hasLogging = arg.expression.booleanIsTrue
             case "name":
                 if let s = arg.expression.stringLiteralString(context: context) {
                     settings.name = s

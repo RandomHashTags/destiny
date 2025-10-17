@@ -149,14 +149,15 @@ extension CompiledRouterStorage {
             mutable = nil
         }
 
-        let loggerDecl = VariableDeclSyntax(
-            leadingTrivia: "#if Logging\n",
-            modifiers: [visibilityModifier],
-            .let,
-            name: "logger",
-            initializer: .init(value: ExprSyntax("Logger(label: \"compiledHTTPRouter\")"), trailingTrivia: "\n#endif"),
-        )
-        members.append(loggerDecl)
+        if hasLogging {
+            let loggerDecl = VariableDeclSyntax(
+                modifiers: [visibilityModifier],
+                .let,
+                name: "logger",
+                initializer: .init(value: ExprSyntax("Logger(label: \"compiledHTTPRouter\")")),
+            )
+            members.append(loggerDecl)
+        }
 
         let loadString = routerVariableNames.map({
             "#if \($0.trait)\n\($0.variableName).load()\n#endif"
@@ -228,14 +229,15 @@ extension CompiledRouterStorage {
             initializer: .init(value: ExprSyntax("[any DynamicMiddlewareProtocol]()"))
         )))
 
-        let loggerDecl = VariableDeclSyntax(
-            leadingTrivia: "#if Logging\n",
-            modifiers: [visibilityModifier],
-            .let,
-            name: "logger",
-            initializer: .init(value: ExprSyntax("Logger(label: \"mutableHTTPRouter\")"), trailingTrivia: "\n#endif")
-        )
-        members.append(loggerDecl)
+        if hasLogging {
+            let loggerDecl = VariableDeclSyntax(
+                modifiers: [visibilityModifier],
+                .let,
+                name: "logger",
+                initializer: .init(value: ExprSyntax("Logger(label: \"mutableHTTPRouter\")"))
+            )
+            members.append(loggerDecl)
+        }
 
         // functions
         members.append(loadDecl())
@@ -252,12 +254,16 @@ extension CompiledRouterStorage {
 
         members.append(respondWithNotFoundDecl(responderString: "return false"))
 
-        members.append(respondWithErrorDecl(logic: """
-        #if Logging
-        logger.error("[StaticErrorResponder] // TODO: NOT YET IMPLEMENTED!")
-        #endif
-        return false
-        """))
+        let handleErrorLogic:String
+        if hasLogging {
+            handleErrorLogic = """
+            logger.error("[StaticErrorResponder] // TODO: NOT YET IMPLEMENTED!")
+            return false
+            """
+        } else {
+            handleErrorLogic = "return false"
+        }
+        members.append(respondWithErrorDecl(logic: handleErrorLogic))
 
         members.append(.init(decl: FunctionDeclSyntax(
             modifiers: [visibilityModifier],
@@ -370,13 +376,14 @@ extension CompiledRouterStorage {
         if let staticNotFoundResponder {
             appendVariableResponderFunction("staticNotFoundResponder", staticNotFoundResponder)
         }
-        decls.append(.init(
-            leadingTrivia: "#if Logging\n",
-            modifiers: [visibilityModifier],
-            .let,
-            name: "logger",
-            initializer: .init(value: ExprSyntax(stringLiteral: "Logger(label: \"compiledHTTPRouter.\(loggerPrefix)HTTPRouter\")"), trailingTrivia: "\n#endif")
-        ))
+        if hasLogging {
+            decls.append(.init(
+                modifiers: [visibilityModifier],
+                .let,
+                name: "logger",
+                initializer: .init(value: ExprSyntax(stringLiteral: "Logger(label: \"compiledHTTPRouter.\(loggerPrefix)HTTPRouter\")"))
+            ))
+        }
         return decls
     }
 }
@@ -424,6 +431,26 @@ extension CompiledRouterStorage {
 // MARK: Handle decl
 extension CompiledRouterStorage {
     private func handleDecl() -> FunctionDeclSyntax {
+        let logRequest:String
+        let failedToSendResponseToClient:String
+        let encounteredErrorWhileProcessingClient:String
+        let encounteredErrorWhileLoadingRequest:String
+        if hasLogging {
+            logRequest = """
+            #if DEBUG
+            let requestStartLine = try request.startLine().stringSIMD()
+            logger.info("\\(requestStartLine)")
+            #endif
+            """
+            failedToSendResponseToClient = "logger.error(\"failed to send response to client\")"
+            encounteredErrorWhileProcessingClient = "logger.warning(\"Encountered error while processing client: \\(error)\")"
+            encounteredErrorWhileLoadingRequest = "logger.warning(\"Encountered error while loading request: \\(error)\")"
+        } else {
+            logRequest = ""
+            failedToSendResponseToClient = ""
+            encounteredErrorWhileProcessingClient = ""
+            encounteredErrorWhileLoadingRequest = ""
+        }
         return .init(
             leadingTrivia: "\(inlinableAnnotation)\n",
             modifiers: [visibilityModifier],
@@ -439,34 +466,23 @@ extension CompiledRouterStorage {
                 do throws(SocketError) {
                     var request = try \(requestType).load(from: socket)
 
-                    #if DEBUG && Logging
-                    let requestStartLine = try request.startLine().stringSIMD()
-                    logger.info("\\(requestStartLine)")
-                    #endif
+                    \(logRequest)
 
                     do throws(ResponderError) {
                         guard !(try respond(socket: client, request: &request, completionHandler: completionHandler)) else { return }
                         if !(try respondWithNotFound(socket: client, request: &request, completionHandler: completionHandler)) {
-                            #if Logging
-                            logger.error("failed to send response to client")
-                            #endif
+                            \(failedToSendResponseToClient)
                             completionHandler()
                         }
                     } catch {
-                        #if Logging
-                        logger.warning("Encountered error while processing client: \\(error)")
-                        #endif
+                        \(encounteredErrorWhileProcessingClient)
                         if !respondWithError(socket: client, error: error, request: &request, completionHandler: completionHandler) {
-                            #if Logging
-                            logger.error("failed to send response to client")
-                            #endif
+                            \(failedToSendResponseToClient)
                             completionHandler()
                         }
                     }
                 } catch {
-                    #if Logging
-                    logger.warning("Encountered error while loading request: \\(error)")
-                    #endif
+                    \(encounteredErrorWhileLoadingRequest)
                     completionHandler()
                 }
                 """)

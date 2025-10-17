@@ -13,10 +13,10 @@ struct DestinyMacros: CompilerPlugin {
 }
 
 var inlinableAnnotation: String {
-    "#if Inlinable\n@inlinable\n#endif"
+    "@inlinable"
 }
 var inlineAlwaysAnnotation: String {
-    "#if InlineAlways\n@inline(__always)\n#endif"
+    "@inline(__always)"
 }
 
 func routerProtocolConformances(isCopyable: Bool, protocolConformance: Bool) -> InheritedTypeListSyntax {
