@@ -12,6 +12,32 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
         self.fileDescriptor = fileDescriptor
     }
 
+    func sendString(_ string: String) {
+        sent.append(.init(string.utf8))
+    }
+
+    func socketLocalAddress() -> String? {
+        return nil
+    }
+    func socketPeerAddress() -> String? {
+        return nil
+    }
+
+    func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int {
+        0
+    }
+
+    func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int {
+        0
+    }
+
+    func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
+        0
+    }
+}
+
+// MARK: Read
+extension TestFileDescriptor {
     func readReceived(into baseAddress: UnsafeMutableRawPointer, length: Int) -> Int {
         return readMutating(into: baseAddress, length: length, array: &received)
     }
@@ -50,7 +76,10 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
         }
         return read
     }
+}
 
+// MARK: Write
+extension TestFileDescriptor {
     func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
@@ -62,44 +91,50 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
         received.append(buffer)
     }
 
-    func writeBuffers<let count: Int>(_ buffers: InlineArray<count, UnsafeBufferPointer<UInt8>>) {
-        for indice in buffers.indices {
-            received.append(.init(buffers[indice]))
+    func writeBuffers3(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+    ) throws(SocketError) {
+        appendBuffer(b1)
+        appendBuffer(b2)
+        appendBuffer(b3)
+    }
+    func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: UnsafeBufferPointer<UInt8>,
+        _ b3: UnsafeBufferPointer<UInt8>,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(SocketError) {
+        appendBuffer((b1.baseAddress!, b1.count))
+        appendBuffer((b2.baseAddress!, b2.count))
+        appendBuffer((b3.baseAddress!, b3.count))
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers6(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+    ) throws(SocketError) {
+        appendBuffer(b1)
+        appendBuffer(b2)
+        appendBuffer(b3)
+        appendBuffer(b4)
+        appendBuffer(b5)
+        appendBuffer(b6)
+    }
+
+    private func appendBuffer(_ b: (buffer: UnsafePointer<UInt8>, bufferCount: Int)) {
+        var array = Array<UInt8>(repeating: 0, count: b.bufferCount)
+        for i in 0..<b.bufferCount {
+            array[i] = b.buffer[i]
         }
-    }
-
-    func writeBuffers<let count: Int>(_ buffers: InlineArray<count, (buffer: UnsafePointer<UInt8>, bufferCount: Int)>) throws(SocketError) {
-        for indice in buffers.indices {
-            let item = buffers[indice]
-            let buffer = item.buffer
-            var array = Array(repeating: UInt8(0), count: item.bufferCount)
-            for i in 0..<item.bufferCount {
-                array[i] = buffer[i]
-            }
-            received.append(array)
-        }
-    }
-
-    func sendString(_ string: String) {
-        sent.append(.init(string.utf8))
-    }
-
-    func socketLocalAddress() -> String? {
-        return nil
-    }
-    func socketPeerAddress() -> String? {
-        return nil
-    }
-
-    func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int {
-        0
-    }
-
-    func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int {
-        0
-    }
-
-    func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
-        0
+        received.append(array)
     }
 }

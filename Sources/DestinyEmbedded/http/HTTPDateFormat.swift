@@ -38,13 +38,22 @@ public struct HTTPDateFormat: Sendable {
 
     public typealias InlineArrayResult = InlineArray<29, UInt8>
 
+    /// Current number of non-zero bytes in the `_nowUnsafeBufferPointer`.
+    @usableFromInline
+    nonisolated(unsafe) static var _count = 0
+
+    /// Last calculated date value in the HTTP Format as an `UnsafeBufferPointer<UInt8>`.
     @usableFromInline
     nonisolated(unsafe) static private(set) var _nowUnsafeBufferPointer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 29)
 
+    /// Last calculated date value in the HTTP Format as a `String`.
     @usableFromInline
     nonisolated(unsafe) static private(set) var _nowString = placeholder
 
+
     /// Last calculated date value in the HTTP Format as an `UnsafeBufferPointer<UInt8>`.
+    /// 
+    /// - Warning: Can have zero or more trailing null-termination bytes (0)!
     #if Inlinable
     @inlinable
     #endif
@@ -52,7 +61,9 @@ public struct HTTPDateFormat: Sendable {
     @inline(__always)
     #endif
     public static var nowUnsafeBufferPointer: UnsafeBufferPointer<UInt8> {
-        _read { yield UnsafeBufferPointer(_nowUnsafeBufferPointer) }
+        _read {
+            yield UnsafeBufferPointer(_nowUnsafeBufferPointer)
+        }
     }
 
     /// Last calculated date value in the HTTP Format as a `String`.
@@ -64,6 +75,14 @@ public struct HTTPDateFormat: Sendable {
     #endif
     public static var nowString: String {
         _read { yield _nowString }
+    }
+
+    /// Current number of non-zero bytes in the `_nowUnsafeBufferPointer`.
+    #if Inlinable
+    @inlinable
+    #endif
+    public static var count: Int {
+        _read { yield _count }
     }
 
     /// Calculates the current date in the HTTP Format.
@@ -99,17 +118,21 @@ extension HTTPDateFormat {
                     //var updateAt:SuspendingClock.Instant = now
                     //updateAt.duration(to: Duration.init(secondsComponent: 1, attosecondsComponent: 0))
                     //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
-                    try await Task.sleep(for: .seconds(1))
                     if let result = Self.now() {
+                        _count = 0
                         var s = ""
                         s.reserveCapacity(29)
                         for i in 0..<29 {
                             let byte = result[unchecked: i]
                             _nowUnsafeBufferPointer[i] = byte
                             s.append(Character(UnicodeScalar(byte)))
+                            if byte != 0 {
+                                _count += 1
+                            }
                         }
                         _nowString = s
                     }
+                    try await Task.sleep(for: .seconds(1))
                 } catch {
                     logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")
                 }
@@ -131,17 +154,21 @@ extension HTTPDateFormat {
                     //var updateAt:SuspendingClock.Instant = now
                     //updateAt.duration(to: Duration.init(secondsComponent: 1, attosecondsComponent: 0))
                     //try await Task.sleep(until: updateAt, tolerance: Duration.seconds(1), clock: clock)
-                    try await Task.sleep(for: .seconds(1))
                     if let result = Self.now() {
+                        _count = 0
                         var s = ""
                         s.reserveCapacity(29)
                         for i in 0..<29 {
                             let byte = result[unchecked: i]
                             _nowUnsafeBufferPointer[i] = byte
                             s.append(Character(UnicodeScalar(byte)))
+                            if byte != 0 {
+                                _count += 1
+                            }
                         }
                         _nowString = s
                     }
+                    try await Task.sleep(for: .seconds(1))
                 } catch {
                     //logger.warning("[HTTPDateFormat] Encountered error trying to sleep task: \(error)")
                 }
@@ -161,7 +188,7 @@ extension HTTPDateFormat {
     ///   - hour: Number of hours past midnight (00:00), in the range 0 to 23.
     ///   - minute: Number of minutes after the hour, in the range 0 to 59.
     ///   - second: Number of seconds after the minute, normally in the range 0 to 59, but can be up to 60 to allow for leap seconds.
-    /// - Returns: An `InlineArray` that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
+    /// - Returns: An `InlineArray<29, UInt8>` that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
     #if Inlinable
     @inlinable
     #endif

@@ -42,7 +42,7 @@ public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
         do throws(SocketError) {
             try socket.writeBuffers3(
                 (preDatePointer, preDatePointerCount),
-                (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
+                (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
                 (postDatePointer, postDatePointerCount)
             )
         } catch {
