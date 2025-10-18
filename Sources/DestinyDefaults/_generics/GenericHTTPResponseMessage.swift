@@ -13,6 +13,7 @@ public struct GenericHTTPResponseMessage<
     public var contentType:String?
     public var charset:Charset?
 
+    #if HTTPCookie
     public init(
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
@@ -27,6 +28,22 @@ public struct GenericHTTPResponseMessage<
         self.contentType = contentType
         self.charset = charset
     }
+    #else
+    public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        body: Body?,
+        contentType: String?,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, status: status, version: version)
+        self.body = body
+        self.contentType = contentType
+        self.charset = charset
+    }
+    #endif
+
     public init(
         head: HTTPResponseMessageHead,
         body: Body?,
@@ -92,12 +109,14 @@ public struct GenericHTTPResponseMessage<
         head.headers[key] = value
     }
 
+    #if HTTPCookie
     #if Inlinable
     @inlinable
     #endif
     public mutating func appendCookie(_ cookie: HTTPCookie) {
         head.cookies.append(cookie)
     }
+    #endif
 
     #if Inlinable
     @inlinable
@@ -143,19 +162,27 @@ extension GenericHTTPResponseMessage {
             contentLengthString = ""
             charsetRawName = ""
         }
+
+        #if HTTPCookie
         let cookieDescriptions = head.cookieDescriptions()
         for cookie in cookieDescriptions {
             capacity +=! (14 +! cookie.utf8Span.count) // Set-Cookie: x\r\n
         }
+        #endif
+
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
             writeStartLine(to: p, at: &i)
             for (key, value) in head.headers {
                 writeHeader(to: p, at: &i, key: key, value: value)
             }
+
+            #if HTTPCookie
             for cookie in cookieDescriptions {
                 writeCookie(cookie, to: p, at: &i)
             }
+            #endif
+
             try writeResult(
                 to: p,
                 index: &i,
@@ -326,6 +353,7 @@ extension GenericHTTPResponseMessage {
         headers: inout HTTPHeaders
     ) -> Self {
         headers["location"] = "/\(target)"
+        #if HTTPCookie
         return Self(
             version: version, 
             status: status,
@@ -335,6 +363,16 @@ extension GenericHTTPResponseMessage {
             contentType: nil,
             charset: nil
         )
+        #else
+        return Self(
+            version: version, 
+            status: status,
+            headers: headers,
+            body: nil,
+            contentType: nil,
+            charset: nil
+        )
+        #endif
     }
 }
 
@@ -370,53 +408,101 @@ extension GenericHTTPResponseMessage: GenericHTTPMessageProtocol {}
 import MediaTypes
 
 extension GenericHTTPResponseMessage {
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: Body?,
-        mediaType: MediaType?,
-        charset: Charset?
-    ) {
-        head = .init(headers: headers, cookies: cookies, status: status, version: version)
-        self.body = body
-        self.contentType = mediaType?.template
-        self.charset = charset
-    }
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: Body?,
-        mediaType: (some MediaTypeProtocol)?,
-        charset: Charset?
-    ) {
-        head = .init(headers: headers, cookies: cookies, status: status, version: version)
-        self.body = body
-        if let mediaType {
-            self.contentType = mediaType.template
-        } else {
-            self.contentType = nil
+    #if HTTPCookie
+        public init(
+            version: HTTPVersion,
+            status: HTTPResponseStatus.Code,
+            headers: HTTPHeaders,
+            cookies: [HTTPCookie],
+            body: Body?,
+            mediaType: MediaType?,
+            charset: Charset?
+        ) {
+            head = .init(headers: headers, cookies: cookies, status: status, version: version)
+            self.body = body
+            self.contentType = mediaType?.template
+            self.charset = charset
         }
-        self.charset = charset
-    }
+        public init(
+            version: HTTPVersion,
+            status: HTTPResponseStatus.Code,
+            headers: HTTPHeaders,
+            cookies: [HTTPCookie],
+            body: Body?,
+            mediaType: (some MediaTypeProtocol)?,
+            charset: Charset?
+        ) {
+            head = .init(headers: headers, cookies: cookies, status: status, version: version)
+            self.body = body
+            if let mediaType {
+                self.contentType = mediaType.template
+            } else {
+                self.contentType = nil
+            }
+            self.charset = charset
+        }
 
-    public init(
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: Body?,
-        mediaType: MediaType?,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion,
-        charset: Charset?
-    ) {
-        head = .init(headers: headers, cookies: cookies, status: status, version: version)
-        self.body = body
-        self.contentType = mediaType?.template
-        self.charset = charset
-    }
+        public init(
+            headers: HTTPHeaders,
+            cookies: [HTTPCookie],
+            body: Body?,
+            mediaType: MediaType?,
+            status: HTTPResponseStatus.Code,
+            version: HTTPVersion,
+            charset: Charset?
+        ) {
+            head = .init(headers: headers, cookies: cookies, status: status, version: version)
+            self.body = body
+            self.contentType = mediaType?.template
+            self.charset = charset
+        }
+    #else
+        public init(
+            version: HTTPVersion,
+            status: HTTPResponseStatus.Code,
+            headers: HTTPHeaders,
+            body: Body?,
+            mediaType: MediaType?,
+            charset: Charset?
+        ) {
+            head = .init(headers: headers, status: status, version: version)
+            self.body = body
+            self.contentType = mediaType?.template
+            self.charset = charset
+        }
+        public init(
+            version: HTTPVersion,
+            status: HTTPResponseStatus.Code,
+            headers: HTTPHeaders,
+            body: Body?,
+            mediaType: (some MediaTypeProtocol)?,
+            charset: Charset?
+        ) {
+            head = .init(headers: headers, status: status, version: version)
+            self.body = body
+            if let mediaType {
+                self.contentType = mediaType.template
+            } else {
+                self.contentType = nil
+            }
+            self.charset = charset
+        }
+
+        public init(
+            headers: HTTPHeaders,
+            body: Body?,
+            mediaType: MediaType?,
+            status: HTTPResponseStatus.Code,
+            version: HTTPVersion,
+            charset: Charset?
+        ) {
+            head = .init(headers: headers, status: status, version: version)
+            self.body = body
+            self.contentType = mediaType?.template
+            self.charset = charset
+        }
+    #endif
+
     public init(
         head: HTTPResponseMessageHead,
         body: Body?,

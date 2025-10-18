@@ -12,6 +12,7 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
         status: HTTPResponseStatus.Code
     ) -> Bool
 
+    #if HTTPCookie
     /// Updates the given variables by applying this middleware.
     func apply(
         version: inout HTTPVersion,
@@ -20,6 +21,15 @@ public protocol StaticMiddlewareProtocol: MiddlewareProtocol, ~Copyable {
         headers: inout HTTPHeaders,
         cookies: inout [HTTPCookie]
     )
+    #else
+    /// Updates the given variables by applying this middleware.
+    func apply(
+        version: inout HTTPVersion,
+        contentType: inout String?,
+        status: inout HTTPResponseStatus.Code,
+        headers: inout HTTPHeaders
+    )
+    #endif
 
     /// Updates the `response` by applying this middleware.
     /// 

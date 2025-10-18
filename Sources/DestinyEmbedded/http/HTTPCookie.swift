@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 /// Default HTTP Cookie storage.
 public struct HTTPCookie: Sendable {
     @usableFromInline
@@ -71,8 +73,8 @@ extension HTTPCookie {
         domain: String? = nil,
         path: String? = nil,
         isSecure: Bool = false,
-        isHTTPOnly: Bool = false,
         isPartitioned: Bool = false,
+        isHTTPOnly: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
     ) throws(HTTPCookieError) {
         try self.init(
@@ -83,8 +85,8 @@ extension HTTPCookie {
             domain: domain,
             path: path,
             isSecure: isSecure,
-            isHTTPOnly: isHTTPOnly,
             isPartitioned: isPartitioned,
+            isHTTPOnly: isHTTPOnly,
             sameSite: sameSite
         )
     }
@@ -103,8 +105,8 @@ extension HTTPCookie {
         domain: String? = nil,
         path: String? = nil,
         isSecure: Bool = false,
-        isHTTPOnly: Bool = false,
         isPartitioned: Bool = false,
+        isHTTPOnly: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
     ) throws(HTTPCookieError) {
         try Self.validateValue(value)
@@ -116,8 +118,8 @@ extension HTTPCookie {
             domain: domain,
             path: path,
             isSecure: isSecure,
-            isHTTPOnly: isHTTPOnly,
             isPartitioned: isPartitioned,
+            isHTTPOnly: isHTTPOnly,
             sameSite: sameSite
         )
     }
@@ -133,8 +135,8 @@ extension HTTPCookie {
         domain: String? = nil,
         path: String? = nil,
         isSecure: Bool = false,
-        isHTTPOnly: Bool = false,
         isPartitioned: Bool = false,
+        isHTTPOnly: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
     ) {
         self._name = name
@@ -262,3 +264,5 @@ extension HTTPCookie {
         set { setFlag(.partitioned, newValue) }
     }
 }
+
+#endif

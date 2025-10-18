@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 import DestinyBlueprint
 import DestinyDefaults
 import Testing
@@ -61,5 +63,6 @@ extension HTTPCookieError: Equatable {
             return false
         }
     }
-
 }
+
+#endif

@@ -87,6 +87,7 @@ defaultTraits.formUnion([
     "CORS",
     //"Generics", // disabled by default since we use non-embedded types instead of generics by default
     "GenericDynamicResponse",
+    "HTTPCookie",
     "HTTPStandardRequestMethods",
     "HTTPStandardRequestMethodRawValues",
     "HTTPStandardResponseStatuses",
@@ -226,6 +227,11 @@ let traits:Set<Trait> = [
             "GenericDynamicResponse",
             "GenericRouteGroup"
         ]
+    ),
+
+    .trait(
+        name: "HTTPCookie",
+        description: "Enables the default HTTPCookie implementation."
     ),
 
     .trait(name: "HTTPNonStandardRequestHeaders"),

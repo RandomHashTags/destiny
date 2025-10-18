@@ -13,7 +13,7 @@
 Enabled by default (can disable by removing the `RequestHeaders` package trait).
 
 ### Cookies
-Enabled by default.
+Enabled by default (can disable by removing the `HTTPCookie` package trait).
 
 ## Body
 Enabled by default (can disable by removing the `RequestBody` package trait).

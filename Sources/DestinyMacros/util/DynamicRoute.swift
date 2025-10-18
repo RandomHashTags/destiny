@@ -48,6 +48,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
 
 // MARK: Init
 extension DynamicRoute {
+    #if HTTPCookie
     public init(
         version: HTTPVersion = .v1_1,
         method: some HTTPRequestMethodProtocol,
@@ -73,7 +74,6 @@ extension DynamicRoute {
             handler: handler
         )
     }
-
     public init(
         version: HTTPVersion = .v1_1,
         method: HTTPRequestMethod,
@@ -106,6 +106,61 @@ extension DynamicRoute {
         )
         self.handler = handler
     }
+    #else
+    public init(
+        version: HTTPVersion = .v1_1,
+        method: some HTTPRequestMethodProtocol,
+        path: [PathComponent],
+        isCaseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = 501, // not implemented
+        contentType: String? = nil,
+        headers: HTTPHeaders = .init(),
+        body: (any ResponseBodyProtocol)? = nil,
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    ) {
+        self.init(
+            version: version,
+            method: .init(method),
+            path: path,
+            isCaseSensitive: isCaseSensitive,
+            status: status,
+            contentType: contentType,
+            headers: headers,
+            body: body,
+            handler: handler
+        )
+    }
+    public init(
+        version: HTTPVersion = .v1_1,
+        method: HTTPRequestMethod,
+        path: [PathComponent],
+        isCaseSensitive: Bool = true,
+        status: HTTPResponseStatus.Code = 501, // not implemented
+        contentType: String? = nil,
+        headers: HTTPHeaders = .init(),
+        body: (any ResponseBodyProtocol)? = nil,
+        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
+    ) {
+        self.version = version
+        self.method = method
+        self.path = path
+        self.isCaseSensitive = isCaseSensitive
+        self.status = status
+        self.contentType = contentType
+        self.defaultResponse = DynamicResponse.init(
+            message: HTTPResponseMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                body: body,
+                contentType: nil,
+                charset: nil
+            ),
+            parameters: []
+        )
+        self.handler = handler
+    }
+    #endif
 }
 
 #if StaticMiddleware

@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 import DestinyBlueprint
 import DestinyDefaults
 import SwiftSyntax
@@ -69,8 +71,8 @@ extension HTTPCookie {
                     domain: domain,
                     path: path,
                     isSecure: isSecure,
-                    isHTTPOnly: isHTTPOnly,
                     isPartitioned: isPartitioned,
+                    isHTTPOnly: isHTTPOnly,
                     sameSite: sameSite
                 )
             #endif
@@ -84,8 +86,8 @@ extension HTTPCookie {
                     domain: domain,
                     path: path,
                     isSecure: isSecure,
-                    isHTTPOnly: isHTTPOnly,
                     isPartitioned: isPartitioned,
+                    isHTTPOnly: isHTTPOnly,
                     sameSite: sameSite
                 )
             default:
@@ -97,8 +99,8 @@ extension HTTPCookie {
                     domain: domain,
                     path: path,
                     isSecure: isSecure,
-                    isHTTPOnly: isHTTPOnly,
                     isPartitioned: isPartitioned,
+                    isHTTPOnly: isHTTPOnly,
                     sameSite: sameSite
                 )
             }
@@ -114,3 +116,5 @@ extension HTTPCookie {
         case uncheckedValue
     }
 }
+
+#endif

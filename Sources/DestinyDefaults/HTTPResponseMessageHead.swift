@@ -4,10 +4,15 @@ import DestinyEmbedded
 /// Default storage that efficiently handles an HTTP Message's head content (HTTP Version, status code and headers).
 public struct HTTPResponseMessageHead: Sendable {
     public var headers:HTTPHeaders
+
+    #if HTTPCookie
     public var cookies:[HTTPCookie]
+    #endif
+
     public var status:HTTPResponseStatus.Code
     public var version:HTTPVersion
 
+    #if HTTPCookie
     public init(
         headers: HTTPHeaders,
         cookies: [HTTPCookie],
@@ -19,6 +24,17 @@ public struct HTTPResponseMessageHead: Sendable {
         self.status = status
         self.version = version
     }
+    #else
+    public init(
+        headers: HTTPHeaders,
+        status: HTTPResponseStatus.Code,
+        version: HTTPVersion
+    ) {
+        self.headers = headers
+        self.status = status
+        self.version = version
+    }
+    #endif
 
     #if Inlinable
     @inlinable
@@ -35,12 +51,17 @@ public struct HTTPResponseMessageHead: Sendable {
         for (header, value) in headers {
             string += "\(header): \(value)\(suffix)"
         }
+
+        #if HTTPCookie
         for cookie in cookies {
             string += "set-cookie: \(cookie)\(suffix)"
         }
+        #endif
+
         return string
     }
 
+    #if HTTPCookie
     #if Inlinable
     @inlinable
     #endif
@@ -52,4 +73,5 @@ public struct HTTPResponseMessageHead: Sendable {
         }
         return array
     }
+    #endif
 }

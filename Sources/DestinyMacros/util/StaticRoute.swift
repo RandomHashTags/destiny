@@ -92,15 +92,43 @@ extension StaticRoute {
             if body?.hasDateHeader ?? false {
                 headers["date"] = HTTPDateFormat.placeholder
             }
+
+            #if HTTPCookie
             var cookies = [HTTPCookie]()
+            #endif
+
             middleware.forEach { middleware in
                 if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
+                    #if HTTPCookie
                     middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
+                    #else
+                    middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
+                    #endif
                 }
             }
             headers["content-type"] = nil
             headers["content-length"] = nil
-            return Self.response(version: version, status: status, headers: &headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+
+            #if HTTPCookie
+            return Self.response(
+                version: version,
+                status: status,
+                headers: &headers,
+                cookies: cookies,
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #else
+            return Self.response(
+                version: version,
+                status: status,
+                headers: &headers,
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #endif
         }
     #else
         public func response() -> HTTPResponseMessage {
@@ -114,6 +142,7 @@ extension StaticRoute {
         }
     #endif
 
+    #if HTTPCookie
     @inline(__always)
     package static func response(
         version: HTTPVersion,
@@ -128,6 +157,21 @@ extension StaticRoute {
         headers["content-length"] = nil
         return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
     }
+    #else
+    @inline(__always)
+    package static func response(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: inout HTTPHeaders,
+        body: (any ResponseBodyProtocol)?,
+        contentType: String?,
+        charset: Charset?
+    ) -> HTTPResponseMessage {
+        headers["content-type"] = nil
+        headers["content-length"] = nil
+        return HTTPResponseMessage(version: version, status: status, headers: headers, body: body, contentType: contentType, charset: charset)
+    }
+    #endif
 }
 
 // MARK: Responder

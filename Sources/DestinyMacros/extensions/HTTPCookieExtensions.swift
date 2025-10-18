@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 import DestinyBlueprint
 
 // MARK: CustomDebugStringConvertible
@@ -10,6 +12,15 @@ extension HTTPCookie: CustomDebugStringConvertible {
         }
         if let expiresString {
             string += ", expires: \"\(expiresString)\""
+        }
+        if isSecure {
+            string += ", isSecure: true"
+            if isPartitioned {
+                string += ", isPartitioned: true"
+            }
+        }
+        if isHTTPOnly {
+            string += ", isHTTPOnly: true"
         }
         if let domain {
             string += ", domain: \"\(domain)\""
@@ -24,3 +35,5 @@ extension HTTPCookie: CustomDebugStringConvertible {
         return string
     }
 }
+
+#endif

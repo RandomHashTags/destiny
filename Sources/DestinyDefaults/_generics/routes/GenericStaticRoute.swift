@@ -93,15 +93,43 @@ public struct GenericStaticRoute<
             if body?.hasDateHeader ?? false {
                 headers["date"] = HTTPDateFormat.placeholder
             }
+
+            #if HTTPCookie
             var cookies = [HTTPCookie]()
+            #endif
+
             middleware.forEach { middleware in
                 if middleware.handles(version: version, path: path, method: method, contentType: contentType, status: status) {
+                    #if HTTPCookie
                     middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
+                    #else
+                    middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
+                    #endif
                 }
             }
             headers["content-type"] = nil
             headers["content-length"] = nil
-            return GenericHTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+
+            #if HTTPCookie
+            return GenericHTTPResponseMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                cookies: cookies,
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #else
+            return GenericHTTPResponseMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #endif
         }
     }
 
