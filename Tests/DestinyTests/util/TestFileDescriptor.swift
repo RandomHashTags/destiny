@@ -90,4 +90,16 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
     func socketPeerAddress() -> String? {
         return nil
     }
+
+    func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int {
+        0
+    }
+
+    func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int {
+        0
+    }
+
+    func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
+        0
+    }
 }
