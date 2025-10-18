@@ -40,6 +40,12 @@ public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
         )
     }
 
+    package init(
+        _ payload: borrowing NonCopyableDateHeaderPayload
+    ) {
+        self.payload = .init(payload)
+    }
+
     #if Inlinable
     @inlinable
     #endif

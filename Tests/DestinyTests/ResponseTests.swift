@@ -1,6 +1,6 @@
 
 import DestinyBlueprint
-import DestinyDefaults
+@testable import DestinyDefaults
 import Testing
 import TestRouter
 
@@ -22,10 +22,12 @@ struct ResponseTests {
                 let string = String(decoding: array, as: UTF8.self)
                 #expect(string.count == responder.count)
 
-                #expect(string.hasPrefix(responder.preDateValue.description), .init(stringLiteral: responder.preDateValue.description))
+                let preDateValue = String.init(cString: responder.payload.preDatePointer)
+                let postDateValue = String.init(cString: responder.payload.postDatePointer)
+                #expect(string.hasPrefix(preDateValue))
 
                 // TODO: fix | `hasSuffix` doesn't work here for some reason
-                #expect(string.contains(responder.postDateValue.description), .init(stringLiteral: responder.postDateValue.description))
+                #expect(string.contains(postDateValue))
             }
         })
     }
@@ -33,6 +35,6 @@ struct ResponseTests {
 
 fileprivate extension NonCopyableStaticStringWithDateHeader {
     func copy() -> Self {
-        Self(preDateValue: preDateValue, postDateValue: postDateValue)
+        Self.init(payload)
     }
 }

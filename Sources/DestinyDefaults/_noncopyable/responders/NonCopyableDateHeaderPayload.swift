@@ -20,6 +20,15 @@ public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
         self.postDatePointerCount = postDate.utf8CodeUnitCount
     }
 
+    package init(
+        _ payload: borrowing Self
+    ) {
+        self.preDatePointer = payload.preDatePointer
+        self.preDatePointerCount = payload.preDatePointerCount
+        self.postDatePointer = payload.postDatePointer
+        self.postDatePointerCount = payload.postDatePointerCount
+    }
+
     /// Efficiently writes the `preDate` value, `date` header and `postDate` value to a file descriptor.
     /// 
     /// - Throws: `ResponderError`
