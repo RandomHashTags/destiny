@@ -70,7 +70,7 @@ extension StringWithDateHeader {
         preDateValue.withContiguousStorageIfAvailable {
             buffer.copyBuffer($0, at: &index)
         }
-        buffer.copyBuffer(HTTPDateFormat.nowUnsafeBufferPointer, at: &index)
+        buffer.copyBuffer(baseAddress: HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, count: HTTPDateFormat.count, at: &index)
         postDateValue.withContiguousStorageIfAvailable {
             buffer.copyBuffer($0, at: &index)
         }
@@ -102,7 +102,7 @@ extension StringWithDateHeader {
                     do throws(SocketError) {
                         try socket.writeBuffers4(
                             preDatePointer,
-                            HTTPDateFormat.nowUnsafeBufferPointer,
+                            HTTPDateFormat.nowUnsafeBufferPointer, // TODO: fix? (see `HTTPDateFormat.nowUnsafeBufferPointer` warning)
                             postDatePointer,
                             valuePointer
                         )

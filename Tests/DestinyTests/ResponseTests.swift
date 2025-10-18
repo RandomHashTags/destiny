@@ -7,34 +7,65 @@ import TestRouter
 @Suite
 struct ResponseTests {
     @Test
-    func responseStaticStringWithDateHeader() {
+    func responseStaticStringWithDateHeader() throws(ResponderError) {
         let fd = TestFileDescriptor()
         fd.sendString("GET /html HTTP/1.1\r\n")
-        let socket = TestHTTPSocket(_fileDescriptor: fd)
-        let responder = TestRouter.DeclaredRouter.CaseSensitiveResponderStorage1.Route.responder4.copy()
-        TestRouter.DeclaredRouter.router.handle(client: fd, socket: socket, completionHandler: {
+        let preDateValue = StaticString("HTTP/1.1 200\r\ndate: ") // 20
+        // date placeholder
+        let postDateValue = StaticString("\r\nserver: destiny\r\ncontent-type: text/plain\r\ncontent-length: 4\r\n\r\ntest") // 70
+        let expectedPayload = preDateValue.description + HTTPDateFormat.placeholder + postDateValue.description
+        // payload count == 119
+
+        let responder = NonCopyableStaticStringWithDateHeader(
+            preDateValue: preDateValue,
+            postDateValue: postDateValue
+        )
+        try responder.respond(socket: fd, completionHandler: {
             let capacity = HTTPRequest.InitialBuffer.count
             withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
                 buffer.initialize(repeating: 0)
                 let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)
+                #expect(received == 119)
                 #expect(received == responder.count)
-                let array = Array(buffer[0..<received])
-                let string = String(decoding: array, as: UTF8.self)
-                #expect(string.count == responder.count)
 
-                let preDateValue = String.init(cString: responder.payload.preDatePointer)
-                let postDateValue = String.init(cString: responder.payload.postDatePointer)
-                #expect(string.hasPrefix(preDateValue))
-
-                // TODO: fix | `hasSuffix` doesn't work here for some reason
-                #expect(string.contains(postDateValue))
+                let slice = buffer[0..<received]
+                let string = String(cString: slice.base.baseAddress!)
+                #expect(string == expectedPayload)
+                #expect(string.hasPrefix(preDateValue.description))
+                #expect(string.hasSuffix(postDateValue.description))
             }
         })
     }
 }
 
-fileprivate extension NonCopyableStaticStringWithDateHeader {
-    func copy() -> Self {
-        Self.init(payload)
+// MARK: Respond
+extension NonCopyableStaticStringWithDateHeader {
+    func respond(
+        socket: borrowing some FileDescriptor & ~Copyable,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
+        try payload.write(to: socket)
+        completionHandler()
+    }
+}
+
+extension NonCopyableDateHeaderPayload {
+    func write(to socket: borrowing some FileDescriptor & ~Copyable) throws(ResponderError) {
+        var err:SocketError? = nil
+        var s = HTTPDateFormat.placeholder
+        s.withUTF8 { datePointer in
+            do throws(SocketError) {
+                try socket.writeBuffers3(
+                    (preDatePointer, preDatePointerCount),
+                    (datePointer.baseAddress!, datePointer.count),
+                    (postDatePointer, postDatePointerCount)
+                )
+            } catch {
+                err = error
+            }
+        }
+        if let err {
+            throw .socketError(err)
+        }
     }
 }

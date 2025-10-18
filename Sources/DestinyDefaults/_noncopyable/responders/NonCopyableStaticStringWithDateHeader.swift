@@ -76,7 +76,7 @@ extension NonCopyableStaticStringWithDateHeader {
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
         buffer.copyBuffer(baseAddress: payload.preDatePointer, count: payload.preDatePointerCount, at: &index)
-        buffer.copyBuffer(HTTPDateFormat.nowUnsafeBufferPointer, at: &index)
+        buffer.copyBuffer(baseAddress: HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, count: HTTPDateFormat.count, at: &index)
         buffer.copyBuffer(baseAddress: payload.postDatePointer, count: payload.postDatePointerCount, at: &index)
     }
 }

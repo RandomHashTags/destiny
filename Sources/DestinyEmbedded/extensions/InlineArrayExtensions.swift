@@ -5,6 +5,7 @@ import VariableLengthArray
 // MARK: VLArray
 extension VLArray where Element == UInt8 {
     /// - Returns: A case-literal `String` initialized from `storage`.
+    /// - Warning: The returned `String` is the exact size of this `VLArray`! This function doesn't look for a null-terminator!
     #if Inlinable
     @inlinable
     #endif
@@ -87,6 +88,7 @@ extension InlineArray where Element == UInt8 {
     /// Efficiently initializes a `String` from `span`.
     /// 
     /// - Returns: A case-literal `String` initialized from `span`.
+    /// - Warning: The returned `String` is the exact size of this `InlineArray`! This function doesn't look for a null-terminator!
     #if Inlinable
     @inlinable
     #endif

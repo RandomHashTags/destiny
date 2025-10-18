@@ -47,7 +47,7 @@ extension NonCopyableMacroExpansionWithDateHeader {
                 do throws(SocketError) {
                     try socket.writeBuffers6(
                         (payload.preDatePointer, payload.preDatePointerCount),
-                        (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.InlineArrayResult.count),
+                        (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
                         (payload.postDatePointer, payload.postDatePointerCount),
                         (bodyCountPointer.baseAddress!, bodyCountPointer.count),
                         (Self.bodyCountSuffix.utf8Start, Self.bodyCountSuffix.utf8CodeUnitCount),

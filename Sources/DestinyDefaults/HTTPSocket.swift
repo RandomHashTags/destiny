@@ -123,6 +123,43 @@ extension HTTPSocket {
             sent +=! result
         }
     }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers3(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+    ) throws(SocketError) {
+        try fileDescriptor.writeBuffers3(b1, b2, b3)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: UnsafeBufferPointer<UInt8>,
+        _ b3: UnsafeBufferPointer<UInt8>,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(SocketError) {
+        try fileDescriptor.writeBuffers4(b1, b2, b3, b4)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public func writeBuffers6(
+        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+    ) throws(SocketError) {
+        try fileDescriptor.writeBuffers6(b1, b2, b3, b4, b5, b6)
+    }
 }
 
 // MARK: Socket
