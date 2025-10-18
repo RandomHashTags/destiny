@@ -122,15 +122,34 @@ extension Router {
 
         let errorResponder:CompiledRouterStorage.Responder?
         if customErrorResponder.isEmpty || customErrorResponder.isEmpty || customErrorResponder == "nil" {
-            let defaultStaticErrorResponse = GenericHTTPResponseMessage(
+            let status:HTTPResponseStatus.Code = 200 // ok
+            let headers:HTTPHeaders = [:]
+            let body = "{\"error\":true,\"reason\":\"\\(error)\"}"
+            let contentType = "application/json"
+            let response:GenericHTTPResponseMessage<String>
+
+            #if HTTPCookie
+            response = .init(
                 version: version,
-                status: 200, // ok
-                headers: [:],
-                cookies: [HTTPCookie](),
-                body: "{\"error\":true,\"reason\":\"\\(error)\"}",
-                contentType: "application/json",
+                status: status,
+                headers: headers,
+                cookies: [],
+                body: body,
+                contentType: contentType,
                 charset: nil
-            ).string(escapeLineBreak: true)
+            )
+            #else
+            response = .init(
+                version: version,
+                status: status,
+                headers: headers,
+                body: body,
+                contentType: contentType,
+                charset: nil
+            )
+            #endif
+
+            let defaultStaticErrorResponse = response.string(escapeLineBreak: true)
             errorResponder = .get(
                 defaultErrorResponder(isCopyable: true, response: defaultStaticErrorResponse),
                 defaultErrorResponder(isCopyable: false, response: defaultStaticErrorResponse)
@@ -224,28 +243,57 @@ extension Router {
         let headers = HTTPHeaders(["date":HTTPDateFormat.placeholder])
         let body = "not found"
         let contentType = "text/plain"
+        let charset = Charset.utf8
         let stringLiteral = StringLiteralExprSyntax(content: body)
         let intermediateBody = IntermediateResponseBody(type: .staticStringWithDateHeader, stringLiteral)
         #if GenericHTTPMessage
-        let response = GenericHTTPResponseMessage(
-            version: version,
-            status: status,
-            headers: headers,
-            cookies: [HTTPCookie](),
-            body: body,
-            contentType: contentType,
-            charset: Charset.utf8
-        )
+            let response:GenericHTTPResponseMessage<String>
+
+            #if HTTPCookie
+            response = .init(
+                version: version,
+                status: status,
+                headers: headers,
+                cookies: [],
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #else
+            response = .init(
+                version: version,
+                status: status,
+                headers: headers,
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #endif
+
         #else
-        let response = HTTPResponseMessage(
-            version: version,
-            status: status,
-            headers: headers,
-            cookies: [HTTPCookie](),
-            body: body,
-            contentType: contentType,
-            charset: Charset.utf8
-        )
+            let response:HTTPResponseMessage
+
+            #if HTTPCookie
+            response = HTTPResponseMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                cookies: [],
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #else
+            response = HTTPResponseMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+            #endif
+
         #endif
         return intermediateBody.responderDebugDescription(
             isCopyable: isCopyable,

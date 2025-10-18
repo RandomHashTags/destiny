@@ -33,17 +33,30 @@ extension Route {
         var status = details.status
         var contentType = details.contentType
         var headers = HTTPHeaders()
-        var cookies = [HTTPCookie]()
         let pathString = details.path.map({ $0.slug }).joined(separator: "/")
+
+        #if HTTPCookie
+        var cookies = [HTTPCookie]()
+        #endif
+
         for middleware in middleware {
             if middleware.handles(version: version, path: pathString, method: details.method, contentType: contentType, status: status) {
+                #if HTTPCookie
                 middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers, cookies: &cookies)
+                #else
+                middleware.apply(version: &version, contentType: &contentType, status: &status, headers: &headers)
+                #endif
             }
         }
         details.version = version
         details.status = status
         details.contentType = contentType
-        return parse(details: details, headers: &headers, cookies: cookies)
+
+        #if HTTPCookie
+        return details.parse(headers: &headers, cookies: cookies)
+        #else
+        return details.parse(headers: &headers)
+        #endif
     }
     #else
     public static func parse(
@@ -53,56 +66,13 @@ extension Route {
     ) -> Self {
         let details = parseDetails(context: context, version: version, function)
         var headers = HTTPHeaders()
+        #if HTTPCookie
         return parse(details: details, headers: &headers, cookies: [])
+        #else
+        return parse(details: details, headers: &headers)
+        #endif
     }
     #endif
-    private static func parse(
-        details: Details,
-        headers: inout HTTPHeaders,
-        cookies: [HTTPCookie]
-    ) -> (StaticRoute?, DynamicRoute?) {
-        if let contentType = details.contentType {
-            headers["content-type"] = contentType
-        }
-        if details.path.firstIndex(where: { $0.isParameter }) == nil && details.handler == nil { // static route
-            let route = StaticRoute(
-                version: details.version,
-                method: details.method,
-                path: details.path.map({ $0.value }),
-                isCaseSensitive: details.isCaseSensitive,
-                status: details.status,
-                contentType: details.contentType,
-                charset: details.charset,
-                body: details.body
-            )
-            return (route, nil)
-        } else { // dynamic route
-            var route = DynamicRoute(
-                version: details.version,
-                method: details.method,
-                path: details.path,
-                isCaseSensitive: details.isCaseSensitive,
-                status: details.status,
-                contentType: details.contentType,
-                body: nil,
-                handler: { _, _ in }
-            )
-            route.defaultResponse = DynamicResponse(
-                message: HTTPResponseMessage(
-                    version: details.version,
-                    status: details.status,
-                    headers: headers,
-                    cookies: cookies,
-                    body: details.body,
-                    contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
-                    charset: details.charset
-                ),
-                parameters: details.parameters
-            )
-            route.handlerDebugDescription = details.handler ?? "nil"
-            return (nil, route)
-        }
-    }
 }
 
 // MARK: Parse details
@@ -196,6 +166,80 @@ extension Route {
         var body:(any ResponseBodyProtocol)?
         var handler:String? = nil
         var parameters = [String]()
+
+        #if HTTPCookie
+        fileprivate func parse(
+            headers: inout HTTPHeaders,
+            cookies: [HTTPCookie]
+        ) -> (StaticRoute?, DynamicRoute?) {
+            applyContentType(headers: &headers)
+            let dynamicMessage = HTTPResponseMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                cookies: cookies,
+                body: body,
+                contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
+                charset: charset
+            )
+            return parse(headers: headers, dynamicMessage: dynamicMessage)
+        }
+        #else
+        fileprivate func parse(
+            headers: inout HTTPHeaders
+        ) -> (StaticRoute?, DynamicRoute?) {
+            applyContentType(headers: &headers)
+            let dynamicMessage = HTTPResponseMessage(
+                version: version,
+                status: status,
+                headers: headers,
+                body: body,
+                contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
+                charset: charset
+            )
+            return parse(headers: headers, dynamicMessage: dynamicMessage)
+        }
+        #endif
+
+        private func applyContentType(headers: inout HTTPHeaders) {
+            guard let contentType else { return }
+            headers["content-type"] = contentType
+        }
+        private func parse(
+            headers: HTTPHeaders,
+            dynamicMessage: HTTPResponseMessage
+        ) -> (StaticRoute?, DynamicRoute?) {
+            if path.firstIndex(where: { $0.isParameter }) == nil && handler == nil { // static route
+                let route = StaticRoute(
+                    version: version,
+                    method: method,
+                    path: path.map({ $0.value }),
+                    isCaseSensitive: isCaseSensitive,
+                    status: status,
+                    contentType: contentType,
+                    charset: charset,
+                    body: body
+                )
+                return (route, nil)
+            } else { // dynamic route
+                var route = DynamicRoute(
+                    version: version,
+                    method: method,
+                    path: path,
+                    isCaseSensitive: isCaseSensitive,
+                    status: status,
+                    contentType: contentType,
+                    body: nil,
+                    handler: { _, _ in }
+                )
+                route.defaultResponse = DynamicResponse(
+                    message: dynamicMessage,
+                    parameters: parameters
+                )
+                route.handlerDebugDescription = handler ?? "nil"
+                return (nil, route)
+            }
+        }
     }
 }
 

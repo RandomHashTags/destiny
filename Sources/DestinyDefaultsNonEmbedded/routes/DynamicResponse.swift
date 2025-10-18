@@ -68,12 +68,14 @@ extension DynamicResponse {
         message.setHeader(key: key, value: value)
     }
 
+    #if HTTPCookie
     #if Inlinable
     @inlinable
     #endif
     public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
         try message.appendCookie(cookie)
     }
+    #endif
 
     #if Inlinable
     @inlinable

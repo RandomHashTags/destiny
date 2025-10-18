@@ -16,6 +16,9 @@ List of package traits that toggle features in Destiny.
 ### CORS
 Enables cross-origin resource sharing functionality.
 
+### HTTPCookie
+Enables the default `HTTPCookie` implementation and convenient code associated with it.
+
 ### MutableRouter
 Enables functionality that registers data to a Router at runtime.
 

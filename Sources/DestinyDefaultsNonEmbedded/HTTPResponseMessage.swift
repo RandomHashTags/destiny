@@ -11,35 +11,6 @@ public struct HTTPResponseMessage: Sendable {
     public var charset:Charset?
 
     public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
-        contentType: String?,
-        charset: Charset?
-    ) {
-        head = .init(headers: headers, cookies: cookies, status: status, version: version)
-        self.body = body
-        self.contentType = contentType
-        self.charset = charset
-    }
-
-    public init(
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
-        contentType: String?,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion,
-        charset: Charset?
-    ) {
-        head = .init(headers: headers, cookies: cookies, status: status, version: version)
-        self.body = body
-        self.contentType = contentType
-        self.charset = charset
-    }
-    public init(
         head: HTTPResponseMessageHead,
         body: (any ResponseBodyProtocol)?,
         contentType: String?,
@@ -104,12 +75,14 @@ public struct HTTPResponseMessage: Sendable {
         head.headers[key] = value
     }
 
+    #if HTTPCookie
     #if Inlinable
     @inlinable
     #endif
     public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
         head.cookies.append(cookie)
     }
+    #endif
 
     #if Inlinable
     @inlinable
@@ -117,6 +90,69 @@ public struct HTTPResponseMessage: Sendable {
     public mutating func setBody(_ body: some ResponseBodyProtocol) {
         self.body = body
     }
+}
+
+// MARK: Init Convenience
+extension HTTPResponseMessage {
+    #if HTTPCookie
+    public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        cookies: [HTTPCookie],
+        body: (any ResponseBodyProtocol)?,
+        contentType: String?,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
+        self.body = body
+        self.contentType = contentType
+        self.charset = charset
+    }
+
+    public init(
+        headers: HTTPHeaders,
+        cookies: [HTTPCookie],
+        body: (any ResponseBodyProtocol)?,
+        contentType: String?,
+        status: HTTPResponseStatus.Code,
+        version: HTTPVersion,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, cookies: cookies, status: status, version: version)
+        self.body = body
+        self.contentType = contentType
+        self.charset = charset
+    }
+    #else
+    public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        body: (any ResponseBodyProtocol)?,
+        contentType: String?,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, status: status, version: version)
+        self.body = body
+        self.contentType = contentType
+        self.charset = charset
+    }
+
+    public init(
+        headers: HTTPHeaders,
+        body: (any ResponseBodyProtocol)?,
+        contentType: String?,
+        status: HTTPResponseStatus.Code,
+        version: HTTPVersion,
+        charset: Charset?
+    ) {
+        head = .init(headers: headers, status: status, version: version)
+        self.body = body
+        self.contentType = contentType
+        self.charset = charset
+    }
+    #endif
 }
 
 // MARK: Temp allocation
@@ -154,19 +190,27 @@ extension HTTPResponseMessage {
             contentLengthString = ""
             charsetRawName = ""
         }
+
+        #if HTTPCookie
         let cookieDescriptions = head.cookieDescriptions()
         for cookie in cookieDescriptions {
             capacity +=! (14 +! cookie.utf8Span.count) // Set-Cookie: x\r\n
         }
+        #endif
+
         try Swift.withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity, { p in
             var i = 0
             writeStartLine(to: p, at: &i)
             for (key, value) in head.headers {
                 writeHeader(to: p, at: &i, key: key, value: value)
             }
+
+            #if HTTPCookie
             for cookie in cookieDescriptions {
                 writeCookie(cookie, to: p, at: &i)
             }
+            #endif
+
             try writeResult(
                 to: p,
                 index: &i,
@@ -337,6 +381,7 @@ extension HTTPResponseMessage {
         headers: inout HTTPHeaders
     ) -> Self {
         headers["location"] = "/\(target)"
+        #if HTTPCookie
         return Self(
             version: version, 
             status: status,
@@ -346,6 +391,16 @@ extension HTTPResponseMessage {
             contentType: nil,
             charset: nil
         )
+        #else
+        return Self(
+            version: version, 
+            status: status,
+            headers: headers,
+            body: nil,
+            contentType: nil,
+            charset: nil
+        )
+        #endif
     }
 }
 
@@ -416,6 +471,7 @@ extension HTTPResponseMessage: HTTPMessageProtocol {}
 import MediaTypes
 
 extension HTTPResponseMessage {
+    #if HTTPCookie
     public init(
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
@@ -438,7 +494,6 @@ extension HTTPResponseMessage {
     ) {
         self.init(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: mediaType?.template, charset: charset)
     }
-
     public init(
         headers: HTTPHeaders,
         cookies: [HTTPCookie],
@@ -449,8 +504,40 @@ extension HTTPResponseMessage {
         charset: Charset?
     ) {
         self.init(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: mediaType?.template, charset: charset)
-
     }
+    #else
+    public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        body: (any ResponseBodyProtocol)?,
+        mediaType: MediaType?,
+        charset: Charset?
+    ) {
+        self.init(version: version, status: status, headers: headers, body: body, contentType: mediaType?.template, charset: charset)
+    }
+    public init(
+        version: HTTPVersion,
+        status: HTTPResponseStatus.Code,
+        headers: HTTPHeaders,
+        body: (any ResponseBodyProtocol)?,
+        mediaType: (some MediaTypeProtocol)?,
+        charset: Charset?
+    ) {
+        self.init(version: version, status: status, headers: headers, body: body, contentType: mediaType?.template, charset: charset)
+    }
+    public init(
+        headers: HTTPHeaders,
+        body: (any ResponseBodyProtocol)?,
+        mediaType: MediaType?,
+        status: HTTPResponseStatus.Code,
+        version: HTTPVersion,
+        charset: Charset?
+    ) {
+        self.init(version: version, status: status, headers: headers, body: body, contentType: mediaType?.template, charset: charset)
+    }
+    #endif
+
     public init(
         head: HTTPResponseMessageHead,
         body: (any ResponseBodyProtocol)?,

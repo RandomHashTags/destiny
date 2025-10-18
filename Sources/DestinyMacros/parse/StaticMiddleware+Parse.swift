@@ -29,7 +29,11 @@ extension StaticMiddleware {
         var appliesStatus:HTTPResponseStatus.Code? = nil
         var appliesContentType:String? = nil
         var appliesHeaders = HTTPHeaders()
+
+        #if HTTPCookie
         var appliesCookies = [HTTPCookie]()
+        #endif
+
         var excludedRoutes = Set<String>()
         for arg in function.arguments {
             switch arg.label?.text {
@@ -68,6 +72,7 @@ extension StaticMiddleware {
                 appliesStatus = HTTPResponseStatus.parseCode(context: context, expr: arg.expression)
             case "appliesContentType":
                 appliesContentType = arg.expression.stringLiteralString(context: context) ?? appliesContentType
+
             #if MediaTypes
             case "appliesMediaType":
                 guard let s = MediaType.parse(context: context, expr: arg.expression)?.template else {
@@ -76,11 +81,16 @@ extension StaticMiddleware {
                 }
                 appliesContentType = s
             #endif
+
             case "appliesHeaders":
                 appliesHeaders = HTTPHeaders.parse(context: context, arg.expression)
+
+            #if HTTPCookie
             case "appliesCookies":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
                 appliesCookies = array.compactMap({ HTTPCookie.parse(context: context, expr: $0.expression) })
+            #endif
+
             case "excludedRoutes":
                 guard let array = arg.expression.arrayElements(context: context) else { break }
                 excludedRoutes = Set(array.compactMap({ $0.expression.stringLiteralString(context: context) }))
@@ -88,6 +98,7 @@ extension StaticMiddleware {
                 context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }
         }
+        #if HTTPCookie
         return .init(
             handlesVersions: handlesVersions,
             handlesMethods: handlesMethods,
@@ -100,6 +111,19 @@ extension StaticMiddleware {
             appliesCookies: appliesCookies,
             excludedRoutes: excludedRoutes
         )
+        #else
+        return .init(
+            handlesVersions: handlesVersions,
+            handlesMethods: handlesMethods,
+            handlesStatuses: handlesStatuses,
+            handlesContentTypes: handlesContentTypes,
+            appliesVersion: appliesVersion,
+            appliesStatus: appliesStatus,
+            appliesContentType: appliesContentType,
+            appliesHeaders: appliesHeaders,
+            excludedRoutes: excludedRoutes
+        )
+        #endif
     }
 }
 

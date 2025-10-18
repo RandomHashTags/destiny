@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 extension HTTPCookie {
     #if Inlinable
     @inlinable
@@ -17,3 +19,5 @@ extension HTTPCookie {
         )
     }
 }
+
+#endif

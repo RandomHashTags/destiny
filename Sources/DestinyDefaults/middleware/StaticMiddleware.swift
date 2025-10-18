@@ -35,12 +35,17 @@ public final class StaticMiddleware: @unchecked Sendable {
     public let appliesStatus:HTTPResponseStatus.Code?
     public let appliesContentType:String?
     public let appliesHeaders:HTTPHeaders
+
+    #if HTTPCookie
     public let appliesCookies:[HTTPCookie]
+    #endif
+
     public let excludedRoutes:Set<String>
 
     public var appliedAtLeastOnce = false
 
     // MARK: Init
+    #if HTTPCookie
     public init(
         handlesVersions: Set<HTTPVersion>? = nil,
         handlesMethods: [HTTPRequestMethod]? = nil,
@@ -64,8 +69,32 @@ public final class StaticMiddleware: @unchecked Sendable {
         self.appliesCookies = appliesCookies
         self.excludedRoutes = excludedRoutes
     }
+    #else
+    public init(
+        handlesVersions: Set<HTTPVersion>? = nil,
+        handlesMethods: [HTTPRequestMethod]? = nil,
+        handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
+        handlesContentTypes: Set<String>? = nil,
+        appliesVersion: HTTPVersion? = nil,
+        appliesStatus: HTTPResponseStatus.Code? = nil,
+        appliesContentType: String? = nil,
+        appliesHeaders: HTTPHeaders = .init(),
+        excludedRoutes: Set<String> = []
+    ) {
+        self.handlesVersions = handlesVersions
+        self.handlesMethods = handlesMethods
+        self.handlesStatuses = handlesStatuses
+        self.handlesContentTypes = handlesContentTypes
+        self.appliesVersion = appliesVersion
+        self.appliesStatus = appliesStatus
+        self.appliesContentType = appliesContentType
+        self.appliesHeaders = appliesHeaders
+        self.excludedRoutes = excludedRoutes
+    }
+    #endif
 
     #if MediaTypes
+        #if HTTPCookie
         public init(
             handlesVersions: Set<HTTPVersion>? = nil,
             handlesMethods: [HTTPRequestMethod]? = nil,
@@ -93,6 +122,33 @@ public final class StaticMiddleware: @unchecked Sendable {
             self.appliesCookies = appliesCookies
             self.excludedRoutes = excludedRoutes
         }
+        #else
+        public init(
+            handlesVersions: Set<HTTPVersion>? = nil,
+            handlesMethods: [HTTPRequestMethod]? = nil,
+            handlesStatuses: Set<HTTPResponseStatus.Code>? = nil,
+            handlesMediaTypes: [MediaType]? = nil,
+            appliesVersion: HTTPVersion? = nil,
+            appliesStatus: HTTPResponseStatus.Code? = nil,
+            appliesMediaType: MediaType? = nil,
+            appliesHeaders: HTTPHeaders = .init(),
+            excludedRoutes: Set<String> = []
+        ) {
+            self.handlesVersions = handlesVersions
+            self.handlesMethods = handlesMethods
+            self.handlesStatuses = handlesStatuses
+            if let handlesMediaTypes {
+                self.handlesContentTypes = Set(handlesMediaTypes.map({ $0.template }))
+            } else {
+                self.handlesContentTypes = nil
+            }
+            self.appliesVersion = appliesVersion
+            self.appliesStatus = appliesStatus
+            self.appliesContentType = appliesMediaType?.template
+            self.appliesHeaders = appliesHeaders
+            self.excludedRoutes = excludedRoutes
+        }
+        #endif
     #endif
 }
 
@@ -158,6 +214,7 @@ extension StaticMiddleware {
 
 // MARK: Apply
 extension StaticMiddleware {
+    #if HTTPCookie
     #if Inlinable
     @inlinable
     #endif
@@ -183,6 +240,31 @@ extension StaticMiddleware {
         }
         cookies.append(contentsOf: appliesCookies)
     }
+    #else
+    #if Inlinable
+    @inlinable
+    #endif
+    public func apply(
+        version: inout HTTPVersion,
+        contentType: inout String?,
+        status: inout HTTPResponseStatus.Code,
+        headers: inout HTTPHeaders
+    ) {
+        appliedAtLeastOnce = true
+        if let appliesVersion {
+            version = appliesVersion
+        }
+        if let appliesStatus {
+            status = appliesStatus
+        }
+        if let appliesContentType {
+            contentType = appliesContentType
+        }
+        for (header, value) in appliesHeaders {
+            headers[header] = value
+        }
+    }
+    #endif
 
     #if Inlinable
     @inlinable
@@ -204,6 +286,8 @@ extension StaticMiddleware {
         for (header, value) in appliesHeaders {
             response.setHeader(key: header, value: value)
         }
+
+        #if HTTPCookie
         for cookie in appliesCookies {
             do throws(HTTPCookieError) {
                 try response.appendCookie(cookie)
@@ -211,6 +295,7 @@ extension StaticMiddleware {
                 throw .httpCookieError(error)
             }
         }
+        #endif
     }
 }
 

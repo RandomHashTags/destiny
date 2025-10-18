@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 import DestinyBlueprint
 import DestinyDefaults
 import SwiftSyntax
@@ -114,3 +116,5 @@ extension HTTPCookie {
         case uncheckedValue
     }
 }
+
+#endif

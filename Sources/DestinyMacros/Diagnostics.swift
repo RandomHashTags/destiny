@@ -25,9 +25,12 @@ extension DiagnosticMsg {
     static func unhandled(node: some SyntaxProtocol, notes: String = "") -> Diagnostic {
         .init(node: node, message: DiagnosticMsg(id: "unhandled", message: "Unhandled\(notes.isEmpty ? "" : "; \(notes)")", severity: .warning))
     }
+
+    #if HTTPCookie
     static func httpCookieError(node: some SyntaxProtocol, error: HTTPCookieError) -> Diagnostic {
         .init(node: node, message: DiagnosticMsg(id: "httpCookieError", message: "\(error)"))
     }
+    #endif
 }
 
 // MARK: Expectations

@@ -61,7 +61,10 @@ extension TestRouter {
                 handlesVersions: [.v1_1],
                 appliesContentType: nil,
                 appliesHeaders: ["version":"destiny1.1", "connection":"close"],
-                appliesCookies: [HTTPCookie(name: "cookie1", value: "yessir"), HTTPCookie(name: "cookie2", value: "pogchamp")],
+                appliesCookies: [
+                    HTTPCookie(name: "cookie1", value: "yessir"),
+                    HTTPCookie(name: "cookie2", value: "pogchamp")
+                ],
                 excludedRoutes: ["plaintext"]
             ),
             StaticMiddleware(
