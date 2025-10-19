@@ -103,6 +103,7 @@ defaultTraits.formUnion([
     "RouteGroup",
     //"RoutePath", // not yet integrated
 
+    "StringRequestMethod",
     "UnwrapArithmetic",
     "Protocols",
     "Inlinable",
@@ -117,6 +118,10 @@ let traits:Set<Trait> = [
     .trait(
         name: "EMBEDDED",
         description: "Enables conditional compliation suitable for embedded mode."
+    ),
+    .trait(
+        name: "StringRequestMethod",
+        description: "Makes `String` conform to `HTTPRequestMethodProtocol` for convenience."
     ),
 
     .trait(
