@@ -171,7 +171,7 @@ extension TestRouter {
             body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
         ),
         Route.get(
-            version: .v2_0,
+            head: .init(version: .v2_0),
             path: ["html2"],
             mediaType: MediaTypeText.html,
             body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
@@ -270,7 +270,7 @@ extension TestRouter {
             }
         ),
         Route.get(
-            version: .v2_0,
+            head: .init(version: .v2_0),
             path: ["dynamic2"],
             mediaType: MediaTypeText.plain,
             handler: { request, response in
