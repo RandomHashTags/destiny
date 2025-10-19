@@ -31,12 +31,10 @@ package final class TestRouter {
     enum CustomError: Error {
         case yipyip
     }
-}
 
-// MARK: Router
-extension TestRouter {
     //#httpServer(routerType: "DeclaredRouter.CompiledHTTPRouter")
 
+    // can't use in an extension because it errors with: "Circular reference"
     #declareRouter(
         routerSettings: .init(
             //dynamicResponsesAreGeneric: false,
@@ -142,7 +140,7 @@ extension TestRouter {
         Route.get(
             path: ["stream"],
             contentType: "text/plain",
-            body: ResponseBody.nonCopyableStreamWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
+            body: NonCopyableStreamWithDateHeader(AsyncHTTPChunkDataStream(["1liuesrhbgfler", "test2", "t3", "4"]))
         ),
         Route.get(
             path: ["expressionMacro"],
@@ -157,7 +155,7 @@ extension TestRouter {
         Route.get(
             path: ["bro?what=dude"],
             mediaType: MediaTypeApplication.json,
-            body: NonCopyableStaticStringWithDateHeader(#"{"bing":"bonged"}"#)
+            body: #"{"bing":"bonged"}"#
         ),
         Route.get(
             path: ["html"],
@@ -174,7 +172,7 @@ extension TestRouter {
             head: .init(version: .v2_0),
             path: ["html2"],
             mediaType: MediaTypeText.html,
-            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+            body: "<!DOCTYPE html><html><head><meta charset=\"\("UTF-8")\"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"
         ),
         Route.get(
             path: ["json"],

@@ -269,7 +269,7 @@ extension RouterStorage {
             let stringLiteral = StringLiteralExprSyntax(content: "")
             let responder = IntermediateResponseBody(
                 type: .staticStringWithDateHeader,
-                stringLiteral
+                .init(stringLiteral)
             ).responderDebugDescription(isCopyable: isCopyable, response: response)
             routeResponders.append(responder)
         }

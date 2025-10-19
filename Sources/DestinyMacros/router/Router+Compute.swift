@@ -244,7 +244,7 @@ extension Router {
         let contentType = "text/plain"
         let charset = Charset.utf8
         let stringLiteral = StringLiteralExprSyntax(content: body)
-        let intermediateBody = IntermediateResponseBody(type: .staticStringWithDateHeader, stringLiteral)
+        let intermediateBody = IntermediateResponseBody(type: .staticStringWithDateHeader, .init(stringLiteral))
         #if hasFeature(Embedded) || EMBEDDED
             let response:HTTPResponseMessage<String>
 
