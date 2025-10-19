@@ -86,7 +86,6 @@ destinyMacrosDependencies.append(contentsOf: [
 defaultTraits.formUnion([
     "CORS",
     //"Generics", // disabled by default since we use non-embedded types instead of generics by default
-    "GenericDynamicResponse",
     "HTTPCookie",
     "HTTPStandardRequestMethods",
     "HTTPStandardRequestMethodRawValues",
@@ -114,6 +113,11 @@ defaultTraits.formUnion([
 ])
 let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
+
+    .trait(
+        name: "EMBEDDED",
+        description: "Enables conditional compliation suitable for embedded mode."
+    ),
 
     .trait(
         name: "CORS",
@@ -197,23 +201,6 @@ let traits:Set<Trait> = [
     ),
 
     .trait(
-        name: "GenericHTTPMessage",
-        description: "Enables an HTTPMessage implementation utilizing generics, avoiding existentials."
-    ),
-    .trait(
-        name: "GenericStaticRoute",
-        description: "Enables a StaticRoute implementation utilizing generics, avoiding existentials."
-    ),
-    .trait(
-        name: "GenericDynamicRoute",
-        description: "Enables a DynamicRoute implementation utilizing generics, avoiding existentials."
-    ),
-    .trait(
-        name: "GenericDynamicResponse",
-        description: "Enables a DynamicResponse implementation utilizing generics, avoiding existentials.",
-        enabledTraits: ["GenericHTTPMessage"]
-    ),
-    .trait(
         name: "GenericRouteGroup",
         description: "Enables a RouteGroup implementation utilizing generics, avoiding existentials."
     ),
@@ -221,10 +208,6 @@ let traits:Set<Trait> = [
         name: "Generics",
         description: "Enables all Generic package traits.",
         enabledTraits: [
-            "GenericHTTPMessage",
-            "GenericStaticRoute",
-            "GenericDynamicRoute",
-            "GenericDynamicResponse",
             "GenericRouteGroup"
         ]
     ),

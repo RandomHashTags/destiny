@@ -3,12 +3,29 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRoute
+#if hasFeature(Embedded) || EMBEDDED
+
+/// Default Static Route implementation where a complete HTTP Message is computed at compile time.
+public struct StaticRoute<
+        Body: ResponseBodyProtocol
+    >: Sendable {
+    public var path:[String]
+    public let contentType:String?
+    public let body:Body?
+
+    public var method:HTTPRequestMethod
+    public let status:HTTPResponseStatus.Code
+    public let isCaseSensitive:Bool
+    public let charset:Charset?
+    public let version:HTTPVersion
+}
+
+#else
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute: Sendable {
     public var path:[String]
@@ -62,7 +79,11 @@ public struct StaticRoute: Sendable {
         self.charset = charset
         self.body = body
     }
+}
+#endif
 
+// MARK: Logic
+extension StaticRoute {
     #if Inlinable
     @inlinable
     #endif

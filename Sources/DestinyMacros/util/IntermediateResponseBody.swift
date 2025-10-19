@@ -185,6 +185,15 @@ extension IntermediateResponseBody {
 import DestinyDefaultsNonEmbedded
 
 extension IntermediateResponseBody {
+    #if hasFeature(Embedded) || EMBEDDED
+    public func responderDebugDescription<B>(
+        isCopyable: Bool,
+        response: HTTPResponseMessage<B>
+    ) -> String {
+        var responseString = response.intermediateString(escapeLineBreak: true)
+        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
+    }
+    #else
     public func responderDebugDescription(
         isCopyable: Bool,
         response: HTTPResponseMessage
@@ -192,21 +201,8 @@ extension IntermediateResponseBody {
         var responseString = response.intermediateString(escapeLineBreak: true)
         return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
     }
+    #endif
 }
-#endif
-
-#if GenericHTTPMessage
-
-extension IntermediateResponseBody {
-    public func responderDebugDescription<B>(
-        isCopyable: Bool,
-        response: GenericHTTPResponseMessage<B>
-    ) -> String {
-        var responseString = response.intermediateString(escapeLineBreak: true)
-        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
-    }
-}
-
 #endif
 
 // MARK: IntermediateResponseBodyType

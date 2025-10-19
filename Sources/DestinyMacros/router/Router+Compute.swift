@@ -126,10 +126,10 @@ extension Router {
             let headers:HTTPHeaders = [:]
             let body = "{\"error\":true,\"reason\":\"\\(error)\"}"
             let contentType = "application/json"
-            let response:GenericHTTPResponseMessage<String>
+            let defaultStaticErrorResponse:String
 
             #if HTTPCookie
-            response = .init(
+            defaultStaticErrorResponse = HTTPResponseMessage.init(
                 version: version,
                 status: status,
                 headers: headers,
@@ -137,19 +137,18 @@ extension Router {
                 body: body,
                 contentType: contentType,
                 charset: nil
-            )
+            ).string(escapeLineBreak: true)
             #else
-            response = .init(
+            defaultStaticErrorResponse = HTTPResponseMessage.init(
                 version: version,
                 status: status,
                 headers: headers,
                 body: body,
                 contentType: contentType,
                 charset: nil
-            )
+            ).string(escapeLineBreak: true)
             #endif
 
-            let defaultStaticErrorResponse = response.string(escapeLineBreak: true)
             errorResponder = .get(
                 defaultErrorResponder(isCopyable: true, response: defaultStaticErrorResponse),
                 defaultErrorResponder(isCopyable: false, response: defaultStaticErrorResponse)
@@ -246,8 +245,8 @@ extension Router {
         let charset = Charset.utf8
         let stringLiteral = StringLiteralExprSyntax(content: body)
         let intermediateBody = IntermediateResponseBody(type: .staticStringWithDateHeader, stringLiteral)
-        #if GenericHTTPMessage
-            let response:GenericHTTPResponseMessage<String>
+        #if hasFeature(Embedded) || EMBEDDED
+            let response:HTTPResponseMessage<String>
 
             #if HTTPCookie
             response = .init(

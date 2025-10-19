@@ -25,7 +25,15 @@ Route.get(
 )
 ```
 
-When using Destiny for embedded, you would use the `GenericStaticRoute` and `GenericDynamicRoute` structs in a macro. They also support any request method, with the most popular methods having static functions for convenience.
+When using Destiny for embedded, you would explicitly provide a `Body` generic parameter for `Route` like this:
+
+```swift
+Route<NonCopyableStaticStringWithDateHeader>.get(
+    path: ["helloworld"],
+    mediaType: MediaTypeText.plain,
+    body: NonCopyableStaticStringWithDateHeader("Hello World")
+)
+```
 
 
 ## See Also

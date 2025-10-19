@@ -262,7 +262,7 @@ extension RouterStorage {
 
             #if NonEmbedded
             let response = route.nonEmbeddedResponse()
-            #elseif GenericHTTPMessage
+            #elseif hasFeature(Embedded)
             let response = route.genericResponse()
             #endif
 

@@ -1,6 +1,6 @@
 
 /// Core protocol that builds a complete HTTP Message.
-public protocol AbstractHTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
+public protocol HTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
 
     /// Associated HTTP Version of this message.
     var version: HTTPVersion { get set }
@@ -34,4 +34,26 @@ public protocol AbstractHTTPMessageProtocol: HTTPSocketWritable, ~Copyable {
     func string(
         escapeLineBreak: Bool
     ) throws(HTTPMessageError) -> String
+
+
+    // MARK: Body
+    #if hasFeature(Embedded) || EMBEDDED
+
+        associatedtype Body:ResponseBodyProtocol
+
+        /// Set the body of the message.
+        /// 
+        /// - Parameters:
+        ///   - body: New body to set.
+        mutating func setBody(_ body: Body)
+
+    #else
+
+        /// Set the body of the message.
+        /// 
+        /// - Parameters:
+        ///   - body: New body to set.
+        mutating func setBody(_ body: some ResponseBodyProtocol)
+
+    #endif
 }
