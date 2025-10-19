@@ -22,35 +22,38 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         var count = 0
         if let stringLiteral = valueExpr.stringLiteral {
             count = (stringLiteral.segments.count - 1)
-            valueString = stringLiteral.segments.map({
-                if case .stringSegment(let seg) = $0 {
-                    return seg.content.text.replacing("\n", with: "\\n")
-                }
-                if case .expressionSegment(let seg) = $0 {
-                    if seg.expressions.allSatisfy({
-                        $0.expression.is(StringLiteralExprSyntax.self)
-                        || $0.expression.is(BooleanLiteralExprSyntax.self)
-                        || $0.expression.is(IntegerLiteralExprSyntax.self)
-                        || $0.expression.is(FloatLiteralExprSyntax.self)
-                    }) {
-                        // remove interpolation since it doesn't need it
-                        return seg.expressions.compactMap({
-                            return $0.expression.stringLiteral?.string
-                                    ?? $0.expression.booleanLiteral?.literal.text
-                                    ?? $0.expression.integerLiteral?.literal.text
-                                    ?? $0.expression.as(FloatLiteralExprSyntax.self)?.literal.text
-                        }).joined()
-                    } else {
-                        return "\($0)"
-                    }
-                }
-                return "\($0)"
-            }).joined()
+            valueString = Self.upgradeSegments(stringLiteral.segments)
         } else {
             valueString = valueExpr.description
         }
         self.value = valueString
         self.count = valueString.count - count
+    }
+
+    private static func upgradeSegments(_ list: StringLiteralSegmentListSyntax) -> String {
+        return list.map({
+            switch $0 {
+            case .stringSegment(let seg):
+                return upgradeStringSegment(seg)
+            case .expressionSegment(let seg):
+                return upgradeExpressionSegment(seg)
+            }
+        }).joined()
+    }
+    private static func upgradeStringSegment(_ segment: StringSegmentSyntax) -> String {
+        return segment.content.text.replacing("\n", with: "\\n")
+    }
+    private static func upgradeExpressionSegment(_ segment: ExpressionSegmentSyntax) -> String {
+        // remove interpolation where it doesn't need it
+        return segment.expressions.map({
+            if let s = $0.expression.stringLiteral {
+                return upgradeSegments(s.segments)
+            }
+            return $0.expression.booleanLiteral?.literal.text
+                ?? $0.expression.integerLiteral?.literal.text
+                ?? $0.expression.as(FloatLiteralExprSyntax.self)?.literal.text
+                ?? $0.description
+        }).joined()
     }
 
     public func string() -> String {
