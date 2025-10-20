@@ -51,6 +51,46 @@ struct HTTPCookieTests {
         cookie.maxAge = 600
         #expect("\(cookie)" == "bro=sheesh; Max-Age=600")
     }
+
+    @Test
+    func httpCookieSecurePartitioned() throws(HTTPCookieError) {
+        let cookie = try HTTPCookie(
+            name: "a",
+            value: "b",
+            isSecure: true,
+            isPartitioned: true
+        )
+        #expect("\(cookie)" == "a=b; Secure; Partitioned")
+    }
+
+    @Test
+    func httpCookieInsecurePartitioned() throws(HTTPCookieError) {
+        let cookie = try HTTPCookie(
+            name: "a",
+            value: "b",
+            isSecure: false,
+            isPartitioned: true
+        )
+        #expect("\(cookie)" == "a=b")
+    }
+
+    @Test
+    func httpCookieAllFlags() throws(HTTPCookieError) {
+        let cookie = try HTTPCookie(
+            name: "all",
+            value: "flags",
+            maxAge: .max,
+            expires: "anything",
+            domain: "litleagues.com",
+            path: "/",
+            isSecure: true,
+            isPartitioned: true,
+            isHTTPOnly: true,
+            sameSite: .strict
+        )
+        let expected = "all=flags; Max-Age=\(UInt64.max); Expires=anything; Secure; Partitioned; HttpOnly; Domain=litleagues.com; Path=/; SameSite=Strict"
+        #expect("\(cookie)" == expected)
+    }
 }
 
 extension HTTPCookieError: Equatable {
