@@ -1,4 +1,6 @@
 
+#if StaticMiddleware
+
 import DestinyEmbedded
 import DestinyDefaults
 import Testing
@@ -84,3 +86,5 @@ struct StaticMiddlewareTests {
         #expect(!middleware.handlesMethod(HTTPRequestMethod("POST")))
     }
 }
+
+#endif
