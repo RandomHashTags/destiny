@@ -1,8 +1,6 @@
 
-#if hasFeature(Embedded) && MediaTypes
+#if (hasFeature(Embedded) || EMBEDDED) && MediaTypes
 
-import DestinyBlueprint
-import DestinyDefaults
 import MediaTypes
 
 extension HTTPResponseMessage {

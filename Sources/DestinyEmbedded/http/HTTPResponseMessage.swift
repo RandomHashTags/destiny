@@ -135,6 +135,24 @@ extension HTTPResponseMessage {
 
 // MARK: Redirect
 extension HTTPResponseMessage {
+    #if hasFeature(Embedded) || EMBEDDED
+    /// - Parameters:
+    ///   - to: Redirection target.
+    ///   - version: HTTP Version of the message.
+    ///   - status: HTTP response status of the message.
+    /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func redirect(
+        to target: String,
+        version: HTTPVersion = .v1_1,
+        status: HTTPResponseStatus.Code = 307 // temporary redirect
+    ) -> Self<StaticString> {
+        var headers = HTTPHeaders()
+        return .redirect(to: target, version: version, status: status, headers: &headers)
+    }
+    #else
     /// - Parameters:
     ///   - to: Redirection target.
     ///   - version: HTTP Version of the message.
@@ -151,7 +169,42 @@ extension HTTPResponseMessage {
         var headers = HTTPHeaders()
         return .redirect(to: target, version: version, status: status, headers: &headers)
     }
+    #endif
 
+    #if hasFeature(Embedded) || EMBEDDED
+    /// - Parameters:
+    ///   - to: Redirection target.
+    ///   - version: HTTP version of the message.
+    ///   - status: HTTP response status of the message.
+    ///   - headers: HTTP headers of the message.
+    /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func redirect(
+        to target: String,
+        version: HTTPVersion = .v1_1,
+        status: HTTPResponseStatus.Code = 307, // temporary redirect
+        headers: inout HTTPHeaders
+    ) -> Self<StaticString> {
+        headers["location"] = "/\(target)"
+        #if HTTPCookie
+        return Self(
+            head: .init(headers: headers, cookies: [], status: status, version: version),
+            body: nil,
+            contentType: nil,
+            charset: nil
+        )
+        #else
+        return Self(
+            head: .init(headers: headers, status: status, version: version),
+            body: nil,
+            contentType: nil,
+            charset: nil
+        )
+        #endif
+    }
+    #else
     /// - Parameters:
     ///   - to: Redirection target.
     ///   - version: HTTP version of the message.
@@ -184,6 +237,7 @@ extension HTTPResponseMessage {
         )
         #endif
     }
+    #endif
 }
 
 // MARK: Create

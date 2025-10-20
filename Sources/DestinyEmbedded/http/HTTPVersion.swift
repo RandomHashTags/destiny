@@ -27,7 +27,7 @@ public enum HTTPVersion: Hashable, Sendable {
         }
     }
 
-    /// String representation of this HTTP Version (`HTTP/<major>.<minor>`).
+    /// `String` representation of this HTTP Version (`HTTP/<major>.<minor>`).
     #if Inlinable
     @inlinable
     #endif
@@ -42,7 +42,7 @@ public enum HTTPVersion: Hashable, Sendable {
         }
     }
 
-    /// StaticString representation of this HTTP Version (`HTTP/<major>.<minor>`).
+    /// `StaticString` representation of this HTTP Version (`HTTP/<major>.<minor>`).
     #if Inlinable
     @inlinable
     #endif

@@ -260,10 +260,13 @@ extension RouterStorage {
             routePaths.append(string)
             removedRedirects.append(index)
 
-            #if NonEmbedded
-            let response = route.nonEmbeddedResponse()
-            #elseif hasFeature(Embedded)
+            #if hasFeature(Embedded) || EMBEDDED
             let response = route.genericResponse()
+            #elseif NonEmbedded
+            let response = route.nonEmbeddedResponse()
+            #else
+            #warning("missing support")
+            continue
             #endif
 
             let stringLiteral = StringLiteralExprSyntax(content: "")
