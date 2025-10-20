@@ -3,25 +3,26 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyMacros
 import Testing
 
 @Suite
 struct HTTPCookieTests {
-    static let illegals:Set<Character> = {
-        var illegals:Set<Character> = Set((0..<32).map({ Character(UnicodeScalar($0)) }))
-        illegals.formUnion((128...255).map({ Character(UnicodeScalar($0)) }))
-        illegals.insert(Character(UnicodeScalar(127)))
-        illegals.insert(",")
-        illegals.insert(";")
-        illegals.insert("\"")
-        illegals.insert("\\")
-        illegals.insert(" ")
-        return illegals
+    static let illegalCharacters:Set<Character> = {
+        var illegalChars = Set((0..<32).map({ Character(UnicodeScalar($0)) }))
+        illegalChars.formUnion((128...255).map({ Character(UnicodeScalar($0)) }))
+        illegalChars.insert(Character(UnicodeScalar(127)))
+        illegalChars.insert(",")
+        illegalChars.insert(";")
+        illegalChars.insert("\"")
+        illegalChars.insert("\\")
+        illegalChars.insert(" ")
+        return illegalChars
     }()
 
     @Test
     func httpCookieIllegalValue() {
-        for illegal in Self.illegals {
+        for illegal in Self.illegalCharacters {
             let illegalValue = "its-cr1tter-season\(illegal)"
             #expect(throws: HTTPCookieError.illegalCharacter(illegal)) {
                 let _ = try HTTPCookie(name: "name", value: illegalValue)
@@ -30,7 +31,7 @@ struct HTTPCookieTests {
     }
     @Test
     func httpCookiePercentEncodeIllegalValue() throws(HTTPCookieError) {
-        for illegal in Self.illegals {
+        for illegal in Self.illegalCharacters {
             let illegalValue = "critters\(illegal); they bite".httpCookiePercentEncoded()
             let _ = try HTTPCookie(name: "name", value: illegalValue)
         }
@@ -90,6 +91,23 @@ struct HTTPCookieTests {
         )
         let expected = "all=flags; Max-Age=\(UInt64.max); Expires=anything; Secure; Partitioned; HttpOnly; Domain=litleagues.com; Path=/; SameSite=Strict"
         #expect("\(cookie)" == expected)
+    }
+
+    @Test
+    func httpCookieSameSiteHTTPValue() {
+        #expect(HTTPCookieFlag.SameSite.strict.httpValue == "Strict")
+        #expect(HTTPCookieFlag.SameSite.lax.httpValue == "Lax")
+        #expect(HTTPCookieFlag.SameSite.none.httpValue == "None")
+    }
+
+    @Test
+    func httpCookieSameSiteRawRepresentable() {
+        let rawValues = ["strict", "lax", "none"]
+        for rawValue in rawValues {
+            let ss = HTTPCookieFlag.SameSite(rawValue: rawValue)
+            #expect(ss != nil)
+            #expect(ss?.rawValue == rawValue)
+        }
     }
 }
 
