@@ -8,33 +8,52 @@ import SwiftSyntaxMacros
 public struct IntermediateResponseBody: ResponseBodyProtocol {
     public let valueExpr:ExprSyntax
     public let type:IntermediateResponseBodyType
+    let value:String
+    public let count:Int
 
     public init(
         type: IntermediateResponseBodyType,
-        _ value: some ExprSyntaxProtocol
+        _ valueExpr: ExprSyntax
     ) {
         self.type = type
-        self.valueExpr = .init(value)
-    }
+        self.valueExpr = valueExpr
 
-    var value: String {
+        let valueString:String
+        var count = 0
         if let stringLiteral = valueExpr.stringLiteral {
-            return stringLiteral.segments.map({
-                if case let .stringSegment(seg) = $0 {
-                    return seg.content.text.replacing("\n", with: "\\n")
-                }
-                return "\($0)"
-            }).joined()
+            count = (stringLiteral.segments.count - 1)
+            valueString = Self.upgradeSegments(stringLiteral.segments)
+        } else {
+            valueString = valueExpr.description
         }
-        return valueExpr.description
+        self.value = valueString
+        self.count = valueString.count - count
     }
 
-    public var count: Int {
-        var c = value.count
-        if let l = valueExpr.stringLiteral?.segments.count {
-            c -= (l - 1)
-        }
-        return c
+    private static func upgradeSegments(_ list: StringLiteralSegmentListSyntax) -> String {
+        return list.map({
+            switch $0 {
+            case .stringSegment(let seg):
+                return upgradeStringSegment(seg)
+            case .expressionSegment(let seg):
+                return upgradeExpressionSegment(seg)
+            }
+        }).joined()
+    }
+    private static func upgradeStringSegment(_ segment: StringSegmentSyntax) -> String {
+        return segment.content.text.replacing("\n", with: "\\n")
+    }
+    private static func upgradeExpressionSegment(_ segment: ExpressionSegmentSyntax) -> String {
+        // remove interpolation where it doesn't need it
+        return segment.expressions.map({
+            if let s = $0.expression.stringLiteral {
+                return upgradeSegments(s.segments)
+            }
+            return $0.expression.booleanLiteral?.literal.text
+                ?? $0.expression.integerLiteral?.literal.text
+                ?? $0.expression.as(FloatLiteralExprSyntax.self)?.literal.text
+                ?? $0.description
+        }).joined()
     }
 
     public func string() -> String {
@@ -104,7 +123,11 @@ extension IntermediateResponseBody {
     ) -> IntermediateResponseBody? {
         guard let function = expr.functionCall else {
             if let string = expr.stringLiteral {
-                return .init(type: .string, string)
+                if string.segments.firstIndex(where: { $0.is(ExpressionSegmentSyntax.self) }) == nil {
+                    // can be upgraded to a `StaticString`
+                    return Self(type: .staticString, .init(expr))
+                }
+                return Self(type: .string, .init(expr))
             }
             return nil
         }
@@ -114,7 +137,7 @@ extension IntermediateResponseBody {
             key = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text.lowercased()
         }
         if let key, let type = IntermediateResponseBodyType(rawValue: key) {
-            return IntermediateResponseBody(type: type, firstArg.expression)
+            return Self(type: type, firstArg.expression)
         }
         context.diagnose(DiagnosticMsg.unhandled(node: expr))
         return nil
@@ -137,7 +160,7 @@ extension IntermediateResponseBody {
             responseString.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
             return "RouteResponses.\(prefix)MacroExpansion(\"\(responseString)\", body: \(value))"
         case .macroExpansionWithDateHeader:
-            var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
+            var (preDate, postDate) = preDateAndPostDateValues(responseString)
             postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
             return "\(prefix)MacroExpansionWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", body: \(value))"
         case .streamWithDateHeader:
@@ -145,16 +168,29 @@ extension IntermediateResponseBody {
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
             return "\(prefix)StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
         case .stringWithDateHeader:
-            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
-            return "\(prefix)StringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\", value: \"\(escapedValue())\")"
+            let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
+            let (preDate, postDate) = preDateAndPostDateValues(responseString)
+            return "\(prefix)StringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter), value: \(delimiter)\"\(escapedValue())\"\(delimiter))"
         case .staticString:
-            return "\(prefix)StaticString(\"\(responseString)\(escapedValue())\")"
+            let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
+            return "StaticString(\(delimiter)\"\(responseString)\(escapedValue())\"\(delimiter))"
         case .staticStringWithDateHeader:
+            let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
-            return "\(prefix)StaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
+            return "\(prefix)StaticStringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter))"
 
         case .string:
-            return value
+            var s = responseString + value
+            if s.first != "\"" {
+                s.insert("\"", at: s.startIndex)
+            }
+            if s.last != "\"" {
+                s.append("\"")
+            }
+            if let stringLiteral = valueExpr.stringLiteral, let openingPounds = stringLiteral.openingPounds, let closingPounds = stringLiteral.closingPounds {
+                s = openingPounds.text + s + closingPounds.text
+            }
+            return s
 
         case .nonCopyableBytes:
             return "ResponseBody.NonCopyableBytes(\(value))"
@@ -169,12 +205,17 @@ extension IntermediateResponseBody {
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
             return "NonCopyableStreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
         case .nonCopyableStaticStringWithDateHeader:
+            let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
             let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
-            return "NonCopyableStaticStringWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\")"
+            return "NonCopyableStaticStringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter))"
         }
     }
     func escapedValue() -> String {
         var string = value
+        guard valueExpr.stringLiteral?.openingPounds == nil else {
+            // don't escape the string if it uses pound delimiters
+            return string
+        }
         string.replace("\"", with: "\\\"")
         return string
     }
@@ -185,6 +226,15 @@ extension IntermediateResponseBody {
 import DestinyDefaultsNonEmbedded
 
 extension IntermediateResponseBody {
+    #if hasFeature(Embedded) || EMBEDDED
+    public func responderDebugDescription<B>(
+        isCopyable: Bool,
+        response: HTTPResponseMessage<B>
+    ) -> String {
+        var responseString = response.intermediateString(escapeLineBreak: true)
+        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
+    }
+    #else
     public func responderDebugDescription(
         isCopyable: Bool,
         response: HTTPResponseMessage
@@ -192,21 +242,8 @@ extension IntermediateResponseBody {
         var responseString = response.intermediateString(escapeLineBreak: true)
         return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
     }
+    #endif
 }
-#endif
-
-#if GenericHTTPMessage
-
-extension IntermediateResponseBody {
-    public func responderDebugDescription<B>(
-        isCopyable: Bool,
-        response: GenericHTTPResponseMessage<B>
-    ) -> String {
-        var responseString = response.intermediateString(escapeLineBreak: true)
-        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
-    }
-}
-
 #endif
 
 // MARK: IntermediateResponseBodyType

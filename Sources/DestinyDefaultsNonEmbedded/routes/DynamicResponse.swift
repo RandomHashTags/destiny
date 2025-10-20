@@ -2,6 +2,40 @@
 import DestinyBlueprint
 import VariableLengthArray
 
+#if hasFeature(Embedded) || EMBEDDED
+
+/// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
+public struct DynamicResponse<
+        Body: ResponseBodyProtocol
+    >: Sendable {
+    public var message:HTTPResponseMessage<Body>
+    public var parameters:[String]
+
+    public init(
+        message: HTTPResponseMessage<Body>,
+        parameters: [String]
+    ) {
+        self.message = message
+        self.parameters = parameters
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func setBody(_ body: Body) {
+        message.setBody(body)
+    }
+
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func setBody(_ body: some ResponseBodyProtocol) {
+        message.setBody(body)
+    }
+}
+
+#else
+
 /// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
 public struct DynamicResponse: Sendable {
     public var message:HTTPResponseMessage
@@ -15,6 +49,17 @@ public struct DynamicResponse: Sendable {
         self.parameters = parameters
     }
 
+    #if Inlinable
+    @inlinable
+    #endif
+    public mutating func setBody(_ body: some ResponseBodyProtocol) {
+        message.setBody(body)
+    }
+}
+#endif
+
+// MARK: Logic
+extension DynamicResponse {
     #if Inlinable
     @inlinable
     #endif
@@ -44,9 +89,7 @@ public struct DynamicResponse: Sendable {
             yield(parameter)
         }
     }
-}
 
-extension DynamicResponse {
     #if Inlinable
     @inlinable
     #endif
@@ -76,13 +119,6 @@ extension DynamicResponse {
         try message.appendCookie(cookie)
     }
     #endif
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func setBody(_ body: some ResponseBodyProtocol) {
-        message.setBody(body)
-    }
 
     #if Inlinable
     @inlinable

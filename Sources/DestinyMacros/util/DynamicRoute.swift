@@ -190,8 +190,8 @@ extension DynamicRoute {
 extension DynamicRoute {
     /// String representation of an initialized route responder conforming to `DynamicRouteResponderProtocol`.
     public func responderDebugDescription(useGenerics: Bool) -> String {
-        var response = "\(defaultResponse)"
-        #if GenericDynamicResponse
+        let response:String
+        #if hasFeature(Embedded) || EMBEDDED
         if useGenerics {
             // TODO: convert body to `IntermediateBody`
             if let b = defaultResponse.message.body as? StaticString {
@@ -202,7 +202,10 @@ extension DynamicRoute {
                 response = genericResponse(Optional<String>.none)
             }
         }
+        #else
+        response = "\(defaultResponse)"
         #endif
+
         return """
         DynamicRouteResponder(
             path: \(path),
@@ -212,10 +215,10 @@ extension DynamicRoute {
         """
     }
 
-    #if GenericDynamicResponse
-    private func genericResponse<Body: ResponseBodyProtocol>(_ body: Body?) -> String {
-        let response = GenericDynamicResponse(
-            message: GenericHTTPResponseMessage<Body>(
+    #if hasFeature(Embedded) || EMBEDDED
+    private func genericResponse<Body: ResponseBodyProtocol>(_ body: Body?) -> String { // TODO: fix
+        let response = DynamicResponse(
+            message: HTTPResponseMessage<Body>(
                 head: defaultResponse.message.head,
                 body: body,
                 contentType: defaultResponse.message.contentType,

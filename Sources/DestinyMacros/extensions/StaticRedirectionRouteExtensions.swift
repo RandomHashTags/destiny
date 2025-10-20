@@ -4,11 +4,11 @@
 import DestinyBlueprint
 import DestinyDefaults
 
-#if GenericHTTPMessage
+#if hasFeature(Embedded) || EMBEDDED
 
 extension StaticRedirectionRoute {
     /// The HTTP Message of this route. Computed at compile time.
-    public func genericResponse() -> GenericHTTPResponseMessage<StaticString> {
+    public func genericResponse() -> HTTPResponseMessage<StaticString> {
         var headers = HTTPHeaders()
         headers["date"] = HTTPDateFormat.placeholder
         return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)

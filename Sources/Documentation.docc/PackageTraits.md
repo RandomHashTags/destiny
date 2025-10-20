@@ -1,5 +1,4 @@
 # Destiny Package Traits
-
 This document lists all the available package traits for Destiny.
 
 ## Table of Contents
@@ -10,7 +9,6 @@ This document lists all the available package traits for Destiny.
 - [See Also](#see-also)
 
 ## Functionality
-
 List of package traits that toggle features in Destiny.
 
 ### CORS
@@ -40,7 +38,6 @@ Enables functionality that can stream a request's body.
 Enables functionality to access a request's headers.
 
 ## Annotations
-
 List of package traits that enable annotations where annotated.
 
 ### Inlinable
@@ -51,32 +48,17 @@ Enables the `@inline(__always)` annotation where annotated.
 
 
 ## Embedded
-
 List of package traits that enable functionality suitable for embedded.
-
-### GenericHTTPMessage
-Enables an HTTP Message implementation utilizing generics, avoiding existentials.
-
-### GenericStaticRoute
-Enables a `StaticRoute` implementation utilizing generics, avoiding existentials.
-
-### GenericDynamicRoute
-Enables a `DynamicRoute` implementation utilizing generics, avoiding existentials.
-
-### GenericDynamicResponse
-Enables a DynamicResponse implementation utilizing generics, avoiding existentials.
-- Enables traits: `GenericHTTPMessage`
 
 ### GenericRouteGroup
 Enables a `RouteGroup` implementation utilizing generics, avoiding existentials.
 
 ### Generics
 Enables all Generic package traits.
-- Enables traits: `GenericHTTPMessage`, `GenericStaticRoute`, `GenericDynamicRoute`, `GenericDynamicResponse`, `GenericRouteGroup`
+- Enables traits: `GenericRouteGroup`
 
 
 ## Third-party
-
 List of package traits that add third-party convenience/support.
 
 ### Epoll

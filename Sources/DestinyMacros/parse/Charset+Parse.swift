@@ -1,5 +1,5 @@
 
-import DestinyDefaults
+import DestinyEmbedded
 import SwiftSyntax
 
 extension Charset {

@@ -1,8 +1,16 @@
 
-import DestinyEmbedded
-
 /// Default storage that efficiently handles an HTTP Message's head content (HTTP Version, status code and headers).
 public struct HTTPResponseMessageHead: Sendable {
+
+    /// Creates a `HTTPResponseMessageHead` with these values:
+    /// - headers: `HTTPHeaders()`
+    /// - cookies: `[HTTPCookie]()` (if `HTTPCookie` package trait is enabled)
+    /// - status: `501` (not implemented)
+    /// - version: `HTTPVersion.v1_1`
+    public static var `default`: Self {
+        .init()
+    }
+
     public var headers:HTTPHeaders
 
     #if HTTPCookie
@@ -14,10 +22,10 @@ public struct HTTPResponseMessageHead: Sendable {
 
     #if HTTPCookie
     public init(
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion
+        headers: HTTPHeaders = .init(),
+        cookies: [HTTPCookie] = [],
+        status: HTTPResponseStatus.Code = 501, // not implemented
+        version: HTTPVersion = .v1_1
     ) {
         self.headers = headers
         self.cookies = cookies
@@ -26,9 +34,9 @@ public struct HTTPResponseMessageHead: Sendable {
     }
     #else
     public init(
-        headers: HTTPHeaders,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion
+        headers: HTTPHeaders = .init(),
+        status: HTTPResponseStatus.Code = 501, // not implemented
+        version: HTTPVersion = .v1_1
     ) {
         self.headers = headers
         self.status = status

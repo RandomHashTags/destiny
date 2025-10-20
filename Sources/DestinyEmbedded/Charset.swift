@@ -1,5 +1,4 @@
 
-// MARK: Charset
 /// HTTP charset encodings.
 public enum Charset: Sendable {
     case any

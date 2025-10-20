@@ -29,14 +29,14 @@ extension Route {
         _ function: FunctionCallExprSyntax
     ) -> (static: StaticRoute?, dynamic: DynamicRoute?) {
         var details = parseDetails(context: context, version: version, function)
-        var version = details.version
-        var status = details.status
+        var version = details.head.version
+        var status = details.head.status
         var contentType = details.contentType
-        var headers = HTTPHeaders()
+        var headers = details.head.headers
         let pathString = details.path.map({ $0.slug }).joined(separator: "/")
 
         #if HTTPCookie
-        var cookies = [HTTPCookie]()
+        var cookies = details.head.cookies
         #endif
 
         for middleware in middleware {
@@ -48,11 +48,13 @@ extension Route {
                 #endif
             }
         }
-        details.version = version
-        details.status = status
+        details.head.headers = headers
+        details.head.status = status
+        details.head.version = version
         details.contentType = contentType
 
         #if HTTPCookie
+        details.head.cookies = cookies
         return details.parse(headers: &headers, cookies: cookies)
         #else
         return details.parse(headers: &headers)
@@ -65,11 +67,10 @@ extension Route {
         _ function: FunctionCallExprSyntax
     ) -> Self {
         let details = parseDetails(context: context, version: version, function)
-        var headers = HTTPHeaders()
         #if HTTPCookie
-        return parse(details: details, headers: &headers, cookies: [])
+        return parse(details: details, headers: &details.head.headers, cookies: details.head.cookies)
         #else
-        return parse(details: details, headers: &headers)
+        return parse(details: details, headers: &details.head.headers)
         #endif
     }
     #endif
@@ -82,21 +83,22 @@ extension Route {
         version: HTTPVersion,
         _ function: FunctionCallExprSyntax
     ) -> Details {
-        var version = version
-        var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
+        var head = HTTPResponseMessageHead.default
+        head.version = version
+
+        var method = HTTPRequestMethod(name: "GET")
         var path = [PathComponent]()
         var isCaseSensitive = true
-        var status = HTTPStandardResponseStatus.notImplemented.code
         var contentType:String? = nil
         var charset:Charset? = nil
         var body:(any ResponseBodyProtocol)? = nil
         var handler:String? = nil
         var parameters = [String]()
+
         for arg in function.arguments {
             switch arg.label?.text {
-            case "version":
-                guard let parsed = HTTPVersion.parse(context: context, expr: arg.expression) else { break }
-                version = parsed
+            case "head":
+                head = .parse(context: context, expr: arg.expression) ?? head
             case "method":
                 guard let parsed = HTTPRequestMethod.parse(expr: arg.expression) else {
                     context.diagnose(DiagnosticMsg.unhandled(node: arg.expression))
@@ -110,13 +112,9 @@ extension Route {
                 }
             case "isCaseSensitive", "caseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
-            case "status":
-                guard let parsed = HTTPResponseStatus.parseCode(context: context, expr: arg.expression) else {
-                    break
-                }
-                status = parsed
             case "contentType":
                 contentType = arg.expression.stringLiteralString(context: context) ?? contentType
+
             #if MediaTypes
             case "mediaType":
                 guard let parsed = MediaType.parse(context: context, expr: arg.expression)?.template else {
@@ -125,6 +123,7 @@ extension Route {
                 }
                 contentType = parsed
             #endif
+
             case "charset":
                 charset = Charset.init(expr: arg.expression)
             case "body":
@@ -139,11 +138,10 @@ extension Route {
             path = path.map({ PathComponent(stringLiteral: $0.slug.lowercased()) })
         }
         return .init(
-            version: version,
+            head: head,
             method: method,
             path: path,
             isCaseSensitive: isCaseSensitive,
-            status: status,
             contentType: contentType,
             charset: charset,
             body: body,
@@ -156,13 +154,13 @@ extension Route {
 // MARK: Details
 extension Route {
     struct Details {
-        var version:HTTPVersion
-        var method:any HTTPRequestMethodProtocol = HTTPStandardRequestMethod.get
+        var head:HTTPResponseMessageHead
+        var method = HTTPRequestMethod(name: "GET")
         var path = [PathComponent]()
         var isCaseSensitive = true
-        var status = HTTPStandardResponseStatus.notImplemented.code
         var contentType:String? = nil
         var charset:Charset?
+
         var body:(any ResponseBodyProtocol)?
         var handler:String? = nil
         var parameters = [String]()
@@ -174,8 +172,8 @@ extension Route {
         ) -> (StaticRoute?, DynamicRoute?) {
             applyContentType(headers: &headers)
             let dynamicMessage = HTTPResponseMessage(
-                version: version,
-                status: status,
+                version: head.version,
+                status: head.status,
                 headers: headers,
                 cookies: cookies,
                 body: body,
@@ -190,8 +188,8 @@ extension Route {
         ) -> (StaticRoute?, DynamicRoute?) {
             applyContentType(headers: &headers)
             let dynamicMessage = HTTPResponseMessage(
-                version: version,
-                status: status,
+                version: head.version,
+                status: head.status,
                 headers: headers,
                 body: body,
                 contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
@@ -211,11 +209,11 @@ extension Route {
         ) -> (StaticRoute?, DynamicRoute?) {
             if path.firstIndex(where: { $0.isParameter }) == nil && handler == nil { // static route
                 let route = StaticRoute(
-                    version: version,
+                    version: head.version,
                     method: method,
                     path: path.map({ $0.value }),
                     isCaseSensitive: isCaseSensitive,
-                    status: status,
+                    status: head.status,
                     contentType: contentType,
                     charset: charset,
                     body: body
@@ -223,11 +221,11 @@ extension Route {
                 return (route, nil)
             } else { // dynamic route
                 var route = DynamicRoute(
-                    version: version,
+                    version: head.version,
                     method: method,
                     path: path,
                     isCaseSensitive: isCaseSensitive,
-                    status: status,
+                    status: head.status,
                     contentType: contentType,
                     body: nil,
                     handler: { _, _ in }
