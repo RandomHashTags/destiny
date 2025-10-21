@@ -29,12 +29,22 @@ struct HTTPCookieTests {
             }
         }
     }
+
     @Test
     func httpCookiePercentEncodeIllegalValue() throws(HTTPCookieError) {
         for illegal in Self.illegalCharacters {
             let illegalValue = "critters\(illegal); they bite".httpCookiePercentEncoded()
             let _ = try HTTPCookie(name: "name", value: illegalValue)
         }
+    }
+
+    @Test
+    func httpCookiePercentEncoded() throws(HTTPCookieError) {
+        let cookie = try HTTPCookie.init(
+            name: "a",
+            encoding: "test123!?. \",;=\\"
+        )
+        #expect("\(cookie)" == "a=test123!?.%20%22%2C%3B=%5C")
     }
 
     @Test

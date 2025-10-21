@@ -2,45 +2,243 @@
 // https://www.ascii-code.com/
 extension UInt8 {
     // MARK: symbols
-    /// ASCII code for the "line feed" control character.
+    /// ASCII code for the `\n` control character.
     @inlinable
     @inline(__always)
     public static var lineFeed: Self { 10 }
 
-    /// ASCII code for the "carriage return" control character.
+    /// ASCII code for the `\r` control character.
     @inlinable
     @inline(__always)
     public static var carriageReturn: Self { 13 }
 
-    /// ASCII code for the "space" printable character.
+    /// ASCII code for the ` ` printable character.
     @inlinable
     @inline(__always)
     public static var space: Self { 32 }
 
-    /// ASCII code for the "comma" printable character.
+    /// ASCII code for the `!` printable character.
+    @inlinable
+    @inline(__always)
+    public static var exclamationMark: Self { 33 }
+
+    /// ASCII code for the `"` printable character.
+    @inlinable
+    @inline(__always)
+    public static var quotation: Self { 34 }
+
+    /// ASCII code for the `#` printable character.
+    @inlinable
+    @inline(__always)
+    public static var numberSign: Self { 35 }
+
+    /// ASCII code for the `$` printable character.
+    @inlinable
+    @inline(__always)
+    public static var dollarSign: Self { 36 }
+
+    /// ASCII code for the `%` printable character.
+    @inlinable
+    @inline(__always)
+    public static var percent: Self { 37 }
+
+    /// ASCII code for the `&` printable character.
+    @inlinable
+    @inline(__always)
+    public static var ampersand: Self { 38 }
+
+    /// ASCII code for the `'` printable character.
+    @inlinable
+    @inline(__always)
+    public static var apostrophe: Self { 39 }
+
+    /// ASCII code for the `(` printable character.
+    @inlinable
+    @inline(__always)
+    public static var openingParenthesis: Self { 40 }
+
+    /// ASCII code for the `)` printable character.
+    @inlinable
+    @inline(__always)
+    public static var closingParenthesis: Self { 41 }
+
+    /// ASCII code for the `*` printable character.
+    @inlinable
+    @inline(__always)
+    public static var asterisk: Self { 42 }
+
+    /// ASCII code for the `+` printable character.
+    @inlinable
+    @inline(__always)
+    public static var plus: Self { 43 }
+
+    /// ASCII code for the `,` printable character.
     @inlinable
     @inline(__always)
     public static var comma: Self { 44 }
 
-    /// ASCII code for the "forward slash" printable character.
-    @inlinable
-    @inline(__always)
-    public static var forwardSlash: Self { 47 }
-
-    /// ASCII code for the "subtract" printable character.
+    /// ASCII code for the `-` printable character.
     @inlinable
     @inline(__always)
     public static var subtract: Self { 45 }
 
-    /// ASCII code for the "colon" printable character.
+    /// ASCII code for the `.` printable character.
+    @inlinable
+    @inline(__always)
+    public static var period: Self { 46 }
+
+    /// ASCII code for the `/` printable character.
+    @inlinable
+    @inline(__always)
+    public static var forwardSlash: Self { 47 }
+
+    /// ASCII code for the `:` printable character.
     @inlinable
     @inline(__always)
     public static var colon: Self { 58 }
 
-    /// ASCII code for the "question mark" printable character.
+    /// ASCII code for the `;` printable character.
+    @inlinable
+    @inline(__always)
+    public static var semicolon: Self { 59 }
+
+    /// ASCII code for the `<` printable character.
+    @inlinable
+    @inline(__always)
+    public static var lessThan: Self { 60 }
+
+    /// ASCII code for the `=` printable character.
+    @inlinable
+    @inline(__always)
+    public static var equal: Self { 61 }
+
+    /// ASCII code for the `>` printable character.
+    @inlinable
+    @inline(__always)
+    public static var greaterThan: Self { 62 }
+
+    /// ASCII code for the `?` printable character.
     @inlinable
     @inline(__always)
     public static var questionMark: Self { 63 }
+
+    /// ASCII code for the `@` printable character.
+    @inlinable
+    @inline(__always)
+    public static var atSign: Self { 64 }
+
+    /// ASCII code for the `[` printable character.
+    @inlinable
+    @inline(__always)
+    public static var openingBracket: Self { 91 }
+
+    /// ASCII code for the `\` printable character.
+    @inlinable
+    @inline(__always)
+    public static var backslash: Self { 92 }
+
+    /// ASCII code for the `]` printable character.
+    @inlinable
+    @inline(__always)
+    public static var closingBracket: Self { 93 }
+
+    /// ASCII code for the `^` printable character.
+    @inlinable
+    @inline(__always)
+    public static var caret: Self { 94 }
+
+    /// ASCII code for the `_` printable character.
+    @inlinable
+    @inline(__always)
+    public static var underscore: Self { 95 }
+
+    /// ASCII code for the "`" printable character (96).
+    @inlinable
+    @inline(__always)
+    public static var graveAccent: Self { 96 }
+
+    /// ASCII code for the `{` printable character.
+    @inlinable
+    @inline(__always)
+    public static var openingBrace: Self { 123 }
+
+    /// ASCII code for the `|` printable character.
+    @inlinable
+    @inline(__always)
+    public static var verticalBar: Self { 124 }
+    
+    /// ASCII code for the `}` printable character.
+    @inlinable
+    @inline(__always)
+    public static var closingBrace: Self { 125 }
+    
+    /// ASCII code for the `~` printable character.
+    @inlinable
+    @inline(__always)
+    public static var tilde: Self { 126 }
+
+    /// ASCII code for the `€` printable character.
+    @inlinable
+    @inline(__always)
+    public static var euroSign: Self { 128 }
+
+    /// ASCII code for the `£` printable character.
+    @inlinable
+    @inline(__always)
+    public static var poundSign: Self { 163 }
+
+
+    // MARK: Numbers
+    /// ASCII code for the `0` printable character.
+    @inlinable
+    @inline(__always)
+    public static var zero: Self { 48 }
+
+    /// ASCII code for the `1` printable character.
+    @inlinable
+    @inline(__always)
+    public static var one: Self { 49 }
+
+    /// ASCII code for the `2` printable character.
+    @inlinable
+    @inline(__always)
+    public static var two: Self { 50 }
+
+    /// ASCII code for the `3` printable character.
+    @inlinable
+    @inline(__always)
+    public static var three: Self { 51 }
+
+    /// ASCII code for the `4` printable character.
+    @inlinable
+    @inline(__always)
+    public static var four: Self { 52 }
+
+    /// ASCII code for the `5` printable character.
+    @inlinable
+    @inline(__always)
+    public static var five: Self { 53 }
+
+    /// ASCII code for the `6` printable character.
+    @inlinable
+    @inline(__always)
+    public static var six: Self { 54 }
+
+    /// ASCII code for the `7` printable character.
+    @inlinable
+    @inline(__always)
+    public static var seven: Self { 55 }
+
+    /// ASCII code for the `8` printable character.
+    @inlinable
+    @inline(__always)
+    public static var eight: Self { 56 }
+
+    /// ASCII code for the `9` printable character.
+    @inlinable
+    @inline(__always)
+    public static var nine: Self { 57 }
+
 
     // MARK: letters
     /// ASCII code for the `A` printable character.
