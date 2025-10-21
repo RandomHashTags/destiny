@@ -1,7 +1,7 @@
 
 /// Represents an individual path value for a route.
 /// Used to determine how to handle a route responder for dynamic routes with parameters at compile time.
-public enum PathComponent: Equatable, Sendable {
+public enum PathComponent: Equatable, Sendable { // TODO: remove `Equatable` conformance or use under a package trait
     /// Path component that matches the given `String` exactly.
     case literal(String)
 

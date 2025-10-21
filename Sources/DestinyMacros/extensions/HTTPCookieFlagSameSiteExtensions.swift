@@ -14,7 +14,10 @@ extension HTTPCookieFlag.SameSite: RawRepresentable {
     }
 
     public var rawValue: String {
-        let s = "\(self)"
-        return String(s[s.index(after: s.firstIndex(of: ".")!)...])
+        switch self {
+        case .strict: "strict"
+        case .lax: "lax"
+        case .none: "none"
+        }
     }
 }

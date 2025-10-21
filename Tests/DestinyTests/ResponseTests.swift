@@ -6,6 +6,11 @@ import TestRouter
 
 @Suite
 struct ResponseTests {
+}
+
+#if NonCopyableStaticStringWithDateHeader
+
+extension ResponseTests {
     @Test
     func responseStaticStringWithDateHeader() throws(ResponderError) {
         let fd = TestFileDescriptor()
@@ -69,3 +74,5 @@ extension NonCopyableDateHeaderPayload {
         }
     }
 }
+
+#endif

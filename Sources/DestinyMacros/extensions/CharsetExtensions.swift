@@ -22,8 +22,23 @@ extension Charset: RawRepresentable {
         }
     }
 
+    #if Inlinable
+    @inlinable
+    #endif
     public var rawValue: String {
-        let s = "\(self)"
-        return String(s[s.index(after: s.firstIndex(of: ".")!)...])
+        switch self {
+        case .any: "any"
+        case .basicMultilingualPlane: "basicMultilingualPlane"
+        case .bocu1: "bocu1"
+        case .iso8859_5: "iso8859_5"
+        case .scsu: "scsu"
+        case .ucs2: "ucs2"
+        case .ucs4: "ucs4"
+        case .utf8: "utf8"
+        case .utf16: "utf16"
+        case .utf16be: "utf16be"
+        case .utf16le: "utf16le"
+        case .utf32: "utf32"
+        }
     }
 }

@@ -7,6 +7,8 @@ import Testing
 struct RequestBodyTests {
 }
 
+#if RequestBodyStream
+
 // MARK: Stream
 extension RequestBodyTests {
     @Test
@@ -73,3 +75,4 @@ extension RequestBodyTests {
         #expect(request.storage._body?.totalRead == 10)
     }
 }
+#endif

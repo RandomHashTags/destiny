@@ -161,17 +161,33 @@ extension HTTPCookie {
     @inlinable
     #endif
     public static func validateValue(_ value: String) throws(HTTPCookieError) {
-        guard let illegalChar = value.first(where: {
-            guard let ascii = $0.asciiValue else { return true }
-            return ascii <= 31
-                || ascii == 127
-                || $0.isWhitespace
-                || $0 == ","
-                || $0 == ";"
-                || $0 == "\""
-                || $0 == "\\"
-        }) else { return }
+        guard let illegalChar = value.first(where: { !Self.isValidInValue($0) }) else { return }
         throw .illegalCharacter(illegalChar)
+    }
+
+    /// Returns: Whether the provided character is allowed in an HTTP Cookie Value.
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func isValidInValue(_ char: Character) -> Bool {
+        guard let ascii = char.asciiValue else { return false }
+        return isValidInValue(ascii)
+    }
+
+    /// Returns: Whether the provided byte is allowed in an HTTP Cookie Value.
+    #if Inlinable
+    @inlinable
+    #endif
+    public static func isValidInValue(_ byte: UInt8) -> Bool {
+        return !(
+            byte <= 31
+            || byte >= 127
+            || byte == .space
+            || byte == .comma
+            || byte == .semicolon
+            || byte == .quotation
+            || byte == .backslash
+        )
     }
 }
 
