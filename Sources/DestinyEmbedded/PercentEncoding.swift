@@ -121,6 +121,7 @@ extension String {
     @inlinable
     #endif
     public func urlPercentEncoded() -> String {
+        let percent = Character("%")
         var string = ""
         string.reserveCapacity(utf8Span.count)
         var i = startIndex
@@ -133,7 +134,7 @@ extension String {
                     string.append(char)
                 } else {
                     let (high, low) = PercentEncoding.byteToHex(ascii)
-                    string.append(Character(Unicode.Scalar(.percent)))
+                    string.append(percent)
                     string.append(high)
                     string.append(low)
                 }
@@ -156,6 +157,7 @@ extension String {
     @inlinable
     #endif
     public func httpCookiePercentEncoded() -> String {
+        let percent = Character("%")
         var string = ""
         let span = utf8Span.span
         string.reserveCapacity(span.count)
@@ -165,7 +167,7 @@ extension String {
                 string.append(Character(UnicodeScalar(byte)))
             } else {
                 let (high, low) = PercentEncoding.byteToHex(byte)
-                string.append(Character(Unicode.Scalar(.percent)))
+                string.append(percent)
                 string.append(high)
                 string.append(low)
             }
