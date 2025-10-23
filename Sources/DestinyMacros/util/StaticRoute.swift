@@ -1,6 +1,4 @@
 
-#if NonEmbedded
-
 import DestinyBlueprint
 import DestinyDefaults
 import SwiftDiagnostics
@@ -8,29 +6,11 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 // MARK: StaticRoute
-#if hasFeature(Embedded) || EMBEDDED
-
-/// Default Static Route implementation where a complete HTTP Message is computed at compile time.
-public struct StaticRoute<
-        Body: ResponseBodyProtocol
-    >: Sendable {
-    public var path:[String]
-    public let contentType:String?
-    public let body:Body?
-
-    public var method:HTTPRequestMethod
-    public let status:HTTPResponseStatus.Code
-    public let isCaseSensitive:Bool
-    public let charset:Charset?
-    public let version:HTTPVersion
-}
-
-#else
 /// Default Static Route implementation where a complete HTTP Message is computed at compile time.
 public struct StaticRoute: Sendable {
     public var path:[String]
     public let contentType:String?
-    public let body:(any ResponseBodyProtocol)?
+    public let body:IntermediateResponseBody?
 
     public var method:HTTPRequestMethod
     public let status:HTTPResponseStatus.Code
@@ -46,7 +26,7 @@ public struct StaticRoute: Sendable {
         status: some HTTPResponseStatus.StorageProtocol,
         contentType: String? = nil,
         charset: Charset? = nil,
-        body: (any ResponseBodyProtocol)? = nil
+        body: IntermediateResponseBody? = nil
     ) {
         self.init(
             version: version,
@@ -68,7 +48,7 @@ public struct StaticRoute: Sendable {
         status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         charset: Charset? = nil,
-        body: (any ResponseBodyProtocol)? = nil
+        body: IntermediateResponseBody? = nil
     ) {
         self.version = version
         self.method = .init(method)
@@ -80,7 +60,6 @@ public struct StaticRoute: Sendable {
         self.body = body
     }
 }
-#endif
 
 // MARK: Logic
 extension StaticRoute {
@@ -170,7 +149,7 @@ extension StaticRoute {
         status: HTTPResponseStatus.Code,
         headers: inout HTTPHeaders,
         cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
+        body: IntermediateResponseBody?,
         contentType: String?,
         charset: Charset?
     ) -> HTTPResponseMessage {
@@ -184,7 +163,7 @@ extension StaticRoute {
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: inout HTTPHeaders,
-        body: (any ResponseBodyProtocol)?,
+        body: IntermediateResponseBody?,
         contentType: String?,
         charset: Charset?
     ) -> HTTPResponseMessage {
@@ -200,11 +179,11 @@ extension StaticRoute {
     #if StaticMiddleware
     public func responder(
         middleware: [some StaticMiddlewareProtocol]
-    ) -> (some StaticRouteResponderProtocol)? {
+    ) -> String? {
         return response(middleware: middleware).string(escapeLineBreak: true)
     }
     #else
-    public func responder() -> (some StaticRouteResponderProtocol)? {
+    public func responder() -> String? {
         return response().string(escapeLineBreak: true)
     }
     #endif
@@ -257,17 +236,15 @@ extension StaticRoute {
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [some StaticMiddlewareProtocol]
-    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
+    ) throws(HTTPMessageError) -> String? {
         return response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }
     #else
     public func responder(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax
-    ) throws(HTTPMessageError) -> (any StaticRouteResponderProtocol)? {
+    ) throws(HTTPMessageError) -> String? {
         return response(context: context, function: function).string(escapeLineBreak: true)
     }
     #endif
 }
-
-#endif

@@ -22,6 +22,8 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
 }
 
 // MARK: Default conformances
+
+#if StringRouteResponder
 extension String: RouteResponderProtocol {
     #if Inlinable
     @inlinable
@@ -40,6 +42,7 @@ extension String: RouteResponderProtocol {
         completionHandler()
     }
 }
+#endif
 
 extension StaticString: RouteResponderProtocol {
     #if Inlinable

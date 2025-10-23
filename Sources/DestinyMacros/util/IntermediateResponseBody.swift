@@ -265,3 +265,27 @@ public enum IntermediateResponseBodyType: String, Sendable {
     case nonCopyableStreamWithDateHeader         = "noncopyablestreamwithdateheader"
     case nonCopyableStaticStringWithDateHeader   = "noncopyablestaticstringwithdateheader"
 }
+
+/*
+extension IntermediateResponseBodyType {
+    public var packageTrait: String? {
+        switch self {
+        case .bytes: nil
+        case .inlineBytes: "CopyableInlineBytes"
+        case .macroExpansion: "CopyableMacroExpansion"
+        case .macroExpansionWithDateHeader: "CopyableMacroExpansionWithDateHeader"
+        case .streamWithDateHeader: "CopyableStreamWithDateHeader"
+        case .staticString: nil
+        case .staticStringWithDateHeader: "CopyableStaticStringWithDateHeader"
+        case .stringWithDateHeader: "CopyableStringWithDateHeader"
+
+        case .string: "StringRouteResponder"
+
+        case .nonCopyableBytes: "NonCopyableBytes"
+        case .nonCopyableInlineBytes: "NonCopyableInlineBytes"
+        case .nonCopyableMacroExpansionWithDateHeader: "NonCopyableMacroExpansionWithDateHeader"
+        case .nonCopyableStreamWithDateHeader: "NonCopyableStreamWithDateHeader"
+        case .nonCopyableStaticStringWithDateHeader: "NonCopyableStaticStringWithDateHeader"
+        }
+    }
+}*/

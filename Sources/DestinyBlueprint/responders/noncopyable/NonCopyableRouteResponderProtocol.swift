@@ -24,6 +24,8 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
 }
 
 // MARK: Default conformances
+
+#if StringRouteResponder
 extension String: NonCopyableRouteResponderProtocol {
     #if Inlinable
     @inlinable
@@ -42,6 +44,7 @@ extension String: NonCopyableRouteResponderProtocol {
         completionHandler()
     }
 }
+#endif
 
 extension StaticString: NonCopyableRouteResponderProtocol {
     #if Inlinable
