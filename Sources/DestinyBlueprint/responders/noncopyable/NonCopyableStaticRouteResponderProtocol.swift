@@ -6,7 +6,11 @@ public protocol NonCopyableStaticRouteResponderProtocol: NonCopyableRouteRespond
 }
 
 // MARK: Default conformances
+
+#if StringRouteResponder
 extension String: NonCopyableStaticRouteResponderProtocol {}
+#endif
+
 extension StaticString: NonCopyableStaticRouteResponderProtocol {}
 extension [UInt8]: NonCopyableStaticRouteResponderProtocol {}
 

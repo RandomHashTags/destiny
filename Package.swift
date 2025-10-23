@@ -104,6 +104,7 @@ defaultTraits.formUnion([
     //"RoutePath", // not yet integrated
 
     "StringRequestMethod",
+    "StringRouteResponder",
     "UnwrapArithmetic",
     "Protocols",
     "Inlinable",
@@ -119,9 +120,14 @@ let traits:Set<Trait> = [
         name: "EMBEDDED",
         description: "Enables conditional compliation suitable for embedded mode."
     ),
+
     .trait(
         name: "StringRequestMethod",
         description: "Makes `String` conform to `HTTPRequestMethodProtocol` for convenience."
+    ),
+    .trait(
+        name: "StringRouteResponder",
+        description: "Makes `String` conform to route responder protocols for convenience."
     ),
 
     .trait(
@@ -427,6 +433,8 @@ var targets = [
             .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
         ]
     ),
+
+    .target(name: "DestinyPackageTraits"),
 
     // MARK: DestinyBlueprint
     .target(

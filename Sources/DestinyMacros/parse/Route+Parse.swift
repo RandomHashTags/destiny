@@ -91,7 +91,7 @@ extension Route {
         var isCaseSensitive = true
         var contentType:String? = nil
         var charset:Charset? = nil
-        var body:(any ResponseBodyProtocol)? = nil
+        var body:IntermediateResponseBody? = nil
         var handler:String? = nil
         var parameters = [String]()
 
@@ -161,7 +161,7 @@ extension Route {
         var contentType:String? = nil
         var charset:Charset?
 
-        var body:(any ResponseBodyProtocol)?
+        var body:IntermediateResponseBody?
         var handler:String? = nil
         var parameters = [String]()
 

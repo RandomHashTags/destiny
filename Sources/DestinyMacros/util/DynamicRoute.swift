@@ -58,7 +58,7 @@ extension DynamicRoute {
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         cookies: [HTTPCookie] = [],
-        body: (any ResponseBodyProtocol)? = nil,
+        body: IntermediateResponseBody? = nil,
         handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) {
         self.init(
@@ -83,7 +83,7 @@ extension DynamicRoute {
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
         cookies: [HTTPCookie] = [],
-        body: (any ResponseBodyProtocol)? = nil,
+        body: IntermediateResponseBody? = nil,
         handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) {
         self.version = version
@@ -115,7 +115,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
-        body: (any ResponseBodyProtocol)? = nil,
+        body: IntermediateResponseBody? = nil,
         handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) {
         self.init(
@@ -138,7 +138,7 @@ extension DynamicRoute {
         status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
         headers: HTTPHeaders = .init(),
-        body: (any ResponseBodyProtocol)? = nil,
+        body: IntermediateResponseBody? = nil,
         handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
     ) {
         self.version = version

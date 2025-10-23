@@ -194,7 +194,7 @@ extension RouterStorage {
         var routeMembers = MemberBlockItemListSyntax()
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
-            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)"
+            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)\nreturn true"
             routeMembers.append(try! EnumCaseDeclSyntax.init("case \(raw: caseName)"))
 
             let utf8 = routePath.utf8
@@ -239,7 +239,7 @@ extension RouterStorage {
             switch self {
             \(raw: routePathCaseConditions)
             }
-            return true
+            return false
         }
         """)
         routeMembers.append(routeResponderDecl)
