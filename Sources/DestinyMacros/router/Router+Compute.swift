@@ -130,19 +130,14 @@ extension Router {
 
             #if HTTPCookie
             defaultStaticErrorResponse = HTTPResponseMessage.init(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: [],
+                head: .init(headers: headers, cookies: [], status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: nil
             ).string(escapeLineBreak: true)
             #else
             defaultStaticErrorResponse = HTTPResponseMessage.init(
-                version: version,
-                status: status,
-                headers: headers,
+                head: .init(headers: headers, status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: nil
@@ -275,19 +270,14 @@ extension Router {
 
             #if HTTPCookie
             response = HTTPResponseMessage(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: [],
+                head: .init(headers: headers, cookies: [], status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset
             )
             #else
             response = HTTPResponseMessage(
-                version: version,
-                status: status,
-                headers: headers,
+                head: .init(headers: headers, status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset

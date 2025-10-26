@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyEmbedded
 import DestinyDefaults
 
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.

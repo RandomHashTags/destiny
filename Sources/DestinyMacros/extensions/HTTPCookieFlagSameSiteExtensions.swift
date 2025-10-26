@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 import DestinyBlueprint
 
 extension HTTPCookieFlag.SameSite: RawRepresentable {
@@ -21,3 +23,5 @@ extension HTTPCookieFlag.SameSite: RawRepresentable {
         }
     }
 }
+
+#endif

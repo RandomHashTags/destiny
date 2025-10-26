@@ -70,9 +70,10 @@ destinyMacrosDependencies.append(contentsOf: [
 
 // MARK: Traits
 defaultTraits.formUnion([
-    "Copyable",
-    "GenericDynamicResponse",
     "NonCopyable",
+    "CopyableStaticStringWithDateHeader",
+    "StringRouteResponder",
+    //"HTTPCookie",
 
     "UnwrapArithmetic",
     "Inlinable",
@@ -81,12 +82,26 @@ let traits:Set<Trait> = [
     .default(enabledTraits: defaultTraits),
 
     .trait(
+        name: "EMBEDDED",
+        description: "Enables conditional compliation suitable for embedded mode."
+    ),
+
+    .trait(
+        name: "StringRequestMethod",
+        description: "Makes `String` conform to `HTTPRequestMethodProtocol` for convenience."
+    ),
+    .trait(
+        name: "StringRouteResponder",
+        description: "Makes `String` conform to route responder protocols for convenience."
+    ),
+
+    .trait(
         name: "CORS",
         description: "Enables cross-origin resource sharing functionality."
     ),
 
     .trait(
-        name: "CopyableHTTPServer"
+        name: "CopyableDateHeaderPayload"
     ),
     .trait(
         name: "CopyableMacroExpansion",
@@ -94,10 +109,8 @@ let traits:Set<Trait> = [
     ),
     .trait(
         name: "CopyableMacroExpansionWithDateHeader",
-        description: "Enables the copyable MacroExpansionWithDateHeader route responder."
-    ),
-    .trait(
-        name: "CopyableDateHeaderPayload"
+        description: "Enables the copyable MacroExpansionWithDateHeader route responder.",
+        enabledTraits: ["CopyableDateHeaderPayload"]
     ),
     .trait(
         name: "CopyableStaticStringWithDateHeader",
@@ -123,16 +136,19 @@ let traits:Set<Trait> = [
         name: "Copyable",
         description: "Enables all copyable package traits.",
         enabledTraits: [
-            "CopyableHTTPServer",
             "CopyableResponders"
         ]
     ),
 
+    
     .trait(name: "NonCopyableHTTPServer"),
+    .trait(name: "NonCopyableDateHeaderPayload"),
     .trait(name: "NonCopyableBytes"),
     .trait(name: "NonCopyableInlineBytes"),
-    .trait(name: "NonCopyableDateHeaderPayload"),
-    .trait(name: "NonCopyableMacroExpansionWithDateHeader"),
+    .trait(
+        name: "NonCopyableMacroExpansionWithDateHeader",
+        enabledTraits: ["NonCopyableDateHeaderPayload"]
+    ),
     .trait(
         name: "NonCopyableStaticStringWithDateHeader",
         enabledTraits: ["NonCopyableDateHeaderPayload"]
@@ -161,23 +177,6 @@ let traits:Set<Trait> = [
     ),
 
     .trait(
-        name: "GenericHTTPMessage",
-        description: "Enables an HTTPMessage implementation utilizing generics, avoiding existentials."
-    ),
-    .trait(
-        name: "GenericStaticRoute",
-        description: "Enables a StaticRoute implementation utilizing generics, avoiding existentials."
-    ),
-    .trait(
-        name: "GenericDynamicRoute",
-        description: "Enables a DynamicRoute implementation utilizing generics, avoiding existentials."
-    ),
-    .trait(
-        name: "GenericDynamicResponse",
-        description: "Enables a DynamicResponse implementation utilizing generics, avoiding existentials.",
-        enabledTraits: ["GenericHTTPMessage"]
-    ),
-    .trait(
         name: "GenericRouteGroup",
         description: "Enables a RouteGroup implementation utilizing generics, avoiding existentials."
     ),
@@ -185,12 +184,13 @@ let traits:Set<Trait> = [
         name: "Generics",
         description: "Enables all Generic package traits.",
         enabledTraits: [
-            "GenericHTTPMessage",
-            "GenericStaticRoute",
-            "GenericDynamicRoute",
-            "GenericDynamicResponse",
             "GenericRouteGroup"
         ]
+    ),
+
+    .trait(
+        name: "HTTPCookie",
+        description: "Enables the default HTTPCookie implementation."
     ),
 
     .trait(name: "HTTPNonStandardRequestHeaders"),
@@ -322,8 +322,14 @@ let traits:Set<Trait> = [
         name: "StaticRedirectionRoute"
     ),
 
-    .trait(name: "DynamicResponderStorage"),
-    .trait(name: "StaticResponderStorage"),
+    .trait(
+        name: "DynamicResponderStorage",
+        description: "Enables a responder storage that can register dynamic data to a router at runtime."
+    ),
+    .trait(
+        name: "StaticResponderStorage",
+        description: "Enables a responder storage that can register static data to a router at runtime."
+    ),
 
     .trait(
         name: "UnwrapAddition",

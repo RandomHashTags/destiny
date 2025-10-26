@@ -138,7 +138,11 @@ extension StaticRoute {
             }
             headers["content-type"] = nil
             headers["content-length"] = nil
+            #if HTTPCooke
             return Self.response(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
+            #else
+            return Self.response(version: version, status: status, headers: &headers, body: body, contentType: contentType, charset: charset)
+            #endif
         }
     #endif
 
@@ -155,7 +159,12 @@ extension StaticRoute {
     ) -> HTTPResponseMessage {
         headers["content-type"] = nil
         headers["content-length"] = nil
-        return HTTPResponseMessage(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: contentType, charset: charset)
+        return HTTPResponseMessage(
+            head: .init(headers: headers, cookies: cookies, status: status, version: version),
+            body: body,
+            contentType: contentType,
+            charset: charset
+        )
     }
     #else
     @inline(__always)
@@ -169,7 +178,12 @@ extension StaticRoute {
     ) -> HTTPResponseMessage {
         headers["content-type"] = nil
         headers["content-length"] = nil
-        return HTTPResponseMessage(version: version, status: status, headers: headers, body: body, contentType: contentType, charset: charset)
+        return HTTPResponseMessage(
+            head: .init(headers: headers, status: status, version: version),
+            body: body,
+            contentType: contentType,
+            charset: charset
+        )
     }
     #endif
 }

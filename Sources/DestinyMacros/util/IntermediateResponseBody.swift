@@ -247,10 +247,6 @@ extension IntermediateResponseBody {
     }
 }
 
-#if canImport(DestinyDefaultsNonEmbedded)
-
-import DestinyDefaultsNonEmbedded
-
 extension IntermediateResponseBody {
     #if hasFeature(Embedded) || EMBEDDED
     public func responderDebugDescription<B>(
@@ -274,7 +270,6 @@ extension IntermediateResponseBody {
     }
     #endif
 }
-#endif
 
 // MARK: IntermediateResponseBodyType
 public enum IntermediateResponseBodyType: String, Sendable {
