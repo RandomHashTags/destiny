@@ -173,8 +173,8 @@ extension Router {
         let staticNotFoundResponder:CompiledRouterStorage.Responder?
         if customStaticNotFoundResponder.isEmpty || customStaticNotFoundResponder == "nil" {
             staticNotFoundResponder = .get(
-                defaultStaticNotFoundResponder(version: version, isCopyable: true),
-                defaultStaticNotFoundResponder(version: version, isCopyable: false)
+                defaultStaticNotFoundResponder(context: context, version: version, isCopyable: true),
+                defaultStaticNotFoundResponder(context: context, version: version, isCopyable: false)
             )
         } else {
             staticNotFoundResponder = .get(
@@ -235,6 +235,7 @@ extension Router {
         """
     }
     private static func defaultStaticNotFoundResponder(
+        context: some MacroExpansionContext,
         version: HTTPVersion,
         isCopyable: Bool
     ) -> String? {
@@ -295,6 +296,7 @@ extension Router {
 
         #endif
         return intermediateBody.responderDebugDescription(
+            context: context,
             isCopyable: isCopyable,
             response: response
         )

@@ -158,7 +158,7 @@ extension RouterStorage {
             let httpResponse = route.response(context: context, function: function)
             #endif
             if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
-                if let intermediateBody = route.body as? IntermediateResponseBody {
+                if let intermediateBody = route.body {
                     guard isCopyable != intermediateBody.isNoncopyable else {
                         continue
                     }
@@ -167,18 +167,14 @@ extension RouterStorage {
                     Router.routePathAlreadyRegistered(context: context, node: function, startLine)
                     continue
                 }
-                do throws(HTTPMessageError) {
-                    guard let responder = try responseBodyResponderDebugDescription(isCopyable: isCopyable, body: route.body, response: httpResponse) else {
-                        context.diagnose(.init(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
-                        continue
-                    }
-                    registeredPaths.insert(startLine)
-                    routePaths.append(startLine)
-                    routeResponders.append(responder)
-                    staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
-                } catch {
-                    context.diagnose(.init(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
+                guard let responder = route.body?.responderDebugDescription(context: context, isCopyable: isCopyable, response: httpResponse) else {
+                    context.diagnose(.init(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
+                    continue
                 }
+                registeredPaths.insert(startLine)
+                routePaths.append(startLine)
+                routeResponders.append(responder)
+                staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
             } else {
                 guard !registeredPaths.contains(startLine) else {
                     Router.routePathAlreadyRegistered(context: context, node: function, startLine)
@@ -197,23 +193,6 @@ extension RouterStorage {
                 )*/
             }
         }
-    }
-
-    private func responseBodyResponderDebugDescription(
-        isCopyable: Bool,
-        body: (any ResponseBodyProtocol)?,
-        response: HTTPResponseMessage
-    ) throws(HTTPMessageError) -> String? {
-        guard let body else { return nil }
-        let s:String?
-        if let v = body as? String {
-            s = try v.responderDebugDescription(response)
-        } else if let v = body as? IntermediateResponseBody {
-            s = v.responderDebugDescription(isCopyable: isCopyable, response: response)
-        } else {
-            s = nil
-        }
-        return s
     }
 }
 
@@ -273,7 +252,7 @@ extension RouterStorage {
             let responder = IntermediateResponseBody(
                 type: .staticStringWithDateHeader,
                 .init(stringLiteral)
-            ).responderDebugDescription(isCopyable: isCopyable, response: response)
+            ).responderDebugDescription(context: context, isCopyable: isCopyable, response: response)
             routeResponders.append(responder)
         }
         for i in removedRedirects.reversed() {

@@ -197,32 +197,22 @@ package final class TestRouter {
         Route.get(
             path: ["inlineBytes"],
             mediaType: MediaTypeText.plain,
-            body: ResponseBody.nonCopyableInlineBytes([
-                .H, .T, .T, .P, .forwardSlash, 49, 46, 49, .space, 50, 48, 48, .carriageReturn, .lineFeed,
-                .C, .o, .n, .t, .e, .n, .t, 45, .T, .y, .p, .e, .colon, .space, .t, .e, .x, .t, .forwardSlash, .p, .l, .a, .i, .n, .carriageReturn, .lineFeed,
-                .C, .o, .n, .t, .e, .n, .t, 45, .L, .e, .n, .g, .t, .h, .colon, .space, 49, 48, .carriageReturn, .lineFeed, .carriageReturn, .lineFeed,
-                33, 34, 35, 36, 37, 38, 39, 40, 41, 42
-            ])
+            body: NonCopyableInlineBytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
         ),
         Route.get(
             path: ["bytes"],
             mediaType: MediaTypeText.plain,
-            body: ResponseBody.nonCopyableBytes([
-                .H, .T, .T, .P, .forwardSlash, 49, 46, 49, .space, 50, 48, 48, .carriageReturn, .lineFeed,
-                .C, .o, .n, .t, .e, .n, .t, 45, .T, .y, .p, .e, .colon, .space, .t, .e, .x, .t, .forwardSlash, .p, .l, .a, .i, .n, .carriageReturn, .lineFeed,
-                .C, .o, .n, .t, .e, .n, .t, 45, .L, .e, .n, .g, .t, .h, .colon, .space, 49, 48, .carriageReturn, .lineFeed, .carriageReturn, .lineFeed,
-                33, 34, 35, 36, 37, 38, 39, 40, 41, 42
-            ])
+            body: NonCopyableBytes([33, 34, 35, 36, 37, 38, 39, 40, 41, 42])
         ),
         Route.get(
             path: ["bytes2"],
             mediaType: MediaTypeText.plain,
-            body: ResponseBody.nonCopyableBytes([UInt8]("HTTP/1.1 200\r\ncontent-type: text/plain\r\ncontent-length: 4\r\n\r\nbruh".utf8))
+            body: NonCopyableBytes([.b, .r, .u, .h])
         ),
         Route.get(
             path: ["bytes3"],
             mediaType: MediaTypeText.plain,
-            body: ResponseBody.nonCopyableBytes(Array<UInt8>("HTTP/1.1 200\r\ncontent-type: text/plain\r\ncontent-length: 4\r\n\r\nbruh".utf8))
+            body: NonCopyableBytes([.b, .r, .u, .h])
         ),
         /*Route.get(
             path: ["error"],

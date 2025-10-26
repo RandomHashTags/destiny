@@ -147,15 +147,16 @@ extension IntermediateResponseBody {
 // MARK: Responder debug description
 extension IntermediateResponseBody {
     func responderDebugDescription(
+        context: some MacroExpansionContext,
         isCopyable: Bool,
         responseString: inout String
     ) -> String {
         let prefix = isCopyable ? "" : "NonCopyable"
         switch type {
         case .bytes:
-            return "ResponseBody.\(prefix)Bytes(\(value))"
+            return "ResponseBody.\(prefix)Bytes(\(bytesPayload(context: context, responseString: &responseString)))"
         case .inlineBytes:
-            return "ResponseBody.\(prefix)InlineBytes(\(value))"
+            return "\(prefix)InlineBytes(\(bytesPayload(context: context, responseString: &responseString)))"
         case .macroExpansion:
             responseString.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
             return "RouteResponses.\(prefix)MacroExpansion(\"\(responseString)\", body: \(value))"
@@ -193,9 +194,9 @@ extension IntermediateResponseBody {
             return s
 
         case .nonCopyableBytes:
-            return "ResponseBody.NonCopyableBytes(\(value))"
+            return "NonCopyableBytes(\(bytesPayload(context: context, responseString: &responseString)))"
         case .nonCopyableInlineBytes:
-            return "ResponseBody.NonCopyableInlineBytes(\(value))"
+            return "NonCopyableInlineBytes(\(bytesPayload(context: context, responseString: &responseString)))"
         case .nonCopyableMacroExpansionWithDateHeader:
             var (preDate, postDate) = preDateAndPostDateValues("\(responseString)")
             postDate.removeLast(8 + String(value.count).count) // "#\r\n\r\n".count
@@ -219,6 +220,31 @@ extension IntermediateResponseBody {
         string.replace("\"", with: "\\\"")
         return string
     }
+
+    private func bytesPayload(
+        context: some MacroExpansionContext,
+        responseString: inout String
+    ) -> [UInt8] {
+        var payload = [UInt8]()
+        payload.reserveCapacity(responseString.count)
+        responseString.withUTF8 {
+            payload.append(contentsOf: $0)
+        }
+        if let elements = valueExpr.array?.elements {
+            for element in elements {
+                if let s = element.expression.integerLiteral?.literal.text, let byte = UInt8(s) {
+                    payload.append(byte)
+                } else if let s = element.expression.memberAccess?.declName.baseName.text, let byte = UInt8(convenientName: s) {
+                    payload.append(byte)
+                } else {
+                    context.diagnose(DiagnosticMsg.unhandled(node: element.expression))
+                }
+            }
+        } else {
+            context.diagnose(DiagnosticMsg.unhandled(node: valueExpr))
+        }
+        return payload
+    }
 }
 
 #if canImport(DestinyDefaultsNonEmbedded)
@@ -228,19 +254,23 @@ import DestinyDefaultsNonEmbedded
 extension IntermediateResponseBody {
     #if hasFeature(Embedded) || EMBEDDED
     public func responderDebugDescription<B>(
+        context: some MacroExpansionContext,
         isCopyable: Bool,
         response: HTTPResponseMessage<B>
     ) -> String {
-        var responseString = response.intermediateString(escapeLineBreak: true)
-        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
+        let escapeLineBreak = !(type == .bytes || type == .nonCopyableBytes || type == .inlineBytes || type == .nonCopyableInlineBytes)
+        var responseString = response.intermediateString(escapeLineBreak: escapeLineBreak)
+        return responderDebugDescription(context: context, isCopyable: isCopyable, responseString: &responseString)
     }
     #else
     public func responderDebugDescription(
+        context: some MacroExpansionContext,
         isCopyable: Bool,
         response: HTTPResponseMessage
     ) -> String {
-        var responseString = response.intermediateString(escapeLineBreak: true)
-        return responderDebugDescription(isCopyable: isCopyable, responseString: &responseString)
+        let escapeLineBreak = !(type == .bytes || type == .nonCopyableBytes || type == .inlineBytes || type == .nonCopyableInlineBytes)
+        var responseString = response.intermediateString(escapeLineBreak: escapeLineBreak)
+        return responderDebugDescription(context: context, isCopyable: isCopyable, responseString: &responseString)
     }
     #endif
 }
@@ -289,3 +319,111 @@ extension IntermediateResponseBodyType {
         }
     }
 }*/
+
+// MARK: UInt8 init
+extension UInt8 {
+    public init?(convenientName: String) {
+        switch convenientName {
+        case "lineFeed": self = .lineFeed
+        case "carriageReturn": self = .carriageReturn
+        case "space": self = .space
+        case "exclamationMark": self = .exclamationMark
+        case "quotation": self = .quotation
+        case "numberSign": self = .numberSign
+        case "dollarSign": self = .dollarSign
+        case "percent": self = .percent
+        case "ampersand": self = .ampersand
+        case "apostrophe": self = .apostrophe
+        case "openingParenthesis": self = .openingParenthesis
+        case "closingParenthesis": self = .closingParenthesis
+        case "asterisk": self = .asterisk
+        case "plus": self = .plus
+        case "comma": self = .comma
+        case "subtract": self = .subtract
+        case "period": self = .period
+        case "forwardSlash": self = .forwardSlash
+        case "colon": self = .colon
+        case "semicolon": self = .semicolon
+        case "lessThan": self = .lessThan
+        case "equal": self = .equal
+        case "greaterThan": self = .greaterThan
+        case "questionMark": self = .questionMark
+        case "atSign": self = .atSign
+        case "openingBracket": self = .openingBracket
+        case "backslash": self = .backslash
+        case "closingBracket": self = .closingBracket
+        case "caret": self = .caret
+        case "underscore": self = .underscore
+        case "graveAccent": self = .graveAccent
+        case "openingBrace": self = .openingBrace
+        case "verticalBar": self = .verticalBar
+        case "closingBrace": self = .closingBrace
+        case "tilde": self = .tilde
+        case "euroSign": self = .euroSign
+        case "poundSign": self = .poundSign
+        case "zero": self = .zero
+        case "one": self = .one
+        case "two": self = .two
+        case "three": self = .three
+        case "four": self = .four
+        case "five": self = .five
+        case "six": self = .six
+        case "seven": self = .seven
+        case "eight": self = .eight
+        case "nine": self = .nine
+        case "A": self = .A
+        case "B": self = .B
+        case "C": self = .C
+        case "D": self = .D
+        case "E": self = .E
+        case "F": self = .F
+        case "G": self = .G
+        case "H": self = .H
+        case "I": self = .I
+        case "J": self = .J
+        case "K": self = .K
+        case "L": self = .L
+        case "M": self = .M
+        case "N": self = .N
+        case "O": self = .O
+        case "P": self = .P
+        case "Q": self = .Q
+        case "R": self = .R
+        case "S": self = .S
+        case "T": self = .T
+        case "U": self = .U
+        case "V": self = .V
+        case "W": self = .W
+        case "X": self = .X
+        case "Y": self = .Y
+        case "Z": self = .Z
+        case "a": self = .a
+        case "b": self = .b
+        case "c": self = .c
+        case "d": self = .d
+        case "e": self = .e
+        case "f": self = .f
+        case "g": self = .g
+        case "h": self = .h
+        case "i": self = .i
+        case "j": self = .j
+        case "k": self = .k
+        case "l": self = .l
+        case "m": self = .m
+        case "n": self = .n
+        case "o": self = .o
+        case "p": self = .p
+        case "q": self = .q
+        case "r": self = .r
+        case "s": self = .s
+        case "t": self = .t
+        case "u": self = .u
+        case "v": self = .v
+        case "w": self = .w
+        case "x": self = .x
+        case "y": self = .y
+        case "z": self = .z
+        default: return nil
+        }
+    }
+}
