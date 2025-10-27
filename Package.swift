@@ -74,6 +74,7 @@ destinyDependencies.append(.byName(name: "DestinyDefaultsNonEmbedded", condition
 var destinyMacrosDependencies = destinyDependencies
 
 destinyMacrosDependencies.append(contentsOf: [
+    "DestinyPackageTraits",
     "PerfectHashing",
     .product(name: "MediaTypesSwiftSyntax", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
     .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -139,6 +140,10 @@ let traits:Set<Trait> = [
         name: "CopyableDateHeaderPayload"
     ),
     .trait(
+        name: "CopyableInlineBytes",
+        description: "Enables the copyable InlineBytes route responder."
+    ),
+    .trait(
         name: "CopyableMacroExpansion",
         description: "Enables the copyable MacroExpansion route responder."
     ),
@@ -160,6 +165,7 @@ let traits:Set<Trait> = [
         name: "CopyableResponders",
         description: "Enables all copyable route responders.",
         enabledTraits: [
+            "CopyableInlineBytes",
             "CopyableMacroExpansion",
             "CopyableMacroExpansionWithDateHeader",
             "CopyableStaticStringWithDateHeader",

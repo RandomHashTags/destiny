@@ -24,6 +24,7 @@ extension DestinyPackageTrait {
         case .nonCopyableHTTPServer: nil
 
         case .copyableDateHeaderPayload: nil
+        case .copyableInlineBytes: "Enables the copyable InlineBytes route responder."
         case .copyableMacroExpansion: "Enables the copyable MacroExpansion route responder."
         case .copyableMacroExpansionWithDateHeader: "Enables the copyable MacroExpansionWithDateHeader route responder."
         case .copyableStaticStringWithDateHeader: nil

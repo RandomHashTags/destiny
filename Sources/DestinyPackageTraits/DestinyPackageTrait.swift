@@ -25,6 +25,7 @@ public enum DestinyPackageTrait: Sendable {
 
     // MARK: Responders
     case copyableDateHeaderPayload
+    case copyableInlineBytes
     case copyableMacroExpansion
     case copyableMacroExpansionWithDateHeader
     case copyableStaticStringWithDateHeader

@@ -118,6 +118,12 @@ extension DestinyPackageTrait {
             #else
             false
             #endif
+        case .copyableInlineBytes:
+            #if CopyableInlineBytes
+            true
+            #else
+            false
+            #endif
         case .copyableMacroExpansion:
             #if CopyableMacroExpansion
             true

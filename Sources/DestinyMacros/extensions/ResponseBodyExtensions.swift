@@ -40,9 +40,9 @@ extension ResponseBody.Bytes: CustomStringConvertible {
 }
 
 // MARK: InlineBytes
-extension ResponseBody.InlineBytes: CustomStringConvertible {
+extension InlineBytes: CustomStringConvertible {
     public var description: String {
-        "ResponseBody.InlineBytes(\(value))" // TODO: fix
+        "InlineBytes(\(value))" // TODO: fix
     }
 }
 

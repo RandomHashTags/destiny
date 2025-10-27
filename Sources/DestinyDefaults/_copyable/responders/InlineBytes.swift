@@ -1,54 +1,45 @@
 
-#if Copyable
+#if CopyableInlineBytes
 
 import DestinyEmbedded
 
-extension ResponseBody {
+public struct InlineBytes<let count: Int> {
+    public let value:InlineArray<count, UInt8>
+
     #if Inlinable
     @inlinable
     #endif
-    public static func inlineBytes<let count: Int>(_ value: InlineArray<count, UInt8>) -> Self.InlineBytes<count> {
-        Self.InlineBytes(value)
+    public init(_ value: InlineArray<count, UInt8>) {
+        self.value = value
     }
 
-    public struct InlineBytes<let count: Int> {
-        public let value:InlineArray<count, UInt8>
+    #if Inlinable
+    @inlinable
+    #endif
+    public var count: Int {
+        value.count
+    }
+    
+    #if Inlinable
+    @inlinable
+    #endif
+    public func string() -> String {
+        value.unsafeString()
+    }
 
-        #if Inlinable
-        @inlinable
-        #endif
-        public init(_ value: InlineArray<count, UInt8>) {
-            self.value = value
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        public var count: Int {
-            value.count
-        }
-        
-        #if Inlinable
-        @inlinable
-        #endif
-        public func string() -> String {
-            value.unsafeString()
-        }
-
-        #if Inlinable
-        @inlinable
-        #endif
-        public func write(
-            to buffer: UnsafeMutableBufferPointer<UInt8>,
-            at index: inout Int
-        ) {
-            value.write(to: buffer, at: &index)
-        }
+    #if Inlinable
+    @inlinable
+    #endif
+    public func write(
+        to buffer: UnsafeMutableBufferPointer<UInt8>,
+        at index: inout Int
+    ) {
+        value.write(to: buffer, at: &index)
     }
 }
 
 // MARK: Respond
-extension ResponseBody.InlineBytes {
+extension InlineBytes {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
@@ -76,9 +67,9 @@ extension ResponseBody.InlineBytes {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension ResponseBody.InlineBytes: ResponseBodyProtocol {}
+extension InlineBytes: ResponseBodyProtocol {}
 
-extension ResponseBody.InlineBytes: StaticRouteResponderProtocol {
+extension InlineBytes: StaticRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif

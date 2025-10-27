@@ -24,6 +24,7 @@ extension DestinyPackageTrait {
         case .nonCopyableHTTPServer: "NonCopyableHTTPServer"
 
         case .copyableDateHeaderPayload: "CopyableDateHeaderPayload"
+        case .copyableInlineBytes: "CopyableInlineBytes"
         case .copyableMacroExpansion: "CopyableMacroExpansion"
         case .copyableMacroExpansionWithDateHeader: "CopyableMacroExpansionWithDateHeader"
         case .copyableStaticStringWithDateHeader: "CopyableStaticStringWithDateHeader"

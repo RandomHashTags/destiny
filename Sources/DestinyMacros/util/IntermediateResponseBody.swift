@@ -1,6 +1,7 @@
 
 import DestinyBlueprint
 import DestinyDefaults
+import DestinyPackageTraits
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -291,29 +292,28 @@ public enum IntermediateResponseBodyType: String, Sendable {
     case nonCopyableStaticStringWithDateHeader   = "noncopyablestaticstringwithdateheader"
 }
 
-/*
 extension IntermediateResponseBodyType {
-    public var packageTrait: String? {
+    public var packageTrait: DestinyPackageTrait? {
         switch self {
         case .bytes: nil
-        case .inlineBytes: "CopyableInlineBytes"
-        case .macroExpansion: "CopyableMacroExpansion"
-        case .macroExpansionWithDateHeader: "CopyableMacroExpansionWithDateHeader"
-        case .streamWithDateHeader: "CopyableStreamWithDateHeader"
+        case .inlineBytes: .copyableInlineBytes
+        case .macroExpansion: .copyableMacroExpansion
+        case .macroExpansionWithDateHeader: .copyableMacroExpansionWithDateHeader
+        case .streamWithDateHeader: .copyableStreamWithDateHeader
         case .staticString: nil
-        case .staticStringWithDateHeader: "CopyableStaticStringWithDateHeader"
-        case .stringWithDateHeader: "CopyableStringWithDateHeader"
+        case .staticStringWithDateHeader: .copyableStaticStringWithDateHeader
+        case .stringWithDateHeader: .copyableStringWithDateHeader
 
-        case .string: "StringRouteResponder"
+        case .string: .copyableString
 
-        case .nonCopyableBytes: "NonCopyableBytes"
-        case .nonCopyableInlineBytes: "NonCopyableInlineBytes"
-        case .nonCopyableMacroExpansionWithDateHeader: "NonCopyableMacroExpansionWithDateHeader"
-        case .nonCopyableStreamWithDateHeader: "NonCopyableStreamWithDateHeader"
-        case .nonCopyableStaticStringWithDateHeader: "NonCopyableStaticStringWithDateHeader"
+        case .nonCopyableBytes: .nonCopyableBytes
+        case .nonCopyableInlineBytes: .nonCopyableInlineBytes
+        case .nonCopyableMacroExpansionWithDateHeader: .nonCopyableMacroExpansionWithDateHeader
+        case .nonCopyableStreamWithDateHeader: .nonCopyableStreamWithDateHeader
+        case .nonCopyableStaticStringWithDateHeader: .nonCopyableStaticStringWithDateHeader
         }
     }
-}*/
+}
 
 // MARK: UInt8 init
 extension UInt8 {
