@@ -245,19 +245,14 @@ extension Router {
 
             #if HTTPCookie
             response = .init(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: [],
+                head: .init(headers: headers, cookies: [], status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset
             )
             #else
             response = .init(
-                version: version,
-                status: status,
-                headers: headers,
+                head: .init(headers: headers, status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset

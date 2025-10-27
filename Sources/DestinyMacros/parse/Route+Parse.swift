@@ -166,16 +166,15 @@ extension Route {
         var parameters = [String]()
 
         #if HTTPCookie
-        fileprivate func parse(
+        fileprivate mutating func parse(
             headers: inout HTTPHeaders,
             cookies: [HTTPCookie]
         ) -> (StaticRoute?, DynamicRoute?) {
             applyContentType(headers: &headers)
+            head.headers = headers
+            head.cookies = cookies
             let dynamicMessage = HTTPResponseMessage(
-                version: head.version,
-                status: head.status,
-                headers: headers,
-                cookies: cookies,
+                head: head,
                 body: body,
                 contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
                 charset: charset
@@ -183,14 +182,13 @@ extension Route {
             return parse(headers: headers, dynamicMessage: dynamicMessage)
         }
         #else
-        fileprivate func parse(
+        fileprivate mutating func parse(
             headers: inout HTTPHeaders
         ) -> (StaticRoute?, DynamicRoute?) {
             applyContentType(headers: &headers)
+            head.headers = headers
             let dynamicMessage = HTTPResponseMessage(
-                version: head.version,
-                status: head.status,
-                headers: headers,
+                head: head,
                 body: body,
                 contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
                 charset: charset

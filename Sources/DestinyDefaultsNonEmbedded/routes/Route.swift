@@ -36,34 +36,15 @@ extension Route {
         self.status = head.status
         self.contentType = contentType
         self.charset = charset
-
-        #if HTTPCookie
         self.defaultResponse = DynamicResponse.init(
             message: HTTPResponseMessage(
-                version: head.version,
-                status: head.status,
-                headers: head.headers,
-                cookies: head.cookies,
+                head: head,
                 body: body,
                 contentType: contentType,
                 charset: charset
             ),
             parameters: []
         )
-        #else
-        self.defaultResponse = DynamicResponse.init(
-            message: HTTPResponseMessage(
-                version: head.version,
-                status: head.status,
-                headers: head.headers,
-                body: body,
-                contentType: contentType,
-                charset: charset
-            ),
-            parameters: []
-        )
-        #endif
-
         self.handler = handler
     }
 }
