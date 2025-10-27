@@ -221,14 +221,12 @@ extension Route {
                 return (route, nil)
             } else { // dynamic route
                 var route = DynamicRoute(
-                    version: head.version,
+                    head: head,
                     method: method,
                     path: path,
                     isCaseSensitive: isCaseSensitive,
-                    status: head.status,
                     contentType: contentType,
-                    body: nil,
-                    handler: { _, _ in }
+                    body: nil
                 )
                 route.defaultResponse = DynamicResponse(
                     message: dynamicMessage,

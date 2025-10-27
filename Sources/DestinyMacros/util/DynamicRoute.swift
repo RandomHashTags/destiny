@@ -1,9 +1,6 @@
 
-#if NonEmbedded
-
+import DestinyEmbedded
 import DestinyBlueprint
-import DestinyDefaults
-import DestinyDefaultsNonEmbedded
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
@@ -21,8 +18,7 @@ public struct DynamicRoute: DynamicRouteProtocol {
 
     /// Default HTTP Message computed by default values and static middleware.
     public var defaultResponse:DynamicResponse
-    public let handler:@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
-    @usableFromInline package var handlerDebugDescription = "{ _, _ in }"
+    var handlerDebugDescription = "{ _, _ in }"
 
     public let isCaseSensitive:Bool
 
@@ -48,119 +44,47 @@ public struct DynamicRoute: DynamicRouteProtocol {
 
 // MARK: Init
 extension DynamicRoute {
-    #if HTTPCookie
     public init(
-        version: HTTPVersion = .v1_1,
+        head: HTTPResponseMessageHead = .default,
         method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
-        headers: HTTPHeaders = .init(),
-        cookies: [HTTPCookie] = [],
-        body: IntermediateResponseBody? = nil,
-        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
+        body: IntermediateResponseBody? = nil
     ) {
         self.init(
-            version: version,
+            head: head,
             method: .init(method),
             path: path,
             isCaseSensitive: isCaseSensitive,
-            status: status,
             contentType: contentType,
-            headers: headers,
-            cookies: cookies,
-            body: body,
-            handler: handler
+            body: body
         )
     }
     public init(
-        version: HTTPVersion = .v1_1,
+        head: HTTPResponseMessageHead = .default,
         method: HTTPRequestMethod,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = 501, // not implemented
         contentType: String? = nil,
-        headers: HTTPHeaders = .init(),
-        cookies: [HTTPCookie] = [],
-        body: IntermediateResponseBody? = nil,
-        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
+        body: IntermediateResponseBody? = nil
     ) {
-        self.version = version
+        self.version = head.version
         self.method = method
         self.path = path
         self.isCaseSensitive = isCaseSensitive
-        self.status = status
+        self.status = head.status
         self.contentType = contentType
         self.defaultResponse = DynamicResponse.init(
             message: HTTPResponseMessage(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: cookies,
+                head: head,
                 body: body,
                 contentType: nil,
                 charset: nil
             ),
             parameters: []
         )
-        self.handler = handler
     }
-    #else
-    public init(
-        version: HTTPVersion = .v1_1,
-        method: some HTTPRequestMethodProtocol,
-        path: [PathComponent],
-        isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = 501, // not implemented
-        contentType: String? = nil,
-        headers: HTTPHeaders = .init(),
-        body: IntermediateResponseBody? = nil,
-        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
-    ) {
-        self.init(
-            version: version,
-            method: .init(method),
-            path: path,
-            isCaseSensitive: isCaseSensitive,
-            status: status,
-            contentType: contentType,
-            headers: headers,
-            body: body,
-            handler: handler
-        )
-    }
-    public init(
-        version: HTTPVersion = .v1_1,
-        method: HTTPRequestMethod,
-        path: [PathComponent],
-        isCaseSensitive: Bool = true,
-        status: HTTPResponseStatus.Code = 501, // not implemented
-        contentType: String? = nil,
-        headers: HTTPHeaders = .init(),
-        body: IntermediateResponseBody? = nil,
-        handler: @Sendable @escaping (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void
-    ) {
-        self.version = version
-        self.method = method
-        self.path = path
-        self.isCaseSensitive = isCaseSensitive
-        self.status = status
-        self.contentType = contentType
-        self.defaultResponse = DynamicResponse.init(
-            message: HTTPResponseMessage(
-                version: version,
-                status: status,
-                headers: headers,
-                body: body,
-                contentType: nil,
-                charset: nil
-            ),
-            parameters: []
-        )
-        self.handler = handler
-    }
-    #endif
 }
 
 #if StaticMiddleware
@@ -230,5 +154,3 @@ extension DynamicRoute {
     }
     #endif
 }
-
-#endif
