@@ -295,7 +295,7 @@ public enum IntermediateResponseBodyType: String, Sendable {
 extension IntermediateResponseBodyType {
     public var packageTrait: DestinyPackageTrait? {
         switch self {
-        case .bytes: nil
+        case .bytes: .copyableBytes
         case .inlineBytes: .copyableInlineBytes
         case .macroExpansion: .copyableMacroExpansion
         case .macroExpansionWithDateHeader: .copyableMacroExpansionWithDateHeader

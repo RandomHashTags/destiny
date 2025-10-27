@@ -13,17 +13,11 @@ extension String {
     }
 }
 
-#if Copyable
-// MARK: Copyable
-
-
-
-
-
+#if CopyableBytes
 // MARK: Bytes
-extension ResponseBody.Bytes: CustomStringConvertible {
+extension Bytes: CustomStringConvertible {
     public var description: String {
-        "ResponseBody.Bytes(\(value))"
+        "Bytes(\(value))"
     }
 
     var responderDebugDescription: Swift.String {
@@ -38,16 +32,18 @@ extension ResponseBody.Bytes: CustomStringConvertible {
         try responderDebugDescription(input.string(escapeLineBreak: false))
     }
 }
+#endif
 
+#if CopyableInlineBytes
 // MARK: InlineBytes
 extension InlineBytes: CustomStringConvertible {
     public var description: String {
         "InlineBytes(\(value))" // TODO: fix
     }
 }
+#endif
 
 #if CopyableStringWithDateHeader
-
 // MARK: StringWithDateHeader
 extension StringWithDateHeader {
     var responderDebugDescription: String {
@@ -62,6 +58,4 @@ extension StringWithDateHeader {
         try responderDebugDescription(input.string(escapeLineBreak: true))
     }
 }
-#endif
-
 #endif

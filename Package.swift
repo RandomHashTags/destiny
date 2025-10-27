@@ -140,6 +140,10 @@ let traits:Set<Trait> = [
         name: "CopyableDateHeaderPayload"
     ),
     .trait(
+        name: "CopyableBytes",
+        description: "Enables the copyable Bytes route responder."
+    ),
+    .trait(
         name: "CopyableInlineBytes",
         description: "Enables the copyable InlineBytes route responder."
     ),
@@ -165,6 +169,7 @@ let traits:Set<Trait> = [
         name: "CopyableResponders",
         description: "Enables all copyable route responders.",
         enabledTraits: [
+            "CopyableBytes",
             "CopyableInlineBytes",
             "CopyableMacroExpansion",
             "CopyableMacroExpansionWithDateHeader",

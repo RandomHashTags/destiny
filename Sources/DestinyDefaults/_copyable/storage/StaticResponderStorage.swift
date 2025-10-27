@@ -30,7 +30,9 @@ public class StaticResponderStorage: @unchecked Sendable {
     @usableFromInline var stringsWithDateHeader:[SIMD64<UInt8>:StringWithDateHeader]
     #endif
 
-    @usableFromInline var bytes:[SIMD64<UInt8>:ResponseBody.Bytes]
+    #if CopyableBytes
+    @usableFromInline var bytes:[SIMD64<UInt8>:Bytes]
+    #endif
 
     public init() {
         #if CopyableMacroExpansion
@@ -55,7 +57,9 @@ public class StaticResponderStorage: @unchecked Sendable {
         stringsWithDateHeader = [:]
         #endif
 
+        #if CopyableBytes
         bytes = [:]
+        #endif
     }
 
     #if Inlinable
@@ -114,10 +118,13 @@ public class StaticResponderStorage: @unchecked Sendable {
         }
         #endif
 
+        #if CopyableBytes
         if let r = bytes[startLine] {
             try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
             return true
         }
+        #endif
+
         return false
     }
 }
@@ -171,10 +178,12 @@ extension StaticResponderStorage {
         }
         #endif
 
-        if let responder = responder as? ResponseBody.Bytes {
+        #if CopyableBytes
+        if let responder = responder as? Bytes {
             register(path: path, responder)
             return
         }
+        #endif
     }
 
     #if CopyableMacroExpansion
@@ -229,12 +238,14 @@ extension StaticResponderStorage {
     }
     #endif
 
+    #if CopyableBytes
     #if Inlinable
     @inlinable
     #endif
-    public func register(path: SIMD64<UInt8>, _ responder: ResponseBody.Bytes) {
+    public func register(path: SIMD64<UInt8>, _ responder: Bytes) {
         bytes[path] = responder
     }
+    #endif
 }
 
 #if canImport(DestinyBlueprint)

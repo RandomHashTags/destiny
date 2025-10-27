@@ -19,6 +19,7 @@ extension DestinyPackageTrait {
             [.copyableDateHeaderPayload]
         case .copyableResponders:
             [
+                .copyableBytes,
                 .copyableInlineBytes,
                 .copyableMacroExpansion,
                 .copyableMacroExpansionWithDateHeader,
