@@ -86,6 +86,7 @@ destinyMacrosDependencies.append(contentsOf: [
 // MARK: Traits
 defaultTraits.formUnion([
     "CORS",
+    "Copyable",
     //"Generics", // disabled by default since we use non-embedded types instead of generics by default
     "HTTPCookie",
     "HTTPStandardRequestMethods",
@@ -96,6 +97,7 @@ defaultTraits.formUnion([
     //"MutableRouter", // disabled by default since no other Swift networking library allows that functionality
     "NonCopyable",
     "NonEmbedded",
+    "RouterSettings",
     "PercentEncoding",
     //"RateLimits", // not yet implemented
     "RequestBody",
@@ -103,6 +105,8 @@ defaultTraits.formUnion([
     "RequestHeaders",
     "RouteGroup",
     //"RoutePath", // not yet integrated
+    "StaticMiddleware",
+    "StaticRedirectionRoute",
 
     "StringRequestMethod",
     "StringRouteResponder",

@@ -7,16 +7,11 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if NonEmbedded
-import DestinyDefaultsNonEmbedded
-#endif
-
 extension RouterStorage {
     mutating func perfectHashResponder(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
-        #if NonEmbedded
         let namePrefix:String
         let staticRoutes:[(StaticRoute, FunctionCallExprSyntax)]
         if isCaseSensitive {
@@ -53,9 +48,6 @@ extension RouterStorage {
             noncopyable = nil
         }
         return .get(copyable, noncopyable)
-        #else
-        return nil
-        #endif
     }
     private func getRandom(isCaseSensitive: Bool) -> Int {
         if isCaseSensitive {
@@ -68,7 +60,6 @@ extension RouterStorage {
 
 // MARK: Decl
 extension RouterStorage {
-    #if NonEmbedded
     private mutating func perfectHashDeclName(
         context: some MacroExpansionContext,
         namePrefix: String,
@@ -97,7 +88,6 @@ extension RouterStorage {
         routePaths.reserveCapacity(reservedCapacity)
         routeResponders.reserveCapacity(reservedCapacity)
 
-        #if NonEmbedded
         appendStaticRoutes(
             context: context,
             isCaseSensitive: isCaseSensitive,
@@ -106,6 +96,7 @@ extension RouterStorage {
             routePaths: &routePaths,
             routeResponders: &routeResponders
         )
+        #if NonEmbedded
         appendDynamicRoutes(
             context: context,
             isCaseSensitive: isCaseSensitive,
@@ -143,7 +134,6 @@ extension RouterStorage {
         }
         return name
     }
-    #endif
 }
 
 // MARK: Static constants

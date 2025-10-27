@@ -1,9 +1,6 @@
 
-#if NonEmbedded
-
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -239,20 +236,11 @@ extension RouterStorage {
             routePaths.append(string)
             removedRedirects.append(index)
 
-            #if hasFeature(Embedded) || EMBEDDED
-            let response = route.genericResponse()
-            #elseif NonEmbedded
-            let response = route.nonEmbeddedResponse()
-            #else
-            #warning("missing support")
-            continue
-            #endif
-
             let stringLiteral = StringLiteralExprSyntax(content: "")
             let responder = IntermediateResponseBody(
                 type: .staticStringWithDateHeader,
                 .init(stringLiteral)
-            ).responderDebugDescription(context: context, isCopyable: isCopyable, response: response)
+            ).responderDebugDescription(context: context, isCopyable: isCopyable, response: route.response())
             routeResponders.append(responder)
         }
         for i in removedRedirects.reversed() {
@@ -260,5 +248,3 @@ extension RouterStorage {
         }
     }
 }
-
-#endif

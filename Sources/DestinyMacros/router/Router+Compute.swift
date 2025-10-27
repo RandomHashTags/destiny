@@ -89,7 +89,7 @@ extension Router {
                             continue
                         }
                         switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                        #if RouteGroup
+                        #if NonEmbedded && RouteGroup
                         case "RouteGroup":
                             let (decl, groupStorage) = RouteGroup.parse(
                                 context: context,
@@ -187,14 +187,13 @@ extension Router {
         let dynamicCaseSensitiveResponder:CompiledRouterStorage.Responder?
         let dynamicCaseInsensitiveResponder:CompiledRouterStorage.Responder?
 
-        #if NonEmbedded
         caseSensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: true)
         caseInsensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: false)
+
+        #if NonEmbedded
         dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: true)
         dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: false)
         #else
-        caseSensitiveResponder = nil
-        caseInsensitiveResponder = nil
         dynamicCaseSensitiveResponder = nil
         dynamicCaseInsensitiveResponder = nil
         #endif
