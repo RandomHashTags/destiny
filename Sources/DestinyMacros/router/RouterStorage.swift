@@ -22,10 +22,6 @@ public struct RouterStorage {
 
     var dynamicMiddleware = [FunctionCallExprSyntax]()
 
-    #if NonEmbedded
-    var conditionalResponders:[RoutePath:ConditionalRouteResponder] = [:]
-    #endif
-
     var dynamicRouteStorage = DynamicRouteStorage()
     var staticRouteStorage = StaticRouteStorage()
 
@@ -192,26 +188,6 @@ extension RouterStorage {
             array.append(contentsOf: dynamicMiddleware.map({ "\($0)" }))
         }
         return array
-    }
-}
-
-// MARK: Conditional responders string
-extension RouterStorage {
-    func conditionalRespondersString() -> String {
-        var string = ""
-        #if NonEmbedded
-        if conditionalResponders.isEmpty {
-            string = ":"
-        } else {
-            string = ""
-            for (routePath, route) in conditionalResponders {
-                string += "\n\(routePath.comment)\n\(routePath.path) : \(route.debugDescription),"
-            }
-            string.removeLast()
-            string += "\n"
-        }
-        #endif
-        return string
     }
 }
 

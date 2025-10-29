@@ -177,8 +177,6 @@ extension Router {
             )
         }
 
-        let conditionalRespondersString = storage.conditionalRespondersString()
-
         let perfectHashCaseSensitiveResponder = storage.perfectHashResponder(context: context, isCaseSensitive: true)
         let perfectHashCaseInsensitiveResponder = storage.perfectHashResponder(context: context, isCaseSensitive: false)
         let caseSensitiveResponder:CompiledRouterStorage.Responder?
