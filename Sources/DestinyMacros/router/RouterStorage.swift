@@ -48,7 +48,7 @@ public struct RouterStorage {
             for statement in statements {
                 functionString += statement.trimmedDescription + "\n"
             }
-            let protocolConformance = hasProtocolConformances ? "OpaqueDynamicMiddlewareProtocol" : "Sendable"
+            let protocolConformance = hasProtocolConformances ? "DynamicMiddlewareProtocol" : "Sendable"
             let name = "OpaqueDynamicMiddleware\(i)"
             let decl = try! StructDeclSyntax.init(.init(stringLiteral: """
             // MARK: \(name)

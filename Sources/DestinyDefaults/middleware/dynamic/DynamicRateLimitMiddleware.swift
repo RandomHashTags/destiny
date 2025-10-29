@@ -17,6 +17,14 @@ public final class DynamicRateLimitMiddleware: @unchecked Sendable {
 
 // MARK: Handle
 extension DynamicRateLimitMiddleware {
+    /// Handle logic.
+    /// 
+    /// - Parameters:
+    ///   - request: Incoming network request.
+    ///   - response: Current response for the request.
+    /// 
+    /// - Returns: Whether or not to continue processing the request.
+    /// - Throws: `MiddlewareError`
     #if Inlinable
     @inlinable
     #endif
@@ -66,7 +74,7 @@ import DestinyBlueprint
 
 // MARK: Conformances
 extension DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol {}
-extension DynamicRateLimitMiddleware: OpaqueDynamicMiddlewareProtocol {}
+extension DynamicRateLimitMiddleware: DynamicMiddlewareProtocol {}
 
 #endif
 

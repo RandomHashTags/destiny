@@ -48,6 +48,14 @@ extension CORSMiddleware {
         }
     }
 
+    /// Handle logic.
+    /// 
+    /// - Parameters:
+    ///   - request: Incoming network request.
+    ///   - response: Current response for the request.
+    /// 
+    /// - Returns: Whether or not to continue processing the request.
+    /// - Throws: `MiddlewareError`
     #if Inlinable
     @inlinable
     #endif
@@ -395,7 +403,7 @@ extension CORSMiddleware {
 
 // MARK: Conformances
 extension CORSMiddleware: CORSMiddlewareProtocol {}
-extension CORSMiddleware: OpaqueDynamicMiddlewareProtocol {}
+extension CORSMiddleware: DynamicMiddlewareProtocol {}
 
 #endif
 
