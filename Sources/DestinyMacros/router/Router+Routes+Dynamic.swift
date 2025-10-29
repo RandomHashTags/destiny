@@ -1,9 +1,5 @@
 
-#if NonEmbedded
-
 import DestinyBlueprint
-import DestinyDefaults
-import DestinyDefaultsNonEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -457,5 +453,3 @@ extension RouterStorage {
         }
     }
 }
-
-#endif

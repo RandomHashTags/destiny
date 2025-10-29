@@ -115,7 +115,6 @@ extension RouteGroup {
             isCaseSensitive: false
         )
 
-        #if NonEmbedded
         for i in routeGroupStorage.dynamicRouteStorage.caseInsensitiveRoutes.indices {
             var (route, function) = routeGroupStorage.dynamicRouteStorage.caseInsensitiveRoutes[i]
             route.insertPath(contentsOf: pathComponents, at: 0)
@@ -125,9 +124,6 @@ extension RouteGroup {
             context: context,
             isCaseSensitive: false
         )
-        #else
-        let dynamicRespondersSyntax = ""
-        #endif
 
         let compiled = """
         CompiledRouteGroup(

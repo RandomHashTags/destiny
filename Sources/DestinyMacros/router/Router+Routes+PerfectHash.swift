@@ -77,12 +77,8 @@ extension RouterStorage {
             return nil
             #endif
         }
-        var dynamicRoutesCount = 0
-        #if NonEmbedded
         let dynamicRoutes = isCaseSensitive ? dynamicRouteStorage.caseSensitiveRoutes : dynamicRouteStorage.caseInsensitiveRoutes
-        dynamicRoutesCount = dynamicRoutes.count
-        #endif
-        let reservedCapacity = staticRoutes.count + dynamicRoutesCount
+        let reservedCapacity = staticRoutes.count + dynamicRoutes.count
         var routePaths = [String]()
         var routeResponders = [String]()
         routePaths.reserveCapacity(reservedCapacity)
@@ -96,7 +92,6 @@ extension RouterStorage {
             routePaths: &routePaths,
             routeResponders: &routeResponders
         )
-        #if NonEmbedded
         appendDynamicRoutes(
             context: context,
             isCaseSensitive: isCaseSensitive,
@@ -105,7 +100,6 @@ extension RouterStorage {
             literalRoutePaths: &routePaths,
             routeResponders: &routeResponders
         )
-        #endif
 
         guard !routePaths.isEmpty else { return nil }
         var members = MemberBlockItemListSyntax()

@@ -189,14 +189,8 @@ extension Router {
 
         caseSensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: true)
         caseInsensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: false)
-
-        #if NonEmbedded
         dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: true)
         dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: false)
-        #else
-        dynamicCaseSensitiveResponder = nil
-        dynamicCaseInsensitiveResponder = nil
-        #endif
 
         compiledStorage.perfectHashCaseSensitiveResponder = perfectHashCaseSensitiveResponder
         compiledStorage.perfectHashCaseInsensitiveResponder = perfectHashCaseInsensitiveResponder
