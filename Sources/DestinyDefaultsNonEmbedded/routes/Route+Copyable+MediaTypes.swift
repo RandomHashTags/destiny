@@ -12,7 +12,7 @@ extension Route {
         head: HTTPResponseMessageHead = .default,
         method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
@@ -21,7 +21,7 @@ extension Route {
             head: head,
             method: .init(method),
             path: path,
-            isCaseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             contentType: mediaType?.template,
             body: body,
             handler: handler
@@ -34,16 +34,16 @@ extension Route {
     public static func get(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "GET"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -56,16 +56,16 @@ extension Route {
     public static func head(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "HEAD"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -78,15 +78,15 @@ extension Route {
     public static func post(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             method: HTTPRequestMethod(name: "POST"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -99,16 +99,16 @@ extension Route {
     public static func put(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "PUT"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -121,16 +121,16 @@ extension Route {
     public static func delete(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "DELETE"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -143,16 +143,16 @@ extension Route {
     public static func connect(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "CONNECT"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -165,16 +165,16 @@ extension Route {
     public static func options(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "OPTIONS"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -187,16 +187,16 @@ extension Route {
     public static func trace(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "TRACE"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler
@@ -209,16 +209,16 @@ extension Route {
     public static func patch(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
         handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
-        return on(
+        return Self(
             head: head,
             method: HTTPRequestMethod(name: "PATCH"),
             path: path,
-            caseSensitive: caseSensitive,
+            isCaseSensitive: isCaseSensitive,
             mediaType: mediaType,
             body: body,
             handler: handler

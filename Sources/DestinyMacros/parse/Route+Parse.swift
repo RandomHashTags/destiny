@@ -110,7 +110,7 @@ extension Route {
                 for _ in path.filter({ $0.isParameter }) {
                     parameters.append("")
                 }
-            case "isCaseSensitive", "caseSensitive":
+            case "isCaseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "contentType":
                 contentType = arg.expression.stringLiteralString(context: context) ?? contentType

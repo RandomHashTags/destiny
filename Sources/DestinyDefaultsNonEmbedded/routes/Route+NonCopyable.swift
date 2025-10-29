@@ -12,7 +12,7 @@ extension Route {
         head: HTTPResponseMessageHead = .default,
         method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -24,7 +24,7 @@ extension Route {
     public static func get(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -36,7 +36,7 @@ extension Route {
     public static func head(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -48,7 +48,7 @@ extension Route {
     public static func post(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -60,7 +60,7 @@ extension Route {
     public static func put(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -72,7 +72,7 @@ extension Route {
     public static func delete(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -84,7 +84,7 @@ extension Route {
     public static func connect(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -96,7 +96,7 @@ extension Route {
     public static func options(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -108,7 +108,7 @@ extension Route {
     public static func trace(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
@@ -120,7 +120,7 @@ extension Route {
     public static func patch(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
-        caseSensitive: Bool = true,
+        isCaseSensitive: Bool = true,
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,

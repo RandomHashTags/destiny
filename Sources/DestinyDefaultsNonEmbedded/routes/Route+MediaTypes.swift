@@ -24,6 +24,26 @@ extension Route {
             handler: handler
         )
     }
+
+    public init(
+        head: HTTPResponseMessageHead = .default,
+        method: HTTPRequestMethod,
+        path: [PathComponent],
+        isCaseSensitive: Bool = true,
+        mediaType: (some MediaTypeProtocol)? = nil,
+        body: (any ResponseBodyProtocol)? = nil,
+        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+    ) {
+        self.init(
+            head: head,
+            method: method,
+            path: path,
+            isCaseSensitive: isCaseSensitive,
+            contentType: mediaType?.template,
+            body: body,
+            handler: handler
+        )
+    }
 }
 
 #endif
