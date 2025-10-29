@@ -74,6 +74,7 @@ defaultTraits.formUnion([
     "CopyableStaticStringWithDateHeader",
     "StringRouteResponder",
     //"HTTPCookie",
+    //"StaticRedirectionRoute",
 
     "UnwrapArithmetic",
     "Inlinable",

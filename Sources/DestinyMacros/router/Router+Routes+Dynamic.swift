@@ -71,7 +71,7 @@ extension RouterStorage {
             let string = getRouteStartLine(route)
             let buffer = SIMD64<UInt8>(string)
             guard let literalResponder = dynamicResponderValue(
-                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(string) else {
@@ -87,7 +87,7 @@ extension RouterStorage {
             string = getRouteStartLine(route)
             let buffer = SIMD64<UInt8>(pathLiteral)
             guard let literalResponder = dynamicResponderValue(
-                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(string) else {
@@ -101,7 +101,7 @@ extension RouterStorage {
             let string = getRouteStartLine(route)
             let buffer = SIMD64<UInt8>(string)
             guard let literalResponder = dynamicResponderValue(
-                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
+                route: .init(startLine: string, buffer: buffer, responder: route.responderDebugDescription(useGenerics: dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(string) else {
@@ -155,7 +155,7 @@ extension RouterStorage {
         isAsync = responder.contains(" await ")
         guard isCopyable == isAsync else { return nil }
 
-        let paths = route.paths.map({ PathComponent.init(stringLiteral: String($0)) })
+        let paths = route.paths.map({ PathComponent.fromString(String($0)) })
         var responderName = "Responder_"
         for char in route.startLine {
             if char.isLetter || char.isNumber {
@@ -238,7 +238,7 @@ extension RouterStorage {
         members.append(DeclSyntax.init(stringLiteral: """
         \(inlinableAnnotation)
         \(visibility)func respond(
-            router: \(routerParameter(isCopyable: isCopyable, protocolConformances: settings.hasProtocolConformances)),
+            router: \(routerParameter(isCopyable: isCopyable, protocolConformances: hasProtocolConformances)),
             socket: some FileDescriptor,
             request: \(requestTypeSyntax),
             response: inout some DynamicResponseProtocol,
@@ -263,7 +263,7 @@ extension RouterStorage {
             modifiers: [visibilityModifier],
             name: .init(stringLiteral: responderName),
             inheritanceClause: .init(
-                inheritedTypes: dynamicRouteResponderProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
+                inheritedTypes: dynamicRouteResponderProtocolConformances(isCopyable: isCopyable, protocolConformance: hasProtocolConformances)
             ),
             memberBlock: .init(members: members)
         )
@@ -281,7 +281,7 @@ extension RouterStorage {
         isCopyable: Bool,
         responders: [(path: SIMD64<UInt8>, responder: String)]
     ) -> StructDeclSyntax {
-        let routerParameter = routerParameter(isCopyable: isCopyable, protocolConformances: settings.hasProtocolConformances)
+        let routerParameter = routerParameter(isCopyable: isCopyable, protocolConformances: hasProtocolConformances)
         var responderMembers = MemberBlockItemListSyntax()
         var entryMembers = MemberBlockItemListSyntax()
         entryMembers.append(VariableDeclSyntax(leadingTrivia: "\n", .let, name: "path", type: .init(type: TypeSyntax("SIMD64<UInt8>"))))
@@ -407,7 +407,7 @@ extension RouterStorage {
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
+                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: hasProtocolConformances)
             ),
             memberBlock: .init(members: responderMembers)
         )
@@ -438,7 +438,7 @@ extension RouterStorage {
             }
             let startLine = routeStartLine(route)
             guard let responder = dynamicResponderValue(
-                route: .init(startLine: startLine, buffer: .init(startLine), responder: route.responderDebugDescription(useGenerics: settings.dynamicResponsesAreGeneric)),
+                route: .init(startLine: startLine, buffer: .init(startLine), responder: route.responderDebugDescription(useGenerics: dynamicResponsesAreGeneric)),
                 isCopyable: isCopyable
             ) else { continue }
             guard !registeredPaths.contains(startLine) else {

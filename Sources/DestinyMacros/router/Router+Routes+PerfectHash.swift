@@ -116,7 +116,7 @@ extension RouterStorage {
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
+                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: hasProtocolConformances)
             ),
             memberBlock: .init(members: members)
         )

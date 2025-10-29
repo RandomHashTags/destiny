@@ -12,7 +12,14 @@ extension RouterStorage {
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
         let routes = isCaseSensitive ? staticRouteStorage.caseSensitiveRoutes : staticRouteStorage.caseInsensitiveRoutes
-        guard !routes.isEmpty || !staticRedirects.isEmpty else { return nil }
+        if routes.isEmpty {
+            return nil
+        }
+        #if StaticRedirectionRoute
+        if staticRedirects.isEmpty {
+            return nil
+        }
+        #endif
 
         let random:Int
         let namePrefix:String
@@ -99,7 +106,7 @@ extension RouterStorage {
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
+                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: hasProtocolConformances)
             ),
             memberBlock: .init(members: .init())
         )
@@ -128,15 +135,22 @@ extension RouterStorage {
             "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \($0.responder)\n)"
         }
         let routeStartLine:(StaticRoute) -> String
+        #if StaticRedirectionRoute
         let getRedirectRouteStartLine:(StaticRedirectionRoute) -> String
+        #endif
         if isCaseSensitive {
             routeStartLine = routeStartLineLiteral
+            #if StaticRedirectionRoute
             getRedirectRouteStartLine = redirectRouteStartLineLiteral
+            #endif
         } else {
             routeStartLine = routeStartLineLowercased
+            #if StaticRedirectionRoute
             getRedirectRouteStartLine = redirectRouteStartLineLowercased
+            #endif
         }
         if !isCopyable { // always make redirects noncopyable for optimal performance
+            #if StaticRedirectionRoute
             appendStaticRedirects(
                 context: context,
                 isCaseSensitive: isCaseSensitive,
@@ -146,6 +160,7 @@ extension RouterStorage {
                 getRedirectRouteStartLine: getRedirectRouteStartLine,
                 getResponderValue: getResponderValue
             )
+            #endif
         }
         for (route, function) in routes {
             let startLine = routeStartLine(route)
@@ -209,6 +224,8 @@ extension RouterStorage {
     }
 }
 
+#if StaticRedirectionRoute
+
 // MARK: Append redirects
 extension RouterStorage {
     private mutating func appendStaticRedirects(
@@ -248,3 +265,5 @@ extension RouterStorage {
         }
     }
 }
+
+#endif
