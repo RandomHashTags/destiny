@@ -295,7 +295,7 @@ extension IntermediateResponseBodyType {
     public var isEnabled: Bool? {
         switch self {
         case .bytes:
-            #if Copyablebytes
+            #if CopyableBytes
             true
             #else
             false
