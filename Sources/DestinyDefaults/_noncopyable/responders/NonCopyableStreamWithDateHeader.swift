@@ -4,26 +4,6 @@
 import DestinyEmbedded
 import UnwrapArithmeticOperators
 
-extension ResponseBody {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func nonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>(_ body: consuming Body) -> NonCopyableStreamWithDateHeader<Body> {
-        .init(body)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func nonCopyableStreamWithDateHeader<Body: HTTPSocketWritable & ~Copyable>(
-        preDateValue: StaticString,
-        postDateValue: StaticString,
-        body: consuming Body
-    ) -> NonCopyableStreamWithDateHeader<Body> {
-        .init(preDateValue: preDateValue, postDateValue: postDateValue, body: body)
-    }
-}
-
 public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~Copyable>: Sendable, ~Copyable {
     public let body:Body
     public let payload:NonCopyableDateHeaderPayload

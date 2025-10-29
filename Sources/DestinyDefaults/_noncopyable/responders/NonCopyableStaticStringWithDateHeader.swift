@@ -4,22 +4,6 @@
 import DestinyEmbedded
 import UnwrapArithmeticOperators
 
-extension ResponseBody {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func nonCopyableStaticStringWithDateHeader(_ value: StaticString) -> NonCopyableStaticStringWithDateHeader {
-        .init(preDateValue: "", postDateValue: value)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func nonCopyableStaticStringWithDateHeader(preDateValue: StaticString, postDateValue: StaticString) -> NonCopyableStaticStringWithDateHeader {
-        .init(preDateValue: preDateValue, postDateValue: postDateValue)
-    }
-}
-
 public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
     public let payload:NonCopyableDateHeaderPayload
 
