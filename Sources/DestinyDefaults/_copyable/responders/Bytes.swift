@@ -74,7 +74,7 @@ extension Bytes: StaticRouteResponderProtocol {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try respond(socket: socket, completionHandler: completionHandler)

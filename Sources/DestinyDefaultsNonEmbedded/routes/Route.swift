@@ -7,7 +7,7 @@ public struct Route: Sendable {
     public let contentType:String?
 
     public var defaultResponse:DynamicResponse
-    public let handler:(@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)?
+    public let handler:(@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)?
     @usableFromInline package var handlerDebugDescription:String? = nil
 
     public let isCaseSensitive:Bool
@@ -27,7 +27,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) {
         self.version = head.version
         self.method = method

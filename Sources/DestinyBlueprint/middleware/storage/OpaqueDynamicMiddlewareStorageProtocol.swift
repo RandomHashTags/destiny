@@ -3,7 +3,7 @@
 public protocol OpaqueDynamicMiddlewareStorageProtocol: DynamicMiddlewareStorageProtocol, ~Copyable {
     /// - Throws: `MiddlewareError`
     func handle(
-        for request: inout some HTTPRequestProtocol & ~Copyable,
+        for request: inout HTTPRequest,
         with response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError)
 }

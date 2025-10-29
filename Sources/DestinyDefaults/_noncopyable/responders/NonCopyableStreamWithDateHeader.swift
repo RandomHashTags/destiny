@@ -74,7 +74,7 @@ extension NonCopyableStreamWithDateHeader {
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try payload.write(to: socket)

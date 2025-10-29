@@ -11,7 +11,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// - Throws: `ResponderError`
     func respond(
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         responder: some StaticRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
@@ -27,7 +27,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// - Throws: `ResponderError`
     func respond(
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         responder: some DynamicRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
@@ -41,7 +41,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// - Throws: `ResponderError`
     func respondWithNotFound(
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 
@@ -57,7 +57,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     func respondWithError(
         socket: some FileDescriptor,
         error: some Error,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) -> Bool
 }

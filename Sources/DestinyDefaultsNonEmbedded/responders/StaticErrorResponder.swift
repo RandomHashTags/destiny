@@ -20,7 +20,7 @@ public struct StaticErrorResponder: Sendable { // TODO: use behind a package tra
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
         error: some Error,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) {
         #if DEBUG && Logging

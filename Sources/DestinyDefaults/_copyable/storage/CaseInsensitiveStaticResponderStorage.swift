@@ -11,7 +11,7 @@ public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
     public override func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
         let startLine:SIMD64<UInt8>

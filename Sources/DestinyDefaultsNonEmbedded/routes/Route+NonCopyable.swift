@@ -16,7 +16,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -28,7 +28,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -40,7 +40,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -52,7 +52,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -64,7 +64,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -76,7 +76,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -88,7 +88,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -100,7 +100,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -112,7 +112,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }
@@ -124,7 +124,7 @@ extension Route {
         contentType: String? = nil,
         charset: Charset? = nil,
         body: consuming some ResponseBodyProtocol & ~Copyable,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         unsupportedNonCopyable()
     }

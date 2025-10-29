@@ -15,7 +15,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -37,7 +37,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -59,7 +59,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -81,7 +81,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             method: HTTPRequestMethod(name: "POST"),
@@ -102,7 +102,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -124,7 +124,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -146,7 +146,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -168,7 +168,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -190,7 +190,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,
@@ -212,7 +212,7 @@ extension Route {
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
         body: (any ResponseBodyProtocol)? = nil,
-        handler: (@Sendable (_ request: inout any HTTPRequestProtocol & ~Copyable, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
+        handler: (@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) async throws -> Void)? = nil
     ) -> Self {
         return Self(
             head: head,

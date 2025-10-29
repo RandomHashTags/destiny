@@ -1,7 +1,6 @@
 
 #if RequestHeaders
 
-import DestinyEmbedded
 import UnwrapArithmeticOperators
 
 extension AbstractHTTPRequest {

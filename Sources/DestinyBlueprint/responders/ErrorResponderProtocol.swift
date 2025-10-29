@@ -9,7 +9,7 @@ public protocol ErrorResponderProtocol: Sendable, ~Copyable {
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
         error: some Error,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     )
 }

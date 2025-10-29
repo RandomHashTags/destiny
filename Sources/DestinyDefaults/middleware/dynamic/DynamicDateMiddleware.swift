@@ -10,7 +10,7 @@ public struct DynamicDateMiddleware: Sendable {
     @inlinable
     #endif
     public func handle(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
         response.setHeader(key: "date", value: HTTPDateFormat.nowString)

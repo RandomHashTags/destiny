@@ -6,11 +6,6 @@ public struct RouterSettings: Sendable {
     /// Name of the compiled router's `struct`.
     public var name:String
 
-    /// Type used as the request storage.
-    /// 
-    /// - Warning: Must conform to `HTTPRequestProtocol`.
-    public var requestType:String
-
     @usableFromInline
     var flags:Flags.RawValue
 
@@ -24,12 +19,10 @@ public struct RouterSettings: Sendable {
         protocolConformances: Bool = true,
         logging: Bool = true,
         visibility: RouterVisibility = .internal,
-        name: String = "CompiledHTTPRouter",
-        requestType: String = "HTTPRequest"
+        name: String = "CompiledHTTPRouter"
     ) {
         self.visibility = visibility
         self.name = name
-        self.requestType = requestType
         flags = Flags.pack(
             mutable: mutable,
             dynamicResponsesAreGeneric: dynamicResponsesAreGeneric,

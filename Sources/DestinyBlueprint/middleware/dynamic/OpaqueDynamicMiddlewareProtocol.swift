@@ -10,7 +10,7 @@ public protocol OpaqueDynamicMiddlewareProtocol: DynamicMiddlewareProtocol, ~Cop
     /// - Returns: Whether or not to continue processing the request.
     /// - Throws: `MiddlewareError`
     func handle(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool
 }

@@ -28,10 +28,6 @@ extension RouterSettings {
                 if let s = arg.expression.stringLiteralString(context: context) {
                     settings.name = s
                 }
-            case "requestType":
-                if let s = arg.expression.stringLiteralString(context: context) {
-                    settings.requestType = s
-                }
             case "visibility":
                 settings.visibility = .init(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "internal") ?? .internal
             default:

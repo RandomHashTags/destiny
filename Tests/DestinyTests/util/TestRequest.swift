@@ -1,9 +1,10 @@
 
 import DestinyBlueprint
 @testable import DestinyDefaults
+@testable import DestinyEmbedded
 
 /// Default storage for request data.
-struct TestRequest: HTTPRequestProtocol, ~Copyable {
+struct TestRequest: Sendable, ~Copyable {
     let fileDescriptor:TestFileDescriptor
     var _request:AbstractHTTPRequest<1024>
 

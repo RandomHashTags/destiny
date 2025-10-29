@@ -35,7 +35,7 @@ extension DynamicResponderStorage {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
         guard let responder = try responder(for: &request) else { return false }
@@ -46,7 +46,7 @@ extension DynamicResponderStorage {
     #if Inlinable
     @inlinable
     #endif
-    package func responder(for request: inout some HTTPRequestProtocol & ~Copyable) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
+    package func responder(for request: inout HTTPRequest) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
         let requestStartLine:SIMD64<UInt8>
         do throws(SocketError) {
             requestStartLine = try request.startLine()
@@ -87,7 +87,7 @@ extension DynamicResponderStorage {
     #if Inlinable
     @inlinable
     #endif
-    func catchallResponder(for request: inout some HTTPRequestProtocol & ~Copyable) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
+    func catchallResponder(for request: inout HTTPRequest) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
         var responderIndex = 0
         loop: while responderIndex < catchall.count {
             let responder = catchall[responderIndex]

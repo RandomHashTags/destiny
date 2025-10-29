@@ -12,7 +12,7 @@ public protocol ExistentialDynamicMiddlewareProtocol: DynamicMiddlewareProtocol,
     /// - Returns: Whether or not to continue processing the request.
     /// - Throws: `MiddlewareError`
     func handle(
-        request: inout any HTTPRequestProtocol,
+        request: inout HTTPRequest,
         response: inout any DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool
 }

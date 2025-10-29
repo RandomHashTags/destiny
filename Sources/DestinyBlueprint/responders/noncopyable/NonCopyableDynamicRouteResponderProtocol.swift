@@ -31,7 +31,7 @@ public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteRespon
     func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
@@ -45,7 +45,7 @@ extension NonCopyableDynamicRouteResponderProtocol where Self: ~Copyable {
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try router.respond(socket: socket, request: &request, responder: self, completionHandler: completionHandler)

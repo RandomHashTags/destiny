@@ -8,13 +8,13 @@ public struct DynamicRouteResponder: Sendable {
     public let path:[PathComponent]
     public let parameterPathIndexes:[Int]
     public let _defaultResponse:DynamicResponse
-    public let logic:@Sendable (inout any HTTPRequestProtocol & ~Copyable, inout any DynamicResponseProtocol) async throws -> Void
+    public let logic:@Sendable (inout HTTPRequest, inout any DynamicResponseProtocol) async throws -> Void
     package let logicDebugDescription:String
 
     public init(
         path: [PathComponent],
         defaultResponse: DynamicResponse,
-        logic: (@Sendable (inout any HTTPRequestProtocol & ~Copyable, inout any DynamicResponseProtocol) async throws -> Void)?,
+        logic: (@Sendable (inout HTTPRequest, inout any DynamicResponseProtocol) async throws -> Void)?,
         logicDebugDescription: String = "{ _, _ in }"
     ) {
         self.path = path
@@ -63,11 +63,11 @@ extension DynamicRouteResponder {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
-        var anyRequest:any HTTPRequestProtocol & ~Copyable = request.copy()
+        var anyRequest = request.copy()
         var anyResponse:any DynamicResponseProtocol = response
         Task {
             var err:ResponderError? = nil

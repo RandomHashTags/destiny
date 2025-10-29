@@ -29,7 +29,7 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
@@ -43,7 +43,7 @@ extension DynamicRouteResponderProtocol {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try router.respond(socket: socket, request: &request, responder: self, completionHandler: completionHandler)

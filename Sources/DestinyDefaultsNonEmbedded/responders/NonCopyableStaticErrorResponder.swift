@@ -22,7 +22,7 @@ public struct NonCopyableStaticErrorResponder: Sendable, ~Copyable {
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
         error: some Error,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) {
         #if DEBUG && Logging
