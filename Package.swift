@@ -225,13 +225,6 @@ let traits:Set<Trait> = [
         name: "GenericRouteGroup",
         description: "Enables a RouteGroup implementation utilizing generics, avoiding existentials."
     ),
-    .trait(
-        name: "Generics",
-        description: "Enables all Generic package traits.",
-        enabledTraits: [
-            "GenericRouteGroup"
-        ]
-    ),
 
     .trait(
         name: "HTTPCookie",
