@@ -35,6 +35,6 @@ public struct DynamicMiddleware: Sendable {
 }
 
 // MARK: Conformances
-extension DynamicMiddleware: ExistentialDynamicMiddlewareProtocol {}
+extension DynamicMiddleware: DynamicMiddlewareProtocol {}
 
 #endif
