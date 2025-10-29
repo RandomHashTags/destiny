@@ -89,9 +89,7 @@ defaultTraits.formUnion([
     "Copyable",
     //"Generics", // disabled by default since we use non-embedded types instead of generics by default
     "HTTPCookie",
-    "HTTPStandardRequestMethods",
     "HTTPStandardRequestMethodRawValues",
-    "HTTPStandardResponseStatuses",
     "HTTPStandardResponseStatusRawValues",
     "MediaTypes",
     //"MutableRouter", // disabled by default since no other Swift networking library allows that functionality
@@ -100,9 +98,7 @@ defaultTraits.formUnion([
     "RouterSettings",
     "PercentEncoding",
     //"RateLimits", // not yet implemented
-    "RequestBody",
     "RequestBodyStream",
-    "RequestHeaders",
     "RouteGroup",
     //"RoutePath", // not yet integrated
     "StaticMiddleware",

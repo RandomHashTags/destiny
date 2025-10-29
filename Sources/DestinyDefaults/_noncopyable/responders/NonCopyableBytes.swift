@@ -13,10 +13,6 @@ public struct NonCopyableBytes: Sendable, ~Copyable {
         self.value = value
     }
 
-    public var description: String {
-        "NonCopyableBytes(\(value))"
-    }
-
     #if Inlinable
     @inlinable
     #endif

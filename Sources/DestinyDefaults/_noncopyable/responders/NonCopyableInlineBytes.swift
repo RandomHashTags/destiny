@@ -13,10 +13,6 @@ public struct NonCopyableInlineBytes<let count: Int>: Sendable, ~Copyable {
         self.value = value
     }
 
-    public var description: String {
-        "NonCopyableInlineBytes(\(value))" // TODO: fix
-    }
-
     #if Inlinable
     @inlinable
     #endif
