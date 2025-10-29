@@ -4,7 +4,7 @@
 /// Default storage for an HTTP Message.
 public struct HTTPResponseMessage<
         Body: ResponseBodyProtocol
-    >: Sendable {
+    >: HTTPSocketWritable {
     public var head:HTTPResponseMessageHead
     public var body:Body?
     public var contentType:String?
@@ -22,6 +22,10 @@ public struct HTTPResponseMessage<
         self.charset = charset
     }
 
+    /// Set the body of the message.
+    /// 
+    /// - Parameters:
+    ///   - body: New body to set.
     #if Inlinable
     @inlinable
     #endif
@@ -29,6 +33,10 @@ public struct HTTPResponseMessage<
         self.body = body
     }
 
+    /// Set the body of the message.
+    /// 
+    /// - Parameters:
+    ///   - body: New body to set.
     #if Inlinable
     @inlinable
     #endif
@@ -41,7 +49,7 @@ public struct HTTPResponseMessage<
 #else
 
 /// Default storage for an HTTP Message.
-public struct HTTPResponseMessage: Sendable {
+public struct HTTPResponseMessage: HTTPSocketWritable {
     public var head:HTTPResponseMessageHead
     public var body:(any ResponseBodyProtocol)?
     public var contentType:String?
@@ -59,6 +67,10 @@ public struct HTTPResponseMessage: Sendable {
         self.charset = charset
     }
 
+    /// Set the body of the message.
+    /// 
+    /// - Parameters:
+    ///   - body: New body to set.
     #if Inlinable
     @inlinable
     #endif
@@ -70,6 +82,7 @@ public struct HTTPResponseMessage: Sendable {
 
 // MARK: Logic
 extension HTTPResponseMessage {
+    /// Associated HTTP Version of this message.
     #if Inlinable
     @inlinable
     #endif
@@ -78,6 +91,7 @@ extension HTTPResponseMessage {
         set { head.version = newValue }
     }
 
+    /// - Returns: Current status code this message.
     #if Inlinable
     @inlinable
     #endif
@@ -85,6 +99,10 @@ extension HTTPResponseMessage {
         head.status
     }
 
+    /// Set the message's status code.
+    /// 
+    /// - Parameters:
+    ///   - code: New status code to set.
     #if Inlinable
     @inlinable
     #endif
@@ -92,6 +110,11 @@ extension HTTPResponseMessage {
         head.status = code
     }
 
+    /// - Parameters:
+    ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
+    /// 
+    /// - Returns: A string representing an HTTP Message with the given values.
+    /// - Throws: `HTTPMessageError`
     #if Inlinable
     @inlinable
     #endif
@@ -116,6 +139,11 @@ extension HTTPResponseMessage {
         )
     }
 
+    /// Set a header to the given value.
+    /// 
+    /// - Parameters:
+    ///   - key: Header you want to modify.
+    ///   - value: New header value to set.
     #if Inlinable
     @inlinable
     #endif
@@ -124,6 +152,7 @@ extension HTTPResponseMessage {
     }
 
     #if HTTPCookie
+    /// - Throws: `HTTPCookieError`
     #if Inlinable
     @inlinable
     #endif
@@ -296,6 +325,3 @@ extension HTTPResponseMessage {
         return string
     }
 }
-
-// MARK: Conformances
-extension HTTPResponseMessage: HTTPMessageProtocol {} // TODO: fix?

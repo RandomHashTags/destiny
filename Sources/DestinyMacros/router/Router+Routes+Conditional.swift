@@ -8,18 +8,17 @@ import SwiftSyntax
 import SwiftSyntaxMacros
 
 extension Router {
-    static func conditionalRoute(
+    /*static func conditionalRoute(
         context: some MacroExpansionContext,
         conditionalResponders: inout [RoutePath:ConditionalRouteResponder],
         route: any RouteProtocol,
         function: FunctionCallExprSyntax,
         string: String,
         buffer: SIMD64<UInt8>,
-        httpResponse: some HTTPMessageProtocol
+        httpResponse: HTTPResponseMessage
     ) {
         // TODO: refactor
         return;
-        /*
         guard let result = httpResponse.body else { return }
         let body:[UInt8]
         do throws(HTTPMessageError) {
@@ -62,8 +61,8 @@ extension Router {
         }
         responder.staticConditionsDescription += "\n]"
         responder.staticRespondersDescription += "\n]"
-        conditionalResponders[RoutePath(comment: "// \(string)", path: buffer)] = responder*/
-    }
+        conditionalResponders[RoutePath(comment: "// \(string)", path: buffer)] = responder
+    }*/
 }
 
 #endif
