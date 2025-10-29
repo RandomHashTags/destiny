@@ -9,7 +9,7 @@ public struct RouteGroup: Sendable { // TODO: avoid existentials / support embed
     public let prefixEndpoints:[String]
 
     #if StaticMiddleware
-    public let staticMiddleware:[any StaticMiddlewareProtocol]
+    public let staticMiddleware:[StaticMiddleware]
     #endif
 
     public let dynamicMiddleware:[any DynamicMiddlewareProtocol]
@@ -20,7 +20,7 @@ public struct RouteGroup: Sendable { // TODO: avoid existentials / support embed
     #if StaticMiddleware
         public init(
             endpoint: String,
-            staticMiddleware: [any StaticMiddlewareProtocol] = [],
+            staticMiddleware: [StaticMiddleware] = [],
             dynamicMiddleware: [any DynamicMiddlewareProtocol] = [],
             _ routes: any RouteProtocol...
         ) {
@@ -33,7 +33,7 @@ public struct RouteGroup: Sendable { // TODO: avoid existentials / support embed
         }
         public init(
             prefixEndpoints: [String],
-            staticMiddleware: [any StaticMiddlewareProtocol],
+            staticMiddleware: [StaticMiddleware],
             dynamicMiddleware: [any DynamicMiddlewareProtocol],
             staticResponses: StaticResponderStorage,
             dynamicResponses: DynamicResponderStorage

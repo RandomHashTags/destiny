@@ -1,5 +1,6 @@
 
 import DestinyBlueprint
+import DestinyDefaults
 import DestinyEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
@@ -82,7 +83,7 @@ extension StaticRoute {
 extension StaticRoute {
     #if StaticMiddleware
         public func response(
-            middleware: [some StaticMiddlewareProtocol]
+            middleware: [StaticMiddleware]
         ) -> HTTPResponseMessage {
             var version = version
             let path = path.joined(separator: "/")
@@ -192,7 +193,7 @@ extension StaticRoute {
 extension StaticRoute {
     #if StaticMiddleware
     public func responder(
-        middleware: [some StaticMiddlewareProtocol]
+        middleware: [StaticMiddleware]
     ) -> String? {
         return response(middleware: middleware).string(escapeLineBreak: true)
     }
@@ -215,7 +216,7 @@ extension StaticRoute {
     public func response(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
-        middleware: [some StaticMiddlewareProtocol]
+        middleware: [StaticMiddleware]
     ) -> HTTPResponseMessage {
         let result = response(middleware: middleware)
         if result.statusCode() == 501 { // not implemented
@@ -249,7 +250,7 @@ extension StaticRoute {
     public func responder(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
-        middleware: [some StaticMiddlewareProtocol]
+        middleware: [StaticMiddleware]
     ) throws(HTTPMessageError) -> String? {
         return response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }

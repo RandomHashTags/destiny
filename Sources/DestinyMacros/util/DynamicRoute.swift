@@ -1,6 +1,7 @@
 
-import DestinyEmbedded
 import DestinyBlueprint
+import DestinyDefaults
+import DestinyEmbedded
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.
@@ -93,7 +94,7 @@ extension DynamicRoute {
     #if Inlinable
     @inlinable
     #endif
-    public mutating func applyStaticMiddleware(_ middleware: [some StaticMiddlewareProtocol]) throws(AnyError) {
+    public mutating func applyStaticMiddleware(_ middleware: [StaticMiddleware]) throws(AnyError) {
         let path = path.map({ $0.slug }).joined(separator: "/")
         for middleware in middleware {
             if middleware.handles(
