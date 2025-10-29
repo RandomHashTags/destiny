@@ -1,4 +1,5 @@
 
+import DestinyDefaults
 import DestinyEmbedded
 
 @freestanding(declaration, names: named(Server))
@@ -53,7 +54,7 @@ public macro router<T: HTTPRouterProtocol>(
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     middleware: [any MiddlewareProtocol],
-    redirects: [any RedirectionRouteProtocol] = [],
+    redirects: [StaticRedirectionRoute] = [],
     routeGroups: [any RouteGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) -> T = #externalMacro(module: "DestinyMacros", type: "Router")
@@ -83,7 +84,7 @@ public macro declareRouter(
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     middleware: [any MiddlewareProtocol],
-    redirects: [any RedirectionRouteProtocol] = [],
+    redirects: [StaticRedirectionRoute] = [],
     routeGroups: [any RouteGroupProtocol] = [],
     _ routes: any RouteProtocol...
 ) = #externalMacro(module: "DestinyMacros", type: "Router")

@@ -64,8 +64,7 @@ extension Router {
                         context: context,
                         version: version,
                         array: array,
-                        staticRedirects: &storage.staticRedirects,
-                        dynamicRedirects: &storage.dynamicRedirects
+                        staticRedirects: &storage.staticRedirects
                     )
                     #endif
                 case "middleware":

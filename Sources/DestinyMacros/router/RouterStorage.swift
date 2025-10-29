@@ -21,7 +21,6 @@ public struct RouterStorage {
     var upgradeExistentialDynamicMiddleware = [FunctionCallExprSyntax]()
 
     var dynamicMiddleware = [FunctionCallExprSyntax]()
-    var dynamicRedirects:[(any RedirectionRouteProtocol, FunctionCallExprSyntax)] = []
 
     #if NonEmbedded
     var conditionalResponders:[RoutePath:ConditionalRouteResponder] = [:]

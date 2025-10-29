@@ -21,6 +21,7 @@ public struct StaticRedirectionRoute: Sendable {
     /// `HTTPVersion` associated with this route.
     public let version:HTTPVersion
 
+    /// The http start line this route redirects from.
     #if Inlinable
     @inlinable
     #endif
@@ -73,7 +74,7 @@ extension StaticRedirectionRoute {
 }
 
 // MARK: Conformances
-extension StaticRedirectionRoute: RedirectionRouteProtocol {}
+extension StaticRedirectionRoute: RouteProtocol {}
 
 #endif
 
