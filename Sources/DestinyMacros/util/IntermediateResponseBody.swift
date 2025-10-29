@@ -154,7 +154,7 @@ extension IntermediateResponseBody {
         let prefix = isCopyable ? "" : "NonCopyable"
         switch type {
         case .bytes:
-            return "ResponseBody.\(prefix)Bytes(\(bytesPayload(context: context, responseString: &responseString)))"
+            return "\(prefix)Bytes(\(bytesPayload(context: context, responseString: &responseString)))"
         case .inlineBytes:
             return "\(prefix)InlineBytes(\(bytesPayload(context: context, responseString: &responseString)))"
         case .macroExpansion:
