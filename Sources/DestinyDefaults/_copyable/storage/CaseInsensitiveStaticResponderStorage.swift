@@ -20,24 +20,55 @@ public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
         } catch {
             throw .socketError(error)
         }
+
+        #if CopyableMacroExpansion
         if let r = macroExpansions[startLine] {
             try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
-        } else if let r = macroExpansionsWithDateHeader[startLine] {
-            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
-        } else if let r = staticStrings[startLine] {
-            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
-        } else if let r = staticStringsWithDateHeader[startLine] {
-            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
-        } else if let r = stringsWithDateHeader[startLine] {
-            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
-        } else if let r = strings[startLine] {
-            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
-        } else if let r = bytes[startLine] {
-            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
-        } else {
-            return false
+            return true
         }
-        return true
+        #endif
+
+        #if CopyableMacroExpansionWithDateHeader
+        if let r = macroExpansionsWithDateHeader[startLine] {
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            return true
+        }
+        #endif
+
+        if let r = staticStrings[startLine] {
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            return true
+        }
+
+        #if CopyableStaticStringWithDateHeader
+        if let r = staticStringsWithDateHeader[startLine] {
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            return true
+        }
+        #endif
+
+        #if CopyableStringWithDateHeader
+        if let r = stringsWithDateHeader[startLine] {
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            return true
+        }
+        #endif
+
+        #if StringRouteResponder
+        if let r = strings[startLine] {
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            return true
+        }
+        #endif
+
+        #if CopyableBytes
+        if let r = bytes[startLine] {
+            try router.respond(socket: socket, request: &request, responder: r, completionHandler: completionHandler)
+            return true
+        }
+        #endif
+
+        return false
     }
 }
 

@@ -1,4 +1,6 @@
 
+#if HTTPCookie
+
 public enum HTTPCookieFlag {
 }
 
@@ -21,3 +23,5 @@ extension HTTPCookieFlag {
         }
     }
 }
+
+#endif

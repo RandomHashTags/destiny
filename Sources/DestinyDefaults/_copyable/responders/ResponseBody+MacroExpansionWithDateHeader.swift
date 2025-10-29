@@ -4,14 +4,7 @@
 import DestinyEmbedded
 
 extension ResponseBody {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func macroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>(_ value: Value) -> MacroExpansionWithDateHeader<Value> {
-        .init(value)
-    }
-
-    public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol> {
+    public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: Sendable {
         public var value:Value
 
         #if Inlinable

@@ -85,25 +85,26 @@ destinyMacrosDependencies.append(contentsOf: [
 // MARK: Traits
 defaultTraits.formUnion([
     "CORS",
+    "Copyable",
     //"Generics", // disabled by default since we use non-embedded types instead of generics by default
     "HTTPCookie",
-    "HTTPStandardRequestMethods",
     "HTTPStandardRequestMethodRawValues",
-    "HTTPStandardResponseStatuses",
     "HTTPStandardResponseStatusRawValues",
     "MediaTypes",
     //"MutableRouter", // disabled by default since no other Swift networking library allows that functionality
     "NonCopyable",
     "NonEmbedded",
+    "RouterSettings",
     "PercentEncoding",
     //"RateLimits", // not yet implemented
-    "RequestBody",
     "RequestBodyStream",
-    "RequestHeaders",
     "RouteGroup",
     //"RoutePath", // not yet integrated
+    "StaticMiddleware",
+    "StaticRedirectionRoute",
 
     "StringRequestMethod",
+    "StringRouteResponder",
     "UnwrapArithmetic",
     "Protocols",
     "Inlinable",
@@ -117,11 +118,16 @@ let traits:Set<Trait> = [
 
     .trait(
         name: "EMBEDDED",
-        description: "Enables conditional compliation suitable for embedded mode."
+        description: "Enables conditional compilation suitable for embedded mode."
     ),
+
     .trait(
         name: "StringRequestMethod",
         description: "Makes `String` conform to `HTTPRequestMethodProtocol` for convenience."
+    ),
+    .trait(
+        name: "StringRouteResponder",
+        description: "Makes `String` conform to route responder protocols for convenience."
     ),
 
     .trait(
@@ -131,6 +137,14 @@ let traits:Set<Trait> = [
 
     .trait(
         name: "CopyableDateHeaderPayload"
+    ),
+    .trait(
+        name: "CopyableBytes",
+        description: "Enables the copyable Bytes route responder."
+    ),
+    .trait(
+        name: "CopyableInlineBytes",
+        description: "Enables the copyable InlineBytes route responder."
     ),
     .trait(
         name: "CopyableMacroExpansion",
@@ -151,9 +165,11 @@ let traits:Set<Trait> = [
         enabledTraits: ["CopyableDateHeaderPayload"]
     ),
     .trait(
-        name: "CopyableResponders",
-        description: "Enables all copyable route responders.",
+        name: "Copyable",
+        description: "Enables all copyable package traits.",
         enabledTraits: [
+            "CopyableBytes",
+            "CopyableInlineBytes",
             "CopyableMacroExpansion",
             "CopyableMacroExpansionWithDateHeader",
             "CopyableStaticStringWithDateHeader",
@@ -161,60 +177,53 @@ let traits:Set<Trait> = [
             "CopyableStreamWithDateHeader"
         ]
     ),
-    .trait(
-        name: "Copyable",
-        description: "Enables all copyable package traits.",
-        enabledTraits: [
-            "CopyableResponders"
-        ]
-    ),
-
     
     .trait(name: "NonCopyableHTTPServer"),
     .trait(name: "NonCopyableDateHeaderPayload"),
-    .trait(name: "NonCopyableBytes"),
-    .trait(name: "NonCopyableInlineBytes"),
+    .trait(
+        name: "NonCopyableBytes",
+        description: "Enables the noncopyable Bytes route responder.",
+    ),
+    .trait(
+        name: "NonCopyableInlineBytes",
+        description: "Enables the noncopyable InlineBytes route responder.",
+    ),
     .trait(
         name: "NonCopyableMacroExpansionWithDateHeader",
+        description: "Enables the noncopyable MacroExpansionWithDateHeader route responder.",
         enabledTraits: ["NonCopyableDateHeaderPayload"]
     ),
     .trait(
         name: "NonCopyableStaticStringWithDateHeader",
+        description: "Enables the noncopyable StaticStringWithDateHeader route responder.",
         enabledTraits: ["NonCopyableDateHeaderPayload"]
     ),
     .trait(
         name: "NonCopyableStreamWithDateHeader",
+        description: "Enables the noncopyable StreamWithDateHeader route responder.",
         enabledTraits: ["NonCopyableDateHeaderPayload"]
     ),
     .trait(
-        name: "NonCopyableResponders",
-        enabledTraits: [
-            "NonCopyableBytes",
-            "NonCopyableInlineBytes",
-            "NonCopyableMacroExpansionWithDateHeader",
-            "NonCopyableStaticStringWithDateHeader",
-            "NonCopyableStreamWithDateHeader",
-        ]
+        name: "NonCopyableStaticErrorResponder"
     ),
     .trait(
         name: "NonCopyable",
         description: "Enables noncopyable functionality for optimal performance.",
         enabledTraits: [
             "NonCopyableHTTPServer",
-            "NonCopyableResponders"
+            "NonCopyableBytes",
+            "NonCopyableInlineBytes",
+            "NonCopyableMacroExpansionWithDateHeader",
+            "NonCopyableStaticStringWithDateHeader",
+            "NonCopyableStreamWithDateHeader",
+
+            "NonCopyableStaticErrorResponder"
         ]
     ),
 
     .trait(
         name: "GenericRouteGroup",
         description: "Enables a RouteGroup implementation utilizing generics, avoiding existentials."
-    ),
-    .trait(
-        name: "Generics",
-        description: "Enables all Generic package traits.",
-        enabledTraits: [
-            "GenericRouteGroup"
-        ]
     ),
 
     .trait(
@@ -223,75 +232,78 @@ let traits:Set<Trait> = [
     ),
 
     .trait(name: "HTTPNonStandardRequestHeaders"),
-    .trait(name: "HTTPNonStandardRequestHeaderHashable"),
-    .trait(name: "HTTPNonStandardRequestHeaderRawNames"),
-    .trait(name: "HTTPNonStandardRequestHeaderRawValues"),
-    .trait(name: "HTTPNonStandardResponseHeaders"),
-    .trait(name: "HTTPNonStandardResponseHeaderHashable"),
-    .trait(name: "HTTPNonStandardResponseHeaderRawNames"),
-    .trait(name: "HTTPNonStandardResponseHeaderRawValues"),
-    .trait(name: "HTTPStandardRequestHeaders"),
-    .trait(name: "HTTPStandardRequestHeaderHashable"),
-    .trait(name: "HTTPStandardRequestHeaderRawNames"),
-    .trait(name: "HTTPStandardRequestHeaderRawValues"),
-    .trait(name: "HTTPStandardResponseHeaders"),
-    .trait(name: "HTTPStandardResponseHeaderHashable"),
-    .trait(name: "HTTPStandardResponseHeaderRawNames"),
-    .trait(name: "HTTPStandardResponseHeaderRawValues"),
     .trait(
-        name: "HTTPRequestHeaders",
-        enabledTraits: [
-            "HTTPNonStandardRequestHeaders",
-            "HTTPNonStandardRequestHeaderHashable",
-            "HTTPNonStandardRequestHeaderRawValues",
-            "HTTPStandardRequestHeaders",
-            "HTTPStandardRequestHeaderHashable",
-            "HTTPStandardRequestHeaderRawValues"
-        ]
+        name: "HTTPNonStandardRequestHeaderHashable",
+        enabledTraits: ["HTTPNonStandardRequestHeaders"]
     ),
     .trait(
-        name: "HTTPResponseHeaders",
-        enabledTraits: [
-            "HTTPNonStandardResponseHeaders",
-            "HTTPNonStandardResponseHeaderHashable",
-            "HTTPNonStandardResponseHeaderRawValues",
-            "HTTPStandardResponseHeaders",
-            "HTTPStandardResponseHeaderHashable",
-            "HTTPStandardResponseHeaderRawValues"
-        ]
+        name: "HTTPNonStandardRequestHeaderRawNames",
+        enabledTraits: ["HTTPNonStandardRequestHeaders"]
+    ),
+    .trait(
+        name: "HTTPNonStandardRequestHeaderRawValues",
+        enabledTraits: ["HTTPNonStandardRequestHeaders"]
+    ),
+    .trait(name: "HTTPNonStandardResponseHeaders"),
+    .trait(
+        name: "HTTPNonStandardResponseHeaderHashable",
+        enabledTraits: ["HTTPNonStandardResponseHeaders"]
+    ),
+    .trait(
+        name: "HTTPNonStandardResponseHeaderRawNames",
+        enabledTraits: ["HTTPNonStandardResponseHeaders"]
+    ),
+    .trait(
+        name: "HTTPNonStandardResponseHeaderRawValues",
+        enabledTraits: ["HTTPNonStandardResponseHeaders"]
+    ),
+    .trait(name: "HTTPStandardRequestHeaders"),
+    .trait(
+        name: "HTTPStandardRequestHeaderHashable",
+        enabledTraits: ["HTTPStandardRequestHeaders"]
+    ),
+    .trait(
+        name: "HTTPStandardRequestHeaderRawNames",
+        enabledTraits: ["HTTPStandardRequestHeaders"]
+    ),
+    .trait(
+        name: "HTTPStandardRequestHeaderRawValues",
+        enabledTraits: ["HTTPStandardRequestHeaders"]
+    ),
+    .trait(name: "HTTPStandardResponseHeaders"),
+    .trait(
+        name: "HTTPStandardResponseHeaderHashable",
+        enabledTraits: ["HTTPStandardResponseHeaders"]
+    ),
+    .trait(
+        name: "HTTPStandardResponseHeaderRawNames",
+        enabledTraits: ["HTTPStandardResponseHeaders"]
+    ),
+    .trait(
+        name: "HTTPStandardResponseHeaderRawValues",
+        enabledTraits: ["HTTPStandardResponseHeaders"]
     ),
 
     .trait(name: "HTTPNonStandardRequestMethods"),
-    .trait(name: "HTTPNonStandardRequestMethodRawValues"),
-    .trait(name: "HTTPStandardRequestMethods"),
-    .trait(name: "HTTPStandardRequestMethodRawValues"),
     .trait(
-        name: "HTTPRequestMethods",
-        enabledTraits: [
-            "HTTPNonStandardRequestMethods",
-            "HTTPNonStandardRequestMethodRawValues",
-            "HTTPStandardRequestMethods",
-            "HTTPStandardRequestMethodRawValues"
-        ]
+        name: "HTTPNonStandardRequestMethodRawValues",
+        enabledTraits: ["HTTPNonStandardRequestMethods"]
+    ),
+    .trait(name: "HTTPStandardRequestMethods"),
+    .trait(
+        name: "HTTPStandardRequestMethodRawValues",
+        enabledTraits: ["HTTPStandardRequestMethods"]
     ),
 
     .trait(name: "HTTPNonStandardResponseStatuses"),
-    .trait(name: "HTTPNonStandardResponseStatusRawValues"),
-    .trait(name: "HTTPStandardResponseStatuses"),
-    .trait(name: "HTTPStandardResponseStatusRawValues"),
     .trait(
-        name: "HTTPStandardResponseStatuses",
-        enabledTraits: [
-            "HTTPNonStandardResponseStatuses",
-            "HTTPStandardResponseStatuses"
-        ]
+        name: "HTTPNonStandardResponseStatusRawValues",
+        enabledTraits: ["HTTPNonStandardResponseStatuses"]
     ),
+    .trait(name: "HTTPStandardResponseStatuses"),
     .trait(
-        name: "HTTPResponseStatusRawValues",
-        enabledTraits: [
-            "HTTPNonStandardResponseStatusRawValues",
-            "HTTPStandardResponseStatusRawValues"
-        ]
+        name: "HTTPStandardResponseStatusRawValues",
+        enabledTraits: ["HTTPStandardResponseStatuses"]
     ),
 
     .trait(

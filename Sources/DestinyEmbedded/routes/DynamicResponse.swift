@@ -1,5 +1,4 @@
 
-import DestinyBlueprint
 import VariableLengthArray
 
 #if hasFeature(Embedded) || EMBEDDED

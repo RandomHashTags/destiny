@@ -1,7 +1,7 @@
 
 #if HTTPCookie
 
-import DestinyBlueprint
+import DestinyEmbedded
 
 // MARK: CustomDebugStringConvertible
 extension HTTPCookie: CustomDebugStringConvertible {

@@ -91,7 +91,7 @@ extension Route {
         var isCaseSensitive = true
         var contentType:String? = nil
         var charset:Charset? = nil
-        var body:(any ResponseBodyProtocol)? = nil
+        var body:IntermediateResponseBody? = nil
         var handler:String? = nil
         var parameters = [String]()
 
@@ -110,7 +110,7 @@ extension Route {
                 for _ in path.filter({ $0.isParameter }) {
                     parameters.append("")
                 }
-            case "isCaseSensitive", "caseSensitive":
+            case "isCaseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "contentType":
                 contentType = arg.expression.stringLiteralString(context: context) ?? contentType
@@ -161,21 +161,20 @@ extension Route {
         var contentType:String? = nil
         var charset:Charset?
 
-        var body:(any ResponseBodyProtocol)?
+        var body:IntermediateResponseBody?
         var handler:String? = nil
         var parameters = [String]()
 
         #if HTTPCookie
-        fileprivate func parse(
+        fileprivate mutating func parse(
             headers: inout HTTPHeaders,
             cookies: [HTTPCookie]
         ) -> (StaticRoute?, DynamicRoute?) {
             applyContentType(headers: &headers)
+            head.headers = headers
+            head.cookies = cookies
             let dynamicMessage = HTTPResponseMessage(
-                version: head.version,
-                status: head.status,
-                headers: headers,
-                cookies: cookies,
+                head: head,
                 body: body,
                 contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
                 charset: charset
@@ -183,14 +182,13 @@ extension Route {
             return parse(headers: headers, dynamicMessage: dynamicMessage)
         }
         #else
-        fileprivate func parse(
+        fileprivate mutating func parse(
             headers: inout HTTPHeaders
         ) -> (StaticRoute?, DynamicRoute?) {
             applyContentType(headers: &headers)
+            head.headers = headers
             let dynamicMessage = HTTPResponseMessage(
-                version: head.version,
-                status: head.status,
-                headers: headers,
+                head: head,
                 body: body,
                 contentType: nil, // populating this would duplicate it in the response headers (if a contentType was provided)
                 charset: charset
@@ -221,14 +219,12 @@ extension Route {
                 return (route, nil)
             } else { // dynamic route
                 var route = DynamicRoute(
-                    version: head.version,
+                    head: head,
                     method: method,
                     path: path,
                     isCaseSensitive: isCaseSensitive,
-                    status: head.status,
                     contentType: contentType,
-                    body: nil,
-                    handler: { _, _ in }
+                    body: nil
                 )
                 route.defaultResponse = DynamicResponse(
                     message: dynamicMessage,

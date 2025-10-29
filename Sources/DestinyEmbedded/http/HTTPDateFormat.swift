@@ -108,7 +108,7 @@ extension HTTPDateFormat {
     #if Inlinable
     @inlinable
     #endif
-    public static func load(logger: Logger) {
+    public static func load(logger: Logger) { // TODO: reduce binary size
         // TODO: make it update at the beginning of the second
         Task.detached(priority: .userInitiated) {
             while !Task.isCancelled {
@@ -127,7 +127,7 @@ extension HTTPDateFormat {
                             _nowUnsafeBufferPointer[i] = byte
                             s.append(Character(UnicodeScalar(byte)))
                             if byte != 0 {
-                                _count += 1
+                                _count +=! 1
                             }
                         }
                         _nowString = s
@@ -144,7 +144,7 @@ extension HTTPDateFormat {
     #if Inlinable
     @inlinable
     #endif
-    public static func load() {
+    public static func load() { // TODO: reduce binary size
         // TODO: make it update at the beginning of the second
         Task.detached(priority: .userInitiated) {
             while !Task.isCancelled {
@@ -163,7 +163,7 @@ extension HTTPDateFormat {
                             _nowUnsafeBufferPointer[i] = byte
                             s.append(Character(UnicodeScalar(byte)))
                             if byte != 0 {
-                                _count += 1
+                                _count +=! 1
                             }
                         }
                         _nowString = s

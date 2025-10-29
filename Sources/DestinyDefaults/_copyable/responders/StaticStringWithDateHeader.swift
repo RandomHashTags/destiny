@@ -4,22 +4,6 @@
 import DestinyEmbedded
 import UnwrapArithmeticOperators
 
-extension ResponseBody {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func staticStringWithDateHeader(_ value: StaticString) -> StaticStringWithDateHeader {
-        .init(preDateValue: "", postDateValue: value)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func staticStringWithDateHeader(preDateValue: StaticString, postDateValue: StaticString) -> StaticStringWithDateHeader {
-        .init(preDateValue: preDateValue, postDateValue: postDateValue)
-    }
-}
-
 public struct StaticStringWithDateHeader: Sendable {
     public let payload:DateHeaderPayload
 

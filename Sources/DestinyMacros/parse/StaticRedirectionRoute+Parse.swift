@@ -34,7 +34,7 @@ extension StaticRedirectionRoute {
                 status = HTTPResponseStatus.parseCode(context: context, expr: arg.expression) ?? status
             case "from":
                 from = PathComponent.parseArray(context: context, expr: arg.expression)
-            case "isCaseSensitive", "caseSensitive":
+            case "isCaseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "to":
                 to = PathComponent.parseArray(context: context, expr: arg.expression)

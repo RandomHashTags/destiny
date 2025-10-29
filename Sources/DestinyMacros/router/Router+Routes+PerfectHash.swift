@@ -7,16 +7,11 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if NonEmbedded
-import DestinyDefaultsNonEmbedded
-#endif
-
 extension RouterStorage {
     mutating func perfectHashResponder(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
-        #if NonEmbedded
         let namePrefix:String
         let staticRoutes:[(StaticRoute, FunctionCallExprSyntax)]
         if isCaseSensitive {
@@ -53,9 +48,6 @@ extension RouterStorage {
             noncopyable = nil
         }
         return .get(copyable, noncopyable)
-        #else
-        return nil
-        #endif
     }
     private func getRandom(isCaseSensitive: Bool) -> Int {
         if isCaseSensitive {
@@ -68,7 +60,6 @@ extension RouterStorage {
 
 // MARK: Decl
 extension RouterStorage {
-    #if NonEmbedded
     private mutating func perfectHashDeclName(
         context: some MacroExpansionContext,
         namePrefix: String,
@@ -86,18 +77,13 @@ extension RouterStorage {
             return nil
             #endif
         }
-        var dynamicRoutesCount = 0
-        #if NonEmbedded
         let dynamicRoutes = isCaseSensitive ? dynamicRouteStorage.caseSensitiveRoutes : dynamicRouteStorage.caseInsensitiveRoutes
-        dynamicRoutesCount = dynamicRoutes.count
-        #endif
-        let reservedCapacity = staticRoutes.count + dynamicRoutesCount
+        let reservedCapacity = staticRoutes.count + dynamicRoutes.count
         var routePaths = [String]()
         var routeResponders = [String]()
         routePaths.reserveCapacity(reservedCapacity)
         routeResponders.reserveCapacity(reservedCapacity)
 
-        #if NonEmbedded
         appendStaticRoutes(
             context: context,
             isCaseSensitive: isCaseSensitive,
@@ -114,7 +100,6 @@ extension RouterStorage {
             literalRoutePaths: &routePaths,
             routeResponders: &routeResponders
         )
-        #endif
 
         guard !routePaths.isEmpty else { return nil }
         var members = MemberBlockItemListSyntax()
@@ -131,7 +116,7 @@ extension RouterStorage {
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
+                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: hasProtocolConformances)
             ),
             memberBlock: .init(members: members)
         )
@@ -143,7 +128,6 @@ extension RouterStorage {
         }
         return name
     }
-    #endif
 }
 
 // MARK: Static constants
@@ -194,7 +178,7 @@ extension RouterStorage {
         var routeMembers = MemberBlockItemListSyntax()
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
-            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)"
+            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)\nreturn true"
             routeMembers.append(try! EnumCaseDeclSyntax.init("case \(raw: caseName)"))
 
             let utf8 = routePath.utf8
@@ -239,7 +223,7 @@ extension RouterStorage {
             switch self {
             \(raw: routePathCaseConditions)
             }
-            return true
+            return false
         }
         """)
         routeMembers.append(routeResponderDecl)

@@ -1,8 +1,7 @@
 
 #if HTTPCookie
 
-import DestinyBlueprint
-import DestinyDefaults
+import DestinyEmbedded
 import SwiftSyntax
 import SwiftSyntaxMacros
 

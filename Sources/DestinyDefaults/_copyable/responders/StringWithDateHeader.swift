@@ -4,20 +4,6 @@
 import DestinyEmbedded
 import UnwrapArithmeticOperators
 
-extension ResponseBody {
-    public static func stringWithDateHeader(_ value: String) -> StringWithDateHeader {
-        .init(value)
-    }
-
-    public static func stringWithDateHeader(
-        preDateValue: String,
-        postDateValue: String,
-        value: String
-    ) -> StringWithDateHeader {
-        .init(preDateValue: preDateValue, postDateValue: postDateValue, value: value)
-    }
-}
-
 public struct StringWithDateHeader: Sendable {
     public let preDateValue:String.UTF8View
     public let postDateValue:String.UTF8View

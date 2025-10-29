@@ -4,27 +4,7 @@
 import DestinyEmbedded
 import UnwrapArithmeticOperators
 
-extension ResponseBody {
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func streamWithDateHeader<Body: AsyncHTTPSocketWritable>(_ body: Body) -> StreamWithDateHeader<Body> {
-        .init(body)
-    }
-
-    #if Inlinable
-    @inlinable
-    #endif
-    public static func streamWithDateHeader<Body: HTTPSocketWritable>(
-        preDateValue: StaticString,
-        postDateValue: StaticString,
-        body: Body
-    ) -> StreamWithDateHeader<Body> {
-        .init(preDateValue: preDateValue, postDateValue: postDateValue, body: body)
-    }
-}
-
-public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable> {
+public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: Sendable {
     public let body:Body
     public let payload:DateHeaderPayload
 

@@ -89,7 +89,7 @@ extension Router {
                             continue
                         }
                         switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                        #if RouteGroup
+                        #if NonEmbedded && RouteGroup
                         case "RouteGroup":
                             let (decl, groupStorage) = RouteGroup.parse(
                                 context: context,
@@ -130,19 +130,14 @@ extension Router {
 
             #if HTTPCookie
             defaultStaticErrorResponse = HTTPResponseMessage.init(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: [],
+                head: .init(headers: headers, cookies: [], status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: nil
             ).string(escapeLineBreak: true)
             #else
             defaultStaticErrorResponse = HTTPResponseMessage.init(
-                version: version,
-                status: status,
-                headers: headers,
+                head: .init(headers: headers, status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: nil
@@ -173,8 +168,8 @@ extension Router {
         let staticNotFoundResponder:CompiledRouterStorage.Responder?
         if customStaticNotFoundResponder.isEmpty || customStaticNotFoundResponder == "nil" {
             staticNotFoundResponder = .get(
-                defaultStaticNotFoundResponder(version: version, isCopyable: true),
-                defaultStaticNotFoundResponder(version: version, isCopyable: false)
+                defaultStaticNotFoundResponder(context: context, version: version, isCopyable: true),
+                defaultStaticNotFoundResponder(context: context, version: version, isCopyable: false)
             )
         } else {
             staticNotFoundResponder = .get(
@@ -192,17 +187,10 @@ extension Router {
         let dynamicCaseSensitiveResponder:CompiledRouterStorage.Responder?
         let dynamicCaseInsensitiveResponder:CompiledRouterStorage.Responder?
 
-        #if NonEmbedded
         caseSensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: true)
         caseInsensitiveResponder = storage.staticRoutesResponder(context: context, isCaseSensitive: false)
         dynamicCaseSensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: true)
         dynamicCaseInsensitiveResponder = storage.dynamicRoutesResponder(context: context, isCaseSensitive: false)
-        #else
-        caseSensitiveResponder = nil
-        caseInsensitiveResponder = nil
-        dynamicCaseSensitiveResponder = nil
-        dynamicCaseInsensitiveResponder = nil
-        #endif
 
         compiledStorage.perfectHashCaseSensitiveResponder = perfectHashCaseSensitiveResponder
         compiledStorage.perfectHashCaseInsensitiveResponder = perfectHashCaseInsensitiveResponder
@@ -235,6 +223,7 @@ extension Router {
         """
     }
     private static func defaultStaticNotFoundResponder(
+        context: some MacroExpansionContext,
         version: HTTPVersion,
         isCopyable: Bool
     ) -> String? {
@@ -250,19 +239,14 @@ extension Router {
 
             #if HTTPCookie
             response = .init(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: [],
+                head: .init(headers: headers, cookies: [], status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset
             )
             #else
             response = .init(
-                version: version,
-                status: status,
-                headers: headers,
+                head: .init(headers: headers, status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset
@@ -274,19 +258,14 @@ extension Router {
 
             #if HTTPCookie
             response = HTTPResponseMessage(
-                version: version,
-                status: status,
-                headers: headers,
-                cookies: [],
+                head: .init(headers: headers, cookies: [], status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset
             )
             #else
             response = HTTPResponseMessage(
-                version: version,
-                status: status,
-                headers: headers,
+                head: .init(headers: headers, status: status, version: version),
                 body: body,
                 contentType: contentType,
                 charset: charset
@@ -295,6 +274,7 @@ extension Router {
 
         #endif
         return intermediateBody.responderDebugDescription(
+            context: context,
             isCopyable: isCopyable,
             response: response
         )

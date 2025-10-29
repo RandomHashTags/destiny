@@ -6,7 +6,7 @@ import Logging
 #endif
 
 /// Default Error Responder implementation that does the bare minimum required to log and send an error response known at compile time.
-public struct StaticErrorResponder: Sendable {
+public struct StaticErrorResponder: Sendable { // TODO: use behind a package trait
     public let logic:@Sendable (_ error: any Error) -> any StaticRouteResponderProtocol
 
     public init(_ logic: @Sendable @escaping (_ error: any Error) -> any StaticRouteResponderProtocol) {

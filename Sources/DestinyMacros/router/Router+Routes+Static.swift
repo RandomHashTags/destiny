@@ -1,9 +1,6 @@
 
-#if NonEmbedded
-
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyDefaultsNonEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
@@ -15,7 +12,14 @@ extension RouterStorage {
         isCaseSensitive: Bool
     ) -> CompiledRouterStorage.Responder? {
         let routes = isCaseSensitive ? staticRouteStorage.caseSensitiveRoutes : staticRouteStorage.caseInsensitiveRoutes
-        guard !routes.isEmpty || !staticRedirects.isEmpty else { return nil }
+        if routes.isEmpty {
+            return nil
+        }
+        #if StaticRedirectionRoute
+        if staticRedirects.isEmpty {
+            return nil
+        }
+        #endif
 
         let random:Int
         let namePrefix:String
@@ -102,7 +106,7 @@ extension RouterStorage {
             modifiers: [visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(
-                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: settings.hasProtocolConformances)
+                inheritedTypes: responderStorageProtocolConformances(isCopyable: isCopyable, protocolConformance: hasProtocolConformances)
             ),
             memberBlock: .init(members: .init())
         )
@@ -131,15 +135,22 @@ extension RouterStorage {
             "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \($0.responder)\n)"
         }
         let routeStartLine:(StaticRoute) -> String
+        #if StaticRedirectionRoute
         let getRedirectRouteStartLine:(StaticRedirectionRoute) -> String
+        #endif
         if isCaseSensitive {
             routeStartLine = routeStartLineLiteral
+            #if StaticRedirectionRoute
             getRedirectRouteStartLine = redirectRouteStartLineLiteral
+            #endif
         } else {
             routeStartLine = routeStartLineLowercased
+            #if StaticRedirectionRoute
             getRedirectRouteStartLine = redirectRouteStartLineLowercased
+            #endif
         }
         if !isCopyable { // always make redirects noncopyable for optimal performance
+            #if StaticRedirectionRoute
             appendStaticRedirects(
                 context: context,
                 isCaseSensitive: isCaseSensitive,
@@ -149,6 +160,7 @@ extension RouterStorage {
                 getRedirectRouteStartLine: getRedirectRouteStartLine,
                 getResponderValue: getResponderValue
             )
+            #endif
         }
         for (route, function) in routes {
             let startLine = routeStartLine(route)
@@ -158,7 +170,7 @@ extension RouterStorage {
             let httpResponse = route.response(context: context, function: function)
             #endif
             if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
-                if let intermediateBody = route.body as? IntermediateResponseBody {
+                if let intermediateBody = route.body {
                     guard isCopyable != intermediateBody.isNoncopyable else {
                         continue
                     }
@@ -167,18 +179,14 @@ extension RouterStorage {
                     Router.routePathAlreadyRegistered(context: context, node: function, startLine)
                     continue
                 }
-                do throws(HTTPMessageError) {
-                    guard let responder = try responseBodyResponderDebugDescription(isCopyable: isCopyable, body: route.body, response: httpResponse) else {
-                        context.diagnose(.init(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
-                        continue
-                    }
-                    registeredPaths.insert(startLine)
-                    routePaths.append(startLine)
-                    routeResponders.append(responder)
-                    staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
-                } catch {
-                    context.diagnose(.init(node: function, message: DiagnosticMsg(id: "staticRouteError", message: "\(error)")))
+                guard let responder = route.body?.responderDebugDescription(context: context, isCopyable: isCopyable, response: httpResponse) else {
+                    context.diagnose(.init(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
+                    continue
                 }
+                registeredPaths.insert(startLine)
+                routePaths.append(startLine)
+                routeResponders.append(responder)
+                staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
             } else {
                 guard !registeredPaths.contains(startLine) else {
                     Router.routePathAlreadyRegistered(context: context, node: function, startLine)
@@ -198,23 +206,6 @@ extension RouterStorage {
             }
         }
     }
-
-    private func responseBodyResponderDebugDescription(
-        isCopyable: Bool,
-        body: (any ResponseBodyProtocol)?,
-        response: HTTPResponseMessage
-    ) throws(HTTPMessageError) -> String? {
-        guard let body else { return nil }
-        let s:String?
-        if let v = body as? String {
-            s = try v.responderDebugDescription(response)
-        } else if let v = body as? IntermediateResponseBody {
-            s = v.responderDebugDescription(isCopyable: isCopyable, response: response)
-        } else {
-            s = nil
-        }
-        return s
-    }
 }
 
 extension RouterStorage {
@@ -232,6 +223,8 @@ extension RouterStorage {
         route.fromStartLine().lowercased()
     }
 }
+
+#if StaticRedirectionRoute
 
 // MARK: Append redirects
 extension RouterStorage {
@@ -260,20 +253,11 @@ extension RouterStorage {
             routePaths.append(string)
             removedRedirects.append(index)
 
-            #if hasFeature(Embedded) || EMBEDDED
-            let response = route.genericResponse()
-            #elseif NonEmbedded
-            let response = route.nonEmbeddedResponse()
-            #else
-            #warning("missing support")
-            continue
-            #endif
-
             let stringLiteral = StringLiteralExprSyntax(content: "")
             let responder = IntermediateResponseBody(
                 type: .staticStringWithDateHeader,
                 .init(stringLiteral)
-            ).responderDebugDescription(isCopyable: isCopyable, response: response)
+            ).responderDebugDescription(context: context, isCopyable: isCopyable, response: route.response())
             routeResponders.append(responder)
         }
         for i in removedRedirects.reversed() {

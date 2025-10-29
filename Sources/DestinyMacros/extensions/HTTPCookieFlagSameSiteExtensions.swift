@@ -1,5 +1,7 @@
 
-import DestinyBlueprint
+#if HTTPCookie
+
+import DestinyEmbedded
 
 extension HTTPCookieFlag.SameSite: RawRepresentable {
     public typealias RawValue = String
@@ -21,3 +23,5 @@ extension HTTPCookieFlag.SameSite: RawRepresentable {
         }
     }
 }
+
+#endif

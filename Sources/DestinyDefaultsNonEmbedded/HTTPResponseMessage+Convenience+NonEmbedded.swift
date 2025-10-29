@@ -1,154 +1,24 @@
 
 import DestinyEmbedded
 
-// MARK: Init
-extension HTTPResponseMessage {
-    #if HTTPCookie
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
-        contentType: String?,
-        charset: Charset?
-    ) {
-        self.init(
-            head: .init(headers: headers, cookies: cookies, status: status, version: version),
-            body: body,
-            contentType: contentType,
-            charset: charset
-        )
-    }
-
-    public init(
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
-        contentType: String?,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion,
-        charset: Charset?
-    ) {
-        self.init(
-            head: .init(headers: headers, cookies: cookies, status: status, version: version),
-            body: body,
-            contentType: contentType,
-            charset: charset
-        )
-    }
-    #else
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        body: (any ResponseBodyProtocol)?,
-        contentType: String?,
-        charset: Charset?
-    ) {
-        self.init(
-            head: .init(headers: headers, status: status, version: version),
-            body: body,
-            contentType: contentType,
-            charset: charset
-        )
-    }
-
-    public init(
-        headers: HTTPHeaders,
-        body: (any ResponseBodyProtocol)?,
-        contentType: String?,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion,
-        charset: Charset?
-    ) {
-        self.init(
-            head: .init(headers: headers, status: status, version: version),
-            body: body,
-            contentType: contentType,
-            charset: charset
-        )
-    }
-    #endif
-}
-
 #if MediaTypes
 
 import MediaTypes
 
 // MARK: MediaTypes
 extension HTTPResponseMessage {
-    #if HTTPCookie
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
-        mediaType: MediaType?,
-        charset: Charset?
-    ) {
-        self.init(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: mediaType?.template, charset: charset)
-    }
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
-        mediaType: (some MediaTypeProtocol)?,
-        charset: Charset?
-    ) {
-        self.init(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: mediaType?.template, charset: charset)
-    }
-    public init(
-        headers: HTTPHeaders,
-        cookies: [HTTPCookie],
-        body: (any ResponseBodyProtocol)?,
-        mediaType: MediaType?,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion,
-        charset: Charset?
-    ) {
-        self.init(version: version, status: status, headers: headers, cookies: cookies, body: body, contentType: mediaType?.template, charset: charset)
-    }
-    #else
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        body: (any ResponseBodyProtocol)?,
-        mediaType: MediaType?,
-        charset: Charset?
-    ) {
-        self.init(version: version, status: status, headers: headers, body: body, contentType: mediaType?.template, charset: charset)
-    }
-    public init(
-        version: HTTPVersion,
-        status: HTTPResponseStatus.Code,
-        headers: HTTPHeaders,
-        body: (any ResponseBodyProtocol)?,
-        mediaType: (some MediaTypeProtocol)?,
-        charset: Charset?
-    ) {
-        self.init(version: version, status: status, headers: headers, body: body, contentType: mediaType?.template, charset: charset)
-    }
-    public init(
-        headers: HTTPHeaders,
-        body: (any ResponseBodyProtocol)?,
-        mediaType: MediaType?,
-        status: HTTPResponseStatus.Code,
-        version: HTTPVersion,
-        charset: Charset?
-    ) {
-        self.init(version: version, status: status, headers: headers, body: body, contentType: mediaType?.template, charset: charset)
-    }
-    #endif
-
     public init(
         head: HTTPResponseMessageHead,
         body: (any ResponseBodyProtocol)?,
         mediaType: MediaType?,
+        charset: Charset?
+    ) {
+        self.init(head: head, body: body, contentType: mediaType?.template, charset: charset)
+    }
+    public init(
+        head: HTTPResponseMessageHead,
+        body: (any ResponseBodyProtocol)?,
+        mediaType: (some MediaTypeProtocol)?,
         charset: Charset?
     ) {
         self.init(head: head, body: body, contentType: mediaType?.template, charset: charset)

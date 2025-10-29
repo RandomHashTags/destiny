@@ -53,10 +53,6 @@ List of package traits that enable functionality suitable for embedded.
 ### GenericRouteGroup
 Enables a `RouteGroup` implementation utilizing generics, avoiding existentials.
 
-### Generics
-Enables all Generic package traits.
-- Enables traits: `GenericRouteGroup`
-
 
 ## Third-party
 List of package traits that add third-party convenience/support.

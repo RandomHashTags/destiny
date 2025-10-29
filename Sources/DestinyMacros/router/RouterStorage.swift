@@ -102,6 +102,14 @@ public struct RouterStorage {
         #endif
     }
 
+    var dynamicResponsesAreGeneric: Bool {
+        #if RouterSettings
+        settings.dynamicResponsesAreGeneric
+        #else
+        false
+        #endif
+    }
+
     var respondersAreComputedProperties: Bool {
         #if RouterSettings
         settings.respondersAreComputedProperties

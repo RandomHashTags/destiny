@@ -4,31 +4,22 @@
 import DestinyBlueprint
 import DestinyDefaults
 
-#if hasFeature(Embedded) || EMBEDDED
-
 extension StaticRedirectionRoute {
+    #if hasFeature(Embedded) || EMBEDDED
     /// The HTTP Message of this route. Computed at compile time.
-    public func genericResponse() -> HTTPResponseMessage<StaticString> {
+    public func response() -> HTTPResponseMessage<StaticString> {
         var headers = HTTPHeaders()
         headers["date"] = HTTPDateFormat.placeholder
         return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
     }
-}
-
-#endif
-
-#if NonEmbedded
-
-import DestinyDefaultsNonEmbedded
-
-extension StaticRedirectionRoute {
+    #else
     /// The HTTP Message of this route. Computed at compile time.
-    public func nonEmbeddedResponse() -> HTTPResponseMessage {
+    public func response() -> HTTPResponseMessage {
         var headers = HTTPHeaders()
         headers["date"] = HTTPDateFormat.placeholder
         return .redirect(to: to.joined(separator: "/"), version: version, status: status, headers: &headers)
     }
+    #endif
 }
-#endif
 
 #endif
