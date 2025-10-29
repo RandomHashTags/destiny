@@ -1,7 +1,6 @@
 
 import DestinyBlueprint
 import DestinyDefaults
-import DestinyPackageTraits
 import SwiftSyntax
 import SwiftSyntaxMacros
 
@@ -293,24 +292,90 @@ public enum IntermediateResponseBodyType: String, Sendable {
 }
 
 extension IntermediateResponseBodyType {
-    public var packageTrait: DestinyPackageTrait? {
+    public var isEnabled: Bool? {
         switch self {
-        case .bytes: .copyableBytes
-        case .inlineBytes: .copyableInlineBytes
-        case .macroExpansion: .copyableMacroExpansion
-        case .macroExpansionWithDateHeader: .copyableMacroExpansionWithDateHeader
-        case .streamWithDateHeader: .copyableStreamWithDateHeader
-        case .staticString: nil
-        case .staticStringWithDateHeader: .copyableStaticStringWithDateHeader
-        case .stringWithDateHeader: .copyableStringWithDateHeader
+        case .bytes:
+            #if Copyablebytes
+            true
+            #else
+            false
+            #endif
+        case .inlineBytes:
+            #if CopyableInlineBytes
+            true
+            #else
+            false
+            #endif
+        case .macroExpansion:
+            #if CopyableMacroExpansion
+            true
+            #else
+            false
+            #endif
+        case .macroExpansionWithDateHeader:
+            #if CopyableMacroExpansionWithDateHeader
+            true
+            #else
+            false
+            #endif
+        case .streamWithDateHeader:
+            #if CopyableStreamWithDateHeader
+            true
+            #else
+            false
+            #endif
+        case .staticString:
+            true
+        case .staticStringWithDateHeader:
+            #if CopyableStaticStringWithDateHeader
+            true
+            #else
+            false
+            #endif
+        case .stringWithDateHeader:
+            #if CopyableStringWithDateHeader
+            true
+            #else
+            false
+            #endif
 
-        case .string: .copyableString
+        case .string:
+            #if StringRouteResponder
+            true
+            #else
+            false
+            #endif
 
-        case .nonCopyableBytes: .nonCopyableBytes
-        case .nonCopyableInlineBytes: .nonCopyableInlineBytes
-        case .nonCopyableMacroExpansionWithDateHeader: .nonCopyableMacroExpansionWithDateHeader
-        case .nonCopyableStreamWithDateHeader: .nonCopyableStreamWithDateHeader
-        case .nonCopyableStaticStringWithDateHeader: .nonCopyableStaticStringWithDateHeader
+        case .nonCopyableBytes:
+            #if NonCopyableBytes
+            true
+            #else
+            false
+            #endif
+        case .nonCopyableInlineBytes:
+            #if NonCopyableInlineBytes
+            true
+            #else
+            false
+            #endif
+        case .nonCopyableMacroExpansionWithDateHeader:
+            #if NonCopyableMacroExpansionWithDateHeader
+            true
+            #else
+            false
+            #endif
+        case .nonCopyableStreamWithDateHeader:
+            #if NonCopyableStreamWithDateHeader
+            true
+            #else
+            false
+            #endif
+        case .nonCopyableStaticStringWithDateHeader:
+            #if NonCopyableStaticStringWithDateHeader
+            true
+            #else
+            false
+            #endif
         }
     }
 }

@@ -74,7 +74,6 @@ destinyDependencies.append(.byName(name: "DestinyDefaultsNonEmbedded", condition
 var destinyMacrosDependencies = destinyDependencies
 
 destinyMacrosDependencies.append(contentsOf: [
-    "DestinyPackageTraits",
     "PerfectHashing",
     .product(name: "MediaTypesSwiftSyntax", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
     .product(name: "SwiftSyntax", package: "swift-syntax"),
@@ -447,8 +446,6 @@ var targets = [
             .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
         ]
     ),
-
-    .target(name: "DestinyPackageTraits"),
 
     // MARK: DestinyBlueprint
     .target(
