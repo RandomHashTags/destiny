@@ -55,7 +55,7 @@ public macro router<T: HTTPRouterProtocol>(
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     middleware: [any MiddlewareProtocol],
     redirects: [StaticRedirectionRoute] = [],
-    routeGroups: [any RouteGroupProtocol] = [],
+    routeGroups: [any ResponderStorageProtocol] = [],
     _ routes: any RouteProtocol...
 ) -> T = #externalMacro(module: "DestinyMacros", type: "Router")
 
@@ -85,7 +85,7 @@ public macro declareRouter(
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     middleware: [any MiddlewareProtocol],
     redirects: [StaticRedirectionRoute] = [],
-    routeGroups: [any RouteGroupProtocol] = [],
+    routeGroups: [any ResponderStorageProtocol] = [],
     _ routes: any RouteProtocol...
 ) = #externalMacro(module: "DestinyMacros", type: "Router")
 

@@ -96,7 +96,7 @@ extension RouteGroup {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension RouteGroup: RouteGroupProtocol {}
+extension RouteGroup: ResponderStorageProtocol {}
 
 #endif
 

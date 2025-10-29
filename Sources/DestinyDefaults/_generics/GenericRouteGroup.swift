@@ -49,7 +49,7 @@ extension GenericRouteGroup {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension GenericRouteGroup: RouteGroupProtocol {}
+extension GenericRouteGroup: ResponderStorageProtocol {}
 
 #endif
 

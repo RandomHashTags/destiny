@@ -5,9 +5,9 @@ import DestinyBlueprint
 
 public final class RouteGroupStorage: @unchecked Sendable { // TODO: avoid existentials / support embedded
     @usableFromInline
-    var groups:[any RouteGroupProtocol]
+    var groups:[any ResponderStorageProtocol]
 
-    public init(_ groups: [any RouteGroupProtocol] = []) {
+    public init(_ groups: [any ResponderStorageProtocol] = []) {
         self.groups = groups
     }
 }
