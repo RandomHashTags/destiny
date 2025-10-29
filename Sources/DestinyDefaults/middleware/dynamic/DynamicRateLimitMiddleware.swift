@@ -73,7 +73,6 @@ extension DynamicRateLimitMiddleware {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol {}
 extension DynamicRateLimitMiddleware: DynamicMiddlewareProtocol {}
 
 #endif

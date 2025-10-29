@@ -402,7 +402,6 @@ extension CORSMiddleware {
 }
 
 // MARK: Conformances
-extension CORSMiddleware: CORSMiddlewareProtocol {}
 extension CORSMiddleware: DynamicMiddlewareProtocol {}
 
 #endif
