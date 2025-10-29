@@ -3,7 +3,7 @@
 
 import DestinyEmbedded
 
-public struct InlineBytes<let count: Int> {
+public struct InlineBytes<let count: Int>: Sendable {
     public let value:InlineArray<count, UInt8>
 
     #if Inlinable
