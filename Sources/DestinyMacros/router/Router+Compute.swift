@@ -163,7 +163,7 @@ extension Router {
                 } else {
                     // TODO: support custom routes
                 }
-                break
+                continue
             }
             switch label {
             case "version":
