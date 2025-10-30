@@ -5,20 +5,28 @@ import DestinyBlueprint
 
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.
 public struct DynamicMiddleware: Sendable {
-    public let handleLogic:@Sendable (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) throws -> Void
+    public let handleLogic:@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) throws -> Void
     package var logic:String = "{ _, _ in }"
 
     public init(
-        _ handleLogic: @Sendable @escaping (_ request: inout any HTTPRequestProtocol, _ response: inout any DynamicResponseProtocol) throws -> Void
+        _ handleLogic: @Sendable @escaping (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) throws -> Void
     ) {
         self.handleLogic = handleLogic
     }
 
+    /// Handle logic.
+    /// 
+    /// - Parameters:
+    ///   - request: Incoming network request.
+    ///   - response: Current response for the request.
+    /// 
+    /// - Returns: Whether or not to continue processing the request.
+    /// - Throws: `MiddlewareError`
     #if Inlinable
     @inlinable
     #endif
     public func handle(
-        request: inout any HTTPRequestProtocol,
+        request: inout HTTPRequest,
         response: inout any DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
         do {
@@ -35,6 +43,6 @@ public struct DynamicMiddleware: Sendable {
 }
 
 // MARK: Conformances
-extension DynamicMiddleware: ExistentialDynamicMiddlewareProtocol {}
+extension DynamicMiddleware: DynamicMiddlewareProtocol {}
 
 #endif

@@ -35,7 +35,7 @@ extension CORSMiddleware {
     @inlinable
     #endif
     public func handle(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         headers: inout HTTPHeaders
     ) throws(MiddlewareError) -> Bool {
         do throws(SocketError) {
@@ -48,11 +48,19 @@ extension CORSMiddleware {
         }
     }
 
+    /// Handle logic.
+    /// 
+    /// - Parameters:
+    ///   - request: Incoming network request.
+    ///   - response: Current response for the request.
+    /// 
+    /// - Returns: Whether or not to continue processing the request.
+    /// - Throws: `MiddlewareError`
     #if Inlinable
     @inlinable
     #endif
     public func handle(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
         do throws(SocketError) {
@@ -394,8 +402,7 @@ extension CORSMiddleware {
 }
 
 // MARK: Conformances
-extension CORSMiddleware: CORSMiddlewareProtocol {}
-extension CORSMiddleware: OpaqueDynamicMiddlewareProtocol {}
+extension CORSMiddleware: DynamicMiddlewareProtocol {}
 
 #endif
 

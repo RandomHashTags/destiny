@@ -68,7 +68,7 @@ public class StaticResponderStorage: @unchecked Sendable {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool {
         let startLine:SIMD64<UInt8>
@@ -131,12 +131,13 @@ public class StaticResponderStorage: @unchecked Sendable {
 
 // MARK: Register
 extension StaticResponderStorage {
+    /// Registers a static route responder to the given route path.
     #if Inlinable
     @inlinable
     #endif
     public func register(
         path: SIMD64<UInt8>,
-        responder: some StaticRouteResponderProtocol
+        responder: some RouteResponderProtocol
     ) {
         #if CopyableMacroExpansion
         if let responder = responder as? RouteResponses.MacroExpansion {
@@ -253,7 +254,7 @@ extension StaticResponderStorage {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension StaticResponderStorage: MutableStaticResponderStorageProtocol {}
+extension StaticResponderStorage: ResponderStorageProtocol {}
 
 #endif
 

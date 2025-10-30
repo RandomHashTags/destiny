@@ -1,8 +1,7 @@
 
 #if StaticMiddleware
 
-import DestinyEmbedded
-import DestinyDefaults
+import DestinyBlueprint
 import Testing
 
 @Suite

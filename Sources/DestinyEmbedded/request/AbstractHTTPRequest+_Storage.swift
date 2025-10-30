@@ -1,5 +1,4 @@
 
-import DestinyEmbedded
 import UnwrapArithmeticOperators
 import VariableLengthArray
 
@@ -167,7 +166,7 @@ extension AbstractHTTPRequest._Storage {
     #if InlineAlways
     @inline(__always)
     #endif
-    mutating func methodString<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> String {
+    package mutating func methodString<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> String {
         if let methodString {
             return methodString
         }

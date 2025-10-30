@@ -1,8 +1,6 @@
 
-import DestinyEmbedded
-
 /// Default storage for http request data.
-public struct HTTPRequest: Sendable, ~Copyable {
+public struct HTTPRequest: NetworkAddressable, ~Copyable {
     public typealias InitialBuffer = InlineByteBuffer<1024>
 
     @usableFromInline
@@ -29,7 +27,7 @@ extension HTTPRequest {
     #if Inlinable
     @inlinable
     #endif
-    public static func load(from socket: consuming some SocketProtocol & ~Copyable) throws(SocketError) -> Self {
+    public static func load(from socket: consuming some FileDescriptor & ~Copyable) throws(SocketError) -> Self {
         Self(fileDescriptor: socket.fileDescriptor)
     }
 }
@@ -50,6 +48,9 @@ extension HTTPRequest {
         fileDescriptor.socketPeerAddress()
     }
 
+    /// The HTTP start-line.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -57,6 +58,9 @@ extension HTTPRequest {
         try abstractRequest.startLine(fileDescriptor: fileDescriptor)
     }
 
+    /// The HTTP start-line in all lowercase bytes.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -64,6 +68,9 @@ extension HTTPRequest {
         try abstractRequest.startLineLowercased(fileDescriptor: fileDescriptor)
     }
 
+    /// Yields the endpoint the request wants to reach, separated by the forward slash character.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -74,6 +81,11 @@ extension HTTPRequest {
         try abstractRequest.forEachPath(fileDescriptor: fileDescriptor, offset: offset, yield)
     }
 
+    /// - Parameters:
+    ///   - index: Index of a path component.
+    /// 
+    /// - Returns: The path component at the given index.
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -81,13 +93,18 @@ extension HTTPRequest {
         try abstractRequest.path(fileDescriptor: fileDescriptor, at: index)
     }
 
+    /// Number of path components the request contains.
+    /// 
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
     public mutating func pathCount() throws(SocketError) -> Int {
         try abstractRequest.pathCount(fileDescriptor: fileDescriptor)
     }
-    
+
+    /// - Returns: Whether or not the request's method matches the given one.
+    /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
@@ -95,6 +112,9 @@ extension HTTPRequest {
         try abstractRequest.isMethod(fileDescriptor: fileDescriptor, method)
     }
 
+    /// - Returns: The value for the corresponding header key.
+    /// - Throws: `SocketError`
+    /// - Warning: `key` is case-sensitive!
     #if Inlinable
     @inlinable
     #endif
@@ -117,6 +137,8 @@ extension HTTPRequest {
         #endif
     }
 
+    /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
+    /// - Returns: A copy of self.
     #if Inlinable
     @inlinable
     #endif
@@ -145,23 +167,6 @@ extension HTTPRequest {
     #endif
     public mutating func bodyCollect<let count: Int>() throws(SocketError) -> InlineByteBuffer<count> {
         try abstractRequest.bodyCollect(fileDescriptor: fileDescriptor)
-    }
-}
-
-#endif
-
-
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
-
-// MARK: Conformances
-extension HTTPRequest: HTTPRequestProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
-    public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
-        try abstractRequest.isMethod(fileDescriptor: fileDescriptor, method)
     }
 }
 

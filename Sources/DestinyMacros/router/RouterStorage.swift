@@ -21,11 +21,6 @@ public struct RouterStorage {
     var upgradeExistentialDynamicMiddleware = [FunctionCallExprSyntax]()
 
     var dynamicMiddleware = [FunctionCallExprSyntax]()
-    var dynamicRedirects:[(any RedirectionRouteProtocol, FunctionCallExprSyntax)] = []
-
-    #if NonEmbedded
-    var conditionalResponders:[RoutePath:ConditionalRouteResponder] = [:]
-    #endif
 
     var dynamicRouteStorage = DynamicRouteStorage()
     var staticRouteStorage = StaticRouteStorage()
@@ -53,7 +48,7 @@ public struct RouterStorage {
             for statement in statements {
                 functionString += statement.trimmedDescription + "\n"
             }
-            let protocolConformance = hasProtocolConformances ? "OpaqueDynamicMiddlewareProtocol" : "Sendable"
+            let protocolConformance = hasProtocolConformances ? "DynamicMiddlewareProtocol" : "Sendable"
             let name = "OpaqueDynamicMiddleware\(i)"
             let decl = try! StructDeclSyntax.init(.init(stringLiteral: """
             // MARK: \(name)
@@ -138,11 +133,17 @@ public struct RouterStorage {
     }
 
     static func responderParameter(copyable: Bool, dynamic: Bool) -> String {
-        let name = dynamic ? "Dynamic" : "Static"
+        if !dynamic {
+            if copyable {
+                return "some RouteResponderProtocol"
+            } else {
+                return "borrowing some NonCopyableRouteResponderProtocol & ~Copyable"
+            }
+        }
         if copyable {
-            return "some \(name)RouteResponderProtocol"
+            return "some DynamicRouteResponderProtocol"
         } else {
-            return "borrowing some NonCopyable\(name)RouteResponderProtocol & ~Copyable"
+            return "borrowing some NonCopyableDynamicRouteResponderProtocol & ~Copyable"
         }
     }
 }
@@ -193,26 +194,6 @@ extension RouterStorage {
             array.append(contentsOf: dynamicMiddleware.map({ "\($0)" }))
         }
         return array
-    }
-}
-
-// MARK: Conditional responders string
-extension RouterStorage {
-    func conditionalRespondersString() -> String {
-        var string = ""
-        #if NonEmbedded
-        if conditionalResponders.isEmpty {
-            string = ":"
-        } else {
-            string = ""
-            for (routePath, route) in conditionalResponders {
-                string += "\n\(routePath.comment)\n\(routePath.path) : \(route.debugDescription),"
-            }
-            string.removeLast()
-            string += "\n"
-        }
-        #endif
-        return string
     }
 }
 

@@ -55,11 +55,7 @@ func responderStorageProtocolConformances(isCopyable: Bool, protocolConformance:
         }
         list.append(.init(type: TypeSyntax("Copyable")))
     } else {
-        if protocolConformance {
-            list.append(.init(type: TypeSyntax("NonCopyableResponderStorageProtocol"), trailingComma: .commaToken()))
-        } else {
-            list.append(.init(type: TypeSyntax("Sendable"), trailingComma: .commaToken()))
-        }
+        list.append(.init(type: TypeSyntax("Sendable"), trailingComma: .commaToken()))
         list.append(.init(type: TypeSyntax("~Copyable")))
     }
     return list

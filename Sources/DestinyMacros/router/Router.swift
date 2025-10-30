@@ -123,8 +123,7 @@ extension Router {
         context: some MacroExpansionContext,
         version: HTTPVersion,
         array: ArrayElementListSyntax,
-        staticRedirects: inout [(StaticRedirectionRoute, FunctionCallExprSyntax)],
-        dynamicRedirects: inout [(any RedirectionRouteProtocol, FunctionCallExprSyntax)]
+        staticRedirects: inout [(StaticRedirectionRoute, FunctionCallExprSyntax)]
     ) {
         for methodElement in array {
             if let function = methodElement.expression.functionCall {

@@ -24,7 +24,7 @@ public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
     ///   - completionHandler: Closure that should be called when the socket should be released.
     func handle(
         client: some FileDescriptor,
-        socket: consuming some SocketProtocol & ~Copyable,
+        socket: consuming some FileDescriptor & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     )
 }

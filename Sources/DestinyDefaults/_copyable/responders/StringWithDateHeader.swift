@@ -112,14 +112,28 @@ import DestinyBlueprint
 // MARK: Conformances
 extension StringWithDateHeader: ResponseBodyProtocol {}
 
-extension StringWithDateHeader: StaticRouteResponderProtocol {
+extension StringWithDateHeader: RouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
+        completionHandler: @Sendable @escaping () -> Void
+    ) throws(ResponderError) {
+        try respond(socket: socket, completionHandler: completionHandler)
+    }
+}
+
+extension StringWithDateHeader: NonCopyableRouteResponderProtocol {
+    #if Inlinable
+    @inlinable
+    #endif
+    public func respond(
+        router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
+        socket: some FileDescriptor,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try respond(socket: socket, completionHandler: completionHandler)

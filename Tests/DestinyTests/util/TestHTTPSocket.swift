@@ -1,8 +1,9 @@
 
 import DestinyBlueprint
 @testable import DestinyDefaults
+@testable import DestinyEmbedded
 
-struct TestHTTPSocket: SocketProtocol, ~Copyable {
+struct TestHTTPSocket: FileDescriptor, ~Copyable {
     var fileDescriptor:Int32
     var _fileDescriptor:TestFileDescriptor
 

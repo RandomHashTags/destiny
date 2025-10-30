@@ -34,7 +34,7 @@ extension MacroExpansionWithDateHeader {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         var err:SocketError? = nil
@@ -66,7 +66,7 @@ extension MacroExpansionWithDateHeader {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {}
+extension MacroExpansionWithDateHeader: RouteResponderProtocol {}
 
 #endif
 

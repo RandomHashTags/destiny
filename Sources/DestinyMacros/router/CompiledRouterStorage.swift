@@ -144,11 +144,7 @@ struct CompiledRouterStorage {
     }
 
     var requestType: String {
-        #if RouterSettings
-        settings.requestType
-        #else
         "HTTPRequest"
-        #endif
     }
 
     var hasLogging: Bool {

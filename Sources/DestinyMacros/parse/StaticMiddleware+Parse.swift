@@ -1,8 +1,7 @@
 
 #if StaticMiddleware
 
-import DestinyDefaults
-import DestinyEmbedded
+import DestinyBlueprint
 import SwiftSyntax
 import SwiftSyntaxMacros
 

@@ -191,6 +191,6 @@ extension HTTPSocket {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension HTTPSocket: SocketProtocol {}
+extension HTTPSocket: FileDescriptor {}
 
 #endif

@@ -16,7 +16,7 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
     func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
 }
@@ -31,7 +31,7 @@ extension String: RouteResponderProtocol {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         do throws(SocketError) {
@@ -51,7 +51,7 @@ extension StaticString: RouteResponderProtocol {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         do throws(SocketError) {
@@ -70,7 +70,7 @@ extension [UInt8]: RouteResponderProtocol {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         do throws(SocketError) {

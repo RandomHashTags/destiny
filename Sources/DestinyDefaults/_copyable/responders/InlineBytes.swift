@@ -69,14 +69,14 @@ import DestinyBlueprint
 // MARK: Conformances
 extension InlineBytes: ResponseBodyProtocol {}
 
-extension InlineBytes: StaticRouteResponderProtocol {
+extension InlineBytes: RouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try respond(socket: socket, completionHandler: completionHandler)

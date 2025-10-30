@@ -11,7 +11,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     public func apply(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
     ) throws(SocketError) {
         switch self {
@@ -41,7 +41,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     static func applyAny(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol,
         origins: Set<String>
     ) throws(SocketError) {
@@ -64,7 +64,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     static func applyOriginBased(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
     ) throws(SocketError) {
         response.setHeader(key: "vary", value: "origin")
@@ -82,7 +82,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     public func apply(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         headers: inout HTTPHeaders
     ) throws(SocketError) {
         switch self {
@@ -112,7 +112,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     static func applyAny(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         headers: inout HTTPHeaders,
         origins: Set<String>
     ) throws(SocketError) {
@@ -135,7 +135,7 @@ extension CORSMiddlewareAllowedOrigin {
     @inlinable
     #endif
     static func applyOriginBased(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         headers: inout HTTPHeaders
     ) throws(SocketError) {
         headers["vary"] = "origin"

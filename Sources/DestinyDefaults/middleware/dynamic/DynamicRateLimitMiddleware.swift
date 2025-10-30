@@ -17,11 +17,19 @@ public final class DynamicRateLimitMiddleware: @unchecked Sendable {
 
 // MARK: Handle
 extension DynamicRateLimitMiddleware {
+    /// Handle logic.
+    /// 
+    /// - Parameters:
+    ///   - request: Incoming network request.
+    ///   - response: Current response for the request.
+    /// 
+    /// - Returns: Whether or not to continue processing the request.
+    /// - Throws: `MiddlewareError`
     #if Inlinable
     @inlinable
     #endif
     public func handle(
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
     ) throws(MiddlewareError) -> Bool {
         let id = (request.socketPeerAddress() ?? "")
@@ -65,8 +73,7 @@ extension DynamicRateLimitMiddleware {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension DynamicRateLimitMiddleware: RateLimitMiddlewareProtocol {}
-extension DynamicRateLimitMiddleware: OpaqueDynamicMiddlewareProtocol {}
+extension DynamicRateLimitMiddleware: DynamicMiddlewareProtocol {}
 
 #endif
 

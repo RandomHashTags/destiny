@@ -299,13 +299,7 @@ extension StaticMiddleware {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
-
 // MARK: Conformances
-extension StaticMiddleware: StaticMiddlewareProtocol {}
-
-#endif
+extension StaticMiddleware: MiddlewareProtocol {}
 
 #endif

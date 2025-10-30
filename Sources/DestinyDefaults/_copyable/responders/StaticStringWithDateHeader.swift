@@ -70,7 +70,7 @@ extension StaticStringWithDateHeader {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try payload.write(to: socket)
@@ -84,7 +84,7 @@ import DestinyBlueprint
 
 // MARK: Conformances
 extension StaticStringWithDateHeader: ResponseBodyProtocol {}
-extension StaticStringWithDateHeader: StaticRouteResponderProtocol {}
+extension StaticStringWithDateHeader: RouteResponderProtocol {}
 
 #endif
 

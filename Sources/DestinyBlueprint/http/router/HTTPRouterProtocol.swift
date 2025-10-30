@@ -5,14 +5,14 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// 
     /// - Parameters:
     ///   - socket: Socket to write to.
-    ///   - responder: Static route responder that will write to the socket.
+    ///   - responder: Route responder that will write to the socket.
     ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
     func respond(
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
-        responder: some StaticRouteResponderProtocol,
+        request: inout HTTPRequest,
+        responder: some RouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
 
@@ -27,7 +27,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// - Throws: `ResponderError`
     func respond(
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         responder: some DynamicRouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
@@ -41,7 +41,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// - Throws: `ResponderError`
     func respondWithNotFound(
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) -> Bool
 
@@ -57,7 +57,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     func respondWithError(
         socket: some FileDescriptor,
         error: some Error,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) -> Bool
 }

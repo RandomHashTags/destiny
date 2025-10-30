@@ -7,8 +7,8 @@ extension HTTPCookie {
     #endif
     public init(unchecked cookie: HTTPCookie) {
         self.init(
-            name: cookie.name(),
-            uncheckedValue: cookie.value(),
+            name: cookie._name,
+            uncheckedValue: cookie._value,
             maxAge: cookie.maxAge,
             expires: cookie.expiresString,
             domain: cookie.domain,

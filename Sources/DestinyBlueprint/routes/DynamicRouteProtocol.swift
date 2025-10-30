@@ -23,7 +23,7 @@ public protocol DynamicRouteProtocol: RouteProtocol, ~Copyable {
     /// 
     /// - Throws: `AnyError`
     mutating func applyStaticMiddleware(
-        _ middleware: [some StaticMiddlewareProtocol]
+        _ middleware: [StaticMiddleware]
     ) throws(AnyError)
     #endif
 

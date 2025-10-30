@@ -70,14 +70,14 @@ extension NonCopyableMacroExpansionWithDateHeader {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+extension NonCopyableMacroExpansionWithDateHeader: NonCopyableRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
-        request: inout some HTTPRequestProtocol & ~Copyable,
+        request: inout HTTPRequest,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError) {
         try respond(socket: socket, completionHandler: completionHandler)

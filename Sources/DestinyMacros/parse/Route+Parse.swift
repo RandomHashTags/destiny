@@ -25,7 +25,7 @@ extension Route {
     public static func parse(
         context: some MacroExpansionContext,
         version: HTTPVersion,
-        middleware: [any StaticMiddlewareProtocol],
+        middleware: [StaticMiddleware],
         _ function: FunctionCallExprSyntax
     ) -> (static: StaticRoute?, dynamic: DynamicRoute?) {
         var details = parseDetails(context: context, version: version, function)

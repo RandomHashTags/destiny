@@ -269,7 +269,7 @@ extension CompiledRouterStorage {
                 parameterClause: .init(parameters: [
                     .init(leadingTrivia: "\n", firstName: "caseSensitive", type: TypeSyntax("Bool"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "path", type: TypeSyntax("SIMD64<UInt8>"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax("some StaticRouteResponderProtocol"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax("some RouteResponderProtocol"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "override", type: TypeSyntax("Bool"), trailingTrivia: "\n")
                 ]),
             ),
@@ -295,7 +295,7 @@ extension CompiledRouterStorage {
             modifiers: [visibilityModifier, .init(name: .keyword(.final))],
             name: "_Mutable",
             inheritanceClause: .init(inheritedTypes: .init([
-                .init(type: TypeSyntax("HTTPMutableRouterProtocol"), trailingComma: .commaToken()),
+                .init(type: TypeSyntax("HTTPRouterProtocol"), trailingComma: .commaToken()),
                 .init(type: TypeSyntax("@unchecked Sendable"))
             ])),
             memberBlock: .init(members: members)
@@ -460,7 +460,7 @@ extension CompiledRouterStorage {
             signature: .init(
                 parameterClause: .init(parameters: [
                     .init(leadingTrivia: "\n", firstName: "client", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("consuming some SocketProtocol & ~Copyable"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("consuming some FileDescriptor & ~Copyable"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n")
                 ])
             ),

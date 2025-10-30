@@ -1,7 +1,7 @@
 
 #if RequestBodyStream
 
-import DestinyDefaults
+import DestinyEmbedded
 
 /// Needed for `AsyncStream` and continuations
 @usableFromInline

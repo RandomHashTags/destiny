@@ -1,7 +1,6 @@
 
 #if RequestBody
 
-import DestinyEmbedded
 import UnwrapArithmeticOperators
 
 /// The bytes transmitted in an HTTP Message immediately folowing the headers (if there are any).

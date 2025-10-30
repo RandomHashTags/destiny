@@ -23,7 +23,7 @@ import Logging
 /// Default HTTP Server implementation.
 public final class NonCopyableHTTPServer<
         Router: NonCopyableHTTPRouterProtocol & ~Copyable,
-        ClientSocket: SocketProtocol & ~Copyable
+        ClientSocket: FileDescriptor & ~Copyable
     >: HTTPServerProtocol {
     public let address:String?
     public let port:UInt16
@@ -349,8 +349,7 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         do throws(EpollError) {
             var processor = try EpollWorker<maxEvents>.create(workerId: 0, backlog: backlog, port: port)
             processor.run(timeout: -1, handleClient: { client, handler in
-                let socket = ClientSocket(fileDescriptor: client)
-                router.handle(client: client, socket: socket, completionHandler: handler)
+                router.handle(client: client, socket: client, completionHandler: handler)
             })
             processor.shutdown()
         } catch {
