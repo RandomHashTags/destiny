@@ -107,7 +107,7 @@ defaultTraits.formUnion([
     "StringRouteResponder",
     "UnwrapArithmetic",
     "Protocols",
-    "Inlinable",
+    //"Inlinable", // disabled by default because it is shown to hurt performance
     //"InlineAlways" // disabled by default because it is shown to hurt performance
 
     "Logging",
