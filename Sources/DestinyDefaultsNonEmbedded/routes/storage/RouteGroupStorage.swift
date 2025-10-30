@@ -14,6 +14,13 @@ public final class RouteGroupStorage: @unchecked Sendable { // TODO: avoid exist
 
 // MARK: Respond
 extension RouteGroupStorage {
+    /// Responds to a socket.
+    /// 
+    /// - Parameters:
+    ///   - completionHandler: Closure that should be called when the socket should be released.
+    /// 
+    /// - Returns: Whether or not a response was sent.
+    /// - Throws: `ResponderError`
     #if Inlinable
     @inlinable
     #endif
@@ -31,8 +38,5 @@ extension RouteGroupStorage {
         return false
     }
 }
-
-// MARK: Conformances
-extension RouteGroupStorage: MutableRouteGroupStorageProtocol {}
 
 #endif
