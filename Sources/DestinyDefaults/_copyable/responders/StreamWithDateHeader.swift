@@ -100,7 +100,7 @@ import DestinyBlueprint
 
 // MARK: Conformances
 extension StreamWithDateHeader: ResponseBodyProtocol {}
-extension StreamWithDateHeader: StaticRouteResponderProtocol {}
+extension StreamWithDateHeader: RouteResponderProtocol {}
 
 #endif
 

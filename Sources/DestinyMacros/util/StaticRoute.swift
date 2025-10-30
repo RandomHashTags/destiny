@@ -240,7 +240,7 @@ extension StaticRoute {
 
 // MARK: Responder
 extension StaticRoute {
-    /// The `StaticRouteResponderProtocol` responder for this route.
+    /// The `RouteResponderProtocol` responder for this route.
     /// 
     /// - Parameters:
     ///   - context: Macro expansion context where it was called.

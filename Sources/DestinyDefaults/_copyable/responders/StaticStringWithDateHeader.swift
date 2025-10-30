@@ -84,7 +84,7 @@ import DestinyBlueprint
 
 // MARK: Conformances
 extension StaticStringWithDateHeader: ResponseBodyProtocol {}
-extension StaticStringWithDateHeader: StaticRouteResponderProtocol {}
+extension StaticStringWithDateHeader: RouteResponderProtocol {}
 
 #endif
 

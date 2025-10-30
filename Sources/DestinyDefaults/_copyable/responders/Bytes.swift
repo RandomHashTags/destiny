@@ -67,7 +67,7 @@ import DestinyBlueprint
 // MARK: Conformances
 extension Bytes: ResponseBodyProtocol {}
 
-extension Bytes: StaticRouteResponderProtocol {
+extension Bytes: RouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif

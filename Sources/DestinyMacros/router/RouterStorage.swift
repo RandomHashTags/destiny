@@ -133,11 +133,17 @@ public struct RouterStorage {
     }
 
     static func responderParameter(copyable: Bool, dynamic: Bool) -> String {
-        let name = dynamic ? "Dynamic" : "Static"
+        if !dynamic {
+            if copyable {
+                return "some RouteResponderProtocol"
+            } else {
+                return "borrowing some NonCopyableRouteResponderProtocol & ~Copyable"
+            }
+        }
         if copyable {
-            return "some \(name)RouteResponderProtocol"
+            return "some DynamicRouteResponderProtocol"
         } else {
-            return "borrowing some NonCopyable\(name)RouteResponderProtocol & ~Copyable"
+            return "borrowing some NonCopyableDynamicRouteResponderProtocol & ~Copyable"
         }
     }
 }

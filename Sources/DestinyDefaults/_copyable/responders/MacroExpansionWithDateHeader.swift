@@ -66,7 +66,7 @@ extension MacroExpansionWithDateHeader {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension MacroExpansionWithDateHeader: StaticRouteResponderProtocol {}
+extension MacroExpansionWithDateHeader: RouteResponderProtocol {}
 
 #endif
 

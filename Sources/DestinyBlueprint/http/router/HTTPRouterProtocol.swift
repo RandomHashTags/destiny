@@ -5,14 +5,14 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// 
     /// - Parameters:
     ///   - socket: Socket to write to.
-    ///   - responder: Static route responder that will write to the socket.
+    ///   - responder: Route responder that will write to the socket.
     ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
     func respond(
         socket: some FileDescriptor,
         request: inout HTTPRequest,
-        responder: some StaticRouteResponderProtocol,
+        responder: some RouteResponderProtocol,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
 

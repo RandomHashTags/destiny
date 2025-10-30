@@ -137,7 +137,7 @@ extension StaticResponderStorage {
     #endif
     public func register(
         path: SIMD64<UInt8>,
-        responder: some StaticRouteResponderProtocol
+        responder: some RouteResponderProtocol
     ) {
         #if CopyableMacroExpansion
         if let responder = responder as? RouteResponses.MacroExpansion {

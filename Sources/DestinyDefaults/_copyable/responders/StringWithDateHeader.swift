@@ -112,7 +112,7 @@ import DestinyBlueprint
 // MARK: Conformances
 extension StringWithDateHeader: ResponseBodyProtocol {}
 
-extension StringWithDateHeader: StaticRouteResponderProtocol {
+extension StringWithDateHeader: RouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif

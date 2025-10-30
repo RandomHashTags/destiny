@@ -269,7 +269,7 @@ extension CompiledRouterStorage {
                 parameterClause: .init(parameters: [
                     .init(leadingTrivia: "\n", firstName: "caseSensitive", type: TypeSyntax("Bool"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "path", type: TypeSyntax("SIMD64<UInt8>"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax("some StaticRouteResponderProtocol"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax("some RouteResponderProtocol"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "override", type: TypeSyntax("Bool"), trailingTrivia: "\n")
                 ]),
             ),

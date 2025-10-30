@@ -64,7 +64,7 @@ extension RouteResponses.MacroExpansion {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension RouteResponses.MacroExpansion: StaticRouteResponderProtocol {
+extension RouteResponses.MacroExpansion: RouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
