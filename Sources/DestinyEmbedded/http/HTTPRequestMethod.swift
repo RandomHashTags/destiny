@@ -8,9 +8,6 @@ public struct HTTPRequestMethod: Sendable {
         self.name = name
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func rawNameString() -> String {
         name
     }

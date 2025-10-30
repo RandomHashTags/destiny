@@ -32,12 +32,6 @@ public struct NonCopyableDateHeaderPayload: @unchecked Sendable, ~Copyable {
     /// Efficiently writes the `preDate` value, `date` header and `postDate` value to a file descriptor.
     /// 
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public func write(to socket: some FileDescriptor) throws(ResponderError) {
         do throws(SocketError) {
             try socket.writeBuffers3(

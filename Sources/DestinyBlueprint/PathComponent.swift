@@ -15,18 +15,12 @@ public enum PathComponent: Equatable, Sendable { // TODO: remove `Equatable` con
     indirect case components(PathComponent, PathComponent?)
 
     /// Whether or not this component is a literal.
-    #if Inlinable
-    @inlinable
-    #endif
     public var isLiteral: Bool {
         guard case .literal = self else { return false }
         return true
     }
 
     /// Whether or not this component does any route path matching.
-    #if Inlinable
-    @inlinable
-    #endif
     public var isParameter: Bool {
         switch self {
         case .literal:   false
@@ -39,9 +33,6 @@ public enum PathComponent: Equatable, Sendable { // TODO: remove `Equatable` con
     /// String representation of this component including the delimiter, if it is a parameter.
     /// 
     /// Used to determine where parameters are located in a route's path at compile time.
-    #if Inlinable
-    @inlinable
-    #endif
     public var slug: String {
         switch self {
         case .literal(let value): value
@@ -52,9 +43,6 @@ public enum PathComponent: Equatable, Sendable { // TODO: remove `Equatable` con
     }
 
     /// String representation of this component where the delimiter is omitted (only the name of the path is present).
-    #if Inlinable
-    @inlinable
-    #endif
     public var value: String {
         switch self {
         case .literal(let s): s

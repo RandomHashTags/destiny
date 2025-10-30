@@ -260,9 +260,6 @@ extension Router {
 
         var members = MemberBlockItemListSyntax()
         members.append(try! FunctionDeclSyntax("""
-        #if Inlinable
-        @inlinable
-        #endif
         public func respond(
             router: \(raw: routerType),
             socket: some FileDescriptor,

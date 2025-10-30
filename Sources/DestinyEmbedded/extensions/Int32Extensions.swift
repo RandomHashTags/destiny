@@ -21,16 +21,10 @@ import UnwrapArithmeticOperators
 
 // MARK: Int32
 extension Int32 {
-    #if Inlinable
-    @inlinable
-    #endif
     public var fileDescriptor: Int32 {
         self
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
@@ -43,9 +37,6 @@ extension Int32 {
         return read
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     package func handleReadError() throws(SocketError) {
         #if canImport(Glibc)
         if errno == EAGAIN || errno == EWOULDBLOCK {
@@ -55,9 +46,6 @@ extension Int32 {
         throw .readBufferFailed(errno: errno)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
@@ -72,9 +60,6 @@ extension Int32 {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffers3(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
@@ -93,9 +78,6 @@ extension Int32 {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
         _ b2: UnsafeBufferPointer<UInt8>,
@@ -116,9 +98,6 @@ extension Int32 {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffers6(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
@@ -146,9 +125,6 @@ extension Int32 {
 
 // MARK: Address
 extension Int32 {
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketLocalAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
@@ -160,9 +136,6 @@ extension Int32 {
         return socketAddress(addr: &addr, result: result)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketPeerAddress() -> String? {
         var addr = sockaddr_storage()
         var len = socklen_t(MemoryLayout<sockaddr_storage>.size)
@@ -174,9 +147,6 @@ extension Int32 {
         return socketAddress(addr: &addr, result: result)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func socketAddress(addr: inout sockaddr_storage, result: Int32) -> String? {
         if result != 0 {
             return nil
@@ -208,15 +178,9 @@ extension Int32 {
 
 // MARK: Receive
 extension Int32 {
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32 = 0) -> Int {
         return recv(fileDescriptor, baseAddress, length, flags)
     }
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32 = 0) -> Int {
         return recv(fileDescriptor, baseAddress, length, flags)
     }
@@ -224,9 +188,6 @@ extension Int32 {
 
 // MARK: Send
 extension Int32 {
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(Glibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         return send(fileDescriptor, pointer, length, Int32(MSG_NOSIGNAL))

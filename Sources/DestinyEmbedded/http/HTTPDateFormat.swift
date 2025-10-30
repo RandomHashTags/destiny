@@ -54,12 +54,6 @@ public struct HTTPDateFormat: Sendable {
     /// Last calculated date value in the HTTP Format as an `UnsafeBufferPointer<UInt8>`.
     /// 
     /// - Warning: Can have zero or more trailing null-termination bytes (0)!
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public static var nowUnsafeBufferPointer: UnsafeBufferPointer<UInt8> {
         _read {
             yield UnsafeBufferPointer(_nowUnsafeBufferPointer)
@@ -67,20 +61,11 @@ public struct HTTPDateFormat: Sendable {
     }
 
     /// Last calculated date value in the HTTP Format as a `String`.
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public static var nowString: String {
         _read { yield _nowString }
     }
 
     /// Current number of non-zero bytes in the `_nowUnsafeBufferPointer`.
-    #if Inlinable
-    @inlinable
-    #endif
     public static var count: Int {
         _read { yield _count }
     }
@@ -89,9 +74,6 @@ public struct HTTPDateFormat: Sendable {
     /// 
     /// - Returns: HTTP formatted result, at the time it was executed, as an `InlineArrayResult`.
     @discardableResult
-    #if Inlinable
-    @inlinable
-    #endif
     public static func now() -> InlineArrayResult? {
         #if canImport(Android) || canImport(Bionic) || canImport(Darwin) || canImport(SwiftGlibc) || canImport(Musl) || canImport(WASILibc) || canImport(Windows) || canImport(WinSDK)
         return nowGlibc()
@@ -105,9 +87,6 @@ public struct HTTPDateFormat: Sendable {
 extension HTTPDateFormat {
     #if Logging
     /// Begins the auto-updating of the current date in the HTTP Format.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func load(logger: Logger) { // TODO: reduce binary size
         // TODO: make it update at the beginning of the second
         Task.detached(priority: .userInitiated) {
@@ -141,9 +120,6 @@ extension HTTPDateFormat {
     }
     #else
     /// Begins the auto-updating of the current date in the HTTP Format.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func load() { // TODO: reduce binary size
         // TODO: make it update at the beginning of the second
         Task.detached(priority: .userInitiated) {
@@ -189,9 +165,6 @@ extension HTTPDateFormat {
     ///   - minute: Number of minutes after the hour, in the range 0 to 59.
     ///   - second: Number of seconds after the minute, normally in the range 0 to 59, but can be up to 60 to allow for leap seconds.
     /// - Returns: An `InlineArray<29, UInt8>` that represents a date and time in the HTTP preferred format, as defined by the [spec](https://www.rfc-editor.org/rfc/rfc2616#section-3.3).
-    #if Inlinable
-    @inlinable
-    #endif
     public static func get(
         year: Int32,
         month: UInt8,
@@ -264,9 +237,6 @@ extension HTTPDateFormat {
         return value
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func httpDayName(_ int: UInt8) -> (UInt8, UInt8, UInt8) {
         switch int {
         case 0:  (83, 117, 110) // Sun
@@ -281,9 +251,6 @@ extension HTTPDateFormat {
     }
 
     /// - Returns: The month's 3 byte representation to be used in the HTTP Format.
-    #if Inlinable
-    @inlinable
-    #endif
     static func httpMonthName(_ int: UInt8) -> (UInt8, UInt8, UInt8) {
         switch int {
         case 0:  (74, 97, 110)  // Jan
@@ -302,9 +269,6 @@ extension HTTPDateFormat {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func httpDateNumber(_ int: UInt8) -> InlineArray<2, UInt8> {
         // we don't use a switch here because it would bloat the binary
         if int < 10 {
@@ -320,9 +284,6 @@ extension HTTPDateFormat {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func httpNumber<let count: Int>(_ int: Int32) -> InlineArray<count, UInt8> {
         var value = InlineArray<count, UInt8>(repeating: 0)
         var i = 0
@@ -345,18 +306,12 @@ extension HTTPDateFormat {
 // MARK: SwiftGlibc
 extension HTTPDateFormat {
     /// https://linux.die.net/man/3/localtime
-    #if Inlinable
-    @inlinable
-    #endif
     public static func nowGlibc() -> InlineArrayResult? {
         var now = time(nil)
         guard let gmt = gmtime(&now) else { return nil }
         return httpDateGlibc(gmt.pointee)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func httpDateGlibc(_ gmt: tm) -> InlineArrayResult {
         return HTTPDateFormat.get(
             year: 1900 +! gmt.tm_year,

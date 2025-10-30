@@ -5,9 +5,6 @@ import DestinyEmbedded
 
 /// Default mutable storage that handles case insensitive static routes.
 public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
-    #if Inlinable
-    @inlinable
-    #endif
     public override func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

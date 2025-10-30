@@ -34,9 +34,6 @@ extension NonCopyableMacroExpansionWithDateHeader {
     ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         socket: some FileDescriptor,
         completionHandler: @Sendable @escaping () -> Void
@@ -71,9 +68,6 @@ import DestinyBlueprint
 
 // MARK: Conformances
 extension NonCopyableMacroExpansionWithDateHeader: NonCopyableRouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

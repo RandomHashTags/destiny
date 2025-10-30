@@ -21,9 +21,6 @@ extension RouteGroupStorage {
     /// 
     /// - Returns: Whether or not a response was sent.
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

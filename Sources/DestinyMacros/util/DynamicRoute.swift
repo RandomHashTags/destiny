@@ -91,9 +91,6 @@ extension DynamicRoute {
 #if StaticMiddleware
 // MARK: Apply static middleware
 extension DynamicRoute {
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func applyStaticMiddleware(_ middleware: [StaticMiddleware]) throws(AnyError) {
         let path = path.map({ $0.slug }).joined(separator: "/")
         for middleware in middleware {

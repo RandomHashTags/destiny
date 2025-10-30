@@ -38,9 +38,6 @@ extension HTTPRequestMethods {
         public enum \(name): HTTPRequestMethodProtocol {
         \(cases.joined(separator: "\n"))
 
-            #if Inlinable
-            @inlinable
-            #endif
             public func rawNameString() -> String {
                 switch self {
         \(rawNameCaseValues.joined(separator: "\n"))
@@ -52,9 +49,6 @@ extension HTTPRequestMethods {
         extension \(name): RawRepresentable {
             public typealias RawValue = String
 
-            #if Inlinable
-            @inlinable
-            #endif
             public init?(rawValue: String) {
                 switch rawValue {
         \(rawValueInitCases.joined(separator: "\n"))
@@ -62,9 +56,6 @@ extension HTTPRequestMethods {
                 }
             }
 
-            #if Inlinable
-            @inlinable
-            #endif
             public var rawValue: String {
                 switch self {
         \(rawValueCases.joined(separator: "\n"))

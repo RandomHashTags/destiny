@@ -3,7 +3,6 @@ This document lists all the available package traits for Destiny.
 
 ## Table of Contents
 - [Functionality](#functionality)
-- [Annotations](#annotations)
 - [Embedded](#embedded)
 - [Third-party](#third-party)
 - [See Also](#see-also)
@@ -36,15 +35,6 @@ Enables functionality that can stream a request's body.
 
 ### RequestHeaders
 Enables functionality to access a request's headers.
-
-## Annotations
-List of package traits that enable annotations where annotated.
-
-### Inlinable
-Enables the `@inlinable` annotation where annotated.
-
-### InlineAlways
-Enables the `@inline(__always)` annotation where annotated.
 
 
 ## Embedded

@@ -37,9 +37,6 @@ public struct RouterSettings: Sendable {
     /// If `true`: you can register middleware, routes, route groups, and route responders at runtime.
     /// 
     /// Default is `false`.
-    #if Inlinable
-    @inlinable
-    #endif
     public var isMutable: Bool {
         get { isFlag(.mutable) }
         set { setFlag(.mutable, newValue) }
@@ -48,9 +45,6 @@ public struct RouterSettings: Sendable {
     /// Whether the expanded route responders should be computed properties instead of static constants.
     /// 
     /// Default is `false`.
-    #if Inlinable
-    @inlinable
-    #endif
     public var respondersAreComputedProperties: Bool {
         get { isFlag(.respondersAreComputedProperties) }
         set { setFlag(.respondersAreComputedProperties, newValue) }
@@ -59,9 +53,6 @@ public struct RouterSettings: Sendable {
     /// Whether or not the default response for Dynamic Route Responders should be `GenericDynamicResponse`.
     /// 
     /// Default is `true`.
-    #if Inlinable
-    @inlinable
-    #endif
     public var dynamicResponsesAreGeneric: Bool {
         get { isFlag(.dynamicResponsesAreGeneric) }
         set { setFlag(.dynamicResponsesAreGeneric, newValue) }
@@ -71,9 +62,6 @@ public struct RouterSettings: Sendable {
     /// Can reduce binary size if disabled and handled properly.
     /// 
     /// Default is `true`.
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasProtocolConformances: Bool {
         get { isFlag(.protocolConformances) }
         set { setFlag(.protocolConformances, newValue) }
@@ -82,9 +70,6 @@ public struct RouterSettings: Sendable {
     /// Whether or not the expanded data should include logging logic.
     /// 
     /// Default is `true`.
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasLogging: Bool {
         get { isFlag(.logging) }
         set { setFlag(.logging, newValue) }
@@ -116,16 +101,10 @@ extension RouterSettings {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func isFlag(_ flag: Flags) -> Bool {
         flags & flag.rawValue != 0
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     mutating func setFlag(_ flag: Flags, _ value: Bool) {
         if value {
             flags |= flag.rawValue

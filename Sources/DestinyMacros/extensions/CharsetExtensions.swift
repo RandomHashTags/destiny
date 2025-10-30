@@ -22,9 +22,6 @@ extension Charset: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: String {
         switch self {
         case .any: "any"

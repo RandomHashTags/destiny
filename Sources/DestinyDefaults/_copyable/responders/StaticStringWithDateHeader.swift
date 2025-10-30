@@ -24,23 +24,14 @@ public struct StaticStringWithDateHeader: Sendable {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
     }
     
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         "\(String(cString: payload.preDatePointer))\(HTTPDateFormat.placeholder)\(String(cString: payload.postDatePointer))"
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasDateHeader: Bool {
         true
     }
@@ -48,9 +39,6 @@ public struct StaticStringWithDateHeader: Sendable {
 
 // MARK: Write to buffer
 extension StaticStringWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
         buffer.copyBuffer(baseAddress: payload.preDatePointer, count: payload.preDatePointerCount, at: &index)
@@ -61,12 +49,6 @@ extension StaticStringWithDateHeader {
 
 // MARK: Respond
 extension StaticStringWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

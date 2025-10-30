@@ -20,9 +20,6 @@ public struct HTTPHeadersIterator: IteratorProtocol {
         maxIndex = UInt16(headers.count)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func next() -> (key: String, value: String)? {
         if self.index == maxIndex {
             return nil

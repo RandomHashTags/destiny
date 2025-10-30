@@ -22,12 +22,6 @@ import WinSDK
 ///   - __dest: Destination pointer.
 ///   - __src: Source pointer.
 ///   - __n: Number of bytes to copy.
-#if Inlinable
-@inlinable
-#endif
-#if InlineAlways
-@inline(__always)
-#endif
 package func copyMemory(
     _ __dest: UnsafeMutableRawPointer,
     _ __src: UnsafeRawPointer,

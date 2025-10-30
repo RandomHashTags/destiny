@@ -12,9 +12,6 @@ public protocol BufferWritable: Sendable, ~Copyable {
 
 // MARK: Default conformances
 extension String: BufferWritable {
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int
@@ -26,9 +23,6 @@ extension String: BufferWritable {
 }
 
 extension StaticString: BufferWritable {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int
@@ -38,9 +32,6 @@ extension StaticString: BufferWritable {
 }
 
 extension [UInt8]: BufferWritable {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int

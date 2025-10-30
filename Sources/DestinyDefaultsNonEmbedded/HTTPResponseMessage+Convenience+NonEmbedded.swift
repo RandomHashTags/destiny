@@ -24,9 +24,6 @@ extension HTTPResponseMessage {
         self.init(head: head, body: body, contentType: mediaType?.template, charset: charset)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func create(
         escapeLineBreak: Bool,
         version: HTTPVersion,
@@ -40,9 +37,6 @@ extension HTTPResponseMessage {
         return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, mediaType: mediaType, charset: charset)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func create(
         suffix: String,
         version: HTTPVersion,

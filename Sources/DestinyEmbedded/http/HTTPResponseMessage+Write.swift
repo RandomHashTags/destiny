@@ -3,9 +3,6 @@ import UnwrapArithmeticOperators
 
 // MARK: Temp allocation
 extension HTTPResponseMessage {
-    #if Inlinable
-    @inlinable
-    #endif
     public func temporaryAllocation<E: Error>(_ closure: (UnsafeMutableBufferPointer<UInt8>) throws(E) -> Void) rethrows {
         var capacity = 14 // HTTP/x.x ###\r\n
         for (key, value) in head.headers {
@@ -68,9 +65,6 @@ extension HTTPResponseMessage {
         })
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func writeString(_ string: String, to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
         let span = string.utf8Span.span
         for j in span.indices {
@@ -80,9 +74,6 @@ extension HTTPResponseMessage {
     }
 
     /// Writes `\r` and `\n` to the buffer.
-    #if Inlinable
-    @inlinable
-    #endif
     func writeCRLF(to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
         buffer[i] = .carriageReturn
         i +=! 1
@@ -90,9 +81,6 @@ extension HTTPResponseMessage {
         i +=! 1
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func writeStartLine(to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
         writeStaticString(head.version.staticString, to: buffer, at: &i)
         buffer[i] = .space
@@ -103,9 +91,6 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, at: &i)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func writeHeader(to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int, key: String, value: String) {
         writeString(key, to: buffer, at: &i)
         buffer[i] = .colon
@@ -117,9 +102,6 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, at: &i)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func writeCookie(_ cookie: String, to buffer: UnsafeMutableBufferPointer<UInt8>, at i: inout Int) {
         writeStaticString("set-cookie: ", to: buffer, at: &i)
         writeString(cookie, to: buffer, at: &i)
@@ -127,9 +109,6 @@ extension HTTPResponseMessage {
     }
 
     /// - Throws: `BufferWriteError`
-    #if Inlinable
-    @inlinable
-    #endif
     func writeResult(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         index i: inout Int,
@@ -155,9 +134,6 @@ extension HTTPResponseMessage {
         try body.write(to: buffer, at: &i)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func writeStaticString(
         _ string: StaticString,
         to buffer: UnsafeMutableBufferPointer<UInt8>,
@@ -172,9 +148,6 @@ extension HTTPResponseMessage {
 
 // MARK: Write
 extension HTTPResponseMessage {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to socket: some FileDescriptor
     ) throws(SocketError) {

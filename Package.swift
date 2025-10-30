@@ -107,8 +107,6 @@ defaultTraits.formUnion([
     "StringRouteResponder",
     "UnwrapArithmetic",
     "Protocols",
-    //"Inlinable", // disabled by default because it is shown to hurt performance
-    //"InlineAlways" // disabled by default because it is shown to hurt performance
 
     "Logging",
     "OpenAPI"
@@ -386,14 +384,6 @@ let traits:Set<Trait> = [
     .trait(
         name: "Protocols",
         description: "Enables the design protocols and the DestinyBlueprint target."
-    ),
-    .trait( // useful when benchmarking/profiling raw performance
-        name: "Inlinable",
-        description: "Enables the `@inlinable` annotation where annotated."
-    ),
-    .trait( // useful when benchmarking/profiling raw performance
-        name: "InlineAlways",
-        description: "Enables the `@inline(__always)` annotation where annotated."
     ),
 
     .trait(

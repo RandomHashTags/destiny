@@ -9,9 +9,6 @@ public struct RequestBody: Sendable, ~Copyable {
     @usableFromInline
     package var _totalRead:UInt64
 
-    #if Inlinable
-    @inlinable
-    #endif
     package init(
         totalRead: UInt64 = 0
     ) {
@@ -19,12 +16,6 @@ public struct RequestBody: Sendable, ~Copyable {
     }
 
     /// Current total number of bytes read from the body.
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public var totalRead: UInt64 {
         _totalRead
     }
@@ -35,12 +26,6 @@ extension RequestBody {
     /// Reads a number of bytes from a file descriptor and writes it into a buffer.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     package mutating func read<let count: Int>(
         fileDescriptor: some FileDescriptor,
         into buffer: inout InlineArray<count, UInt8>
@@ -75,9 +60,6 @@ extension RequestBody {
     /// Reads a number of bytes from a file descriptor and writes it into a buffer.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func collect<let count: Int>(
         fileDescriptor: some FileDescriptor
     ) throws(SocketError) -> InlineByteBuffer<count> {
@@ -94,12 +76,7 @@ extension RequestBody {
         case literal(buffer: InlineArray<count, UInt8>)
         case end(buffer: InlineArray<count, UInt8>, endIndex: Int)
 
-        /*#if Inlinable
-        @inlinable
-        #endif
-        #if InlineAlways
-        @inline(__always)
-        #endif
+        /*
         public var buffer: InlineArray<count, UInt8> {
             switch self {
             case .literal(let b):

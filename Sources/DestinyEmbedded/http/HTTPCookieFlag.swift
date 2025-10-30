@@ -11,9 +11,6 @@ extension HTTPCookieFlag {
         case lax
         case none
 
-        #if Inlinable
-        @inlinable
-        #endif
         public var httpValue: String {
             switch self {
             case .strict: "Strict"

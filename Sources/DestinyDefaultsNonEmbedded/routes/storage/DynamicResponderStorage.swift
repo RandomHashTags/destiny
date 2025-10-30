@@ -29,9 +29,6 @@ public final class DynamicResponderStorage: @unchecked Sendable {
 
 // MARK: Respond
 extension DynamicResponderStorage {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -43,9 +40,6 @@ extension DynamicResponderStorage {
         return true
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     package func responder(for request: inout HTTPRequest) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
         let requestStartLine:SIMD64<UInt8>
         do throws(SocketError) {
@@ -84,9 +78,6 @@ extension DynamicResponderStorage {
         return try catchallResponder(for: &request)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func catchallResponder(for request: inout HTTPRequest) throws(ResponderError) -> (any DynamicRouteResponderProtocol)? {
         var responderIndex = 0
         loop: while responderIndex < catchall.count {
@@ -120,9 +111,6 @@ extension DynamicResponderStorage {
 // MARK: Register
 extension DynamicResponderStorage {
     /// Registers a dynamic route responder to the given route path.
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(
         route: some DynamicRouteProtocol,
         responder: some DynamicRouteResponderProtocol,

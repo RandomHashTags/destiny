@@ -6,9 +6,6 @@ import VariableLengthArray
 extension VLArray where Element == UInt8 {
     /// - Returns: A case-literal `String` initialized from `storage`.
     /// - Warning: The returned `String` is the exact size of this `VLArray`! This function doesn't look for a null-terminator!
-    #if Inlinable
-    @inlinable
-    #endif
     public func unsafeString() -> String {
         return String.init(unsafeUninitializedCapacity: storage.count, initializingUTF8With: {
             return $0.initialize(from: storage).index
@@ -19,9 +16,6 @@ extension VLArray where Element == UInt8 {
     /// 
     /// - Returns: A case-literal `String` initialized from `storage` with start and end indexes.
     /// - Warning: `endIndex` MUST be greater than `startIndex`.
-    #if Inlinable
-    @inlinable
-    #endif
     public func unsafeString(startIndex: Int, endIndex: Int) -> String {
         let count = endIndex -! startIndex
         let slice = storage[startIndex..<endIndex]
@@ -43,12 +37,6 @@ extension VLArray where Element == UInt8 {
 
 // MARK: Write to file descriptor
 extension InlineArray {
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public func write(to socket: some FileDescriptor) throws(SocketError) {
         var err:SocketError? = nil
         withUnsafePointer(to: self, {
@@ -66,12 +54,6 @@ extension InlineArray {
 
 // MARK: BufferWritable
 extension InlineArray where Element == UInt8 { 
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int
@@ -89,9 +71,6 @@ extension InlineArray where Element == UInt8 {
     /// 
     /// - Returns: A case-literal `String` initialized from `span`.
     /// - Warning: The returned `String` is the exact size of this `InlineArray`! This function doesn't look for a null-terminator!
-    #if Inlinable
-    @inlinable
-    #endif
     public func unsafeString() -> String {
         return self.span.withUnsafeBufferPointer { pointer in
             return String.init(unsafeUninitializedCapacity: pointer.count, initializingUTF8With: {
@@ -104,9 +83,6 @@ extension InlineArray where Element == UInt8 {
     /// 
     /// - Returns: A case-literal `String` initialized from `span` with start and end indexes.
     /// - Warning: `endIndex` MUST be greater than `startIndex`.
-    #if Inlinable
-    @inlinable
-    #endif
     public func unsafeString(startIndex: Int, endIndex: Int) -> String {
         return self.span.withUnsafeBufferPointer {
             let count = endIndex -! startIndex

@@ -7,30 +7,18 @@ extension ResponseBody {
     public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: Sendable {
         public var value:Value
 
-        #if Inlinable
-        @inlinable
-        #endif
         public init(_ value: Value) {
             self.value = value
         }
 
-        #if Inlinable
-        @inlinable
-        #endif
         public var count: Int {
             value.count
         }
         
-        #if Inlinable
-        @inlinable
-        #endif
         public func string() -> String {
             value.string()
         }
 
-        #if Inlinable
-        @inlinable
-        #endif
         public mutating func write(
             to buffer: UnsafeMutableBufferPointer<UInt8>,
             at index: inout Int
@@ -38,9 +26,6 @@ extension ResponseBody {
             try value.write(to: buffer, at: &index)
         }
 
-        #if Inlinable
-        @inlinable
-        #endif
         public var hasDateHeader: Bool {
             true
         }

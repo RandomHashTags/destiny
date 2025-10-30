@@ -14,9 +14,6 @@ public protocol HTTPSocketWritable: Sendable, ~Copyable {
 
 // MARK: Default conformances
 extension String: HTTPSocketWritable {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to socket: some FileDescriptor
     ) throws(SocketError) {
@@ -25,9 +22,6 @@ extension String: HTTPSocketWritable {
 }
 
 extension StaticString: HTTPSocketWritable {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to socket: some FileDescriptor
     ) throws(SocketError) {
@@ -36,9 +30,6 @@ extension StaticString: HTTPSocketWritable {
 }
 
 extension [UInt8]: HTTPSocketWritable {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to socket: some FileDescriptor
     ) throws(SocketError) {

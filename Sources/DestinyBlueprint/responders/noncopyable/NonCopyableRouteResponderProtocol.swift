@@ -12,9 +12,6 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
     ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
     func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
@@ -27,9 +24,6 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
 
 #if StringRouteResponder
 extension String: NonCopyableRouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
@@ -47,9 +41,6 @@ extension String: NonCopyableRouteResponderProtocol {
 #endif
 
 extension StaticString: NonCopyableRouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,
@@ -66,9 +57,6 @@ extension StaticString: NonCopyableRouteResponderProtocol {
 }
 
 extension [UInt8]: NonCopyableRouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

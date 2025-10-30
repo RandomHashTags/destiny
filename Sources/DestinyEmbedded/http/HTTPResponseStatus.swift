@@ -21,16 +21,10 @@ extension HTTPResponseStatus {
 }
 
 extension HTTPResponseStatus.StorageProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.code == rhs.code
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var category: HTTPResponseStatus.Category {
         switch code {
         case 100...199: .informational

@@ -40,9 +40,6 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: Sendable {
 
 // MARK: Write
 extension AsyncHTTPChunkDataStream {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to socket: some FileDescriptor
     ) async throws(SocketError) {

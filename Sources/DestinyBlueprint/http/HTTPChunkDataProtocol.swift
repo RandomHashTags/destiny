@@ -7,18 +7,12 @@ public protocol HTTPChunkDataProtocol: BufferWritable, HTTPSocketWritable, ~Copy
 
 // MARK: Default conformance logic
 extension String {
-    #if Inlinable
-    @inlinable
-    #endif
     public var chunkDataCount: Int {
         count
     }
 }
 
 extension StaticString {
-    #if Inlinable
-    @inlinable
-    #endif
     public var chunkDataCount: Int {
         utf8CodeUnitCount
     }

@@ -127,9 +127,6 @@ public enum HTTPStandardResponseStatus: Sendable {
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.511
     case networkAuthenticationRequired
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var code: UInt16 {
         switch self {
         case .`continue`: 100
@@ -202,9 +199,6 @@ public enum HTTPStandardResponseStatus: Sendable {
 extension HTTPStandardResponseStatus: RawRepresentable {
     public typealias RawValue = String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(rawValue: RawValue) {
         switch rawValue {
         case "`continue`", "continue": self = .`continue`
@@ -273,9 +267,6 @@ extension HTTPStandardResponseStatus: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: RawValue {
         switch self {
         case .`continue`: "continue"

@@ -18,16 +18,10 @@ public struct DynamicResponse<
         self.parameters = parameters
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setBody(_ body: Body) {
         message.setBody(body)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setBody(_ body: some ResponseBodyProtocol) {
         message.setBody(body)
     }
@@ -48,9 +42,6 @@ public struct DynamicResponse: Sendable {
         self.parameters = parameters
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setBody(_ body: some ResponseBodyProtocol) {
         message.setBody(body)
     }
@@ -59,69 +50,42 @@ public struct DynamicResponse: Sendable {
 
 // MARK: Logic
 extension DynamicResponse {
-    #if Inlinable
-    @inlinable
-    #endif
     public func parameter(at index: Int) -> String {
         parameters[index]
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setParameter(at index: Int, value: consuming VLArray<UInt8>) {
         parameters[index] = value.unsafeString()
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func appendParameter(value: consuming VLArray<UInt8>) {
         parameters.append(value.unsafeString())
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func yieldParameters(_ yield: (String) -> Void) {
         for parameter in parameters {
             yield(parameter)
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setHTTPVersion(_ version: HTTPVersion) {
         message.version = version
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {
         message.setStatusCode(code)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setHeader(key: String, value: String) {
         message.setHeader(key: key, value: value)
     }
 
     #if HTTPCookie
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
         try message.appendCookie(cookie)
     }
     #endif
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to socket: some FileDescriptor
     ) throws(SocketError) {

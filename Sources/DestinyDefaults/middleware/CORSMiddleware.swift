@@ -19,9 +19,6 @@ public struct CORSMiddleware: Sendable {
         self.logicKind = logicKind
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     package static func maxAgeString(_ input: Int?) -> String? {
         guard let input else { return nil }
         return "\(input)"
@@ -31,9 +28,6 @@ public struct CORSMiddleware: Sendable {
 // MARK: Handle
 extension CORSMiddleware {
     /// - Throws: `MiddlewareError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func handle(
         request: inout HTTPRequest,
         headers: inout HTTPHeaders
@@ -56,9 +50,6 @@ extension CORSMiddleware {
     /// 
     /// - Returns: Whether or not to continue processing the request.
     /// - Throws: `MiddlewareError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func handle(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
@@ -177,9 +168,6 @@ extension CORSMiddleware {
 import DestinyBlueprint
 
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func handleSharedLogic(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -191,9 +179,6 @@ extension CORSMiddleware {
 }
 
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials_exposedHeaders_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -205,9 +190,6 @@ extension CORSMiddleware {
         response.setHeader(key: "access-control-allow-credentials", value: "true")
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials_exposedHeaders(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -218,9 +200,6 @@ extension CORSMiddleware {
         response.setHeader(key: "access-control-allow-credentials", value: "true")
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -231,9 +210,6 @@ extension CORSMiddleware {
         response.setHeader(key: "access-control-max-age", value: maxAgeString)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -245,9 +221,6 @@ extension CORSMiddleware {
 }
 
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_exposedHeaders_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -259,9 +232,6 @@ extension CORSMiddleware {
         response.setHeader(key: "access-control-max-age", value: maxAgeString)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_exposedHeaders(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -274,9 +244,6 @@ extension CORSMiddleware {
 }
 
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_maxAge(
         _ response: inout some DynamicResponseProtocol,
         _ allowedHeaders: String,
@@ -290,9 +257,6 @@ extension CORSMiddleware {
 
 // MARK: HTTPHeaders
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func handleSharedLogic(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
@@ -304,9 +268,6 @@ extension CORSMiddleware {
 }
 
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials_exposedHeaders_maxAge(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
@@ -318,9 +279,6 @@ extension CORSMiddleware {
         headers["access-control-allow-credentials"] = "true"
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials_exposedHeaders(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
@@ -331,9 +289,6 @@ extension CORSMiddleware {
         headers["access-control-allow-credentials"] = "true"
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials_maxAge(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
@@ -344,9 +299,6 @@ extension CORSMiddleware {
         headers["access-control-max-age"] = maxAgeString
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_allowCredentials(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
@@ -358,9 +310,6 @@ extension CORSMiddleware {
 }
 
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_exposedHeaders_maxAge(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
@@ -372,9 +321,6 @@ extension CORSMiddleware {
         headers["access-control-max-age"] = maxAgeString
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_exposedHeaders(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,
@@ -387,9 +333,6 @@ extension CORSMiddleware {
 }
 
 extension CORSMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     static func logic_maxAge(
         _ headers: inout HTTPHeaders,
         _ allowedHeaders: String,

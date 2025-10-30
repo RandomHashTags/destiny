@@ -107,9 +107,6 @@ public enum HTTPNonStandardRequestMethod: HTTPRequestMethodProtocol {
     case validate
     case verify
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func rawNameString() -> String {
         switch self {
         case .announce: "ANNOUNCE"
@@ -222,9 +219,6 @@ public enum HTTPNonStandardRequestMethod: HTTPRequestMethodProtocol {
 extension HTTPNonStandardRequestMethod: RawRepresentable {
     public typealias RawValue = String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(rawValue: String) {
         switch rawValue {
         case "announce": self = .announce
@@ -333,9 +327,6 @@ extension HTTPNonStandardRequestMethod: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: String {
         switch self {
         case .announce: "announce"

@@ -14,9 +14,6 @@ public struct DynamicDateMiddleware: Sendable {
     /// 
     /// - Returns: Whether or not to continue processing the request.
     /// - Throws: `MiddlewareError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func handle(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol

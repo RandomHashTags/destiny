@@ -117,9 +117,6 @@ extension String {
     /// Encodes `self` using url percent encoding.
     /// 
     /// - Complexity: O(_n_).
-    #if Inlinable
-    @inlinable
-    #endif
     public func urlPercentEncoded() -> String {
         let percent = Character("%")
         var string = ""
@@ -153,9 +150,6 @@ extension String {
     /// Encodes `self` as an HTTP Cookie Value (percent encoded).
     /// 
     /// - Complexity: O(_n_).
-    #if Inlinable
-    @inlinable
-    #endif
     public func httpCookiePercentEncoded() -> String {
         let percent = Character("%")
         var string = ""

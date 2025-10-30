@@ -16,9 +16,6 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
     /// Mapped HTTP Version of a request.
     public let version:HTTPVersion
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init(
         methodEndIndex: Int,
         pathQueryStartIndex: Int?,
@@ -32,24 +29,15 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
     }
 
     /// Number of bytes of the target.
-    #if Inlinable
-    @inlinable
-    #endif
     public var pathCount: Int {
         pathEndIndex -! methodEndIndex -! 1
     }
 
     /// Index in a buffer where the target ends.
-    #if Inlinable
-    @inlinable
-    #endif
     public var pathEndIndex: Int {
         endIndex -! 9
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func path<let count: Int>(
         buffer: InlineArray<count, UInt8>,
         _ closure: (consuming VLArray<UInt8>) -> Void
@@ -72,9 +60,6 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
         })
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func method<let count: Int>(
         buffer: InlineArray<count, UInt8>,
         _ closure: (consuming VLArray<UInt8>) -> Void
@@ -84,9 +69,6 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
         }, closure)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func simd<let count: Int>(
         buffer: InlineArray<count, UInt8>,
     ) -> SIMD64<UInt8> {
@@ -99,9 +81,6 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
         return simd
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func copy() -> Self {
         Self(
             methodEndIndex: methodEndIndex,
@@ -117,9 +96,6 @@ extension HTTPRequestLine {
     /// Tries parsing a `HTTPRequestLine` from a buffer.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public static func load<let count: Int>(
         buffer: borrowing InlineByteBuffer<count>
     ) throws(SocketError) -> Self {

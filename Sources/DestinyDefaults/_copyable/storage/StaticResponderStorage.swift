@@ -62,9 +62,6 @@ public class StaticResponderStorage: @unchecked Sendable {
         #endif
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -132,9 +129,6 @@ public class StaticResponderStorage: @unchecked Sendable {
 // MARK: Register
 extension StaticResponderStorage {
     /// Registers a static route responder to the given route path.
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(
         path: SIMD64<UInt8>,
         responder: some RouteResponderProtocol
@@ -188,61 +182,40 @@ extension StaticResponderStorage {
     }
 
     #if CopyableMacroExpansion
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(path: SIMD64<UInt8>, _ responder: RouteResponses.MacroExpansion) {
         macroExpansions[path] = responder
     }
     #endif
 
     #if CopyableMacroExpansionWithDateHeader
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(path: SIMD64<UInt8>, _ responder: MacroExpansionWithDateHeader) {
         macroExpansionsWithDateHeader[path] = responder
     }
     #endif
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(path: SIMD64<UInt8>, _ responder: StaticString) {
         staticStrings[path] = responder
     }
 
     #if CopyableStaticStringWithDateHeader
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(path: SIMD64<UInt8>, _ responder: StaticStringWithDateHeader) {
         staticStringsWithDateHeader[path] = responder
     }
     #endif
 
     #if StringRouteResponder
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(path: SIMD64<UInt8>, _ responder: String) {
         strings[path] = responder
     }
     #endif
 
     #if CopyableStringWithDateHeader
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(path: SIMD64<UInt8>, _ responder: StringWithDateHeader) {
         stringsWithDateHeader[path] = responder
     }
     #endif
 
     #if CopyableBytes
-    #if Inlinable
-    @inlinable
-    #endif
     public func register(path: SIMD64<UInt8>, _ responder: Bytes) {
         bytes[path] = responder
     }

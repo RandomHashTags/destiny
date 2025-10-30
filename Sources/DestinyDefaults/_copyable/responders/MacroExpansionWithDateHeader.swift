@@ -28,9 +28,6 @@ public struct MacroExpansionWithDateHeader: Sendable {
 
 // MARK: Respond
 extension MacroExpansionWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

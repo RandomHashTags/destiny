@@ -10,9 +10,6 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
     ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
     func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -25,9 +22,6 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
 
 #if StringRouteResponder
 extension String: RouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -45,9 +39,6 @@ extension String: RouteResponderProtocol {
 #endif
 
 extension StaticString: RouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -64,9 +55,6 @@ extension StaticString: RouteResponderProtocol {
 }
 
 extension [UInt8]: RouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

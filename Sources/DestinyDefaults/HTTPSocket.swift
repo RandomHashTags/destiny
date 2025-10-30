@@ -13,16 +13,10 @@ public struct HTTPSocket: Sendable, ~Copyable {
         Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketLocalAddress() -> String? {
         fileDescriptor.socketLocalAddress()
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketPeerAddress() -> String? {
         fileDescriptor.socketPeerAddress()
     }
@@ -31,9 +25,6 @@ public struct HTTPSocket: Sendable, ~Copyable {
 // MARK: Reading
 extension HTTPSocket {
     /// Reads multiple bytes and writes them into a buffer
-    #if Inlinable
-    @inlinable
-    #endif
     public func readBuffer(
         into buffer: UnsafeMutableBufferPointer<UInt8>,
         length: Int,
@@ -44,9 +35,6 @@ extension HTTPSocket {
     }
 
     /// Reads multiple bytes and writes them into a buffer
-    #if Inlinable
-    @inlinable
-    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutablePointer<UInt8>,
         length: Int,
@@ -68,9 +56,6 @@ extension HTTPSocket {
     }
 
     /// Reads multiple bytes and writes them into a buffer
-    #if Inlinable
-    @inlinable
-    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
@@ -94,9 +79,6 @@ extension HTTPSocket {
     /// Reads multiple bytes and writes them into a buffer.
     /// 
     /// - Returns: Number of bytes received.
-    #if Inlinable
-    @inlinable
-    #endif
     public func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int
@@ -107,9 +89,6 @@ extension HTTPSocket {
 
 // MARK: Writing
 extension HTTPSocket {
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
@@ -124,9 +103,6 @@ extension HTTPSocket {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffers3(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
@@ -135,9 +111,6 @@ extension HTTPSocket {
         try fileDescriptor.writeBuffers3(b1, b2, b3)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
         _ b2: UnsafeBufferPointer<UInt8>,
@@ -147,9 +120,6 @@ extension HTTPSocket {
         try fileDescriptor.writeBuffers4(b1, b2, b3, b4)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffers6(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
@@ -164,23 +134,14 @@ extension HTTPSocket {
 
 // MARK: Socket
 extension HTTPSocket {
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int {
         return fileDescriptor.socketReceive(baseAddress: baseAddress, length: length, flags: flags)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int {
         return fileDescriptor.socketReceive(baseAddress: baseAddress, length: length, flags: flags)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
         return fileDescriptor.socketSendMultiplatform(pointer: pointer, length: length)
     }
