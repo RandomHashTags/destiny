@@ -9,9 +9,6 @@ extension RequestBody {
     /// Streams data from a file descriptor.
     /// 
     /// - Throws: `any Error`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func stream<let chunkSize: Int>(
         fileDescriptor: some FileDescriptor,
         //maximumSize: Int = 500_000,
@@ -24,9 +21,6 @@ extension RequestBody {
     /// Streams data from a file descriptor and writes it into a buffer.
     /// 
     /// - Throws: `any Error`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func stream<let chunkSize: Int>(
         fileDescriptor: some FileDescriptor,
         buffer: inout InlineArray<chunkSize, UInt8>,

@@ -154,9 +154,6 @@ public final class StaticMiddleware: @unchecked Sendable {
 
 // MARK: Handles
 extension StaticMiddleware {
-    #if Inlinable
-    @inlinable
-    #endif
     public func handles(
         version: HTTPVersion,
         path: String,
@@ -171,16 +168,10 @@ extension StaticMiddleware {
             && handlesStatus(status)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func handlesVersion(_ version: HTTPVersion) -> Bool {
         handlesVersions?.contains(version) ?? true
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func handlesMethod(_ method: some HTTPRequestMethodProtocol) -> Bool {
         guard let handlesMethods else { return true }
         let methodName = method.rawNameString()
@@ -192,16 +183,10 @@ extension StaticMiddleware {
         return false
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func handlesStatus(_ code: HTTPResponseStatus.Code) -> Bool {
         handlesStatuses?.contains(code) ?? true
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func handlesContentType(_ contentType: String?) -> Bool {
         guard let handlesContentTypes else { return true }
         if let contentType {
@@ -215,9 +200,6 @@ extension StaticMiddleware {
 // MARK: Apply
 extension StaticMiddleware {
     #if HTTPCookie
-    #if Inlinable
-    @inlinable
-    #endif
     public func apply(
         version: inout HTTPVersion,
         contentType: inout String?,
@@ -241,9 +223,6 @@ extension StaticMiddleware {
         cookies.append(contentsOf: appliesCookies)
     }
     #else
-    #if Inlinable
-    @inlinable
-    #endif
     public func apply(
         version: inout HTTPVersion,
         contentType: inout String?,
@@ -266,9 +245,6 @@ extension StaticMiddleware {
     }
     #endif
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func apply(
         contentType: inout String?,
         to response: inout some DynamicResponseProtocol

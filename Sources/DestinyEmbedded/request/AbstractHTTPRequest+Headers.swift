@@ -16,19 +16,10 @@ extension AbstractHTTPRequest {
         @usableFromInline
         var headers:[Substring:Substring] = [:]
 
-        #if Inlinable
-        @inlinable
-        #endif
         init(startIndex: Int) {
             self.startIndex = startIndex
         }
 
-        #if Inlinable
-        @inlinable
-        #endif
-        #if InlineAlways
-        @inline(__always)
-        #endif
         subscript(key: Substring) -> Substring? {
             _read { yield headers[key] }
             _modify { yield &headers[key] }
@@ -39,9 +30,6 @@ extension AbstractHTTPRequest {
 // MARK: Load
 extension AbstractHTTPRequest.Headers {
     /// Loads `_endIndex` and headers from a buffer.
-    #if Inlinable
-    @inlinable
-    #endif
     package mutating func load<let count: Int>(
         buffer: borrowing InlineByteBuffer<count>
     ) {

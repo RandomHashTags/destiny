@@ -26,9 +26,6 @@ public struct HTTPResponseMessage<
     /// 
     /// - Parameters:
     ///   - body: New body to set.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setBody(_ body: Body) {
         self.body = body
     }
@@ -37,9 +34,6 @@ public struct HTTPResponseMessage<
     /// 
     /// - Parameters:
     ///   - body: New body to set.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setBody(_ body: some ResponseBodyProtocol) {
         guard let body = body as? Body else { return }
         self.body = body
@@ -71,9 +65,6 @@ public struct HTTPResponseMessage: HTTPSocketWritable {
     /// 
     /// - Parameters:
     ///   - body: New body to set.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setBody(_ body: some ResponseBodyProtocol) {
         self.body = body
     }
@@ -83,18 +74,12 @@ public struct HTTPResponseMessage: HTTPSocketWritable {
 // MARK: Logic
 extension HTTPResponseMessage {
     /// Associated HTTP Version of this message.
-    #if Inlinable
-    @inlinable
-    #endif
     public var version: HTTPVersion {
         get { head.version }
         set { head.version = newValue }
     }
 
     /// - Returns: Current status code this message.
-    #if Inlinable
-    @inlinable
-    #endif
     public func statusCode() -> HTTPResponseStatus.Code {
         head.status
     }
@@ -103,9 +88,6 @@ extension HTTPResponseMessage {
     /// 
     /// - Parameters:
     ///   - code: New status code to set.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setStatusCode(_ code: HTTPResponseStatus.Code) {
         head.status = code
     }
@@ -115,9 +97,6 @@ extension HTTPResponseMessage {
     /// 
     /// - Returns: A string representing an HTTP Message with the given values.
     /// - Throws: `HTTPMessageError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func string(
         escapeLineBreak: Bool
     ) -> String {
@@ -144,18 +123,12 @@ extension HTTPResponseMessage {
     /// - Parameters:
     ///   - key: Header you want to modify.
     ///   - value: New header value to set.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setHeader(key: String, value: String) {
         head.headers[key] = value
     }
 
     #if HTTPCookie
     /// - Throws: `HTTPCookieError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
         head.cookies.append(cookie)
     }
@@ -170,9 +143,6 @@ extension HTTPResponseMessage {
     ///   - version: HTTP Version of the message.
     ///   - status: HTTP response status of the message.
     /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
@@ -187,9 +157,6 @@ extension HTTPResponseMessage {
     ///   - version: HTTP Version of the message.
     ///   - status: HTTP response status of the message.
     /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
@@ -207,9 +174,6 @@ extension HTTPResponseMessage {
     ///   - status: HTTP response status of the message.
     ///   - headers: HTTP headers of the message.
     /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
@@ -240,9 +204,6 @@ extension HTTPResponseMessage {
     ///   - status: HTTP response status of the message.
     ///   - headers: HTTP headers of the message.
     /// - Returns: A complete `HTTPResponseMessage` that redirects to the target with the given configuration.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func redirect(
         to target: String,
         version: HTTPVersion = .v1_1,
@@ -271,9 +232,6 @@ extension HTTPResponseMessage {
 
 // MARK: Create
 extension HTTPResponseMessage {
-    #if Inlinable
-    @inlinable
-    #endif
     public static func create(
         escapeLineBreak: Bool,
         version: HTTPVersion,
@@ -287,9 +245,6 @@ extension HTTPResponseMessage {
         return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func create(
         suffix: String,
         version: HTTPVersion,
@@ -311,9 +266,6 @@ extension HTTPResponseMessage {
     }
 
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func headers(
         suffix: String,
         headers: HTTPHeaders

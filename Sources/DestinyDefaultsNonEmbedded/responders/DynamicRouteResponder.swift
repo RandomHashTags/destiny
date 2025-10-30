@@ -24,30 +24,18 @@ public struct DynamicRouteResponder: Sendable {
         self.logicDebugDescription = logicDebugDescription
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func defaultResponse() -> DynamicResponse {
         return _defaultResponse
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var pathComponentsCount: Int {
         path.count
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func pathComponent(at index: Int) -> PathComponent {
         path[index]
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func forEachPathComponentParameterIndex(_ yield: (Int) -> Void) {
         for index in parameterPathIndexes {
             yield(index)
@@ -57,9 +45,6 @@ public struct DynamicRouteResponder: Sendable {
 
 // MARK: Respond
 extension DynamicRouteResponder {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

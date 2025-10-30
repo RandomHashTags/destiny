@@ -3,9 +3,6 @@ import DestinyBlueprint
 
 // MARK: CustomStringConvertible
 extension PathComponent: CustomStringConvertible {
-    #if Inlinable
-    @inlinable
-    #endif
     public var description: String {
         "\"\(slug)\""
     }

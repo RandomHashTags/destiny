@@ -29,38 +29,23 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
     }
     
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         "\(String(cString: payload.preDatePointer))\(HTTPDateFormat.placeholder)\(String(cString: payload.postDatePointer))"
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasDateHeader: Bool {
         true
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasContentLength: Bool {
         false
     }
 
     // MARK: Write to buffer
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(BufferWriteError) {
         // TODO: support?
     }
@@ -68,9 +53,6 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
 
 // MARK: Respond
 extension NonCopyableStreamWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

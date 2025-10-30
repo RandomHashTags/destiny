@@ -2,9 +2,6 @@
 #if HTTPCookie
 
 extension HTTPCookie {
-    #if Inlinable
-    @inlinable
-    #endif
     public init(unchecked cookie: HTTPCookie) {
         self.init(
             name: cookie._name,

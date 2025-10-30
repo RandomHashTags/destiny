@@ -5,24 +5,15 @@ extension HTTPRequest {
         @usableFromInline
         var storage:[ObjectIdentifier:any Sendable] // TODO: fix (avoid existentials)
 
-        #if Inlinable
-        @inlinable
-        #endif
         public init(_ storage: [ObjectIdentifier:any Sendable]) {
             self.storage = storage
         }
 
         /// Removes all values from the storage.
-        #if Inlinable
-        @inlinable
-        #endif
         public mutating func clear() {
             storage = [:]
         }
 
-        #if Inlinable
-        @inlinable
-        #endif
         public subscript<Key: StorageKey>(_ key: Key) -> Key.Value? {
             get {
                 guard let v = storage[ObjectIdentifier(Key.self)] as? Value<Key.Value> else { return nil }
@@ -39,18 +30,12 @@ extension HTTPRequest {
         }
 
         /// - Returns: Whether the key exists in the storage.
-        #if Inlinable
-        @inlinable
-        #endif
         public func contains<Key>(_ key: Key.Type) -> Bool {
             storage.keys.contains(ObjectIdentifier(Key.self))
         }
 
         /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
         /// - Returns: A copy of self.
-        #if Inlinable
-        @inlinable
-        #endif
         public func copy() -> Self {
             Self(storage)
         }

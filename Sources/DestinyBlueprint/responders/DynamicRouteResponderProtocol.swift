@@ -37,9 +37,6 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
 
 // MARK: Defaults
 extension DynamicRouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

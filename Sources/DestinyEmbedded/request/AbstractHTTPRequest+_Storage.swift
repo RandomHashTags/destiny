@@ -100,12 +100,6 @@ extension AbstractHTTPRequest._Storage {
     /// Loads `requestLine`, `_headers` and `_body`.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     mutating func load<let count: Int>(
         buffer: borrowing InlineByteBuffer<count>
     ) throws(SocketError) {
@@ -126,12 +120,6 @@ extension AbstractHTTPRequest._Storage {
 // MARK: Start Line SIMD
 extension AbstractHTTPRequest._Storage {
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     mutating func startLineSIMD<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> SIMD64<UInt8> {
         if let startLineSIMD {
             return startLineSIMD
@@ -141,12 +129,6 @@ extension AbstractHTTPRequest._Storage {
     }
 
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     mutating func startLineSIMDLowercased<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> SIMD64<UInt8> {
         if let startLineSIMDLowercased {
             return startLineSIMDLowercased
@@ -160,12 +142,6 @@ extension AbstractHTTPRequest._Storage {
 // MARK: Method
 extension AbstractHTTPRequest._Storage {
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     package mutating func methodString<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> String {
         if let methodString {
             return methodString
@@ -180,12 +156,6 @@ extension AbstractHTTPRequest._Storage {
 // MARK: Path
 extension AbstractHTTPRequest._Storage {
     /// - Warning: `requestLine` **MUST NOT** be `nil`!
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     mutating func path<let count: Int>(buffer: borrowing InlineByteBuffer<count>) -> [String] {
         if let path {
             return path
@@ -215,9 +185,6 @@ extension AbstractHTTPRequest._Storage {
 extension AbstractHTTPRequest._Storage {
     /// - Throws: `SocketError`
     /// - Warning: `_headers` **MUST NOT** be `nil`!
-    #if Inlinable
-    @inlinable
-    #endif
     mutating func bodyCollect<let initialBufferCount: Int, let bufferCount: Int>(
         fileDescriptor: some FileDescriptor,
         initialBuffer: borrowing InlineByteBuffer<initialBufferCount>
@@ -233,12 +200,6 @@ extension AbstractHTTPRequest._Storage {
 
 // MARK: Copy
 extension AbstractHTTPRequest._Storage {
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     func copy() -> Self {
         Self(
             requestLine: requestLine?.copy(),

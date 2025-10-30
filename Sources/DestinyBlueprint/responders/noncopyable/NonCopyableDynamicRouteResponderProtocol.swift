@@ -39,9 +39,6 @@ public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteRespon
 
 // MARK: Defaults
 extension NonCopyableDynamicRouteResponderProtocol where Self: ~Copyable {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

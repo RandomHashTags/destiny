@@ -5,7 +5,7 @@ export const options = {
   // A number specifying the number of VUs to run concurrently.
   vus: 900,
   // A string specifying the total duration of the test run.
-  duration: '60s',
+  duration: '360s',
 
   // Uncomment this section to enable the use of Browser API in your tests.
   //

@@ -7,17 +7,11 @@ public struct HTTPHeaders: Sendable {
     package var _storage:[(key: String, value: String)]
 
     /// - Warning: Keys are case-sensitive!
-    #if Inlinable
-    @inlinable
-    #endif
     public init(_storage: [(String, String)] = []) {
         self._storage = _storage
     }
 
     /// - Warning: Keys are case-sensitive!
-    #if Inlinable
-    @inlinable
-    #endif
     public init(_ storage: [String:String]) {
         var array = [(String, String)]()
         array.reserveCapacity(storage.count)
@@ -28,9 +22,6 @@ public struct HTTPHeaders: Sendable {
     }
 
     /// Reserves enough space to store the specified number of elements.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func reserveCapacity(_ minimumCapacity: Int) {
         _storage.reserveCapacity(minimumCapacity)
     }
@@ -39,9 +30,6 @@ public struct HTTPHeaders: Sendable {
 extension HTTPHeaders {
     /// - Complexity: On average, reading/writing an existing header is O(_n_) while removing a header is O(2*n*) if it exists and O(_n_) if it doesn't.
     /// - Warning: `header` is case-sensitive!
-    #if Inlinable
-    @inlinable
-    #endif
     public subscript(header: String) -> String? {
         get {
             _storage.first(where: { $0.key == header })?.value
@@ -63,18 +51,12 @@ extension HTTPHeaders {
     /// 
     /// - Complexity: O(_n_).
     /// - Warning: `header` is case-sensitive!
-    #if Inlinable
-    @inlinable
-    #endif
     public func has(_ header: String) -> Bool {
         _storage.firstIndex(where: { $0.key == header }) != nil
     }
 }
 
 extension HTTPHeaders: Sequence {
-    #if Inlinable
-    @inlinable
-    #endif
     public func makeIterator() -> HTTPHeadersIterator {
         HTTPHeadersIterator(headers: _storage)
     }

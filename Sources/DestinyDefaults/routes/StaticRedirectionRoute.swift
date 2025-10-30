@@ -22,9 +22,6 @@ public struct StaticRedirectionRoute: Sendable {
     public let version:HTTPVersion
 
     /// The http start line this route redirects from.
-    #if Inlinable
-    @inlinable
-    #endif
     public func fromStartLine() -> String {
         return "\(method.rawNameString()) /\(from.joined(separator: "/")) \(version.string)"
     }

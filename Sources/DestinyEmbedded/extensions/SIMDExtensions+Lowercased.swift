@@ -2,9 +2,6 @@
 extension SIMD64<UInt8> {
     /// - Returns: A UTF-8 lowercased version of `self`.
     /// - Complexity: O(1).
-    #if Inlinable
-    @inlinable
-    #endif
     public func lowercased() -> Self {
         var upperCase = self .>= 65
         upperCase .&= self .<= 90

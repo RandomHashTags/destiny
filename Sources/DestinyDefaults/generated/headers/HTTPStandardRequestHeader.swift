@@ -43,9 +43,6 @@ public enum HTTPStandardRequestHeader {
     case via
 
     /// Lowercased canonical name of the header used for comparison.
-    #if Inlinable
-    @inlinable
-    #endif
     public var canonicalName: String {
         switch self {
         case .aim: "a-im"
@@ -92,9 +89,6 @@ public enum HTTPStandardRequestHeader {
 
 #if HTTPStandardRequestHeaderRawNames
 extension HTTPStandardRequestHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawName: String {
         switch self {
         case .aim: "A-IM"
@@ -149,9 +143,6 @@ extension HTTPStandardRequestHeader: Hashable {
 extension HTTPStandardRequestHeader: RawRepresentable {
     public typealias RawValue = String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(rawValue: RawValue) {
         switch rawValue {
         case "aim": self = .aim
@@ -196,9 +187,6 @@ extension HTTPStandardRequestHeader: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: RawValue {
         switch self {
         case .aim: "aim"

@@ -5,9 +5,6 @@ import DestinyBlueprint
 import MediaTypes
 
 extension Route {
-    #if Inlinable
-    @inlinable
-    #endif
     public static func on(
         head: HTTPResponseMessageHead = .default,
         method: some HTTPRequestMethodProtocol,
@@ -28,9 +25,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func get(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -50,9 +44,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func head(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -72,9 +63,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func post(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -93,9 +81,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func put(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -115,9 +100,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func delete(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -137,9 +119,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func connect(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -159,9 +138,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func options(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -181,9 +157,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func trace(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],
@@ -203,9 +176,6 @@ extension Route {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public static func patch(
         head: HTTPResponseMessageHead = .default,
         path: [PathComponent],

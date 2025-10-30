@@ -35,9 +35,6 @@ extension HTTPResponseHeaders {
         \(cases.joined(separator: "\n"))
 
             /// Lowercased canonical name of the header used for comparison.
-            #if Inlinable
-            @inlinable
-            #endif
             public var canonicalName: String {
                 switch self {
         \(canonicalNames.joined(separator: "\n"))
@@ -47,9 +44,6 @@ extension HTTPResponseHeaders {
 
         #if \(name)RawNames
         extension \(name) {
-            #if Inlinable
-            @inlinable
-            #endif
             public var rawName: String {
                 switch self {
         \(rawNames.joined(separator: "\n"))
@@ -67,9 +61,6 @@ extension HTTPResponseHeaders {
         extension \(name): RawRepresentable {
             public typealias RawValue = String
 
-            #if Inlinable
-            @inlinable
-            #endif
             public init?(rawValue: RawValue) {
                 switch rawValue {
         \(rawValueInitCases.joined(separator: "\n"))
@@ -77,9 +68,6 @@ extension HTTPResponseHeaders {
                 }
             }
 
-            #if Inlinable
-            @inlinable
-            #endif
             public var rawValue: RawValue {
                 switch self {
         \(rawValueCases.joined(separator: "\n"))

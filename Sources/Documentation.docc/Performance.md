@@ -20,8 +20,6 @@ Destiny uses the Swift 6 Language Mode by default so data races are guaranteed t
 ### Annotations
 
 Destiny utilizes certain annotations to improve performance.
-- `@inlinable`
-- `@inline(__always)`
 - `@_marker`
 
 ### CodeGen

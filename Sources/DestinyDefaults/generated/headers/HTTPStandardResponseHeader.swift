@@ -49,9 +49,6 @@ public enum HTTPStandardResponseHeader {
     case wwwAuthenticate
 
     /// Lowercased canonical name of the header used for comparison.
-    #if Inlinable
-    @inlinable
-    #endif
     public var canonicalName: String {
         switch self {
         case .acceptPatch: "accept-patch"
@@ -104,9 +101,6 @@ public enum HTTPStandardResponseHeader {
 
 #if HTTPStandardResponseHeaderRawNames
 extension HTTPStandardResponseHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawName: String {
         switch self {
         case .acceptPatch: "Accept-Patch"
@@ -167,9 +161,6 @@ extension HTTPStandardResponseHeader: Hashable {
 extension HTTPStandardResponseHeader: RawRepresentable {
     public typealias RawValue = String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(rawValue: RawValue) {
         switch rawValue {
         case "acceptPatch": self = .acceptPatch
@@ -220,9 +211,6 @@ extension HTTPStandardResponseHeader: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: RawValue {
         switch self {
         case .acceptPatch: "acceptPatch"

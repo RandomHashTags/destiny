@@ -22,9 +22,6 @@ public enum HTTPNonStandardRequestHeader {
     case xWapProfile
 
     /// Lowercased canonical name of the header used for comparison.
-    #if Inlinable
-    @inlinable
-    #endif
     public var canonicalName: String {
         switch self {
         case .correlationID: "correlation-id"
@@ -51,9 +48,6 @@ public enum HTTPNonStandardRequestHeader {
 
 #if HTTPNonStandardRequestHeaderRawNames
 extension HTTPNonStandardRequestHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawName: String {
         switch self {
         case .correlationID: "Correlation-ID"
@@ -88,9 +82,6 @@ extension HTTPNonStandardRequestHeader: Hashable {
 extension HTTPNonStandardRequestHeader: RawRepresentable {
     public typealias RawValue = String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(rawValue: RawValue) {
         switch rawValue {
         case "correlationID": self = .correlationID
@@ -115,9 +106,6 @@ extension HTTPNonStandardRequestHeader: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: RawValue {
         switch self {
         case .correlationID: "correlationID"

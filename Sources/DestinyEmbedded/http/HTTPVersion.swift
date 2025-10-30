@@ -12,9 +12,6 @@ public enum HTTPVersion: Hashable, Sendable {
     /// 
     /// - Parameters:
     ///   - token: The `UInt64` in `bigEndian` representation.
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(token: UInt64) {
         switch token {
         case 5211883372140310073: self = .v0_9
@@ -28,9 +25,6 @@ public enum HTTPVersion: Hashable, Sendable {
     }
 
     /// `String` representation of this HTTP Version (`HTTP/<major>.<minor>`).
-    #if Inlinable
-    @inlinable
-    #endif
     public var string: String {
         switch self {
         case .v0_9: "HTTP/0.9"
@@ -43,9 +37,6 @@ public enum HTTPVersion: Hashable, Sendable {
     }
 
     /// `StaticString` representation of this HTTP Version (`HTTP/<major>.<minor>`).
-    #if Inlinable
-    @inlinable
-    #endif
     public var staticString: StaticString {
         switch self {
         case .v0_9: "HTTP/0.9"

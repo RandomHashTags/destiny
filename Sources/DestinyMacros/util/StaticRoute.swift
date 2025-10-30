@@ -64,16 +64,10 @@ public struct StaticRoute: Sendable {
 
 // MARK: Logic
 extension StaticRoute {
-    #if Inlinable
-    @inlinable
-    #endif
     public var startLine: String {
         return "\(method.rawNameString()) /\(path.joined(separator: "/")) \(version.string)" 
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func insertPath(contentsOf newElements: some Collection<String>, at i: Int) {
         path.insert(contentsOf: newElements, at: i)
     }

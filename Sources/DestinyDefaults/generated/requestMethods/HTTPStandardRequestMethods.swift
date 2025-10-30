@@ -41,9 +41,6 @@ public enum HTTPStandardRequestMethod: Sendable {
     case updateredirectref
     case versionControl
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func rawNameString() -> String {
         switch self {
         case .connect: "CONNECT"
@@ -92,9 +89,6 @@ public enum HTTPStandardRequestMethod: Sendable {
 extension HTTPStandardRequestMethod: RawRepresentable {
     public typealias RawValue = String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(rawValue: String) {
         switch rawValue {
         case "connect": self = .connect
@@ -139,9 +133,6 @@ extension HTTPStandardRequestMethod: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: String {
         switch self {
         case .connect: "connect"

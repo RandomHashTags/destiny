@@ -4,9 +4,6 @@ public protocol PerfectHashGeneratorProtocol: Sendable, ~Copyable {
 }
 
 extension PerfectHashGeneratorProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public static func extractKeyClosure<T: PerfectHashable>(
         positions: InlineArray<64, Int>,
         maxBytes: Int

@@ -6,30 +6,18 @@ import DestinyEmbedded
 public struct NonCopyableBytes: Sendable, ~Copyable {
     public let value:[UInt8]
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init(_ value: [UInt8]) {
         self.value = value
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         value.count
     }
     
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         .init(decoding: value, as: UTF8.self)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int
@@ -46,9 +34,6 @@ extension NonCopyableBytes {
     ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         socket: some FileDescriptor,
         completionHandler: @Sendable @escaping () -> Void
@@ -70,9 +55,6 @@ import DestinyBlueprint
 extension NonCopyableBytes: ResponseBodyProtocol {}
 
 extension NonCopyableBytes: NonCopyableRouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

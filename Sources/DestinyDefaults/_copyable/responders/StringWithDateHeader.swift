@@ -24,23 +24,14 @@ public struct StringWithDateHeader: Sendable {
         self.value = value.utf8
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         preDateValue.count +! HTTPDateFormat.InlineArrayResult.count +! postDateValue.count +! value.count
     }
     
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         String(preDateValue) + HTTPDateFormat.placeholder + String(postDateValue) + String(value)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasDateHeader: Bool {
         true
     }
@@ -48,9 +39,6 @@ public struct StringWithDateHeader: Sendable {
 
 // MARK: Write to buffer
 extension StringWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
         preDateValue.withContiguousStorageIfAvailable {
@@ -74,9 +62,6 @@ extension StringWithDateHeader {
     ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         socket: some FileDescriptor,
         completionHandler: @Sendable @escaping () -> Void
@@ -113,9 +98,6 @@ import DestinyBlueprint
 extension StringWithDateHeader: ResponseBodyProtocol {}
 
 extension StringWithDateHeader: RouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
@@ -127,9 +109,6 @@ extension StringWithDateHeader: RouteResponderProtocol {
 }
 
 extension StringWithDateHeader: NonCopyableRouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

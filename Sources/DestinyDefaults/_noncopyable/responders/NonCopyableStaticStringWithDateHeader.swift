@@ -30,23 +30,14 @@ public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
         self.payload = .init(payload)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
     }
     
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         "\(String(cString: payload.preDatePointer))\(HTTPDateFormat.placeholder)\(String(cString: payload.postDatePointer))"
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasDateHeader: Bool {
         true
     }
@@ -54,9 +45,6 @@ public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
 
 // MARK: Write to buffer
 extension NonCopyableStaticStringWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
         buffer.copyBuffer(baseAddress: payload.preDatePointer, count: payload.preDatePointerCount, at: &index)
@@ -67,12 +55,6 @@ extension NonCopyableStaticStringWithDateHeader {
 
 // MARK: Respond
 extension NonCopyableStaticStringWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     public func respond(
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         socket: some FileDescriptor,

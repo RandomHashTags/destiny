@@ -29,30 +29,18 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: Sendable {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         "\(String(cString: payload.preDatePointer))\(HTTPDateFormat.placeholder)\(String(cString: payload.postDatePointer))"
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasDateHeader: Bool {
         true
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var hasContentLength: Bool {
         false
     }
@@ -60,9 +48,6 @@ public struct StreamWithDateHeader<Body: AsyncHTTPSocketWritable>: Sendable {
 
 // MARK: Write to buffer
 extension StreamWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         // TODO: support?
     }
@@ -70,9 +55,6 @@ extension StreamWithDateHeader {
 
 // MARK: Respond
 extension StreamWithDateHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

@@ -10,9 +10,6 @@ extension AbstractHTTPRequest._Storage {
     /// - Warning: `_headers` **MUST NOT** be `nil`!
     /// 
     /// - Throws: `any Error`
-    #if Inlinable
-    @inlinable
-    #endif
     mutating func bodyStream<let initialBufferCount: Int, let bufferCount: Int>(
         fileDescriptor: some FileDescriptor,
         initialBuffer: borrowing InlineByteBuffer<initialBufferCount>,
@@ -52,12 +49,6 @@ extension AbstractHTTPRequest._Storage {
         try await _body!.stream(fileDescriptor: fileDescriptor, yield)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
-    #if InlineAlways
-    @inline(__always)
-    #endif
     mutating func loadBufferSlice<let initialBufferCount: Int, let bufferCount: Int>(
         initialBuffer: borrowing InlineByteBuffer<initialBufferCount>,
         buffer: inout InlineArray<bufferCount, UInt8>,

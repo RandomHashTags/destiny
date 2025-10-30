@@ -45,9 +45,6 @@ extension HTTPResponseStatuses {
         public enum \(name): HTTPResponseStatus.StorageProtocol {
         \(cases.joined(separator: "\n"))
 
-            #if Inlinable
-            @inlinable
-            #endif
             public var code: UInt16 {
                 switch self {
         \(codeCases.joined(separator: "\n"))
@@ -59,9 +56,6 @@ extension HTTPResponseStatuses {
         extension \(name): RawRepresentable {
             public typealias RawValue = String
 
-            #if Inlinable
-            @inlinable
-            #endif
             public init?(rawValue: RawValue) {
                 switch rawValue {
         \(rawValueInits.joined(separator: "\n"))
@@ -69,9 +63,6 @@ extension HTTPResponseStatuses {
                 }
             }
 
-            #if Inlinable
-            @inlinable
-            #endif
             public var rawValue: RawValue {
                 switch self {
         \(rawValueCases.joined(separator: "\n"))

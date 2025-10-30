@@ -22,25 +22,16 @@ public struct HTTPCookie: Sendable {
     public var sameSite:HTTPCookieFlag.SameSite?
 
     /// Name of the cookie.
-    #if Inlinable
-    @inlinable
-    #endif
     public func name() -> String {
         _name
     }
 
     /// Sets the name of the cookie.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setName(_ name: String) {
         _name = name
     }
 
     /// Value of the cookie.
-    #if Inlinable
-    @inlinable
-    #endif
     public func value() -> String {
         _value
     }
@@ -48,9 +39,6 @@ public struct HTTPCookie: Sendable {
     /// Sets the value of the cookie.
     /// 
     /// - Throws: `HTTPCookieError` if `value` contains an illegal character.
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func setValue(_ value: String) throws(HTTPCookieError) {
         try Self.validateValue(value)
         _value = value
@@ -62,9 +50,6 @@ extension HTTPCookie {
     #if PercentEncoding
 
     /// - Throws: `HTTPCookieError` if `encoding` contains an illegal character.
-    #if Inlinable
-    @inlinable
-    #endif
     public init(
         name: String,
         encoding: String,
@@ -94,9 +79,6 @@ extension HTTPCookie {
     #endif
 
     /// - Throws: `HTTPCookieError` if `value` contains an illegal character.
-    #if Inlinable
-    @inlinable
-    #endif
     public init(
         name: String,
         value: String,
@@ -124,9 +106,6 @@ extension HTTPCookie {
         )
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init(
         name: String,
         uncheckedValue: String,
@@ -157,27 +136,18 @@ extension HTTPCookie {
     /// Validates the provided string is a valid HTTP Cookie Value.
     /// 
     /// - Throws: `HTTPCookieError` if it contains an illegal character.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func validateValue(_ value: String) throws(HTTPCookieError) {
         guard let illegalChar = value.first(where: { !Self.isValidInValue($0) }) else { return }
         throw .illegalCharacter(illegalChar)
     }
 
     /// Returns: Whether the provided character is allowed in an HTTP Cookie Value.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func isValidInValue(_ char: Character) -> Bool {
         guard let ascii = char.asciiValue else { return false }
         return isValidInValue(ascii)
     }
 
     /// Returns: Whether the provided byte is allowed in an HTTP Cookie Value.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func isValidInValue(_ byte: UInt8) -> Bool {
         return !(
             byte <= 31
@@ -193,9 +163,6 @@ extension HTTPCookie {
 
 // MARK: CustomStringConvertible
 extension HTTPCookie: CustomStringConvertible {
-    #if Inlinable
-    @inlinable
-    #endif
     public var description: String {
         var string = "\(_name)=\(_value)"
         if maxAge > 0 {
@@ -252,18 +219,12 @@ extension HTTPCookie {
     }
 
     /// Whether or not the cookie is secure.
-    #if Inlinable
-    @inlinable
-    #endif
     public var isSecure: Bool {
         get { isFlag(.secure) }
         set { setFlag(.secure, newValue) }
     }
 
     /// Whether or not the cookie is http only.
-    #if Inlinable
-    @inlinable
-    #endif
     public var isHTTPOnly: Bool {
         get { isFlag(.httpOnly) }
         set { setFlag(.httpOnly, newValue) }
@@ -272,9 +233,6 @@ extension HTTPCookie {
     /// Whether or not the cookie is partitioned.
     /// 
     /// [Read more](https://developer.mozilla.org/en-US/docs/Web/Privacy/Guides/Privacy_sandbox/Partitioned_cookies).
-    #if Inlinable
-    @inlinable
-    #endif
     public var isPartitioned: Bool {
         get { isFlag(.partitioned) }
         set { setFlag(.partitioned, newValue) }

@@ -51,9 +51,6 @@ public struct Epoll<let maxEvents: Int>: Sendable {
     }
 
     /// Flags a file descriptor as non-blocking.
-    #if Inlinable
-    @inlinable
-    #endif
     public func setNonBlocking(socket: Int32) {
         let flags = fcntl(socket, F_GETFL, 0)
         guard flags != -1 else {
@@ -66,9 +63,6 @@ public struct Epoll<let maxEvents: Int>: Sendable {
     }
 
     /// Closes all file descriptors managed by epoll.
-    #if Inlinable
-    @inlinable
-    #endif
     public func closeAll() {
         close(pipeFileDescriptors.read)
         close(pipeFileDescriptors.write)
@@ -81,9 +75,6 @@ extension Epoll {
     /// Adds a file descriptor to epoll.
     /// 
     /// - Throws: `EpollError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func add(client: Int32, events: UInt32) throws(EpollError) {
         var e = epoll_event()
         e.events = events
@@ -102,9 +93,6 @@ extension Epoll {
     /// Modifies a file descriptor from epoll.
     /// 
     /// - Throws: `EpollError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func mod(fd: Int32, events: UInt32) throws(EpollError) {
         var ev = epoll_event()
         ev.events = events
@@ -123,9 +111,6 @@ extension Epoll {
     /// Deletes a file descriptor from epoll.
     /// 
     /// - Throws: `EpollError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func remove(client: Int32) throws(EpollError) {
         if epoll_ctl(fileDescriptor, EPOLL_CTL_DEL, client, nil) == -1 {
             throw .epollCtlFailed(errno: cError())
@@ -142,9 +127,6 @@ extension Epoll {
     /// 
     /// - Returns: Number of loaded clients. Guaranteed to be greater than -1.
     /// - Throws: `EpollError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func wait(
         timeout: Int32 = -1,
         events: inout MutableSpan<epoll_event>

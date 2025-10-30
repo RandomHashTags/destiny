@@ -7,9 +7,6 @@ extension CORSMiddlewareAllowedOrigin {
     /// Applies CORS headers to a dynamic response.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func apply(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
@@ -28,18 +25,12 @@ extension CORSMiddlewareAllowedOrigin {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyAll(
         response: inout some DynamicResponseProtocol
     ) {
         response.setHeader(key: "access-control-allow-origin", value: "*")
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyAny(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol,
@@ -50,9 +41,6 @@ extension CORSMiddlewareAllowedOrigin {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyCustom(
         response: inout some DynamicResponseProtocol,
         string: String
@@ -60,9 +48,6 @@ extension CORSMiddlewareAllowedOrigin {
         response.setHeader(key: "access-control-allow-origin", value: string)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyOriginBased(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
@@ -78,9 +63,6 @@ extension CORSMiddlewareAllowedOrigin {
     /// Applies CORS headers to a `HTTPHeaders`.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func apply(
         request: inout HTTPRequest,
         headers: inout HTTPHeaders
@@ -99,18 +81,12 @@ extension CORSMiddlewareAllowedOrigin {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyAll(
         headers: inout HTTPHeaders
     ) {
         headers["access-control-allow-origin"] = "*"
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyAny(
         request: inout HTTPRequest,
         headers: inout HTTPHeaders,
@@ -121,9 +97,6 @@ extension CORSMiddlewareAllowedOrigin {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyCustom(
         headers: inout HTTPHeaders,
         string: String
@@ -131,9 +104,6 @@ extension CORSMiddlewareAllowedOrigin {
         headers["access-control-allow-origin"] = string
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     static func applyOriginBased(
         request: inout HTTPRequest,
         headers: inout HTTPHeaders

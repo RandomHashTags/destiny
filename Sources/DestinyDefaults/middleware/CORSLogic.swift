@@ -20,9 +20,6 @@ import DestinyBlueprint
 // MARK: Apply to response
 extension CORSLogic {
     /// Applies CORS headers to a dynamic response.
-    #if Inlinable
-    @inlinable
-    #endif
     public func apply(
         to response: inout some DynamicResponseProtocol
     ) {
@@ -50,9 +47,6 @@ extension CORSLogic {
 // MARK: Apply to headers
 extension CORSLogic {
     /// Applies CORS headers to a `HTTPHeaders`.
-    #if Inlinable
-    @inlinable
-    #endif
     public func apply(
         to headers: inout HTTPHeaders
     ) {

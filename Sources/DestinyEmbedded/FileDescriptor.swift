@@ -87,9 +87,6 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
 
 // MARK: Write
 extension FileDescriptor where Self: ~Copyable {
-    #if Inlinable
-    @inlinable
-    #endif
     public static func noSigPipe(fileDescriptor: Int32) {
         #if canImport(Darwin)
         var no_sig_pipe:Int32 = 0
@@ -97,9 +94,6 @@ extension FileDescriptor where Self: ~Copyable {
         #endif
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketWriteBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
@@ -114,9 +108,6 @@ extension FileDescriptor where Self: ~Copyable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketWriteString(
         _ string: String
     ) throws(SocketError) {
@@ -136,9 +127,6 @@ extension FileDescriptor where Self: ~Copyable {
 
 // MARK: Close
 extension FileDescriptor {
-    #if Inlinable
-    @inlinable
-    #endif
     package func socketClose() {
         #if canImport(SwiftGlibc) || canImport(Foundation)
         shutdown(fileDescriptor, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)

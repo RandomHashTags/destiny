@@ -37,9 +37,6 @@ public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProt
 // MARK: Positions
 extension PerfectHashGenerator {
     /// - Returns: Route indexes that have the most unique characters.
-    #if Inlinable
-    @inlinable
-    #endif
     public static func findPerfectHashPositions(
         routes: [PerfectHashableItem<T>],
         maxBytes: Int
@@ -83,9 +80,6 @@ extension PerfectHashGenerator {
 
 // MARK: Perfect
 extension PerfectHashGenerator {
-    #if Inlinable
-    @inlinable
-    #endif
     public func findPerfectHashFunction<let count: Int>(
         seeds: InlineArray<count, UInt64>
     ) -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: [UInt64])? {
@@ -121,9 +115,6 @@ extension PerfectHashGenerator {
         return nil
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func tryHashFunction(
         candidate: HashCandidate,
         hashTable: inout [UInt8],
@@ -154,9 +145,6 @@ extension PerfectHashGenerator {
     }
 
     @discardableResult
-    #if Inlinable
-    @inlinable
-    #endif
     public func generatePerfectHash<let count: Int>(seeds: InlineArray<count, UInt64>) -> (
         candidate: HashCandidate,
         hashTable: [UInt8],
@@ -194,9 +182,6 @@ extension PerfectHashGenerator {
 // MARK: Minimal
 extension PerfectHashGenerator {
     // for minimal perfect hash, table size = number of entries
-    #if Inlinable
-    @inlinable
-    #endif
     public func findMinimalPerfectHash<let count: Int>(seeds: InlineArray<count, UInt64>) -> (candidate: HashCandidate, result: MinimalResult)? {
         var candidate = HashCandidate(
             seed: .max,
@@ -216,9 +201,6 @@ extension PerfectHashGenerator {
         return nil
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func tryMinimalHashFunction(
         _ candidate: HashCandidate
     ) -> MinimalResult? {

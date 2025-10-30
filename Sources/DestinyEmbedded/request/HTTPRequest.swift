@@ -9,9 +9,6 @@ public struct HTTPRequest: NetworkAddressable, ~Copyable {
     @usableFromInline
     package var abstractRequest:AbstractHTTPRequest<1024>
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init(
         fileDescriptor: Int32,
         storage: consuming Storage = .init([:])
@@ -24,9 +21,6 @@ public struct HTTPRequest: NetworkAddressable, ~Copyable {
 // MARK: Load
 extension HTTPRequest {
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public static func load(from socket: consuming some FileDescriptor & ~Copyable) throws(SocketError) -> Self {
         Self(fileDescriptor: socket.fileDescriptor)
     }
@@ -34,16 +28,10 @@ extension HTTPRequest {
 
 // MARK: General logic
 extension HTTPRequest {
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketLocalAddress() -> String? {
         fileDescriptor.socketLocalAddress()
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func socketPeerAddress() -> String? {
         fileDescriptor.socketPeerAddress()
     }
@@ -51,9 +39,6 @@ extension HTTPRequest {
     /// The HTTP start-line.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
         try abstractRequest.startLine(fileDescriptor: fileDescriptor)
     }
@@ -61,9 +46,6 @@ extension HTTPRequest {
     /// The HTTP start-line in all lowercase bytes.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
         try abstractRequest.startLineLowercased(fileDescriptor: fileDescriptor)
     }
@@ -71,9 +53,6 @@ extension HTTPRequest {
     /// Yields the endpoint the request wants to reach, separated by the forward slash character.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func forEachPath(
         offset: Int,
         _ yield: (String) -> Void
@@ -86,9 +65,6 @@ extension HTTPRequest {
     /// 
     /// - Returns: The path component at the given index.
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func path(at index: Int) throws(SocketError) -> String {
         try abstractRequest.path(fileDescriptor: fileDescriptor, at: index)
     }
@@ -96,18 +72,12 @@ extension HTTPRequest {
     /// Number of path components the request contains.
     /// 
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func pathCount() throws(SocketError) -> Int {
         try abstractRequest.pathCount(fileDescriptor: fileDescriptor)
     }
 
     /// - Returns: Whether or not the request's method matches the given one.
     /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func isMethod(_ method: HTTPRequestMethod) throws(SocketError) -> Bool {
         try abstractRequest.isMethod(fileDescriptor: fileDescriptor, method)
     }
@@ -115,9 +85,6 @@ extension HTTPRequest {
     /// - Returns: The value for the corresponding header key.
     /// - Throws: `SocketError`
     /// - Warning: `key` is case-sensitive!
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func header(forKey key: String) throws(SocketError) -> String? {
         #if RequestHeaders
         return try abstractRequest.header(fileDescriptor: fileDescriptor, forKey: key)
@@ -126,9 +93,6 @@ extension HTTPRequest {
         #endif
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func headers() throws(SocketError) -> [Substring:Substring] {
         #if RequestHeaders
         return try abstractRequest.headers(fileDescriptor: fileDescriptor)
@@ -139,9 +103,6 @@ extension HTTPRequest {
 
     /// - Note: Only use if you need it (e.g. required if doing async work from a responder).
     /// - Returns: A copy of self.
-    #if Inlinable
-    @inlinable
-    #endif
     public func copy() -> Self {
         var c = Self(fileDescriptor: fileDescriptor)
         c.abstractRequest = abstractRequest.copy()
@@ -155,16 +116,10 @@ extension HTTPRequest {
 
 // MARK: Body
 extension HTTPRequest {
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func bodyCollect() throws(SocketError) -> InitialBuffer {
         try abstractRequest.bodyCollect(fileDescriptor: fileDescriptor)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public mutating func bodyCollect<let count: Int>() throws(SocketError) -> InlineByteBuffer<count> {
         try abstractRequest.bodyCollect(fileDescriptor: fileDescriptor)
     }

@@ -100,6 +100,7 @@ extension TestFileDescriptor {
         appendBuffer(b2)
         appendBuffer(b3)
     }
+
     func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
         _ b2: UnsafeBufferPointer<UInt8>,
@@ -111,9 +112,6 @@ extension TestFileDescriptor {
         appendBuffer((b3.baseAddress!, b3.count))
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func writeBuffers6(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),

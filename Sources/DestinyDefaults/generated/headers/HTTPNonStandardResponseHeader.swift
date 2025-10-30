@@ -21,9 +21,6 @@ public enum HTTPNonStandardResponseHeader {
     case xXSSProtection
 
     /// Lowercased canonical name of the header used for comparison.
-    #if Inlinable
-    @inlinable
-    #endif
     public var canonicalName: String {
         switch self {
         case .contentSecurityPolicy: "content-security-policy"
@@ -49,9 +46,6 @@ public enum HTTPNonStandardResponseHeader {
 
 #if HTTPNonStandardResponseHeaderRawNames
 extension HTTPNonStandardResponseHeader {
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawName: String {
         switch self {
         case .contentSecurityPolicy: "Content-Security-Policy"
@@ -85,9 +79,6 @@ extension HTTPNonStandardResponseHeader: Hashable {
 extension HTTPNonStandardResponseHeader: RawRepresentable {
     public typealias RawValue = String
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init?(rawValue: RawValue) {
         switch rawValue {
         case "contentSecurityPolicy": self = .contentSecurityPolicy
@@ -111,9 +102,6 @@ extension HTTPNonStandardResponseHeader: RawRepresentable {
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var rawValue: RawValue {
         switch self {
         case .contentSecurityPolicy: "contentSecurityPolicy"

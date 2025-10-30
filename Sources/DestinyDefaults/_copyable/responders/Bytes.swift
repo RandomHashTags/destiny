@@ -6,31 +6,19 @@ import DestinyEmbedded
 public struct Bytes: Sendable {
     public let value:[UInt8]
 
-    #if Inlinable
-    @inlinable
-    #endif
     public init(_ value: [UInt8]) {
         self.value = value
     }
 
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var count: Int {
         value.count
     }
     
-    #if Inlinable
-    @inlinable
-    #endif
     public func string() -> String {
         .init(decoding: value, as: UTF8.self)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int
@@ -44,9 +32,6 @@ extension Bytes {
     /// Writes a response to a file descriptor.
     /// 
     /// - Throws: `ResponderError`
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         socket: some FileDescriptor,
         completionHandler: @Sendable @escaping () -> Void
@@ -68,9 +53,6 @@ import DestinyBlueprint
 extension Bytes: ResponseBodyProtocol {}
 
 extension Bytes: RouteResponderProtocol {
-    #if Inlinable
-    @inlinable
-    #endif
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,

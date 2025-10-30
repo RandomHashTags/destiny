@@ -187,9 +187,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         case reuseAddress = 2
         case reusePort    = 4
 
-        #if Inlinable
-        @inlinable
-        #endif
         static func pack(
             noTCPDelay: Bool,
             reuseAddress: Bool,
@@ -201,30 +198,18 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func isFlag(_ flag: Flag) -> Bool {
         flags & flag.rawValue != 0
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var noTCPDelay: Bool {
         isFlag(.noTCPDelay)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var reuseAddress: Bool {
         isFlag(.reuseAddress)
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     public var reusePort: Bool {
         isFlag(.reusePort)
     }
@@ -232,9 +217,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
 
 // MARK: Process clients
 extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable {
-    #if Inlinable
-    @inlinable
-    #endif
     func setNonBlocking(socket: Int32) {
         let flags = fcntl(socket, F_GETFL, 0)
         guard flags != -1 else {
@@ -246,9 +228,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         }
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func processClients() async throws(ServerError) {
         #if Epoll
         let _:InlineArray<64, Bool>? = processClientsEpoll(port: port, router: router)
@@ -262,16 +241,10 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
 #if !Epoll && !Liburing
 
 extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable {
-    #if Inlinable
-    @inlinable
-    #endif
     public func acceptFunction(noTCPDelay: Bool) -> @Sendable (Int32?) throws(SocketError) -> Int32? {
         noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     @Sendable
     static func acceptClient(server: Int32?) throws(SocketError) -> Int32? {
         guard let serverFD = server else { return nil }
@@ -286,9 +259,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         return client
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     @Sendable
     static func acceptClientNoTCPDelay(server: Int32?) throws(SocketError) -> Int32? {
         guard let serverFD = server else { return nil }
@@ -305,9 +275,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         return client
     }
 
-    #if Inlinable
-    @inlinable
-    #endif
     func processClientsOLD(serverFD: Int32) async {
         let acceptClient = acceptFunction(noTCPDelay: noTCPDelay)
         while !Task.isCancelled {
@@ -339,9 +306,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
 // MARK: Epoll
 extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable {
     @discardableResult
-    #if Inlinable
-    @inlinable
-    #endif
     func processClientsEpoll<let maxEvents: Int>(
         port: UInt16,
         router: borrowing Router
