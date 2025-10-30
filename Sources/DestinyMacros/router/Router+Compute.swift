@@ -144,8 +144,8 @@ extension Router {
             #endif
 
             errorResponder = .get(
-                defaultErrorResponder(isCopyable: true, response: defaultStaticErrorResponse),
-                defaultErrorResponder(isCopyable: false, response: defaultStaticErrorResponse)
+                defaultErrorResponder(isCopyable: true, response: defaultStaticErrorResponse, storage: &storage),
+                defaultErrorResponder(isCopyable: false, response: defaultStaticErrorResponse, storage: &storage)
             )
         } else {
             errorResponder = .get(
@@ -211,13 +211,66 @@ extension Router {
     }
     private static func defaultErrorResponder(
         isCopyable: Bool,
-        response: String
+        response: String,
+        storage: inout RouterStorage
     ) -> String {
-        """
-        \(responderCopyableValues(isCopyable: isCopyable).text)StaticErrorResponder({ error in
-            \"\(response)\"
-        })
-        """
+        let copyableSymbol:String, copyableText:String, routerType:String
+        if isCopyable {
+            copyableSymbol = ""
+            copyableText = ""
+            routerType = "some HTTPRouterProtocol"
+        } else {
+            copyableSymbol = "~"
+            copyableText = "NonCopyable"
+            routerType = "borrowing some NonCopyableHTTPRouterProtocol & ~Copyable"
+        }
+        let name = "\(copyableText)ErrorResponder"
+
+        var members = MemberBlockItemListSyntax()
+        members.append(try! FunctionDeclSyntax("""
+        #if Inlinable
+        @inlinable
+        #endif
+        public func respond(
+            router: \(raw: routerType),
+            socket: some FileDescriptor,
+            error: some Error,
+            request: inout HTTPRequest,
+            completionHandler: @Sendable @escaping () -> Void
+        ) {
+            #if DEBUG && Logging
+            router.logger.warning("\\(error)")
+            #endif
+            do throws(ResponderError) {
+                let errorDesc = "\\(error)"
+                let contentLength = 26 + errorDesc.count
+                try \"\(raw: defaultErrorResponder())\"
+                    .respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
+            } catch {
+                #if Logging
+                router.logger.error("[\(raw: name)] Encountered error trying to write response: \\(error)")
+                #endif
+            }
+        }
+        """))
+        let decl = StructDeclSyntax(
+            leadingTrivia: "// MARK: \(name)\n",
+            modifiers: [storage.visibilityModifier],
+            name: "\(raw: name)",
+            inheritanceClause: .init(inheritedTypes: [
+                .init(type: TypeSyntax(stringLiteral: "\(copyableText)ErrorResponderProtocol"), trailingComma: .commaToken()),
+                .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
+            ]),
+            memberBlock: .init(members: members)
+        )
+        storage.generatedDecls.append(decl)
+        return name + "()"
+    }
+    private static func defaultErrorResponder() -> String {
+        /*
+        {"error":true,"reason":""}
+        */
+        "HTTP/1.1 200\\r\\ncontent-type: application/json\\r\\ncontent-length: \\(contentLength)\\r\\n\\r\\n{\\\"error\\\":true,\\\"reason\\\":\\\"\\(errorDesc)\\\"}"
     }
     private static func defaultStaticNotFoundResponder(
         context: some MacroExpansionContext,

@@ -204,9 +204,6 @@ let traits:Set<Trait> = [
         enabledTraits: ["NonCopyableDateHeaderPayload"]
     ),
     .trait(
-        name: "NonCopyableStaticErrorResponder"
-    ),
-    .trait(
         name: "NonCopyable",
         description: "Enables noncopyable functionality for optimal performance.",
         enabledTraits: [
@@ -215,9 +212,7 @@ let traits:Set<Trait> = [
             "NonCopyableInlineBytes",
             "NonCopyableMacroExpansionWithDateHeader",
             "NonCopyableStaticStringWithDateHeader",
-            "NonCopyableStreamWithDateHeader",
-
-            "NonCopyableStaticErrorResponder"
+            "NonCopyableStreamWithDateHeader"
         ]
     ),
 
