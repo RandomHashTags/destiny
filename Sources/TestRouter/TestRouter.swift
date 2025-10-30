@@ -135,7 +135,9 @@ package final class TestRouter {
         Route.get(
             path: ["newEndpoint"],
             mediaType: MediaTypeText.html,
-            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /legacyEndpoint to here</h1></body></html>"#)
+            body: NonCopyableStaticStringWithDateHeader("""
+            <!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>You've been redirected from /legacyEndpoint to here</h1></body></html>
+            """)
         ),
         Route.get(
             path: ["stream"],
@@ -150,23 +152,31 @@ package final class TestRouter {
         Route.post(
             path: ["post"],
             mediaType: MediaTypeApplication.json,
-            body: NonCopyableStaticStringWithDateHeader(#"{"bing":"bonged"}"#)
+            body: NonCopyableStaticStringWithDateHeader("""
+            {"bing":"bonged"}
+            """)
         ),
         Route.get(
             path: ["bro?what=dude"],
             mediaType: MediaTypeApplication.json,
-            body: #"{"bing":"bonged"}"#
+            body: """
+            {"bing":"bonged"}
+            """
         ),
         Route.get(
             path: ["html"],
             mediaType: MediaTypeText.html,
-            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+            body: NonCopyableStaticStringWithDateHeader("""
+            <!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>
+            """)
         ),
         Route.get(
             path: ["SHOOP"],
             isCaseSensitive: false,
             mediaType: MediaTypeText.html,
-            body: NonCopyableStaticStringWithDateHeader(#"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#)
+            body: NonCopyableStaticStringWithDateHeader("""
+            <!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>
+            """)
         ),
         Route.get(
             head: .init(version: .v2_0),
@@ -177,7 +187,9 @@ package final class TestRouter {
         Route.get(
             path: ["json"],
             mediaType: MediaTypeApplication.json,
-            body: NonCopyableStaticStringWithDateHeader(#"{"this_outcome_was_inevitable_and_was_your_destiny":true}"#)
+            body: NonCopyableStaticStringWithDateHeader("""
+            {"this_outcome_was_inevitable_and_was_your_destiny":true}"
+            """)
             //body: .json(StaticJSONResponse(this_outcome_was_inevitable_and_was_your_destiny: true)) // more work needed to get this working
         ),
         Route.get(
