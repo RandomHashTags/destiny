@@ -14,16 +14,4 @@ extension SocketProtocol where Self: ~Copyable {
         setsockopt(fileDescriptor, SOL_SOCKET, SO_NOSIGPIPE, &no_sig_pipe, socklen_t(MemoryLayout<Int32>.size))
         #endif
     }
-
-    /// Writes a `String` to the file descriptor.
-    /// 
-    /// - Throws: `SocketError`
-    #if Inlinable
-    @inlinable
-    #endif
-    public func writeString(
-        _ string: String
-    ) throws(SocketError) {
-        try fileDescriptor.socketWriteString(string)
-    }
 }
