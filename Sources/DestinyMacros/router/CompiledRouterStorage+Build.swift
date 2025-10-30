@@ -295,7 +295,7 @@ extension CompiledRouterStorage {
             modifiers: [visibilityModifier, .init(name: .keyword(.final))],
             name: "_Mutable",
             inheritanceClause: .init(inheritedTypes: .init([
-                .init(type: TypeSyntax("HTTPMutableRouterProtocol"), trailingComma: .commaToken()),
+                .init(type: TypeSyntax("HTTPRouterProtocol"), trailingComma: .commaToken()),
                 .init(type: TypeSyntax("@unchecked Sendable"))
             ])),
             memberBlock: .init(members: members)
