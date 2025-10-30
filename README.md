@@ -33,7 +33,6 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [x] Configure settings via Command Line Arguments <b>(Dec 11, 2024)</b>
 - [x] Redirects <b>(Dec 11, 2024)</b>
 - [x] Route Groups <b>(Dec 27, 2024)</b>
-- [x] Error Middleware <b>(Dec 29, 2024 | see [ErrorResponderProtocol](https://github.com/RandomHashTags/destiny/tree/main/Sources/DestinyBlueprint/responders/ErrorResponderProtocol.swift))</b>
 - [x] Case insensitive routes <b>(Feb 19, 2025)</b>
 - [x] Routes with wildcards <b>(Feb 19, 2025)</b>
 - [x] Better handling of clients to unlock more throughput <b>(Feb 23, 2025)</b>

@@ -48,9 +48,9 @@ import DestinyBlueprint
 ///   - routeGroups: Route groups the router contains.
 ///   - routes: Routes that the router contains. All routes are subject to the router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(expression)
-public macro router<T: HTTPRouterProtocol>(
+public macro router<T: HTTPRouterProtocol, ErrorResponder>(
     version: HTTPVersion,
-    errorResponder: (any ErrorResponderProtocol)? = nil,
+    errorResponder: ErrorResponder? = nil,
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     middleware: [any MiddlewareProtocol],
@@ -61,6 +61,34 @@ public macro router<T: HTTPRouterProtocol>(
 
 
 // MARK: #declareRouter
+/// Declares a struct named `DeclaredRouter` where a compiled router and its optimized data is stored.
+/// 
+/// Uses the default, auto-generated error responders.
+/// 
+/// - Parameters:
+///   - routerSettings: Settings for the router.
+///   - perfectHashSettings: Perfect Hash settings to use.
+///   - version: `HTTPVersion` the router responds to. All routes not having a version declared adopt this one.
+///   - dynamicNotFoundResponder: Dynamic responder for requests to unregistered endpoints.
+///   - staticNotFoundResponder: Static responder for requests to unregistered endpoints.
+///   - middleware: Middleware the router contains. All middleware is handled in the order they are declared (put your most important middleware first).
+///   - redirects: Redirects the router contains. Dynamic & Static redirects are automatically created based on this input.
+///   - routeGroups: Route groups the router contains.
+///   - routes: Routes that the router contains. All routes are subject to the router's static middleware. Only dynamic routes are subject to dynamic middleware.
+@freestanding(declaration, names: named(DeclaredRouter))
+public macro declareRouter(
+    routerSettings: RouterSettings = .init(),
+    perfectHashSettings: PerfectHashSettings = .init(),
+
+    version: HTTPVersion,
+    dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
+    staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
+    middleware: [any MiddlewareProtocol],
+    redirects: [StaticRedirectionRoute] = [],
+    routeGroups: [any ResponderStorageProtocol] = [],
+    _ routes: any RouteProtocol...
+) = #externalMacro(module: "DestinyMacros", type: "Router")
+
 /// Declares a struct named `DeclaredRouter` where a compiled router and its optimized data is stored.
 /// 
 /// - Parameters:
@@ -75,12 +103,12 @@ public macro router<T: HTTPRouterProtocol>(
 ///   - routeGroups: Route groups the router contains.
 ///   - routes: Routes that the router contains. All routes are subject to the router's static middleware. Only dynamic routes are subject to dynamic middleware.
 @freestanding(declaration, names: named(DeclaredRouter))
-public macro declareRouter(
+public macro declareRouter<ErrorResponder>(
     routerSettings: RouterSettings = .init(),
     perfectHashSettings: PerfectHashSettings = .init(),
 
     version: HTTPVersion,
-    errorResponder: (any ErrorResponderProtocol)? = nil,
+    errorResponder: ErrorResponder,
     dynamicNotFoundResponder: (any DynamicRouteResponderProtocol)? = nil,
     staticNotFoundResponder: (any StaticRouteResponderProtocol)? = nil,
     middleware: [any MiddlewareProtocol],

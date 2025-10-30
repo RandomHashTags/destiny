@@ -20,7 +20,7 @@ extension Router {
     ) -> (storage: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var compiledStorage = CompiledRouterStorage(routerSettings: routerSettings)
         var storage = RouterStorage(settings: routerSettings, perfectHashSettings: perfectHashSettings)
-        return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
+        return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, args: arguments)
     }
     #else
     static func compute(
@@ -31,7 +31,7 @@ extension Router {
     ) -> (storage: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
         var compiledStorage = CompiledRouterStorage()
         var storage = RouterStorage(perfectHashSettings: perfectHashSettings)
-        return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, arguments: arguments)
+        return compute(context: context, compiledStorage: &compiledStorage, storage: &storage, routerSettingsSyntax: routerSettingsSyntax, args: arguments)
     }
     #endif
 
@@ -40,84 +40,13 @@ extension Router {
         compiledStorage: inout CompiledRouterStorage,
         storage: inout RouterStorage,
         routerSettingsSyntax: ExprSyntax,
-        arguments: LabeledExprListSyntax
+        args: LabeledExprListSyntax
     ) -> (storage: CompiledRouterStorage, structs: MemberBlockItemListSyntax) {
-        var version = HTTPVersion.v1_1
-        var customErrorResponder = ""
-        var customDynamicNotFoundResponder = ""
-        var customStaticNotFoundResponder = ""
-        for arg in arguments {
-            if let label = arg.label?.text {
-                switch label {
-                case "version":
-                    version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
-                case "errorResponder":
-                    customErrorResponder = "\(arg.expression)"
-                case "dynamicNotFoundResponder":
-                    customDynamicNotFoundResponder = "\(arg.expression)"
-                case "staticNotFoundResponder":
-                    customStaticNotFoundResponder = "\(arg.expression)"
-                case "redirects":
-                    guard let array = arg.expression.arrayElements(context: context) else { break }
-                    #if StaticRedirectionRoute
-                    parseRedirects(
-                        context: context,
-                        version: version,
-                        array: array,
-                        staticRedirects: &storage.staticRedirects
-                    )
-                    #endif
-                case "middleware":
-                    guard let array = arg.expression.arrayElements(context: context) else { break }
-                    for element in array {
-                        //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
-                        if let function = element.expression.functionCall {
-                            parseMiddleware(context: context, function: function, storage: &storage)
-                        } else if let expansion = element.expression.macroExpansion {
-                            // TODO: support custom middleware
-                            context.diagnose(DiagnosticMsg.unhandled(node: expansion))
-                        } else {
-                            context.diagnose(DiagnosticMsg.unhandled(node: element))
-                        }
-                    }
-                case "routeGroups":
-                    guard let array = arg.expression.arrayElements(context: context) else { break }
-                    for element in array {
-                        guard let function = element.expression.functionCall else {
-                            context.diagnose(DiagnosticMsg.unhandled(node: element))
-                            continue
-                        }
-                        switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
-                        #if NonEmbedded && RouteGroup
-                        case "RouteGroup":
-                            let (decl, groupStorage) = RouteGroup.parse(
-                                context: context,
-                                settings: storage.settings,
-                                perfectHashSettings: storage.perfectHashSettings,
-                                version: version,
-                                staticMiddleware: storage.staticMiddleware,
-                                dynamicMiddleware: storage.dynamicMiddleware,
-                                storage: &storage,
-                                function
-                            )
-                            storage.routeGroups.append(decl)
-                            storage.generatedDecls.append(contentsOf: groupStorage.generatedDecls)
-                            storage.upgradeExistentialDynamicMiddleware.append(contentsOf: groupStorage.upgradeExistentialDynamicMiddleware)
-                        #endif
-
-                        default:
-                            context.diagnose(DiagnosticMsg.unhandled(node: function))
-                        }
-                    }
-                default:
-                    break
-                }
-            } else if let function = arg.expression.functionCall { // route
-                parseRoute(context: context, version: version, function: function, storage: &storage)
-            } else {
-                // TODO: support custom routes
-            }
-        }
+        let (version, customErrorResponder, customDynamicNotFoundResponder, customStaticNotFoundResponder) = parseArguments(
+            context: context,
+            args: args,
+            storage: &storage
+        )
 
         let errorResponder:CompiledRouterStorage.Responder?
         if customErrorResponder.isEmpty || customErrorResponder.isEmpty || customErrorResponder == "nil" {
@@ -209,6 +138,109 @@ extension Router {
         #endif
         return (compiledStorage, storage.generatedDecls)
     }
+}
+
+// MARK: Parse arguments
+extension Router {
+    private static func parseArguments(
+        context: some MacroExpansionContext,
+        args: LabeledExprListSyntax,
+        storage: inout RouterStorage
+    ) -> (
+        version: HTTPVersion,
+        customErrorResponder: String,
+        customDynamicNotFoundResponder: String,
+        customStaticNotFoundResponder: String
+    ) {
+        var version = HTTPVersion.v1_1
+        var customErrorResponder = ""
+        var customDynamicNotFoundResponder = ""
+        var customStaticNotFoundResponder = ""
+        for arg in args {
+            guard let label = arg.label?.text else {
+                if let function = arg.expression.functionCall { // route
+                    parseRoute(context: context, version: version, function: function, storage: &storage)
+                } else {
+                    // TODO: support custom routes
+                }
+                break
+            }
+            switch label {
+            case "version":
+                version = HTTPVersion.parse(context: context, expr: arg.expression) ?? version
+            case "errorResponder":
+                customErrorResponder = "\(arg.expression)"
+            case "dynamicNotFoundResponder":
+                customDynamicNotFoundResponder = "\(arg.expression)"
+            case "staticNotFoundResponder":
+                customStaticNotFoundResponder = "\(arg.expression)"
+            case "redirects":
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                #if StaticRedirectionRoute
+                parseRedirects(
+                    context: context,
+                    version: version,
+                    array: array,
+                    staticRedirects: &storage.staticRedirects
+                )
+                #endif
+            case "middleware":
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                for element in array {
+                    //print("Router;expansion;key==middleware;element.expression=\(element.expression.debugDescription)")
+                    if let function = element.expression.functionCall {
+                        parseMiddleware(context: context, function: function, storage: &storage)
+                    } else if let expansion = element.expression.macroExpansion {
+                        // TODO: support custom middleware
+                        context.diagnose(DiagnosticMsg.unhandled(node: expansion))
+                    } else {
+                        context.diagnose(DiagnosticMsg.unhandled(node: element))
+                    }
+                }
+            case "routeGroups":
+                guard let array = arg.expression.arrayElements(context: context) else { break }
+                for element in array {
+                    guard let function = element.expression.functionCall else {
+                        context.diagnose(DiagnosticMsg.unhandled(node: element))
+                        continue
+                    }
+                    switch function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text {
+                    #if NonEmbedded && RouteGroup
+                    case "RouteGroup":
+                        let (decl, groupStorage) = RouteGroup.parse(
+                            context: context,
+                            settings: storage.settings,
+                            perfectHashSettings: storage.perfectHashSettings,
+                            version: version,
+                            staticMiddleware: storage.staticMiddleware,
+                            dynamicMiddleware: storage.dynamicMiddleware,
+                            storage: &storage,
+                            function
+                        )
+                        storage.routeGroups.append(decl)
+                        storage.generatedDecls.append(contentsOf: groupStorage.generatedDecls)
+                        storage.upgradeExistentialDynamicMiddleware.append(contentsOf: groupStorage.upgradeExistentialDynamicMiddleware)
+                    #endif
+
+                    default:
+                        context.diagnose(DiagnosticMsg.unhandled(node: function))
+                    }
+                }
+            default:
+                break
+            }
+        }
+        return (
+            version,
+            customErrorResponder,
+            customDynamicNotFoundResponder,
+            customStaticNotFoundResponder
+        )
+    }
+}
+
+// MARK: Default error responder
+extension Router {
     private static func defaultErrorResponder(
         isCopyable: Bool,
         response: String,
@@ -243,9 +275,9 @@ extension Router {
             #endif
             do throws(ResponderError) {
                 let errorDesc = "\\(error)"
-                let contentLength = 26 + errorDesc.count
-                try \"\(raw: defaultErrorResponder())\"
-                    .respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
+                let contentLength = errorDesc.count
+                let responder = \(raw: defaultErrorResponder())
+                try responder.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
             } catch {
                 #if Logging
                 router.logger.error("[\(raw: name)] Encountered error trying to write response: \\(error)")
@@ -258,7 +290,7 @@ extension Router {
             modifiers: [storage.visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(inheritedTypes: [
-                .init(type: TypeSyntax(stringLiteral: "\(copyableText)ErrorResponderProtocol"), trailingComma: .commaToken()),
+                .init(type: TypeSyntax(stringLiteral: "Sendable"), trailingComma: .commaToken()),
                 .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
             ]),
             memberBlock: .init(members: members)
@@ -267,10 +299,13 @@ extension Router {
         return name + "()"
     }
     private static func defaultErrorResponder() -> String {
-        /*
-        {"error":true,"reason":""}
-        */
-        "HTTP/1.1 200\\r\\ncontent-type: application/json\\r\\ncontent-length: \\(contentLength)\\r\\n\\r\\n{\\\"error\\\":true,\\\"reason\\\":\\\"\\(errorDesc)\\\"}"
+        """
+        StringWithDateHeader(
+            preDateValue: "HTTP/1.1 200\\r\\ndate: ",
+            postDateValue: "\\r\\ncontent-type: application/json\\r\\ncontent-length: \\(contentLength)",
+            value: "{\\"error\\":true,\\"reason\\":\\"\\(errorDesc)\\"}"
+        )
+        """
     }
     private static func defaultStaticNotFoundResponder(
         context: some MacroExpansionContext,
