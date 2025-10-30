@@ -126,7 +126,7 @@ extension StringWithDateHeader: RouteResponderProtocol {
     }
 }
 
-extension StringWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+extension StringWithDateHeader: NonCopyableRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif

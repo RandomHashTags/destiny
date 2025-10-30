@@ -14,7 +14,7 @@ public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copy
     func respond(
         socket: some FileDescriptor,
         request: inout HTTPRequest,
-        responder: borrowing some NonCopyableStaticRouteResponderProtocol & ~Copyable,
+        responder: borrowing some NonCopyableRouteResponderProtocol & ~Copyable,
         completionHandler: @Sendable @escaping () -> Void
     ) throws(ResponderError)
 

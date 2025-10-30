@@ -90,7 +90,7 @@ import DestinyBlueprint
 
 // MARK: Conformances
 extension NonCopyableStaticStringWithDateHeader: ResponseBodyProtocol {}
-extension NonCopyableStaticStringWithDateHeader: NonCopyableStaticRouteResponderProtocol {}
+extension NonCopyableStaticStringWithDateHeader: NonCopyableRouteResponderProtocol {}
 
 #endif
 

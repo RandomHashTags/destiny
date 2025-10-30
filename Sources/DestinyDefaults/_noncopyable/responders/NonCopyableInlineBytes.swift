@@ -69,7 +69,7 @@ import DestinyBlueprint
 // MARK: Conformances
 extension NonCopyableInlineBytes: ResponseBodyProtocol {}
 
-extension NonCopyableInlineBytes: NonCopyableStaticRouteResponderProtocol {
+extension NonCopyableInlineBytes: NonCopyableRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif

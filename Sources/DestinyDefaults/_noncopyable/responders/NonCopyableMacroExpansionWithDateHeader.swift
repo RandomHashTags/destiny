@@ -70,7 +70,7 @@ extension NonCopyableMacroExpansionWithDateHeader {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension NonCopyableMacroExpansionWithDateHeader: NonCopyableStaticRouteResponderProtocol {
+extension NonCopyableMacroExpansionWithDateHeader: NonCopyableRouteResponderProtocol {
     #if Inlinable
     @inlinable
     #endif
