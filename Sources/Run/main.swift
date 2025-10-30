@@ -33,14 +33,8 @@ LoggingSystem.bootstrap { label in
 
 // MARK: Config
 let address = processArg(key: "hostname")
-var port:UInt16 = 8080
-var backlog:Int32 = SOMAXCONN
-if let v = processArg(key: "port") {
-    port = UInt16(v) ?? port
-}
-if let v = processArg(key: "backlog") {
-    backlog = Int32(v) ?? backlog
-}
+let port:UInt16 = 8080
+let backlog:Int32 = SOMAXCONN
 let reuseAddress = processArg(key: "reuseaddress")?.elementsEqual("true") ?? true
 let reusePort = processArg(key: "reuseport")?.elementsEqual("true") ?? true
 let noTCPDelay = processArg(key: "tcpnodelay")?.elementsEqual("true") ?? true
