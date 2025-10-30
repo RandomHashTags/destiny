@@ -119,6 +119,7 @@ extension DynamicResponderStorage {
 
 // MARK: Register
 extension DynamicResponderStorage {
+    /// Registers a dynamic route responder to the given route path.
     #if Inlinable
     @inlinable
     #endif
@@ -151,7 +152,7 @@ extension DynamicResponderStorage {
 
 import DestinyBlueprint
 
-extension DynamicResponderStorage: MutableDynamicResponderStorageProtocol {}
+extension DynamicResponderStorage: ResponderStorageProtocol {}
 
 #endif
 

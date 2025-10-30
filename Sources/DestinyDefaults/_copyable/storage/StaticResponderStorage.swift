@@ -131,6 +131,7 @@ public class StaticResponderStorage: @unchecked Sendable {
 
 // MARK: Register
 extension StaticResponderStorage {
+    /// Registers a static route responder to the given route path.
     #if Inlinable
     @inlinable
     #endif
@@ -253,7 +254,7 @@ extension StaticResponderStorage {
 import DestinyBlueprint
 
 // MARK: Conformances
-extension StaticResponderStorage: MutableStaticResponderStorageProtocol {}
+extension StaticResponderStorage: ResponderStorageProtocol {}
 
 #endif
 
