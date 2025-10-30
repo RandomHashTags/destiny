@@ -160,7 +160,7 @@ extension AbstractHTTPRequest {
     #if InlineAlways
     @inline(__always)
     #endif
-    static func load(from socket: consuming some SocketProtocol & ~Copyable) throws(SocketError) -> Self {
+    static func load(from socket: consuming some FileDescriptor & ~Copyable) throws(SocketError) -> Self {
         Self()
     }
 }

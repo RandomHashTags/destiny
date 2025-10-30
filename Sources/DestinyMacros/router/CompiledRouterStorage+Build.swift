@@ -460,7 +460,7 @@ extension CompiledRouterStorage {
             signature: .init(
                 parameterClause: .init(parameters: [
                     .init(leadingTrivia: "\n", firstName: "client", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("consuming some SocketProtocol & ~Copyable"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("consuming some FileDescriptor & ~Copyable"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n")
                 ])
             ),

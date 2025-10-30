@@ -16,14 +16,14 @@ extension AsyncHTTPSocketWritable {
     /// Asynchronously writes data to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: some noncopyable `SocketProtocol`.
+    ///   - socket: some noncopyable `FileDescriptor`.
     /// 
     /// - Throws: `SocketError`
     #if Inlinable
     @inlinable
     #endif
     public func write(
-        to socket: borrowing some SocketProtocol & ~Copyable
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) async throws(SocketError) {
         try await write(to: socket.fileDescriptor)
     }
