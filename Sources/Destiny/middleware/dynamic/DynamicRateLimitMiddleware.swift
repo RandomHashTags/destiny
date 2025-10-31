@@ -1,7 +1,6 @@
 
 #if RateLimits
 
-
 // TODO: finish
 public final class DynamicRateLimitMiddleware: @unchecked Sendable {
     @usableFromInline

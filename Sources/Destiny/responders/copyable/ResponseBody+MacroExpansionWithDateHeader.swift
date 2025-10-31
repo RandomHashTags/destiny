@@ -1,7 +1,6 @@
 
 #if CopyableMacroExpansionWithDateHeader
 
-
 extension ResponseBody {
     public struct MacroExpansionWithDateHeader<Value: ResponseBodyValueProtocol>: Sendable {
         public var value:Value

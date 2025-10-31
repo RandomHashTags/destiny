@@ -1,7 +1,6 @@
 
 #if CopyableMacroExpansionWithDateHeader
 
-
 public struct MacroExpansionWithDateHeader: Sendable {
     public static let bodyCountSuffix:StaticString = "\r\n\r\n"
 

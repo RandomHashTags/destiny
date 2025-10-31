@@ -1,7 +1,6 @@
 
 #if NonCopyable
 
-
 /// Core protocol that handles requests to dynamic routes.
 public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteResponderProtocol, ~Copyable {
     associatedtype ConcreteDynamicResponse:DynamicResponseProtocol

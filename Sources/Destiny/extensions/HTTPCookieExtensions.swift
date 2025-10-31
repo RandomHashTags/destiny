@@ -1,7 +1,6 @@
 
 #if HTTPCookie
 
-
 extension HTTPCookie {
     public init(unchecked cookie: HTTPCookie) {
         self.init(

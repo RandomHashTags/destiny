@@ -1,7 +1,6 @@
 
 #if NonCopyable
 
-
 /// Core protocol that handles middleware, routes and route groups.
 public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes a static response to the socket.

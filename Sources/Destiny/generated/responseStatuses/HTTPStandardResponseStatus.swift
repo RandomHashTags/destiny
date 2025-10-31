@@ -1,7 +1,6 @@
 
 #if HTTPStandardResponseStatuses
 
-
 public enum HTTPStandardResponseStatus: Sendable {
     /// https://www.rfc-editor.org/rfc/rfc9110.html#status.100
     case `continue`

@@ -1,7 +1,6 @@
 
 #if StaticMiddleware
 
-
 #if MediaTypes
 import MediaTypes
 #endif

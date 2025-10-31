@@ -1,7 +1,6 @@
 
 #if StaticRedirectionRoute
 
-
 /// Default Redirection Route implementation that handles redirects for static routes.
 public struct StaticRedirectionRoute: Sendable {
     /// Endpoint that has been moved.

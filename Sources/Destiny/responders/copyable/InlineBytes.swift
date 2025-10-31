@@ -1,7 +1,6 @@
 
 #if CopyableInlineBytes
 
-
 public struct InlineBytes<let count: Int>: Sendable {
     public let value:InlineArray<count, UInt8>
 

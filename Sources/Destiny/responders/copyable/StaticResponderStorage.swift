@@ -1,7 +1,6 @@
 
 #if StaticResponderStorage
 
-
 /// Default mutable storage that handles static routes.
 /// 
 /// - Warning: Is case-sensitive by default.

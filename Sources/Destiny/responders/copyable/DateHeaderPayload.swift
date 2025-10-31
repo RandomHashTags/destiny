@@ -1,7 +1,6 @@
 
 #if CopyableDateHeaderPayload
 
-
 /// Default storage to efficiently handle the `date` header payload for responders.
 public struct DateHeaderPayload: @unchecked Sendable {
     @usableFromInline let preDatePointer:UnsafePointer<UInt8>

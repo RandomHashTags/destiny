@@ -1,7 +1,6 @@
 
 #if CopyableMacroExpansion
 
-
 extension RouteResponses {
     public struct MacroExpansion: Sendable {
         public let bodyCount:String.UTF8View

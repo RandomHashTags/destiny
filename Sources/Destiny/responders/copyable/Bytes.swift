@@ -1,7 +1,6 @@
 
 #if CopyableBytes
 
-
 public struct Bytes: Sendable {
     public let value:[UInt8]
 

@@ -1,7 +1,6 @@
 
 #if Copyable && MutableRouter
 
-
 /// Default mutable storage that handles case insensitive static routes.
 public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
     public override func respond(

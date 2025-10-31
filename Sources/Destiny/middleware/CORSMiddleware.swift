@@ -1,7 +1,6 @@
 
 #if CORS
 
-
 public typealias DynamicCORSMiddleware = CORSMiddleware
 public typealias StaticCORSMiddleware = CORSMiddleware
 

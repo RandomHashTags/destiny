@@ -1,7 +1,6 @@
 
 #if CopyableMacroExpansion
 
-
 extension ResponseBody {
     public struct MacroExpansion<Value: ResponseBodyValueProtocol>: Sendable {
         public var value:Value

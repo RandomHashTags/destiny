@@ -1,7 +1,6 @@
 
 #if CORS
 
-
 /// List of all available CORS logic cases.
 public enum CORSLogic: Sendable {
     case allowCredentials_exposedHeaders_maxAge(allowedHeaders: String, allowedMethods: String, exposedHeaders: String, maxAge: String)

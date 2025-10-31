@@ -1,7 +1,6 @@
 
 #if RouteGroup
 
-
 // MARK: RouteGroup
 /// Default mutable Route Group implementation that handles grouped routes.
 public struct RouteGroup: Sendable { // TODO: avoid existentials / support embedded

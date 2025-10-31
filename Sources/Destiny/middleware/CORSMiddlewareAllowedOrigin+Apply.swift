@@ -1,7 +1,6 @@
 
 #if CORS
 
-
 extension CORSMiddlewareAllowedOrigin {
     /// Applies CORS headers to a dynamic response.
     /// 
