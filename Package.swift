@@ -362,7 +362,7 @@ let traits:Set<Trait> = [
     ),
     .trait(
         name: "Protocols",
-        description: "Enables the design protocols and the DestinyBlueprint target."
+        description: "Enables the design protocols."
     ),
 
     .trait(
