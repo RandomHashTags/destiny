@@ -111,7 +111,6 @@ extension HTTPRequest {
 }
 
 
-
 #if RequestBody
 
 // MARK: Body
@@ -122,6 +121,18 @@ extension HTTPRequest {
 
     public mutating func bodyCollect<let count: Int>() throws(SocketError) -> InlineByteBuffer<count> {
         try abstractRequest.bodyCollect(fileDescriptor: fileDescriptor)
+    }
+}
+
+#endif
+
+
+#if Protocols
+
+// MARK: Conformances
+extension HTTPRequest {
+    public mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+        try abstractRequest.isMethod(fileDescriptor: fileDescriptor, method)
     }
 }
 

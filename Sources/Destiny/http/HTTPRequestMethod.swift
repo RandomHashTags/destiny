@@ -12,3 +12,10 @@ public struct HTTPRequestMethod: Sendable {
         name
     }
 }
+
+// MARK: Conformances
+extension HTTPRequestMethod: HTTPRequestMethodProtocol {
+    public init(_ method: some HTTPRequestMethodProtocol) {
+        self.init(name: method.rawNameString())
+    }
+}

@@ -27,6 +27,7 @@ public struct HTTPHeaders: Sendable {
     }
 }
 
+// MARK: Subscript
 extension HTTPHeaders {
     /// - Complexity: On average, reading/writing an existing header is O(_n_) while removing a header is O(2*n*) if it exists and O(_n_) if it doesn't.
     /// - Warning: `header` is case-sensitive!
@@ -56,8 +57,24 @@ extension HTTPHeaders {
     }
 }
 
+// MARK: Sequence
 extension HTTPHeaders: Sequence {
     public func makeIterator() -> HTTPHeadersIterator {
         HTTPHeadersIterator(headers: _storage)
+    }
+}
+
+// MARK: ExpressibleByDictionaryLiteral
+extension HTTPHeaders: ExpressibleByDictionaryLiteral {
+    /// Creates an instance initialized with the given key-value pairs.
+    /// 
+    /// - Warning: Keys are case-sensitive!
+    public init(dictionaryLiteral elements: (String, String)...) {
+        var _storage = [(Key, Value)]()
+        _storage.reserveCapacity(elements.count)
+        for (key, value) in elements {
+            _storage.append((key, value))
+        }
+        self.init(_storage: _storage)
     }
 }
