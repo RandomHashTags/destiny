@@ -56,19 +56,13 @@ defaultTraits.insert("Liburing")
 #endif
 
 var destinyDependencies:[Target.Dependency] = [
-    "DestinyBlueprint",
-    "DestinyDefaults",
     .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"]))
 ]
 
-var testRouterDependencies:[Target.Dependency] = [
-    "DestinyBlueprint",
-    "DestinyDefaults"
-]
+var testRouterDependencies:[Target.Dependency] = []
 
 #if !(EMBEDDED || hasFeature(Embedded))
 testRouterDependencies.append("DestinySwiftSyntax")
-destinyDependencies.append(.byName(name: "DestinyDefaultsNonEmbedded", condition: .when(traits: ["NonEmbedded"])))
 #endif
 
 var destinyMacrosDependencies = destinyDependencies
@@ -415,56 +409,8 @@ var targets = [
 
 
 
-    // MARK: DestinyEmbedded
-    Target.target(
-        name: "DestinyEmbedded",
-        dependencies: [
-            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-            .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
-            .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
-        ]
-    ),
-
-    // MARK: DestinyBlueprint
-    .target(
-        name: "DestinyBlueprint",
-        dependencies: [
-            "DestinyEmbedded",
-            .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
-            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-            //.product(name: "Metrics", package: "swift-metrics"),
-            .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
-            .product(name: "VariableLengthArray", package: "swift-variablelengtharray")
-        ]
-    ),
-
-    // MARK: DestinyDefaults
-    .target(
-        name: "DestinyDefaults",
-        dependencies: [
-            "DestinyEmbedded",
-            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
-            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-            //.product(name: "Metrics", package: "swift-metrics"),
-            .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators")
-        ]
-    ),
-
-    // MARK: DestinyDefaultsNonEmbedded
-    .target(
-        name: "DestinyDefaultsNonEmbedded",
-        dependencies: [
-            "DestinyEmbedded",
-            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
-            "DestinyDefaults",
-            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
-            //.product(name: "Metrics", package: "swift-metrics"),
-            .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators")
-        ]
-    ),
-
     // MARK: Destiny
-    .target(
+    Target.target(
         name: "Destiny",
         dependencies: destinyDependencies
     ),
@@ -496,9 +442,7 @@ var targets = [
     .target(
         name: "TestRouter",
         dependencies: [
-            "DestinyEmbedded",
-            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
-            "DestinyDefaults",
+            "Destiny",
             "DestinySwiftSyntax"
         ]
     ),
@@ -506,9 +450,7 @@ var targets = [
     .executableTarget(
         name: "Run",
         dependencies: [
-            "DestinyEmbedded",
-            .byName(name: "DestinyBlueprint", condition: .when(traits: ["Protocols"])),
-            "DestinyDefaults",
+            "Destiny",
             "TestRouter"
         ]
     ),
@@ -516,6 +458,7 @@ var targets = [
     .testTarget(
         name: "DestinyTests",
         dependencies: [
+            "Destiny",
             "DestinySwiftSyntax",
             "DestinyMacros",
             "TestRouter"
@@ -532,10 +475,6 @@ for target in targets {
 let package = Package(
     name: "destiny",
     products: [
-        .library(name: "DestinyBlueprint", targets: ["DestinyBlueprint"]),
-        .library(name: "DestinyDefaults", targets: ["DestinyDefaults"]),
-        .library(name: "DestinyDefaultsNonEmbedded", targets: ["DestinyDefaultsNonEmbedded"]),
-        .library(name: "DestinyEmbedded", targets: ["DestinyEmbedded"]),
         .library(name: "Destiny", targets: ["Destiny"]),
         .library(name: "DestinySwiftSyntax", targets: ["DestinySwiftSyntax"]),
 

@@ -1,7 +1,6 @@
 
 
-import DestinyBlueprint
-import DestinyDefaults
+import Destiny
 import PerfectHashing
 import SwiftDiagnostics
 import SwiftSyntax

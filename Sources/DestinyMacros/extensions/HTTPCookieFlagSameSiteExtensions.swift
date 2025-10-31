@@ -1,7 +1,6 @@
 
 #if HTTPCookie
 
-import DestinyEmbedded
 
 extension HTTPCookieFlag.SameSite: RawRepresentable {
     public typealias RawValue = String

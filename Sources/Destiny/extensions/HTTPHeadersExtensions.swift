@@ -1,0 +1,14 @@
+
+
+extension HTTPHeaders: ExpressibleByDictionaryLiteral {
+    /// Creates an instance initialized with the given key-value pairs.
+    /// - Warning: Keys are case-sensitive!
+    public init(dictionaryLiteral elements: (String, String)...) {
+        var _storage = [(Key, Value)]()
+        _storage.reserveCapacity(elements.count)
+        for (key, value) in elements {
+            _storage.append((key, value))
+        }
+        self.init(_storage: _storage)
+    }
+}

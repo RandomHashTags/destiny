@@ -1,6 +1,5 @@
 
-import DestinyBlueprint
-@testable import DestinyDefaults
+@testable import Destiny
 
 final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
     let fileDescriptor:Int32

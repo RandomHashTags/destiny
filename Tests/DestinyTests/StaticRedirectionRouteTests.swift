@@ -1,8 +1,7 @@
 
 #if StaticRedirectionRoute
 
-import DestinyEmbedded
-import DestinyDefaults
+import Destiny
 import DestinyMacros
 import Testing
 

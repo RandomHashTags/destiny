@@ -1,7 +1,5 @@
 
-import DestinyBlueprint
-@testable import DestinyDefaults
-@testable import DestinyEmbedded
+@testable import Destiny
 
 /// Default storage for request data.
 struct TestRequest: Sendable, ~Copyable {

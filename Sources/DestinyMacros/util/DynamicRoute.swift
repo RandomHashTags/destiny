@@ -1,7 +1,5 @@
 
-import DestinyBlueprint
-import DestinyDefaults
-import DestinyEmbedded
+import Destiny
 
 // MARK: DynamicRoute
 /// Default Dynamic Route implementation where a complete HTTP Message, computed at compile time, is modified upon requests.

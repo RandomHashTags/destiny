@@ -1,8 +1,7 @@
 
 #if HTTPCookie
 
-import DestinyBlueprint
-import DestinyDefaults
+import Destiny
 import DestinyMacros
 import Testing
 

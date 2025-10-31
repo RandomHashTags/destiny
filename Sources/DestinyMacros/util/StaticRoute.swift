@@ -1,7 +1,5 @@
 
-import DestinyBlueprint
-import DestinyDefaults
-import DestinyEmbedded
+import Destiny
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros

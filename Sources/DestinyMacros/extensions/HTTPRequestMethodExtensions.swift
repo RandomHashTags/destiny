@@ -1,9 +1,8 @@
 
-import DestinyBlueprint
 import SwiftSyntax
 
 #if HTTPStandardRequestMethodRawValues || HTTPNonStandardRequestMethodRawValues
-import DestinyDefaults
+import Destiny
 #endif
 
 extension HTTPRequestMethod {

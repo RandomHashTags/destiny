@@ -1,5 +1,4 @@
 
-import DestinyEmbedded
 
 extension Charset: RawRepresentable {
     public typealias RawValue = String

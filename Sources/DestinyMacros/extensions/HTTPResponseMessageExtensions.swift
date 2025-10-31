@@ -1,5 +1,4 @@
 
-import DestinyEmbedded
 
 // MARK: HTTPResponseMessage
 extension HTTPResponseMessage {
