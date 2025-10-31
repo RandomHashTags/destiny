@@ -77,9 +77,7 @@ extension NonCopyableStreamWithDateHeader {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension NonCopyableStreamWithDateHeader: ResponseBodyProtocol {}

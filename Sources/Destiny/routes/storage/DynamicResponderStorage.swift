@@ -134,9 +134,7 @@ extension DynamicResponderStorage {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 extension DynamicResponderStorage: ResponderStorageProtocol {}
 

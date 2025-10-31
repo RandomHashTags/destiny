@@ -1,7 +1,6 @@
 
-#if MediaTypes
+#if NonEmbedded && MediaTypes
 
-import DestinyBlueprint
 import MediaTypes
 
 extension Route {

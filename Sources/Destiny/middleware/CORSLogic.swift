@@ -14,9 +14,7 @@ public enum CORSLogic: Sendable {
     case minimum(allowedHeaders: String, allowedMethods: String)
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Apply to response
 extension CORSLogic {

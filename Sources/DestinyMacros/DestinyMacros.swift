@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import Destiny
 import SwiftCompilerPlugin
 import SwiftSyntax
 import SwiftSyntaxMacros

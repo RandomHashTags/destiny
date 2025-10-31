@@ -1,6 +1,7 @@
 
 #if RouterSettings
 
+import Destiny
 import SwiftSyntax
 
 extension RouterSettings {

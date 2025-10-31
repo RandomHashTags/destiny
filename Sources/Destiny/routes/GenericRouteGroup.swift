@@ -40,9 +40,7 @@ extension GenericRouteGroup {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension GenericRouteGroup: ResponderStorageProtocol {}

@@ -1,8 +1,6 @@
 
 #if NonEmbedded
 
-import DestinyBlueprint
-
 /// Default Dynamic Route Responder implementation that responds to dynamic routes.
 public struct DynamicRouteResponder: Sendable {
     public let path:[PathComponent]

@@ -57,9 +57,7 @@ extension MacroExpansionWithDateHeader {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension MacroExpansionWithDateHeader: RouteResponderProtocol {}

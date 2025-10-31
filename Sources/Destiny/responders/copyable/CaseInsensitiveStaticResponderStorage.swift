@@ -68,9 +68,7 @@ public final class CaseInsensitiveStaticResponderStorage: @unchecked Sendable {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension CaseInsensitiveStaticResponderStorage: StaticResponderStorage {}

@@ -178,9 +178,7 @@ extension HTTPStandardRequestMethod: RawRepresentable {
 }
 #endif
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 extension HTTPStandardRequestMethod: HTTPRequestMethodProtocol {}
 

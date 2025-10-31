@@ -45,9 +45,7 @@ extension StaticRedirectionRoute {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 extension StaticRedirectionRoute {
     public init(

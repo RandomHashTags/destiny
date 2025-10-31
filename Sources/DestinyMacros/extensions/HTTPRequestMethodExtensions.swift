@@ -1,9 +1,6 @@
 
-import SwiftSyntax
-
-#if HTTPStandardRequestMethodRawValues || HTTPNonStandardRequestMethodRawValues
 import Destiny
-#endif
+import SwiftSyntax
 
 extension HTTPRequestMethod {
     public static func parse(expr: some ExprSyntaxProtocol) -> HTTPRequestMethod? {

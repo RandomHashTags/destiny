@@ -1,8 +1,6 @@
 
 #if NonEmbedded && RequestBodyStream
 
-import DestinyBlueprint
-
 // MARK: Stream
 extension RequestBody {
     /// Streams data from a file descriptor.

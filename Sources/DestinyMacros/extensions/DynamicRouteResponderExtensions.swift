@@ -1,7 +1,7 @@
 
 #if NonEmbedded
 
-import DestinyDefaultsNonEmbedded
+import Destiny
 
 // MARK: CustomDebugStringConvertible
 extension DynamicRouteResponder: CustomDebugStringConvertible {

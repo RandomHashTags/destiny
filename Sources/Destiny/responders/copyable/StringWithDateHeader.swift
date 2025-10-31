@@ -89,9 +89,7 @@ extension StringWithDateHeader {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension StringWithDateHeader: ResponseBodyProtocol {}

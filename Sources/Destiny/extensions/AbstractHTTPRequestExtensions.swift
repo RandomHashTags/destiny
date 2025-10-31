@@ -1,7 +1,5 @@
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformance logic
 extension AbstractHTTPRequest {

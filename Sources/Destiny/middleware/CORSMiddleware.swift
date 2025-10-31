@@ -162,9 +162,7 @@ extension CORSMiddleware {
 
 
 // MARK: Logic variants
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 extension CORSMiddleware {
     static func handleSharedLogic(

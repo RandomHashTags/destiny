@@ -146,9 +146,7 @@ extension HTTPSocket {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension HTTPSocket: FileDescriptor {}

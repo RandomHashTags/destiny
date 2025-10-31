@@ -60,9 +60,7 @@ public struct Application: Sendable {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension Application: DestinyServiceProtocol {}

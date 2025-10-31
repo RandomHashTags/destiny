@@ -83,9 +83,7 @@ extension AsyncHTTPChunkDataStream {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension AsyncHTTPChunkDataStream: AsyncHTTPSocketWritable {}

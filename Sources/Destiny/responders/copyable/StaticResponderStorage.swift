@@ -221,9 +221,7 @@ extension StaticResponderStorage {
     #endif
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension StaticResponderStorage: ResponderStorageProtocol {}

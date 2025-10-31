@@ -1,8 +1,6 @@
 
 #if NonEmbedded && CORS && HTTPStandardRequestHeaders
 
-import DestinyBlueprint
-
 // MARK: Init
 extension CORSMiddleware {
     /// Default initializer to create a `CORSMiddleware`.

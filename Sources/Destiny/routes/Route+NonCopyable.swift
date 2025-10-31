@@ -1,7 +1,5 @@
 
-#if NonCopyable
-
-import DestinyBlueprint
+#if NonCopyable && NonEmbedded
 
 extension Route {
     static func unsupportedNonCopyable() -> Self {

@@ -1,8 +1,6 @@
 
 #if MutableRouter
 
-import DestinyBlueprint
-
 public final class RouteGroupStorage: @unchecked Sendable { // TODO: avoid existentials / support embedded
     @usableFromInline
     var groups:[any ResponderStorageProtocol]

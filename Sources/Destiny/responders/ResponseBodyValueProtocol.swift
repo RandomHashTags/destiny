@@ -8,18 +8,5 @@ public protocol ResponseBodyValueProtocol: BufferWritable, ~Copyable {
 }
 
 // MARK: Default conformances
-extension String: ResponseBodyValueProtocol {
-    public func string() -> String {
-        self
-    }
-}
-
-extension StaticString: ResponseBodyValueProtocol {
-    public var count: Int {
-        self.utf8CodeUnitCount
-    }
-
-    public func string() -> String {
-        description
-    }
-}
+extension String: ResponseBodyValueProtocol {}
+extension StaticString: ResponseBodyValueProtocol {}

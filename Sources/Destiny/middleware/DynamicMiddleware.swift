@@ -1,8 +1,6 @@
 
 #if NonEmbedded
 
-import DestinyBlueprint
-
 /// Default Dynamic Middleware implementation which handles requests to dynamic routes.
 public struct DynamicMiddleware: Sendable {
     public let handleLogic:@Sendable (_ request: inout HTTPRequest, _ response: inout any DynamicResponseProtocol) throws -> Void

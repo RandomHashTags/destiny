@@ -87,9 +87,7 @@ extension RouteGroup {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension RouteGroup: ResponderStorageProtocol {}

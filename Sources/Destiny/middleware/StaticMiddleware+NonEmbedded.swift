@@ -1,8 +1,6 @@
 
 #if NonEmbedded && StaticMiddleware
 
-import DestinyBlueprint
-
 extension StaticMiddleware {
     #if HTTPCookie
     public convenience init(

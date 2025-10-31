@@ -1,8 +1,6 @@
 
 #if NonEmbedded && RequestBodyStream
 
-import DestinyBlueprint
-
 // MARK: Body
 extension AbstractHTTPRequest {
     /// - Throws: `any Error`

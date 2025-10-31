@@ -1,7 +1,5 @@
 
-#if Copyable
-
-import DestinyBlueprint
+#if NonEmbedded && Copyable
 
 extension Route {
     public static func on(

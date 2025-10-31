@@ -1,8 +1,6 @@
 
 #if HTTPNonStandardRequestMethods
 
-import DestinyBlueprint
-
 public enum HTTPNonStandardRequestMethod: HTTPRequestMethodProtocol {
     case announce
     case append

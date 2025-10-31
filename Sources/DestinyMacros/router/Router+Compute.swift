@@ -4,10 +4,6 @@ import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if NonEmbedded
-import DestinyDefaultsNonEmbedded
-#endif
-
 extension Router {
     #if RouterSettings
     static func compute(

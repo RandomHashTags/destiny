@@ -55,9 +55,7 @@ extension RouteResponses.MacroExpansion {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension RouteResponses.MacroExpansion: RouteResponderProtocol {

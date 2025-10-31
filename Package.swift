@@ -55,26 +55,11 @@ defaultTraits.insert("Epoll")
 defaultTraits.insert("Liburing")
 #endif
 
-var destinyDependencies:[Target.Dependency] = [
-    .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"]))
-]
-
 var testRouterDependencies:[Target.Dependency] = []
 
 #if !(EMBEDDED || hasFeature(Embedded))
 testRouterDependencies.append("DestinySwiftSyntax")
 #endif
-
-var destinyMacrosDependencies = destinyDependencies
-
-destinyMacrosDependencies.append(contentsOf: [
-    "PerfectHashing",
-    .product(name: "MediaTypesSwiftSyntax", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
-    .product(name: "SwiftSyntax", package: "swift-syntax"),
-    .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-    .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-    .product(name: "SwiftDiagnostics", package: "swift-syntax")
-])
 
 // MARK: Traits
 defaultTraits.formUnion([
@@ -412,7 +397,12 @@ var targets = [
     // MARK: Destiny
     Target.target(
         name: "Destiny",
-        dependencies: destinyDependencies
+        dependencies: [
+            .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
+            .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
+            .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
+            .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
+        ]
     ),
 
     // MARK: DestinySwiftSyntax
@@ -435,7 +425,15 @@ var targets = [
     // MARK: DestinyMacros
     .macro(
         name: "DestinyMacros",
-        dependencies: destinyMacrosDependencies
+        dependencies: [
+            "Destiny",
+            "PerfectHashing",
+            .product(name: "MediaTypesSwiftSyntax", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
+            .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+            .product(name: "SwiftDiagnostics", package: "swift-syntax"),
+            .product(name: "SwiftSyntax", package: "swift-syntax"),
+            .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+        ]
     ),
 
     // MARK: TestRouter

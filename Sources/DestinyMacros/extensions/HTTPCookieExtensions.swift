@@ -1,6 +1,7 @@
 
 #if HTTPCookie
 
+import Destiny
 
 // MARK: CustomDebugStringConvertible
 extension HTTPCookie: CustomDebugStringConvertible {

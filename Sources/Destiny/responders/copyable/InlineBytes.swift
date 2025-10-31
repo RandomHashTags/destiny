@@ -46,9 +46,7 @@ extension InlineBytes {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension InlineBytes: ResponseBodyProtocol {}

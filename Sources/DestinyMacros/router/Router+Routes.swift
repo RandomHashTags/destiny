@@ -3,10 +3,6 @@ import Destiny
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if NonEmbedded
-import DestinyDefaultsNonEmbedded
-#endif
-
 // MARK: Parse
 extension Router {
     static func parseRoute(

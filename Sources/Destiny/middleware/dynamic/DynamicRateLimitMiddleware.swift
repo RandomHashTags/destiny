@@ -64,9 +64,7 @@ extension DynamicRateLimitMiddleware {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension DynamicRateLimitMiddleware: DynamicMiddlewareProtocol {}

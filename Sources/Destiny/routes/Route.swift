@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+#if NonEmbedded
 
 /// Convenient route storage used by the macros to optimally manage routes and their responses.
 public struct Route: Sendable {
@@ -49,5 +49,11 @@ extension Route {
     }
 }
 
+#if Protocols
+
 // MARK: Conformances
 extension Route: RouteProtocol {}
+
+#endif
+
+#endif

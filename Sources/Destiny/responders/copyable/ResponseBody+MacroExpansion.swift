@@ -27,9 +27,7 @@ extension ResponseBody {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension ResponseBody.MacroExpansion: ResponseBodyProtocol {}

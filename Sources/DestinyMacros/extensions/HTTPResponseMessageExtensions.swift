@@ -1,4 +1,5 @@
 
+import Destiny
 
 // MARK: HTTPResponseMessage
 extension HTTPResponseMessage {

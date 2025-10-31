@@ -25,8 +25,7 @@ public macro httpServer(
 
 
 
-#if NonEmbedded && canImport(DestinyBlueprint)
-import DestinyBlueprint
+#if NonEmbedded && Protocols
 
 // MARK: Non embedded
 

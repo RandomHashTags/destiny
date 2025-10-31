@@ -3,10 +3,6 @@ import Destiny
 import SwiftSyntax
 import SwiftSyntaxMacros
 
-#if NonEmbedded
-import DestinyDefaultsNonEmbedded
-#endif
-
 public struct RouterStorage {
     #if RouterSettings
     let settings:RouterSettings

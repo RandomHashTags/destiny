@@ -45,9 +45,7 @@ extension NonCopyableInlineBytes {
     }
 }
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 // MARK: Conformances
 extension NonCopyableInlineBytes: ResponseBodyProtocol {}

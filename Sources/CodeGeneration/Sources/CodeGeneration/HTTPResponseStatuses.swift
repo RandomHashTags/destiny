@@ -40,8 +40,6 @@ extension HTTPResponseStatuses {
 
         #if \(name)es
 
-        import DestinyBlueprint
-
         public enum \(name): HTTPResponseStatus.StorageProtocol {
         \(cases.joined(separator: "\n"))
 

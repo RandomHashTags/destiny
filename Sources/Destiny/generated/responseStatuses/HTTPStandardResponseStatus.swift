@@ -337,9 +337,7 @@ extension HTTPStandardResponseStatus: RawRepresentable {
 }
 #endif
 
-#if canImport(DestinyBlueprint)
-
-import DestinyBlueprint
+#if Protocols
 
 extension HTTPStandardResponseStatus: HTTPResponseStatus.StorageProtocol {}
 

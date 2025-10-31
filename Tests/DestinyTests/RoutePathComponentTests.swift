@@ -1,7 +1,7 @@
 
 #if RoutePath
 
-import DestinyBlueprint
+import Destiny
 import DestinyMacros
 import Testing
 

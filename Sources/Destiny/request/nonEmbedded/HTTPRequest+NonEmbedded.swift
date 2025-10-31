@@ -1,8 +1,6 @@
 
 #if NonEmbedded && RequestBodyStream
 
-import DestinyBlueprint
-
 extension HTTPRequest {
     /// - Throws: `any Error`
     public mutating func bodyStream(
