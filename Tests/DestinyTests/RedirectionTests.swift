@@ -1,7 +1,7 @@
 
 #if NonEmbedded
 
-import DestinyEmbedded
+import Destiny
 import Testing
 
 @Suite

@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import Destiny
 
 // MARK: CustomDebugStringConvertible
 extension PathComponent: CustomDebugStringConvertible {

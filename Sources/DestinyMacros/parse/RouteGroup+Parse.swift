@@ -1,9 +1,7 @@
 
 #if RouteGroup
 
-import DestinyBlueprint
-import DestinyDefaults
-import DestinyDefaultsNonEmbedded
+import Destiny
 import SwiftSyntax
 import SwiftSyntaxMacros
 

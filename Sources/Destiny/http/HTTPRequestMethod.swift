@@ -1,0 +1,21 @@
+
+/// Bare minimum storage to use an HTTP Request Method.
+public struct HTTPRequestMethod: Sendable {
+    /// Raw name of the request method (typically all uppercase letters).
+    public let name:String
+
+    public init(name: String) {
+        self.name = name
+    }
+
+    public func rawNameString() -> String {
+        name
+    }
+}
+
+// MARK: Conformances
+extension HTTPRequestMethod: HTTPRequestMethodProtocol {
+    public init(_ method: some HTTPRequestMethodProtocol) {
+        self.init(name: method.rawNameString())
+    }
+}

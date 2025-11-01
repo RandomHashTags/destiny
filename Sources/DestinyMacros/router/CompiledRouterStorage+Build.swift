@@ -1,5 +1,4 @@
 
-import DestinyEmbedded
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros

@@ -33,8 +33,6 @@ extension HTTPRequestMethods {
 
         #if \(name)s
 
-        import DestinyBlueprint
-
         public enum \(name): HTTPRequestMethodProtocol {
         \(cases.joined(separator: "\n"))
 

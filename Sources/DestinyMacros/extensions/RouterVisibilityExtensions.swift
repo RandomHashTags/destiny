@@ -1,5 +1,5 @@
 
-import DestinyBlueprint
+import Destiny
 import SwiftSyntax
 
 extension RouterVisibility {

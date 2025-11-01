@@ -1,8 +1,7 @@
 
 #if StaticRedirectionRoute
 
-import DestinyBlueprint
-import DestinyDefaults
+import Destiny
 import SwiftSyntax
 import SwiftSyntaxMacros
 

@@ -3,7 +3,7 @@ import Foundation
 
 var generationPath = #filePath
 generationPath.removeLast("CodeGeneration/Sources/CodeGeneration/main.swift".count)
-generationPath += "DestinyDefaults/generated"
+generationPath += "Destiny/generated"
 
 
 let sourceDestination = URL(filePath: generationPath)

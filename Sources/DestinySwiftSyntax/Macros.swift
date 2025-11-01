@@ -1,6 +1,5 @@
 
-import DestinyDefaults
-import DestinyEmbedded
+import Destiny
 
 @freestanding(declaration, names: named(Server))
 public macro httpServer(
@@ -12,7 +11,7 @@ public macro httpServer(
     reusePort: Bool = true,
     noTCPDelay: Bool = true,
     maxEpollEvents: Int = 64,
-    socketType: String = "DestinyDefaults.HTTPSocket",
+    socketType: String = "Destiny.HTTPSocket",
     onLoad: (() -> Void)? = nil,
     onShutdown: (() -> Void)? = nil
 ) = #externalMacro(module: "DestinyMacros", type: "Server")
@@ -26,8 +25,7 @@ public macro httpServer(
 
 
 
-#if NonEmbedded && canImport(DestinyBlueprint)
-import DestinyBlueprint
+#if NonEmbedded && Protocols
 
 // MARK: Non embedded
 

@@ -47,9 +47,9 @@ To reduce binary size, simplify development and give full control over implement
 - no SwiftNIO
 
 ### Minimal Protocols
-Destiny was originally designed to abstract the underlying implementations to support third-party data structures and state management. `DestinyBlueprint` is the module that enables plug and play of any implementation as long as it conforms to the right protocols.
+Destiny was originally designed to abstract the underlying implementations to support third-party data structures and state management.
 
-Diving deeper into performance and binary size optimizations, Destiny is moving away from this abstraction since the abstraction required to maximize performance while supporting custom implementations is overly restrictive requiring duplicating protocols and code with minor differences. Destiny would like to adopt `@_marker` on its protocols throughout `DestinyBlueprint` to fully support custom implementations again but the annotation doesn't support adding protocol requirements (and its not a fully stable/supported annotation).
+Diving deeper into performance and binary size optimizations, Destiny is moving away from this abstraction since the abstraction required to maximize performance while supporting custom implementations is overly restrictive requiring duplicating protocols and code with minor differences. Destiny would like to adopt `@_marker` on its protocols to fully support custom implementations again but the annotation doesn't support adding protocol requirements (and its not a fully stable/supported annotation).
 
 ### Module Abstractions
 To simplify and allow more control over development implementations.

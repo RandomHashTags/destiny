@@ -1,5 +1,5 @@
 
-import DestinyEmbedded
+import Destiny
 import DestinyMacros
 import Testing
 

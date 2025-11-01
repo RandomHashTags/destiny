@@ -13,8 +13,7 @@ import Foundation
 import SwiftGlibc
 #endif
 
-import DestinyBlueprint
-import DestinyDefaults
+import Destiny
 import TestRouter
 
 #if Logging

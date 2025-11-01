@@ -1,8 +1,7 @@
 
 #if CORS
 
-import DestinyEmbedded
-import DestinyDefaults
+import Destiny
 import Testing
 
 @Suite
