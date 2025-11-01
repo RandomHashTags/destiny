@@ -398,6 +398,7 @@ var targets = [
     Target.target(
         name: "Destiny",
         dependencies: [
+            .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
             .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
             .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
