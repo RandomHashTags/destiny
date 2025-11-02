@@ -9,7 +9,7 @@ import Logging
 #endif
 
 /// Native Swift support for Epoll.
-public struct Epoll<let maxEvents: Int>: Sendable {
+public struct Epoll<let maxEvents: Int>: SocketProvider {
     public let fileDescriptor:Int32
     public let pipeFileDescriptors:(read: Int32, write: Int32)
 
@@ -83,7 +83,7 @@ extension Epoll {
             throw .epollCtlFailed(errno: cError())
         }
         #if DEBUG && Logging
-        logger.info("EPOLL_CTL_ADD \(client): success")
+        logger.info("EPOLL_CTL_ADD \(client): success (events=\(events))")
         #endif
     }
 }
@@ -121,6 +121,19 @@ extension Epoll {
     }
 }
 
+// MARK: Rearm
+extension Epoll {
+    public func rearm(fd: Int32) {
+        var ev = epoll_event()
+        ev.events = UInt32(EPOLLIN.rawValue | EPOLLET.rawValue | EPOLLONESHOT.rawValue)
+        ev.data.fd = fd
+        epoll_ctl(fileDescriptor, EPOLL_CTL_MOD, fd, &ev)
+        #if DEBUG && Logging
+        logger.info("rearm \(fd): success")
+        #endif
+    }
+}
+
 // MARK: Wait
 extension Epoll {
     /// Calls `epoll_pwait`.
@@ -148,7 +161,7 @@ extension Epoll {
             throw err
         }
         #if DEBUG && Logging
-        logger.info("epoll_pwait returned \(loadedClients)")
+        logger.info("epoll_pwait returning \(loadedClients)")
         #endif
         if loadedClients <= -1 {
             throw .negativeLoadedClients

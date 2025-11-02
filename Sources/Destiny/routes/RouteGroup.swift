@@ -71,14 +71,13 @@ public struct RouteGroup: Sendable { // TODO: avoid existentials / support embed
 // MARK: Respond
 extension RouteGroup {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) -> Bool {
-        if try staticResponses.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
+        if try staticResponses.respond(provider: provider, router: router, request: &request) {
         } else if let responder = try dynamicResponses.responder(for: &request) {
-            try router.respond(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
+            try router.respond(provider: provider, request: &request, responder: responder)
         } else {
             return false
         }

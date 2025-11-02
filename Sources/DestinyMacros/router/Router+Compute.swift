@@ -256,11 +256,10 @@ extension Router {
         var members = MemberBlockItemListSyntax()
         members.append(try! FunctionDeclSyntax("""
         public func respond(
+            provider: some SocketProvider,
             router: \(raw: routerType),
-            socket: some FileDescriptor,
             error: some Error,
-            request: inout HTTPRequest,
-            completionHandler: @Sendable @escaping () -> Void
+            request: inout HTTPRequest
         ) {
             #if DEBUG && Logging
             router.logger.warning("\\(error)")
@@ -269,7 +268,7 @@ extension Router {
                 let errorDesc = "\\(error)"
                 let contentLength = errorDesc.count
                 let responder = \(raw: defaultErrorResponder())
-                try responder.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
+                try responder.respond(provider: provider, router: router, request: &request)
             } catch {
                 #if Logging
                 router.logger.error("[\(raw: name)] Encountered error trying to write response: \\(error)")

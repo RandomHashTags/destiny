@@ -9,7 +9,7 @@ public protocol AsyncHTTPSocketWritable: Sendable, ~Copyable {
     /// 
     /// - Throws: `SocketError`
     func write(
-        to socket: some FileDescriptor
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) async throws(SocketError)
 }
 
@@ -30,7 +30,7 @@ extension AsyncHTTPSocketWritable {
 // MARK: Default conformances
 extension String: AsyncHTTPSocketWritable {
     public func write(
-        to socket: some FileDescriptor
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) async throws(SocketError) {
         try socket.socketWriteString(self)
     }
@@ -38,7 +38,7 @@ extension String: AsyncHTTPSocketWritable {
 
 extension StaticString: AsyncHTTPSocketWritable {
     public func write(
-        to socket: some FileDescriptor
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) async throws(SocketError) {
         try socket.socketWriteBuffer(utf8Start, length: utf8CodeUnitCount)
     }
@@ -46,7 +46,7 @@ extension StaticString: AsyncHTTPSocketWritable {
 
 extension [UInt8]: AsyncHTTPSocketWritable {
     public func write(
-        to socket: some FileDescriptor
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) async throws(SocketError) {
         var err:SocketError? = nil
         self.withUnsafeBufferPointer {

@@ -44,11 +44,10 @@ public struct DynamicRouteResponder: Sendable {
 // MARK: Respond
 extension DynamicRouteResponder {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
         request: inout HTTPRequest,
-        response: inout some DynamicResponseProtocol,
-        completionHandler: @Sendable @escaping () -> Void
+        response: inout some DynamicResponseProtocol
     ) throws(ResponderError) {
         var anyRequest = request.copy()
         var anyResponse:any DynamicResponseProtocol = response
@@ -60,23 +59,20 @@ extension DynamicRouteResponder {
                 err = .custom("dynamicRouteResponderError;while executing dynamic logic: \(error)")
             }
             if let err {
-                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, completionHandler: completionHandler) {
-                    completionHandler()
+                if !router.respondWithError(provider: provider, request: &anyRequest, error: err) {
                 }
                 return
             }
             do throws(SocketError) {
-                try anyResponse.write(to: socket)
+                try anyResponse.write(to: anyRequest.fileDescriptor)
             } catch {
                 err = .socketError(error)
             }
             if let err {
-                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, completionHandler: completionHandler) {
-                    completionHandler()
+                if !router.respondWithError(provider: provider, request: &anyRequest, error: err) {
                 }
                 return
             }
-            completionHandler()
         }
     }
 }

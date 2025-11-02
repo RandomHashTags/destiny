@@ -171,8 +171,7 @@ extension RouterStorage {
                 \(responder)
             } catch {
                 let err = ResponderError.custom("\(responderName)Error;\\(error)")
-                if !router.respondWithError(socket: socket, error: err, request: &request, completionHandler: completionHandler) {
-                    completionHandler()
+                if !router.respondWithError(provider: provider, request: &request, error: err) {
                 }
                 return
             }
@@ -238,24 +237,22 @@ extension RouterStorage {
         members.append(DeclSyntax.init(stringLiteral: """
         \(inlinableAnnotation)
         \(visibility)func respond(
+            provider: some SocketProvider,
             router: \(routerParameter(isCopyable: isCopyable, protocolConformances: hasProtocolConformances)),
-            socket: some FileDescriptor,
             request: \(requestTypeSyntax),
-            response: inout some DynamicResponseProtocol,
-            completionHandler: @Sendable @escaping () -> Void
+            response: inout some DynamicResponseProtocol
         ) throws(ResponderError) {
             \(asyncTaskValues.setup)
             \(responder)
             do throws(SocketError) {
-                try response.write(to: socket)
+                try response.write(to: request.fileDescriptor)
             } catch {
                 let err = ResponderError.socketError(error)
-                if !router.respondWithError(socket: socket, error: err, request: &request, completionHandler: completionHandler) {
-                    completionHandler()
+                if !router.respondWithError(provider: provider, request: &request, error: err) {
                 }
                 return
             }
-            completionHandler()\(asyncTaskValues.suffix)
+            \(asyncTaskValues.suffix)
         }
         """))
         let structure = StructDeclSyntax(
@@ -297,15 +294,14 @@ extension RouterStorage {
         let respondedDecl = try! FunctionDeclSyntax("""
         \(raw: inlinableAnnotation)
         \(raw: visibility)func responded(
+            provider: some SocketProvider,
             router: \(raw: routerParameter),
-            socket: some FileDescriptor,
             request: \(requestTypeSyntax),
             requestPathCount: Int,
-            requestStartLine: SIMD64<UInt8>,
-            completionHandler: @Sendable @escaping () -> Void
+            requestStartLine: SIMD64<UInt8>
         ) throws(ResponderError) -> Bool {
             if path == requestStartLine { // parameterless
-                try router.respond(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
+                try router.respond(provider: provider, request: &request, responder: responder)
                 return true
             } else { // parameterized and catchall
                 let pathComponentsCount = responder.pathComponentsCount
@@ -345,7 +341,7 @@ extension RouterStorage {
                     }
                 }
                 if found && (lastIsCatchall || lastIsParameter && requestPathCount == pathComponentsCount) {
-                    try router.respond(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
+                    try router.respond(provider: provider, request: &request, responder: responder)
                     return true
                 }
                 return false
@@ -369,7 +365,7 @@ extension RouterStorage {
         responderMembers.append(entryDecl)
 
         var respondersString = responders.enumerated().map({ index, _ in
-            "if try route\(index).responded(router: router, socket: socket, request: &request, requestPathCount: requestPathCount, requestStartLine: requestStartLine, completionHandler: completionHandler) {\nreturn true\n"
+            "if try route\(index).responded(provider: provider, router: router, request: &request, requestPathCount: requestPathCount, requestStartLine: requestStartLine) {\nreturn true\n"
         }).joined(separator: "} else ")
         if !responders.isEmpty {
             respondersString += "}"
@@ -377,10 +373,9 @@ extension RouterStorage {
         let respondDecl = try! FunctionDeclSyntax("""
         \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
+            provider: some SocketProvider,
             router: \(raw: routerParameter),
-            socket: some FileDescriptor,
-            request: \(requestTypeSyntax),
-            completionHandler: @Sendable @escaping () -> Void
+            request: \(requestTypeSyntax)
         ) throws(ResponderError) -> Bool {
             let requestPathCount:Int
             let requestStartLine:SIMD64<UInt8>

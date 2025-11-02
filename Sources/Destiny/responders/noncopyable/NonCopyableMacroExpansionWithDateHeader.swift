@@ -29,12 +29,11 @@ extension NonCopyableMacroExpansionWithDateHeader {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - socket: The socket.
     /// 
     /// - Throws: `ResponderError`
     public func respond(
-        socket: some FileDescriptor,
-        completionHandler: @Sendable @escaping () -> Void
+        socket: some FileDescriptor
     ) throws(ResponderError) {
         var err:SocketError? = nil
         bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
@@ -56,7 +55,6 @@ extension NonCopyableMacroExpansionWithDateHeader {
         if let err {
             throw .socketError(err)
         }
-        completionHandler()
     }
 }
 
@@ -65,12 +63,11 @@ extension NonCopyableMacroExpansionWithDateHeader {
 // MARK: Conformances
 extension NonCopyableMacroExpansionWithDateHeader: NonCopyableRouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        try respond(socket: request.fileDescriptor)
     }
 }
 

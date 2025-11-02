@@ -17,6 +17,10 @@ import Windows
 import WinSDK
 #endif
 
+#if Epoll
+import CEpoll
+#endif
+
 import UnwrapArithmeticOperators
 
 /// Types conforming to this protocol indicate they behave like a file descriptor.
@@ -83,6 +87,11 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int
     func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int
     func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int
+
+    /// Flushes (drains) all pending data from the file descriptor.
+    /// 
+    /// If using epoll: keeps reading until `read()` returns EAGAIN/EWOULDBLOCK or the connection is closed.
+    func flush(provider: some SocketProvider) -> AnyError?
 }
 
 // MARK: Write
@@ -122,6 +131,40 @@ extension FileDescriptor where Self: ~Copyable {
         if let err {
             throw err
         }
+    }
+
+    // MARK: Flush
+    public func flush(provider: some SocketProvider) -> AnyError? {
+        #if DEBUG
+        print("FileDescriptor;flush;flushing \(fileDescriptor)")
+        #endif
+        var inlineArray = [1024 of UInt8](repeating: 0)
+        var mutableSpan = inlineArray.mutableSpan
+        let error:AnyError? = mutableSpan.withUnsafeMutableBufferPointer { buffer in
+            while true {
+                let bytesRead = read(fileDescriptor, buffer.baseAddress, buffer.count)
+                guard bytesRead <= 0 else { continue }
+
+                if bytesRead == 0 {
+                    // Peer performed a clean close; caller should normally close(fd) after this
+                    return .socketError(.readZero)
+                }
+
+                #if Epoll
+                if errno == EAGAIN || errno == EWOULDBLOCK { // successfully flushed
+                    provider.rearm(fd: fileDescriptor)
+                    return nil
+                }
+                #endif
+
+                // socket error — recommend closing
+                return .socketError(.errno(errno))
+            }
+        }
+        #if DEBUG
+        print("FileDescriptor;flush;flushed;error=\(error, default: "nil")")
+        #endif
+        return error
     }
 }
 

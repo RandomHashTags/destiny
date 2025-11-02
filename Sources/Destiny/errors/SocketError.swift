@@ -3,8 +3,11 @@
 public enum SocketError {
     case acceptFailed(errno: Int32)
     case writeFailed(errno: Int32)
+
+    case readZero
     case readSingleByteFailed(errno: Int32)
     case readBufferFailed(errno: Int32)
+
     case invalidStatus(errno: Int32)
     case closeFailure(errno: Int32)
     case malformedRequest(errno: Int32)

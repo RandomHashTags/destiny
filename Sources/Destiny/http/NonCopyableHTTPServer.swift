@@ -278,9 +278,7 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
                         do throws(SocketError) {
                             guard let client = try acceptClient(serverFD) else { return }
                             let socket = ClientSocket(fileDescriptor: client)
-                            self.router.handle(client: client, socket: socket, completionHandler: {
-                                client.socketClose()
-                            })
+                            self.router.handle(client: client, socket: socket)
                         } catch {
                             #if Logging
                             self.logger.warning("\(#function);\(error)")
@@ -306,9 +304,7 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
     ) -> InlineArray<maxEvents, Bool>? {
         do throws(EpollError) {
             var processor = try EpollWorker<maxEvents>.create(workerId: 0, backlog: backlog, port: port)
-            processor.run(timeout: -1, handleClient: { client, handler in
-                router.handle(client: client, socket: client, completionHandler: handler)
-            })
+            processor.run(timeout: -1, router: router)
             processor.shutdown()
         } catch {
             #if Logging

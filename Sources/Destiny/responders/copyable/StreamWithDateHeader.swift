@@ -55,20 +55,17 @@ extension StreamWithDateHeader {
 // MARK: Respond
 extension StreamWithDateHeader {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
-        try payload.write(to: socket)
+        try payload.write(to: request.fileDescriptor)
         var requestCopy = request.copy()
         Task {
             do throws(SocketError) {
-                try await body.write(to: socket)
-                completionHandler()
+                try await body.write(to: requestCopy.fileDescriptor)
             } catch {
-                if !router.respondWithError(socket: socket, error: error, request: &requestCopy, completionHandler: completionHandler) {
-                    completionHandler()
+                if !router.respondWithError(provider: provider, request: &requestCopy, error: error) {
                 }
             }
         }

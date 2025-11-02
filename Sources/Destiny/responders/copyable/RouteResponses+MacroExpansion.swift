@@ -20,12 +20,11 @@ extension RouteResponses.MacroExpansion {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - socket: The socket.
     /// 
     /// - Throws: `ResponderError`
     public func respond(
-        socket: some FileDescriptor,
-        completionHandler: @Sendable @escaping () -> Void
+        socket: some FileDescriptor
     ) throws(ResponderError) {
         var err:SocketError? = nil
         value.withUTF8Buffer { valuePointer in
@@ -50,7 +49,6 @@ extension RouteResponses.MacroExpansion {
         if let err {
             throw .socketError(err)
         }
-        completionHandler()
     }
 }
 
@@ -59,12 +57,11 @@ extension RouteResponses.MacroExpansion {
 // MARK: Conformances
 extension RouteResponses.MacroExpansion: RouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        try respond(socket: request.fileDescriptor)
     }
 }
 

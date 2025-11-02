@@ -149,7 +149,7 @@ extension HTTPResponseMessage {
 // MARK: Write
 extension HTTPResponseMessage {
     public func write(
-        to socket: some FileDescriptor
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) throws(SocketError) {
         var err:SocketError? = nil
         self.temporaryAllocation {

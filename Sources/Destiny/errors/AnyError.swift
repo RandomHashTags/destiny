@@ -5,6 +5,8 @@ public enum AnyError {
     case httpCookieError(HTTPCookieError)
     #endif
 
+    case socketError(SocketError)
+
     case errno(Int32)
     case custom(String)
 }

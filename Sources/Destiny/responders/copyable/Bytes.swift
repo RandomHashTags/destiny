@@ -31,15 +31,13 @@ extension Bytes {
     /// 
     /// - Throws: `ResponderError`
     public func respond(
-        socket: some FileDescriptor,
-        completionHandler: @Sendable @escaping () -> Void
+        socket: some FileDescriptor
     ) throws(ResponderError) {
         do throws(SocketError) {
             try value.write(to: socket)
         } catch {
             throw .socketError(error)
         }
-        completionHandler()
     }
 }
 
@@ -50,12 +48,11 @@ extension Bytes: ResponseBodyProtocol {}
 
 extension Bytes: RouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        try respond(socket: request.fileDescriptor)
     }
 }
 

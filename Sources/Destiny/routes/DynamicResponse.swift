@@ -87,7 +87,7 @@ extension DynamicResponse {
     #endif
 
     public func write(
-        to socket: some FileDescriptor
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) throws(SocketError) {
         try message.write(to: socket)
     }

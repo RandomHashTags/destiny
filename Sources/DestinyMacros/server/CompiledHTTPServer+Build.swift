@@ -407,9 +407,7 @@ extension CompiledHTTPServer {
                             do throws(SocketError) {
                                 guard let client = try Self.acceptClient(serverFD) else { return }
                                 let socket = \(socketType)(fileDescriptor: client)
-                                self.router.handle(client: client, socket: socket, completionHandler: {
-                                    client.socketClose()
-                                })
+                                self.router.handle(client: client, socket: socket)
                             } catch {
                                 \(logWarning)
                             }
@@ -442,10 +440,7 @@ extension CompiledHTTPServer {
             body: .init(statements: .init(stringLiteral: """
             do throws(EpollError) {
                 var processor = try EpollWorker<\(maxEpollEvents)>.create(workerId: 0, backlog: \(backlog), port: \(port))
-                processor.run(timeout: -1, handleClient: { client, handler in
-                    let socket = \(socketType)(fileDescriptor: client)
-                    router.handle(client: client, socket: socket, completionHandler: handler)
-                })
+                processor.run(timeout: -1, router: router)
                 processor.shutdown()
             } catch {
                 \(logError)

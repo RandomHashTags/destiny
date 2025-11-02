@@ -7,16 +7,13 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
     /// 
     /// - Parameters:
     ///   - router: Router this responder is stored in.
-    ///   - socket: Socket to write to.
     ///   - request: Socket's request.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
     /// - Throws: `ResponderError`
     func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError)
 }
 
@@ -25,50 +22,44 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
 #if StringRouteResponder
 extension String: NonCopyableRouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
         do throws(SocketError) {
-            try self.write(to: socket)
+            try self.write(to: request.fileDescriptor)
         } catch {
             throw .socketError(error)
         }
-        completionHandler()
     }
 }
 #endif
 
 extension StaticString: NonCopyableRouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
         do throws(SocketError) {
-            try self.write(to: socket)
+            try self.write(to: request.fileDescriptor)
         } catch {
             throw .socketError(error)
         }
-        completionHandler()
     }
 }
 
 extension [UInt8]: NonCopyableRouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
         do throws(SocketError) {
-            try self.write(to: socket)
+            try self.write(to: request.fileDescriptor)
         } catch {
             throw .socketError(error)
         }
-        completionHandler()
     }
 }
 

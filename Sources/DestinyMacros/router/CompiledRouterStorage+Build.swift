@@ -168,20 +168,20 @@ extension CompiledRouterStorage {
         members.append(handleDecl())
 
         let respondersString = routerVariableNames.map({
-            "if try \($0).respond(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n"
+            "if try \($0).respond(provider: provider, request: &request) {\nreturn true\n}\n"
         }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondDecl(respondersString: respondersString))
 
-        members.append(respondWithStaticResponderDecl(isCopyable: false, responderString: "completionHandler()"))
-        members.append(respondWithDynamicResponderDecl(isCopyable: false, responderString: "completionHandler()"))
+        members.append(respondWithStaticResponderDecl(isCopyable: false, responderString: ""))
+        members.append(respondWithDynamicResponderDecl(isCopyable: false, responderString: ""))
 
         let respondWithNotFoundString = routerVariableNames.map({
-            "if try \($0).respondWithNotFound(socket: socket, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n"
+            "if try \($0).respondWithNotFound(provider: provider, request: &request) {\nreturn true\n}\n"
         }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondWithNotFoundDecl(responderString: respondWithNotFoundString))
 
         let respondWithErrorString = routerVariableNames.map({
-            "if \($0).respondWithError(socket: socket, error: error, request: &request, completionHandler: completionHandler) {\nreturn true\n}\n"
+            "if \($0).respondWithError(provider: provider, request: &request, error: error) {\nreturn true\n}\n"
         }).joined(separator: "\n") + "\nreturn false\n"
         members.append(respondWithErrorDecl(logic: respondWithErrorString))
 
@@ -245,8 +245,8 @@ extension CompiledRouterStorage {
 
         members.append(respondDecl(respondersString: respondString(responders: responders.map({ $0.0 }))))
 
-        members.append(respondWithStaticResponderDecl(isCopyable: true, responderString: "try responder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)"))
-        members.append(respondWithDynamicResponderDecl(isCopyable: true, responderString: "try responder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)"))
+        members.append(respondWithStaticResponderDecl(isCopyable: true, responderString: "try responder.respond(provider: provider, router: self, request: &request)"))
+        members.append(respondWithDynamicResponderDecl(isCopyable: true, responderString: "try responder.respond(provider: provider, router: self, request: &request)"))
 
         members.append(respondWithNotFoundDecl(responderString: "return false"))
 
@@ -458,9 +458,8 @@ extension CompiledRouterStorage {
             name: "handle",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "client", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("consuming some FileDescriptor & ~Copyable"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n")
+                    .init(leadingTrivia: "\n", firstName: "provider", type: TypeSyntax("some SocketProvider"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("consuming some FileDescriptor & ~Copyable"), trailingTrivia: "\n")
                 ])
             ),
             body: .init(statements: .init(stringLiteral: """
@@ -470,21 +469,18 @@ extension CompiledRouterStorage {
                     \(logRequest)
 
                     do throws(ResponderError) {
-                        guard !(try respond(socket: client, request: &request, completionHandler: completionHandler)) else { return }
-                        if !(try respondWithNotFound(socket: client, request: &request, completionHandler: completionHandler)) {
+                        guard !(try respond(provider: provider, request: &request)) else { return }
+                        if !(try respondWithNotFound(provider: provider, request: &request)) {
                             \(failedToSendResponseToClient)
-                            completionHandler()
                         }
                     } catch {
                         \(encounteredErrorWhileProcessingClient)
-                        if !respondWithError(socket: client, error: error, request: &request, completionHandler: completionHandler) {
+                        if !respondWithError(provider: provider, request: &request, error: error) {
                             \(failedToSendResponseToClient)
-                            completionHandler()
                         }
                     }
                 } catch {
                     \(encounteredErrorWhileLoadingRequest)
-                    completionHandler()
                 }
                 """)
             )
@@ -530,7 +526,7 @@ extension CompiledRouterStorage {
     }
     private func respondString(responders: [String]) -> String {
         return responders.map({
-            "if try \($0).respond(router: self, socket: socket, request: &request, completionHandler: completionHandler) {\n"
+            "if try \($0).respond(provider: provider, router: self, request: &request) {\n"
         }).joined(separator: "} else ") + "} else {\nreturn false\n}\nreturn true"
     }
     private func respondDecl(respondersString: String) -> FunctionDeclSyntax {
@@ -540,9 +536,8 @@ extension CompiledRouterStorage {
             name: "respond",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
+                    .init(leadingTrivia: "\n", firstName: "provider", type: TypeSyntax("some SocketProvider"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
                     throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
@@ -558,7 +553,7 @@ extension CompiledRouterStorage {
 extension CompiledRouterStorage {
     private func respondWithStaticResponderDecl(isCopyable: Bool) -> FunctionDeclSyntax {
         return respondWithStaticResponderDecl(isCopyable: isCopyable, responderString: """
-        try responder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
+        try responder.respond(provider: provider, router: self, request: &request)
         """)
     }
     private func respondWithStaticResponderDecl(isCopyable: Bool, responderString: String) -> FunctionDeclSyntax {
@@ -569,10 +564,9 @@ extension CompiledRouterStorage {
             name: "respond",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "provider", type: TypeSyntax("some SocketProvider"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n")
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
                     throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
@@ -658,7 +652,7 @@ extension CompiledRouterStorage {
         } catch {
             throw .middlewareError(error)
         }
-        try responder.respond(router: self, socket: socket, request: &request, response: &response, completionHandler: completionHandler)
+        try responder.respond(provider: provider, router: self, request: &request, response: &response)
         """)
     }
     private func respondWithDynamicResponderDecl(isCopyable: Bool, responderString: String) -> FunctionDeclSyntax {
@@ -669,10 +663,9 @@ extension CompiledRouterStorage {
             name: "respond",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "provider", type: TypeSyntax("some SocketProvider"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
+                    .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
                     throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
@@ -690,12 +683,12 @@ extension CompiledRouterStorage {
         if dynamicNotFoundResponder != nil {
             responder = """
             var response = try defaultDynamicResponse(request: &request, responder: dynamicNotFoundResponder)
-            try dynamicNotFoundResponder.respond(router: self, socket: socket, request: &request, response: &response, completionHandler: completionHandler)
+            try dynamicNotFoundResponder.respond(provider: provider, router: self, request: &request, response: &response)
             return true
             """
         } else if staticNotFoundResponder != nil {
             responder = """
-            try staticNotFoundResponder.respond(router: self, socket: socket, request: &request, completionHandler: completionHandler)
+            try staticNotFoundResponder.respond(provider: provider, router: self, request: &request)
             return true
             """
         }
@@ -710,9 +703,8 @@ extension CompiledRouterStorage {
             name: "respondWithNotFound",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
+                    .init(leadingTrivia: "\n", firstName: "provider", type: TypeSyntax("some SocketProvider"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
                     throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
@@ -730,7 +722,7 @@ extension CompiledRouterStorage {
         let logic:String
         if errorResponder != nil {
             logic = """
-            errorResponder.respond(router: self, socket: socket, error: error, request: &request, completionHandler: completionHandler)
+            errorResponder.respond(provider: provider, router: self, error: error, request: &request)
             return true
             """
         } else {
@@ -745,10 +737,9 @@ extension CompiledRouterStorage {
             name: "respondWithError",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "socket", type: TypeSyntax("some FileDescriptor"), trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "error", type: TypeSyntax("some Error"), trailingComma: .commaToken()),
+                    .init(leadingTrivia: "\n", firstName: "provider", type: TypeSyntax("some SocketProvider"), trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
-                    .init(leadingTrivia: "\n", firstName: "completionHandler", type: TypeSyntax("@Sendable @escaping () -> Void"), trailingTrivia: "\n"),
+                    .init(leadingTrivia: "\n", firstName: "error", type: TypeSyntax("some Error"), trailingTrivia: "\n")
                 ]),
                 returnClause: .init(type: TypeSyntax("Bool"))
             ),

@@ -177,7 +177,7 @@ extension RouterStorage {
         var routeMembers = MemberBlockItemListSyntax()
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
-            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)\nreturn true"
+            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(provider: provider, router: router, request: &request)\nreturn true"
             routeMembers.append(try! EnumCaseDeclSyntax.init("case \(raw: caseName)"))
 
             let utf8 = routePath.utf8
@@ -214,10 +214,9 @@ extension RouterStorage {
         let routeResponderDecl = try! FunctionDeclSyntax.init("""
         \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
+            provider: some SocketProvider,
             router: \(raw: routerParameter),
-            socket: some FileDescriptor,
-            request: \(requestTypeSyntax),
-            completionHandler: @Sendable @escaping () -> Void
+            request: \(requestTypeSyntax)
         ) throws(ResponderError) -> Bool {
             switch self {
             \(raw: routePathCaseConditions)
@@ -257,10 +256,9 @@ extension RouterStorage {
         let decl = try! FunctionDeclSyntax.init("""
         \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
+            provider: some SocketProvider,
             router: \(raw: routerParameter),
-            socket: some FileDescriptor,
-            request: \(requestTypeSyntax),
-            completionHandler: @Sendable @escaping () -> Void
+            request: \(requestTypeSyntax)
         ) throws(ResponderError) -> Bool {
             let startLine:SIMD64<UInt8>
             do throws(SocketError) {
@@ -269,7 +267,7 @@ extension RouterStorage {
                 throw .socketError(error)
             }
             guard let route = matchRoute(startLine) else { return false }
-            return try route.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
+            return try route.respond(provider: provider, router: router, request: &request)
         }
         """)
         members.append(decl)

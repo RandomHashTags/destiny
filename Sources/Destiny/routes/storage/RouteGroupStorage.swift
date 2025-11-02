@@ -15,18 +15,17 @@ extension RouteGroupStorage {
     /// Responds to a socket.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - socket: The socket.
     /// 
     /// - Returns: Whether or not a response was sent.
     /// - Throws: `ResponderError`
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) -> Bool {
         for group in groups {
-            if try group.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
+            if try group.respond(provider: provider, router: router, request: &request) {
                 return true
             }
         }

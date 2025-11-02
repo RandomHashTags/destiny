@@ -1,6 +1,7 @@
 
 /// An `Error` that indicates failure when handling a route responder.
 public enum ResponderError {
+    case anyError(AnyError)
     case middlewareError(MiddlewareError)
     case socketError(SocketError)
 

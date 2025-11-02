@@ -24,32 +24,29 @@ extension ResponseTests {
             preDateValue: preDateValue,
             postDateValue: postDateValue
         )
-        try responder.respond(socket: fd, completionHandler: {
-            let capacity = HTTPRequest.InitialBuffer.count
-            withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
-                buffer.initialize(repeating: 0)
-                let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)
-                #expect(received == 119)
-                #expect(received == responder.count)
+        try responder.respond(socket: fd)
+        let capacity = HTTPRequest.InitialBuffer.count
+        withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
+            buffer.initialize(repeating: 0)
+            let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)
+            #expect(received == 119)
+            #expect(received == responder.count)
 
-                let slice = buffer[0..<received]
-                let string = String(cString: slice.base.baseAddress!)
-                #expect(string == expectedPayload)
-                #expect(string.hasPrefix(preDateValue.description))
-                #expect(string.hasSuffix(postDateValue.description))
-            }
-        })
+            let slice = buffer[0..<received]
+            let string = String(cString: slice.base.baseAddress!)
+            #expect(string == expectedPayload)
+            #expect(string.hasPrefix(preDateValue.description))
+            #expect(string.hasSuffix(postDateValue.description))
+        }
     }
 }
 
 // MARK: Respond
 extension NonCopyableStaticStringWithDateHeader {
     func respond(
-        socket: borrowing some FileDescriptor & ~Copyable,
-        completionHandler: @Sendable @escaping () -> Void
+        socket: borrowing some FileDescriptor & ~Copyable
     ) throws(ResponderError) {
         try payload.write(to: socket)
-        completionHandler()
     }
 }
 

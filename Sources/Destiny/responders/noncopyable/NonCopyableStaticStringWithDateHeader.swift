@@ -55,13 +55,14 @@ extension NonCopyableStaticStringWithDateHeader {
 // MARK: Respond
 extension NonCopyableStaticStringWithDateHeader {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) {
-        try payload.write(to: socket)
-        completionHandler()
+        try payload.write(to: request.fileDescriptor)
+        if let err = request.fileDescriptor.flush(provider: provider) {
+            throw .anyError(err)
+        }
     }
 }
 

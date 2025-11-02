@@ -28,13 +28,12 @@ public final class DynamicResponderStorage: @unchecked Sendable {
 // MARK: Respond
 extension DynamicResponderStorage {
     public func respond(
+        provider: some SocketProvider, 
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        request: inout HTTPRequest
     ) throws(ResponderError) -> Bool {
         guard let responder = try responder(for: &request) else { return false }
-        try router.respond(socket: socket, request: &request, responder: responder, completionHandler: completionHandler)
+        try router.respond(provider: provider, request: &request, responder: responder)
         return true
     }
 
