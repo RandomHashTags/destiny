@@ -20,8 +20,7 @@ public struct HTTPRequest: NetworkAddressable, ~Copyable {
 
 // MARK: Load
 extension HTTPRequest {
-    /// - Throws: `SocketError`
-    public static func load(from socket: consuming some FileDescriptor & ~Copyable) throws(SocketError) -> Self {
+    public static func load(from socket: consuming some FileDescriptor & ~Copyable) -> Self {
         Self(fileDescriptor: socket.fileDescriptor)
     }
 }

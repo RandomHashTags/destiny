@@ -144,6 +144,10 @@ extension HTTPSocket {
     public func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
         return fileDescriptor.socketSendMultiplatform(pointer: pointer, length: length)
     }
+
+    public func close() {
+        fileDescriptor.close()
+    }
 }
 
 #if Protocols

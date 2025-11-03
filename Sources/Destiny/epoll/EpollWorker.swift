@@ -185,7 +185,7 @@ extension EpollWorker {
                         do throws(EpollError) {
                             try ep.add(client: client, events: flags)
                         } catch {
-                            #if Logging
+                            #if DEBUG && Logging
                             logger.error("Epoll add error: \(error)")
                             #endif
                         }
@@ -195,7 +195,7 @@ extension EpollWorker {
                 if event.events & UInt32(EPOLLHUP.rawValue) != 0 || event.events & UInt32(EPOLLERR.rawValue) != 0 {
                     close(eventFD)
                 } else if event.events & UInt32(EPOLLIN.rawValue) != 0 { // client read
-                    #if Logging
+                    #if DEBUG && Logging
                     logger.debug("handle \(eventFD) with events: \(String(event.events, radix: 2))")
                     #endif
                     router.handle(provider: ep, socket: eventFD)

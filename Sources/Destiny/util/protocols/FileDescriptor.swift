@@ -92,6 +92,8 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     /// 
     /// If using epoll: keeps reading until `read()` returns EAGAIN/EWOULDBLOCK or the connection is closed.
     func flush(provider: some SocketProvider) -> AnyError?
+
+    func close()
 }
 
 // MARK: Write
@@ -169,11 +171,18 @@ extension FileDescriptor where Self: ~Copyable {
 }
 
 // MARK: Close
-extension FileDescriptor {
+extension FileDescriptor where Self: ~Copyable {
     package func socketClose() {
         #if canImport(SwiftGlibc) || canImport(Foundation)
+
         shutdown(fileDescriptor, Int32(SHUT_RDWR)) // shutdown read and write (https://www.gnu.org/software/libc/manual/html_node/Closing-a-Socket.html)
-        close(fileDescriptor)
+        #if canImport(SwiftGlibc)
+        SwiftGlibc.close(fileDescriptor)
+        #else
+        Foundation.close(fileDescriptor)
+        #endif
+        print("FileDescriptor;socketClose;closed \(fileDescriptor)")
+
         #else
         #warning("Unable to shutdown and close file descriptor!")
         #endif

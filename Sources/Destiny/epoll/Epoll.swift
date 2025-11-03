@@ -83,7 +83,7 @@ extension Epoll {
             throw .epollCtlFailed(errno: cError())
         }
         #if DEBUG && Logging
-        logger.info("EPOLL_CTL_ADD \(client): success (events=\(events))")
+        logger.info("EPOLL_CTL_ADD \(client): success (events=\(String(events, radix: 2)))")
         #endif
     }
 }

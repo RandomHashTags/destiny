@@ -121,6 +121,10 @@ extension Int32 {
             throw .writeFailed(errno: errno)
         }
     }
+
+    public func close() {
+        socketClose()
+    }
 }
 
 // MARK: Address

@@ -105,8 +105,7 @@ extension AbstractHTTPRequest {
 
 // MARK: Load
 extension AbstractHTTPRequest {
-    /// - Throws: `SocketError`
-    static func load(from socket: consuming some FileDescriptor & ~Copyable) throws(SocketError) -> Self {
+    static func load(from socket: consuming some FileDescriptor & ~Copyable) -> Self {
         Self()
     }
 }
@@ -118,7 +117,10 @@ extension AbstractHTTPRequest {
     /// - Throws: `SocketError`
     package mutating func loadStorage(fileDescriptor: some FileDescriptor) throws(SocketError) {
         let initialBuffer:InlineByteBuffer<initalBufferCount> = try readBuffer(fileDescriptor: fileDescriptor)
-        if initialBuffer.endIndex <= 0 {
+        if initialBuffer.endIndex == 0 { // socket was closed
+            fileDescriptor.socketClose()
+            throw .readZero
+        } else if initialBuffer.endIndex < 0 {
             throw .malformedRequest(errno: cError())
         }
         try storage.load(
