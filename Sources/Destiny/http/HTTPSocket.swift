@@ -150,9 +150,5 @@ extension HTTPSocket {
     }
 }
 
-#if Protocols
-
 // MARK: Conformances
 extension HTTPSocket: FileDescriptor {}
-
-#endif
