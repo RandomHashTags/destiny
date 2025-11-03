@@ -50,6 +50,10 @@ public struct HTTPDateFormat: Sendable {
     @usableFromInline
     nonisolated(unsafe) static private(set) var _nowString = placeholder
 
+    /// Last calculated date value in the HTTP Format as an `iovec`.
+    @usableFromInline
+    nonisolated(unsafe) static private(set) var _nowIovec = iovec()
+
 
     /// Last calculated date value in the HTTP Format as an `UnsafeBufferPointer<UInt8>`.
     /// 
@@ -63,6 +67,11 @@ public struct HTTPDateFormat: Sendable {
     /// Last calculated date value in the HTTP Format as a `String`.
     public static var nowString: String {
         _read { yield _nowString }
+    }
+
+    /// Last calculated date value in the HTTP Format as an `iovec`.
+    public static var nowIovec: iovec {
+        _read { yield _nowIovec }
     }
 
     /// Current number of non-zero bytes in the `_nowUnsafeBufferPointer`.
@@ -110,6 +119,7 @@ extension HTTPDateFormat {
                             }
                         }
                         _nowString = s
+                        _nowIovec = .init(iov_base: _nowUnsafeBufferPointer.baseAddress!, iov_len: _count)
                     }
                     try await Task.sleep(for: .seconds(1))
                 } catch {
@@ -143,6 +153,7 @@ extension HTTPDateFormat {
                             }
                         }
                         _nowString = s
+                        _nowIovec = .init(iov_base: _nowUnsafeBufferPointer.baseAddress!, iov_len: _count)
                     }
                     try await Task.sleep(for: .seconds(1))
                 } catch {

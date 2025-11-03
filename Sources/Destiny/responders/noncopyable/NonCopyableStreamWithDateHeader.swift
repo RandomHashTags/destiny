@@ -29,7 +29,7 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
     }
 
     public var count: Int {
-        payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
+        payload.preDateIovec.iov_len +! HTTPDateFormat.InlineArrayResult.count +! payload.postDateIovec.iov_len
     }
     
     public func string() -> String {

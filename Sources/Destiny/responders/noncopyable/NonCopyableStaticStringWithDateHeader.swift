@@ -30,7 +30,7 @@ public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
     }
 
     public var count: Int {
-        payload.preDatePointerCount +! HTTPDateFormat.InlineArrayResult.count +! payload.postDatePointerCount
+        payload.preDateIovec.iov_len +! HTTPDateFormat.InlineArrayResult.count +! payload.postDateIovec.iov_len
     }
     
     public func string() -> String {
@@ -46,9 +46,9 @@ public struct NonCopyableStaticStringWithDateHeader: Sendable, ~Copyable {
 extension NonCopyableStaticStringWithDateHeader {
     public func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) {
         index = 0
-        buffer.copyBuffer(baseAddress: payload.preDatePointer, count: payload.preDatePointerCount, at: &index)
+        buffer.copyBuffer(baseAddress: payload.preDatePointer, count: payload.preDateIovec.iov_len, at: &index)
         buffer.copyBuffer(baseAddress: HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, count: HTTPDateFormat.count, at: &index)
-        buffer.copyBuffer(baseAddress: payload.postDatePointer, count: payload.postDatePointerCount, at: &index)
+        buffer.copyBuffer(baseAddress: payload.postDatePointer, count: payload.postDateIovec.iov_len, at: &index)
     }
 }
 
