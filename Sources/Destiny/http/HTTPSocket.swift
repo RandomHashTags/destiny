@@ -9,7 +9,7 @@ public struct HTTPSocket: Sendable, ~Copyable {
 
     public init(fileDescriptor: Int32) {
         self.fileDescriptor = fileDescriptor
-        Int32.noSigPipe(fileDescriptor: fileDescriptor)
+        Self.noSigPipe(fileDescriptor: fileDescriptor)
     }
 
     public func socketLocalAddress() -> String? {
@@ -150,9 +150,5 @@ extension HTTPSocket {
     }
 }
 
-#if Protocols
-
 // MARK: Conformances
 extension HTTPSocket: FileDescriptor {}
-
-#endif
