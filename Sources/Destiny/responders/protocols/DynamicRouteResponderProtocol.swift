@@ -19,6 +19,7 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     /// Writes a response to a socket.
     /// 
     /// - Parameters:
+    ///   - provider: Socket's provider.
     ///   - router: Router this responder is stored in.
     ///   - request: Socket's request.
     ///   - response: HTTP Message to send to the socket.

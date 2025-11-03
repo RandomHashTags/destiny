@@ -4,6 +4,7 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
+    ///   - provider: Socket's provider.
     ///   - router: Router this responder is stored in.
     ///   - request: Socket's request.
     /// 

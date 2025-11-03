@@ -29,6 +29,7 @@ extension NonCopyableMacroExpansionWithDateHeader {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
+    ///   - provider: Socket's provider.
     ///   - socket: The socket.
     /// 
     /// - Throws: `DestinyError`

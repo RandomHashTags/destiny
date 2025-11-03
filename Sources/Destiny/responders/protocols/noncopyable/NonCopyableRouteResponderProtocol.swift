@@ -6,6 +6,7 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
     /// Writes a response to a socket.
     /// 
     /// - Parameters:
+    ///   - provider: Socket's provider.
     ///   - router: Router this responder is stored in.
     ///   - request: Socket's request.
     /// 

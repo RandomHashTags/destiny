@@ -20,7 +20,7 @@ public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
     /// Handle logic for a given socket.
     /// 
     /// - Parameters:
-    ///   - client: File descriptor assigned to the socket.
+    ///   - provider: Socket's provider.
     ///   - socket: The socket.
     func handle(
         provider: some SocketProvider,

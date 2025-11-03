@@ -15,7 +15,9 @@ extension RouteGroupStorage {
     /// Responds to a socket.
     /// 
     /// - Parameters:
-    ///   - socket: The socket.
+    ///   - provider: Socket's provider.
+    ///   - router: Router this route group storage is stored in.
+    ///   - request: Socket's request.
     /// 
     /// - Returns: Whether or not a response was sent.
     /// - Throws: `DestinyError`

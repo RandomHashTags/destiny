@@ -29,6 +29,10 @@ public struct Bytes: Sendable {
 extension Bytes {
     /// Writes a response to a file descriptor.
     /// 
+    /// - Parameters:
+    ///   - provider: Socket's provider.
+    ///   - socket: The socket.
+    /// 
     /// - Throws: `DestinyError`
     public func respond(
         provider: some SocketProvider,

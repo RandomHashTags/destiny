@@ -5,7 +5,8 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes a static response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
+    ///   - provider: Socket's provider.
+    ///   - request: Socket's request.
     ///   - responder: Route responder that will write to the socket.
     /// 
     /// - Throws: `DestinyError`
@@ -18,7 +19,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes a dynamic response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
+    ///   - provider: Socket's provider.
     ///   - request: Socket's request.
     ///   - responder: Dynamic route responder that will write to the socket.
     /// 
@@ -32,7 +33,7 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes a response, usually a 404, to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
+    ///   - provider: Socket's provider.
     ///   - request: Socket's request.
     /// 
     /// - Returns: Whether or not a response was sent.
@@ -45,9 +46,9 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes an error response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
-    ///   - error: The encountered error.
+    ///   - provider: Socket's provider.
     ///   - request: Socket's request.
+    ///   - error: Encountered error.
     /// 
     /// - Returns: Whether or not a response was sent.
     func respondWithError(

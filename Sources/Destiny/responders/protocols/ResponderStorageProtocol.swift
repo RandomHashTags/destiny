@@ -5,6 +5,7 @@ public protocol ResponderStorageProtocol: Sendable, ~Copyable {
     /// Try to write a response to a socket.
     /// 
     /// - Parameters:
+    ///   - provider: Socket's provider.
     ///   - router: Router this storage belongs to.
     ///   - request: Socket's request.
     /// 
