@@ -14,18 +14,16 @@ public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
 
     /// Load logic before this router is ready to handle sockets.
     /// 
-    /// - Throws: `RouterError`
-    func load() throws(RouterError)
+    /// - Throws: `DestinyError`
+    func load() throws(DestinyError)
 
     /// Handle logic for a given socket.
     /// 
     /// - Parameters:
-    ///   - client: File descriptor assigned to the socket.
+    ///   - provider: Socket's provider.
     ///   - socket: The socket.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
     func handle(
-        client: some FileDescriptor,
-        socket: consuming some FileDescriptor & ~Copyable,
-        completionHandler: @Sendable @escaping () -> Void
+        provider: some SocketProvider,
+        socket: consuming some FileDescriptor & ~Copyable
     )
 }

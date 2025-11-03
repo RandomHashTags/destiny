@@ -57,7 +57,7 @@ extension HTTPCookie {
             }
         }
         guard let name, let value else { return nil }
-        do throws(HTTPCookieError) {
+        do throws(DestinyError) {
             switch initializer {
 
             #if PercentEncoding

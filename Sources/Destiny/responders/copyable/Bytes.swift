@@ -29,17 +29,17 @@ public struct Bytes: Sendable {
 extension Bytes {
     /// Writes a response to a file descriptor.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Parameters:
+    ///   - provider: Socket's provider.
+    ///   - socket: The socket.
+    /// 
+    /// - Throws: `DestinyError`
     public func respond(
-        socket: some FileDescriptor,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try value.write(to: socket)
-        } catch {
-            throw .socketError(error)
-        }
-        completionHandler()
+        provider: some SocketProvider,
+        socket: some FileDescriptor
+    ) throws(DestinyError) {
+        try value.write(to: socket)
+        socket.flush(provider: provider)
     }
 }
 
@@ -50,12 +50,11 @@ extension Bytes: ResponseBodyProtocol {}
 
 extension Bytes: RouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

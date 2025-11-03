@@ -27,11 +27,10 @@ extension GenericRouteGroup {
     public func respond(
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) -> Bool {
-        if try staticResponders.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
-        } else if try dynamicResponders.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler) {
+        request: inout HTTPRequest
+    ) throws(DestinyError) -> Bool {
+        if try staticResponders.respond(router: router, socket: socket, request: &request) {
+        } else if try dynamicResponders.respond(router: router, socket: socket, request: &request) {
         } else {
             return false
         }

@@ -28,7 +28,7 @@ extension HTTPSocket {
         into buffer: UnsafeMutableBufferPointer<UInt8>,
         length: Int,
         flags: Int32 = 0
-    ) throws(SocketError) -> Int {
+    ) throws(DestinyError) -> Int {
         guard let baseAddress = buffer.baseAddress else { return 0 }
         return try readBuffer(into: baseAddress, length: length, flags: flags)
     }
@@ -38,7 +38,7 @@ extension HTTPSocket {
         into baseAddress: UnsafeMutablePointer<UInt8>,
         length: Int,
         flags: Int32 = 0
-    ) throws(SocketError) -> Int {
+    ) throws(DestinyError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
             let toRead = min(Buffer.count, length -! bytesRead)
@@ -59,7 +59,7 @@ extension HTTPSocket {
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
         flags: Int32 = 0
-    ) throws(SocketError) -> Int {
+    ) throws(DestinyError) -> Int {
         var bytesRead = 0
         while bytesRead < length {
             let toRead = min(Buffer.count, length -! bytesRead)
@@ -81,7 +81,7 @@ extension HTTPSocket {
     public func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int
-    ) throws(SocketError) -> Int {
+    ) throws(DestinyError) -> Int {
         return try fileDescriptor.readBuffer(into: baseAddress, length: length, flags: 0)
     }
 }
@@ -91,12 +91,12 @@ extension HTTPSocket {
     public func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         var sent = 0
         while sent < length {
             let result = socketSendMultiplatform(pointer: pointer + sent, length: length -! sent)
             if result <= 0 {
-                throw .writeFailed(errno: cError())
+                throw .socketWriteFailed(cError())
             }
             sent +=! result
         }
@@ -106,7 +106,7 @@ extension HTTPSocket {
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try fileDescriptor.writeBuffers3(b1, b2, b3)
     }
 
@@ -115,7 +115,7 @@ extension HTTPSocket {
         _ b2: UnsafeBufferPointer<UInt8>,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try fileDescriptor.writeBuffers4(b1, b2, b3, b4)
     }
 
@@ -126,7 +126,7 @@ extension HTTPSocket {
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try fileDescriptor.writeBuffers6(b1, b2, b3, b4, b5, b6)
     }
 }
@@ -143,6 +143,10 @@ extension HTTPSocket {
 
     public func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
         return fileDescriptor.socketSendMultiplatform(pointer: pointer, length: length)
+    }
+
+    public func close() {
+        fileDescriptor.close()
     }
 }
 

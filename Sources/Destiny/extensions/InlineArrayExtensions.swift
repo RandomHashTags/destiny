@@ -37,10 +37,10 @@ extension VLArray where Element == UInt8 {
 
 // MARK: Write to file descriptor
 extension InlineArray {
-    public func write(to socket: some FileDescriptor) throws(SocketError) {
-        var err:SocketError? = nil
+    public func write(to socket: borrowing some FileDescriptor & ~Copyable) throws(DestinyError) {
+        var err:DestinyError? = nil
         withUnsafePointer(to: self, {
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try socket.socketWriteBuffer($0, length: count)
             } catch {
                 err = error

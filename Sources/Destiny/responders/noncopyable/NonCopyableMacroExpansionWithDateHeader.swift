@@ -29,17 +29,18 @@ extension NonCopyableMacroExpansionWithDateHeader {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - provider: Socket's provider.
+    ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
-        socket: some FileDescriptor,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        var err:SocketError? = nil
+        provider: some SocketProvider,
+        socket: some FileDescriptor
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
             body.withContiguousStorageIfAvailable { bodyPointer in
-                do throws(SocketError) {
+                do throws(DestinyError) {
                     try socket.writeBuffers6(
                         (payload.preDatePointer, payload.preDatePointerCount),
                         (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
@@ -53,10 +54,10 @@ extension NonCopyableMacroExpansionWithDateHeader {
                 }
             }
         }
+        socket.flush(provider: provider)
         if let err {
-            throw .socketError(err)
+            throw err
         }
-        completionHandler()
     }
 }
 
@@ -65,12 +66,11 @@ extension NonCopyableMacroExpansionWithDateHeader {
 // MARK: Conformances
 extension NonCopyableMacroExpansionWithDateHeader: NonCopyableRouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

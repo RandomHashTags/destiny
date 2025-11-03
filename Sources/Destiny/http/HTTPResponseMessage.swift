@@ -96,7 +96,7 @@ extension HTTPResponseMessage {
     ///   - escapeLineBreak: Whether or not to use `\\r\\n` or `\r\n` in the body.
     /// 
     /// - Returns: A string representing an HTTP Message with the given values.
-    /// - Throws: `HTTPMessageError`
+    /// - Throws: `DestinyError`
     public func string(
         escapeLineBreak: Bool
     ) -> String {
@@ -128,8 +128,8 @@ extension HTTPResponseMessage {
     }
 
     #if HTTPCookie
-    /// - Throws: `HTTPCookieError`
-    public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
+    /// - Throws: `DestinyError`
+    public mutating func appendCookie(_ cookie: HTTPCookie) throws(DestinyError) {
         head.cookies.append(cookie)
     }
     #endif

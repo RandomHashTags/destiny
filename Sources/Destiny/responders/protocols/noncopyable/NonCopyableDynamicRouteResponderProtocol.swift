@@ -21,31 +21,28 @@ public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteRespon
     /// Writes a response to a socket.
     /// 
     /// - Parameters:
+    ///   - provider: Socket's provider.
     ///   - router: Router this responder is stored in.
-    ///   - socket: Socket to write to.
     ///   - request: Socket's request.
     ///   - response: HTTP message to send to the socket.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
         request: inout HTTPRequest,
-        response: inout some DynamicResponseProtocol,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError)
+        response: inout some DynamicResponseProtocol
+    ) throws(DestinyError)
 }
 
 // MARK: Defaults
 extension NonCopyableDynamicRouteResponderProtocol where Self: ~Copyable {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try router.respond(socket: socket, request: &request, responder: self, completionHandler: completionHandler)
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try router.respond(provider: provider, request: &request, responder: self)
     }
 }
 

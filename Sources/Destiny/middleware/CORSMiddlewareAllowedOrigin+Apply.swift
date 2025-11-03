@@ -4,11 +4,11 @@
 extension CORSMiddlewareAllowedOrigin {
     /// Applies CORS headers to a dynamic response.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     public func apply(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         switch self {
         case .all:
             Self.applyAll(response: &response)
@@ -33,7 +33,7 @@ extension CORSMiddlewareAllowedOrigin {
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol,
         origins: Set<String>
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         if let origin = try request.header(forKey: "origin"), origins.contains(origin) {
             response.setHeader(key: "access-control-allow-origin", value: origin)
         }
@@ -49,7 +49,7 @@ extension CORSMiddlewareAllowedOrigin {
     static func applyOriginBased(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         response.setHeader(key: "vary", value: "origin")
         if let origin = try request.header(forKey: "origin") {
             response.setHeader(key: "access-control-allow-origin", value: origin)
@@ -60,11 +60,11 @@ extension CORSMiddlewareAllowedOrigin {
 extension CORSMiddlewareAllowedOrigin {
     /// Applies CORS headers to a `HTTPHeaders`.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     public func apply(
         request: inout HTTPRequest,
         headers: inout HTTPHeaders
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         switch self {
         case .all:
             Self.applyAll(headers: &headers)
@@ -89,7 +89,7 @@ extension CORSMiddlewareAllowedOrigin {
         request: inout HTTPRequest,
         headers: inout HTTPHeaders,
         origins: Set<String>
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         if let origin = try request.header(forKey: "origin"), origins.contains(origin) {
             headers["access-control-allow-origin"] = origin
         }
@@ -105,7 +105,7 @@ extension CORSMiddlewareAllowedOrigin {
     static func applyOriginBased(
         request: inout HTTPRequest,
         headers: inout HTTPHeaders
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         headers["vary"] = "origin"
         if let origin = try request.header(forKey: "origin") {
             headers["access-control-allow-origin"] = origin

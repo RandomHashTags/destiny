@@ -19,11 +19,11 @@ public struct DynamicMiddleware: Sendable {
     ///   - response: Current response for the request.
     /// 
     /// - Returns: Whether or not to continue processing the request.
-    /// - Throws: `MiddlewareError`
+    /// - Throws: `DestinyError`
     public func handle(
         request: inout HTTPRequest,
         response: inout any DynamicResponseProtocol
-    ) throws(MiddlewareError) -> Bool {
+    ) throws(DestinyError) -> Bool {
         do {
             try handleLogic(&request, &response)
         } catch {

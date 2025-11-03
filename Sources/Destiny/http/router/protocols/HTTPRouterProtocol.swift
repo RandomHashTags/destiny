@@ -5,60 +5,55 @@ public protocol HTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copyable {
     /// Writes a static response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
+    ///   - provider: Socket's provider.
+    ///   - request: Socket's request.
     ///   - responder: Route responder that will write to the socket.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
-        socket: some FileDescriptor,
+        provider: some SocketProvider,
         request: inout HTTPRequest,
-        responder: some RouteResponderProtocol,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError)
+        responder: some RouteResponderProtocol
+    ) throws(DestinyError)
 
     /// Writes a dynamic response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
+    ///   - provider: Socket's provider.
     ///   - request: Socket's request.
     ///   - responder: Dynamic route responder that will write to the socket.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
-        socket: some FileDescriptor,
+        provider: some SocketProvider,
         request: inout HTTPRequest,
-        responder: some DynamicRouteResponderProtocol,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError)
+        responder: some DynamicRouteResponderProtocol
+    ) throws(DestinyError)
 
     /// Writes a response, usually a 404, to the socket.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - provider: Socket's provider.
+    ///   - request: Socket's request.
     /// 
     /// - Returns: Whether or not a response was sent.
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respondWithNotFound(
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) -> Bool
+        provider: some SocketProvider,
+        request: inout HTTPRequest
+    ) throws(DestinyError) -> Bool
 
     /// Writes an error response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
-    ///   - error: The encountered error.
+    ///   - provider: Socket's provider.
     ///   - request: Socket's request.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - error: Encountered error.
     /// 
     /// - Returns: Whether or not a response was sent.
     func respondWithError(
-        socket: some FileDescriptor,
-        error: some Error,
+        provider: some SocketProvider,
         request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        error: some Error
     ) -> Bool
 }

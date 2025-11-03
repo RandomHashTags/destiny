@@ -243,14 +243,14 @@ extension StaticRoute {
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
         middleware: [StaticMiddleware]
-    ) throws(HTTPMessageError) -> String? {
+    ) throws(DestinyError) -> String? {
         return response(context: context, function: function, middleware: middleware).string(escapeLineBreak: true)
     }
     #else
     public func responder(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax
-    ) throws(HTTPMessageError) -> String? {
+    ) throws(DestinyError) -> String? {
         return response(context: context, function: function).string(escapeLineBreak: true)
     }
     #endif

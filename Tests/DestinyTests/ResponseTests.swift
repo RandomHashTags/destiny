@@ -11,7 +11,7 @@ struct ResponseTests {
 
 extension ResponseTests {
     @Test
-    func responseStaticStringWithDateHeader() throws(ResponderError) {
+    func responseStaticStringWithDateHeader() throws(DestinyError) {
         let fd = TestFileDescriptor()
         fd.sendString("GET /html HTTP/1.1\r\n")
         let preDateValue = StaticString("HTTP/1.1 200\r\ndate: ") // 20
@@ -24,41 +24,38 @@ extension ResponseTests {
             preDateValue: preDateValue,
             postDateValue: postDateValue
         )
-        try responder.respond(socket: fd, completionHandler: {
-            let capacity = HTTPRequest.InitialBuffer.count
-            withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
-                buffer.initialize(repeating: 0)
-                let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)
-                #expect(received == 119)
-                #expect(received == responder.count)
+        try responder.respond(socket: fd)
+        let capacity = HTTPRequest.InitialBuffer.count
+        withUnsafeTemporaryAllocation(of: UInt8.self, capacity: capacity) { buffer in
+            buffer.initialize(repeating: 0)
+            let received = fd.readReceived(into: buffer.baseAddress!, length: capacity)
+            #expect(received == 119)
+            #expect(received == responder.count)
 
-                let slice = buffer[0..<received]
-                let string = String(cString: slice.base.baseAddress!)
-                #expect(string == expectedPayload)
-                #expect(string.hasPrefix(preDateValue.description))
-                #expect(string.hasSuffix(postDateValue.description))
-            }
-        })
+            let slice = buffer[0..<received]
+            let string = String(cString: slice.base.baseAddress!)
+            #expect(string == expectedPayload)
+            #expect(string.hasPrefix(preDateValue.description))
+            #expect(string.hasSuffix(postDateValue.description))
+        }
     }
 }
 
 // MARK: Respond
 extension NonCopyableStaticStringWithDateHeader {
     func respond(
-        socket: borrowing some FileDescriptor & ~Copyable,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
+        socket: borrowing some FileDescriptor & ~Copyable
+    ) throws(DestinyError) {
         try payload.write(to: socket)
-        completionHandler()
     }
 }
 
 extension NonCopyableDateHeaderPayload {
-    func write(to socket: borrowing some FileDescriptor & ~Copyable) throws(ResponderError) {
-        var err:SocketError? = nil
+    func write(to socket: borrowing some FileDescriptor & ~Copyable) throws(DestinyError) {
+        var err:DestinyError? = nil
         var s = HTTPDateFormat.placeholder
         s.withUTF8 { datePointer in
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try socket.writeBuffers3(
                     (preDatePointer, preDatePointerCount),
                     (datePointer.baseAddress!, datePointer.count),
@@ -69,7 +66,7 @@ extension NonCopyableDateHeaderPayload {
             }
         }
         if let err {
-            throw .socketError(err)
+            throw err
         }
     }
 }

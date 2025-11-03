@@ -27,16 +27,15 @@ public struct MacroExpansionWithDateHeader: Sendable {
 // MARK: Respond
 extension MacroExpansionWithDateHeader {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        var err:SocketError? = nil
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
             body.withContiguousStorageIfAvailable { bodyPointer in
-                do throws(SocketError) {
-                    try socket.writeBuffers6(
+                do throws(DestinyError) {
+                    try request.fileDescriptor.writeBuffers6(
                         (payload.preDatePointer, payload.preDatePointerCount),
                         (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
                         (payload.postDatePointer, payload.postDatePointerCount),
@@ -49,10 +48,10 @@ extension MacroExpansionWithDateHeader {
                 }
             }
         }
+        request.fileDescriptor.flush(provider: provider)
         if let err {
-            throw .socketError(err)
+            throw err
         }
-        completionHandler()
     }
 }
 

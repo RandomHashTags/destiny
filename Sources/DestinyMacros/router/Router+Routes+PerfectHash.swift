@@ -177,7 +177,7 @@ extension RouterStorage {
         var routeMembers = MemberBlockItemListSyntax()
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
-            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)\nreturn true"
+            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(provider: provider, router: router, request: &request)\nreturn true"
             routeMembers.append(try! EnumCaseDeclSyntax.init("case \(raw: caseName)"))
 
             let utf8 = routePath.utf8
@@ -214,11 +214,10 @@ extension RouterStorage {
         let routeResponderDecl = try! FunctionDeclSyntax.init("""
         \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
+            provider: some SocketProvider,
             router: \(raw: routerParameter),
-            socket: some FileDescriptor,
-            request: \(requestTypeSyntax),
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) -> Bool {
+            request: \(requestTypeSyntax)
+        ) throws(DestinyError) -> Bool {
             switch self {
             \(raw: routePathCaseConditions)
             }
@@ -257,19 +256,13 @@ extension RouterStorage {
         let decl = try! FunctionDeclSyntax.init("""
         \(raw: inlinableAnnotation)
         \(raw: visibility)func respond(
+            provider: some SocketProvider,
             router: \(raw: routerParameter),
-            socket: some FileDescriptor,
-            request: \(requestTypeSyntax),
-            completionHandler: @Sendable @escaping () -> Void
-        ) throws(ResponderError) -> Bool {
-            let startLine:SIMD64<UInt8>
-            do throws(SocketError) {
-                startLine = try request.startLine\(raw: isCaseSensitive ? "" : "Lowercased")()
-            } catch {
-                throw .socketError(error)
-            }
+            request: \(requestTypeSyntax)
+        ) throws(DestinyError) -> Bool {
+            let startLine = try request.startLine\(raw: isCaseSensitive ? "" : "Lowercased")()
             guard let route = matchRoute(startLine) else { return false }
-            return try route.respond(router: router, socket: socket, request: &request, completionHandler: completionHandler)
+            return try route.respond(provider: provider, router: router, request: &request)
         }
         """)
         members.append(decl)

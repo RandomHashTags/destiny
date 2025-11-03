@@ -49,13 +49,12 @@ extension StaticStringWithDateHeader {
 // MARK: Respond
 extension StaticStringWithDateHeader {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try payload.write(to: socket)
-        completionHandler()
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try payload.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 

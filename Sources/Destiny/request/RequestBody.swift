@@ -25,12 +25,12 @@ public struct RequestBody: Sendable, ~Copyable {
 extension RequestBody {
     /// Reads a number of bytes from a file descriptor and writes it into a buffer.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     package mutating func read<let count: Int>(
         fileDescriptor: some FileDescriptor,
         into buffer: inout InlineArray<count, UInt8>
-    ) throws(SocketError) -> Int {
-        var err:SocketError? = nil
+    ) throws(DestinyError) -> Int {
+        var err:DestinyError? = nil
         var read = 0
         var mutableSpan = buffer.mutableSpan
         mutableSpan.withUnsafeMutableBufferPointer { p in
@@ -38,10 +38,10 @@ extension RequestBody {
                 err = .custom("readBufferFailed;baseAddress == nil")
                 return
             }
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 read = try fileDescriptor.readBuffer(into: base, length: count, flags: 0)
                 if read <= 0 {
-                    err = .readBufferFailed(errno: cError())
+                    err = .socketReadBufferFailed(cError())
                 }
             } catch {
                 err = error
@@ -59,10 +59,10 @@ extension RequestBody {
 extension RequestBody {
     /// Reads a number of bytes from a file descriptor and writes it into a buffer.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     public mutating func collect<let count: Int>(
         fileDescriptor: some FileDescriptor
-    ) throws(SocketError) -> InlineByteBuffer<count> {
+    ) throws(DestinyError) -> InlineByteBuffer<count> {
         var buffer = InlineArray<count, UInt8>(repeating: 0)
         let read = try read(fileDescriptor: fileDescriptor, into: &buffer)
         return .init(buffer: buffer, endIndex: read)

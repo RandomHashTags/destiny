@@ -35,12 +35,12 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
 
     /// Creates an `EpollWorker` with the given configuration.
     /// 
-    /// - Throws: `EpollError`
+    /// - Throws: `DestinyError`
     public static func create(
         workerId: Int,
         backlog: Int32,
         port: UInt16
-    ) throws(EpollError) -> EpollWorker<maxEvents> {
+    ) throws(DestinyError) -> EpollWorker<maxEvents> {
         let listenFD = Self.bindAndListen(port: port, backlog: backlog)
         #if Logging
         let logger = Logger(label: "epoll.worker.\(workerId)")
@@ -137,11 +137,11 @@ extension EpollWorker {
     /// - Parameters:
     ///   - pinToCore: Which core to run this on.
     ///   - timeout: Milliseconds to wait until we time-out.
-    ///   - handleClient: Handle logic for a file descriptor.
-    public mutating func run(
+    ///   - router: Router that handles file descriptors.
+    public mutating func run<Router: NonCopyableHTTPRouterProtocol & ~Copyable>(
         pinToCore: Int32? = nil,
         timeout: Int32 = -1,
-        handleClient: (_ fileDescriptor: Int32, _ completionHandler: @Sendable @escaping () -> Void) -> Void
+        router: borrowing Router
     ) {
         //if let c = pinToCore { pinToCore(c) }
         #if DEBUG && Logging
@@ -152,7 +152,7 @@ extension EpollWorker {
         var mutableSpan = events.mutableSpan
         while running {
             let loadedClients:Int32
-            do throws(EpollError) {
+            do throws(DestinyError) {
                 loadedClients = try ep.wait(timeout: timeout, events: &mutableSpan)
             } catch {
                 #if Logging
@@ -181,11 +181,11 @@ extension EpollWorker {
                     // accept as many as possible
                     while true {
                         guard let client = acceptNewConnection() else { break }
-                        let flags = UInt32(EPOLLIN.rawValue) | UInt32(EPOLLET.rawValue)
-                        do throws(EpollError) {
+                        let flags = UInt32(EPOLLIN.rawValue) | UInt32(EPOLLET.rawValue) | UInt32(EPOLLONESHOT.rawValue)
+                        do throws(DestinyError) {
                             try ep.add(client: client, events: flags)
                         } catch {
-                            #if Logging
+                            #if DEBUG && Logging
                             logger.error("Epoll add error: \(error)")
                             #endif
                         }
@@ -194,10 +194,11 @@ extension EpollWorker {
                 }
                 if event.events & UInt32(EPOLLHUP.rawValue) != 0 || event.events & UInt32(EPOLLERR.rawValue) != 0 {
                     close(eventFD)
-                } else if event.events & UInt32(EPOLLIN.rawValue) != 0 { // client read/write
-                    handleClient(eventFD, {
-                        close(eventFD)
-                    })
+                } else if event.events & UInt32(EPOLLIN.rawValue) != 0 { // client read
+                    #if DEBUG && Logging
+                    logger.debug("handle \(eventFD) with events: \(String(event.events, radix: 2))")
+                    #endif
+                    router.handle(provider: ep, socket: eventFD)
                 }
             }
         }
@@ -253,8 +254,12 @@ extension EpollWorker {
 
     static func setNonBlockingFD(_ fd: Int32) {
         let flags = fcntl(fd, F_GETFL, 0)
-        guard flags != -1 else { fatalError("fcntl F_GETFL failed") }
-        guard fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1 else { fatalError("fcntl F_SETFL failed") }
+        guard flags != -1 else {
+            fatalError("fcntl F_GETFL failed")
+        }
+        guard fcntl(fd, F_SETFL, flags | O_NONBLOCK) != -1 else {
+            fatalError("fcntl F_SETFL failed")
+        }
     }
 }
 

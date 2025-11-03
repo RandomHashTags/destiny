@@ -6,58 +6,56 @@ public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copy
     /// Writes a static response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
-    ///   - responder: Static route responder that will write to the socket.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - provider: Socket's provider.
+    ///   - request: Socket's request.
+    ///   - responder: Static route responder that will write to the socket
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
-        socket: some FileDescriptor,
+        provider: some SocketProvider,
         request: inout HTTPRequest,
-        responder: borrowing some NonCopyableRouteResponderProtocol & ~Copyable,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError)
+        responder: borrowing some NonCopyableRouteResponderProtocol & ~Copyable
+    ) throws(DestinyError)
 
     /// Writes a dynamic response to the socket.
     /// 
     /// - Parameters:
-    ///   - socket: Socket to write to.
+    ///   - provider: Socket's provider.
     ///   - request: Socket's request.
     ///   - responder: Dynamic route responder that will write to the socket.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
-        socket: some FileDescriptor,
+        provider: some SocketProvider,
         request: inout HTTPRequest,
-        responder: borrowing some NonCopyableDynamicRouteResponderProtocol & ~Copyable,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError)
+        responder: borrowing some NonCopyableDynamicRouteResponderProtocol & ~Copyable
+    ) throws(DestinyError)
 
     /// Writes a response, usually a 404, to the socket.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - provider: Socket's provider.
+    ///   - request: Socket's request.
     /// 
     /// - Returns: Whether or not a response was sent.
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respondWithNotFound(
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) -> Bool
+        provider: some SocketProvider,
+        request: inout HTTPRequest
+    ) throws(DestinyError) -> Bool
 
     /// Writes an error response to the socket.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - provider: Socket's provider.
+    ///   - request: Socket's request.
+    ///   - error: Encountered error.
     /// 
     /// - Returns: Whether or not a response was sent.
     func respondWithError(
-        socket: some FileDescriptor,
-        error: some Error,
+        provider: some SocketProvider,
         request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
+        error: some Error
     ) -> Bool
 }
 

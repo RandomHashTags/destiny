@@ -2,11 +2,11 @@
 
 /// Any service.
 public protocol DestinyServiceProtocol: Sendable, ~Copyable {
-    /// Throws: `ServiceError`
-    func run() async throws(ServiceError)
+    /// Throws: `DestinyError`
+    func run() async throws(DestinyError)
 
     /// Shuts down the service.
     /// 
-    /// - Throws: `ServiceError`
-    func shutdown() async throws(ServiceError)
+    /// - Throws: `DestinyError`
+    func shutdown() async throws(DestinyError)
 }

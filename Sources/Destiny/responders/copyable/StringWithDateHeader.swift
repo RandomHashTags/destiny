@@ -58,18 +58,19 @@ extension StringWithDateHeader {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - provider: Socket's provider.
+    ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
-        socket: some FileDescriptor,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        var err:SocketError? = nil
+        provider: some SocketProvider,
+        socket: some FileDescriptor
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         preDateValue.withContiguousStorageIfAvailable { preDatePointer in
             postDateValue.withContiguousStorageIfAvailable { postDatePointer in
                 value.withContiguousStorageIfAvailable { valuePointer in
-                    do throws(SocketError) {
+                    do throws(DestinyError) {
                         try socket.writeBuffers4(
                             preDatePointer,
                             HTTPDateFormat.nowUnsafeBufferPointer, // TODO: fix? (see `HTTPDateFormat.nowUnsafeBufferPointer` warning)
@@ -82,10 +83,10 @@ extension StringWithDateHeader {
                 }
             }
         }
+        socket.flush(provider: provider)
         if let err {
-            throw .socketError(err)
+            throw err
         }
-        completionHandler()
     }
 }
 
@@ -96,23 +97,21 @@ extension StringWithDateHeader: ResponseBodyProtocol {}
 
 extension StringWithDateHeader: RouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 
 extension StringWithDateHeader: NonCopyableRouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

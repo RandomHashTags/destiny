@@ -26,7 +26,7 @@ struct TestHTTPSocket: FileDescriptor, ~Copyable {
         .init(fileDescriptor: _fileDescriptor, _request: .init())
     }
 
-    func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) throws(Destiny.SocketError) -> Int {
+    func readBuffer(into baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) throws(Destiny.DestinyError) -> Int {
         _fileDescriptor.readBuffer(into: baseAddress, length: length, flags: flags)
     }
 
@@ -41,6 +41,10 @@ struct TestHTTPSocket: FileDescriptor, ~Copyable {
     func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
         fileDescriptor.socketSendMultiplatform(pointer: pointer, length: length)
     }
+
+    func close() {
+        fileDescriptor.close()
+    }
 }
 
 // MARK: Write
@@ -53,7 +57,7 @@ extension TestHTTPSocket {
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try fileDescriptor.writeBuffers3(b1, b2, b3)
     }
 
@@ -62,7 +66,7 @@ extension TestHTTPSocket {
         _ b2: UnsafeBufferPointer<UInt8>,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try fileDescriptor.writeBuffers4(b1, b2, b3, b4)
     }
 
@@ -73,7 +77,7 @@ extension TestHTTPSocket {
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try fileDescriptor.writeBuffers6(b1, b2, b3, b4, b5, b6)
     }
 }

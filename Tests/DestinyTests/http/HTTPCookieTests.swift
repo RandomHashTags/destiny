@@ -23,14 +23,14 @@ struct HTTPCookieTests {
     func httpCookieIllegalValue() {
         for illegal in Self.illegalCharacters {
             let illegalValue = "its-cr1tter-season\(illegal)"
-            #expect(throws: HTTPCookieError.illegalCharacter(illegal)) {
+            #expect(throws: DestinyError.httpCookieIllegalCharacter(illegal)) {
                 let _ = try HTTPCookie(name: "name", value: illegalValue)
             }
         }
     }
 
     @Test
-    func httpCookiePercentEncodeIllegalValue() throws(HTTPCookieError) {
+    func httpCookiePercentEncodeIllegalValue() throws(DestinyError) {
         for illegal in Self.illegalCharacters {
             let illegalValue = "critters\(illegal); they bite".httpCookiePercentEncoded()
             let _ = try HTTPCookie(name: "name", value: illegalValue)
@@ -38,7 +38,7 @@ struct HTTPCookieTests {
     }
 
     @Test
-    func httpCookiePercentEncoded() throws(HTTPCookieError) {
+    func httpCookiePercentEncoded() throws(DestinyError) {
         let cookie = try HTTPCookie.init(
             name: "a",
             encoding: "test123!?. \",;=\\"
@@ -47,14 +47,14 @@ struct HTTPCookieTests {
     }
 
     @Test
-    func httpCookieUnreservedValue() throws(HTTPCookieError) {
+    func httpCookieUnreservedValue() throws(DestinyError) {
         for char in PercentEncoding.unreserved {
             let _ = try HTTPCookie(name: "name", value: "\(char)")
         }
     }
 
     @Test
-    func httpCookieDescription() throws(HTTPCookieError) {
+    func httpCookieDescription() throws(DestinyError) {
         var cookie = try HTTPCookie(name: "bro", value: "sheesh")
         #expect("\(cookie)" == "bro=sheesh")
 
@@ -63,7 +63,7 @@ struct HTTPCookieTests {
     }
 
     @Test
-    func httpCookieSecurePartitioned() throws(HTTPCookieError) {
+    func httpCookieSecurePartitioned() throws(DestinyError) {
         let cookie = try HTTPCookie(
             name: "a",
             value: "b",
@@ -74,7 +74,7 @@ struct HTTPCookieTests {
     }
 
     @Test
-    func httpCookieInsecurePartitioned() throws(HTTPCookieError) {
+    func httpCookieInsecurePartitioned() throws(DestinyError) {
         let cookie = try HTTPCookie(
             name: "a",
             value: "b",
@@ -85,7 +85,7 @@ struct HTTPCookieTests {
     }
 
     @Test
-    func httpCookieAllFlags() throws(HTTPCookieError) {
+    func httpCookieAllFlags() throws(DestinyError) {
         let cookie = try HTTPCookie(
             name: "all",
             value: "flags",
@@ -120,11 +120,11 @@ struct HTTPCookieTests {
     }
 }
 
-extension HTTPCookieError: Equatable {
-    public static func == (lhs: HTTPCookieError, rhs: HTTPCookieError) -> Bool {
+extension DestinyError: Equatable {
+    public static func == (lhs: DestinyError, rhs: DestinyError) -> Bool {
         switch lhs {
-        case .illegalCharacter(let c):
-            guard case let .illegalCharacter(cc) = rhs else { return false }
+        case .httpCookieIllegalCharacter(let c):
+            guard case let .httpCookieIllegalCharacter(cc) = rhs else { return false }
             return c == cc
         default:
             return false

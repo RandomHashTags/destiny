@@ -44,39 +44,32 @@ public struct DynamicRouteResponder: Sendable {
 // MARK: Respond
 extension DynamicRouteResponder {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
         request: inout HTTPRequest,
-        response: inout some DynamicResponseProtocol,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
+        response: inout some DynamicResponseProtocol
+    ) throws(DestinyError) {
         var anyRequest = request.copy()
         var anyResponse:any DynamicResponseProtocol = response
         Task {
-            var err:ResponderError? = nil
             do {
                 try await logic(&anyRequest, &anyResponse)
             } catch {
-                err = .custom("dynamicRouteResponderError;while executing dynamic logic: \(error)")
-            }
-            if let err {
-                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, completionHandler: completionHandler) {
-                    completionHandler()
+                let err = DestinyError.custom("dynamicRouteResponderError;while executing dynamic logic: \(error)")
+                if !router.respondWithError(provider: provider, request: &anyRequest, error: err) {
+                    anyRequest.fileDescriptor.flush(provider: provider)
                 }
                 return
             }
-            do throws(SocketError) {
-                try anyResponse.write(to: socket)
+            do throws(DestinyError) {
+                try anyResponse.write(to: anyRequest.fileDescriptor)
+                anyRequest.fileDescriptor.flush(provider: provider)
             } catch {
-                err = .socketError(error)
-            }
-            if let err {
-                if !router.respondWithError(socket: socket, error: err, request: &anyRequest, completionHandler: completionHandler) {
-                    completionHandler()
+                if !router.respondWithError(provider: provider, request: &anyRequest, error: error) {
+                    anyRequest.fileDescriptor.flush(provider: provider)
                 }
                 return
             }
-            completionHandler()
         }
     }
 }

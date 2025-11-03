@@ -38,8 +38,8 @@ public struct HTTPCookie: Sendable {
 
     /// Sets the value of the cookie.
     /// 
-    /// - Throws: `HTTPCookieError` if `value` contains an illegal character.
-    public mutating func setValue(_ value: String) throws(HTTPCookieError) {
+    /// - Throws: `DestinyError` if `value` contains an illegal character.
+    public mutating func setValue(_ value: String) throws(DestinyError) {
         try Self.validateValue(value)
         _value = value
     }
@@ -49,7 +49,7 @@ public struct HTTPCookie: Sendable {
 extension HTTPCookie {
     #if PercentEncoding
 
-    /// - Throws: `HTTPCookieError` if `encoding` contains an illegal character.
+    /// - Throws: `DestinyError` if `encoding` contains an illegal character.
     public init(
         name: String,
         encoding: String,
@@ -61,7 +61,7 @@ extension HTTPCookie {
         isPartitioned: Bool = false,
         isHTTPOnly: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
-    ) throws(HTTPCookieError) {
+    ) throws(DestinyError) {
         try self.init(
             name: name,
             value: encoding.httpCookiePercentEncoded(),
@@ -78,7 +78,7 @@ extension HTTPCookie {
 
     #endif
 
-    /// - Throws: `HTTPCookieError` if `value` contains an illegal character.
+    /// - Throws: `DestinyError` if `value` contains an illegal character.
     public init(
         name: String,
         value: String,
@@ -90,7 +90,7 @@ extension HTTPCookie {
         isPartitioned: Bool = false,
         isHTTPOnly: Bool = false,
         sameSite: HTTPCookieFlag.SameSite? = nil
-    ) throws(HTTPCookieError) {
+    ) throws(DestinyError) {
         try Self.validateValue(value)
         self.init(
             name: name,
@@ -149,10 +149,10 @@ extension HTTPCookie {
 extension HTTPCookie {
     /// Validates the provided string is a valid HTTP Cookie Value.
     /// 
-    /// - Throws: `HTTPCookieError` if it contains an illegal character.
-    public static func validateValue(_ value: String) throws(HTTPCookieError) {
+    /// - Throws: `DestinyError` if it contains an illegal character.
+    public static func validateValue(_ value: String) throws(DestinyError) {
         guard let illegalChar = value.first(where: { !Self.isValidInValue($0) }) else { return }
-        throw .illegalCharacter(illegalChar)
+        throw .httpCookieIllegalCharacter(illegalChar)
     }
 
     /// Returns: Whether the provided character is allowed in an HTTP Cookie Value.

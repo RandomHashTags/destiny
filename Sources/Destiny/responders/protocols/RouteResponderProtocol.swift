@@ -4,18 +4,16 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
+    ///   - provider: Socket's provider.
     ///   - router: Router this responder is stored in.
-    ///   - socket: Socket to write to.
     ///   - request: Socket's request.
-    ///   - completionHandler: Closure that should be called when the socket should be released.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError)
+        request: inout HTTPRequest
+    ) throws(DestinyError)
 }
 
 // MARK: Default conformances
@@ -23,49 +21,34 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
 #if StringRouteResponder
 extension String: RouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: socket)
-        } catch {
-            throw .socketError(error)
-        }
-        completionHandler()
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 #endif
 
 extension StaticString: RouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: socket)
-        } catch {
-            throw .socketError(error)
-        }
-        completionHandler()
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 
 extension [UInt8]: RouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: some HTTPRouterProtocol,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: socket)
-        } catch {
-            throw .socketError(error)
-        }
-        completionHandler()
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }

@@ -99,10 +99,10 @@ extension AbstractHTTPRequest._Storage {
 extension AbstractHTTPRequest._Storage {
     /// Loads `requestLine`, `_headers` and `_body`.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     mutating func load<let count: Int>(
         buffer: borrowing InlineByteBuffer<count>
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         let requestLine = try HTTPRequestLine.load(buffer: buffer)
 
         #if RequestHeaders
@@ -183,12 +183,12 @@ extension AbstractHTTPRequest._Storage {
 
 // MARK: Body
 extension AbstractHTTPRequest._Storage {
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     /// - Warning: `_headers` **MUST NOT** be `nil`!
     mutating func bodyCollect<let initialBufferCount: Int, let bufferCount: Int>(
         fileDescriptor: some FileDescriptor,
         initialBuffer: borrowing InlineByteBuffer<initialBufferCount>
-    ) throws(SocketError) -> InlineByteBuffer<bufferCount> {
+    ) throws(DestinyError) -> InlineByteBuffer<bufferCount> {
         if _headers!._endIndex == nil {
             _headers!.load(buffer: initialBuffer)
         }

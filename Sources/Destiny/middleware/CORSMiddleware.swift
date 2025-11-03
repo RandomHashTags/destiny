@@ -25,19 +25,15 @@ public struct CORSMiddleware: Sendable {
 
 // MARK: Handle
 extension CORSMiddleware {
-    /// - Throws: `MiddlewareError`
+    /// - Throws: `DestinyError`
     public func handle(
         request: inout HTTPRequest,
         headers: inout HTTPHeaders
-    ) throws(MiddlewareError) -> Bool {
-        do throws(SocketError) {
-            guard try request.header(forKey: "origin") != nil else { return true }
-            try allowedOrigin.apply(request: &request, headers: &headers)
-            logicKind.apply(to: &headers)
-            return true
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) -> Bool {
+        guard try request.header(forKey: "origin") != nil else { return true }
+        try allowedOrigin.apply(request: &request, headers: &headers)
+        logicKind.apply(to: &headers)
+        return true
     }
 
     /// Handle logic.
@@ -47,19 +43,15 @@ extension CORSMiddleware {
     ///   - response: Current response for the request.
     /// 
     /// - Returns: Whether or not to continue processing the request.
-    /// - Throws: `MiddlewareError`
+    /// - Throws: `DestinyError`
     public func handle(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(MiddlewareError) -> Bool {
-        do throws(SocketError) {
-            guard try request.header(forKey: "origin") != nil else { return true }
-            try allowedOrigin.apply(request: &request, response: &response)
-            logicKind.apply(to: &response)
-            return true
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) -> Bool {
+        guard try request.header(forKey: "origin") != nil else { return true }
+        try allowedOrigin.apply(request: &request, response: &response)
+        logicKind.apply(to: &response)
+        return true
     }
 }
 

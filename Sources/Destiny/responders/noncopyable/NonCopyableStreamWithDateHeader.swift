@@ -45,7 +45,7 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
     }
 
     // MARK: Write to buffer
-    public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(BufferWriteError) {
+    public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(DestinyError) {
         // TODO: support?
     }
 }
@@ -53,26 +53,24 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
 // MARK: Respond
 extension NonCopyableStreamWithDateHeader {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try payload.write(to: socket)
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        let fd = request.fileDescriptor
+        try payload.write(to: fd)
         let body = body
         Task {
-            do throws(SocketError) {
-                try await body.write(to: socket)
-                completionHandler()
+            do throws(DestinyError) {
+                try await body.write(to: fd)
             } catch {
                 #if DEBUG
                 print("NonCopyableStreamWithDateHeader;respond;error=\(error)")
                 #endif
-                completionHandler() // TODO: fix
-                /*if !router.respondWithError(socket: socket, error: error, request: &requestCopy, completionHandler: completionHandler) {
-                    completionHandler()
+                /*if !router.respondWithError(request: &requestCopy, error: error) {
                 }*/
             }
+            fd.flush(provider: provider)
         }
     }
 }

@@ -88,18 +88,10 @@ public final class NonCopyableHTTPServer<
     #endif
     
     // MARK: Run
-    public func run() async throws(ServiceError) {
+    public func run() async throws(DestinyError) {
         onLoad?()
-        do throws(RouterError) {
-            try router.load()
-        } catch {
-            throw .serverError(.routerError(error))
-        }
-        do throws(ServerError) {
-            try await processClients()
-        } catch {
-            throw .serverError(error)
-        }
+        try router.load()
+        try await processClients()
     }
 
     public func shutdown() {
@@ -108,14 +100,14 @@ public final class NonCopyableHTTPServer<
     }
 
     /// - Returns: The file descriptor of the created socket.
-    func bindAndListen() throws(ServerError) -> Int32 {
+    func bindAndListen() throws(DestinyError) -> Int32 {
         #if canImport(Glibc)
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #else
         let serverFD = socket(AF_INET6, Int32(SOCK_STREAM.rawValue), 0)
         #endif
         if serverFD == -1 {
-            throw .socketCreationFailed(errno: cError())
+            throw .serverSocketCreationFailed(cError())
         }
         self.serverFD = serverFD
         ClientSocket.noSigPipe(fileDescriptor: serverFD)
@@ -157,11 +149,11 @@ public final class NonCopyableHTTPServer<
         }
         if binded == -1 {
             serverFD.socketClose()
-            throw .bindFailed(errno: cError())
+            throw .serverBindFailed(cError())
         }
         if listen(serverFD, backlog) == -1 {
             serverFD.socketClose()
-            throw .listenFailed(errno: cError())
+            throw .serverListenFailed(cError())
         }
         setNonBlocking(socket: serverFD)
 
@@ -222,7 +214,7 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         }
     }
 
-    func processClients() async throws(ServerError) {
+    func processClients() async throws(DestinyError) {
         #if Epoll
         let _:InlineArray<64, Bool>? = processClientsEpoll(port: port, router: router)
         #else
@@ -235,12 +227,12 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
 #if !Epoll && !Liburing
 
 extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable {
-    public func acceptFunction(noTCPDelay: Bool) -> @Sendable (Int32?) throws(SocketError) -> Int32? {
+    public func acceptFunction(noTCPDelay: Bool) -> @Sendable (Int32?) throws(DestinyError) -> Int32? {
         noTCPDelay ? Self.acceptClientNoTCPDelay : Self.acceptClient
     }
 
     @Sendable
-    static func acceptClient(server: Int32?) throws(SocketError) -> Int32? {
+    static func acceptClient(server: Int32?) throws(DestinyError) -> Int32? {
         guard let serverFD = server else { return nil }
         var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
         let client = withUnsafeMutablePointer(to: &addr, { $0.withMemoryRebound(to: sockaddr.self, capacity: 1, { accept(serverFD, $0, &len) }) })
@@ -254,7 +246,7 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
     }
 
     @Sendable
-    static func acceptClientNoTCPDelay(server: Int32?) throws(SocketError) -> Int32? {
+    static func acceptClientNoTCPDelay(server: Int32?) throws(DestinyError) -> Int32? {
         guard let serverFD = server else { return nil }
         var addr = sockaddr_in(), len = socklen_t(MemoryLayout<sockaddr_in>.size)
         let client = accept(serverFD, withUnsafeMutablePointer(to: &addr) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { $0 } }, &len)
@@ -275,12 +267,10 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
             await withTaskGroup(of: Void.self) { group in
                 for _ in 0..<backlog {
                     group.addTask {
-                        do throws(SocketError) {
+                        do throws(DestinyError) {
                             guard let client = try acceptClient(serverFD) else { return }
                             let socket = ClientSocket(fileDescriptor: client)
-                            self.router.handle(client: client, socket: socket, completionHandler: {
-                                client.socketClose()
-                            })
+                            self.router.handle(client: client, socket: socket)
                         } catch {
                             #if Logging
                             self.logger.warning("\(#function);\(error)")
@@ -304,11 +294,9 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
         port: UInt16,
         router: borrowing Router
     ) -> InlineArray<maxEvents, Bool>? {
-        do throws(EpollError) {
+        do throws(DestinyError) {
             var processor = try EpollWorker<maxEvents>.create(workerId: 0, backlog: backlog, port: port)
-            processor.run(timeout: -1, handleClient: { client, handler in
-                router.handle(client: client, socket: client, completionHandler: handler)
-            })
+            processor.run(timeout: -1, router: router)
             processor.shutdown()
         } catch {
             #if Logging

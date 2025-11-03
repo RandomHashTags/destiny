@@ -26,7 +26,7 @@ extension RequestBody {
         let asyncStream = AsyncThrowingStream<CopyableInlineBuffer<chunkSize>, any Error> { continuation in
             while true {
                 var read = 0
-                do throws(SocketError) {
+                do throws(DestinyError) {
                     read = try self.read(fileDescriptor: fileDescriptor, into: &buffer)
                 } catch {
                     continuation.finish(throwing: error)

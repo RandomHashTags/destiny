@@ -29,19 +29,16 @@ extension NonCopyableInlineBytes {
     /// Writes a response to a file descriptor.
     /// 
     /// - Parameters:
-    ///   - completionHandler: Closure that should be called when the socket should be released.
+    ///   - provider: Socket's provider.
+    ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
-        socket: some FileDescriptor,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try value.write(to: socket)
-        } catch {
-            throw .socketError(error)
-        }
-        completionHandler()
+        provider: some SocketProvider,
+        socket: some FileDescriptor
+    ) throws(DestinyError) {
+        try value.write(to: socket)
+        socket.flush(provider: provider)
     }
 }
 
@@ -52,12 +49,11 @@ extension NonCopyableInlineBytes: ResponseBodyProtocol {}
 
 extension NonCopyableInlineBytes: NonCopyableRouteResponderProtocol {
     public func respond(
+        provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
-        socket: some FileDescriptor,
-        request: inout HTTPRequest,
-        completionHandler: @Sendable @escaping () -> Void
-    ) throws(ResponderError) {
-        try respond(socket: socket, completionHandler: completionHandler)
+        request: inout HTTPRequest
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 
