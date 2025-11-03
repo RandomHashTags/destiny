@@ -22,10 +22,10 @@ public protocol DynamicRouteProtocol: RouteProtocol, ~Copyable {
     /// - Parameters:
     ///   - middleware: Static middleware to apply to this route.
     /// 
-    /// - Throws: `AnyError`
+    /// - Throws: `DestinyError`
     mutating func applyStaticMiddleware(
         _ middleware: [StaticMiddleware]
-    ) throws(AnyError)
+    ) throws(DestinyError)
     #endif
 
     func startLine() -> String

@@ -25,13 +25,13 @@ public protocol NonCopyableDynamicRouteResponderProtocol: NonCopyableRouteRespon
     ///   - request: Socket's request.
     ///   - response: HTTP message to send to the socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(ResponderError)
+    ) throws(DestinyError)
 }
 
 // MARK: Defaults
@@ -40,7 +40,7 @@ extension NonCopyableDynamicRouteResponderProtocol where Self: ~Copyable {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         try router.respond(provider: provider, request: &request, responder: self)
     }
 }

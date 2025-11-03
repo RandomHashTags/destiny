@@ -23,13 +23,13 @@ public protocol DynamicRouteResponderProtocol: RouteResponderProtocol, ~Copyable
     ///   - request: Socket's request.
     ///   - response: HTTP Message to send to the socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(ResponderError)
+    ) throws(DestinyError)
 }
 
 // MARK: Defaults
@@ -38,7 +38,7 @@ extension DynamicRouteResponderProtocol {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         try router.respond(provider: provider, request: &request, responder: self)
     }
 }

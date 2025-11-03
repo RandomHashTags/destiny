@@ -108,14 +108,14 @@ extension HTTPResponseMessage {
         writeCRLF(to: buffer, at: &i)
     }
 
-    /// - Throws: `BufferWriteError`
+    /// - Throws: `DestinyError`
     func writeResult(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         index i: inout Int,
         contentTypeDescription: inout String,
         charsetRawName: inout String,
         contentLengthString: inout String
-    ) throws(BufferWriteError) {
+    ) throws(DestinyError) {
         guard var body else { return }
         if contentType != nil {
             writeStaticString("content-type: ", to: buffer, at: &i)
@@ -150,10 +150,10 @@ extension HTTPResponseMessage {
 extension HTTPResponseMessage {
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(SocketError) {
-        var err:SocketError? = nil
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         self.temporaryAllocation {
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try socket.writeBuffer($0.baseAddress!, length: $0.count)
             } catch {
                 err = error

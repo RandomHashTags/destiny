@@ -18,12 +18,12 @@ extension RouteGroupStorage {
     ///   - socket: The socket.
     /// 
     /// - Returns: Whether or not a response was sent.
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) -> Bool {
+    ) throws(DestinyError) -> Bool {
         for group in groups {
             if try group.respond(provider: provider, router: router, request: &request) {
                 return true

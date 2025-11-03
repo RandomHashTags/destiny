@@ -217,7 +217,7 @@ extension RouterStorage {
             provider: some SocketProvider,
             router: \(raw: routerParameter),
             request: \(requestTypeSyntax)
-        ) throws(ResponderError) -> Bool {
+        ) throws(DestinyError) -> Bool {
             switch self {
             \(raw: routePathCaseConditions)
             }
@@ -259,13 +259,8 @@ extension RouterStorage {
             provider: some SocketProvider,
             router: \(raw: routerParameter),
             request: \(requestTypeSyntax)
-        ) throws(ResponderError) -> Bool {
-            let startLine:SIMD64<UInt8>
-            do throws(SocketError) {
-                startLine = try request.startLine\(raw: isCaseSensitive ? "" : "Lowercased")()
-            } catch {
-                throw .socketError(error)
-            }
+        ) throws(DestinyError) -> Bool {
+            let startLine = try request.startLine\(raw: isCaseSensitive ? "" : "Lowercased")()
             guard let route = matchRoute(startLine) else { return false }
             return try route.respond(provider: provider, router: router, request: &request)
         }

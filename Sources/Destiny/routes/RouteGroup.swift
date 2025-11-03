@@ -74,7 +74,7 @@ extension RouteGroup {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) -> Bool {
+    ) throws(DestinyError) -> Bool {
         if try staticResponses.respond(provider: provider, router: router, request: &request) {
         } else if let responder = try dynamicResponses.responder(for: &request) {
             try router.respond(provider: provider, request: &request, responder: responder)

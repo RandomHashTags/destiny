@@ -33,6 +33,9 @@ final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
     func socketSendMultiplatform(pointer: UnsafeRawPointer, length: Int) -> Int {
         0
     }
+
+    func close() {
+    }
 }
 
 // MARK: Read
@@ -94,7 +97,7 @@ extension TestFileDescriptor {
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         appendBuffer(b1)
         appendBuffer(b2)
         appendBuffer(b3)
@@ -105,7 +108,7 @@ extension TestFileDescriptor {
         _ b2: UnsafeBufferPointer<UInt8>,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         appendBuffer((b1.baseAddress!, b1.count))
         appendBuffer((b2.baseAddress!, b2.count))
         appendBuffer((b3.baseAddress!, b3.count))
@@ -118,7 +121,7 @@ extension TestFileDescriptor {
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         appendBuffer(b1)
         appendBuffer(b2)
         appendBuffer(b3)

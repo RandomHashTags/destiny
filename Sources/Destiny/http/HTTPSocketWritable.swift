@@ -6,17 +6,17 @@ public protocol HTTPSocketWritable: Sendable, ~Copyable {
     /// - Parameters:
     ///   - socket: The socket.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(SocketError)
+    ) throws(DestinyError)
 }
 
 // MARK: Default conformances
 extension String: HTTPSocketWritable {
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try socket.socketWriteString(self)
     }
 }
@@ -24,7 +24,7 @@ extension String: HTTPSocketWritable {
 extension StaticString: HTTPSocketWritable {
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try socket.socketWriteBuffer(utf8Start, length: utf8CodeUnitCount)
     }
 }
@@ -32,10 +32,10 @@ extension StaticString: HTTPSocketWritable {
 extension [UInt8]: HTTPSocketWritable {
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(SocketError) {
-        var err:SocketError? = nil
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         self.withUnsafeBufferPointer {
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try socket.socketWriteBuffer($0.baseAddress!, length: $0.count)
             } catch {
                 err = error

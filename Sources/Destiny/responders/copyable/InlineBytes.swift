@@ -31,15 +31,13 @@ extension InlineBytes {
     /// - Parameters:
     ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
+        provider: some SocketProvider,
         socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try value.write(to: socket)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try value.write(to: socket)
+        socket.flush(provider: provider)
     }
 }
 
@@ -53,8 +51,8 @@ extension InlineBytes: RouteResponderProtocol {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        try respond(socket: request.fileDescriptor)
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

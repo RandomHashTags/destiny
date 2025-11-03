@@ -39,8 +39,8 @@ public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     mutating func setHeader(key: String, value: String)
 
     #if HTTPCookie
-    /// - Throws: `HTTPCookieError`
-    mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError)
+    /// - Throws: `DestinyError`
+    mutating func appendCookie(_ cookie: HTTPCookie) throws(DestinyError)
     #endif
 
 

@@ -31,15 +31,13 @@ extension NonCopyableBytes {
     /// - Parameters:
     ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
+        provider: some SocketProvider,
         socket: some FileDescriptor
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try value.write(to: socket)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try value.write(to: socket)
+        socket.flush(provider: provider)
     }
 }
 
@@ -53,8 +51,8 @@ extension NonCopyableBytes: NonCopyableRouteResponderProtocol {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        try respond(socket: request.fileDescriptor)
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

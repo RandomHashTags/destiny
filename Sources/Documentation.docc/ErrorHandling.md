@@ -4,18 +4,7 @@ Destiny uses typed throws out-of-the-box for optimal performance. The only place
 
 ## Typed Throws
 
-Here is a list of the typed throws Destiny uses:
-- `AnyError`
-- `BufferWriteError`
-- `EpollError`
-- `HTTPCookieError`
-- `HTTPMessageError`
-- `MiddlewareError`
-- `ResponderError`
-- `RouterError`
-- `ServerError`
-- `ServiceError`
-- `SocketError`
+Destiny uses a single `DestinyError` enum to optimally manage errors.
 
 ## See Also
 - [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)

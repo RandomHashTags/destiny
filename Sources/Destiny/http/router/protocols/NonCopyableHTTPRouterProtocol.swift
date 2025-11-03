@@ -9,12 +9,12 @@ public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copy
     ///   - socket: Socket to write to.
     ///   - responder: Static route responder that will write to the socket
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
         provider: some SocketProvider,
         request: inout HTTPRequest,
         responder: borrowing some NonCopyableRouteResponderProtocol & ~Copyable
-    ) throws(ResponderError)
+    ) throws(DestinyError)
 
     /// Writes a dynamic response to the socket.
     /// 
@@ -23,12 +23,12 @@ public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copy
     ///   - request: Socket's request.
     ///   - responder: Dynamic route responder that will write to the socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
         provider: some SocketProvider,
         request: inout HTTPRequest,
         responder: borrowing some NonCopyableDynamicRouteResponderProtocol & ~Copyable
-    ) throws(ResponderError)
+    ) throws(DestinyError)
 
     /// Writes a response, usually a 404, to the socket.
     /// 
@@ -37,11 +37,11 @@ public protocol NonCopyableHTTPRouterProtocol: AbstractHTTPRouterProtocol, ~Copy
     ///   - request: Socket's request.
     /// 
     /// - Returns: Whether or not a response was sent.
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respondWithNotFound(
         provider: some SocketProvider,
         request: inout HTTPRequest
-    ) throws(ResponderError) -> Bool
+    ) throws(DestinyError) -> Bool
 
     /// Writes an error response to the socket.
     /// 

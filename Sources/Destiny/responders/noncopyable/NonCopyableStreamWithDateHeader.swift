@@ -45,7 +45,7 @@ public struct NonCopyableStreamWithDateHeader<Body: AsyncHTTPSocketWritable & ~C
     }
 
     // MARK: Write to buffer
-    public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(BufferWriteError) {
+    public mutating func write(to buffer: UnsafeMutableBufferPointer<UInt8>, at index: inout Int) throws(DestinyError) {
         // TODO: support?
     }
 }
@@ -56,12 +56,12 @@ extension NonCopyableStreamWithDateHeader {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         let fd = request.fileDescriptor
         try payload.write(to: fd)
         let body = body
         Task {
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try await body.write(to: fd)
             } catch {
                 #if DEBUG
@@ -70,6 +70,7 @@ extension NonCopyableStreamWithDateHeader {
                 /*if !router.respondWithError(request: &requestCopy, error: error) {
                 }*/
             }
+            fd.flush(provider: provider)
         }
     }
 }

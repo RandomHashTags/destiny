@@ -169,9 +169,11 @@ extension RouterStorage {
             responder = """
             do {
                 \(responder)
+                request.fileDescriptor.flush(provider: provider)
             } catch {
-                let err = ResponderError.custom("\(responderName)Error;\\(error)")
+                let err = DestinyError.custom("\(responderName)Error;\\(error)")
                 if !router.respondWithError(provider: provider, request: &request, error: err) {
+                    request.fileDescriptor.flush(provider: provider)
                 }
                 return
             }
@@ -241,14 +243,15 @@ extension RouterStorage {
             router: \(routerParameter(isCopyable: isCopyable, protocolConformances: hasProtocolConformances)),
             request: \(requestTypeSyntax),
             response: inout some DynamicResponseProtocol
-        ) throws(ResponderError) {
+        ) throws(DestinyError) {
             \(asyncTaskValues.setup)
             \(responder)
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try response.write(to: request.fileDescriptor)
+                request.fileDescriptor.flush(provider: provider)
             } catch {
-                let err = ResponderError.socketError(error)
-                if !router.respondWithError(provider: provider, request: &request, error: err) {
+                if !router.respondWithError(provider: provider, request: &request, error: error) {
+                    request.fileDescriptor.flush(provider: provider)
                 }
                 return
             }
@@ -299,7 +302,7 @@ extension RouterStorage {
             request: \(requestTypeSyntax),
             requestPathCount: Int,
             requestStartLine: SIMD64<UInt8>
-        ) throws(ResponderError) -> Bool {
+        ) throws(DestinyError) -> Bool {
             if path == requestStartLine { // parameterless
                 try router.respond(provider: provider, request: &request, responder: responder)
                 return true
@@ -322,14 +325,10 @@ extension RouterStorage {
                             found = false
                             break loop
                         } else {
-                            do throws(SocketError) {
-                                let pathAtIndex = try request.path(at: i)
-                                if l != pathAtIndex {
-                                    found = false
-                                    break loop
-                                }
-                            } catch {
-                                throw .socketError(error)
+                            let pathAtIndex = try request.path(at: i)
+                            if l != pathAtIndex {
+                                found = false
+                                break loop
                             }
                         }
                     case .parameter:
@@ -376,15 +375,9 @@ extension RouterStorage {
             provider: some SocketProvider,
             router: \(raw: routerParameter),
             request: \(requestTypeSyntax)
-        ) throws(ResponderError) -> Bool {
-            let requestPathCount:Int
-            let requestStartLine:SIMD64<UInt8>
-            do throws(SocketError) {
-                requestPathCount = try request.pathCount()
-                requestStartLine = try request.startLine()
-            } catch {
-                throw .socketError(error)
-            }
+        ) throws(DestinyError) -> Bool {
+            let requestPathCount = try request.pathCount()
+            let requestStartLine = try request.startLine()
             \(raw: respondersString)
             return false
         }

@@ -20,7 +20,7 @@ extension ResponseBody {
         public mutating func write(
             to buffer: UnsafeMutableBufferPointer<UInt8>,
             at index: inout Int
-        ) throws(BufferWriteError) {
+        ) throws(DestinyError) {
             try value.write(to: buffer, at: &index)
         }
 

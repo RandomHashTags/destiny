@@ -30,11 +30,11 @@ extension MacroExpansionWithDateHeader {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        var err:SocketError? = nil
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
             body.withContiguousStorageIfAvailable { bodyPointer in
-                do throws(SocketError) {
+                do throws(DestinyError) {
                     try request.fileDescriptor.writeBuffers6(
                         (payload.preDatePointer, payload.preDatePointerCount),
                         (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
@@ -48,8 +48,9 @@ extension MacroExpansionWithDateHeader {
                 }
             }
         }
+        request.fileDescriptor.flush(provider: provider)
         if let err {
-            throw .socketError(err)
+            throw err
         }
     }
 }

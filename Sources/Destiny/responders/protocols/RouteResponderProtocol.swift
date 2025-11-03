@@ -7,12 +7,12 @@ public protocol RouteResponderProtocol: Sendable, ~Copyable {
     ///   - router: Router this responder is stored in.
     ///   - request: Socket's request.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError)
+    ) throws(DestinyError)
 }
 
 // MARK: Default conformances
@@ -23,12 +23,9 @@ extension String: RouteResponderProtocol {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: request.fileDescriptor)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 #endif
@@ -38,12 +35,9 @@ extension StaticString: RouteResponderProtocol {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: request.fileDescriptor)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 
@@ -52,11 +46,8 @@ extension [UInt8]: RouteResponderProtocol {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: request.fileDescriptor)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }

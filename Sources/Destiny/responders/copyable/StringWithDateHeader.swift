@@ -60,15 +60,16 @@ extension StringWithDateHeader {
     /// - Parameters:
     ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
+        provider: some SocketProvider,
         socket: some FileDescriptor
-    ) throws(ResponderError) {
-        var err:SocketError? = nil
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         preDateValue.withContiguousStorageIfAvailable { preDatePointer in
             postDateValue.withContiguousStorageIfAvailable { postDatePointer in
                 value.withContiguousStorageIfAvailable { valuePointer in
-                    do throws(SocketError) {
+                    do throws(DestinyError) {
                         try socket.writeBuffers4(
                             preDatePointer,
                             HTTPDateFormat.nowUnsafeBufferPointer, // TODO: fix? (see `HTTPDateFormat.nowUnsafeBufferPointer` warning)
@@ -81,8 +82,9 @@ extension StringWithDateHeader {
                 }
             }
         }
+        socket.flush(provider: provider)
         if let err {
-            throw .socketError(err)
+            throw err
         }
     }
 }
@@ -97,8 +99,8 @@ extension StringWithDateHeader: RouteResponderProtocol {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        try respond(socket: request.fileDescriptor)
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 
@@ -107,8 +109,8 @@ extension StringWithDateHeader: NonCopyableRouteResponderProtocol {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        try respond(socket: request.fileDescriptor)
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

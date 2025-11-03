@@ -52,8 +52,9 @@ extension StaticStringWithDateHeader {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         try payload.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 

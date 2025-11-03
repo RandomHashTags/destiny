@@ -27,7 +27,7 @@ extension DiagnosticMsg {
     }
 
     #if HTTPCookie
-    static func httpCookieError(node: some SyntaxProtocol, error: HTTPCookieError) -> Diagnostic {
+    static func httpCookieError(node: some SyntaxProtocol, error: DestinyError) -> Diagnostic {
         .init(node: node, message: DiagnosticMsg(id: "httpCookieError", message: "\(error)"))
     }
     #endif

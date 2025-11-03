@@ -20,17 +20,13 @@ public struct DateHeaderPayload: @unchecked Sendable {
 
     /// Efficiently writes the `preDate` value, `date` header and `postDate` value to a file descriptor.
     /// 
-    /// - Throws: `ResponderError`
-    public func write(to socket: some FileDescriptor) throws(ResponderError) {
-        do throws(SocketError) {
-            try socket.writeBuffers3(
-                (preDatePointer, preDatePointerCount),
-                (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
-                (postDatePointer, postDatePointerCount)
-            )
-        } catch {
-            throw .socketError(error)
-        }
+    /// - Throws: `DestinyError`
+    public func write(to socket: some FileDescriptor) throws(DestinyError) {
+        try socket.writeBuffers3(
+            (preDatePointer, preDatePointerCount),
+            (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
+            (postDatePointer, postDatePointerCount)
+        )
     }
 }
 

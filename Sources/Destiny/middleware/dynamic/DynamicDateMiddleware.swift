@@ -12,11 +12,11 @@ public struct DynamicDateMiddleware: Sendable {
     ///   - response: Current response for the request.
     /// 
     /// - Returns: Whether or not to continue processing the request.
-    /// - Throws: `MiddlewareError`
+    /// - Throws: `DestinyError`
     public func handle(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(MiddlewareError) -> Bool {
+    ) throws(DestinyError) -> Bool {
         response.setHeader(key: "date", value: HTTPDateFormat.nowString)
         return true
     }

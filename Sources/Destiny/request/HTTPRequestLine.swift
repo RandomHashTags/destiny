@@ -95,10 +95,10 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
 extension HTTPRequestLine {
     /// Tries parsing a `HTTPRequestLine` from a buffer.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     public static func load<let count: Int>(
         buffer: borrowing InlineByteBuffer<count>
-    ) throws(SocketError) -> Self {
+    ) throws(DestinyError) -> Self {
         var methodEndIndex = 0
         let bufferSpan = buffer.buffer.span
         var offset = 0

@@ -422,7 +422,7 @@ extension CompiledRouterStorage {
                     .init(leadingTrivia: "\n", firstName: "for", secondName: "request", type: requestTypeSyntax, trailingComma: .commaToken()),
                     .init(leadingTrivia: "\n", firstName: "with", secondName: "response", type: TypeSyntax(stringLiteral: "inout some DynamicResponseProtocol"), trailingTrivia: "\n")
                 ])),
-                effectSpecifiers: .init(throwsClause: .init(throwsSpecifier: .keyword(.throws), leftParen: .leftParenToken(), type: TypeSyntax("MiddlewareError"), rightParen: .rightParenToken()))
+                effectSpecifiers: .init(throwsClause: .init(throwsSpecifier: .keyword(.throws), leftParen: .leftParenToken(), type: TypeSyntax("DestinyError"), rightParen: .rightParenToken()))
             ),
             body: .init(statements: .init(stringLiteral: handleString))
         )
@@ -463,24 +463,27 @@ extension CompiledRouterStorage {
                 ])
             ),
             body: .init(statements: .init(stringLiteral: """
-                do throws(SocketError) {
+                do throws(DestinyError) {
                     var request = try \(requestType).load(from: socket)
 
                     \(logRequest)
 
-                    do throws(ResponderError) {
+                    do throws(DestinyError) {
                         guard !(try respond(provider: provider, request: &request)) else { return }
                         if !(try respondWithNotFound(provider: provider, request: &request)) {
+                            request.fileDescriptor.flush(provider: provider)
                             \(failedToSendResponseToClient)
                         }
                     } catch {
                         \(encounteredErrorWhileProcessingClient)
                         if !respondWithError(provider: provider, request: &request, error: error) {
+                            request.fileDescriptor.flush(provider: provider)
                             \(failedToSendResponseToClient)
                         }
                     }
                 } catch {
                     \(encounteredErrorWhileLoadingRequest)
+                    // TODO: flush socket
                 }
                 """)
             )
@@ -540,7 +543,7 @@ extension CompiledRouterStorage {
                     .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("DestinyError"), rightParen: .rightParenToken())
                 ),
                 returnClause: .init(type: TypeSyntax("Bool"))
             ),
@@ -569,7 +572,7 @@ extension CompiledRouterStorage {
                     .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("DestinyError"), rightParen: .rightParenToken())
                 )
             ),
             body: .init(statements: .init(stringLiteral: responderString))
@@ -591,7 +594,7 @@ extension CompiledRouterStorage {
                     .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("DestinyError"), rightParen: .rightParenToken())
                 ),
                 returnClause: .init(type: TypeSyntax("some DynamicResponseProtocol"))
             ),
@@ -599,10 +602,10 @@ extension CompiledRouterStorage {
                 var response = responder.defaultResponse()
                 var index = 0
                 let maximumParameters = responder.pathComponentsCount
-                var err:SocketError? = nil
+                var err:DestinyError? = nil
                 responder.forEachPathComponentParameterIndex { parameterIndex in
                     let pathAtIndex:String
-                    do throws(SocketError) {
+                    do throws(DestinyError) {
                         pathAtIndex = try request.path(at: parameterIndex)
                     } catch {
                         err = error
@@ -612,7 +615,7 @@ extension CompiledRouterStorage {
                         response.setParameter(at: index, value: $0)
                     }
                     if responder.pathComponent(at: parameterIndex) == .catchall {
-                        do throws(SocketError) {
+                        do throws(DestinyError) {
                             var i = parameterIndex+1
                             try request.forEachPath(offset: i) { path in
                                 path.inlineVLArray {
@@ -633,7 +636,7 @@ extension CompiledRouterStorage {
                     index += 1
                 }
                 if let err {
-                    throw .socketError(err)
+                    throw err
                 }
                 return response
                 """)
@@ -647,11 +650,7 @@ extension CompiledRouterStorage {
     private func respondWithDynamicResponderDecl(isCopyable: Bool) -> FunctionDeclSyntax {
         return respondWithDynamicResponderDecl(isCopyable: isCopyable, responderString: """
         var response = try defaultDynamicResponse(request: &request, responder: responder)
-        do throws(MiddlewareError) {
-            try handleDynamicMiddleware(for: &request, with: &response)
-        } catch {
-            throw .middlewareError(error)
-        }
+        try handleDynamicMiddleware(for: &request, with: &response)
         try responder.respond(provider: provider, router: self, request: &request, response: &response)
         """)
     }
@@ -668,7 +667,7 @@ extension CompiledRouterStorage {
                     .init(leadingTrivia: "\n", firstName: "responder", type: TypeSyntax(stringLiteral: responderParameter), trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("DestinyError"), rightParen: .rightParenToken())
                 )
             ),
             body: .init(statements: .init(stringLiteral: responderString))
@@ -707,7 +706,7 @@ extension CompiledRouterStorage {
                     .init(leadingTrivia: "\n", firstName: "request", type: requestTypeSyntax, trailingTrivia: "\n")
                 ]),
                 effectSpecifiers: .init(
-                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("ResponderError"), rightParen: .rightParenToken())
+                    throwsClause: .init(throwsSpecifier: "throws", leftParen: .leftParenToken(), type: TypeSyntax("DestinyError"), rightParen: .rightParenToken())
                 ),
                 returnClause: .init(type: TypeSyntax("Bool"))
             ),

@@ -58,14 +58,16 @@ extension StreamWithDateHeader {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         try payload.write(to: request.fileDescriptor)
         var requestCopy = request.copy()
         Task {
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try await body.write(to: requestCopy.fileDescriptor)
+                requestCopy.fileDescriptor.flush(provider: provider)
             } catch {
                 if !router.respondWithError(provider: provider, request: &requestCopy, error: error) {
+                    requestCopy.fileDescriptor.flush(provider: provider)
                 }
             }
         }

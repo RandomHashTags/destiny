@@ -11,7 +11,7 @@ struct ResponseTests {
 
 extension ResponseTests {
     @Test
-    func responseStaticStringWithDateHeader() throws(ResponderError) {
+    func responseStaticStringWithDateHeader() throws(DestinyError) {
         let fd = TestFileDescriptor()
         fd.sendString("GET /html HTTP/1.1\r\n")
         let preDateValue = StaticString("HTTP/1.1 200\r\ndate: ") // 20
@@ -45,17 +45,17 @@ extension ResponseTests {
 extension NonCopyableStaticStringWithDateHeader {
     func respond(
         socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         try payload.write(to: socket)
     }
 }
 
 extension NonCopyableDateHeaderPayload {
-    func write(to socket: borrowing some FileDescriptor & ~Copyable) throws(ResponderError) {
-        var err:SocketError? = nil
+    func write(to socket: borrowing some FileDescriptor & ~Copyable) throws(DestinyError) {
+        var err:DestinyError? = nil
         var s = HTTPDateFormat.placeholder
         s.withUTF8 { datePointer in
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try socket.writeBuffers3(
                     (preDatePointer, preDatePointerCount),
                     (datePointer.baseAddress!, datePointer.count),
@@ -66,7 +66,7 @@ extension NonCopyableDateHeaderPayload {
             }
         }
         if let err {
-            throw .socketError(err)
+            throw err
         }
     }
 }

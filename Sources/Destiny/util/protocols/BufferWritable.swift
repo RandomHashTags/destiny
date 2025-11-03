@@ -3,11 +3,11 @@
 public protocol BufferWritable: Sendable, ~Copyable {
     /// Writes contents of `self` to a buffer at the given index.
     /// 
-    /// - Throws: `BufferWriteError`
+    /// - Throws: `DestinyError`
     mutating func write(
         to buffer: UnsafeMutableBufferPointer<UInt8>,
         at index: inout Int
-    ) throws(BufferWriteError)
+    ) throws(DestinyError)
 }
 
 // MARK: Default conformances

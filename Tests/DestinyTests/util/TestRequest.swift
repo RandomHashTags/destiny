@@ -24,30 +24,30 @@ struct TestRequest: Sendable, ~Copyable {
     mutating func forEachPath(
         offset: Int = 0,
         _ yield: (String) -> Void
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try _request.forEachPath(fileDescriptor: fileDescriptor, offset: offset, yield)
     }
 
-    mutating func path(at index: Int) throws(SocketError) -> String {
+    mutating func path(at index: Int) throws(DestinyError) -> String {
         try _request.path(fileDescriptor: fileDescriptor, at: index)
     }
 
-    mutating func pathCount() throws(SocketError) -> Int {
+    mutating func pathCount() throws(DestinyError) -> Int {
         try _request.pathCount(fileDescriptor: fileDescriptor)
     }
 
-    mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+    mutating func isMethod(_ method: some HTTPRequestMethodProtocol) throws(DestinyError) -> Bool {
         try _request.isMethod(fileDescriptor: fileDescriptor, method)
     }
 
-    mutating func headers() throws(SocketError) -> [Substring:Substring] {
+    mutating func headers() throws(DestinyError) -> [Substring:Substring] {
         try _request.headers(fileDescriptor: fileDescriptor)
     }
-    mutating func header(forKey key: String) throws(SocketError) -> String? {
+    mutating func header(forKey key: String) throws(DestinyError) -> String? {
         try _request.header(fileDescriptor: fileDescriptor, forKey: key)
     }
 
-    static func load(from socket: consuming some FileDescriptor & ~Copyable) throws(SocketError) -> TestRequest {
+    static func load(from socket: consuming some FileDescriptor & ~Copyable) throws(DestinyError) -> TestRequest {
         .init(fileDescriptor: .init(fileDescriptor: socket.fileDescriptor), _request: .init())
     }
 
@@ -58,18 +58,18 @@ struct TestRequest: Sendable, ~Copyable {
 
 // MARK: Start line
 extension TestRequest {
-    mutating func startLine() throws(SocketError) -> SIMD64<UInt8> {
+    mutating func startLine() throws(DestinyError) -> SIMD64<UInt8> {
         try _request.startLine(fileDescriptor: fileDescriptor)
     }
 
-    mutating func startLineLowercased() throws(SocketError) -> SIMD64<UInt8> {
+    mutating func startLineLowercased() throws(DestinyError) -> SIMD64<UInt8> {
         try _request.startLineLowercased(fileDescriptor: fileDescriptor)
     }
 }
 
 // MARK: Storage
 extension TestRequest {
-    mutating func loadStorage() throws(SocketError) {
+    mutating func loadStorage() throws(DestinyError) {
         try _request.loadStorage(fileDescriptor: fileDescriptor)
     }
 }

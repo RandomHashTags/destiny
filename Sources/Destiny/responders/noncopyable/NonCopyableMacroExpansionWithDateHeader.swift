@@ -31,14 +31,15 @@ extension NonCopyableMacroExpansionWithDateHeader {
     /// - Parameters:
     ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
+        provider: some SocketProvider,
         socket: some FileDescriptor
-    ) throws(ResponderError) {
-        var err:SocketError? = nil
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
             body.withContiguousStorageIfAvailable { bodyPointer in
-                do throws(SocketError) {
+                do throws(DestinyError) {
                     try socket.writeBuffers6(
                         (payload.preDatePointer, payload.preDatePointerCount),
                         (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
@@ -52,8 +53,9 @@ extension NonCopyableMacroExpansionWithDateHeader {
                 }
             }
         }
+        socket.flush(provider: provider)
         if let err {
-            throw .socketError(err)
+            throw err
         }
     }
 }
@@ -66,8 +68,8 @@ extension NonCopyableMacroExpansionWithDateHeader: NonCopyableRouteResponderProt
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        try respond(socket: request.fileDescriptor)
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

@@ -264,7 +264,7 @@ extension Router {
             #if DEBUG && Logging
             router.logger.warning("\\(error)")
             #endif
-            do throws(ResponderError) {
+            do throws(DestinyError) {
                 let errorDesc = "\\(error)"
                 let contentLength = errorDesc.count
                 let responder = \(raw: defaultErrorResponder())

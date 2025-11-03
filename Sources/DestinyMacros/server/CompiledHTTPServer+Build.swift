@@ -101,23 +101,15 @@ extension CompiledHTTPServer {
                     throwsClause: .init(
                         throwsSpecifier: .keyword(.throws),
                         leftParen: .leftParenToken(),
-                        type: TypeSyntax("ServiceError"),
+                        type: TypeSyntax("DestinyError"),
                         rightParen: .rightParenToken()
                     )
                 )
             ),
             body: .init(statements: .init(stringLiteral: """
             \(onLoad ?? "")
-            do throws(RouterError) {
-                try router.load()
-            } catch {
-                throw .serverError(.routerError(error))
-            }
-            do throws(ServerError) {
-                try await processClients()
-            } catch {
-                throw .serverError(error)
-            }
+            try router.load()
+            try await processClients()
             """))
         )
     }
@@ -218,7 +210,7 @@ extension CompiledHTTPServer {
                     throwsClause: .init(
                         throwsSpecifier: .keyword(.throws),
                         leftParen: .leftParenToken(),
-                        type: TypeSyntax("ServerError"),
+                        type: TypeSyntax("DestinyError"),
                         rightParen: .rightParenToken()
                     )
                 ),
@@ -315,7 +307,7 @@ extension CompiledHTTPServer {
                     throwsClause: .init(
                         throwsSpecifier: .keyword(.throws),
                         leftParen: .leftParenToken(),
-                        type: TypeSyntax("ServerError"),
+                        type: TypeSyntax("DestinyError"),
                         rightParen: .rightParenToken()
                     )
                 )
@@ -356,7 +348,7 @@ extension CompiledHTTPServer {
                     throwsClause: .init(
                         throwsSpecifier: .keyword(.throws),
                         leftParen: .leftParenToken(),
-                        type: TypeSyntax("SocketError"),
+                        type: TypeSyntax("DestinyError"),
                         rightParen: .rightParenToken()
                     ),
                 ),
@@ -404,7 +396,7 @@ extension CompiledHTTPServer {
                 await withTaskGroup(of: Void.self) { group in
                     for _ in 0..<\(backlog) {
                         group.addTask {
-                            do throws(SocketError) {
+                            do throws(DestinyError) {
                                 guard let client = try Self.acceptClient(serverFD) else { return }
                                 let socket = \(socketType)(fileDescriptor: client)
                                 self.router.handle(client: client, socket: socket)
@@ -438,7 +430,7 @@ extension CompiledHTTPServer {
                 parameterClause: .init(parameters: [])
             ),
             body: .init(statements: .init(stringLiteral: """
-            do throws(EpollError) {
+            do throws(DestinyError) {
                 var processor = try EpollWorker<\(maxEpollEvents)>.create(workerId: 0, backlog: \(backlog), port: \(port))
                 processor.run(timeout: -1, router: router)
                 processor.shutdown()

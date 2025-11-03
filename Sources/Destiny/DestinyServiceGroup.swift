@@ -57,7 +57,7 @@ public final class DestinyServiceGroup: Sendable {
         for i in services.indices {
             let service = services[i]
             let t = Task.detached {
-                do throws(ServiceError) {
+                do throws(DestinyError) {
                     try await service.run()
                 } catch {
                     #if Logging
@@ -108,7 +108,7 @@ public final class DestinyServiceGroup: Sendable {
         await withTaskGroup { group in 
             for service in services {
                 group.addTask {
-                    do throws(ServiceError) {
+                    do throws(DestinyError) {
                         try await service.shutdown()
                     } catch {
                         #if Logging

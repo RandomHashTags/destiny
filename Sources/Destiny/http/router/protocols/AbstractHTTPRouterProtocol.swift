@@ -14,8 +14,8 @@ public protocol AbstractHTTPRouterProtocol: Sendable, ~Copyable {
 
     /// Load logic before this router is ready to handle sockets.
     /// 
-    /// - Throws: `RouterError`
-    func load() throws(RouterError)
+    /// - Throws: `DestinyError`
+    func load() throws(DestinyError)
 
     /// Handle logic for a given socket.
     /// 

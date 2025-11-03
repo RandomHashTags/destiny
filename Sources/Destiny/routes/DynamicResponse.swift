@@ -81,14 +81,14 @@ extension DynamicResponse {
     }
 
     #if HTTPCookie
-    public mutating func appendCookie(_ cookie: HTTPCookie) throws(HTTPCookieError) {
+    public mutating func appendCookie(_ cookie: HTTPCookie) throws(DestinyError) {
         try message.appendCookie(cookie)
     }
     #endif
 
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         try message.write(to: socket)
     }
 }

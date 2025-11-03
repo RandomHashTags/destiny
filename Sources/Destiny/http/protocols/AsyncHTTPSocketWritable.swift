@@ -7,10 +7,10 @@ public protocol AsyncHTTPSocketWritable: Sendable, ~Copyable {
     /// - Parameters:
     ///   - socket: The socket.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) async throws(SocketError)
+    ) async throws(DestinyError)
 }
 
 extension AsyncHTTPSocketWritable {
@@ -19,10 +19,10 @@ extension AsyncHTTPSocketWritable {
     /// - Parameters:
     ///   - socket: some noncopyable `FileDescriptor`.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) async throws(SocketError) {
+    ) async throws(DestinyError) {
         try await write(to: socket.fileDescriptor)
     }
 }
@@ -31,7 +31,7 @@ extension AsyncHTTPSocketWritable {
 extension String: AsyncHTTPSocketWritable {
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) async throws(SocketError) {
+    ) async throws(DestinyError) {
         try socket.socketWriteString(self)
     }
 }
@@ -39,7 +39,7 @@ extension String: AsyncHTTPSocketWritable {
 extension StaticString: AsyncHTTPSocketWritable {
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) async throws(SocketError) {
+    ) async throws(DestinyError) {
         try socket.socketWriteBuffer(utf8Start, length: utf8CodeUnitCount)
     }
 }
@@ -47,10 +47,10 @@ extension StaticString: AsyncHTTPSocketWritable {
 extension [UInt8]: AsyncHTTPSocketWritable {
     public func write(
         to socket: borrowing some FileDescriptor & ~Copyable
-    ) async throws(SocketError) {
-        var err:SocketError? = nil
+    ) async throws(DestinyError) {
+        var err:DestinyError? = nil
         self.withUnsafeBufferPointer {
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try socket.socketWriteBuffer($0.baseAddress!, length: $0.count)
             } catch {
                 err = error

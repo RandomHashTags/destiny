@@ -22,11 +22,11 @@ extension DynamicRateLimitMiddleware {
     ///   - response: Current response for the request.
     /// 
     /// - Returns: Whether or not to continue processing the request.
-    /// - Throws: `MiddlewareError`
+    /// - Throws: `DestinyError`
     public func handle(
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(MiddlewareError) -> Bool {
+    ) throws(DestinyError) -> Bool {
         let id = (request.socketPeerAddress() ?? "")
         let entry = limits[id] ?? Entry(remainingLimit: 60)
         guard entry.remainingLimit > 0 else {

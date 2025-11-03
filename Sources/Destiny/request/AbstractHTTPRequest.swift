@@ -25,8 +25,8 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
     /// Loads the headers from a buffer (if not already loaded).
     /// 
     /// - Returns: An efficient, case-sensitive dictionary of the headers.
-    /// - Throws: `SocketError`
-    mutating func headers(fileDescriptor: some FileDescriptor) throws(SocketError) -> [Substring:Substring] {
+    /// - Throws: `DestinyError`
+    mutating func headers(fileDescriptor: some FileDescriptor) throws(DestinyError) -> [Substring:Substring] {
         #if RequestHeaders
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
@@ -43,12 +43,12 @@ package struct AbstractHTTPRequest<let initalBufferCount: Int>: Sendable, ~Copya
 
 // MARK: Generic logic
 extension AbstractHTTPRequest {
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     mutating func forEachPath(
         fileDescriptor: some FileDescriptor,
         offset: Int,
         _ yield: (String) -> Void
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
@@ -60,32 +60,32 @@ extension AbstractHTTPRequest {
         }
     }
 
-    /// - Throws: `SocketError`
-    mutating func path(fileDescriptor: some FileDescriptor, at index: Int) throws(SocketError) -> String {
+    /// - Throws: `DestinyError`
+    mutating func path(fileDescriptor: some FileDescriptor, at index: Int) throws(DestinyError) -> String {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
         return storage.path(buffer: initialBuffer!)[index]
     }
 
-    /// - Throws: `SocketError`
-    mutating func pathCount(fileDescriptor: some FileDescriptor) throws(SocketError) -> Int {
+    /// - Throws: `DestinyError`
+    mutating func pathCount(fileDescriptor: some FileDescriptor) throws(DestinyError) -> Int {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
         return storage.path(buffer: initialBuffer!).count
     }
 
-    /// - Throws: `SocketError`
-    mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: HTTPRequestMethod) throws(SocketError) -> Bool {
+    /// - Throws: `DestinyError`
+    mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: HTTPRequestMethod) throws(DestinyError) -> Bool {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
         return method.rawNameString() == storage.methodString(buffer: initialBuffer!)
     }
 
-    /// - Throws: `SocketError`
-    mutating func header(fileDescriptor: some FileDescriptor, forKey key: String) throws(SocketError) -> String? {
+    /// - Throws: `DestinyError`
+    mutating func header(fileDescriptor: some FileDescriptor, forKey key: String) throws(DestinyError) -> String? {
         #if RequestHeaders
         guard let value = try headers(fileDescriptor: fileDescriptor)[Substring(key)] else { return nil }
         return String(value)
@@ -114,14 +114,14 @@ extension AbstractHTTPRequest {
 extension AbstractHTTPRequest {
     /// Loads `initialBuffer` and `_storage`.
     /// 
-    /// - Throws: `SocketError`
-    package mutating func loadStorage(fileDescriptor: some FileDescriptor) throws(SocketError) {
+    /// - Throws: `DestinyError`
+    package mutating func loadStorage(fileDescriptor: some FileDescriptor) throws(DestinyError) {
         let initialBuffer:InlineByteBuffer<initalBufferCount> = try readBuffer(fileDescriptor: fileDescriptor)
         if initialBuffer.endIndex == 0 { // socket was closed
             fileDescriptor.socketClose()
-            throw .readZero
+            throw .socketReadZero
         } else if initialBuffer.endIndex < 0 {
-            throw .malformedRequest(errno: cError())
+            throw .socketMalformedRequest(cError())
         }
         try storage.load(
             buffer: initialBuffer
@@ -132,14 +132,14 @@ extension AbstractHTTPRequest {
 
 // MARK: Read buffer
 extension AbstractHTTPRequest {
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     /// - Warning: **DOESN'T** check if the read bytes are >= 0!
-    func readBuffer<let count: Int>(fileDescriptor: some FileDescriptor) throws(SocketError) -> InlineByteBuffer<count> {
+    func readBuffer<let count: Int>(fileDescriptor: some FileDescriptor) throws(DestinyError) -> InlineByteBuffer<count> {
         var buffer = InlineArray<count, UInt8>(repeating: 0)
         var mutableSpan = buffer.mutableSpan
-        var err:SocketError? = nil
+        var err:DestinyError? = nil
         let read = mutableSpan.withUnsafeMutableBufferPointer { p in
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 return try fileDescriptor.readBuffer(into: p.baseAddress!, length: count, flags: 0)
             } catch {
                 err = error
@@ -155,16 +155,16 @@ extension AbstractHTTPRequest {
 
 // MARK: Start line
 extension AbstractHTTPRequest {
-    /// - Throws: `SocketError`
-    mutating func startLine(fileDescriptor: some FileDescriptor) throws(SocketError) -> SIMD64<UInt8> {
+    /// - Throws: `DestinyError`
+    mutating func startLine(fileDescriptor: some FileDescriptor) throws(DestinyError) -> SIMD64<UInt8> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
         return storage.startLineSIMD(buffer: initialBuffer!)
     }
 
-    /// - Throws: `SocketError`
-    mutating func startLineLowercased(fileDescriptor: some FileDescriptor) throws(SocketError) -> SIMD64<UInt8> {
+    /// - Throws: `DestinyError`
+    mutating func startLineLowercased(fileDescriptor: some FileDescriptor) throws(DestinyError) -> SIMD64<UInt8> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
@@ -176,8 +176,8 @@ extension AbstractHTTPRequest {
 
 // MARK: Body
 extension AbstractHTTPRequest {
-    /// - Throws: `SocketError`
-    mutating func bodyCollect<let count: Int>(fileDescriptor: some FileDescriptor) throws(SocketError) -> InlineByteBuffer<count> {
+    /// - Throws: `DestinyError`
+    mutating func bodyCollect<let count: Int>(fileDescriptor: some FileDescriptor) throws(DestinyError) -> InlineByteBuffer<count> {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }
@@ -191,8 +191,8 @@ extension AbstractHTTPRequest {
 
 // MARK: Conformances
 extension AbstractHTTPRequest {
-    /// - Throws: `SocketError`
-    mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: some HTTPRequestMethodProtocol) throws(SocketError) -> Bool {
+    /// - Throws: `DestinyError`
+    mutating func isMethod(fileDescriptor: some FileDescriptor, _ method: some HTTPRequestMethodProtocol) throws(DestinyError) -> Bool {
         if initialBuffer == nil {
             try loadStorage(fileDescriptor: fileDescriptor)
         }

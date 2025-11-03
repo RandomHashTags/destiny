@@ -58,11 +58,9 @@ extension NonCopyableStaticStringWithDateHeader {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         try payload.write(to: request.fileDescriptor)
-        if let err = request.fileDescriptor.flush(provider: provider) {
-            throw .anyError(err)
-        }
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 

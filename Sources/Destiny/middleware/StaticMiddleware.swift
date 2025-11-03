@@ -246,7 +246,7 @@ extension StaticMiddleware {
     public func apply(
         contentType: inout String?,
         to response: inout some DynamicResponseProtocol
-    ) throws(AnyError) {
+    ) throws(DestinyError) {
         appliedAtLeastOnce = true
         if let appliesVersion {
             response.setHTTPVersion(appliesVersion)
@@ -263,11 +263,7 @@ extension StaticMiddleware {
 
         #if HTTPCookie
         for cookie in appliesCookies {
-            do throws(HTTPCookieError) {
-                try response.appendCookie(cookie)
-            } catch {
-                throw .httpCookieError(error)
-            }
+            try response.appendCookie(cookie)
         }
         #endif
     }

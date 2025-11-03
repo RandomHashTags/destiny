@@ -35,12 +35,12 @@ public struct EpollWorker<let maxEvents: Int>: Sendable, ~Copyable {
 
     /// Creates an `EpollWorker` with the given configuration.
     /// 
-    /// - Throws: `EpollError`
+    /// - Throws: `DestinyError`
     public static func create(
         workerId: Int,
         backlog: Int32,
         port: UInt16
-    ) throws(EpollError) -> EpollWorker<maxEvents> {
+    ) throws(DestinyError) -> EpollWorker<maxEvents> {
         let listenFD = Self.bindAndListen(port: port, backlog: backlog)
         #if Logging
         let logger = Logger(label: "epoll.worker.\(workerId)")
@@ -152,7 +152,7 @@ extension EpollWorker {
         var mutableSpan = events.mutableSpan
         while running {
             let loadedClients:Int32
-            do throws(EpollError) {
+            do throws(DestinyError) {
                 loadedClients = try ep.wait(timeout: timeout, events: &mutableSpan)
             } catch {
                 #if Logging
@@ -182,7 +182,7 @@ extension EpollWorker {
                     while true {
                         guard let client = acceptNewConnection() else { break }
                         let flags = UInt32(EPOLLIN.rawValue) | UInt32(EPOLLET.rawValue) | UInt32(EPOLLONESHOT.rawValue)
-                        do throws(EpollError) {
+                        do throws(DestinyError) {
                             try ep.add(client: client, events: flags)
                         } catch {
                             #if DEBUG && Logging

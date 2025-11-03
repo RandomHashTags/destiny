@@ -9,12 +9,12 @@ public protocol NonCopyableRouteResponderProtocol: Sendable, ~Copyable {
     ///   - router: Router this responder is stored in.
     ///   - request: Socket's request.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError)
+    ) throws(DestinyError)
 }
 
 // MARK: Default conformances
@@ -25,12 +25,9 @@ extension String: NonCopyableRouteResponderProtocol {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: request.fileDescriptor)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 #endif
@@ -40,12 +37,9 @@ extension StaticString: NonCopyableRouteResponderProtocol {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: request.fileDescriptor)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 
@@ -54,12 +48,9 @@ extension [UInt8]: NonCopyableRouteResponderProtocol {
         provider: some SocketProvider,
         router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        do throws(SocketError) {
-            try self.write(to: request.fileDescriptor)
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) {
+        try self.write(to: request.fileDescriptor)
+        request.fileDescriptor.flush(provider: provider)
     }
 }
 

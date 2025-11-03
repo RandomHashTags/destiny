@@ -22,17 +22,18 @@ extension RouteResponses.MacroExpansion {
     /// - Parameters:
     ///   - socket: The socket.
     /// 
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     public func respond(
+        provider: some SocketProvider,
         socket: some FileDescriptor
-    ) throws(ResponderError) {
-        var err:SocketError? = nil
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         value.withUTF8Buffer { valuePointer in
             bodyCount.withContiguousStorageIfAvailable { bodyCountPointer in
                 body.withContiguousStorageIfAvailable { bodyPointer in
                     let bodyCountSuffix:InlineArray<4, UInt8> = [.carriageReturn, .lineFeed, .carriageReturn, .lineFeed]
                     bodyCountSuffix.span.withUnsafeBufferPointer { bodyCountSuffixPointer in
-                        do throws(SocketError) {
+                        do throws(DestinyError) {
                             try socket.writeBuffers4(
                                 valuePointer,
                                 bodyCountPointer,
@@ -46,8 +47,9 @@ extension RouteResponses.MacroExpansion {
                 }
             }
         }
+        socket.flush(provider: provider)
         if let err {
-            throw .socketError(err)
+            throw err
         }
     }
 }
@@ -60,8 +62,8 @@ extension RouteResponses.MacroExpansion: RouteResponderProtocol {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) {
-        try respond(socket: request.fileDescriptor)
+    ) throws(DestinyError) {
+        try respond(provider: provider, socket: request.fileDescriptor)
     }
 }
 

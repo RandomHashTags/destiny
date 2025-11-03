@@ -38,43 +38,43 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     ///   - flags: Applied flags when reading.
     /// 
     /// - Returns: Number of bytes received.
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     func readBuffer(
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
         flags: Int32
-    ) throws(SocketError) -> Int
+    ) throws(DestinyError) -> Int
 
     /// Writes a single buffer to the file descriptor.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
-    ) throws(SocketError)
+    ) throws(DestinyError)
 
     /// Efficiently writes 3 buffers to the file descriptor.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     func writeBuffers3(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError)
+    ) throws(DestinyError)
 
     /// Efficiently writes 4 buffers to the file descriptor.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
         _ b2: UnsafeBufferPointer<UInt8>,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
-    ) throws(SocketError)
+    ) throws(DestinyError)
 
     /// Efficiently writes 6 buffers to the file descriptor.
     /// 
-    /// - Throws: `SocketError`
+    /// - Throws: `DestinyError`
     func writeBuffers6(
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
@@ -82,7 +82,7 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError)
+    ) throws(DestinyError)
 
     func socketReceive(baseAddress: UnsafeMutablePointer<UInt8>, length: Int, flags: Int32) -> Int
     func socketReceive(baseAddress: UnsafeMutableRawPointer, length: Int, flags: Int32) -> Int
@@ -91,7 +91,7 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     /// Flushes (drains) all pending data from the file descriptor.
     /// 
     /// If using epoll: keeps reading until `read()` returns EAGAIN/EWOULDBLOCK or the connection is closed.
-    func flush(provider: some SocketProvider) -> AnyError?
+    func flush(provider: some SocketProvider)
 
     func close()
 }
@@ -108,7 +108,7 @@ extension FileDescriptor where Self: ~Copyable {
     public func socketWriteBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         var sent = 0
         while sent < length {
             let result = socketSendMultiplatform(pointer: pointer + sent, length: length -! sent)
@@ -121,10 +121,10 @@ extension FileDescriptor where Self: ~Copyable {
 
     public func socketWriteString(
         _ string: String
-    ) throws(SocketError) {
-        var err:SocketError? = nil
+    ) throws(DestinyError) {
+        var err:DestinyError? = nil
         string.withContiguousStorageIfAvailable {
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try socketWriteBuffer($0.baseAddress!, length: $0.count)
             } catch {
                 err = error
@@ -136,37 +136,38 @@ extension FileDescriptor where Self: ~Copyable {
     }
 
     // MARK: Flush
-    public func flush(provider: some SocketProvider) -> AnyError? {
+    public func flush(provider: some SocketProvider) {
         #if DEBUG
         print("FileDescriptor;flush;flushing \(fileDescriptor)")
         #endif
         var inlineArray = [1024 of UInt8](repeating: 0)
         var mutableSpan = inlineArray.mutableSpan
-        let error:AnyError? = mutableSpan.withUnsafeMutableBufferPointer { buffer in
+        mutableSpan.withUnsafeMutableBufferPointer { buffer in
             while true {
                 let bytesRead = read(fileDescriptor, buffer.baseAddress, buffer.count)
                 guard bytesRead <= 0 else { continue }
 
                 if bytesRead == 0 {
-                    // Peer performed a clean close; caller should normally close(fd) after this
-                    return .socketError(.readZero)
+                    // peer closed socket
+                    close()
+                    return
                 }
 
                 #if Epoll
                 if errno == EAGAIN || errno == EWOULDBLOCK { // successfully flushed
                     provider.rearm(fd: fileDescriptor)
-                    return nil
+                    return
                 }
                 #endif
 
                 // socket error — recommend closing
-                return .socketError(.errno(errno))
+                close()
+                return
             }
         }
         #if DEBUG
-        print("FileDescriptor;flush;flushed;error=\(error, default: "nil")")
+        print("FileDescriptor;flush;flushed=\(fileDescriptor)")
         #endif
-        return error
     }
 }
 
@@ -181,7 +182,10 @@ extension FileDescriptor where Self: ~Copyable {
         #else
         Foundation.close(fileDescriptor)
         #endif
+
+        #if DEBUG
         print("FileDescriptor;socketClose;closed \(fileDescriptor)")
+        #endif
 
         #else
         #warning("Unable to shutdown and close file descriptor!")

@@ -48,28 +48,25 @@ extension DynamicRouteResponder {
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest,
         response: inout some DynamicResponseProtocol
-    ) throws(ResponderError) {
+    ) throws(DestinyError) {
         var anyRequest = request.copy()
         var anyResponse:any DynamicResponseProtocol = response
         Task {
-            var err:ResponderError? = nil
             do {
                 try await logic(&anyRequest, &anyResponse)
             } catch {
-                err = .custom("dynamicRouteResponderError;while executing dynamic logic: \(error)")
-            }
-            if let err {
+                let err = DestinyError.custom("dynamicRouteResponderError;while executing dynamic logic: \(error)")
                 if !router.respondWithError(provider: provider, request: &anyRequest, error: err) {
+                    anyRequest.fileDescriptor.flush(provider: provider)
                 }
                 return
             }
-            do throws(SocketError) {
+            do throws(DestinyError) {
                 try anyResponse.write(to: anyRequest.fileDescriptor)
+                anyRequest.fileDescriptor.flush(provider: provider)
             } catch {
-                err = .socketError(error)
-            }
-            if let err {
-                if !router.respondWithError(provider: provider, request: &anyRequest, error: err) {
+                if !router.respondWithError(provider: provider, request: &anyRequest, error: error) {
+                    anyRequest.fileDescriptor.flush(provider: provider)
                 }
                 return
             }

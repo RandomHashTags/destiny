@@ -29,7 +29,7 @@ extension Int32 {
         into baseAddress: UnsafeMutableRawPointer,
         length: Int,
         flags: Int32
-    ) throws(SocketError) -> Int {
+    ) throws(DestinyError) -> Int {
         let read = socketReceive(baseAddress: baseAddress, length: length, flags: flags)
         if read < 0 { // error
             try handleReadError()
@@ -37,24 +37,24 @@ extension Int32 {
         return read
     }
 
-    package func handleReadError() throws(SocketError) {
+    package func handleReadError() throws(DestinyError) {
         #if canImport(Glibc)
         if errno == EAGAIN || errno == EWOULDBLOCK {
             return
         }
         #endif
-        throw .readBufferFailed(errno: errno)
+        throw .socketReadBufferFailed(errno)
     }
 
     public func writeBuffer(
         _ pointer: UnsafeRawPointer,
         length: Int
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         var sent = 0
         while sent < length {
             let result = socketSendMultiplatform(pointer: pointer + sent, length: length -! sent)
             if result <= 0 {
-                throw .writeFailed(errno: errno)
+                throw .socketWriteFailed(errno)
             }
             sent +=! result
         }
@@ -64,7 +64,7 @@ extension Int32 {
         _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         var iovecs = (
             iovec(iov_base: .init(mutating: b1.0), iov_len: b1.1),
             iovec(iov_base: .init(mutating: b2.0), iov_len: b2.1),
@@ -74,7 +74,7 @@ extension Int32 {
             writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 3)
         }
         if result <= 0 {
-            throw .writeFailed(errno: errno)
+            throw .socketWriteFailed(errno)
         }
     }
 
@@ -83,7 +83,7 @@ extension Int32 {
         _ b2: UnsafeBufferPointer<UInt8>,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         var iovecs = (
             iovec(iov_base: .init(mutating: b1.baseAddress), iov_len: b1.count),
             iovec(iov_base: .init(mutating: b2.baseAddress), iov_len: b2.count),
@@ -94,7 +94,7 @@ extension Int32 {
             writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 4)
         }
         if result <= 0 {
-            throw .writeFailed(errno: errno)
+            throw .socketWriteFailed(errno)
         }
     }
 
@@ -105,7 +105,7 @@ extension Int32 {
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
-    ) throws(SocketError) {
+    ) throws(DestinyError) {
         var iovecs = (
             iovec(iov_base: .init(mutating: b1.0), iov_len: b1.1),
             iovec(iov_base: .init(mutating: b2.0), iov_len: b2.1),
@@ -118,7 +118,7 @@ extension Int32 {
             writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 6)
         }
         if result <= 0 {
-            throw .writeFailed(errno: errno)
+            throw .socketWriteFailed(errno)
         }
     }
 

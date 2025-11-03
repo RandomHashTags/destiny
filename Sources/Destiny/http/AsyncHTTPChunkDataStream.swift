@@ -41,7 +41,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: Sendable {
 extension AsyncHTTPChunkDataStream {
     public func write(
         to socket: some FileDescriptor
-    ) async throws(SocketError) {
+    ) async throws(DestinyError) {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 +! chunkSize)
         buffer.initialize(repeating: 0)
@@ -62,11 +62,7 @@ extension AsyncHTTPChunkDataStream {
             buffer[i] = .lineFeed
             i +=! 1
 
-            do throws(BufferWriteError) {
-                try chunk.write(to: buffer, at: &i)
-            } catch {
-                throw SocketError.bufferWriteError(error)
-            }
+            try chunk.write(to: buffer, at: &i)
 
             buffer[i] = .carriageReturn
             i +=! 1

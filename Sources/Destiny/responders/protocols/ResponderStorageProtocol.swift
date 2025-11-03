@@ -9,10 +9,10 @@ public protocol ResponderStorageProtocol: Sendable, ~Copyable {
     ///   - request: Socket's request.
     /// 
     /// - Returns: Whether or not a response was sent.
-    /// - Throws: `ResponderError`
+    /// - Throws: `DestinyError`
     func respond(
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) -> Bool
+    ) throws(DestinyError) -> Bool
 }

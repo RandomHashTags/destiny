@@ -28,7 +28,7 @@ extension GenericRouteGroup {
         router: some HTTPRouterProtocol,
         socket: some FileDescriptor,
         request: inout HTTPRequest
-    ) throws(ResponderError) -> Bool {
+    ) throws(DestinyError) -> Bool {
         if try staticResponders.respond(router: router, socket: socket, request: &request) {
         } else if try dynamicResponders.respond(router: router, socket: socket, request: &request) {
         } else {

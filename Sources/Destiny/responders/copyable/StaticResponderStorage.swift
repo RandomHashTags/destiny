@@ -64,13 +64,8 @@ public class StaticResponderStorage: @unchecked Sendable {
         provider: some SocketProvider,
         router: some HTTPRouterProtocol,
         request: inout HTTPRequest
-    ) throws(ResponderError) -> Bool {
-        let startLine:SIMD64<UInt8>
-        do throws(SocketError) {
-            startLine = try request.startLine()
-        } catch {
-            throw .socketError(error)
-        }
+    ) throws(DestinyError) -> Bool {
+        let startLine = try request.startLine()
 
         #if CopyableMacroExpansion
         if let r = macroExpansions[startLine] {

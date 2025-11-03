@@ -53,7 +53,7 @@ public struct RouterStorage {
                 \(visibility)func customLogic(
                     request: \(requestTypeSyntax),
                     response: inout some DynamicResponseProtocol
-                ) throws(MiddlewareError) {
+                ) throws(DestinyError) {
                     do { // TODO: use typed throw
                         \(functionString)
                     } catch {
@@ -65,7 +65,7 @@ public struct RouterStorage {
                 \(visibility)func handle(
                     request: \(requestTypeSyntax),
                     response: inout some DynamicResponseProtocol
-                ) throws(MiddlewareError) -> Bool {
+                ) throws(DestinyError) -> Bool {
                     try customLogic(request: &request, response: &response)
                     return true
                 }
