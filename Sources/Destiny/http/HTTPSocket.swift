@@ -9,7 +9,7 @@ public struct HTTPSocket: Sendable, ~Copyable {
 
     public init(fileDescriptor: Int32) {
         self.fileDescriptor = fileDescriptor
-        Self.noSigPipe(fileDescriptor: fileDescriptor)
+        Int32.noSigPipe(fileDescriptor: fileDescriptor)
     }
 
     public func socketLocalAddress() -> String? {
