@@ -1,8 +1,29 @@
 
 #if NonCopyableMacroExpansionWithDateHeader
 
+#if canImport(Android)
+import Android
+#elseif canImport(Bionic)
+import Bionic
+#elseif canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#elseif canImport(WASILibc)
+import WASILibc
+#elseif canImport(Windows)
+import Windows
+#elseif canImport(WinSDK)
+import WinSDK
+#endif
+
 public struct NonCopyableMacroExpansionWithDateHeader: Sendable, ~Copyable {
-    public static let bodyCountSuffix:StaticString = "\r\n\r\n"
+    public static let bodyCountSuffix:iovec = {
+        let ss:StaticString = "\r\n\r\n"
+        return .init(iov_base: .init(mutating: ss.utf8Start), iov_len: ss.utf8CodeUnitCount)
+    }()
 
     public let bodyCount:String.UTF8View
     public let body:String.UTF8View
@@ -42,11 +63,11 @@ extension NonCopyableMacroExpansionWithDateHeader {
             body.withContiguousStorageIfAvailable { bodyPointer in
                 do throws(DestinyError) {
                     try socket.writeBuffers6(
-                        (payload.preDatePointer, payload.preDatePointerCount),
-                        (HTTPDateFormat.nowUnsafeBufferPointer.baseAddress!, HTTPDateFormat.count),
-                        (payload.postDatePointer, payload.postDatePointerCount),
+                        payload.preDateIovec,
+                        HTTPDateFormat.nowIovec,
+                        payload.postDateIovec,
                         (bodyCountPointer.baseAddress!, bodyCountPointer.count),
-                        (Self.bodyCountSuffix.utf8Start, Self.bodyCountSuffix.utf8CodeUnitCount),
+                        Self.bodyCountSuffix,
                         (bodyPointer.baseAddress!, bodyPointer.count),
                     )
                 } catch {

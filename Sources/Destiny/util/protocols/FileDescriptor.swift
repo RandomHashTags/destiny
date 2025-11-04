@@ -57,9 +57,19 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     /// 
     /// - Throws: `DestinyError`
     func writeBuffers3(
-        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec
+    ) throws(DestinyError)
+
+    /// Efficiently writes 4 buffers to the file descriptor.
+    /// 
+    /// - Throws: `DestinyError`
+    func writeBuffers4(
+        _ b1: iovec,
+        _ b2: UnsafeBufferPointer<UInt8>,
+        _ b3: iovec,
+        _ b4: UnsafeBufferPointer<UInt8>
     ) throws(DestinyError)
 
     /// Efficiently writes 4 buffers to the file descriptor.
@@ -67,7 +77,7 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     /// - Throws: `DestinyError`
     func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
-        _ b2: UnsafeBufferPointer<UInt8>,
+        _ b2: iovec,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
     ) throws(DestinyError)
@@ -76,11 +86,11 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
     /// 
     /// - Throws: `DestinyError`
     func writeBuffers6(
-        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec,
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b5: iovec,
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
     ) throws(DestinyError)
 

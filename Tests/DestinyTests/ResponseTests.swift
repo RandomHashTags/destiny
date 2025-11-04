@@ -57,9 +57,9 @@ extension NonCopyableDateHeaderPayload {
         s.withUTF8 { datePointer in
             do throws(DestinyError) {
                 try socket.writeBuffers3(
-                    (preDatePointer, preDatePointerCount),
-                    (datePointer.baseAddress!, datePointer.count),
-                    (postDatePointer, postDatePointerCount)
+                    preDateIovec,
+                    .init(iov_base: .init(mutating: datePointer.baseAddress!), iov_len: datePointer.count),
+                    postDateIovec
                 )
             } catch {
                 err = error

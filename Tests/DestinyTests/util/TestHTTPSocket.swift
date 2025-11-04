@@ -1,4 +1,22 @@
 
+#if canImport(Android)
+import Android
+#elseif canImport(Bionic)
+import Bionic
+#elseif canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#elseif canImport(WASILibc)
+import WASILibc
+#elseif canImport(Windows)
+import Windows
+#elseif canImport(WinSDK)
+import WinSDK
+#endif
+
 @testable import Destiny
 
 struct TestHTTPSocket: FileDescriptor, ~Copyable {
@@ -54,16 +72,25 @@ extension TestHTTPSocket {
     }
 
     func writeBuffers3(
-        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec
     ) throws(DestinyError) {
         try fileDescriptor.writeBuffers3(b1, b2, b3)
     }
 
     func writeBuffers4(
-        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b1: iovec,
         _ b2: UnsafeBufferPointer<UInt8>,
+        _ b3: iovec,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(DestinyError) {
+        try fileDescriptor.writeBuffers4(b1, b2, b3, b4)
+    }
+
+    func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: iovec,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
     ) throws(DestinyError) {
@@ -71,11 +98,11 @@ extension TestHTTPSocket {
     }
 
     func writeBuffers6(
-        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec,
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b5: iovec,
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
     ) throws(DestinyError) {
         try fileDescriptor.writeBuffers6(b1, b2, b3, b4, b5, b6)
