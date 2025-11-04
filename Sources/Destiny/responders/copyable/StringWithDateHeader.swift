@@ -73,7 +73,7 @@ extension StringWithDateHeader {
                     do throws(DestinyError) {
                         try socket.writeBuffers4(
                             preDatePointer,
-                            HTTPDateFormat.nowUnsafeBufferPointer, // TODO: fix? (see `HTTPDateFormat.nowUnsafeBufferPointer` warning)
+                            HTTPDateFormat.nowIovec,
                             postDatePointer,
                             valuePointer
                         )

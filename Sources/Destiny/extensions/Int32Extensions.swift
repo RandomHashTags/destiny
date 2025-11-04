@@ -93,6 +93,26 @@ extension Int32 {
         }
     }
 
+    public func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: iovec,
+        _ b3: UnsafeBufferPointer<UInt8>,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(DestinyError) {
+        var iovecs = (
+            iovec(iov_base: .init(mutating: b1.baseAddress), iov_len: b1.count),
+            b2,
+            iovec(iov_base: .init(mutating: b3.baseAddress), iov_len: b3.count),
+            iovec(iov_base: .init(mutating: b4.baseAddress), iov_len: b4.count)
+        )
+        let result = withUnsafePointer(to: &iovecs) {
+            writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 4)
+        }
+        if result <= 0 {
+            throw .socketWriteFailed(errno)
+        }
+    }
+
     public func writeBuffers6(
         _ b1: iovec,
         _ b2: iovec,

@@ -72,6 +72,16 @@ public protocol FileDescriptor: NetworkAddressable, ~Copyable {
         _ b4: UnsafeBufferPointer<UInt8>
     ) throws(DestinyError)
 
+    /// Efficiently writes 4 buffers to the file descriptor.
+    /// 
+    /// - Throws: `DestinyError`
+    func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: iovec,
+        _ b3: UnsafeBufferPointer<UInt8>,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(DestinyError)
+
     /// Efficiently writes 6 buffers to the file descriptor.
     /// 
     /// - Throws: `DestinyError`

@@ -1,4 +1,22 @@
 
+#if canImport(Android)
+import Android
+#elseif canImport(Bionic)
+import Bionic
+#elseif canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#elseif canImport(WASILibc)
+import WASILibc
+#elseif canImport(Windows)
+import Windows
+#elseif canImport(WinSDK)
+import WinSDK
+#endif
+
 @testable import Destiny
 
 final class TestFileDescriptor: FileDescriptor, @unchecked Sendable {
@@ -94,9 +112,9 @@ extension TestFileDescriptor {
     }
 
     func writeBuffers3(
-        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec
     ) throws(DestinyError) {
         appendBuffer(b1)
         appendBuffer(b2)
@@ -104,22 +122,35 @@ extension TestFileDescriptor {
     }
 
     func writeBuffers4(
-        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b1: iovec,
         _ b2: UnsafeBufferPointer<UInt8>,
+        _ b3: iovec,
+        _ b4: UnsafeBufferPointer<UInt8>
+    ) throws(DestinyError) {
+        appendBuffer(b1)
+        appendBuffer((b2.baseAddress!, b2.count))
+        appendBuffer(b3)
+        appendBuffer((b4.baseAddress!, b4.count))
+    }
+
+    func writeBuffers4(
+        _ b1: UnsafeBufferPointer<UInt8>,
+        _ b2: iovec,
         _ b3: UnsafeBufferPointer<UInt8>,
         _ b4: UnsafeBufferPointer<UInt8>
     ) throws(DestinyError) {
         appendBuffer((b1.baseAddress!, b1.count))
-        appendBuffer((b2.baseAddress!, b2.count))
+        appendBuffer(b2)
         appendBuffer((b3.baseAddress!, b3.count))
+        appendBuffer((b4.baseAddress!, b4.count))
     }
 
     public func writeBuffers6(
-        _ b1: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b2: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b3: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec,
         _ b4: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
-        _ b5: (buffer: UnsafePointer<UInt8>, bufferCount: Int),
+        _ b5: iovec,
         _ b6: (buffer: UnsafePointer<UInt8>, bufferCount: Int)
     ) throws(DestinyError) {
         appendBuffer(b1)
@@ -130,6 +161,13 @@ extension TestFileDescriptor {
         appendBuffer(b6)
     }
 
+    private func appendBuffer(_ b: iovec) {
+        var array = Array<UInt8>(repeating: 0, count: b.iov_len)
+        for i in 0..<b.iov_len {
+            array[i] = b.iov_base!.loadUnaligned(fromByteOffset: i, as: UInt8.self)
+        }
+        received.append(array)
+    }
     private func appendBuffer(_ b: (buffer: UnsafePointer<UInt8>, bufferCount: Int)) {
         var array = Array<UInt8>(repeating: 0, count: b.bufferCount)
         for i in 0..<b.bufferCount {
