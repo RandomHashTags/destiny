@@ -3,8 +3,7 @@
 public struct HTTPRequest: NetworkAddressable, ~Copyable {
     public typealias InitialBuffer = InlineByteBuffer<1024>
 
-    @usableFromInline
-    package let fileDescriptor:Int32
+    public let fileDescriptor:Int32
 
     @usableFromInline
     package var abstractRequest:AbstractHTTPRequest<1024>
