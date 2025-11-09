@@ -42,6 +42,11 @@ public final class NonCopyableHTTPServer<
     @usableFromInline
     nonisolated(unsafe) private(set) var serverFD:Int32? = nil
 
+    #if Epoll
+    @usableFromInline
+    nonisolated(unsafe) private(set) var epollWorker:EpollWorker<64>! = nil
+    #endif
+
     // MARK: Init
     #if Logging
     public init(
@@ -91,11 +96,27 @@ public final class NonCopyableHTTPServer<
     public func run() async throws(DestinyError) {
         onLoad?()
         try router.load()
-        try await processClients()
+
+        do throws(DestinyError) {
+            #if Epoll
+            epollWorker = try EpollWorker<64>.create(workerId: 0, backlog: backlog, port: port)
+            epollWorker.run(router: router)
+            #else
+            let serverFD1 = try bindAndListen()
+            await processClientsOLD(serverFD: serverFD)
+            #endif
+        } catch {
+            #if Logging
+            logger.error("NonCopyableHTTPServer;run;error=\(error)")
+            #endif
+        }
     }
 
     public func shutdown() {
         self.onShutdown?()
+        #if Epoll
+        epollWorker.shutdown()
+        #endif
         serverFD?.socketClose()
     }
 
@@ -213,15 +234,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
             fatalError("NonCopyableHTTPServer;setNonBlocking;broken2")
         }
     }
-
-    func processClients() async throws(DestinyError) {
-        #if Epoll
-        let _:InlineArray<64, Bool>? = processClientsEpoll(port: port, router: router)
-        #else
-        let serverFD1 = try bindAndListen()
-        await processClientsOLD(serverFD: serverFD)
-        #endif
-    }
 }
 
 #if !Epoll && !Liburing
@@ -284,28 +296,6 @@ extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable
     }
 }
 
-#endif
-
-#if Epoll
-// MARK: Epoll
-extension NonCopyableHTTPServer where Router: ~Copyable, ClientSocket: ~Copyable {
-    @discardableResult
-    func processClientsEpoll<let maxEvents: Int>(
-        port: UInt16,
-        router: borrowing Router
-    ) -> InlineArray<maxEvents, Bool>? {
-        do throws(DestinyError) {
-            var processor = try EpollWorker<maxEvents>.create(workerId: 0, backlog: backlog, port: port)
-            processor.run(timeout: -1, router: router)
-            processor.shutdown()
-        } catch {
-            #if Logging
-            logger.error("NonCopyableHTTPServer;\(#function);error=\(error)")
-            #endif
-        }
-        return nil
-    }
-}
 #endif
 
 #endif
