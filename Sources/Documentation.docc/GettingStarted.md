@@ -57,7 +57,7 @@ let server = NonCopyableHTTPServer<DestinyStorage.DeclaredRouter.CompiledHTTPRou
 )
 
 // precompute and auto-update the "date" header
-HTTPDateFormat.load(logger: Logger(label: "destiny.application"))
+HTTPDateFormat.load(logger: Logger(label: "destiny.http.dateformat"))
 
 // run server
 try await server.run()
