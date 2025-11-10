@@ -432,25 +432,38 @@ extension CompiledRouterStorage {
 // MARK: Handle decl
 extension CompiledRouterStorage {
     private func handleDecl() -> FunctionDeclSyntax {
-        let logRequest:String
         let failedToSendResponseToClient:String
         let encounteredErrorWhileProcessingClient:String
         let encounteredErrorWhileLoadingRequest:String
         if hasLogging {
-            logRequest = """
-            #if DEBUG
-            let requestStartLine = try request.startLine().stringSIMD()
-            logger.info("\\(requestStartLine)")
-            #endif
-            """
             failedToSendResponseToClient = "logger.error(\"failed to send response to client\")"
             encounteredErrorWhileProcessingClient = "logger.warning(\"Encountered error while processing client: \\(error)\")"
             encounteredErrorWhileLoadingRequest = "logger.warning(\"Encountered error while loading request: \\(error)\")"
         } else {
-            logRequest = ""
             failedToSendResponseToClient = ""
             encounteredErrorWhileProcessingClient = ""
             encounteredErrorWhileLoadingRequest = ""
+        }
+        let logRequest:String
+        if hasLogging {
+            logRequest = """
+
+            #if DEBUG
+            do throws(DestinyError) {
+                let requestStartLine = try request.startLine().stringSIMD()
+                logger.info("\\(requestStartLine)")
+            } catch .socketReadZero {
+                request.fileDescriptor.close()
+                return
+            } catch {
+                request.fileDescriptor.flush(provider: provider)
+                \(encounteredErrorWhileLoadingRequest)
+                return
+            }
+            #endif
+            """
+        } else {
+            logRequest = ""
         }
         return .init(
             leadingTrivia: "\(inlinableAnnotation)\n",
@@ -463,33 +476,20 @@ extension CompiledRouterStorage {
                 ])
             ),
             body: .init(statements: .init(stringLiteral: """
-                var request = \(requestType).load(from: socket)
+                var request = \(requestType).load(from: socket)\(logRequest)
                 do throws(DestinyError) {
-                    \(logRequest)
-
-                    do throws(DestinyError) {
-                        guard !(try respond(provider: provider, request: &request)) else { return }
-                        if !(try respondWithNotFound(provider: provider, request: &request)) {
-                            request.fileDescriptor.flush(provider: provider)
-                            \(failedToSendResponseToClient)
-                        }
-                    } catch {
-                        if case .socketReadZero = error {
-                            request.fileDescriptor.close()
-                        } else {
-                            \(encounteredErrorWhileProcessingClient)
-                            if !respondWithError(provider: provider, request: &request, error: error) {
-                                request.fileDescriptor.flush(provider: provider)
-                                \(failedToSendResponseToClient)
-                            }
-                        }
-                    }
-                } catch {
-                    if case .socketReadZero = error {
-                        request.fileDescriptor.close()
-                    } else {
+                    guard !(try respond(provider: provider, request: &request)) else { return }
+                    if !(try respondWithNotFound(provider: provider, request: &request)) {
                         request.fileDescriptor.flush(provider: provider)
-                        \(encounteredErrorWhileLoadingRequest)
+                        \(failedToSendResponseToClient)
+                    }
+                } catch .socketReadZero {
+                    request.fileDescriptor.close()
+                } catch {
+                    \(encounteredErrorWhileProcessingClient)
+                    if !respondWithError(provider: provider, request: &request, error: error) {
+                        request.fileDescriptor.flush(provider: provider)
+                        \(failedToSendResponseToClient)
                     }
                 }
                 """)
