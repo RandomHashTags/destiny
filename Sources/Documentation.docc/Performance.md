@@ -138,7 +138,7 @@ Last benchmark conducted: Nov 9, 2025
 - Desktop Environment: Xfce 4.20
 - CPU: stock AMD Ryzen 7 7800X3D (16 threads) @ 5.053G (powersave governors)
 - RAM: 2x16GB DDR5 @ 4800 MT/s
-- Storage: 1TB NVME SSD (511.7 GiB free; swap disabled)
+- Storage: 1TB NVME SSD (550.6 GiB free; swap disabled)
 - [Swift](https://www.swift.org/): 6.2 (swift-6.2-RELEASE)
 - [Swiftly](https://github.com/swiftlang/swiftly): 1.0.0
 - [k6](https://grafana.com/docs/k6/latest/): v1.3.0 (commit/89149e9087, go1.25.2 X:nodwarf5, linux/amd64)
