@@ -15,10 +15,11 @@ let package = Package(
 
         .package(url: "https://github.com/swift-server/async-http-client", exact: "1.29.0"),
 
-        .package(
+        .package(path: ".."),
+        /*.package(
             url: "https://github.com/RandomHashTags/destiny",
             branch: "main"
-        ),
+        ),*/
         .package(url: "https://github.com/vapor/vapor", exact: "4.119.0"),
         .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.17.0")
     ],
