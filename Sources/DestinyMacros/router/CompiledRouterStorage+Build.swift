@@ -463,9 +463,8 @@ extension CompiledRouterStorage {
                 ])
             ),
             body: .init(statements: .init(stringLiteral: """
+                var request = \(requestType).load(from: socket)
                 do throws(DestinyError) {
-                    var request = try \(requestType).load(from: socket)
-
                     \(logRequest)
 
                     do throws(DestinyError) {
@@ -475,15 +474,23 @@ extension CompiledRouterStorage {
                             \(failedToSendResponseToClient)
                         }
                     } catch {
-                        \(encounteredErrorWhileProcessingClient)
-                        if !respondWithError(provider: provider, request: &request, error: error) {
-                            request.fileDescriptor.flush(provider: provider)
-                            \(failedToSendResponseToClient)
+                        if case .socketReadZero = error {
+                            request.fileDescriptor.close()
+                        } else {
+                            \(encounteredErrorWhileProcessingClient)
+                            if !respondWithError(provider: provider, request: &request, error: error) {
+                                request.fileDescriptor.flush(provider: provider)
+                                \(failedToSendResponseToClient)
+                            }
                         }
                     }
                 } catch {
-                    \(encounteredErrorWhileLoadingRequest)
-                    // TODO: flush socket
+                    if case .socketReadZero = error {
+                        request.fileDescriptor.close()
+                    } else {
+                        request.fileDescriptor.flush(provider: provider)
+                        \(encounteredErrorWhileLoadingRequest)
+                    }
                 }
                 """)
             )

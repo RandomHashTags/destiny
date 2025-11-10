@@ -391,6 +391,7 @@ extension RouterStorage {
             return nil
         }
 
+        let isOptional = hashTable.contains(255)
         let routeEntryInitializeLogic:(Int, UInt64) -> String
         if perfectHashSettings.requireExactPaths {
             if minimal {
@@ -420,7 +421,7 @@ extension RouterStorage {
             modifiers: [.init(name: .keyword(.static))],
             .let,
             name: "hashTable",
-            type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashTable.count), RouteEntry?>")),
+            type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashTable.count), RouteEntry\(isOptional ? "?" : "")>")),
             initializer: .init(leadingTrivia: " ", value: ExprSyntax.init(stringLiteral: "[\n\(staticRoutesTableString)\n]"))
         )
 
@@ -482,7 +483,8 @@ extension RouterStorage {
             minimal: minimal,
             hashTable: hashTable,
             hashMaxBytes: hashMaxBytes,
-            requireExactPaths: requireExactPaths
+            requireExactPaths: requireExactPaths,
+            isOptional: isOptional
         )
         return [
             .init(decl: routeEntryDecl),
@@ -536,19 +538,26 @@ extension RouterStorage {
         minimal: Bool,
         hashTable: [UInt8],
         hashMaxBytes: Int,
-        requireExactPaths: Bool
+        requireExactPaths: Bool,
+        isOptional: Bool
     ) -> FunctionDeclSyntax {
-        let returnLogic:String
+        var returnConditions = [String]()
+        returnConditions.reserveCapacity(2)
         if requireExactPaths {
-            returnLogic = "entry.simd == simd ? entry.route : nil"
-        } else {
-            returnLogic = "entry.route"
+            returnConditions.append("entry.simd == simd")
         }
-        let values:(variables: String, hashCollectionCheck: String)
+        let variables:String
+        var entryCheck:String
         if minimal {
-            values = ("hashIndex", "")
+            variables = "hashIndex"
         } else {
-            values = ("(key, hashIndex)", ", entry.key == key")
+            variables = "(key, hashIndex)"
+            returnConditions.append("entry.key == key")
+        }
+        if isOptional {
+            entryCheck = "guard let entry = Self.hashTable[unchecked: hashIndex] else { return nil }"
+        } else {
+            entryCheck = "let entry = Self.hashTable[unchecked: hashIndex]"
         }
         return .init(
             leadingTrivia: "\(inlinableAnnotation)\n\(inlineAlwaysAnnotation)\n",
@@ -560,9 +569,10 @@ extension RouterStorage {
                 returnClause: .init(type: TypeSyntax("Route?"))
             ),
             body: .init(statements: .init(stringLiteral: """
-                let \(values.variables) = perfectHash(simd)
-                guard hashIndex < \(hashTable.count), let entry = Self.hashTable[unchecked: hashIndex]\(values.hashCollectionCheck) else { return nil }
-                return \(returnLogic)
+                let \(variables) = perfectHash(simd)
+                guard hashIndex < \(hashTable.count) else { return nil }
+                \(entryCheck)
+                return \(returnConditions.isEmpty ? "entry.route" : returnConditions.joined(separator: " && ") + " ? entry.route : nil")
                 """)
             ),
         )
