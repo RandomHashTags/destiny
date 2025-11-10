@@ -8,10 +8,12 @@ package struct HummingbirdStorage {
 extension HummingbirdStorage {
     package static func router() -> Router<BasicRequestContext> {
         let router = Hummingbird.Router()
-        let body = Hummingbird.ResponseBody(byteBuffer: ByteBuffer(string: #"<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>"#))
+        let body = Hummingbird.ResponseBody(byteBuffer: ByteBuffer(staticString: """
+        <!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h1>This outcome was inevitable; t'was your destiny</h1></body></html>
+        """))
         let headers = Hummingbird.HTTPFields(dictionaryLiteral:
             (.server, "destiny"),
-            (.connection, "close"),
+            (.connection, "keep-alive"),
             (.contentType, "text/html"),
             (.contentLength, "132")
         )

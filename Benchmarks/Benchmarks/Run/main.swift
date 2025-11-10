@@ -1,4 +1,5 @@
 
+import Destiny
 import DestinySwiftSyntax
 import TestDestiny
 import TestHummingbird
@@ -52,11 +53,11 @@ struct DestinyService: Service {
     }
 
     func run() async throws {
-        let application = destinyApp(port: port)
-        try await application.run()
+        let server = destinyServer(port: port)
+        try await server.run()
     }
 }
-func destinyApp(port: UInt16) -> NonCopyableHTTPServer<DestinyStorage.DeclaredRouter.CompiledHTTPRouter, HTTPSocket> {
+func destinyServer(port: UInt16) -> NonCopyableHTTPServer<DestinyStorage.DeclaredRouter.CompiledHTTPRouter, HTTPSocket> {
     let server = NonCopyableHTTPServer<DestinyStorage.DeclaredRouter.CompiledHTTPRouter, HTTPSocket>(
         address: hostname,
         port: port,
@@ -64,7 +65,7 @@ func destinyApp(port: UInt16) -> NonCopyableHTTPServer<DestinyStorage.DeclaredRo
         router: DestinyStorage.DeclaredRouter.router,
         logger: Logger(label: "destiny.http.server")
     )
-    HTTPDateFormat.load(logger: Logger(label: "destiny.application"))
+    HTTPDateFormat.load(logger: Logger(label: "destiny.http.dateformat"))
     return server
 }
 
