@@ -10,20 +10,18 @@ let package = Package(
     dependencies: [
         // networking
         .package(url: "https://github.com/swift-server/swift-service-lifecycle", exact: "2.9.0"),
-        .package(url: "https://github.com/apple/swift-nio", exact: "2.87.0"),
+        .package(url: "https://github.com/apple/swift-nio", exact: "2.88.0"),
         .package(url: "https://github.com/apple/swift-log", exact: "1.6.4"),
 
         .package(url: "https://github.com/swift-server/async-http-client", exact: "1.29.0"),
 
-        .package(
+        .package(path: ".."),
+        /*.package(
             url: "https://github.com/RandomHashTags/destiny",
-            branch: "main",
-            traits: [
-                "Inlinable"
-            ]
-        ),
-        .package(url: "https://github.com/vapor/vapor", exact: "4.117.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.16.0")
+            branch: "main"
+        ),*/
+        .package(url: "https://github.com/vapor/vapor", exact: "4.119.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.17.0")
     ],
     targets: [
         .target(

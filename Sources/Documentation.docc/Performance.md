@@ -131,10 +131,10 @@ Areas that Swift needs more development/support to unlock more abstraction/perfo
 
 ## Benchmarks
 
-Last benchmark conducted: Oct 16, 2025
+Last benchmark conducted: Nov 9, 2025
 
 ### Setup
-- Operating System: Arch Linux (6.17.1-arch1-1; x86_64)
+- Operating System: Arch Linux (6.17.7-arch1-1; x86_64)
 - Desktop Environment: Xfce 4.20
 - CPU: stock AMD Ryzen 7 7800X3D (16 threads) @ 5.053G (powersave governors)
 - RAM: 2x16GB DDR5 @ 4800 MT/s
@@ -144,9 +144,9 @@ Last benchmark conducted: Oct 16, 2025
 - [k6](https://grafana.com/docs/k6/latest/): v1.3.0 (commit/89149e9087, go1.25.2 X:nodwarf5, linux/amd64)
 
 ### Libraries tested
-- [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.3.0 (this library)
-- [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.16.0
-- [vapor/vapor](https://github.com/vapor/vapor) v4.117.0
+- [RandomHashTags/destiny](https://github.com/RandomHashTags/destiny) v0.4.0 (this library)
+- [hummingbird-project/hummingbird](https://github.com/hummingbird-project/hummingbird) v2.17.0
+- [vapor/vapor](https://github.com/vapor/vapor) v4.119.0
 
 ### Results
 
@@ -157,15 +157,6 @@ Initial testing of a basic HTML response shows this library has the lowest serve
 #### Dynamic
 
 Depends on how much dynamic content you add; initial testing compared to a Static response performs about the same but usually costs a few microseconds more (~10-50).
-
-#### Performance Rankings
-
-Destiny ranks #1 in all categories compared to the other libraries:
-- [x] Highest Throughput
-- [x] Highest Sustained Load (no dropped/failed/reset connections)
-- [x] Lowest Latency
-- [x] Lowest System Resource Utilization
-- [x] Most Consistent Timings
 
 #### Conclusion
 

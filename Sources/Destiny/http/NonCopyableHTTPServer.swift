@@ -44,7 +44,7 @@ public final class NonCopyableHTTPServer<
 
     #if Epoll
     @usableFromInline
-    nonisolated(unsafe) private(set) var epollWorker:EpollWorker<64>! = nil
+    nonisolated(unsafe) private(set) var epollWorker:EpollWorker<128>! = nil
     #endif
 
     // MARK: Init
@@ -99,7 +99,7 @@ public final class NonCopyableHTTPServer<
 
         do throws(DestinyError) {
             #if Epoll
-            epollWorker = try EpollWorker<64>.create(workerId: 0, backlog: backlog, port: port)
+            epollWorker = try EpollWorker<128>.create(workerId: 0, backlog: backlog, port: port)
             epollWorker.run(router: router)
             #else
             let serverFD1 = try bindAndListen()
