@@ -6,6 +6,7 @@ import MediaTypes
 extension Route {
     public static func on(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         method: some HTTPRequestMethodProtocol,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
@@ -26,6 +27,7 @@ extension Route {
 
     public static func get(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -45,6 +47,7 @@ extension Route {
 
     public static func head(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -64,6 +67,7 @@ extension Route {
 
     public static func post(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -82,6 +86,7 @@ extension Route {
 
     public static func put(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -101,6 +106,7 @@ extension Route {
 
     public static func delete(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -120,6 +126,7 @@ extension Route {
 
     public static func connect(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -139,6 +146,7 @@ extension Route {
 
     public static func options(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -158,6 +166,7 @@ extension Route {
 
     public static func trace(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
@@ -177,6 +186,7 @@ extension Route {
 
     public static func patch(
         head: HTTPResponseMessageHead = .default,
+        withDateHeader: Bool = true,
         path: [PathComponent],
         isCaseSensitive: Bool = true,
         mediaType: (some MediaTypeProtocol)? = nil,
