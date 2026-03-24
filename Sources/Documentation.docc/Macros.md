@@ -13,10 +13,10 @@ See [Macros.swift](https://github.com/RandomHashTags/destiny/blob/main/Sources/D
 See [Macros.swift](https://github.com/RandomHashTags/destiny/blob/main/Sources/DestinySwiftSyntax/Macros.swift)
 
 ## See Also
-- [Embedded](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Embedded.md)
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Middleware](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Middleware.md)
-- [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
-- [Server](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Server.md)
+- [Embedded](./Embedded.md)
+- [Error Handling](./ErrorHandling.md)
+- [Middleware](./Middleware.md)
+- [Package Traits](./PackageTraits.md)
+- [Performance](./Performance.md)
+- [Router](./Router.md)
+- [Server](./Server.md)

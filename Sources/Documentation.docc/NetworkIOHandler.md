@@ -10,7 +10,7 @@ Destiny's networking i/o handlers are:
 - Swift Concurrency (fallback)
 
 ## See Also
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Server](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Server.md)
+- [Error Handling](./ErrorHandling.md)
+- [Package Traits](./PackageTraits.md)
+- [Performance](./Performance.md)
+- [Server](./Server.md)

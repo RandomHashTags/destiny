@@ -4,20 +4,20 @@ Destiny is a standalone, high-performance and lightweight http networking framew
 
 ## Topics
 
-- [Getting Started](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/GettingStarted.md)
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)
-- [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
-- [Middleware](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Middleware.md)
-- [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md)
-- [Request](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Request.md)
-- [Route Path Components](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutePathComponents.md)
-- [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
-- [Server](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Server.md)
+- [Getting Started](./GettingStarted.md)
+- [Error Handling](./ErrorHandling.md)
+- [Logging, Metrics and Tracing](./LoggingMetricsTracing.md)
+- [Macros](./Macros.md)
+- [Middleware](./Middleware.md)
+- [Package Traits](./PackageTraits.md)
+- [Request](./Request.md)
+- [Route Path Components](./RoutePathComponents.md)
+- [Router](./Router.md)
+- [Server](./Server.md)
 
 ### Advanced
 
-- [Embedded](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Embedded.md)
-- [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkIOHandler.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Routing Hierarchy](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutingHierarchy.md)
+- [Embedded](./Embedded.md)
+- [Network IO Handler](./NetworkIOHandler.md)
+- [Performance](./Performance.md)
+- [Routing Hierarchy](./RoutingHierarchy.md)

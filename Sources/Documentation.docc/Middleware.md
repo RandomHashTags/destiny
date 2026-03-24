@@ -23,8 +23,8 @@ Destiny splits middleware into 2 different kinds of Middleware, Static and Dynam
 "Dynamic" middleware edits requests and responses only when handling a request and response.
 
 ## See Also
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
-- [Routing Hierarchy](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutingHierarchy.md)
+- [Error Handling](./ErrorHandling.md)
+- [Macros](./Macros.md)
+- [Performance](./Performance.md)
+- [Router](./Router.md)
+- [Routing Hierarchy](./RoutingHierarchy.md)

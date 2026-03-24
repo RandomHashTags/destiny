@@ -57,7 +57,7 @@ To simplify and allow more control over development implementations.
 ### Network IO
 Destiny utilizes highly efficient networking systems to perform optimally.
 
-See [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkIOHandler.md).
+See [Network IO Handler](./NetworkIOHandler.md).
 
 ### Noncopyable Values
 Destiny heavily uses noncopyable values and ownership semantics for optimal performance, avoiding common retain/release/ARC traffic that can hurt performance.
@@ -68,7 +68,7 @@ To avoid dynamic dispatch, existentials and boxing (especially in hot paths).
 ### Package Traits
 Implemented in Swift 6.1, Destiny utilizes Swift Package Traits to enable (or disable) features at the compilation level. This offers optimal control over binary size and expected features, reducing code bloat and improving debuggability.
 
-See [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md) for the full list Destiny supports.
+See [Package Traits](./PackageTraits.md) for the full list Destiny supports.
 
 ### Parameter Packs
 For compile-time array optimizations, reducing heap allocations and dynamic dispatch.
@@ -82,7 +82,7 @@ Destiny was heavily designed by utilizing `perf`, `nm` and `k6` to determine bes
 ### Small Binary
 A small binary is an overall indication of how well a project is developed. Destiny is built in such a way to eliminate bloat and allow complete control over its underlying features which make maintaining, debugging, and deploying hassle-free.
 
-Swift [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md) greatly help in this area.
+Swift [Package Traits](./PackageTraits.md) greatly help in this area.
 
 ### Spans
 Destiny uses `Span` and `MutableSpan` instead of unsafe pointers where applicable for enhanced safety (which perform identical to unsafe pointers).
@@ -165,13 +165,13 @@ This library is a clear leader in reliability, performance and efficiency. Perfo
 
 
 ## See Also
-- [Embedded](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Embedded.md)
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)
-- [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md)
-- [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
-- [Middleware](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Middleware.md)
-- [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkIOHandler.md)
-- [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
-- [Routing Hierarchy](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutingHierarchy.md)
-- [Server](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Server.md)
+- [Embedded](./Embedded.md)
+- [Error Handling](./ErrorHandling.md)
+- [Logging, Metrics and Tracing](./LoggingMetricsTracing.md)
+- [Package Traits](./PackageTraits.md)
+- [Macros](./Macros.md)
+- [Middleware](./Middleware.md)
+- [Network IO Handler](./NetworkIOHandler.md)
+- [Router](./Router.md)
+- [Routing Hierarchy](./RoutingHierarchy.md)
+- [Server](./Server.md)
