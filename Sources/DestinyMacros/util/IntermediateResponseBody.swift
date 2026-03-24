@@ -6,9 +6,10 @@ import SwiftSyntaxMacros
 /// Sole purpose of this struct is to properly handle certain response bodies that aren't parsable with runtime data.
 public struct IntermediateResponseBody: ResponseBodyProtocol {
     public let valueExpr:ExprSyntax
-    public let type:IntermediateResponseBodyType
+    public var type:IntermediateResponseBodyType
     let value:String
     public let count:Int
+    private var interpolation = 0
 
     public init(
         type: IntermediateResponseBodyType,
@@ -21,38 +22,66 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         var count = 0
         if let stringLiteral = valueExpr.stringLiteral {
             count = (stringLiteral.segments.count - 1)
-            valueString = Self.upgradeSegments(stringLiteral.segments)
+            (valueString, interpolation) = Self.upgradeSegments(stringLiteral.segments)
         } else {
             valueString = valueExpr.description
         }
         self.value = valueString
         self.count = valueString.count - count
     }
+    private init(
+        valueExpr: ExprSyntax,
+        type: IntermediateResponseBodyType,
+        value: String,
+        count: Int,
+        interpolation: Int
+    ) {
+        self.valueExpr = valueExpr
+        self.type = type
+        self.value = value
+        self.count = count
+        self.interpolation = interpolation
+    }
 
-    private static func upgradeSegments(_ list: StringLiteralSegmentListSyntax) -> String {
-        return list.map({
-            switch $0 {
+    private static func upgradeSegments(_ list: StringLiteralSegmentListSyntax) -> (String, Int) {
+        var interpolation = 0
+        var s = ""
+        for element in list {
+            switch element {
             case .stringSegment(let seg):
-                return upgradeStringSegment(seg)
+                s += upgradeStringSegment(seg)
             case .expressionSegment(let seg):
-                return upgradeExpressionSegment(seg)
+                let result = upgradeExpressionSegment(seg)
+                s += result.0
+                interpolation += result.1
             }
-        }).joined()
+        }
+        return (s, interpolation)
     }
     private static func upgradeStringSegment(_ segment: StringSegmentSyntax) -> String {
         return segment.content.text.replacing("\n", with: "\\n")
     }
-    private static func upgradeExpressionSegment(_ segment: ExpressionSegmentSyntax) -> String {
+    private static func upgradeExpressionSegment(_ segment: ExpressionSegmentSyntax) -> (String, Int) {
+        var interpolation = 0
+        var s = ""
         // remove interpolation where it doesn't need it
-        return segment.expressions.map({
-            if let s = $0.expression.stringLiteral {
-                return upgradeSegments(s.segments)
+        for element in segment.expressions {
+            if let literal = element.expression.stringLiteral {
+                let result = upgradeSegments(literal.segments)
+                s += result.0
+                interpolation += result.1
+                break
             }
-            return $0.expression.booleanLiteral?.literal.text
-                ?? $0.expression.integerLiteral?.literal.text
-                ?? $0.expression.as(FloatLiteralExprSyntax.self)?.literal.text
-                ?? $0.description
-        }).joined()
+            if let v = element.expression.booleanLiteral?.literal.text
+                    ?? element.expression.integerLiteral?.literal.text
+                    ?? element.expression.as(FloatLiteralExprSyntax.self)?.literal.text {
+                s += v
+                break
+            }
+            s += element.description
+            interpolation += 1
+        }
+        return (s, interpolation)
     }
 
     public func string() -> String {
@@ -168,9 +197,19 @@ extension IntermediateResponseBody {
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
             return "\(prefix)StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
         case .stringWithDateHeader:
+            if interpolation == 0 {
+                // upgrade
+                return IntermediateResponseBody(
+                    valueExpr: valueExpr,
+                    type: .staticStringWithDateHeader,
+                    value: escapedValue(),
+                    count: count,
+                    interpolation: interpolation
+                ).responderDebugDescription(context: context, isCopyable: isCopyable, responseString: &responseString)
+            }
             let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
             let (preDate, postDate) = preDateAndPostDateValues(responseString)
-            return "\(prefix)StringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter), value: \(delimiter)\"\(escapedValue())\"\(delimiter))"
+            return "StringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter), value: \(delimiter)\"\(escapedValue())\"\(delimiter))"
         case .staticString:
             let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
             return "StaticString(\(delimiter)\"\(responseString)\(escapedValue())\"\(delimiter))"

@@ -86,6 +86,7 @@ extension Route {
 
         var method = HTTPRequestMethod(name: "GET")
         var path = [PathComponent]()
+        var withDateHeader = true
         var isCaseSensitive = true
         var contentType:String? = nil
         var charset:Charset? = nil
@@ -108,6 +109,8 @@ extension Route {
                 for _ in path.filter({ $0.isParameter }) {
                     parameters.append("")
                 }
+            case "withDateHeader":
+                withDateHeader = arg.expression.booleanIsTrue
             case "isCaseSensitive":
                 isCaseSensitive = arg.expression.booleanIsTrue
             case "contentType":
@@ -139,6 +142,7 @@ extension Route {
             head: head,
             method: method,
             path: path,
+            withDateHeader: withDateHeader,
             isCaseSensitive: isCaseSensitive,
             contentType: contentType,
             charset: charset,
@@ -153,15 +157,16 @@ extension Route {
 extension Route {
     struct Details {
         var head:HTTPResponseMessageHead
-        var method = HTTPRequestMethod(name: "GET")
-        var path = [PathComponent]()
-        var isCaseSensitive = true
-        var contentType:String? = nil
+        var method:HTTPRequestMethod
+        var path:[PathComponent]
+        var withDateHeader:Bool
+        var isCaseSensitive:Bool
+        var contentType:String?
         var charset:Charset?
 
         var body:IntermediateResponseBody?
-        var handler:String? = nil
-        var parameters = [String]()
+        var handler:String?
+        var parameters:[String]
 
         #if HTTPCookie
         fileprivate mutating func parse(
@@ -199,11 +204,19 @@ extension Route {
             guard let contentType else { return }
             headers["content-type"] = contentType
         }
-        private func parse(
+        private mutating func parse(
             headers: HTTPHeaders,
             dynamicMessage: HTTPResponseMessage
         ) -> (StaticRoute?, DynamicRoute?) {
             if path.firstIndex(where: { $0.isParameter }) == nil && handler == nil { // static route
+                if withDateHeader {
+                    // auto-upgrade
+                    switch body?.type {
+                    case .string: body!.type = .stringWithDateHeader
+                    case .staticString: body!.type = .staticStringWithDateHeader
+                    default: break
+                    }
+                }
                 let route = StaticRoute(
                     version: head.version,
                     method: method,
