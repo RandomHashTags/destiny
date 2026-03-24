@@ -157,16 +157,16 @@ extension Route {
 extension Route {
     struct Details {
         var head:HTTPResponseMessageHead
-        var method = HTTPRequestMethod(name: "GET")
-        var path = [PathComponent]()
-        var withDateHeader = true
-        var isCaseSensitive = true
-        var contentType:String? = nil
+        var method:HTTPRequestMethod
+        var path:[PathComponent]
+        var withDateHeader:Bool
+        var isCaseSensitive:Bool
+        var contentType:String?
         var charset:Charset?
 
         var body:IntermediateResponseBody?
-        var handler:String? = nil
-        var parameters = [String]()
+        var handler:String?
+        var parameters:[String]
 
         #if HTTPCookie
         fileprivate mutating func parse(
