@@ -74,11 +74,11 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 
 ## Documentation
 
-See [Documentation](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Index.md)
+See [Documentation](./Sources/Documentation.docc/Index.md)
 
 ## Benchmarks
 
-See [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
+See [Performance](./Sources/Documentation.docc/Performance.md)
 
 ## Contributing
 
@@ -92,4 +92,4 @@ You can create a discussion here on GitHub for support or join my Discord server
 
 This project was developed to allow everyone to create better http servers. I develop and maintain many free open-source projects full-time for the benefit of everyone.
 
-You can show your financial appreciation for this project and others by sponsoring us here on GitHub or other ways listed in the [FUNDING.yml](https://github.com/RandomHashTags/destiny/blob/main/.github/FUNDING.yml).
+You can show your financial appreciation for this project and others by sponsoring us here on GitHub or other ways listed in the [FUNDING.yml](.github/FUNDING.yml).

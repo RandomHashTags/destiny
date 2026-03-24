@@ -7,9 +7,9 @@ Destiny was designed from the ground up for optimal performance. This means it o
 You can read about all of Swift Embedded over on the official swift.org [website](https://docs.swift.org/embedded/documentation/embedded/).
 
 ## See Also
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)
-- [Package Traits](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/PackageTraits.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
-- [Middleware](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Middleware.md)
+- [Error Handling](./ErrorHandling.md)
+- [Logging, Metrics and Tracing](./LoggingMetricsTracing.md)
+- [Package Traits](./PackageTraits.md)
+- [Performance](./Performance.md)
+- [Macros](./Macros.md)
+- [Middleware](./Middleware.md)

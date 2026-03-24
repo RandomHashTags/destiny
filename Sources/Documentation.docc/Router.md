@@ -37,10 +37,10 @@ Route<NonCopyableStaticStringWithDateHeader>.get(
 
 
 ## See Also
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)
-- [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
-- [Middleware](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Middleware.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Route Path Components](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutePathComponents.md)
-- [Routing Hierarchy](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutingHierarchy.md)
+- [Error Handling](./ErrorHandling.md)
+- [Logging, Metrics and Tracing](./LoggingMetricsTracing.md)
+- [Macros](./Macros.md)
+- [Middleware](./Middleware.md)
+- [Performance](./Performance.md)
+- [Route Path Components](./RoutePathComponents.md)
+- [Routing Hierarchy](./RoutingHierarchy.md)

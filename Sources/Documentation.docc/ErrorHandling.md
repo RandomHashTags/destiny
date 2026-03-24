@@ -7,5 +7,5 @@ Destiny uses typed throws out-of-the-box for optimal performance. The only place
 Destiny uses a single `DestinyError` enum to optimally manage errors.
 
 ## See Also
-- [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
+- [Logging, Metrics and Tracing](./LoggingMetricsTracing.md)
+- [Performance](./Performance.md)

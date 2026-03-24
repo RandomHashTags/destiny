@@ -14,7 +14,7 @@ All the steps can be viewed if you expand the Swift Macros. You don't need to ju
 
 All network routing begins when you boot a Server.
 
-The only step executed when an incoming network request is accepted by the [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkIOHandler.md) is passing the file descriptor to the Server's [Router](#router).
+The only step executed when an incoming network request is accepted by the [Network IO Handler](./NetworkIOHandler.md) is passing the file descriptor to the Server's [Router](#router).
 
 ## Router
 
@@ -55,10 +55,10 @@ Route responder storages try to respond to a request in this priority:
 
 
 ## See Also
-- [Error Handling](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/ErrorHandling.md)
-- [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)
-- [Middleware](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Middleware.md)
-- [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkIOHandler.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Request](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Request.md)
-- [Route Path Components](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutePathComponents.md)
+- [Error Handling](./ErrorHandling.md)
+- [Logging, Metrics and Tracing](./LoggingMetricsTracing.md)
+- [Middleware](./Middleware.md)
+- [Network IO Handler](./NetworkIOHandler.md)
+- [Performance](./Performance.md)
+- [Request](./Request.md)
+- [Route Path Components](./RoutePathComponents.md)

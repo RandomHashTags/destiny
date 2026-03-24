@@ -72,12 +72,12 @@ Enables unchecked overflow subtraction operators (`-!` and `-=!`), avoiding Swif
 Enables `UnwrapAddition` and `UnwrapSubtraction` package traits.
 
 ## See Also
-- [Embedded](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Embedded.md)
-- [Logging, Metrics and Tracing](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/LoggingMetricsTracing.md)
-- [Macros](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Macros.md)
-- [Network IO Handler](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/NetworkIOHandler.md)
-- [Performance](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Performance.md)
-- [Request](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Request.md)
-- [Router](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Router.md)
-- [Routing Hierarchy](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/RoutingHierarchy.md)
-- [Server](https://github.com/RandomHashTags/destiny/tree/main/Sources/Documentation.docc/Server.md)
+- [Embedded](./Embedded.md)
+- [Logging, Metrics and Tracing](./LoggingMetricsTracing.md)
+- [Macros](./Macros.md)
+- [Network IO Handler](./NetworkIOHandler.md)
+- [Performance](./Performance.md)
+- [Request](./Request.md)
+- [Router](./Router.md)
+- [Routing Hierarchy](./RoutingHierarchy.md)
+- [Server](./Server.md)
