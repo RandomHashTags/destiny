@@ -92,6 +92,7 @@ defaultTraits.formUnion([
     "UnwrapArithmetic",
     "Protocols",
 
+    "Compression",
     "Logging",
     "OpenAPI"
 ])
@@ -371,6 +372,10 @@ let traits:Set<Trait> = [
     ),
 
     .trait(
+        name: "Compression",
+        description: "Enables compression support (using swift-compression)."
+    ),
+    .trait(
         name: "Epoll",
         description: "Enables Epoll functionality (Linux only)."
     ),
@@ -408,6 +413,7 @@ var targets = [
             .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
             .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
             .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
+            .product(name: "SwiftCompression", package: "swift-compression"),
         ]
     ),
 

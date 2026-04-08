@@ -30,6 +30,12 @@ extension RouterSettings {
                 }
             case "visibility":
                 settings.visibility = .init(rawValue: arg.expression.memberAccess?.declName.baseName.text ?? "internal") ?? .internal
+
+            #if Compression
+            case "compression":
+                settings.compression = .parse(context: context, expr: arg.expression)
+            #endif
+
             default:
                 context.diagnose(DiagnosticMsg.unhandled(node: arg))
             }

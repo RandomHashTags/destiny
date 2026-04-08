@@ -12,25 +12,10 @@ public struct RouterSettings: Sendable {
     /// Access control for the router.
     public var visibility:RouterVisibility
 
-    public init(
-        mutable: Bool = false,
-        dynamicResponsesAreGeneric: Bool = true,
-        respondersAreComputedProperties: Bool = false,
-        protocolConformances: Bool = true,
-        logging: Bool = true,
-        visibility: RouterVisibility = .internal,
-        name: String = "CompiledHTTPRouter"
-    ) {
-        self.visibility = visibility
-        self.name = name
-        flags = Flags.pack(
-            mutable: mutable,
-            dynamicResponsesAreGeneric: dynamicResponsesAreGeneric,
-            respondersAreComputedProperties: respondersAreComputedProperties,
-            protocolConformances: protocolConformances,
-            logging: logging
-        )
-    }
+    #if Compression
+    package var compression:CompressionSettings
+    #endif
+
 
     /// Whether or not this router is mutable.
     /// 
@@ -74,6 +59,53 @@ public struct RouterSettings: Sendable {
         get { isFlag(.logging) }
         set { setFlag(.logging, newValue) }
     }
+}
+
+// MARK: Init
+extension RouterSettings {
+    #if Compression
+    public init(
+        mutable: Bool = false,
+        dynamicResponsesAreGeneric: Bool = true,
+        respondersAreComputedProperties: Bool = false,
+        protocolConformances: Bool = true,
+        logging: Bool = true,
+        visibility: RouterVisibility = .internal,
+        name: String = "CompiledHTTPRouter",
+        compression: CompressionSettings = .init()
+    ) {
+        self.visibility = visibility
+        self.name = name
+        self.compression = compression
+        flags = Flags.pack(
+            mutable: mutable,
+            dynamicResponsesAreGeneric: dynamicResponsesAreGeneric,
+            respondersAreComputedProperties: respondersAreComputedProperties,
+            protocolConformances: protocolConformances,
+            logging: logging
+        )
+    }
+    #else
+    public init(
+        mutable: Bool = false,
+        dynamicResponsesAreGeneric: Bool = true,
+        respondersAreComputedProperties: Bool = false,
+        protocolConformances: Bool = true,
+        logging: Bool = true,
+        visibility: RouterVisibility = .internal,
+        name: String = "CompiledHTTPRouter"
+    ) {
+        self.visibility = visibility
+        self.name = name
+        flags = Flags.pack(
+            mutable: mutable,
+            dynamicResponsesAreGeneric: dynamicResponsesAreGeneric,
+            respondersAreComputedProperties: respondersAreComputedProperties,
+            protocolConformances: protocolConformances,
+            logging: logging
+        )
+    }
+    #endif
 }
 
 // MARK: Flags

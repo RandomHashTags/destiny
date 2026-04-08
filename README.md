@@ -43,6 +43,7 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [x] Cookies <b>(Aug 9, 2025)</b>
 - [x] Header parsing <b>(Sep 9, 2025)</b>
 - [x] Request body streaming <b>(Sep 10, 2025)</b>
+- [x] Compression support <b>(Apr 8, 2026)</b>
 
 ### WIP
 
@@ -63,7 +64,6 @@ Features like TLS/SSL, Web Sockets and embedded support are coming soon.
 - [ ] Cache Middleware
 - [ ] Data Validation (form, POST, etc)
 - [ ] Authentication
-- [ ] Compression support
 - [ ] OpenAPI support
 - [ ] Tracing support
 - [ ] TLS/SSL

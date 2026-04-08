@@ -16,9 +16,10 @@ extension StaticRoute {
     public mutating func response(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
+        routerStorage: RouterStorage,
         middleware: [StaticMiddleware]
     ) -> HTTPResponseMessage {
-        let result = response(middleware: middleware)
+        let result = response(routerStorage: routerStorage, middleware: middleware)
         if result.statusCode() == 501 { // not implemented
             Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
         }
@@ -41,6 +42,7 @@ extension StaticRoute {
 extension StaticRoute {
     #if StaticMiddleware
         public mutating func response(
+            routerStorage: RouterStorage,
             middleware: [StaticMiddleware]
         ) -> HTTPResponseMessage {
             var version = version
@@ -70,6 +72,7 @@ extension StaticRoute {
 
             #if HTTPCookie
             return Self.response(
+                routerStorage: routerStorage,
                 version: version,
                 status: status,
                 headers: &headers,
@@ -111,6 +114,8 @@ extension StaticRoute {
     #if HTTPCookie
     @inline(__always)
     package static func response(
+        routerStorage: RouterStorage,
+
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: inout HTTPHeaders,
@@ -122,16 +127,37 @@ extension StaticRoute {
         headers["content-type"] = nil
         headers["content-length"] = nil
 
-        if body != nil, (contentType == "text/html" || contentType == "text/plain" || contentType == "application/json") {
-            if let compressed = Gzip().compress(span: body!.value.utf8Span.span), compressed.count < body!.count {
-                headers["content-encoding"] = "gzip"
-                headers["vary"] = "Accept-Encoding"
-                body!.rawValue = compressed
-                if case let .string(isNonCopyable, isStatic, withDateHeader, _) = body!.type {
-                    body!.type = .string(isNonCopyable: isNonCopyable, isStatic: isStatic, withDateHeader: withDateHeader, withCompressedBody: true)
+        #if RouterSettings && Compression
+        if body != nil, let contentType, routerStorage.settings.compression.isEnabled {
+            for (algorithm, algorithmSettings) in routerStorage.settings.compression.supportedCompressionAlgorithms {
+                if let prefixBlacklist = algorithmSettings.contentTypePrefixBlacklist, contentType.hasPrefix(prefixBlacklist) {
+                    continue
                 }
+                if algorithmSettings.contentTypeBlacklist.contains(contentType) {
+                    continue
+                }
+                if let prefixWhitelist = algorithmSettings.contentTypePrefixWhitelist, !contentType.hasPrefix(prefixWhitelist) {
+                    continue
+                }
+                guard !algorithmSettings.contentTypeWhitelist.contains(contentType) else { continue }
+                guard let technique = algorithm.technique else { continue } // TODO: support embedded
+                // TODO: support | swift-compression needs span support for its protocol(s)
+                /*if let compressed = technique.compress(data: body!.value.utf8Span.span) {
+                    if routerStorage.settings.compression.compressOnlyIfResultIsSmaller, compressed.count >= body!.count {
+                        continue
+                    }
+                    headers["content-encoding"] = algorithm.acceptEncodingName
+                    headers["vary"] = "Accept-Encoding"
+                    body!.rawValue = compressed
+                    if case let .string(isNonCopyable, isStatic, withDateHeader, _) = body!.type {
+                        body!.type = .string(isNonCopyable: isNonCopyable, isStatic: isStatic, withDateHeader: withDateHeader, withCompressedBody: true)
+                    }
+                    break
+                }*/
             }
         }
+        #endif
+
         return HTTPResponseMessage(
             head: .init(headers: headers, cookies: cookies, status: status, version: version),
             body: body,

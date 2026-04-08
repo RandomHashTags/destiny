@@ -161,6 +161,8 @@ extension RouterStorage {
             routeResponders: &routeResponders
         )
     }
+
+    @discardableResult
     mutating func appendStaticRoutes(
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
@@ -191,7 +193,7 @@ extension RouterStorage {
         for (var route, function) in routes {
             let startLine = data.routeStartLine(route)
             #if StaticMiddleware
-            let httpResponse = route.response(context: context, function: function, middleware: staticMiddleware)
+            let httpResponse = route.response(context: context, function: function, routerStorage: self, middleware: staticMiddleware)
             #else
             let httpResponse = route.response(context: context, function: function)
             #endif
