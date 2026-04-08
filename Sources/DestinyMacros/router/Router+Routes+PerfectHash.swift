@@ -83,7 +83,7 @@ extension RouterStorage {
         routePaths.reserveCapacity(reservedCapacity)
         routeResponders.reserveCapacity(reservedCapacity)
 
-        appendStaticRoutes(
+        let appendedStaticRoutes = appendStaticRoutes(
             context: context,
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
@@ -105,6 +105,7 @@ extension RouterStorage {
         staticConstants(
             isCaseSensitive: isCaseSensitive,
             isCopyable: isCopyable,
+            routes: appendedStaticRoutes,
             routePaths: routePaths,
             members: &members,
             routeResponders: routeResponders
@@ -134,6 +135,7 @@ extension RouterStorage {
     private func staticConstants(
         isCaseSensitive: Bool,
         isCopyable: Bool,
+        routes: StaticAppendedRoutes,
         routePaths: [String],
         members: inout MemberBlockItemListSyntax,
         routeResponders: [String]

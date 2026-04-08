@@ -150,7 +150,7 @@ extension RouterStorage {
         routes: [(StaticRoute, FunctionCallExprSyntax)],
         routePaths: inout [String],
         routeResponders: inout [String]
-    ) {
+    ) -> StaticAppendedRoutes {
         appendStaticRoutes(
             context: context,
             isCaseSensitive: isCaseSensitive,
@@ -169,16 +169,18 @@ extension RouterStorage {
         routes: [(StaticRoute, FunctionCallExprSyntax)],
         routePaths: inout [String],
         routeResponders: inout [String]
-    ) {
+    ) -> StaticAppendedRoutes {
         let getResponderValue:(RouterStorage.Route) -> String = {
             "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \($0.responder)\n)"
         }
+        var appended = StaticAppendedRoutes()
         if !isCopyable { // always make redirects noncopyable for optimal performance
             #if StaticRedirectionRoute
             appendStaticRedirects(
                 context: context,
                 isCaseSensitive: isCaseSensitive,
                 isCopyable: isCopyable,
+                appended: &appended,
                 routePaths: &routePaths,
                 routeResponders: &routeResponders,
                 data: data,
@@ -211,6 +213,7 @@ extension RouterStorage {
                 routePaths.append(startLine)
                 routeResponders.append(responder)
                 staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
+                appended.normal.append(route)
             } else {
                 guard !registeredPaths.contains(startLine) else {
                     Router.routePathAlreadyRegistered(context: context, node: function, startLine)
@@ -229,6 +232,7 @@ extension RouterStorage {
                 )*/
             }
         }
+        return appended
     }
 }
 
@@ -240,6 +244,7 @@ extension RouterStorage {
         context: some MacroExpansionContext,
         isCaseSensitive: Bool,
         isCopyable: Bool,
+        appended: inout StaticAppendedRoutes,
         routePaths: inout [String],
         routeResponders: inout [String],
         data: borrowing SharedStaticRouteResponderData,
@@ -263,10 +268,11 @@ extension RouterStorage {
 
             let stringLiteral = StringLiteralExprSyntax(content: "")
             let responder = IntermediateResponseBody(
-                type: .staticStringWithDateHeader,
+                type: .string(isNonCopyable: false, isStatic: true, withDateHeader: true, withCompressedBody: false),
                 .init(stringLiteral)
             ).responderDebugDescription(context: context, isCopyable: isCopyable, response: route.response())
             routeResponders.append(responder)
+            appended.redirects.append(redirect.0)
         }
         for i in removedRedirects.reversed() {
             staticRedirects.remove(at: i)
@@ -275,3 +281,14 @@ extension RouterStorage {
 }
 
 #endif
+
+// MARK: Appended routes
+extension RouterStorage {
+    struct StaticAppendedRoutes: Sendable {
+        #if StaticRedirectionRoute
+        var redirects = [StaticRedirectionRoute]()
+        #endif
+
+        var normal = [StaticRoute]()
+    }
+}

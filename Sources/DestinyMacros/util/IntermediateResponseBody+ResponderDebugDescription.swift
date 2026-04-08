@@ -31,41 +31,6 @@ extension IntermediateResponseBody {
             var (preDate, postDate) = preDateAndPostDateValues(responseString)
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
             return "\(prefix)StreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
-        case .stringWithDateHeader:
-            if interpolation == 0 {
-                // upgrade
-                return IntermediateResponseBody(
-                    valueExpr: valueExpr,
-                    type: .staticStringWithDateHeader,
-                    value: escapedValue(),
-                    count: count,
-                    interpolation: interpolation,
-                    rawValue: rawValue,
-                ).responderDebugDescription(context: context, isCopyable: isCopyable, responseString: &responseString)
-            }
-            let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
-            let (preDate, postDate) = preDateAndPostDateValues(responseString)
-            return "StringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter), value: \(delimiter)\"\(escapedValue())\"\(delimiter))"
-        case .staticString:
-            let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
-            return "StaticString(\(delimiter)\"\(responseString)\(escapedValue())\"\(delimiter))"
-        case .staticStringWithDateHeader:
-            let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
-            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
-            return "\(prefix)StaticStringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter))"
-
-        case .string:
-            var s = responseString + value
-            if s.first != "\"" {
-                s.insert("\"", at: s.startIndex)
-            }
-            if s.last != "\"" {
-                s.append("\"")
-            }
-            if let stringLiteral = valueExpr.stringLiteral, let openingPounds = stringLiteral.openingPounds, let closingPounds = stringLiteral.closingPounds {
-                s = openingPounds.text + s + closingPounds.text
-            }
-            return s
 
         case .nonCopyableBytes:
             return "NonCopyableBytes(\(bytesPayload(context: context, responseString: &responseString)))"
@@ -79,10 +44,31 @@ extension IntermediateResponseBody {
             var (preDate, postDate) = preDateAndPostDateValues(responseString)
             postDate = "\\r\\nTransfer-Encoding: chunked\(postDate)"
             return "NonCopyableStreamWithDateHeader(preDateValue: \"\(preDate)\", postDateValue: \"\(postDate)\\r\\n\", body: \(value))"
-        case .nonCopyableStaticStringWithDateHeader:
+
+        case .string(let isNonCopyable, let isStatic, let withDateHeader, let withCompressedBody):
             let delimiter = valueExpr.stringLiteral?.openingPounds?.text ?? ""
-            let (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
-            return "NonCopyableStaticStringWithDateHeader(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter))"
+            var (preDate, postDate):(Substring, Substring)
+            var trailingSuffix:Substring = ""
+            var targetType:String
+            if isStatic || interpolation == 0 {
+                targetType = "StaticString"
+                (preDate, postDate) = preDateAndPostDateValues("\(responseString)\(escapedValue())")
+            } else {
+                targetType = "String"
+                (preDate, postDate) = preDateAndPostDateValues(responseString)
+            }
+            if withDateHeader {
+                targetType += "WithDateHeader"
+            }
+            if !postDate.hasSuffix(delimiter) {
+                postDate += delimiter
+            }
+            if withCompressedBody {
+                targetType += "AndCompressedBody"
+                (preDate, postDate) = preDateAndPostDateValues(responseString)
+                trailingSuffix = ", body: \(rawValue ?? [])"
+            }
+            return "\(isNonCopyable ? "NonCopyable" : prefix)\(targetType)(preDateValue: \(delimiter)\"\(preDate)\"\(delimiter), postDateValue: \(delimiter)\"\(postDate)\"\(delimiter)\(trailingSuffix))"
         }
     }
     private func escapedValue() -> String {

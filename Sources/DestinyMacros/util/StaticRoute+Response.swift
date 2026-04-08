@@ -122,11 +122,14 @@ extension StaticRoute {
         headers["content-type"] = nil
         headers["content-length"] = nil
 
-        if body != nil, contentType == "text/html" {
-            if let compressed = Gzip().compress(span: body!.value.utf8Span.span) {
+        if body != nil, (contentType == "text/html" || contentType == "text/plain" || contentType == "application/json") {
+            if let compressed = Gzip().compress(span: body!.value.utf8Span.span), compressed.count < body!.count {
                 headers["content-encoding"] = "gzip"
                 headers["vary"] = "Accept-Encoding"
                 body!.rawValue = compressed
+                if case let .string(isNonCopyable, isStatic, withDateHeader, _) = body!.type {
+                    body!.type = .string(isNonCopyable: isNonCopyable, isStatic: isStatic, withDateHeader: withDateHeader, withCompressedBody: true)
+                }
             }
         }
         return HTTPResponseMessage(

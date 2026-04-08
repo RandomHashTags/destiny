@@ -104,15 +104,15 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
             .inlineBytes,
             .macroExpansion,
             .macroExpansionWithDateHeader,
-            .stringWithDateHeader,
-            .staticString,
-            .staticStringWithDateHeader,
             .streamWithDateHeader,
             .nonCopyableBytes,
             .nonCopyableInlineBytes,
             .nonCopyableMacroExpansionWithDateHeader,
-            .nonCopyableStaticStringWithDateHeader,
             .nonCopyableStreamWithDateHeader:
+            true
+        case .string(false, false, true, _),
+            .string(false, true, _, _),
+            .string(true, _, _, _):
             true
         default:
             false
@@ -123,12 +123,11 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         switch type {
         case .macroExpansionWithDateHeader,
             .streamWithDateHeader,
-            .staticStringWithDateHeader,
-            .stringWithDateHeader,
             .nonCopyableMacroExpansionWithDateHeader,
-            .nonCopyableStaticStringWithDateHeader,
             .nonCopyableStreamWithDateHeader:
             true
+        case .string(_, _, let withDateHeader, _):
+            withDateHeader
         default:
             false
         }
@@ -154,9 +153,15 @@ extension IntermediateResponseBody {
             if let string = expr.stringLiteral {
                 if string.segments.firstIndex(where: { $0.is(ExpressionSegmentSyntax.self) }) == nil {
                     // can be upgraded to a `StaticString`
-                    return Self(type: .staticString, .init(expr))
+                    return Self(
+                        type: .string(isNonCopyable: false, isStatic: true, withDateHeader: false, withCompressedBody: false),
+                        .init(expr)
+                    )
                 }
-                return Self(type: .string, .init(expr))
+                return Self(
+                    type: .string(isNonCopyable: false, isStatic: false, withDateHeader: false, withCompressedBody: false),
+                    .init(expr)
+                )
             }
             return nil
         }
@@ -165,8 +170,8 @@ extension IntermediateResponseBody {
         if key == nil {
             key = function.calledExpression.as(DeclReferenceExprSyntax.self)?.baseName.text.lowercased()
         }
-        if let key, let type = IntermediateResponseBodyType(rawValue: key) {
-            return Self(type: type, firstArg.expression)
+        if let key, let t = IntermediateResponseBodyType.parse(key: key, args: function.arguments) {
+            return Self(type: t, firstArg.expression)
         }
         context.diagnose(DiagnosticMsg.unhandled(node: expr))
         return nil

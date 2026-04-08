@@ -75,6 +75,20 @@ extension Int32 {
 
     public func writeBuffers4(
         _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec,
+        _ b4: iovec
+    ) throws(DestinyError) {
+        let result = withUnsafePointer(to: (b1, b2, b3, b4)) {
+            writev(fileDescriptor, UnsafePointer<iovec>(OpaquePointer($0)), 4)
+        }
+        if result <= 0 {
+            throw .socketWriteFailed(errno)
+        }
+    }
+
+    public func writeBuffers4(
+        _ b1: iovec,
         _ b2: UnsafeBufferPointer<UInt8>,
         _ b3: iovec,
         _ b4: UnsafeBufferPointer<UInt8>

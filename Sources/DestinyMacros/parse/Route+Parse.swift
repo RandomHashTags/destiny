@@ -212,8 +212,10 @@ extension Route {
                 if withDateHeader {
                     // auto-upgrade
                     switch body?.type {
-                    case .string: body!.type = .stringWithDateHeader
-                    case .staticString: body!.type = .staticStringWithDateHeader
+                    case .string(let isNonCopyable, false, false, let withCompressedBody):
+                        body!.type = .string(isNonCopyable: isNonCopyable, isStatic: false, withDateHeader: true, withCompressedBody: withCompressedBody)
+                    case .string(let isNonCopyable, true, false, let withCompressedBody):
+                        body!.type = .string(isNonCopyable: isNonCopyable, isStatic: true, withDateHeader: true, withCompressedBody: withCompressedBody)
                     default: break
                     }
                 }

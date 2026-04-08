@@ -309,7 +309,10 @@ extension Router {
         let contentType = "text/plain"
         let charset = Charset.utf8
         let stringLiteral = StringLiteralExprSyntax(content: body)
-        let intermediateBody = IntermediateResponseBody(type: .staticStringWithDateHeader, .init(stringLiteral))
+        let intermediateBody = IntermediateResponseBody(
+            type: .string(isNonCopyable: false, isStatic: true, withDateHeader: true, withCompressedBody: false),
+            .init(stringLiteral)
+        )
         #if hasFeature(Embedded) || EMBEDDED
             let response:HTTPResponseMessage<String>
 

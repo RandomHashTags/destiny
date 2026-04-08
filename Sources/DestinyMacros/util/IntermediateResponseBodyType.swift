@@ -1,21 +1,20 @@
 
-public enum IntermediateResponseBodyType: String, Sendable {
+import SwiftSyntax
+import SwiftSyntaxMacros
+
+public enum IntermediateResponseBodyType: Equatable, Sendable {
     case bytes
-    case inlineBytes                             = "inlinebytes"
-    case macroExpansion                          = "macroexpansion"
-    case macroExpansionWithDateHeader            = "macroexpansionwithdateheader"
-    case streamWithDateHeader                    = "streamwithdateheader"
-    case staticString                            = "staticstring"
-    case staticStringWithDateHeader              = "staticstringwithdateheader"
-    case stringWithDateHeader                    = "stringwithdateheader"
+    case inlineBytes
+    case macroExpansion
+    case macroExpansionWithDateHeader
+    case streamWithDateHeader
 
-    case string
+    case string(isNonCopyable: Bool, isStatic: Bool, withDateHeader: Bool, withCompressedBody: Bool)
 
-    case nonCopyableBytes                        = "noncopyablebytes"
-    case nonCopyableInlineBytes                  = "noncopyableinlinebytes"
-    case nonCopyableMacroExpansionWithDateHeader = "noncopyablemacroexpansionwithdateheader"
-    case nonCopyableStreamWithDateHeader         = "noncopyablestreamwithdateheader"
-    case nonCopyableStaticStringWithDateHeader   = "noncopyablestaticstringwithdateheader"
+    case nonCopyableBytes
+    case nonCopyableInlineBytes
+    case nonCopyableMacroExpansionWithDateHeader
+    case nonCopyableStreamWithDateHeader
 }
 
 // MARK: Is enabled
@@ -24,86 +23,128 @@ extension IntermediateResponseBodyType {
         switch self {
         case .bytes:
             #if CopyableBytes
-            true
+            return true
             #else
-            false
+            return false
             #endif
         case .inlineBytes:
             #if CopyableInlineBytes
-            true
+            return true
             #else
-            false
+            return false
             #endif
         case .macroExpansion:
             #if CopyableMacroExpansion
-            true
+            return true
             #else
-            false
+            return false
             #endif
         case .macroExpansionWithDateHeader:
             #if CopyableMacroExpansionWithDateHeader
-            true
+            return true
             #else
-            false
+            return false
             #endif
         case .streamWithDateHeader:
             #if CopyableStreamWithDateHeader
-            true
+            return true
             #else
-            false
-            #endif
-        case .staticString:
-            true
-        case .staticStringWithDateHeader:
-            #if CopyableStaticStringWithDateHeader
-            true
-            #else
-            false
-            #endif
-        case .stringWithDateHeader:
-            #if CopyableStringWithDateHeader
-            true
-            #else
-            false
+            return false
             #endif
 
-        case .string:
+        case .string(let isNonCopyable, let isStatic, let withDateHeader, let withCompressedBody):
+            if isNonCopyable {
+                if isStatic {
+                    if withDateHeader {
+                        if withCompressedBody {
+                            #if NonCopyableStaticStringWithDateHeader
+                            return true
+                            #else
+                            return false
+                            #endif
+                        }
+                        #if NonCopyableStaticStringWithDateHeader
+                        return true
+                        #else
+                        return false
+                        #endif
+                    }
+                }
+            }
+            // copyable
+            if isStatic {
+                if withDateHeader {
+                    if withCompressedBody {
+                        #if CopyableStaticStringWithDateHeader
+                        return true
+                        #else
+                        return false
+                        #endif
+                    }
+                    #if CopyableStringWithDateHeader
+                    return true
+                    #else
+                    return false
+                    #endif
+                }
+                return true
+            }
+            // copyable, not static
+            if withDateHeader {
+                #if CopyableStringWithDateHeader
+                return true
+                #else
+                return false
+                #endif
+            }
             #if StringRouteResponder
-            true
+            return true
             #else
-            false
+            return false
             #endif
 
         case .nonCopyableBytes:
             #if NonCopyableBytes
-            true
+            return true
             #else
-            false
+            return false
             #endif
         case .nonCopyableInlineBytes:
             #if NonCopyableInlineBytes
-            true
+            return true
             #else
-            false
+            return false
             #endif
         case .nonCopyableMacroExpansionWithDateHeader:
             #if NonCopyableMacroExpansionWithDateHeader
-            true
+            return true
             #else
-            false
+            return false
             #endif
         case .nonCopyableStreamWithDateHeader:
             #if NonCopyableStreamWithDateHeader
-            true
+            return true
             #else
-            false
+            return false
             #endif
-        case .nonCopyableStaticStringWithDateHeader:
-            #if NonCopyableStaticStringWithDateHeader
-            true
-            #else
-            false
-            #endif
+        }
+    }
+}
+
+// MARK: Parse
+extension IntermediateResponseBodyType {
+    public static func parse(key: String, args: LabeledExprListSyntax) -> Self? {
+        switch key {
+        case "bytes": .bytes
+        case "inlinebytes": .inlineBytes
+        case "macroexpansion": .macroExpansion
+        case "macroexpansionwithdateheader": .macroExpansionWithDateHeader
+        case "streamWithDateHeader": .streamWithDateHeader
+        case "noncopyablebytes": .nonCopyableBytes
+        case "noncopyableinlinebytes": .nonCopyableInlineBytes
+        case "noncopyablemacroexpansionwithdateheader": .nonCopyableMacroExpansionWithDateHeader
+        case "noncopyablestreamwithdateheader": .nonCopyableStreamWithDateHeader
+        default: nil
         }
     }
 }
