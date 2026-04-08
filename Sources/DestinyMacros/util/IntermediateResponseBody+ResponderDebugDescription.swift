@@ -90,7 +90,7 @@ extension IntermediateResponseBody {
             var s = ""
             for b in rawValue {
                 let hex = Self.byteToHex(b)
-                s.append("\\u{\(hex.high)\(hex.low)}")
+                s.append("\\u{\(hex.high)\(hex.low)}") // TODO: fix | bytes > 127 get encoded as two bytes
             }
             return s
         }
