@@ -23,6 +23,11 @@ var pkgDependencies:[Package.Dependency] = [
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
+    .package(
+        url: "https://github.com/RandomHashTags/swift-compression",
+        branch: "refactor"
+    ),
+
     // Unlock more performance
     .package(
         url: "https://github.com/RandomHashTags/swift-unwrap-arithmetic-operators",
@@ -433,7 +438,8 @@ var targets = [
             .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
             .product(name: "SwiftDiagnostics", package: "swift-syntax"),
             .product(name: "SwiftSyntax", package: "swift-syntax"),
-            .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+            .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+            .product(name: "Zlib", package: "swift-compression")
         ]
     ),
 

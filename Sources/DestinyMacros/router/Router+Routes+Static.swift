@@ -186,7 +186,7 @@ extension RouterStorage {
             )
             #endif
         }
-        for (route, function) in routes {
+        for (var route, function) in routes {
             let startLine = data.routeStartLine(route)
             #if StaticMiddleware
             let httpResponse = route.response(context: context, function: function, middleware: staticMiddleware)
