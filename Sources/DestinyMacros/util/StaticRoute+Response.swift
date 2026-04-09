@@ -141,8 +141,7 @@ extension StaticRoute {
                 }
                 guard !algorithmSettings.contentTypeWhitelist.contains(contentType) else { continue }
                 guard let technique = algorithm.technique else { continue } // TODO: support embedded
-                // TODO: support | swift-compression needs span support for its protocol(s)
-                /*if let compressed = technique.compress(data: body!.value.utf8Span.span) {
+                /*if let compressed = technique.compress(span: body!.value.utf8Span.span, configuration: .default) {
                     if routerStorage.settings.compression.compressOnlyIfResultIsSmaller, compressed.count >= body!.count {
                         continue
                     }

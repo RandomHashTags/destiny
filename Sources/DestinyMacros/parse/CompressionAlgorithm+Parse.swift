@@ -1,6 +1,7 @@
 
 #if Compression
 
+import BrotliShim
 import SwiftCompression
 import SwiftSyntax
 import ZlibShim
@@ -23,13 +24,23 @@ extension CompressionAlgorithm {
         case "mp3": self = .mp3
 
         case "arithmetic": self = .arithmetic
-        case "brotli": self = .brotli
 
         case "bwt": self = .bwt
         case "deflate": self = .deflate
         case "huffmanCoding": self = .huffman(rootNode: nil)
         case "json": self = .json
         case "lz4": self = .lz4*/
+        case "brotli":
+            var quality:Int32 = BROTLI_DEFAULT_QUALITY, windowSize:Int32 = BROTLI_DEFAULT_WINDOW, mode:UInt32 = BROTLI_MODE_GENERIC.rawValue
+            for child in arguments {
+                switch child.label?.text {
+                case "quality": quality = Int32(child.expression.integerLiteral!.literal.text) ?? 0
+                case "windowSize": windowSize = Int32(child.expression.integerLiteral!.literal.text) ?? 0
+                case "mode": mode = UInt32(child.expression.integerLiteral!.literal.text) ?? 0
+                default: break
+                }
+            }
+            return .brotli(quality: quality, windowSize: windowSize, mode: mode)
         case "lz77":
             var windowSize = 0, bufferSize = 0, offsetBitWidth = 0
             for child in arguments {
