@@ -130,9 +130,6 @@ extension StaticRoute {
         #if RouterSettings && Compression
         if body != nil, let contentType, routerStorage.settings.compression.isEnabled {
             for (algorithm, algorithmSettings) in routerStorage.settings.compression.supportedCompressionAlgorithms {
-                if let contentLengthThreshold = algorithmSettings.contentLengthThreshold, body!.count < contentLengthThreshold {
-                    continue
-                }
                 if let prefixBlacklist = algorithmSettings.contentTypePrefixBlacklist, contentType.hasPrefix(prefixBlacklist) {
                     continue
                 }
@@ -142,7 +139,12 @@ extension StaticRoute {
                 if let prefixWhitelist = algorithmSettings.contentTypePrefixWhitelist, !contentType.hasPrefix(prefixWhitelist) {
                     continue
                 }
-                guard !algorithmSettings.contentTypeWhitelist.contains(contentType) else { continue }
+                guard algorithmSettings.contentTypeWhitelist.isEmpty || algorithmSettings.contentTypeWhitelist.contains(contentType) else {
+                    continue
+                }
+                if let contentLengthThreshold = algorithmSettings.contentLengthThreshold, body!.count < contentLengthThreshold {
+                    continue
+                }
                 guard let technique = algorithm.technique else { continue } // TODO: support embedded
                 /*if let compressed = technique.compress(span: body!.value.utf8Span.span, configuration: .default) {
                     if routerStorage.settings.compression.compressOnlyIfResultIsSmaller, compressed.count >= body!.count {
