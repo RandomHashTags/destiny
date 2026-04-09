@@ -14,6 +14,8 @@ extension CompressorSettings {
         guard let function = expr.functionCall else { return settings }
         for arg in function.arguments {
             switch arg.label?.text {
+            case "contentLengthThreshold":
+                settings.contentLengthThreshold = Int(arg.expression.integerLiteral!.literal.text) ?? 0
             case "contentTypePrefixWhitelist":
                 settings.contentTypePrefixWhitelist = arg.expression.stringLiteralString(context: context)
             case "contentTypeWhitelist":

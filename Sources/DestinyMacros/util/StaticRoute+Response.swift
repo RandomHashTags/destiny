@@ -130,6 +130,9 @@ extension StaticRoute {
         #if RouterSettings && Compression
         if body != nil, let contentType, routerStorage.settings.compression.isEnabled {
             for (algorithm, algorithmSettings) in routerStorage.settings.compression.supportedCompressionAlgorithms {
+                if let contentLengthThreshold = algorithmSettings.contentLengthThreshold, body!.count < contentLengthThreshold {
+                    continue
+                }
                 if let prefixBlacklist = algorithmSettings.contentTypePrefixBlacklist, contentType.hasPrefix(prefixBlacklist) {
                     continue
                 }
