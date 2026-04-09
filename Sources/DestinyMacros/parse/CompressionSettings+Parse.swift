@@ -2,7 +2,7 @@
 #if Compression
 
 import Destiny
-import SwiftCompression
+import SwiftCompressionUtilities
 import SwiftSyntax
 import SwiftSyntaxMacros
 

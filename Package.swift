@@ -413,7 +413,7 @@ var targets = [
             .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
             .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
             .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
-            .product(name: "SwiftCompression", package: "swift-compression"),
+            .product(name: "SwiftCompressionUtilities", package: "swift-compression")
         ]
     ),
 
@@ -445,7 +445,7 @@ var targets = [
             .product(name: "SwiftDiagnostics", package: "swift-syntax"),
             .product(name: "SwiftSyntax", package: "swift-syntax"),
             .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-            .product(name: "Zlib", package: "swift-compression")
+            .product(name: "SwiftCompression", package: "swift-compression")
         ]
     ),
 

@@ -1,9 +1,7 @@
 
 #if Compression
 
-import BrotliShim
-import SwiftCompression
-import ZlibShim
+import SwiftCompressionUtilities
 
 public struct CompressionSettings: Sendable {
     package var flags:Flags.RawValue
@@ -13,8 +11,17 @@ public struct CompressionSettings: Sendable {
         enabled: Bool = true,
         compressOnlyIfResultIsSmaller: Bool = true,
         supportedCompressionAlgorithms: [CompressionAlgorithm:CompressorSettings] = [
-            .brotli(quality: BROTLI_DEFAULT_QUALITY, windowSize: BROTLI_DEFAULT_WINDOW, mode: BROTLI_MODE_GENERIC.rawValue): .init(contentTypePrefixWhitelist: "text/"),
-            .gzip(bufferSize: 1024, level: Z_DEFAULT_COMPRESSION, memLevel: 8, strategy: Z_DEFAULT_STRATEGY): .init(contentTypePrefixWhitelist: "text/")
+            .brotli(
+                quality: 11, // BROTLI_DEFAULT_QUALITY
+                windowSize: 22, // BROTLI_DEFAULT_WINDOW
+                mode: 0 // BROTLI_MODE_GENERIC
+            ): .init(contentTypePrefixWhitelist: "text/"),
+            .gzip(
+                bufferSize: 1024,
+                level: -1, // Z_DEFAULT_COMPRESSION
+                memLevel: 8,
+                strategy: 0 // Z_DEFAULT_STRATEGY
+            ): .init(contentTypePrefixWhitelist: "text/")
         ]
     ) {
         flags = Flags.pack(

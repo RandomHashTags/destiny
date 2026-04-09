@@ -1,7 +1,7 @@
 
 #if Compression
 
-import SwiftCompression
+import SwiftCompressionUtilities
 
 extension CompressionAlgorithm {
     public var acceptEncodingName: String {

@@ -2,7 +2,7 @@
 #if Compression
 
 import BrotliShim
-import SwiftCompression
+import SwiftCompressionUtilities
 import SwiftSyntax
 import ZlibShim
 
