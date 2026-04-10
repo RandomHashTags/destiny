@@ -1,9 +1,12 @@
 
 import Destiny
-import SwiftCompression
 import SwiftDiagnostics
 import SwiftSyntax
 import SwiftSyntaxMacros
+
+#if Compression
+import SwiftCompression
+#endif
 
 extension StaticRoute {
     /// Builds the HTTP Message for this route.

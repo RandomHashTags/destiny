@@ -166,8 +166,8 @@ extension IntermediateResponseBody {
         "F"
     ]
     private static func byteToHex(_ byte: UInt8) -> (high: Character, low: Character) {
-        let high = PercentEncoding.hexDigits[unchecked: Int(byte >> 4)]
-        let low = PercentEncoding.hexDigits[unchecked: Int(byte & 0x0F)]
+        let high = hexDigits[unchecked: Int(byte >> 4)]
+        let low = hexDigits[unchecked: Int(byte & 0x0F)]
         return (high, low)
     }
 }

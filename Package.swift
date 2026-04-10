@@ -16,7 +16,7 @@ var pkgDependencies:[Package.Dependency] = [
     // Media types
     .package(
         url: "https://github.com/RandomHashTags/swift-media-types",
-        from: "0.1.0",
+        exact: "0.1.0",
         traits: ["MediaTypes", "RawValues", "FileExtensionInits", "MediaTypeParsable"]
     ),
 
@@ -413,7 +413,7 @@ var targets = [
             .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
             .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
             .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
-            .product(name: "SwiftCompressionUtilities", package: "swift-compression")
+            .product(name: "SwiftCompressionUtilities", package: "swift-compression", condition: .when(traits: ["Compression"]))
         ]
     ),
 
@@ -445,7 +445,7 @@ var targets = [
             .product(name: "SwiftDiagnostics", package: "swift-syntax"),
             .product(name: "SwiftSyntax", package: "swift-syntax"),
             .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
-            .product(name: "SwiftCompression", package: "swift-compression")
+            .product(name: "SwiftCompression", package: "swift-compression", condition: .when(traits: ["Compression"]))
         ]
     ),
 
