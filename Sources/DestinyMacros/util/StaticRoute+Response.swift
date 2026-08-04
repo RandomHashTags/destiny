@@ -148,8 +148,7 @@ extension StaticRoute {
                 if let contentLengthThreshold = algorithmSettings.contentLengthThreshold, body!.count < contentLengthThreshold {
                     continue
                 }
-                guard let technique = algorithm.technique else { continue } // TODO: support embedded
-                /*if let compressed = technique.compress(span: body!.value.utf8Span.span, configuration: .default) {
+                if let compressed = algorithm.compress(span: body!.value.utf8Span.span) {
                     if routerStorage.settings.compression.compressOnlyIfResultIsSmaller, compressed.count >= body!.count {
                         continue
                     }
@@ -160,7 +159,7 @@ extension StaticRoute {
                         body!.type = .string(isNonCopyable: isNonCopyable, isStatic: isStatic, withDateHeader: withDateHeader, withCompressedBody: true)
                     }
                     break
-                }*/
+                }
             }
         }
         #endif
