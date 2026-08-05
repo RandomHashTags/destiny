@@ -9,19 +9,16 @@ let package = Package(
     ],
     dependencies: [
         // networking
-        .package(url: "https://github.com/swift-server/swift-service-lifecycle", exact: "2.9.0"),
-        .package(url: "https://github.com/apple/swift-nio", exact: "2.88.0"),
-        .package(url: "https://github.com/apple/swift-log", exact: "1.6.4"),
+        .package(url: "https://github.com/swift-server/swift-service-lifecycle", exact: "2.11.0"),
+        .package(url: "https://github.com/apple/swift-nio", exact: "2.101.3"),
+        .package(url: "https://github.com/apple/swift-log", exact: "1.14.0"),
 
-        .package(url: "https://github.com/swift-server/async-http-client", exact: "1.29.0"),
+        .package(url: "https://github.com/swift-server/async-http-client", exact: "1.36.0"),
 
         .package(path: ".."),
-        /*.package(
-            url: "https://github.com/RandomHashTags/destiny",
-            branch: "main"
-        ),*/
-        .package(url: "https://github.com/vapor/vapor", exact: "4.119.0"),
-        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.17.0")
+        .package(url: "https://github.com/vapor/vapor", exact: "4.122.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird", exact: "2.26.0"),
+        .package(url: "https://github.com/hummingbird-project/hummingbird-compression", exact: "2.0.0")
     ],
     targets: [
         .target(
@@ -47,7 +44,8 @@ let package = Package(
             name: "TestHummingbird",
             dependencies: [
                 "Utilities",
-                .product(name: "Hummingbird", package: "hummingbird")
+                .product(name: "Hummingbird", package: "hummingbird"),
+                .product(name: "HummingbirdCompression", package: "hummingbird-compression")
             ],
             path: "Benchmarks/Hummingbird"
         ),

@@ -35,6 +35,7 @@ package final class TestRouter {
         routerSettings: .init(
             //dynamicResponsesAreGeneric: false,
             //protocolConformances: false,
+            logging: true,
             visibility: .package
         ),
 

@@ -23,6 +23,11 @@ var pkgDependencies:[Package.Dependency] = [
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
 
+    .package(
+        url: "https://github.com/RandomHashTags/swift-compression",
+        exact: "0.1.1"
+    ),
+
     // Unlock more performance
     .package(
         url: "https://github.com/RandomHashTags/swift-unwrap-arithmetic-operators",
@@ -339,6 +344,10 @@ let traits:Set<Trait> = [
     ),
 
     .trait(
+        name: "Compression",
+        description: "Enables compression support (using swift-compression)."
+    ),
+    .trait(
         name: "Epoll",
         description: "Enables Epoll functionality (Linux only)."
     ),
@@ -380,6 +389,7 @@ let package = Package(
                 .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
                 .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
                 .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
+                .product(name: "SwiftCompressionUtilities", package: "swift-compression", condition: .when(traits: ["Compression"]))
             ]
         ),
 
@@ -410,7 +420,8 @@ let package = Package(
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
                 .product(name: "SwiftDiagnostics", package: "swift-syntax"),
                 .product(name: "SwiftSyntax", package: "swift-syntax"),
-                .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+                .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+                .product(name: "SwiftCompression", package: "swift-compression", condition: .when(traits: ["Compression"]))
             ]
         ),
 

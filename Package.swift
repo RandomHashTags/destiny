@@ -16,12 +16,17 @@ var pkgDependencies:[Package.Dependency] = [
     // Media types
     .package(
         url: "https://github.com/RandomHashTags/swift-media-types",
-        from: "0.1.0",
+        exact: "0.1.0",
         traits: ["MediaTypes", "RawValues", "FileExtensionInits", "MediaTypeParsable"]
     ),
 
     // Metrics
     //.package(url: "https://github.com/apple/swift-metrics", from: "2.5.1"),
+
+    .package(
+        url: "https://github.com/RandomHashTags/swift-compression",
+        exact: "0.1.1"
+    ),
 
     // Unlock more performance
     .package(
@@ -87,6 +92,7 @@ defaultTraits.formUnion([
     "UnwrapArithmetic",
     "Protocols",
 
+    "Compression",
     "Logging",
     "OpenAPI"
 ])
@@ -366,6 +372,10 @@ let traits:Set<Trait> = [
     ),
 
     .trait(
+        name: "Compression",
+        description: "Enables compression support (using swift-compression)."
+    ),
+    .trait(
         name: "Epoll",
         description: "Enables Epoll functionality (Linux only)."
     ),
@@ -403,6 +413,7 @@ var targets = [
             .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
             .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
             .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
+            .product(name: "SwiftCompressionUtilities", package: "swift-compression", condition: .when(traits: ["Compression"]))
         ]
     ),
 
@@ -433,7 +444,8 @@ var targets = [
             .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
             .product(name: "SwiftDiagnostics", package: "swift-syntax"),
             .product(name: "SwiftSyntax", package: "swift-syntax"),
-            .product(name: "SwiftSyntaxMacros", package: "swift-syntax")
+            .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
+            .product(name: "SwiftCompression", package: "swift-compression", condition: .when(traits: ["Compression"]))
         ]
     ),
 

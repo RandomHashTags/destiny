@@ -113,6 +113,7 @@ extension HTTPResponseMessage {
             status: head.status,
             headers: head.headers,
             body: bodyString,
+            contentLength: body?.count ?? 0,
             contentType: contentType,
             charset: charset
         )
@@ -238,11 +239,21 @@ extension HTTPResponseMessage {
         status: HTTPResponseStatus.Code,
         headers: HTTPHeaders,
         body: String?,
+        contentLength: Int,
         contentType: String?,
         charset: Charset?
     ) -> String {
         let suffix = escapeLineBreak ? "\\r\\n" : "\r\n"
-        return create(suffix: suffix, version: version, status: status, headers: Self.headers(suffix: suffix, headers: headers), body: body, contentType: contentType, charset: charset)
+        return create(
+            suffix: suffix,
+            version: version,
+            status: status,
+            headers: Self.headers(suffix: suffix, headers: headers),
+            body: body,
+            contentLength: contentLength,
+            contentType: contentType,
+            charset: charset
+        )
     }
 
     public static func create(
@@ -251,12 +262,12 @@ extension HTTPResponseMessage {
         status: HTTPResponseStatus.Code,
         headers: String,
         body: String?,
+        contentLength: Int,
         contentType: String?,
         charset: Charset?
     ) -> String {
         var string = "\(version.string) \(status)\(suffix)\(headers)"
         if let body {
-            let contentLength = body.utf8Span.count
             if let contentType {
                 string += "content-type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }

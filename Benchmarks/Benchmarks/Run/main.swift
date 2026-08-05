@@ -93,6 +93,7 @@ func vaporApp(port: Int) -> Vapor.Application {
     let app = Vapor.Application(environment)
     app.http.server.configuration.port = port
     app.http.server.configuration.hostname = hostname
+    //app.http.server.configuration.responseCompression = .enabled
     app.clients.use(.http)
     VaporStorage.registerRoutes(app)
     return app
