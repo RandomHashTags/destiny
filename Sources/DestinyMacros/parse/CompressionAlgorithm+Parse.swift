@@ -1,10 +1,16 @@
 
 #if Compression
 
-import BrotliShim
 import SwiftCompressionUtilities
 import SwiftSyntax
+
+#if canImport(Brotli)
+import BrotliShim
+#endif
+
+#if canImport(Zlib)
 import ZlibShim
+#endif
 
 // MARK: SwiftSyntax
 extension CompressionAlgorithm {
@@ -31,9 +37,16 @@ extension CompressionAlgorithm {
         case "json": self = .json
         case "lz4": self = .lz4*/
         case "brotli":
-            var quality:Int32 = BROTLI_DEFAULT_QUALITY
-            var windowSize:Int32 = BROTLI_DEFAULT_WINDOW
-            var mode:UInt32 = BROTLI_MODE_GENERIC.rawValue
+            var quality:Int32 = 11 // BROTLI_DEFAULT_QUALITY
+            var windowSize:Int32 = 22 // BROTLI_DEFAULT_WINDOW
+            var mode:UInt32 = 0 // BROTLI_MODE_GENERIC
+
+            #if canImport(Brotli)
+            quality = BROTLI_DEFAULT_QUALITY
+            windowSize = BROTLI_DEFAULT_WINDOW
+            mode = BROTLI_MODE_GENERIC.rawValue
+            #endif
+
             for child in arguments {
                 switch child.label?.text {
                 case "quality": quality = Int32(child.expression.integerLiteral!.literal.text) ?? 0
@@ -43,6 +56,23 @@ extension CompressionAlgorithm {
                 }
             }
             return .brotli(quality: quality, windowSize: windowSize, mode: mode)
+
+        case "deflate":
+            var bufferSize:Int = 1024
+            var level:Int32 = 0
+
+            #if canImport(Zlib)
+            level = Z_DEFAULT_COMPRESSION
+            #endif
+
+            for child in arguments {
+                switch child.label?.text {
+                case "bufferSize": bufferSize = Int(child.expression.integerLiteral!.literal.text)!
+                case "level": level = Int32(child.expression.integerLiteral!.literal.text)!
+                default: break
+                }
+            }
+            return .deflate(bufferSize: bufferSize, level: level)
         case "lz77":
             var windowSize = 0
             var bufferSize = 0
@@ -62,9 +92,15 @@ extension CompressionAlgorithm {
 
         case "gzip":
             var bufferSize = 1024
-            var level = Z_DEFAULT_COMPRESSION
+            var level:Int32 = -1 // Z_DEFAULT_COMPRESSION
             var memLevel:Int32 = 8
-            var strategy = Z_DEFAULT_STRATEGY
+            var strategy:Int32 = 0 // Z_DEFAULT_STRATEGY
+
+            #if canImport(Zlib)
+            level = Z_DEFAULT_COMPRESSION
+            strategy = Z_DEFAULT_STRATEGY
+            #endif
+
             for child in arguments {
                 switch child.label?.text {
                 case "bufferSize": bufferSize = Int(child.expression.integerLiteral!.literal.text) ?? 0
@@ -79,7 +115,7 @@ extension CompressionAlgorithm {
 
         case "runLengthEncoding":
             var minRun = 0
-            var alwaysIncludeRunCount:Bool = false
+            var alwaysIncludeRunCount = false
             for child in arguments {
                 switch child.label?.text {
                 case "minRun": minRun = Int(child.expression.integerLiteral!.literal.text) ?? 0

@@ -16,12 +16,17 @@ public struct CompressionSettings: Sendable {
                 windowSize: 22, // BROTLI_DEFAULT_WINDOW
                 mode: 0 // BROTLI_MODE_GENERIC
             ): .init(contentTypePrefixWhitelist: "text/"),
+            .deflate(
+                bufferSize: 32768,
+                level: -1 // Z_DEFAULT_COMPRESSION
+            ): .init(contentTypePrefixWhitelist: "text/"),
             .gzip(
-                bufferSize: 1024,
+                bufferSize: 32768,
                 level: -1, // Z_DEFAULT_COMPRESSION
                 memLevel: 8,
                 strategy: 0 // Z_DEFAULT_STRATEGY
-            ): .init(contentTypePrefixWhitelist: "text/")
+            ): .init(contentTypePrefixWhitelist: "text/"),
+            .snappy: .init(contentTypePrefixWhitelist: "text/")
         ]
     ) {
         flags = Flags.pack(

@@ -12,9 +12,9 @@ extension VaporStorage {
         """)
         let headers = HTTPHeaders([
             ("server", "destiny"),
-            //("connection", "keep-alive"), // Vapor always add this by default
+            //("connection", "keep-alive"), // Vapor adds this by default
             ("content-type", "text/html"),
-            ("content-length", "132")
+            //("content-length", "132")
         ])
         app.get(["html"]) { request in
             // we have to do it this way because the headers get updated every request (probably 'cause its a class)
