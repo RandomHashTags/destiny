@@ -158,7 +158,6 @@ extension StaticRoute {
                     if case let .string(isNonCopyable, isStatic, withDateHeader, _) = body!.type {
                         body!.type = .string(isNonCopyable: isNonCopyable, isStatic: isStatic, withDateHeader: withDateHeader, withCompressedBody: true)
                     }
-                    break
                 }
             }
         }
