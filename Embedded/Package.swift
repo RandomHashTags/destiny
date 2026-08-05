@@ -25,7 +25,7 @@ var pkgDependencies:[Package.Dependency] = [
 
     .package(
         url: "https://github.com/RandomHashTags/swift-compression",
-        branch: "refactor"
+        exact: "0.1.1"
     ),
 
     // Unlock more performance
