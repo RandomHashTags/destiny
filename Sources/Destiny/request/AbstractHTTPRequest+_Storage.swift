@@ -1,6 +1,5 @@
 
 import UnwrapArithmeticOperators
-import VariableLengthArray
 
 extension AbstractHTTPRequest {
     /// Underlying storage for the default request implementation.
@@ -147,7 +146,7 @@ extension AbstractHTTPRequest._Storage {
             return methodString
         }
         requestLine!.method(buffer: buffer.buffer) {
-            methodString = $0.unsafeString()
+            methodString = $0
         }
         return methodString!
     }
@@ -160,21 +159,21 @@ extension AbstractHTTPRequest._Storage {
         if let path {
             return path
         }
-        requestLine!.path(buffer: buffer.buffer, {
+        requestLine!.path(buffer: buffer.buffer.span) { span in
             path = [String]()
             var startIndex = 0
-            for i in $0.indices {
-                if $0.storage[i] == .forwardSlash {
+            for i in span.indices {
+                if span[i] == .forwardSlash {
                     if startIndex < i {
-                        path!.append($0.unsafeString(startIndex: startIndex, endIndex: i))
+                        path!.append(span.unsafeString(startIndex: startIndex, endIndex: i))
                     }
                     startIndex = i +! 1
                 }
             }
-            if startIndex < $0.count {
-                path!.append($0.unsafeString(startIndex: startIndex, endIndex: $0.count))
+            if startIndex < span.count {
+                path!.append(span.unsafeString(startIndex: startIndex, endIndex: span.count))
             }
-        })
+        }
         return path!
     }
 }

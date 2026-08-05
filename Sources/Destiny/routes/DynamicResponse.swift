@@ -1,6 +1,4 @@
 
-import VariableLengthArray
-
 #if hasFeature(Embedded) || EMBEDDED
 
 /// Default Dynamic Response implementation that builds an HTTP Message for dynamic requests.
@@ -54,12 +52,12 @@ extension DynamicResponse {
         parameters[index]
     }
 
-    public mutating func setParameter(at index: Int, value: consuming VLArray<UInt8>) {
-        parameters[index] = value.unsafeString()
+    public mutating func setParameter(at index: Int, value: String) {
+        parameters[index] = value
     }
 
-    public mutating func appendParameter(value: consuming VLArray<UInt8>) {
-        parameters.append(value.unsafeString())
+    public mutating func appendParameter(value: String) {
+        parameters.append(value)
     }
 
     public func yieldParameters(_ yield: (String) -> Void) {
