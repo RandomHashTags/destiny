@@ -37,10 +37,7 @@ var pkgDependencies:[Package.Dependency] = [
             .trait(name: "UnwrapSubtraction", condition: .when(traits: ["UnwrapSubtraction"])),
             .trait(name: "UnwrapArithmetic", condition: .when(traits: ["UnwrapArithmetic"]))
         ]
-    ),
-
-    // Variable-length arrays
-    .package(url: "https://github.com/RandomHashTags/swift-variablelengtharray", from: "0.2.0", traits: [])
+    )
 ]
 
 #if os(Linux)
