@@ -13,20 +13,6 @@ public protocol AsyncHTTPSocketWritable: Sendable, ~Copyable {
     ) async throws(DestinyError)
 }
 
-extension AsyncHTTPSocketWritable {
-    /// Asynchronously writes data to the socket.
-    /// 
-    /// - Parameters:
-    ///   - socket: some noncopyable `FileDescriptor`.
-    /// 
-    /// - Throws: `DestinyError`
-    public func write(
-        to socket: borrowing some FileDescriptor & ~Copyable
-    ) async throws(DestinyError) {
-        try await write(to: socket.fileDescriptor)
-    }
-}
-
 // MARK: Default conformances
 extension String: AsyncHTTPSocketWritable {
     public func write(

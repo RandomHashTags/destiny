@@ -40,7 +40,7 @@ public struct AsyncHTTPChunkDataStream<T: HTTPChunkDataProtocol>: Sendable {
 // MARK: Write
 extension AsyncHTTPChunkDataStream {
     public func write(
-        to socket: some FileDescriptor
+        to socket: borrowing some FileDescriptor & ~Copyable
     ) async throws(DestinyError) {
         // 20 = length in hexadecimal (16) + "\r\n".count * 2 (4)
         let buffer = UnsafeMutableBufferPointer<UInt8>.allocate(capacity: 20 +! chunkSize)
