@@ -1,6 +1,6 @@
 # Destiny
 
-<a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.2+-F05138?style=&logo=swift" alt="Requires at least Swift 6.2"></a> <img src="https://img.shields.io/badge/Platforms-Any-gold"> <a href="https://discord.com/invite/VyuFQUpcUz"><img src="https://img.shields.io/badge/Chat-Discord-7289DA?style=&logo=discord"></a> <a href="https://github.com/RandomHashTags/destiny/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="Apache 2.0 License"></a>
+<a href="https://swift.org"><img src="https://img.shields.io/badge/Swift-6.2+-F05138?style=&logo=swift" alt="Requires at least Swift 6.2"></a> <img src="https://img.shields.io/badge/Platforms-Any-gold"> <a href="https://github.com/RandomHashTags/destiny/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-Apache_2.0-blue" alt="Apache 2.0 License"></a>
 
 Destiny is a standalone, high-performance and lightweight web server that makes use of the latest Swift features to push performance to the limit of the language, and designed to be easy to use while keeping the binary size small.
 
@@ -86,7 +86,7 @@ Create a PR.
 
 ## Support
 
-You can create a discussion here on GitHub for support or join my Discord server at https://discord.com/invite/VyuFQUpcUz.
+If you need support, you should create a discussion (or issue) here on GitHub.
 
 ### Funding
 
