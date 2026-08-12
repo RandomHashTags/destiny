@@ -1,6 +1,4 @@
 
-import VariableLengthArray
-
 /// Core protocol that builds a HTTP Message for dynamic routes before sending it to the client.
 public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
     /// - Parameters:
@@ -10,10 +8,10 @@ public protocol DynamicResponseProtocol: HTTPSocketWritable, ~Copyable {
 
     mutating func setParameter(
         at index: Int,
-        value: consuming VLArray<UInt8>
+        value: String
     )
 
-    mutating func appendParameter(value: consuming VLArray<UInt8>)
+    mutating func appendParameter(value: String)
 
     func yieldParameters(_ yield: (String) -> Void)
 

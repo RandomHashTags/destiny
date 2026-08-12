@@ -618,19 +618,15 @@ extension CompiledRouterStorage {
                         err = error
                         return
                     }
-                    pathAtIndex.inlineVLArray {
-                        response.setParameter(at: index, value: $0)
-                    }
+                    response.setParameter(at: index, value: pathAtIndex)
                     if responder.pathComponent(at: parameterIndex) == .catchall {
                         do throws(DestinyError) {
                             var i = parameterIndex+1
                             try request.forEachPath(offset: i) { path in
-                                path.inlineVLArray {
-                                    if i < maximumParameters {
-                                        response.setParameter(at: i, value: $0)
-                                    } else {
-                                        response.appendParameter(value: $0)
-                                    }
+                                if i < maximumParameters {
+                                    response.setParameter(at: i, value: path)
+                                } else {
+                                    response.appendParameter(value: path)
                                 }
                                 i += 1
                             }

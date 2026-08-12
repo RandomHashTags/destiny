@@ -36,7 +36,10 @@ package final class TestRouter {
             //dynamicResponsesAreGeneric: false,
             //protocolConformances: false,
             logging: true,
-            visibility: .package
+            visibility: .package,
+            compression: .init(
+                enabled: false
+            )
         ),
 
         version: .v1_1,

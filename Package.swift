@@ -37,13 +37,6 @@ var pkgDependencies:[Package.Dependency] = [
             .trait(name: "UnwrapSubtraction", condition: .when(traits: ["UnwrapSubtraction"])),
             .trait(name: "UnwrapArithmetic", condition: .when(traits: ["UnwrapArithmetic"]))
         ]
-    ),
-
-    // Variable-length arrays
-    .package(
-        url: "https://github.com/RandomHashTags/swift-variablelengtharray",
-        from: "0.2.0",
-        traits: []
     )
 ]
 
@@ -412,7 +405,6 @@ var targets = [
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
             .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
             .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
-            .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
             .product(name: "SwiftCompressionUtilities", package: "swift-compression", condition: .when(traits: ["Compression"]))
         ]
     ),

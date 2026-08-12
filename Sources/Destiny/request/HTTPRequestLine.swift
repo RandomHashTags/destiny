@@ -1,6 +1,5 @@
 
 import UnwrapArithmeticOperators
-import VariableLengthArray
 
 /// Default HTTP Request Line implementation that includes the request method, target and HTTP version.
 public struct HTTPRequestLine: Sendable, ~Copyable {
@@ -38,35 +37,19 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
         endIndex -! 9
     }
 
-    public func path<let count: Int>(
-        buffer: InlineArray<count, UInt8>,
-        _ closure: (consuming VLArray<UInt8>) -> Void
+    public func path(
+        buffer: Span<UInt8>,
+        _ closure: (Span<UInt8>) -> Void
     ) {
-        let pathCount = pathCount
-        withUnsafeTemporaryAllocation(of: UInt8.self, capacity: pathCount, { pathBuffer in
-            var offset = methodEndIndex +! 1
-            if pathCount <= 128 {
-                for i in 0..<pathCount {
-                    pathBuffer[i] = buffer[unchecked: offset]
-                    offset +=! 1
-                }
-            } else {
-                buffer.span.withUnsafeBufferPointer {
-                    copyMemory(pathBuffer.baseAddress!, $0.baseAddress! + offset, pathCount)
-                }
-            }
-            let pathArray = VLArray<UInt8>(_storage: pathBuffer)
-            closure(pathArray)
-        })
+        let offset = methodEndIndex +! 1
+        closure(buffer.extracting(unchecked: offset..<offset + pathCount))
     }
 
     public func method<let count: Int>(
         buffer: InlineArray<count, UInt8>,
-        _ closure: (consuming VLArray<UInt8>) -> Void
+        _ closure: (String) -> Void
     ) {
-        VLArray.create(amount: methodEndIndex, initialize: {
-            buffer[unchecked: $0]
-        }, closure)
+        closure(buffer.unsafeString(startIndex: 0, endIndex: methodEndIndex))
     }
 
     public func simd<let count: Int>(
