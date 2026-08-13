@@ -308,19 +308,14 @@ extension RouterStorage {
                 return true
             } else { // parameterized and catchall
                 let pathComponentsCount = responder.pathComponentsCount
-                var found = true
-                var lastIsCatchall = false
-                var lastIsParameter = false
+                var found = false
                 loop: for i in 0..<pathComponentsCount {
                     let path = responder.pathComponent(at: i)
                     switch path {
                     case .catchall:
-                        lastIsCatchall = true
-                        lastIsParameter = false
+                        found = true
                         break loop
                     case .literal(let l):
-                        lastIsCatchall = false
-                        lastIsParameter = false
                         if requestPathCount <= i {
                             found = false
                             break loop
@@ -329,17 +324,19 @@ extension RouterStorage {
                             if l != pathAtIndex {
                                 found = false
                                 break loop
+                            } else if i == pathComponentsCount-1 {
+                                found = pathComponentsCount == requestPathCount
+                                break loop
                             }
                         }
                     case .parameter:
-                        lastIsCatchall = false
-                        lastIsParameter = true
+                        found = pathComponentsCount == requestPathCount
                     default: // TODO: fixme
                         found = false
                         break loop
                     }
                 }
-                if found && (lastIsCatchall || lastIsParameter && requestPathCount == pathComponentsCount) {
+                if found {
                     try router.respond(provider: provider, request: &request, responder: responder)
                     return true
                 }
