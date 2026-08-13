@@ -28,7 +28,7 @@ extension RequestBody {
     /// - Throws: `DestinyError`
     package mutating func read<let count: Int>(
         fileDescriptor: some FileDescriptor,
-        into buffer: inout InlineArray<count, UInt8>
+        into buffer: inout [count of UInt8]
     ) throws(DestinyError) -> Int {
         var err:DestinyError? = nil
         var read = 0
@@ -63,7 +63,7 @@ extension RequestBody {
     public mutating func collect<let count: Int>(
         fileDescriptor: some FileDescriptor
     ) throws(DestinyError) -> InlineByteBuffer<count> {
-        var buffer = InlineArray<count, UInt8>(repeating: 0)
+        var buffer = [count of UInt8](repeating: 0)
         let read = try read(fileDescriptor: fileDescriptor, into: &buffer)
         return .init(buffer: buffer, endIndex: read)
     }
@@ -73,11 +73,11 @@ extension RequestBody {
 extension RequestBody {
     // TODO: can't yet use this: https://github.com/swiftlang/swift/issues/84141
     enum StreamYieldResult<let count: Int>: Sendable {
-        case literal(buffer: InlineArray<count, UInt8>)
-        case end(buffer: InlineArray<count, UInt8>, endIndex: Int)
+        case literal(buffer: [count of UInt8])
+        case end(buffer: [count of UInt8], endIndex: Int)
 
         /*
-        public var buffer: InlineArray<count, UInt8> {
+        public var buffer: [count of UInt8] {
             switch self {
             case .literal(let b):
                 return b

@@ -6,7 +6,7 @@ public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProt
 
     public let entries:[PerfectHashableEntry]
     public let entriesCount:Int
-    public let positions:InlineArray<64, Int>
+    public let positions:[64 of Int]
 
     public init(
         routes: [PerfectHashableItem<T>],
@@ -18,7 +18,7 @@ public struct PerfectHashGenerator<T: PerfectHashable>: PerfectHashGeneratorProt
     public init(
         routes: [PerfectHashableItem<T>],
         maxBytes: Int,
-        positions: InlineArray<64, Int>
+        positions: [64 of Int]
     ) {
         let entriesCount = routes.count
         let closure:(T) -> UInt64 = Self.extractKeyClosure(positions: positions, maxBytes: maxBytes)
@@ -40,8 +40,8 @@ extension PerfectHashGenerator {
     public static func findPerfectHashPositions(
         routes: [PerfectHashableItem<T>],
         maxBytes: Int
-    ) -> InlineArray<64, Int> {
-        var characterCount = InlineArray<64, Set<UInt8>>(repeating: .init())
+    ) -> [64 of Int] {
+        var characterCount = [64 of Set<UInt8>](repeating: .init())
         let scalarCount = T.scalarCount
         for indice in routes.indices {
             // TODO: pick the last element(s) in the target path (after method and before http version)
@@ -53,7 +53,7 @@ extension PerfectHashGenerator {
                 }
             }
         }
-        var positions = InlineArray<64, Int>.init(repeating: 0)
+        var positions = [64 of Int].init(repeating: 0)
         var positionIndex = 0
         var index = -1
         var countAtIndex = 0
@@ -81,7 +81,7 @@ extension PerfectHashGenerator {
 // MARK: Perfect
 extension PerfectHashGenerator {
     public func findPerfectHashFunction<let count: Int>(
-        seeds: InlineArray<count, UInt64>
+        seeds: [count of UInt64]
     ) -> (candidate: HashCandidate, hashTable: [UInt8], verificationKeys: [UInt64])? {
         var candidate = HashCandidate(
             seed: .max,
@@ -91,25 +91,24 @@ extension PerfectHashGenerator {
         var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
         for maskBits in 1...10 { // 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024 slots
             let tableSize:UInt64 = 1 << maskBits
-            if tableSize >= entriesCount {
-                candidate.maskBits = maskBits
-                var hashTable = [UInt8](repeating: 255, count: Int(tableSize)) // 255 = empty slot
-                var found = [(HashCandidate, [UInt8], [UInt64])]()
-                for shift in 0...60 {
-                    candidate.shift = shift
-                    for indice in seeds.indices {
-                        candidate.seed = seeds[indice]
-                        if tryHashFunction(candidate: candidate, hashTable: &hashTable, verificationKeys: &verificationKeys) {
-                            found.append((candidate, [UInt8](hashTable), [UInt64](verificationKeys)))
-                        }
-                        var mutableSpan = hashTable.mutableSpan
-                        mutableSpan.update(repeating: 0)
+            guard tableSize >= entriesCount else { continue }
+            candidate.maskBits = maskBits
+            var hashTable = [UInt8](repeating: 255, count: Int(tableSize)) // 255 = empty slot
+            var found = [(HashCandidate, [UInt8], [UInt64])]()
+            for shift in 0...60 {
+                candidate.shift = shift
+                for indice in seeds.indices {
+                    candidate.seed = seeds[indice]
+                    if tryHashFunction(candidate: candidate, hashTable: &hashTable, verificationKeys: &verificationKeys) {
+                        found.append((candidate, [UInt8](hashTable), [UInt64](verificationKeys)))
                     }
+                    var mutableSpan = hashTable.mutableSpan
+                    mutableSpan.update(repeating: 0)
                 }
-                if !found.isEmpty {
-                    //print("PerfectHashGenerator;\(#function);found \(found.count) perfect hash(es) of tableSize \(tableSize)")
-                    return found.min(by: { $0.0.tableSize < $1.0.tableSize }) ?? found.randomElement()
-                }
+            }
+            if !found.isEmpty {
+                //print("PerfectHashGenerator;\(#function);found \(found.count) perfect hash(es) of tableSize \(tableSize)")
+                return found.min(by: { $0.0.tableSize < $1.0.tableSize }) ?? found.randomElement()
             }
         }
         return nil
@@ -120,7 +119,7 @@ extension PerfectHashGenerator {
         hashTable: inout [UInt8],
         verificationKeys: inout [UInt64]
     ) -> Bool {
-        var usedSlots = Set<Int>(minimumCapacity: entriesCount)
+        var usedSlots = BitSetHeap(minimumCapacity: entriesCount)
         //var assigned = [String](repeating: "", count: candidate.tableSize)
         for i in entries.indices {
             let entry = entries[i]
@@ -145,7 +144,7 @@ extension PerfectHashGenerator {
     }
 
     @discardableResult
-    public func generatePerfectHash<let count: Int>(seeds: InlineArray<count, UInt64>) -> (
+    public func generatePerfectHash<let count: Int>(seeds: [count of UInt64]) -> (
         candidate: HashCandidate,
         hashTable: [UInt8],
         verificationKeys: [UInt64],
@@ -182,7 +181,7 @@ extension PerfectHashGenerator {
 // MARK: Minimal
 extension PerfectHashGenerator {
     // for minimal perfect hash, table size = number of entries
-    public func findMinimalPerfectHash<let count: Int>(seeds: InlineArray<count, UInt64>) -> (candidate: HashCandidate, result: MinimalResult)? {
+    public func findMinimalPerfectHash<let count: Int>(seeds: [count of UInt64]) -> (candidate: HashCandidate, result: MinimalResult)? {
         var candidate = HashCandidate(
             seed: .max,
             shift: .max,
@@ -206,8 +205,7 @@ extension PerfectHashGenerator {
     ) -> MinimalResult? {
         var hashTable = [UInt8](repeating: 255, count: entriesCount)
         var verificationKeys = [UInt64](repeating: 0, count: entriesCount)
-        var usedSlots = Set<Int>()
-        usedSlots.reserveCapacity(entriesCount)
+        var usedSlots = BitSetHeap(minimumCapacity: entriesCount)
 
         //var assigned = [String](repeating: "", count: entriesCount)
         //var collisions = Set<String>()

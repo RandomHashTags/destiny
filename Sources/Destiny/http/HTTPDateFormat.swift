@@ -36,7 +36,7 @@ public struct HTTPDateFormat: Sendable {
         "Thu, 01 Jan 1970 00:00:00 GMT"
     }
 
-    public typealias InlineArrayResult = InlineArray<29, UInt8>
+    public typealias InlineArrayResult = [29 of UInt8]
 
     /// Current number of non-zero bytes in the `_nowUnsafeBufferPointer`.
     @usableFromInline
@@ -188,7 +188,7 @@ extension HTTPDateFormat {
         let dayName = httpDayName(dayOfWeek)
         let dayNumbers = httpDateNumber(day)
         let monthName = httpMonthName(month)
-        let yearNumbers:InlineArray<4, UInt8> = httpNumber(year)
+        let yearNumbers:[4 of UInt8] = httpNumber(year)
         let hourNumbers = httpDateNumber(hour)
         let minuteNumbers = httpDateNumber(minute)
         let secondNumbers = httpDateNumber(second)
@@ -280,7 +280,7 @@ extension HTTPDateFormat {
         }
     }
 
-    static func httpDateNumber(_ int: UInt8) -> InlineArray<2, UInt8> {
+    static func httpDateNumber(_ int: UInt8) -> [2 of UInt8] {
         // we don't use a switch here because it would bloat the binary
         if int < 10 {
             return [48, 48 +! UInt8(int)]
@@ -295,18 +295,12 @@ extension HTTPDateFormat {
         }
     }
 
-    static func httpNumber<let count: Int>(_ int: Int32) -> InlineArray<count, UInt8> {
-        var value = InlineArray<count, UInt8>(repeating: 0)
-        var i = 0
-        withUnsafeBytes(of: String(int)) {
-            for char in $0 {
-                if i < count {
-                    value[unchecked: i] = char
-                    i +=! 1
-                } else {
-                    break
-                }
-            }
+    static func httpNumber<let count: Int>(_ int: Int32) -> [count of UInt8] {
+        var value = [count of UInt8](repeating: 0)
+        let span = String(int).utf8Span.span
+        let endIndex = min(count, span.count)
+        for i in 0..<endIndex {
+            value[unchecked: i] = span[unchecked: i]
         }
         return value
     }

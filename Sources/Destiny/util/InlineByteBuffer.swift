@@ -2,12 +2,12 @@
 /// A byte buffer that is backed by an `InlineArray`.
 public struct InlineByteBuffer<let count: Int>: Sendable, ~Copyable {
     /// Byte buffer storage.
-    public let buffer:InlineArray<count, UInt8>
+    public let buffer:[count of UInt8]
 
     /// The actual "end" of the byte buffer data.
     public let endIndex:Int
 
-    package init(buffer: InlineArray<count, UInt8>, endIndex: Int) {
+    package init(buffer: [count of UInt8], endIndex: Int) {
         self.buffer = buffer
         self.endIndex = endIndex
     }

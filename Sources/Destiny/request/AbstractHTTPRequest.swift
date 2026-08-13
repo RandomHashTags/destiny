@@ -135,7 +135,7 @@ extension AbstractHTTPRequest {
     /// - Throws: `DestinyError`
     /// - Warning: **DOESN'T** check if the read bytes are >= 0!
     func readBuffer<let count: Int>(fileDescriptor: some FileDescriptor) throws(DestinyError) -> InlineByteBuffer<count> {
-        var buffer = InlineArray<count, UInt8>(repeating: 0)
+        var buffer = [count of UInt8](repeating: 0)
         var mutableSpan = buffer.mutableSpan
         var err:DestinyError? = nil
         let read = mutableSpan.withUnsafeMutableBufferPointer { p in

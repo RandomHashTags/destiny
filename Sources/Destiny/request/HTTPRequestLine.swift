@@ -46,14 +46,14 @@ public struct HTTPRequestLine: Sendable, ~Copyable {
     }
 
     public func method<let count: Int>(
-        buffer: InlineArray<count, UInt8>,
+        buffer: [count of UInt8],
         _ closure: (String) -> Void
     ) {
         closure(buffer.unsafeString(startIndex: 0, endIndex: methodEndIndex))
     }
 
     public func simd<let count: Int>(
-        buffer: InlineArray<count, UInt8>,
+        buffer: [count of UInt8],
     ) -> SIMD64<UInt8> {
         var simd = SIMD64<UInt8>()
         withUnsafePointer(to: buffer, { bufferPointer in

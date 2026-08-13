@@ -5,12 +5,12 @@
 @usableFromInline
 struct CopyableInlineBuffer<let count: Int>: Sendable {
     @usableFromInline
-    let buffer:InlineArray<count, UInt8>
+    let buffer:[count of UInt8]
 
     @usableFromInline
     let endIndex:Int
 
-    init(buffer: InlineArray<count, UInt8>, endIndex: Int) {
+    init(buffer: [count of UInt8], endIndex: Int) {
         self.buffer = buffer
         self.endIndex = endIndex
     }

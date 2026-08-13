@@ -21,7 +21,7 @@ import UnwrapArithmeticOperators
 
 /// Default HTTP Socket implementation.
 public struct HTTPSocket: Sendable, ~Copyable {
-    public typealias Buffer = InlineArray<1024, UInt8>
+    public typealias Buffer = [1024 of UInt8]
 
     public let fileDescriptor:Int32
 
