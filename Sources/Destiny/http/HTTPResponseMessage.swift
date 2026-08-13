@@ -272,6 +272,8 @@ extension HTTPResponseMessage {
                 string += "content-type: \(contentType)\((charset != nil ? "; charset=" + charset!.rawName : ""))\(suffix)"
             }
             string += "content-length: \(contentLength)\(suffix)\(suffix)\(body)"
+        } else {
+            string += suffix
         }
         return string
     }
