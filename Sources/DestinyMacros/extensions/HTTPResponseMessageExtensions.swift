@@ -16,6 +16,8 @@ extension HTTPResponseMessage {
             if body.hasContentLength {
                 string += "content-length: \(contentLength)\(suffix)\(suffix)"
             }
+        } else {
+            string += suffix
         }
         return string
     }
