@@ -385,7 +385,6 @@ let package = Package(
                 .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
                 .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
-                .product(name: "VariableLengthArray", package: "swift-variablelengtharray"),
                 .product(name: "SwiftCompressionUtilities", package: "swift-compression", condition: .when(traits: ["Compression"]))
             ]
         ),
