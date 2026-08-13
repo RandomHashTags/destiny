@@ -122,11 +122,19 @@ extension IntermediateResponseBody {
         isCopyable: Bool,
         response: HTTPResponseMessage<B>
     ) -> String {
-        let escapeLineBreak = !(type == .bytes || type == .nonCopyableBytes || type == .inlineBytes || type == .nonCopyableInlineBytes)
+        let contentLength:Int
+        let escapeLineBreak:Bool
+        if type == .bytes || type == .nonCopyableBytes || type == .inlineBytes || type == .nonCopyableInlineBytes {
+            escapeLineBreak = false
+            contentLength = valueExpr.arrayElements(context: context)?.count ?? count
+        } else {
+            escapeLineBreak = true
+            contentLength = count
+        }
         var responseString = response.intermediateString(
-                escapeLineBreak: escapeLineBreak,
-                contentLength: count
-            )
+            escapeLineBreak: escapeLineBreak,
+            contentLength: contentLength
+        )
         return responderDebugDescription(context: context, isCopyable: isCopyable, responseString: &responseString)
     }
     #else
@@ -135,10 +143,18 @@ extension IntermediateResponseBody {
         isCopyable: Bool,
         response: HTTPResponseMessage
     ) -> String {
-        let escapeLineBreak = !(type == .bytes || type == .nonCopyableBytes || type == .inlineBytes || type == .nonCopyableInlineBytes)
+        let contentLength:Int
+        let escapeLineBreak:Bool
+        if type == .bytes || type == .nonCopyableBytes || type == .inlineBytes || type == .nonCopyableInlineBytes {
+            escapeLineBreak = false
+            contentLength = valueExpr.arrayElements(context: context)?.count ?? count
+        } else {
+            escapeLineBreak = true
+            contentLength = count
+        }
         var responseString = response.headString(
             escapeLineBreak: escapeLineBreak,
-            contentLength: count
+            contentLength: contentLength
         )
         return responderDebugDescription(context: context, isCopyable: isCopyable, responseString: &responseString)
     }
