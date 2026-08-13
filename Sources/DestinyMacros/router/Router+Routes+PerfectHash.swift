@@ -180,14 +180,13 @@ extension RouterStorage {
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
             routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(provider: provider, router: router, request: &request)\nreturn true"
-            routeMembers.append(try! EnumCaseDeclSyntax.init("case \(raw: caseName)"))
+            routeMembers.append(EnumCaseDeclSyntax.init(elements: [.init(name: .init(stringLiteral: caseName))]))
 
-            let utf8 = routePath.utf8
             var simd = SIMD64<UInt8>.zero
-            let utf8Count = utf8.count
-            if utf8Count > 0 {
-                for i in 0..<min(simd.scalarCount, utf8Count) {
-                    simd[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
+            let utf8Span = routePath.utf8Span.span
+            if !utf8Span.isEmpty {
+                for i in 0..<min(simd.scalarCount, utf8Span.count) {
+                    simd[i] = utf8Span[i]
                 }
             }
             routePathSIMDs.append(simd)
