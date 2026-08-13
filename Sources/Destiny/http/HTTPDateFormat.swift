@@ -283,13 +283,13 @@ extension HTTPDateFormat {
     static func httpDateNumber(_ int: UInt8) -> [2 of UInt8] {
         // we don't use a switch here because it would bloat the binary
         if int < 10 {
-            return [48, 48 +! UInt8(int)]
+            return [48, 48 +! int]
         } else if int < 20 {
-            return [49, 38 +! UInt8(int)]
+            return [49, 38 +! int]
         } else if int < 30 {
-            return [50, 28 +! UInt8(int)]
+            return [50, 28 +! int]
         } else if int < 40 {
-            return [51, 18 +! UInt8(int)]
+            return [51, 18 +! int]
         } else {
             return (httpNumber(Int32(int))) // future proofing
         }
