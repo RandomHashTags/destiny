@@ -1,7 +1,7 @@
 
 #if Epoll
 
-import CEpoll
+import EpollShim
 import Glibc
 
 #if Logging

@@ -42,9 +42,6 @@ var pkgDependencies:[Package.Dependency] = [
 
 #if os(Linux)
 pkgDependencies.append(contentsOf: [
-    // Epoll
-    .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"),
-
     // Liburing
     //.package(url: "https://github.com/RandomHashTags/swift-liburing", branch: "main"),
 ])
@@ -381,7 +378,7 @@ let package = Package(
         Target.target(
             name: "Destiny",
             dependencies: [
-                .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
+                .byName(name: "EpollShim", condition: .when(platforms: [.linux])),
                 .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
                 .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
                 .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
@@ -429,6 +426,9 @@ let package = Package(
                 "DestinySwiftSyntax"
             ]
         ),
+
+        // MARK: EpollShim
+        .systemLibrary(name: "EpollShim"),
 
         .executableTarget(
             name: "Run",

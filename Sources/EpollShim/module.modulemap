@@ -1,0 +1,4 @@
+module EpollShim [system] {
+    header "shim.h"
+    export *
+}
