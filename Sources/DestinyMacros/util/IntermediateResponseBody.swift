@@ -50,47 +50,6 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         self.rawValue = rawValue
     }
 
-    private static func upgradeSegments(_ list: StringLiteralSegmentListSyntax) -> (String, Int) {
-        var interpolation = 0
-        var s = ""
-        for element in list {
-            switch element {
-            case .stringSegment(let seg):
-                s += upgradeStringSegment(seg)
-            case .expressionSegment(let seg):
-                let result = upgradeExpressionSegment(seg)
-                s += result.0
-                interpolation += result.1
-            }
-        }
-        return (s, interpolation)
-    }
-    private static func upgradeStringSegment(_ segment: StringSegmentSyntax) -> String {
-        return segment.content.text.replacing("\n", with: "\\n")
-    }
-    private static func upgradeExpressionSegment(_ segment: ExpressionSegmentSyntax) -> (String, Int) {
-        var interpolation = 0
-        var s = ""
-        // remove interpolation where it doesn't need it
-        for element in segment.expressions {
-            if let literal = element.expression.stringLiteral {
-                let result = upgradeSegments(literal.segments)
-                s += result.0
-                interpolation += result.1
-                break
-            }
-            if let v = element.expression.booleanLiteral?.literal.text
-                    ?? element.expression.integerLiteral?.literal.text
-                    ?? element.expression.as(FloatLiteralExprSyntax.self)?.literal.text {
-                s += v
-                break
-            }
-            s += element.description
-            interpolation += 1
-        }
-        return (s, interpolation)
-    }
-
     public func string() -> String {
         value
     }
@@ -140,6 +99,50 @@ public struct IntermediateResponseBody: ResponseBodyProtocol {
         default:
             true
         }
+    }
+}
+
+// MARK: upgrade
+extension IntermediateResponseBody {
+    private static func upgradeSegments(_ list: StringLiteralSegmentListSyntax) -> (String, Int) {
+        var interpolation = 0
+        var s = ""
+        for element in list {
+            switch element {
+            case .stringSegment(let seg):
+                s += upgradeStringSegment(seg)
+            case .expressionSegment(let seg):
+                let result = upgradeExpressionSegment(seg)
+                s += result.0
+                interpolation += result.1
+            }
+        }
+        return (s, interpolation)
+    }
+    private static func upgradeStringSegment(_ segment: StringSegmentSyntax) -> String {
+        return segment.content.text.replacing("\n", with: "\\n")
+    }
+    private static func upgradeExpressionSegment(_ segment: ExpressionSegmentSyntax) -> (String, Int) {
+        var interpolation = 0
+        var s = ""
+        // remove interpolation where it doesn't need it
+        for element in segment.expressions {
+            if let literal = element.expression.stringLiteral {
+                let result = upgradeSegments(literal.segments)
+                s += result.0
+                interpolation += result.1
+                break
+            }
+            if let v = element.expression.booleanLiteral?.literal.text
+                    ?? element.expression.integerLiteral?.literal.text
+                    ?? element.expression.as(FloatLiteralExprSyntax.self)?.literal.text {
+                s += v
+                break
+            }
+            s += element.description
+            interpolation += 1
+        }
+        return (s, interpolation)
     }
 }
 
