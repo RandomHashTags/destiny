@@ -42,9 +42,6 @@ var pkgDependencies:[Package.Dependency] = [
 
 #if os(Linux)
 pkgDependencies.append(contentsOf: [
-    // Epoll
-    .package(url: "https://github.com/Kitura/CEpoll", from: "1.0.0"),
-
     // Liburing
     //.package(url: "https://github.com/RandomHashTags/swift-liburing", branch: "main"),
 ])
@@ -401,7 +398,7 @@ var targets = [
     Target.target(
         name: "Destiny",
         dependencies: [
-            .product(name: "CEpoll", package: "CEpoll", condition: .when(platforms: [.linux])),
+            .byName(name: "EpollShim", condition: .when(platforms: [.linux])),
             .product(name: "Logging", package: "swift-log", condition: .when(traits: ["Logging"])),
             .product(name: "MediaTypes", package: "swift-media-types", condition: .when(traits: ["MediaTypes"])),
             .product(name: "UnwrapArithmeticOperators", package: "swift-unwrap-arithmetic-operators"),
@@ -450,6 +447,9 @@ var targets = [
         ]
     ),
 
+    // MARK: EpollShim
+    .systemLibrary(name: "EpollShim"),
+
     .executableTarget(
         name: "Run",
         dependencies: [
@@ -472,6 +472,7 @@ var targets = [
 
 // MARK: Swift Settings
 for target in targets {
+    guard target.name != "EpollShim" else { continue }
     target.swiftSettings = [.enableUpcomingFeature("ExistentialAny")]
 }
 

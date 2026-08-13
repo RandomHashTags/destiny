@@ -18,7 +18,7 @@ import WinSDK
 #endif
 
 #if Epoll
-import CEpoll
+import EpollShim
 #endif
 
 import UnwrapArithmeticOperators
