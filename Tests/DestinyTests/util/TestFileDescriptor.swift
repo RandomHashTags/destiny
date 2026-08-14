@@ -134,6 +134,18 @@ extension TestFileDescriptor {
     }
 
     func writeBuffers4(
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec,
+        _ b4: iovec
+    ) throws(Destiny.DestinyError) {
+        appendBuffer(b1)
+        appendBuffer(b2)
+        appendBuffer(b3)
+        appendBuffer(b4)
+    }
+
+    func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
         _ b2: iovec,
         _ b3: UnsafeBufferPointer<UInt8>,
