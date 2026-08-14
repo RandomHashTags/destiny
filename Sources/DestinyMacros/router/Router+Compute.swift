@@ -254,28 +254,53 @@ extension Router {
         let name = "\(copyableText)ErrorResponder"
 
         var members = MemberBlockItemListSyntax()
-        members.append(try! FunctionDeclSyntax("""
-        public func respond(
-            provider: some SocketProvider,
-            router: \(raw: routerType),
-            error: some Error,
-            request: inout HTTPRequest
-        ) {
-            #if DEBUG && Logging
-            router.logger.warning("\\(error)")
-            #endif
-            do throws(DestinyError) {
-                let errorDesc = "\\(error)"
-                let contentLength = errorDesc.count
-                let responder = \(raw: defaultErrorResponder())
-                try responder.respond(provider: provider, router: router, request: &request)
-            } catch {
-                #if Logging
-                router.logger.error("[\(raw: name)] Encountered error trying to write response: \\(error)")
+        members.append(FunctionDeclSyntax(
+            modifiers: [.init(name: .keyword(.public))],
+            name: "respond",
+            signature: .init(parameterClause: .init(parameters: [
+                .init(
+                    leadingTrivia: .newline,
+                    firstName: "provider",
+                    type: TypeSyntax(stringLiteral: "some SocketProvider"),
+                    trailingComma: .commaToken(),
+                    trailingTrivia: .newline
+                ),
+                .init(
+                    firstName: "router",
+                    type: TypeSyntax(stringLiteral: routerType),
+                    trailingComma: .commaToken(),
+                    trailingTrivia: .newline
+                ),
+                .init(
+                    firstName: "error",
+                    type: TypeSyntax(stringLiteral: "some Error"),
+                    trailingComma: .commaToken(),
+                    trailingTrivia: .newline
+                ),
+                .init(
+                    firstName: "request",
+                    type: TypeSyntax(stringLiteral: "inout HTTPRequest"),
+                    trailingTrivia: .newline
+                )
+            ])),
+            body: .init(stringLiteral: """
+            {
+                #if DEBUG && Logging
+                router.logger.warning("\\(error)")
                 #endif
+                do throws(DestinyError) {
+                    let errorDesc = "\\(error)"
+                    let contentLength = errorDesc.count
+                    let responder = \(defaultErrorResponder())
+                    try responder.respond(provider: provider, router: router, request: &request)
+                } catch {
+                    #if Logging
+                    router.logger.error("[\(name)] Encountered error trying to write response: \\(error)")
+                    #endif
+                }
             }
-        }
-        """))
+            """)
+        ))
         let decl = StructDeclSyntax(
             leadingTrivia: "// MARK: \(name)\n",
             modifiers: [storage.visibilityModifier],
