@@ -180,14 +180,13 @@ extension RouterStorage {
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
             routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(provider: provider, router: router, request: &request)\nreturn true"
-            routeMembers.append(try! EnumCaseDeclSyntax.init("case \(raw: caseName)"))
+            routeMembers.append(EnumCaseDeclSyntax.init(elements: [.init(name: .init(stringLiteral: caseName))]))
 
-            let utf8 = routePath.utf8
             var simd = SIMD64<UInt8>.zero
-            let utf8Count = utf8.count
-            if utf8Count > 0 {
-                for i in 0..<min(simd.scalarCount, utf8Count) {
-                    simd[i] = utf8[utf8.index(utf8.startIndex, offsetBy: i)]
+            let utf8Span = routePath.utf8Span.span
+            if !utf8Span.isEmpty {
+                for i in 0..<min(simd.scalarCount, utf8Span.count) {
+                    simd[i] = utf8Span[i]
                 }
             }
             routePathSIMDs.append(simd)
@@ -227,7 +226,9 @@ extension RouterStorage {
         }
         """)
         routeMembers.append(routeResponderDecl)
-        routeMembers.append(contentsOf: staticResponders.map({ .init(decl: $0) }))
+        for staticResponder in staticResponders {
+            routeMembers.append(.init(decl: staticResponder))
+        }
         let routeConstantsDecl = EnumDeclSyntax(
             modifiers: [visibilityModifier],
             name: "Route",
@@ -285,7 +286,7 @@ extension RouterStorage {
                 return .init($1, routePathSIMDs[$0])
             })
             let perfectHashPositions = PerfectHashGenerator.findPerfectHashPositions(routes: perfectHashableItems, maxBytes: perfectHashSettings.maxBytes.max()!)
-            let hashSeeds:InlineArray<_, UInt64> = [
+            let hashSeeds:[_ of UInt64] = [
                 0x9E3779B97F4A7C15,
                 0xC6A4A7935D83A9C3,
                 0x5555555555555555,
@@ -352,7 +353,9 @@ extension RouterStorage {
             }
         }
         // perfect hash not found; fallback to default impl
-        members.append(contentsOf: staticSIMDs.map({ .init(decl: $0) }))
+        for staticSIMD in staticSIMDs {
+            members.append(.init(decl: staticSIMD))
+        }
         members.append(matchRouteFallbackDecl(routePaths: routePaths))
     }
 }
@@ -362,8 +365,8 @@ extension RouterStorage {
     private func matchRoutePerfectHashDecls<let count: Int>(
         routePaths: [String],
         routePathSIMDs: [PerfectHashableItem<SIMD64<UInt8>>],
-        perfectHashPositions: InlineArray<64, Int>,
-        seeds: InlineArray<count, UInt64>,
+        perfectHashPositions: [64 of Int],
+        seeds: [count of UInt64],
         hashMaxBytes: Int,
         requireExactPaths: Bool
     ) -> [MemberBlockItemSyntax]? {
@@ -423,7 +426,7 @@ extension RouterStorage {
             modifiers: [.init(name: .keyword(.static))],
             .let,
             name: "hashTable",
-            type: .init(type: TypeSyntax.init(stringLiteral: "InlineArray<\(hashTable.count), RouteEntry\(isOptional ? "?" : "")>")),
+            type: .init(type: TypeSyntax.init(stringLiteral: "[\(hashTable.count) of RouteEntry\(isOptional ? "?" : "")]")),
             initializer: .init(leadingTrivia: " ", value: ExprSyntax.init(stringLiteral: "[\n\(staticRoutesTableString)\n]"))
         )
 
@@ -443,7 +446,7 @@ extension RouterStorage {
             name: "extractKey",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
+                    .init(leadingTrivia: .newline, firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: .newline)
                 ]),
                 returnClause: .init(type: TypeSyntax("UInt64")),
             ),
@@ -566,7 +569,7 @@ extension RouterStorage {
             name: "matchRoute",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
+                    .init(leadingTrivia: .newline, firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: .newline)
                 ]),
                 returnClause: .init(type: TypeSyntax("Route?"))
             ),
@@ -592,7 +595,7 @@ extension RouterStorage {
             name: "matchRoute",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
+                    .init(leadingTrivia: .newline, firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: .newline)
                 ]),
                 returnClause: .init(type: TypeSyntax("Route?"))
             ),

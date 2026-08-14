@@ -3,10 +3,9 @@ extension SIMD64<UInt8> {
     /// - Complexity: O(*n*) if `string` is non-contiguous, O(1) if already contiguous.
     public init(_ string: inout String) {
         var item = Self()
-        string.withUTF8 { p in
-            for i in 0..<Swift.min(p.count, Self.scalarCount) {
-                item[i] = Scalar(p[i])
-            }
+        let span = string.utf8Span.span
+        for i in 0..<Swift.min(span.count, Self.scalarCount) {
+            item[i] = Scalar(span[unchecked: i])
         }
         self = item
     }

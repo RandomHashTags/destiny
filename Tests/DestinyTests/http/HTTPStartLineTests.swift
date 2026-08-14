@@ -18,9 +18,9 @@ struct HTTPStartLineTests {
         let initialBuffer = InlineByteBuffer<1024>(buffer: buffer, endIndex: request.count)
         let requestLine = try HTTPRequestLine.load(buffer: initialBuffer)
         requestLine.method(buffer: buffer) {
-            #expect($0.unsafeString() == method)
+            #expect($0 == method)
         }
-        requestLine.path(buffer: buffer) {
+        requestLine.path(buffer: buffer.span) {
             #expect($0.unsafeString() == path)
         }
     }

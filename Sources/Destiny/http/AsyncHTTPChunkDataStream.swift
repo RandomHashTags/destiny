@@ -50,12 +50,10 @@ extension AsyncHTTPChunkDataStream {
         }
         for await var chunk in stream {
             var i = 0
-            var hex = String(chunk.chunkDataCount, radix: 16)
-            hex.withUTF8 {
-                for byte in $0 {
-                    buffer[i] = byte
-                    i +=! 1
-                }
+            let hexSpan = String(chunk.chunkDataCount, radix: 16).utf8Span.span
+            for indice in hexSpan.indices {
+                buffer[i] = hexSpan[indice]
+                i +=! 1
             }
             buffer[i] = .carriageReturn
             i +=! 1

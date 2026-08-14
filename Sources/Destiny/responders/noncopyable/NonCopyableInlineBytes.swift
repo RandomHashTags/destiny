@@ -2,9 +2,9 @@
 #if NonCopyableInlineBytes
 
 public struct NonCopyableInlineBytes<let count: Int>: Sendable, ~Copyable {
-    public let value:InlineArray<count, UInt8>
+    public let value:[count of UInt8]
 
-    public init(_ value: InlineArray<count, UInt8>) {
+    public init(_ value: [count of UInt8]) {
         self.value = value
     }
 

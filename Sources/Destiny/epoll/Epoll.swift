@@ -23,7 +23,7 @@ public struct Epoll<let maxEvents: Int>: SocketProvider {
         if fileDescriptor == -1 {
             throw .epollCreateFailed(cError())
         }
-        var pipeFileDescriptors:InlineArray<2, Int32> = [0, 0]
+        var pipeFileDescriptors:[2 of Int32] = [0, 0]
         var err:DestinyError? = nil
         pipeFileDescriptors.mutableSpan.withUnsafeBufferPointer {
             guard let base = $0.baseAddress else {

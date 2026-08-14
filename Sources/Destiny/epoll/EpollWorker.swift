@@ -148,7 +148,7 @@ extension EpollWorker {
         logger.info("running with timeout: \(timeout)")
         #endif
 
-        var events = InlineArray<maxEvents, epoll_event>(repeating: epoll_event())
+        var events = [maxEvents of epoll_event](repeating: epoll_event())
         var mutableSpan = events.mutableSpan
         while running {
             let loadedClients:Int32

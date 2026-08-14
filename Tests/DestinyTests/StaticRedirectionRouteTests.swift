@@ -24,7 +24,7 @@ struct StaticRedirectionRouteTests {
         #expect(route.fromStartLine() == "GET /old/path HTTP/1.1")
 
         let expected = route.response().string(escapeLineBreak: true)
-        #expect(expected == #"HTTP/1.1 301\r\ndate: Thu, 01 Jan 1970 00:00:00 GMT\r\nlocation: /newPath\r\n"#)
+        #expect(expected == #"HTTP/1.1 301\r\ndate: Thu, 01 Jan 1970 00:00:00 GMT\r\nlocation: /newPath\r\n\r\n"#)
     }
 
     @Test
@@ -46,7 +46,7 @@ struct StaticRedirectionRouteTests {
         #expect(route.fromStartLine() == "deLeTE /old/path HTTP/2.0")
 
         let expected = route.response().string(escapeLineBreak: true)
-        #expect(expected == #"HTTP/2.0 200\r\ndate: Thu, 01 Jan 1970 00:00:00 GMT\r\nlocation: /newPath/agAin\r\n"#)
+        #expect(expected == #"HTTP/2.0 200\r\ndate: Thu, 01 Jan 1970 00:00:00 GMT\r\nlocation: /newPath/agAin\r\n\r\n"#)
     }
 
 }

@@ -280,7 +280,7 @@ extension CompiledHTTPServer {
                     .init(firstName: "socket", type: TypeSyntax("Int32"))
                 ])
             ),
-            body: .init(statements: .init(stringLiteral: """
+            body: .init(statements: """
             let flags = fcntl(socket, F_GETFL, 0)
             guard flags != -1 else {
                 fatalError("CompiledHTTPServer;setNonBlocking;broken1")
@@ -289,7 +289,7 @@ extension CompiledHTTPServer {
             guard result != -1 else {
                 fatalError("CompiledHTTPServer;setNonBlocking;broken2")
             }
-            """))
+            """)
         )
     }
 }
@@ -312,14 +312,14 @@ extension CompiledHTTPServer {
                     )
                 )
             ),
-            body: .init(statements: .init(stringLiteral: """
+            body: .init(statements: """
             #if Epoll
             processClientsEpoll()
             #else
             let serverFD1 = try bindAndListen()
             await processClientsOLD(serverFD: serverFD1)
             #endif
-            """))
+            """)
         )
     }
 }

@@ -18,7 +18,7 @@ extension AbstractHTTPRequest._Storage {
             var startIndex = _headers!._endIndex! +! 2
             if startIndex < initialBufferCount {
                 // part of the request body is contained in the initial buffer
-                var buffer = InlineArray<bufferCount, UInt8>(repeating: 0)
+                var buffer = [bufferCount of UInt8](repeating: 0)
                 var initialRequestBodyCount = initialBuffer.endIndex -! startIndex
                 var remainingRequestBodyCount = initialRequestBodyCount
                 loadBufferSlice(
@@ -49,7 +49,7 @@ extension AbstractHTTPRequest._Storage {
 
     mutating func loadBufferSlice<let initialBufferCount: Int, let bufferCount: Int>(
         initialBuffer: borrowing InlineByteBuffer<initialBufferCount>,
-        buffer: inout InlineArray<bufferCount, UInt8>,
+        buffer: inout [bufferCount of UInt8],
         index: inout Int,
         initialRequestBodyCount: inout Int
     ) {

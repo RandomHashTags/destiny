@@ -89,6 +89,15 @@ extension TestHTTPSocket {
     }
 
     func writeBuffers4(
+        _ b1: iovec,
+        _ b2: iovec,
+        _ b3: iovec,
+        _ b4: iovec
+    ) throws(DestinyError) {
+        try fileDescriptor.writeBuffers4(b1, b2, b3, b4)
+    }
+
+    func writeBuffers4(
         _ b1: UnsafeBufferPointer<UInt8>,
         _ b2: iovec,
         _ b3: UnsafeBufferPointer<UInt8>,

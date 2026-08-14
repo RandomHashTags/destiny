@@ -49,7 +49,7 @@ extension Router {
         )
 
         let routerDecl = VariableDeclSyntax(
-            leadingTrivia: .init(stringLiteral: "\(inlinableAnnotation)\n"),
+            leadingTrivia: "\(inlinableAnnotation)\n",
             modifiers: [storage.visibilityModifier, .init(name: .keyword(.static))],
             .var,
             name: "router",

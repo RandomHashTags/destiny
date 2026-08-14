@@ -284,8 +284,8 @@ extension RouterStorage {
         let routerParameter = routerParameter(isCopyable: isCopyable, protocolConformances: hasProtocolConformances)
         var responderMembers = MemberBlockItemListSyntax()
         var entryMembers = MemberBlockItemListSyntax()
-        entryMembers.append(VariableDeclSyntax(leadingTrivia: "\n", .let, name: "path", type: .init(type: TypeSyntax("SIMD64<UInt8>"))))
-        entryMembers.append(VariableDeclSyntax(leadingTrivia: "\n", .let, name: "responder", type: .init(type: TypeSyntax("ConcreteResponder"))))
+        entryMembers.append(VariableDeclSyntax(leadingTrivia: .newline, .let, name: "path", type: .init(type: TypeSyntax("SIMD64<UInt8>"))))
+        entryMembers.append(VariableDeclSyntax(leadingTrivia: .newline, .let, name: "responder", type: .init(type: TypeSyntax("ConcreteResponder"))))
         for (index, (path, responder)) in responders.enumerated() {
             responderMembers.append(VariableDeclSyntax.init(
                 modifiers: [visibilityModifier],

@@ -11,7 +11,7 @@ extension RequestBody {
         //maximumSize: Int = 500_000,
         _ yield: (consuming InlineByteBuffer<chunkSize>) async throws -> Void
     ) async throws {
-        var buffer = InlineArray<chunkSize, UInt8>(repeating: 0)
+        var buffer = [chunkSize of UInt8](repeating: 0)
         try await stream(fileDescriptor: fileDescriptor, buffer: &buffer, yield)
     }
 
@@ -20,7 +20,7 @@ extension RequestBody {
     /// - Throws: `any Error`
     public mutating func stream<let chunkSize: Int>(
         fileDescriptor: some FileDescriptor,
-        buffer: inout InlineArray<chunkSize, UInt8>,
+        buffer: inout [chunkSize of UInt8],
         _ yield: (consuming InlineByteBuffer<chunkSize>) async throws -> Void
     ) async throws {
         let asyncStream = AsyncThrowingStream<CopyableInlineBuffer<chunkSize>, any Error> { continuation in
