@@ -161,7 +161,7 @@ extension RouterStorage {
     ) {
         self.perfectHashSettings = perfectHashSettings
         visibilityModifier = RouterVisibility.package.modifierDecl
-        requestTypeSyntax = TypeSyntax(stringLiteral: "HTTPRequest")
+        requestTypeSyntax = TypeSyntax("HTTPRequest")
     }
     #endif
 }

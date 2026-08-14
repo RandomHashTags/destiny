@@ -261,7 +261,7 @@ extension Router {
                 .init(
                     leadingTrivia: .newline,
                     firstName: "provider",
-                    type: TypeSyntax(stringLiteral: "some SocketProvider"),
+                    type: TypeSyntax("some SocketProvider"),
                     trailingComma: .commaToken(),
                     trailingTrivia: .newline
                 ),
@@ -273,13 +273,13 @@ extension Router {
                 ),
                 .init(
                     firstName: "error",
-                    type: TypeSyntax(stringLiteral: "some Error"),
+                    type: TypeSyntax("some Error"),
                     trailingComma: .commaToken(),
                     trailingTrivia: .newline
                 ),
                 .init(
                     firstName: "request",
-                    type: TypeSyntax(stringLiteral: "inout HTTPRequest"),
+                    type: TypeSyntax("inout HTTPRequest"),
                     trailingTrivia: .newline
                 )
             ])),
@@ -306,7 +306,7 @@ extension Router {
             modifiers: [storage.visibilityModifier],
             name: "\(raw: name)",
             inheritanceClause: .init(inheritedTypes: [
-                .init(type: TypeSyntax(stringLiteral: "Sendable"), trailingComma: .commaToken()),
+                .init(type: TypeSyntax("Sendable"), trailingComma: .commaToken()),
                 .init(type: TypeSyntax(stringLiteral: "\(copyableSymbol)Copyable"))
             ]),
             memberBlock: .init(members: members)

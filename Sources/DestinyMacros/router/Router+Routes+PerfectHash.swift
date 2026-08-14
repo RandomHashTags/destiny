@@ -446,7 +446,7 @@ extension RouterStorage {
             name: "extractKey",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
+                    .init(leadingTrivia: .newline, firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: .newline)
                 ]),
                 returnClause: .init(type: TypeSyntax("UInt64")),
             ),
@@ -569,7 +569,7 @@ extension RouterStorage {
             name: "matchRoute",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
+                    .init(leadingTrivia: .newline, firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: .newline)
                 ]),
                 returnClause: .init(type: TypeSyntax("Route?"))
             ),
@@ -595,7 +595,7 @@ extension RouterStorage {
             name: "matchRoute",
             signature: .init(
                 parameterClause: .init(parameters: [
-                    .init(leadingTrivia: "\n", firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: "\n")
+                    .init(leadingTrivia: .newline, firstName: "_", secondName: "simd", type: TypeSyntax("SIMD64<UInt8>"), trailingTrivia: .newline)
                 ]),
                 returnClause: .init(type: TypeSyntax("Route?"))
             ),

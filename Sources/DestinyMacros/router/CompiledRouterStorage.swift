@@ -74,7 +74,7 @@ struct CompiledRouterStorage {
     init() {
         settingsSyntax = ExprSyntax("Int(0)")
         visibilityModifier = RouterVisibility.package.modifierDecl
-        requestTypeSyntax = TypeSyntax(stringLiteral: "HTTPRequest")
+        requestTypeSyntax = TypeSyntax("HTTPRequest")
     }
     init(
         settingsSyntax: ExprSyntax,
@@ -107,7 +107,7 @@ struct CompiledRouterStorage {
         self.dynamicNotFoundResponder = dynamicNotFoundResponder
         self.staticNotFoundResponder = staticNotFoundResponder
         visibilityModifier = RouterVisibility.package.modifierDecl
-        requestTypeSyntax = TypeSyntax(stringLiteral: "HTTPRequest")
+        requestTypeSyntax = TypeSyntax("HTTPRequest")
     }
     #endif
 
