@@ -72,7 +72,9 @@ extension CompiledRouterStorage {
     ) -> StructDeclSyntax? {
         guard let variableDecls = variableDecls(isCopyable: isCopyable) else { return nil }
         var members = MemberBlockItemListSyntax()
-        members.append(contentsOf: variableDecls.map({ .init(decl: $0) }))
+        for variableDecl in variableDecls {
+            members.append(.init(decl: variableDecl))
+        }
         members.append(loadDecl())
         members.append(handleDynamicMiddlewareDecl())
         members.append(handleDecl())
