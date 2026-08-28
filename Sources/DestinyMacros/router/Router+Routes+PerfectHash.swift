@@ -79,7 +79,7 @@ extension RouterStorage {
         let dynamicRoutes = isCaseSensitive ? dynamicRouteStorage.caseSensitiveRoutes : dynamicRouteStorage.caseInsensitiveRoutes
         let reservedCapacity = staticRoutes.count + dynamicRoutes.count
         var routePaths = [String]()
-        var routeResponders = [String]()
+        var routeResponders = [[LiteralRouteResponder]]()
         routePaths.reserveCapacity(reservedCapacity)
         routeResponders.reserveCapacity(reservedCapacity)
 
@@ -132,13 +132,13 @@ extension RouterStorage {
 
 // MARK: Static constants
 extension RouterStorage {
-    private func staticConstants(
+    private mutating func staticConstants(
         isCaseSensitive: Bool,
         isCopyable: Bool,
         routes: StaticAppendedRoutes,
         routePaths: [String],
         members: inout MemberBlockItemListSyntax,
-        routeResponders: [String]
+        routeResponders: [[LiteralRouteResponder]]
     ) {
         let routerParameter = routerParameter(isCopyable: isCopyable, protocolConformances: hasProtocolConformances)
         var routePathCaseConditions = ""
@@ -179,7 +179,7 @@ extension RouterStorage {
         var routeMembers = MemberBlockItemListSyntax()
         for (index, routePath) in routePaths.enumerated() {
             let caseName = "`\(routePath)`"
-            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index).respond(provider: provider, router: router, request: &request)\nreturn true"
+            routePathCaseConditions += "\ncase .\(caseName):\ntry Self.responder\(index)_0.respond(provider: provider, router: router, request: &request)\nreturn true"
             routeMembers.append(EnumCaseDeclSyntax.init(elements: [.init(name: .init(stringLiteral: caseName))]))
 
             var simd = SIMD64<UInt8>.zero
@@ -191,17 +191,78 @@ extension RouterStorage {
             }
             routePathSIMDs.append(simd)
 
-            let responder = routeResponders[index]
-            let responderDecl = VariableDeclSyntax.init(
-                leadingTrivia: "/// Request: `\(routePath)`\n",
-                modifiers: [visibilityModifier, .init(name: .keyword(.static))],
-                responderBinding,
-                name: "responder\(raw: index)",
-                type: responderType(responder),
-                initializer: responderInitializer(responder),
-                accessorBlock: responderAccessor(responder)
-            )
-            staticResponders.append(responderDecl)
+            let respondersForRoute = routeResponders[index]
+            if respondersForRoute.count == 1 {
+                for (responderIndex, lrr) in respondersForRoute.enumerated() {
+                    let responder = lrr.string
+                    let responderDecl = VariableDeclSyntax.init(
+                        leadingTrivia: "/// Request: `\(routePath)`\n",
+                        modifiers: [visibilityModifier, .init(name: .keyword(.static))],
+                        responderBinding,
+                        name: "responder\(raw: index)_\(raw: responderIndex)",
+                        //type: responderType(responder),
+                        initializer: responderInitializer(responder),
+                        accessorBlock: responderAccessor(responder)
+                    )
+                    staticResponders.append(responderDecl)
+                }
+            } else {
+                var members = MemberBlockItemListSyntax()
+                var variesCompression = [String]()
+                for lrr in respondersForRoute {
+                    let responder = lrr.string
+                    let responderDecl = VariableDeclSyntax.init(
+                        modifiers: [visibilityModifier, .init(name: .keyword(.static))],
+                        responderBinding,
+                        name: "_\(raw: lrr.vary.map({ "\($0.value)" }).joined(separator: "_"))",
+                        type: responderType(responder),
+                        initializer: responderInitializer(responder),
+                        accessorBlock: responderAccessor(responder)
+                    )
+                    members.append(.init(decl: responderDecl))
+
+                    if let supportedCompression = lrr.vary[.acceptEncoding] {
+                        variesCompression.append(supportedCompression)
+                    }
+                }
+
+                try! members.append(.init(decl: FunctionDeclSyntax("""
+                public func respond(
+                    provider: some SocketProvider,
+                    router: borrowing some NonCopyableHTTPRouterProtocol & ~Copyable,
+                    request: inout HTTPRequest
+                ) throws(DestinyError) {
+                    if let encodings = try request.header(forKey: "Accept-Encoding")?.split(separator: " ") {
+                        for encoding in encodings {
+                            switch encoding {
+                                \(raw: variesCompression.map({ "case \"\($0),\", \"\($0)\": try Self._\($0).respond(provider: provider, router: router, request: &request); return" }).joined(separator: "\n"))
+                            default:
+                                break
+                            }
+                        }
+                    }
+                    // TODO: fallback to raw response
+                    request.fileDescriptor.flush(provider: provider)
+                    request.fileDescriptor.socketClose()
+                }
+                """)))
+                let structName = "`StaticVariableResponder_\(routePath)`"
+                let variableResponder = StructDeclSyntax(
+                    modifiers: [visibilityModifier],
+                    name: .init(stringLiteral: structName),
+                    memberBlock: .init(members: members)
+                )
+                generatedDecls.append(variableResponder)
+
+                let responderDecl = VariableDeclSyntax.init(
+                    leadingTrivia: "/// Request: `\(routePath)`\n",
+                    modifiers: [visibilityModifier, .init(name: .keyword(.static))],
+                    responderBinding,
+                    name: "responder\(raw: index)_0",
+                    initializer: .init(value: ExprSyntax(stringLiteral: structName + "()"))
+                )
+                staticResponders.append(responderDecl)
+            }
 
             let staticSIMD = VariableDeclSyntax.init(
                 modifiers: [visibilityModifier, .init(name: .keyword(.static))],

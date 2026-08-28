@@ -414,7 +414,7 @@ extension RouterStorage {
         isCopyable: Bool,
         routes: [(DynamicRoute, FunctionCallExprSyntax)],
         literalRoutePaths: inout [String],
-        routeResponders: inout [String]
+        routeResponders: inout [[LiteralRouteResponder]]
     ) {
         let routeStartLine:(DynamicRoute) -> String = isCaseSensitive ? { $0.startLine() } : { $0.startLine().lowercased() }
         for (route, function) in routes {
@@ -433,7 +433,7 @@ extension RouterStorage {
 
             registeredPaths.insert(startLine)
             literalRoutePaths.append(route.startLine())
-            routeResponders.append(responder)
+            routeResponders.append([.init(vary: [:], string: responder)])
             dynamicRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
         }
     }

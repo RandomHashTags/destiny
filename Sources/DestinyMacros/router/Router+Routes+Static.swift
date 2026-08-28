@@ -107,7 +107,7 @@ extension RouterStorage {
             #endif
         }
         var routePaths = [String]()
-        var literalRouteResponders = [String]()
+        var literalRouteResponders = [[LiteralRouteResponder]]()
         routePaths.reserveCapacity(routes.count)
         literalRouteResponders.reserveCapacity(routes.count)
         appendStaticRoutes(
@@ -149,7 +149,7 @@ extension RouterStorage {
         isCopyable: Bool,
         routes: [(StaticRoute, FunctionCallExprSyntax)],
         routePaths: inout [String],
-        routeResponders: inout [String]
+        routeResponders: inout [[LiteralRouteResponder]]
     ) -> StaticAppendedRoutes {
         appendStaticRoutes(
             context: context,
@@ -170,7 +170,7 @@ extension RouterStorage {
         data: borrowing SharedStaticRouteResponderData,
         routes: [(StaticRoute, FunctionCallExprSyntax)],
         routePaths: inout [String],
-        routeResponders: inout [String]
+        routeResponders: inout [[LiteralRouteResponder]]
     ) -> StaticAppendedRoutes {
         let getResponderValue:(RouterStorage.Route) -> String = {
             "// \($0.startLine)\nCompiledStaticResponderStorageRoute(\npath: \($0.buffer),\nresponder: \($0.responder)\n)"
@@ -193,9 +193,9 @@ extension RouterStorage {
         for (var route, function) in routes {
             let startLine = data.routeStartLine(route)
             #if StaticMiddleware
-            let httpResponse = route.response(context: context, function: function, routerStorage: self, middleware: staticMiddleware)
+            let httpResponses = route.responses(context: context, function: function, routerStorage: self, middleware: staticMiddleware)
             #else
-            let httpResponse = route.response(context: context, function: function)
+            let httpResponses = route.responses(context: context, function: function)
             #endif
             if true /*route.supportedCompressionAlgorithms.isEmpty*/ {
                 if let intermediateBody = route.body {
@@ -207,15 +207,35 @@ extension RouterStorage {
                     Router.routePathAlreadyRegistered(context: context, node: function, startLine)
                     continue
                 }
-                guard let responder = route.body?.responderDebugDescription(context: context, isCopyable: isCopyable, response: httpResponse) else {
-                    context.diagnose(.init(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
-                    continue
+
+                var respondersForRoute = [LiteralRouteResponder]()
+                for msg in httpResponses {
+                    guard let responder = msg.body?.responderDebugDescription(
+                        context: context,
+                        isCopyable: isCopyable,
+                        response: .init(head: msg.head, body: msg.body, contentType: msg.contentType, charset: msg.charset)
+                    ) else {
+                        continue
+                    }
+                    var vary = [IntermediateHTTPMessage.Vary:String]()
+                    if let varyHeader = msg.head.headers["vary"] {
+                        let varyValues = varyHeader.split(separator: ", ")
+                        if varyValues.contains("Accept-Encoding") {
+                            vary[.acceptEncoding] = msg.head.headers["content-encoding"] ?? "?"
+                        }
+                    }
+                    respondersForRoute.append(.init(vary: vary, string: responder))
                 }
-                registeredPaths.insert(startLine)
-                routePaths.append(startLine)
-                routeResponders.append(responder)
-                staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
-                appended.normal.append(route)
+
+                if !respondersForRoute.isEmpty {
+                    routeResponders.append(respondersForRoute)
+                    registeredPaths.insert(startLine)
+                    routePaths.append(startLine)
+                    staticRouteStorage.remove(isCaseSensitive: isCaseSensitive, path: route.path, function: function)
+                    appended.normal.append(route)
+                } else {
+                    context.diagnose(.init(node: function, message: DiagnosticMsg(id: "failedToGetResponderDebugDescriptionForResponseBody", message: "Failed to get responder debug description for response body; body=\(String(describing: route.body));function=\(function.debugDescription)", severity: .warning)))
+                }
             } else {
                 guard !registeredPaths.contains(startLine) else {
                     Router.routePathAlreadyRegistered(context: context, node: function, startLine)
@@ -248,7 +268,7 @@ extension RouterStorage {
         isCopyable: Bool,
         appended: inout StaticAppendedRoutes,
         routePaths: inout [String],
-        routeResponders: inout [String],
+        routeResponders: inout [[LiteralRouteResponder]],
         data: borrowing SharedStaticRouteResponderData,
         getResponderValue: (RouterStorage.Route) -> String
     ) {
@@ -273,7 +293,7 @@ extension RouterStorage {
                 type: .string(isNonCopyable: false, isStatic: true, withDateHeader: true, withCompressedBody: false),
                 .init(stringLiteral)
             ).responderDebugDescription(context: context, isCopyable: isCopyable, response: route.response())
-            routeResponders.append(responder)
+            routeResponders.append([.init(vary: [:], string: responder)])
             appended.redirects.append(redirect.0)
         }
         for i in removedRedirects.reversed() {

@@ -16,38 +16,42 @@ extension StaticRoute {
     ///   - function: `FunctionCallExprSyntax` that represents this route.
     ///   - middleware: Static middleware this route will handle.
     #if StaticMiddleware
-    public mutating func response(
+    public mutating func responses(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax,
         routerStorage: RouterStorage,
         middleware: [StaticMiddleware]
-    ) -> HTTPResponseMessage {
-        let result = response(routerStorage: routerStorage, middleware: middleware)
-        if result.statusCode() == 501 { // not implemented
-            Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
+    ) -> [IntermediateHTTPMessage] {
+        let results = responses(routerStorage: routerStorage, middleware: middleware)
+        for msg in results {
+            if msg.head.status == 501 { // not implemented
+                Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
+            }
         }
-        return result
+        return results
     }
     #else
-    public mutating func response(
+    public mutating func responses(
         context: some MacroExpansionContext,
         function: FunctionCallExprSyntax
     ) -> HTTPResponseMessage {
-        let result = response()
-        if result.statusCode() == 501 { // not implemented
-            Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
+        let results = responses()
+        for msg in results {
+            if msg.head.status == 501 { // not implemented
+                Diagnostic.routeResponseStatusNotImplemented(context: context, node: function.calledExpression)
+            }
         }
-        return result
+        return results
     }
     #endif
 }
 
 extension StaticRoute {
     #if StaticMiddleware
-        public mutating func response(
+        public mutating func responses(
             routerStorage: RouterStorage,
             middleware: [StaticMiddleware]
-        ) -> HTTPResponseMessage {
+        ) -> [IntermediateHTTPMessage] {
             var version = version
             let path = path.joined(separator: "/")
             var status = status
@@ -74,7 +78,7 @@ extension StaticRoute {
             headers["content-length"] = nil
 
             #if HTTPCookie
-            return Self.response(
+            return Self.responses(
                 routerStorage: routerStorage,
                 version: version,
                 status: status,
@@ -96,7 +100,7 @@ extension StaticRoute {
             #endif
         }
     #else
-        public mutating func response() -> HTTPResponseMessage {
+        public mutating func responses() -> HTTPResponseMessage {
             var headers = HTTPHeaders()
             if body?.hasDateHeader ?? false {
                 headers["date"] = HTTPDateFormat.placeholder
@@ -104,9 +108,9 @@ extension StaticRoute {
             headers["content-type"] = nil
             headers["content-length"] = nil
             #if HTTPCooke
-            return Self.response(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
+            return Self.responses(version: version, status: status, headers: &headers, cookies: [], body: body, contentType: contentType, charset: charset)
             #else
-            return Self.response(version: version, status: status, headers: &headers, body: body, contentType: contentType, charset: charset)
+            return Self.responses(version: version, status: status, headers: &headers, body: body, contentType: contentType, charset: charset)
             #endif
         }
     #endif
@@ -115,8 +119,7 @@ extension StaticRoute {
 // MARK: Static
 extension StaticRoute {
     #if HTTPCookie
-    @inline(__always)
-    package static func response(
+    package static func responses(
         routerStorage: RouterStorage,
 
         version: HTTPVersion,
@@ -126,9 +129,13 @@ extension StaticRoute {
         body: inout IntermediateResponseBody?,
         contentType: String?,
         charset: Charset?
-    ) -> HTTPResponseMessage {
+    ) -> [IntermediateHTTPMessage] {
         headers["content-type"] = nil
         headers["content-length"] = nil
+
+        var head = HTTPResponseMessageHead(headers: headers, cookies: cookies, status: status, version: version)
+        var messages = [IntermediateHTTPMessage]()
+        var varyCompression = [IntermediateHTTPMessage]()
 
         #if RouterSettings && Compression
         if body != nil, let contentType, routerStorage.settings.compression.isEnabled {
@@ -152,42 +159,58 @@ extension StaticRoute {
                     if routerStorage.settings.compression.compressOnlyIfResultIsSmaller, compressed.count >= body!.count {
                         continue
                     }
-                    headers["content-encoding"] = algorithm.acceptEncodingName
-                    headers["vary"] = "Accept-Encoding"
+                    head.headers["content-encoding"] = algorithm.acceptEncodingName
+                    head.headers["vary"] = "Accept-Encoding"
                     body!.rawValue = compressed
                     if case let .string(isNonCopyable, isStatic, withDateHeader, _) = body!.type {
                         body!.type = .string(isNonCopyable: isNonCopyable, isStatic: isStatic, withDateHeader: withDateHeader, withCompressedBody: true)
+                    }
+
+                    if !routerStorage.settings.compression.compressOnlyIfResultIsSmaller {
+                        varyCompression.append(.init(
+                            head: head,
+                            body: body,
+                            contentType: contentType,
+                            charset: charset,
+                            vary: [.acceptEncoding]
+                        ))
                     }
                 }
             }
         }
         #endif
 
-        return HTTPResponseMessage(
-            head: .init(headers: headers, cookies: cookies, status: status, version: version),
-            body: body,
-            contentType: contentType,
-            charset: charset
-        )
+        messages.append(contentsOf: varyCompression)
+        if messages.isEmpty {
+            messages.append(.init(
+                head: head,
+                body: body,
+                contentType: contentType,
+                charset: charset
+            ))
+        }
+
+        return messages
     }
     #else
-    @inline(__always)
-    package static func response(
+    package static func responses(
         version: HTTPVersion,
         status: HTTPResponseStatus.Code,
         headers: inout HTTPHeaders,
         body: IntermediateResponseBody?,
         contentType: String?,
         charset: Charset?
-    ) -> HTTPResponseMessage {
+    ) -> [HTTPResponseMessage] {
         headers["content-type"] = nil
         headers["content-length"] = nil
-        return HTTPResponseMessage(
-            head: .init(headers: headers, status: status, version: version),
-            body: body,
-            contentType: contentType,
-            charset: charset
-        )
+        return [
+            HTTPResponseMessage(
+                head: .init(headers: headers, status: status, version: version),
+                body: body,
+                contentType: contentType,
+                charset: charset
+            )
+        ]
     }
     #endif
 }

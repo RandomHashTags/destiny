@@ -38,7 +38,8 @@ package final class TestRouter {
             logging: true,
             visibility: .package,
             compression: .init(
-                enabled: false
+                enabled: true,
+                compressOnlyIfResultIsSmaller: false
             )
         ),
 
